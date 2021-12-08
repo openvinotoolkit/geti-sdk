@@ -1,0 +1,7 @@
+README.md
+setup.py
+sc_api_tools/__init__.py
+sc_api_tools.egg-info/PKG-INFO
+sc_api_tools.egg-info/SOURCES.txt
+sc_api_tools.egg-info/dependency_links.txt
+sc_api_tools.egg-info/top_level.txt
