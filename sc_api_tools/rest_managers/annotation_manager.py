@@ -2,7 +2,7 @@ import copy
 import json
 import os
 import time
-from typing import Dict, Sequence, Generic, TypeVar, List, Any
+from typing import Dict, Sequence, Generic, TypeVar, Any
 
 from sc_api_tools.annotation_readers.base_annotation_reader import AnnotationReader
 from sc_api_tools.http_session import SCSession
@@ -36,7 +36,14 @@ class AnnotationManager(Generic[AnnotationReaderType]):
         self._label_mapping = self._get_label_mapping(project)
         self._original_label_mapping = copy.deepcopy(self.label_mapping)
 
-    def _get_label_mapping(self, project: dict):
+    def _get_label_mapping(self, project: dict) -> Dict[str, str]:
+        """
+        Get the mapping of the label names to the label ids for the project
+
+        :param project:
+        :return: Dictionary containing the label names as keys and the label ids as
+            values
+        """
         source_label_names = self.annotation_reader.get_all_label_names()
         trainable_tasks = [
             task for task in project["pipeline"]["tasks"]
@@ -66,6 +73,13 @@ class AnnotationManager(Generic[AnnotationReaderType]):
         return self._label_mapping
 
     def upload_annotation_for_image(self, image_id: str):
+        """
+        Uploads a new annotation for the image with id `image_id` to the cluster. This
+        will overwrite any current annotations for the image.
+
+        :param image_id:
+        :return:
+        """
         annotation_data = self._read_and_convert_annotation_for_image_from_source(
             image_id=image_id
         )

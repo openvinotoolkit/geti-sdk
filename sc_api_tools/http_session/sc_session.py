@@ -1,13 +1,17 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 import requests
 import urllib3
 
 from dataclasses import dataclass
 
+from requests import Response
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 API_PATTERN = "/api/v1.0/"
+CSRF_COOKIE_NAME = "_oauth2_proxy_csrf"
+PROXY_COOKIE_NAME = "_oauth2_proxy"
 
 
 @dataclass
@@ -21,7 +25,7 @@ class ServerConfig:
     password: str
 
     @property
-    def base_url(self):
+    def base_url(self) -> str:
         """
         Returns the base UR for accessing the server
         """
@@ -29,14 +33,12 @@ class ServerConfig:
 
 
 class SCSession(requests.Session):
-    CSRF_NAME = "_oauth2_proxy_csrf"
-    PROXY_NAME = "_oauth2_proxy"
-
     def __init__(self, serverconfig: ServerConfig):
         """
-        Wrapper for requests.session that sets the correct headers.
+        Wrapper for requests.session that sets the correct headers and cookies.
 
-        :param serverconfig: ServerConfig with the parameters for host, username, password
+        :param serverconfig: ServerConfig with the parameters for host, username,
+            password
         """
         super().__init__()
         self.headers.update({"Connection": "keep-alive"})
@@ -45,7 +47,7 @@ class SCSession(requests.Session):
         self.allow_redirects = False
         self.token = None
         self._cookies: Dict[str, Optional[str]] = {
-            self.CSRF_NAME: None, self.PROXY_NAME: None
+            CSRF_COOKIE_NAME: None, PROXY_COOKIE_NAME: None
         }
 
         # Authentication is only used for https servers.
@@ -61,10 +63,10 @@ class SCSession(requests.Session):
         else:
             raise ValueError(
                 f"Please use a full hostname, including the protocol for http "
-                f"servers. For example: http://10.0.0.1:5001"
+                f"servers. For example: https://10.0.0.1"
             )
 
-    def _follow_login_redirects(self, response) -> str:
+    def _follow_login_redirects(self, response: Response) -> str:
         """
         Recursively follow redirects in the initial login request. Updates the
         session._cookies with the cookie and the login uri
@@ -75,9 +77,9 @@ class SCSession(requests.Session):
         if response.status_code in [302, 303]:
             redirect_url = response.next.url
             redirected = self.get(redirect_url, allow_redirects=False)
-            proxy_csrf = redirected.cookies.get(self.CSRF_NAME, None)
+            proxy_csrf = redirected.cookies.get(CSRF_COOKIE_NAME, None)
             if proxy_csrf:
-                self._cookies[self.CSRF_NAME] = proxy_csrf
+                self._cookies[CSRF_COOKIE_NAME] = proxy_csrf
             return self._follow_login_redirects(redirected)
         else:
             return response.url
@@ -103,16 +105,20 @@ class SCSession(requests.Session):
         response = self.post(
             url=login_path,
             data={"login": self.config.username, "password": self.config.password},
-            cookies={self.CSRF_NAME: self._cookies[self.CSRF_NAME]},
-            headers={"Cookie": self._cookies[self.CSRF_NAME]},
+            cookies={CSRF_COOKIE_NAME: self._cookies[CSRF_COOKIE_NAME]},
+            headers={"Cookie": self._cookies[CSRF_COOKIE_NAME]},
             allow_redirects=True,
             )
         previous_response = response.history[-1]
-        cookie = {self.PROXY_NAME: previous_response.cookies.get(self.PROXY_NAME)}
+        cookie = {
+            PROXY_COOKIE_NAME: previous_response.cookies.get(PROXY_COOKIE_NAME)
+        }
         self._cookies.update(cookie)
         print("Authentication cookie received.")
 
-    def get_rest_response(self, url: str, method: str, contenttype: str = "json", data=None):
+    def get_rest_response(
+            self, url: str, method: str, contenttype: str = "json", data=None
+    ) -> Union[Response, dict]:
         """
         Returns the REST response from a request to `url` with `method`
 
@@ -149,22 +155,9 @@ class SCSession(requests.Session):
             )
 
         if response.status_code not in [200, 201]:
-            print(f"Request for {method} {url} failed")
-            print(response.request.headers)
             raise ValueError(url, response.json())
 
         if contenttype == "json":
             return response.json()
         else:
             return response
-
-
-if __name__ == "__main__":
-    config = ServerConfig(
-        host="https://10.55.252.51",
-        username="admin@sc-project.intel.com",
-        password="admin"
-    )
-    session = SCSession(serverconfig=config)
-    workspaces = session.get_rest_response(url="/workspaces", method="GET")
-    print(workspaces)
