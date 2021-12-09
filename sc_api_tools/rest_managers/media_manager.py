@@ -18,12 +18,6 @@ class MediaManager:
         self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/datasets/" \
                         f"{dataset_id}/media"
 
-    def get_all_media(self):
-        return self.session.get_rest_response(
-            url=self.base_url,
-            method="GET"
-        )
-
     def get_all_images(self) -> Dict[str, str]:
         """
         Get the ID's and filenames of all images in the project

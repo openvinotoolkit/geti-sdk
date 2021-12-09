@@ -1,7 +1,6 @@
 from typing import Dict, Optional
 
 import requests
-import base64
 import urllib3
 
 from dataclasses import dataclass
@@ -27,15 +26,6 @@ class ServerConfig:
         Returns the base UR for accessing the server
         """
         return f"{self.host}{API_PATTERN}"
-
-    @property
-    def encoded_password(self):
-        """
-        Returns the base64 encoded password
-        """
-        password_bytes = self.password.encode('ascii')
-        b64_bytes = base64.b64encode(password_bytes)
-        return b64_bytes.decode('ascii')
 
 
 class SCSession(requests.Session):

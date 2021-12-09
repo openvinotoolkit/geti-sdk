@@ -1,4 +1,7 @@
 import copy
+import json
+import os
+import time
 from typing import Dict, Sequence, Generic, TypeVar, List, Any
 
 from sc_api_tools.annotation_readers.base_annotation_reader import AnnotationReader
@@ -76,11 +79,20 @@ class AnnotationManager(Generic[AnnotationReaderType]):
             response = {}
         return response
 
-    def append_annotation_for_image(self, image_id: str):
-        existing_annotation = self.session.get_rest_response(
+    def get_latest_annotation_for_image(self, image_id: str) -> Dict[str, Any]:
+        """
+        Retrieve the latest annotation for an image with id `image_id` from the cluster
+
+        :param image_id: ID of the image to retrieve the annotation for
+        :return:
+        """
+        return self.session.get_rest_response(
             url=f"{self.base_url}/images/{image_id}/annotations/latest",
             method="GET"
         )
+
+    def append_annotation_for_image(self, image_id: str):
+        existing_annotation = self.get_latest_annotation_for_image(image_id)
         new_annotation_data = self._read_and_convert_annotation_for_image_from_source(
             image_id=image_id
         )
@@ -141,3 +153,64 @@ class AnnotationManager(Generic[AnnotationReaderType]):
         else:
             print(
                 "No new annotations were found.")
+
+    def download_and_save_annotations_for_images(
+            self, image_id_list: Sequence[str], path_to_target_folder: str
+    ) -> None:
+        """
+        Donwnloads annotations from the server to a target folder on disk
+
+        :param image_id_list:
+        :param path_to_target_folder:
+        """
+        print(
+            f"Starting annotation download... saving to folder {path_to_target_folder}"
+        )
+        if not os.path.exists(path_to_target_folder):
+            os.makedirs(path_to_target_folder)
+        t_start = time.time()
+        download_count = 0
+        skip_count = 0
+        for image_id in image_id_list:
+            image_name = self.id_to_image_name_mapping[image_id]
+            try:
+                annotation_data = self.get_latest_annotation_for_image(image_id)
+            except ValueError:
+                print(
+                    f"Unable to retrieve latest annotation for image {image_name}. "
+                    f"Skipping this image"
+                )
+                skip_count += 1
+                continue
+
+            kind = annotation_data.pop("kind", None)
+            if kind != "annotation":
+                print(
+                    f"Received invalid annotation of kind {kind} for image{image_name}"
+                )
+                skip_count += 1
+                continue
+            annotation_data.pop("modified", None)
+            annotation_data.pop("media_identifier", None)
+            annotation_data.pop("id", None)
+            export_data = copy.deepcopy(annotation_data)
+            for annotation in export_data["annotations"]:
+                annotation.pop("id", None)
+                annotation.pop("modified", None)
+                for label in annotation["labels"]:
+                    label.pop("id")
+
+            image_path = os.path.join(path_to_target_folder, image_name+'.json')
+            with open(image_path, 'w') as f:
+                json.dump(export_data, f)
+            download_count += 1
+        t_elapsed = time.time() - t_start
+        if download_count > 0:
+            msg = f"Downloaded {download_count} annotations to foler " \
+                  f"{path_to_target_folder} in {t_elapsed:.1f} seconds."
+        else:
+            msg = f"No annotations were donwloaded."
+        if skip_count > 0:
+            msg = msg + f" Was unable to retrieve annotations for {skip_count} " \
+                        f"images, these images were skipped."
+        print(msg)

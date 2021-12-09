@@ -1,9 +1,11 @@
 # SC REST API tools 
 ## Introduction
-This package contains some helpful tools to interact with the SC REST API. It provides 
-functionality for uploading media, annotations and set some basic project configurable 
-parameters. Three minimal example scripts to create projects based on the COCO dataset 
-in various configurations are provided:
+This package contains some helpful tools to interact with a Sonoma Creek cluster via 
+the SC REST API. It provides functionality for uploading media, annotations and set 
+some basic project configurable parameters. 
+
+Three example scripts to create projects based on the COCO dataset in various 
+configurations are provided:
 - create_coco_project_detection.py -> Converts the coco annotations for the "dog" class 
   to bounding boxes, and creates a detection project with coco images containing dogs
     
