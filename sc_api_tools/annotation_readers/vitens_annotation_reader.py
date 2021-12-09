@@ -40,18 +40,6 @@ class VitensAnnotationReader(AnnotationReader):
         name_separator = '_'
         return filename.split(name_separator)[0], name_separator
 
-    def prepare_and_set_dataset(self, task_type: str):
-        """
-        Prepares the dataset for a certain task type
-
-        :param task_type: "detection" or "segmentation"
-        :return:
-        """
-        if task_type in ["detection", "segmentation"]:
-            self.task_type = task_type
-        else:
-            raise ValueError(f"Unsupported task_type {task_type}")
-
     def get_new_shape(self, x, y, radius) -> dict:
         if self.task_type == "segmentation":
             new_shape = {

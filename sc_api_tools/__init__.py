@@ -1,4 +1,8 @@
-from .annotation_readers import VitensAnnotationReader, DatumAnnotationReader
+from .annotation_readers import (
+    VitensAnnotationReader,
+    DatumAnnotationReader,
+    SCAnnotationReader
+)
 from .http_session import SCSession, ServerConfig
 from .rest_managers import (
     ProjectManager,
@@ -21,6 +25,7 @@ __all__ = [
     "AnnotationManager",
     "DatumAnnotationReader",
     "VitensAnnotationReader",
+    "SCAnnotationReader",
     "get_default_workspace_id",
     "utils"
 ]

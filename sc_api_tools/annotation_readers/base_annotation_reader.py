@@ -35,10 +35,18 @@ class AnnotationReader:
         """
         raise NotImplementedError
 
-    @abstractmethod
     def prepare_and_set_dataset(self, task_type: str):
         """
         Prepares a dataset for uploading annotations for a certain task_type
         :return:
         """
-        raise NotImplementedError
+        """
+        Prepares the dataset for a certain task type
+
+        :param task_type: "detection" or "segmentation"
+        :return:
+        """
+        if task_type in ["detection", "segmentation"]:
+            self.task_type = task_type
+        else:
+            raise ValueError(f"Unsupported task_type {task_type}")

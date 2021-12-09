@@ -92,10 +92,17 @@ class AnnotationManager(Generic[AnnotationReaderType]):
         )
 
     def append_annotation_for_image(self, image_id: str):
-        existing_annotation = self.get_latest_annotation_for_image(image_id)
         new_annotation_data = self._read_and_convert_annotation_for_image_from_source(
             image_id=image_id
         )
+        try:
+            existing_annotation = self.get_latest_annotation_for_image(image_id)
+        except ValueError:
+            print(f"No existing annotation found for image with id {image_id}")
+            existing_annotation = {
+                "annotations": [],
+                "media_identifier": {"type": "image", "image_id": image_id}
+            }
         annotation_data = existing_annotation["annotations"]
         for annotation in annotation_data:
             keys = copy.deepcopy(list(annotation.keys()))
