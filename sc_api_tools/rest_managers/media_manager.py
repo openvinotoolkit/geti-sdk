@@ -17,6 +17,7 @@ class MediaManager:
         dataset_id = project["datasets"][0]["id"]
         self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/datasets/" \
                         f"{dataset_id}/media"
+        self._project_name = project["name"]
 
     def get_all_images(self) -> Dict[str, str]:
         """
@@ -30,18 +31,18 @@ class MediaManager:
             method="GET"
         )
         total_number_of_images: int = response["media_count"]["images"]
-        id_to_name_mapping: Dict[str, str] = {}
-        while len(id_to_name_mapping) < total_number_of_images:
+        name_to_id_mapping: Dict[str, str] = {}
+        while len(name_to_id_mapping) < total_number_of_images:
             for image in response["media"]:
                 id_ = image["id"]
                 filename = image["name"]
-                id_to_name_mapping.update({id_: filename})
+                name_to_id_mapping.update({filename: id_})
             if "next_page" in response.keys():
                 response = self.session.get_rest_response(
                     url=response["next_page"],
                     method="GET"
                 )
-        return id_to_name_mapping
+        return name_to_id_mapping
 
     def upload_image(self, filepath_to_image: str) -> str:
         """
@@ -72,15 +73,14 @@ class MediaManager:
         """
         filename_id_mapping: Dict[str, str] = {}
         images_in_project = self.get_all_images()
-        image_name_to_id = {name: id_ for id_, name in images_in_project.items()}
         upload_count = 0
         skip_count = 0
         print("Starting image upload...")
         t_start = time.time()
         for image_filepath in image_filepaths:
             image_name, image_ext = os.path.splitext(os.path.basename(image_filepath))
-            if image_name in images_in_project.values():
-                filename_id_mapping.update({image_name: image_name_to_id[image_name]})
+            if image_name in images_in_project.keys():
+                filename_id_mapping.update({image_name: images_in_project[image_name]})
                 skip_count += 1
                 continue
             image_id = self.upload_image(filepath_to_image=image_filepath)
@@ -163,3 +163,45 @@ class MediaManager:
                 )
             image_filepaths.append(matches[0])
         return self.__upload_loop(image_filepaths=image_filepaths)
+
+    def download_all_images(self, path_to_folder: str) -> None:
+        """
+        Download all images in a project to a folder on the local disk.
+
+        :param path_to_folder: path to the folder in which the images should be saved
+        :return:
+        """
+        image_id_mapping = self.get_all_images()
+        path_to_image_folder = os.path.join(path_to_folder, "images")
+        if not os.path.exists(path_to_image_folder):
+            os.makedirs(path_to_image_folder)
+        print(
+            f"Downloading {len(image_id_mapping)} images from project "
+            f"'{self._project_name}' to folder {path_to_image_folder}..."
+        )
+        t_start = time.time()
+        download_count = 0
+        existing_count = 0
+        for image_filename, image_id in image_id_mapping.items():
+            image_filepath = os.path.join(path_to_image_folder, image_filename+".jpg")
+            if os.path.exists(image_filepath) and os.path.isfile(image_filepath):
+                existing_count += 1
+                continue
+            response = self.session.get_rest_response(
+                url=f"{self.base_url}/images/{image_id}/display/full",
+                method="GET",
+                contenttype="jpeg"
+            )
+            with open(image_filepath, 'wb') as f:
+                f.write(response.content)
+            download_count += 1
+        t_elapsed = time.time() - t_start
+        if download_count > 0:
+            msg = f"Downloaded {download_count} images in {t_elapsed:.1f} seconds."
+        else:
+            msg = "No images were downloaded."
+        if existing_count > 0:
+            msg += f" {existing_count} existing images were found in the target " \
+                   f"folder, download was skipped for these images."
+        print(msg)
+

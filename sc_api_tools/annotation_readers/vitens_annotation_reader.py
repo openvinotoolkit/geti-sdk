@@ -101,8 +101,6 @@ class VitensAnnotationReader(AnnotationReader):
             )
         return shape
 
-
-
     def get_data(self, filename: str, label_name_to_id_mapping: dict):
         annotation_filename, separator_token = self._convert_filename(filename)
         annotation_files = [

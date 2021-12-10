@@ -2,7 +2,8 @@ import copy
 import json
 import os
 import time
-from typing import Dict, Sequence, Generic, TypeVar, Any
+import warnings
+from typing import Dict, Sequence, Generic, TypeVar, Any, List, Optional
 
 from sc_api_tools.annotation_readers.base_annotation_reader import AnnotationReader
 from sc_api_tools.http_session import SCSession
@@ -21,20 +22,26 @@ class AnnotationManager(Generic[AnnotationReaderType]):
             workspace_id: str,
             project: dict,
             image_to_id_mapping: Dict[str, str],
-            annotation_reader: AnnotationReaderType
+            annotation_reader: Optional[AnnotationReaderType] = None
     ):
         self.session = session
         project_id = project["id"]
         dataset_id = project["datasets"][0]["id"]
         self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/datasets/" \
                         f"{dataset_id}/media"
-        self.id_to_image_name_mapping = {
+        self.image_id_to_name_mapping = {
             id_: name for name, id_ in image_to_id_mapping.items()
         }
         self.annotation_reader = annotation_reader
-
-        self._label_mapping = self._get_label_mapping(project)
-        self._original_label_mapping = copy.deepcopy(self.label_mapping)
+        if annotation_reader is None:
+            warnings.warn(
+                "You did not specify an annotation reader for the annotation manager, "
+                "this means it can only be used for annotation downloading, but not "
+                "for uploading."
+            )
+        else:
+            self._label_mapping = self._get_label_mapping(project)
+            self._original_label_mapping = copy.deepcopy(self.label_mapping)
 
     def _get_label_mapping(self, project: dict) -> Dict[str, str]:
         """
@@ -70,7 +77,13 @@ class AnnotationManager(Generic[AnnotationReaderType]):
 
         :return:
         """
-        return self._label_mapping
+        if self.annotation_reader is not None:
+            return self._label_mapping
+        else:
+            raise ValueError(
+                "Unable to get label mapping for this annotation manager, no "
+                "annotation reader has been defined."
+            )
 
     def upload_annotation_for_image(self, image_id: str):
         """
@@ -136,7 +149,7 @@ class AnnotationManager(Generic[AnnotationReaderType]):
         return response
 
     def _read_and_convert_annotation_for_image_from_source(self, image_id: str):
-        image_name = self.id_to_image_name_mapping[image_id]
+        image_name = self.image_id_to_name_mapping[image_id]
         annotation_list = self.annotation_reader.get_data(
             filename=image_name, label_name_to_id_mapping=self.label_mapping
         )
@@ -175,34 +188,36 @@ class AnnotationManager(Generic[AnnotationReaderType]):
             print(
                 "No new annotations were found.")
 
-    def download_and_save_annotations_for_images(
-            self, image_id_list: Sequence[str], path_to_target_folder: str
+    def download_annotations_for_images(
+            self, image_ids: List[str], path_to_folder: str
     ) -> None:
         """
         Donwnloads annotations from the server to a target folder on disk
 
-        :param image_id_list:
-        :param path_to_target_folder:
+        :param image_ids: List of ids of images for which to download the annotations
+        :param path_to_folder: Folder to save the annotations to
         """
+        path_to_annotations_folder = os.path.join(path_to_folder, "annotations")
+        if not os.path.exists(path_to_annotations_folder):
+            os.makedirs(path_to_annotations_folder)
         print(
-            f"Starting annotation download... saving to folder {path_to_target_folder}"
+            f"Starting annotation download... saving annotations for "
+            f"{len(image_ids)} to folder {path_to_annotations_folder}"
         )
-        if not os.path.exists(path_to_target_folder):
-            os.makedirs(path_to_target_folder)
         t_start = time.time()
         download_count = 0
         skip_count = 0
-        for image_id in image_id_list:
-            image_name = self.id_to_image_name_mapping[image_id]
-            try:
-                annotation_data = self.get_latest_annotation_for_image(image_id)
-            except ValueError:
-                print(
-                    f"Unable to retrieve latest annotation for image {image_name}. "
-                    f"Skipping this image"
-                )
-                skip_count += 1
-                continue
+        for image_id in image_ids:
+            image_name = self.image_id_to_name_mapping[image_id]
+            # try:
+            annotation_data = self.get_latest_annotation_for_image(image_id)
+            # except ValueError:
+            #     print(
+            #         f"Unable to retrieve latest annotation for image {image_name}. "
+            #         f"Skipping this image"
+            #     )
+            #     skip_count += 1
+            #     continue
 
             kind = annotation_data.pop("kind", None)
             if kind != "annotation":
@@ -221,17 +236,30 @@ class AnnotationManager(Generic[AnnotationReaderType]):
                 for label in annotation["labels"]:
                     label.pop("id")
 
-            image_path = os.path.join(path_to_target_folder, image_name+'.json')
-            with open(image_path, 'w') as f:
+            annotation_path = os.path.join(
+                path_to_annotations_folder, image_name + '.json'
+            )
+            with open(annotation_path, 'w') as f:
                 json.dump(export_data, f)
             download_count += 1
         t_elapsed = time.time() - t_start
         if download_count > 0:
             msg = f"Downloaded {download_count} annotations to foler " \
-                  f"{path_to_target_folder} in {t_elapsed:.1f} seconds."
+                  f"{path_to_folder} in {t_elapsed:.1f} seconds."
         else:
-            msg = f"No annotations were donwloaded."
+            msg = f"No annotations were downloaded."
         if skip_count > 0:
             msg = msg + f" Was unable to retrieve annotations for {skip_count} " \
                         f"images, these images were skipped."
         print(msg)
+
+    def download_all_annotations(self, path_to_folder: str) -> None:
+        """
+        Donwnloads all annotations for the project to a target folder on disk
+
+        :param path_to_folder: Folder to save the annotations to
+        """
+        image_ids = list(self.image_id_to_name_mapping.keys())
+        self.download_annotations_for_images(
+            image_ids=image_ids, path_to_folder=path_to_folder
+        )

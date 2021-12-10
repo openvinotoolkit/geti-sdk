@@ -1,7 +1,11 @@
 import copy
-from typing import Optional, List, Dict
+import json
+import os
+from typing import Optional, List, Dict, Any, Union
 
 from sc_api_tools.http_session import SCSession
+
+NON_TRAINABLE_TASK_TYPES = ["dataset", "crop"]
 
 
 class ProjectManager:
@@ -138,6 +142,90 @@ class ProjectManager:
             )
             print("Project created successfully.")
         return project
+
+    @staticmethod
+    def _get_project_parameters(
+            project: Dict[str, Any]
+    ) -> Dict[str, Union[str, List[str]]]:
+        """
+        Gets the parameters that can be used to create the project with the
+        `ProjectManager.get_or_create_project` method, from a dictionary description
+        of that project returned by the SC cluster.
+
+        :param project: Dictionary containing information about a project, returned
+            from the project REST endpoint
+        :return: Dictionary containing the parameters to re-create the project, using
+            the `ProjectManager.get_or_create_project` method
+        """
+        project_name = project.get("name", None)
+        pipeline = project.get("pipeline", None)
+        if project_name is None or pipeline is None:
+            raise ValueError(
+                "Unexpected input format. Expected a dictionary with project info "
+                "returned by the SC /projects endpoint."
+            )
+        tasks = pipeline.get("tasks", None)
+        if tasks is None:
+            raise ValueError("No tasks found in pipeline, unable to process input.")
+        trainable_tasks = [
+            task for task in tasks if task["task_type"] not in NON_TRAINABLE_TASK_TYPES
+        ]
+        if len(trainable_tasks) > 2:
+            raise ValueError(
+                "Project contains more than 2 trainable tasks, this is not supported "
+                "by the ProjectManager at the moment"
+            )
+        task_types = [task["task_type"] for task in trainable_tasks]
+        if len(task_types) == 1:
+            project_type = task_types[0]
+        else:
+            project_type = f"{task_types[0]}_to_{task_types[1]}"
+
+        task_labels = [task["labels"] for task in trainable_tasks]
+        label_names_task_one = [
+            label["name"] for label in task_labels[0] if not label["is_empty"]
+        ]
+        label_names_task_two = [
+            label["name"] for label in task_labels[1] if not label["is_empty"]
+        ]
+
+        return {
+            "project_name": project_name,
+            "project_type": project_type,
+            "label_names_task_one": label_names_task_one,
+            "label_names_task_two": label_names_task_two
+        }
+
+    def download_project_parameters(
+            self, project_name: str, path_to_folder: str
+    ) -> None:
+        """
+        For a project on the SC cluster with name `project_name`, this method gets the
+        parameters that can be used to create a project with the
+        `ProjectManager.get_or_create_project` method. The parameters are retrieved
+        from the cluster and saved in the target folder `path_to_folder`.
+
+        :param project_name: Name of the project to retrieve the parameters for
+        :param path_to_folder: Target folder to save the project parameters to.
+            Parameters will be saved as a .json file named "project_info.json"
+        :raises ValueError: If the project with `project_name` is not found on the
+            cluster
+        """
+        project = self.get_project_by_name(project_name)
+        if project is None:
+            raise ValueError(
+                f"Project with name {project_name} was not found on the cluster."
+            )
+        parameters = self._get_project_parameters(project=project)
+        if not os.path.exists(path_to_folder):
+            os.makedirs(path_to_folder)
+        project_config_path = os.path.join(path_to_folder, "project_info.json")
+        with open(project_config_path, 'w') as file:
+            json.dump(parameters, file)
+        print(
+            f"Project parameters for project '{project_name}' were saved to file "
+            f"{project_config_path}."
+        )
 
     def add_task(
             self, project_template: dict, task_type: str, labels: List[str]
