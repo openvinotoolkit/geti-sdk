@@ -109,7 +109,13 @@ class SCSession(requests.Session):
             headers={"Cookie": self._cookies[CSRF_COOKIE_NAME]},
             allow_redirects=True,
             )
-        previous_response = response.history[-1]
+        try:
+            previous_response = response.history[-1]
+        except IndexError:
+            raise ValueError(
+                "The cluster responded to the request, but authentication failed. "
+                "Please verify that you have provided correct credentials."
+            )
         cookie = {
             PROXY_COOKIE_NAME: previous_response.cookies.get(PROXY_COOKIE_NAME)
         }

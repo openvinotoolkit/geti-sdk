@@ -1,7 +1,7 @@
 import glob
 import json
 import os
-from typing import Tuple
+from typing import Tuple, List, Dict, Any
 
 from .base_annotation_reader import AnnotationReader
 
@@ -40,7 +40,15 @@ class VitensAnnotationReader(AnnotationReader):
         name_separator = '_'
         return filename.split(name_separator)[0], name_separator
 
-    def get_new_shape(self, x, y, radius) -> dict:
+    def _get_new_shape(self, x: float, y: float, radius: float) -> dict:
+        """
+        Converts a NOUS point shape into SC shape format, for the appropriate task type.
+
+        :param x: x coordinate of the point
+        :param y: y coordinate of the point
+        :param radius: radius of the point
+        :return: dictionary containing the new SC shape data
+        """
         if self.task_type == "segmentation":
             new_shape = {
                 "type": "ELLIPSE",
@@ -62,6 +70,38 @@ class VitensAnnotationReader(AnnotationReader):
                 f"Unsupported task type set in annotation reader: {self.task_type}"
             )
         return new_shape
+
+    def _get_new_polygon(self, points: List[Dict[str, float]]) -> Dict[str, Any]:
+        """
+        Converts a NOUS polygon shape into SC shape format, for the appropriate task
+        type.
+
+        :param points: List of points making up the NOUS polygon
+        :return: dictionary containing the new SC shape data
+        """
+        if self.task_type == "segmentation":
+            shape = {"type": "POLYGON", "points": points}
+        elif self.task_type == "detection":
+            shape = {"type": "RECTANGLE"}
+            x_coordinates = [point["x"] for point in points]
+            y_coordinates = [point["y"] for point in points]
+            x_min, x_max = min(x_coordinates), max(x_coordinates)
+            y_min, y_max = min(y_coordinates), max(y_coordinates)
+            shape.update(
+                {
+                    "x": x_min,
+                    "y": y_min,
+                    "width": x_max - x_min,
+                    "height": y_max - y_min
+                }
+            )
+        else:
+            raise ValueError(
+                f"Unsupported task type set in annotation reader: {self.task_type}"
+            )
+        return shape
+
+
 
     def get_data(self, filename: str, label_name_to_id_mapping: dict):
         annotation_filename, separator_token = self._convert_filename(filename)
@@ -95,8 +135,11 @@ class VitensAnnotationReader(AnnotationReader):
                     geometry = shapes[0]["geometry"]["points"][0]
                     radius = geometry["r"]
                     x, y = geometry["x"], geometry["y"]
-                    new_shape = self.get_new_shape(x=x, y=y, radius=radius)
-
+                    new_shape = self._get_new_shape(x=x, y=y, radius=radius)
+                elif shapes[0]["type"] == "polygon":
+                    new_shape = self._get_new_polygon(
+                        points=shapes[0]["geometry"]["points"]
+                    )
                 else:
                     raise ValueError(
                         f"Unsupported shape of type {shapes[0]['type']} found in "
