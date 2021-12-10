@@ -33,15 +33,18 @@ class AnnotationManager(Generic[AnnotationReaderType]):
             id_: name for name, id_ in image_to_id_mapping.items()
         }
         self.annotation_reader = annotation_reader
+        self._project = project
         if annotation_reader is None:
             warnings.warn(
                 "You did not specify an annotation reader for the annotation manager, "
                 "this means it can only be used for annotation downloading, but not "
                 "for uploading."
             )
+            label_mapping = None
         else:
-            self._label_mapping = self._get_label_mapping(project)
-            self._original_label_mapping = copy.deepcopy(self.label_mapping)
+            label_mapping = self._get_label_mapping(project)
+        self._label_mapping = label_mapping
+        self._original_label_mapping = copy.deepcopy(self._label_mapping)
 
     def _get_label_mapping(self, project: dict) -> Dict[str, str]:
         """
@@ -78,7 +81,11 @@ class AnnotationManager(Generic[AnnotationReaderType]):
         :return:
         """
         if self.annotation_reader is not None:
-            return self._label_mapping
+            if self._label_mapping is not None:
+                return self._label_mapping
+            else:
+                self._label_mapping = self._get_label_mapping(self._project)
+                self._original_label_mapping = copy.deepcopy(self._label_mapping)
         else:
             raise ValueError(
                 "Unable to get label mapping for this annotation manager, no "

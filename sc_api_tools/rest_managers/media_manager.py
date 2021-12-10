@@ -69,7 +69,8 @@ class MediaManager:
         :param image_filepaths: List of full filepaths for images that should be
             uploaded
         :return: Dictionary containing a mapping between the ID's of the images and
-            their filenames (excluding extensions)
+            their filenames (excluding extensions) NOTE: Filenames are used as keys,
+            ID's as values
         """
         filename_id_mapping: Dict[str, str] = {}
         images_in_project = self.get_all_images()
@@ -110,7 +111,8 @@ class MediaManager:
         :param path_to_folder: Folder with images to upload
         :param n_images: Number of images to upload from folder
         :return: Dictionary containing a mapping between the ID's of the images and
-            their filenames (excluding extensions)
+            their filenames (excluding extensions). NOTE: Filenames are used as keys,
+            ID's as values
         """
         filenames = os.listdir(path_to_folder)
         n_files = len(filenames)
@@ -141,7 +143,9 @@ class MediaManager:
             included in the name, for each image in the image_names list. Defaults to
             False
         :param n_images: Number of images to upload from the list
-        :return:
+        :return: Dictionary containing a mapping between the ID's of the images and
+            their filenames (excluding extensions). NOTE: Filenames are used as keys,
+            ID's as values
         """
         image_filepaths: List[str] = []
         if n_images > len(image_names) or n_images == -1:

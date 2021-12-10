@@ -63,6 +63,29 @@ class ProjectManager:
         else:
             return project
 
+    def get_label_names_per_task(
+            self, project: Dict[str, Any]
+    ) -> List[Dict[str, List[str]]]:
+        """
+        Retrieves the label names per task in the project
+
+        :param project: Dictionary containing project info as returned by the SC
+            clusters' /projects endpoint
+        :return: List of dictionaries, mapping the task type for each task to its
+            label names. Each dictionary represents one task in the pipeline. The
+            list is ordered.
+        """
+        project_info = self.get_project_parameters(project)
+        task_types = self.get_task_types_by_project_type(project_info["project_type"])
+        label_names = [
+            project_info["label_names_task_one"], project_info["label_names_task_two"]
+        ]
+        label_names_per_task: List[Dict[str, List[str]]] = []
+        for index, task_type in enumerate(task_types):
+            label_names_per_task.append({task_type: label_names[index]})
+        return label_names_per_task
+
+
     @classmethod
     def get_task_types_by_project_type(cls, project_type: str) -> List[str]:
         if project_type not in cls.SUPPORTED_TYPES:
@@ -144,7 +167,7 @@ class ProjectManager:
         return project
 
     @staticmethod
-    def _get_project_parameters(
+    def get_project_parameters(
             project: Dict[str, Any]
     ) -> Dict[str, Union[str, List[str]]]:
         """
@@ -216,7 +239,7 @@ class ProjectManager:
             raise ValueError(
                 f"Project with name {project_name} was not found on the cluster."
             )
-        parameters = self._get_project_parameters(project=project)
+        parameters = self.get_project_parameters(project=project)
         if not os.path.exists(path_to_folder):
             os.makedirs(path_to_folder)
         project_config_path = os.path.join(path_to_folder, "project_info.json")
@@ -257,3 +280,25 @@ class ProjectManager:
         connections = new_template["pipeline"]["connections"]
         connections.append({"from": from_task, "to": to_task})
         return new_template
+
+    def create_project_from_folder(self, path_to_folder: str) -> Dict[str, Any]:
+        """
+        Looks for a `project_info.json` file in the folder at `path_to_folder`, and
+        creates a project using the parameters provided in this file
+
+        :param path_to_folder: Folder holding the project data
+        :return: dictionary containing the project data as returned by the cluster
+        """
+        path_to_parameters = os.path.join(path_to_folder, "project_info.json")
+        if not os.path.isfile(path_to_parameters):
+            raise ValueError(
+                f"Unable to find project configuration file at {path_to_parameters}. "
+                f"Please provide a valid path to the folder holding the project data."
+            )
+        with open(path_to_parameters, 'r') as file:
+            project_data = json.load(file)
+        print(
+            f"Creating project '{project_data['project_name']}' from parameters in "
+            f"configuration file at {path_to_parameters}."
+        )
+        return self.get_or_create_project(**project_data)
