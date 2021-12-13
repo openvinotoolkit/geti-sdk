@@ -6,11 +6,10 @@ from sc_api_tools import (
     MediaManager,
     ProjectManager,
     SCSession,
-    ServerConfig,
+    ClusterConfig,
     SCAnnotationReader,
     get_default_workspace_id
 )
-
 
 if __name__ == "__main__":
 
@@ -18,9 +17,9 @@ if __name__ == "__main__":
     # Configuration section
     # --------------------------------------------------
     # Server configuration
-    SERVER_IP = "https://0.0.0.0"
-    SERVER_USERNAME = "dummy_username"
-    SERVER_PASSWORD = "dummy_password"
+    CLUSTER_HOST = "https://0.0.0.0"
+    CLUSTER_USERNAME = "dummy_username"
+    CLUSTER_PASSWORD = "dummy_password"
 
     # Path to the folder containing the (previously downloaded) project data. This
     # folder should contain:
@@ -38,12 +37,12 @@ if __name__ == "__main__":
     # --------------------------------------------------
 
     # Initialize http session
-    config = ServerConfig(
-        host=SERVER_IP,
-        username=SERVER_USERNAME,
-        password=SERVER_PASSWORD
+    config = ClusterConfig(
+        host=CLUSTER_HOST,
+        username=CLUSTER_USERNAME,
+        password=CLUSTER_PASSWORD
     )
-    session = SCSession(serverconfig=config)
+    session = SCSession(config)
 
     # Get project and workspace
     workspace_id = get_default_workspace_id(session)

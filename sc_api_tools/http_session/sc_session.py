@@ -3,46 +3,28 @@ from typing import Dict, Optional, Union
 import requests
 import urllib3
 
-from dataclasses import dataclass
-
 from requests import Response
+
+from sc_api_tools.http_session import ClusterConfig
+from sc_api_tools.http_session.cluster_config import API_PATTERN
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-API_PATTERN = "/api/v1.0/"
 CSRF_COOKIE_NAME = "_oauth2_proxy_csrf"
 PROXY_COOKIE_NAME = "_oauth2_proxy"
 
 
-@dataclass
-class ServerConfig:
-    """
-    Configuration for requests sessions, with host, username and password.
-    """
-
-    host: str
-    username: str
-    password: str
-
-    @property
-    def base_url(self) -> str:
-        """
-        Returns the base UR for accessing the server
-        """
-        return f"{self.host}{API_PATTERN}"
-
-
 class SCSession(requests.Session):
-    def __init__(self, serverconfig: ServerConfig):
+    def __init__(self, cluster_config: ClusterConfig):
         """
         Wrapper for requests.session that sets the correct headers and cookies.
 
-        :param serverconfig: ServerConfig with the parameters for host, username,
+        :param cluster_config: ClusterConfig with the parameters for host, username,
             password
         """
         super().__init__()
         self.headers.update({"Connection": "keep-alive"})
-        self.config = serverconfig
+        self.config = cluster_config
         self.verify = False
         self.allow_redirects = False
         self.token = None
@@ -51,11 +33,11 @@ class SCSession(requests.Session):
         }
 
         # Authentication is only used for https servers.
-        if "https" in serverconfig.host:
+        if "https" in cluster_config.host:
             self.authenticate()
-        elif "http:" in serverconfig.host:
+        elif "http:" in cluster_config.host:
             # http hosts should include port number in REST request
-            if serverconfig.host.count(":") != 2:
+            if cluster_config.host.count(":") != 2:
                 raise ValueError(
                     f"Please add a port number to the hostname, for "
                     f"example: http://10.0.0.1:5001"

@@ -1,3 +1,5 @@
+import os
+
 from sc_api_tools import (
     AnnotationManager,
     ConfigurationManager,
@@ -5,7 +7,7 @@ from sc_api_tools import (
     ProjectManager,
     DatumAnnotationReader,
     SCSession,
-    ServerConfig,
+    ClusterConfig,
     get_default_workspace_id
 )
 
@@ -14,14 +16,16 @@ if __name__ == "__main__":
     # Configuration section
     # --------------------------------------------------
     # Server configuration
-    SERVER_IP = 'https://0.0.0.0'
-    SERVER_USERNAME = "dummy_user@dummy_email.com"
-    SERVER_PASSWORD = "dummy_password"
+    CLUSTER_HOST = 'https://0.0.0.0'
+    CLUSTER_USERNAME = "dummy_user@dummy_email.com"
+    CLUSTER_PASSWORD = "dummy_password"
 
     # Dataset configuration
     # Path to the base folder containing the 'images' and 'annotations' folders
-    PATH_TO_COCO_DATASET = ""
-    PATH_TO_IMAGES_IN_COCO_DATASET = ""  # Path to the actual images
+    PATH_TO_COCO_DATASET = os.path.join("", "dummy_dataset")
+    PATH_TO_IMAGES_IN_COCO_DATASET = os.path.join(  # Path to the actual images
+        PATH_TO_COCO_DATASET, "subset", "images"
+    )
     NUMBER_OF_IMAGES_TO_UPLOAD = 50
 
     # Labels to filter the dataset on. Only images containing this object will be
@@ -45,12 +49,12 @@ if __name__ == "__main__":
     # --------------------------------------------------
 
     # Initialize http session
-    config = ServerConfig(
-        host=SERVER_IP,
-        username=SERVER_USERNAME,
-        password=SERVER_PASSWORD
+    config = ClusterConfig(
+        host=CLUSTER_HOST,
+        username=CLUSTER_USERNAME,
+        password=CLUSTER_PASSWORD
     )
-    session = SCSession(serverconfig=config)
+    session = SCSession(config)
 
     # Prepare dataset
     annotation_reader = DatumAnnotationReader(
