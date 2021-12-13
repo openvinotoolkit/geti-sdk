@@ -11,13 +11,17 @@ from datumaro.components.extractor import DatasetItem
 
 from .base_annotation_reader import AnnotationReader
 from sc_api_tools.data_models import TaskType
-from sc_api_tools.utils import get_dict_key_from_value, grouped
+from sc_api_tools.utils import get_dict_key_from_value
 
 
 class DatumAnnotationReader(AnnotationReader):
     """
     Class to read annotations using datumaro
     """
+
+    _SUPPORTED_TASK_TYPES = [
+        TaskType.DETECTION, TaskType.SEGMENTATION, TaskType.CLASSIFICATION
+    ]
 
     def __init__(
             self,
@@ -41,7 +45,7 @@ class DatumAnnotationReader(AnnotationReader):
             task_type = TaskType(task_type)
         if task_type != self.task_type:
             print(f"Task type changed to {task_type} for dataset")
-            if task_type not in [TaskType.DETECTION, TaskType.SEGMENTATION]:
+            if task_type not in self._SUPPORTED_TASK_TYPES:
                 raise ValueError(f"Unsupported task type {task_type}")
             new_dataset = DatumaroDataset(
                 dataset_format=self.annotation_format, dataset_path=self.base_folder
@@ -100,6 +104,7 @@ class DatumAnnotationReader(AnnotationReader):
         ds_item = self.dataset.get_item_by_id(filename)
         image_size = ds_item.image.size
         annotation_list: List[Dict[str, Any]] = []
+        labels = []
         for annotation in ds_item.annotations:
             label_name = get_dict_key_from_value(
                 self.datum_label_map, annotation.label
@@ -110,30 +115,40 @@ class DatumAnnotationReader(AnnotationReader):
                 continue
 
             label_id = label_name_to_id_mapping.get(label_name)
-
-            if isinstance(annotation, Bbox):
-                x1, y1 = annotation.points[0] / image_size[1], annotation.points[1] / \
-                         image_size[0]
-                x2, y2 = annotation.points[2] / image_size[1], annotation.points[3] / \
-                         image_size[0]
-                shape = {'type': 'RECTANGLE',
-                         'x': x1, 'y': y1, 'width': x2 - x1, 'height': y2 - y1}
-
-            elif isinstance(annotation, Polygon):
-                points = [
-                    {'x': x/image_size[1], 'y': y/image_size[0]} for x, y
-                    in grouped(annotation.points, 2)
-                ]
-                shape = {'type': "POLYGON", 'points': points}
-            else:
-                print(
-                    f"WARNING: Unsupported annotation type found: {type(annotation)}. "
-                    f"Skipping..."
-                )
-                continue
-
             label = {'id': label_id, 'probability': 1.0}
-            annotation_list.append({"labels": [label], "shape": shape})
+            if self.task_type != TaskType.CLASSIFICATION:
+                if isinstance(annotation, Bbox):
+                    x1, y1 = annotation.points[0] / image_size[1], \
+                             annotation.points[1] / image_size[0]
+                    x2, y2 = annotation.points[2] / image_size[1], \
+                             annotation.points[3] / image_size[0]
+                    shape = {'type': 'RECTANGLE',
+                             'x': x1, 'y': y1, 'width': x2 - x1, 'height': y2 - y1}
+                elif isinstance(annotation, Polygon):
+                    points = [
+                        {'x': x/image_size[1], 'y': y/image_size[0]} for x, y
+                        in zip(*[iter(annotation.points)] * 2)
+                    ]
+                    shape = {'type': "POLYGON", 'points': points}
+                else:
+                    print(
+                        f"WARNING: Unsupported annotation type found: "
+                        f"{type(annotation)}. Skipping..."
+                    )
+                    continue
+                annotation_list.append({"labels": [label], "shape": shape})
+            else:
+                labels.append(label)
+
+        if self.task_type == TaskType.CLASSIFICATION:
+            shape = {
+                "type": "RECTANGLE",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 1.0,
+                "height": 1.0
+            }
+            annotation_list.append({"labels": labels, "shape": shape})
         return annotation_list
 
     @property
@@ -181,6 +196,11 @@ class DatumaroDataset(object):
                 self.dataset.env.transforms.get('masks_to_polygons')
             )
             print("Annotations have been converted to polygons")
+        elif task_type == TaskType.CLASSIFICATION:
+            new_dataset = self.dataset.transform(
+                self.dataset.env.transforms.get('masks_to_polygons')
+            )
+            print("Classification dataset prepared.")
         else:
             raise ValueError(f"Unsupported task type {task_type}")
         return new_dataset
@@ -249,8 +269,9 @@ class DatumaroDataset(object):
         """
         Retain only those items with annotations in the list of labels passed.
 
-        :param: labels     List of labels to filter on
-        :param: criterion  Filter criterion, currently "OR" or "AND" are implemented
+        :param labels: List of labels to filter on
+        :param criterion: Filter criterion, currently "OR", "NOT", "AND" and "XOR" are
+            implemented
         """
         label_map = self.label_mapping
         # Sanity check for filtering
@@ -262,7 +283,7 @@ class DatumaroDataset(object):
                 )
 
         if labels:
-            def select_function(dataset_item, labels):
+            def select_function(dataset_item: DatasetItem, labels: List[str]):
                 # Filter function to apply to each item in the dataset
                 item_labels = [
                     get_dict_key_from_value(label_map, x.label) for x
@@ -273,15 +294,21 @@ class DatumaroDataset(object):
                     if label in item_labels:
                         if criterion == 'OR':
                             return True
-                        elif criterion == 'AND':
+                        elif criterion in ['AND', 'NOT', 'XOR']:
                             matches.append(True)
                         else:
                             raise ValueError(
-                                'Invalid filter criterion, please select "OR" or "AND".'
+                                'Invalid filter criterion, please select "OR", "NOT", '
+                                '"XOR", or "AND".'
                             )
                     else:
                         matches.append(False)
-                return np.all(matches)
+                if criterion == 'AND':
+                    return all(matches)
+                elif criterion == 'NOT':
+                    return not any(matches)
+                elif criterion == 'XOR':
+                    return np.sum(matches) == 1
 
             # Messy way to manually keep track of labels and indices, must be a
             # better way in Datumaro but haven't found it yet

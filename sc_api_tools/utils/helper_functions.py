@@ -1,4 +1,4 @@
-from typing import List, Optional, Any, TypeVar, Dict, Iterable
+from typing import List, Optional, Any, TypeVar, Dict
 
 from sc_api_tools.http_session import SCSession
 
@@ -16,8 +16,17 @@ def get_default_workspace_id(rest_session: SCSession) -> str:
         url="workspaces",
         method="GET"
     )
+    if isinstance(workspaces, list):
+        workspace_list = workspaces
+    elif isinstance(workspaces, dict):
+        workspace_list = workspaces["items"]
+    else:
+        raise ValueError(
+            f"Unexpected response from cluster: {workspaces}. Expected to receive a "
+            f"dictionary containing workspace data."
+        )
     default_workspace = next(
-        (workspace for workspace in workspaces
+        (workspace for workspace in workspace_list
          if workspace["name"] == "Default Workspace")
     )
     return default_workspace["id"]
@@ -31,6 +40,31 @@ def generate_segmentation_labels(detection_labels: List[str]) -> List[str]:
     :return: List of label names
     """
     return [f"{label} shape" for label in detection_labels]
+
+
+def generate_classification_labels(
+        labels: List[str], multilabel: bool = False
+) -> List[Dict[str, str]]:
+    """
+    Generates label creation data from a list of label names. If `multiclass = True`,
+    the labels will be generated in such a way that multiple labels can be assigned to
+    a single image. If `multiclass = False`, only a single label per image can be
+    assigned.
+
+    :param labels: Label names to be used
+    :param multilabel: True to be able to assign multiple labels to one image, False
+        otherwise. Defaults to False.
+    :return: List of dictionaries containing the label data that can be sent to the SC
+        project creation endpoint
+    """
+    label_list: List[Dict[str, str]] = []
+    if multilabel or len(labels) == 1:
+        for label in labels:
+            label_list.append({"name": label, "group": f"{label}_group"})
+    else:
+        for label in labels:
+            label_list.append({"name": label, "group": f"default_classification_group"})
+    return label_list
 
 
 def get_dict_key_from_value(
@@ -51,13 +85,6 @@ def get_dict_key_from_value(
     except ValueError:
         return None
     return keys[index]
-
-
-def grouped(iterable, n: int) -> Iterable:
-    """
-    Iterates over iterable, yielding n items at a time.
-    """
-    return zip(*[iter(iterable)] * n)
 
 
 def remove_null_fields(input: Any):

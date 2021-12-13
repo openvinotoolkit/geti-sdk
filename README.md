@@ -42,6 +42,9 @@ COCO dataset in various configurations:
   contains bounding boxes for "dog" objects, and has the dogs segmented as a "dog shape"
   label.
   
+- `create_coco_project_classification.py` -> Creates a single-class classification 
+  project with labels "dog" and "car".
+  
 NOTE: To run these examples you'll need to have the COCO dataset (or a subset thereof) on
 your local disk. I recommend using the 2017 validation dataset, which contains 5000 
 images. It can be downloaded via

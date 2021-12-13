@@ -5,8 +5,7 @@ import urllib3
 
 from requests import Response
 
-from sc_api_tools.http_session import ClusterConfig
-from sc_api_tools.http_session.cluster_config import API_PATTERN
+from .cluster_config import ClusterConfig, API_PATTERN
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -102,11 +101,11 @@ class SCSession(requests.Session):
             PROXY_COOKIE_NAME: previous_response.cookies.get(PROXY_COOKIE_NAME)
         }
         self._cookies.update(cookie)
-        print("Authentication cookie received.")
+        print("Authentication successful. Cookie received.")
 
     def get_rest_response(
             self, url: str, method: str, contenttype: str = "json", data=None
-    ) -> Union[Response, dict]:
+    ) -> Union[Response, dict, list]:
         """
         Returns the REST response from a request to `url` with `method`
 
