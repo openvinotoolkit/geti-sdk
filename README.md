@@ -1,8 +1,10 @@
 # SC REST API tools 
 ## Introduction
-This package contains some helpful tools to interact with a Sonoma Creek cluster via 
-the SC REST API. It provides functionality for uploading media, annotations and set 
-some basic project configurable parameters. 
+This package contains tools to interact with a Sonoma Creek cluster via 
+the SC REST API. It provides functionality for:
+- Project creation from datasets on disk
+- Project downloading (images and annotations)
+- Project creation and upload from a previous download
 
 ## Installation
 Navigate to the package directory, and install the requirements using 
