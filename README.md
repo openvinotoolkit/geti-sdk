@@ -47,6 +47,10 @@ your local disk. I recommend using the 2017 validation dataset, which contains 5
 images. It can be downloaded via
 [this link](http://images.cocodataset.org/zips/val2017.zip) (approx. 1 Gb download).
 
+The above examples work with Datumaro for annotation loading, so in principle they 
+should work with datasets in formats other than COCO too (as long as they're supported 
+by Datumaro).
+
 ### Vitens examples
 The `create_vitens_aeromonas_detection_project.py` script creates a detection project
 using the bacteria colony dataset for the company Vitens (a former Cosmonio customer). 
