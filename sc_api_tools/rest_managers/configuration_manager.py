@@ -1,5 +1,6 @@
 import copy
 
+from sc_api_tools.data_models import Project
 from sc_api_tools.http_session import SCSession
 
 
@@ -8,13 +9,10 @@ class ConfigurationManager:
     Class to manage configuration for a certain project
     """
 
-    def __init__(self, workspace_id: str, project: dict, session: SCSession):
+    def __init__(self, workspace_id: str, project: Project, session: SCSession):
         self.session = session
-        project_id = project["id"]
-        self.task_ids = [
-            task["id"] for task in project["pipeline"]["tasks"]
-            if task["task_type"] not in ["dataset", "crop"]
-        ]
+        project_id = project.id
+        self.task_ids = [task.id for task in project.get_trainable_tasks()]
         self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/" \
                         f"configuration/"
 

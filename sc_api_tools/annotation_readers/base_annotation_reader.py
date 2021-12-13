@@ -1,5 +1,7 @@
 from abc import abstractmethod
-from typing import List
+from typing import List, Union
+
+from sc_api_tools.data_models import TaskType
 
 
 class AnnotationReader:
@@ -12,8 +14,10 @@ class AnnotationReader:
             self,
             base_data_folder: str,
             annotation_format: str = ".json",
-            task_type: str = "detection"
+            task_type: Union[TaskType, str] = TaskType.DETECTION
     ):
+        if not isinstance(task_type, TaskType):
+            task_type = TaskType(task_type)
         self.base_folder = base_data_folder
         self.annotation_format = annotation_format
         self.task_type = task_type
@@ -35,18 +39,15 @@ class AnnotationReader:
         """
         raise NotImplementedError
 
-    def prepare_and_set_dataset(self, task_type: str):
+    def prepare_and_set_dataset(self, task_type: Union[TaskType, str]):
         """
         Prepares a dataset for uploading annotations for a certain task_type
-        :return:
-        """
-        """
-        Prepares the dataset for a certain task type
 
-        :param task_type: "detection" or "segmentation"
         :return:
         """
-        if task_type in ["detection", "segmentation"]:
+        if not isinstance(task_type, TaskType):
+            task_type = TaskType(task_type)
+        if task_type in [TaskType.DETECTION, TaskType.SEGMENTATION]:
             self.task_type = task_type
         else:
             raise ValueError(f"Unsupported task_type {task_type}")

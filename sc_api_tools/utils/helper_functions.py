@@ -58,3 +58,26 @@ def grouped(iterable, n: int) -> Iterable:
     Iterates over iterable, yielding n items at a time.
     """
     return zip(*[iter(iterable)] * n)
+
+
+def remove_null_fields(input: Any):
+    """
+    Remove fields that have 'None' or an emtpy string '' as their value from a
+    dictionary
+
+    NOTE: This function modifies the input dictionary in place
+
+    :param input: Dictionary to remove the null fields from
+    """
+    if isinstance(input, dict):
+        for key, value in list(input.items()):
+            if isinstance(value, dict):
+                remove_null_fields(value)
+            elif value is None or value == "":
+                input.pop(key)
+            elif isinstance(value, list):
+                for item in value:
+                    remove_null_fields(item)
+    elif isinstance(input, list):
+        for item in input:
+            remove_null_fields(item)

@@ -1,9 +1,10 @@
 import glob
 import json
 import os
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 
 from .base_annotation_reader import AnnotationReader
+from sc_api_tools.data_models import TaskType
 
 
 class SCAnnotationReader(AnnotationReader):
@@ -11,8 +12,10 @@ class SCAnnotationReader(AnnotationReader):
             self,
             base_data_folder: str,
             annotation_format: str = ".json",
-            task_type: str = "detection",
-            task_type_to_label_names_mapping: Optional[Dict[str, List[str]]] = None
+            task_type: Union[TaskType, str] = "detection",
+            task_type_to_label_names_mapping: Optional[
+                Dict[Union[TaskType, str], List[str]]
+            ] = None
     ):
         if annotation_format != '.json':
             raise ValueError(
@@ -24,6 +27,13 @@ class SCAnnotationReader(AnnotationReader):
             annotation_format=annotation_format,
             task_type=task_type
         )
+        if task_type_to_label_names_mapping is not None:
+            for task_type, labels in list(task_type_to_label_names_mapping.items()):
+                if not isinstance(task_type, TaskType):
+                    task_type_to_label_names_mapping.pop(task_type)
+                    task_type_to_label_names_mapping.update(
+                        {TaskType(task_type): labels}
+                    )
         self._task_label_mapping = task_type_to_label_names_mapping
 
     def _get_labels_for_current_task_type(self, all_labels: List[str]) -> List[str]:

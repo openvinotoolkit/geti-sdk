@@ -36,6 +36,10 @@ if __name__ == "__main__":
     PROJECT_TYPE = "detection"
     PROJECT_NAME = "COCO dog detection"
 
+    # Change this to True if you want the project to start auto-training after the
+    # annotations have been uploaded
+    AUTO_TRAIN_AFTER_UPLOAD = False
+
     # --------------------------------------------------
     # End of configuration section
     # --------------------------------------------------
@@ -66,7 +70,7 @@ if __name__ == "__main__":
     project = project_manager.get_or_create_project(
         project_name=PROJECT_NAME,
         project_type=PROJECT_TYPE,
-        label_names_task_one=label_names
+        labels=[label_names]
     )
 
     # Disable auto training
@@ -88,7 +92,7 @@ if __name__ == "__main__":
 
     # Upload annotations
     annotation_reader.prepare_and_set_dataset(
-        task_type=ProjectManager.get_task_types_by_project_type(PROJECT_TYPE)[0]
+        task_type=project.get_trainable_tasks()[0].type
     )
     annotation_manager = AnnotationManager[DatumAnnotationReader](
         session=session,
@@ -99,3 +103,4 @@ if __name__ == "__main__":
     )
     # Annotations for detection task
     annotation_manager.upload_annotations_for_images(list(image_id_mapping.values()))
+    configuration_manager.set_project_auto_train(auto_train=AUTO_TRAIN_AFTER_UPLOAD)

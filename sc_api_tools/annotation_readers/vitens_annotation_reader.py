@@ -1,9 +1,10 @@
 import glob
 import json
 import os
-from typing import Tuple, List, Dict, Any
+from typing import Tuple, List, Dict, Any, Union
 
 from .base_annotation_reader import AnnotationReader
+from sc_api_tools.data_models import TaskType
 
 
 class VitensAnnotationReader(AnnotationReader):
@@ -14,7 +15,7 @@ class VitensAnnotationReader(AnnotationReader):
             self,
             base_data_folder: str,
             annotation_format: str = ".json",
-            task_type: str = "segmentation"
+            task_type: Union[TaskType, str] = TaskType.SEGMENTATION
     ):
         super().__init__(
             base_data_folder=base_data_folder,
@@ -49,7 +50,7 @@ class VitensAnnotationReader(AnnotationReader):
         :param radius: radius of the point
         :return: dictionary containing the new SC shape data
         """
-        if self.task_type == "segmentation":
+        if self.task_type == TaskType.SEGMENTATION:
             new_shape = {
                 "type": "ELLIPSE",
                 "width": 2 * radius,
@@ -57,11 +58,11 @@ class VitensAnnotationReader(AnnotationReader):
                 "x": x - radius,
                 "y": y - radius
             }
-        elif self.task_type == "detection":
+        elif self.task_type == TaskType.DETECTION:
             new_shape = {
                 "type": "RECTANGLE",
-                "x": x,
-                "y": y,
+                "x": x - radius,
+                "y": y - radius,
                 "width": 2 * radius,
                 "height": 2 * radius
             }
@@ -79,9 +80,9 @@ class VitensAnnotationReader(AnnotationReader):
         :param points: List of points making up the NOUS polygon
         :return: dictionary containing the new SC shape data
         """
-        if self.task_type == "segmentation":
+        if self.task_type == TaskType.SEGMENTATION:
             shape = {"type": "POLYGON", "points": points}
-        elif self.task_type == "detection":
+        elif self.task_type == TaskType.DETECTION:
             shape = {"type": "RECTANGLE"}
             x_coordinates = [point["x"] for point in points]
             y_coordinates = [point["y"] for point in points]

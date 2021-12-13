@@ -9,7 +9,8 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 
-from sc_api_tools.annotation_readers.base_annotation_reader import AnnotationReader
+from .base_annotation_reader import AnnotationReader
+from sc_api_tools.data_models import TaskType
 from sc_api_tools.utils import get_dict_key_from_value, grouped
 
 
@@ -22,7 +23,7 @@ class DatumAnnotationReader(AnnotationReader):
             self,
             base_data_folder: str,
             annotation_format: str,
-            task_type: str = "detection"
+            task_type: Union[TaskType, str] = TaskType.DETECTION
     ):
         super().__init__(
             base_data_folder=base_data_folder,
@@ -35,10 +36,12 @@ class DatumAnnotationReader(AnnotationReader):
         self._override_label_map: Optional[Dict[str, int]] = None
         self._applied_filters: Optional[List[Dict[str, Union[List[str], str]]]] = []
 
-    def prepare_and_set_dataset(self, task_type: str):
+    def prepare_and_set_dataset(self, task_type: Union[TaskType, str]):
+        if not isinstance(task_type, TaskType):
+            task_type = TaskType(task_type)
         if task_type != self.task_type:
             print(f"Task type changed to {task_type} for dataset")
-            if task_type not in ["detection", "segmentation"]:
+            if task_type not in [TaskType.DETECTION, TaskType.SEGMENTATION]:
                 raise ValueError(f"Unsupported task type {task_type}")
             new_dataset = DatumaroDataset(
                 dataset_format=self.annotation_format, dataset_path=self.base_folder
@@ -162,19 +165,18 @@ class DatumaroDataset(object):
         self.dataset, self.environment = self.create_datumaro_dataset()
         self._subset_names = self.dataset.subsets().keys()
 
-    def prepare_dataset(self, task_type: str) -> Dataset:
+    def prepare_dataset(self, task_type: TaskType) -> Dataset:
         """
         Prepares the dataset for uploading to Sonoma Creek
 
-        :param task_type: String representing the task type, can be "detection" or
-            "segmentation"
+        :param task_type: TaskType to prepare the dataset for
         """
-        if task_type == 'detection':
+        if task_type == TaskType.DETECTION:
             new_dataset = self.dataset.transform(
                 self.dataset.env.transforms.get('shapes_to_boxes')
             )
             print("Annotations have been converted to boxes")
-        elif task_type == 'segmentation':
+        elif task_type == TaskType.SEGMENTATION:
             new_dataset = self.dataset.transform(
                 self.dataset.env.transforms.get('masks_to_polygons')
             )

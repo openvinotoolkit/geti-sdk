@@ -3,6 +3,7 @@ import os
 import time
 from typing import Dict, List
 
+from sc_api_tools.data_models import Project
 from sc_api_tools.http_session import SCSession
 
 
@@ -11,13 +12,13 @@ class MediaManager:
     Class to manage media uploads for a certain project
     """
 
-    def __init__(self, session: SCSession, workspace_id: str, project: dict):
+    def __init__(self, session: SCSession, workspace_id: str, project: Project):
         self.session = session
-        project_id = project["id"]
-        dataset_id = project["datasets"][0]["id"]
+        project_id = project.id
+        dataset_id = project.datasets[0].id
         self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/datasets/" \
                         f"{dataset_id}/media"
-        self._project_name = project["name"]
+        self._project_name = project.name
 
     def get_all_images(self) -> Dict[str, str]:
         """

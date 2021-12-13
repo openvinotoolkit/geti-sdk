@@ -6,6 +6,7 @@ import warnings
 from typing import Dict, Sequence, Generic, TypeVar, Any, List, Optional
 
 from sc_api_tools.annotation_readers.base_annotation_reader import AnnotationReader
+from sc_api_tools.data_models import Project
 from sc_api_tools.http_session import SCSession
 
 AnnotationReaderType = TypeVar("AnnotationReaderType", bound=AnnotationReader)
@@ -20,13 +21,13 @@ class AnnotationManager(Generic[AnnotationReaderType]):
             self,
             session: SCSession,
             workspace_id: str,
-            project: dict,
+            project: Project,
             image_to_id_mapping: Dict[str, str],
             annotation_reader: Optional[AnnotationReaderType] = None
     ):
         self.session = session
-        project_id = project["id"]
-        dataset_id = project["datasets"][0]["id"]
+        project_id = project.id
+        dataset_id = project.datasets[0].id
         self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/datasets/" \
                         f"{dataset_id}/media"
         self.image_id_to_name_mapping = {
@@ -46,7 +47,7 @@ class AnnotationManager(Generic[AnnotationReaderType]):
         self._label_mapping = label_mapping
         self._original_label_mapping = copy.deepcopy(self._label_mapping)
 
-    def _get_label_mapping(self, project: dict) -> Dict[str, str]:
+    def _get_label_mapping(self, project: Project) -> Dict[str, str]:
         """
         Get the mapping of the label names to the label ids for the project
 
@@ -55,16 +56,10 @@ class AnnotationManager(Generic[AnnotationReaderType]):
             values
         """
         source_label_names = self.annotation_reader.get_all_label_names()
-        trainable_tasks = [
-            task for task in project["pipeline"]["tasks"]
-            if task["task_type"] not in ["dataset", "crop"]
-        ]
-        task_label_info = [task["labels"] for task in trainable_tasks]
-        project_label_name_to_id_mapping: Dict[str, str] = {}
-        for label_list in task_label_info:
-            project_label_name_to_id_mapping.update(
-                {label["name"]: label["id"] for label in label_list}
-            )
+        project_label_mapping = project.pipeline.label_id_to_name_mapping
+        project_label_name_to_id_mapping = {
+            name: id_ for (id_, name) in project_label_mapping.items()
+        }
         for source_label_name in source_label_names:
             if source_label_name not in project_label_name_to_id_mapping:
                 raise ValueError(
@@ -216,16 +211,15 @@ class AnnotationManager(Generic[AnnotationReaderType]):
         skip_count = 0
         for image_id in image_ids:
             image_name = self.image_id_to_name_mapping[image_id]
-            # try:
-            annotation_data = self.get_latest_annotation_for_image(image_id)
-            # except ValueError:
-            #     print(
-            #         f"Unable to retrieve latest annotation for image {image_name}. "
-            #         f"Skipping this image"
-            #     )
-            #     skip_count += 1
-            #     continue
-
+            try:
+                annotation_data = self.get_latest_annotation_for_image(image_id)
+            except ValueError:
+                print(
+                    f"Unable to retrieve latest annotation for image {image_name}. "
+                    f"Skipping this image"
+                )
+                skip_count += 1
+                continue
             kind = annotation_data.pop("kind", None)
             if kind != "annotation":
                 print(
@@ -251,7 +245,7 @@ class AnnotationManager(Generic[AnnotationReaderType]):
             download_count += 1
         t_elapsed = time.time() - t_start
         if download_count > 0:
-            msg = f"Downloaded {download_count} annotations to foler " \
+            msg = f"Downloaded {download_count} annotations to folder " \
                   f"{path_to_folder} in {t_elapsed:.1f} seconds."
         else:
             msg = f"No annotations were downloaded."

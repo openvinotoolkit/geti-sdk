@@ -1,4 +1,5 @@
 import os
+import warnings
 
 from sc_api_tools import (
     AnnotationManager,
@@ -46,9 +47,8 @@ if __name__ == "__main__":
     project = project_manager.get_project_by_name(PROJECT_NAME)
 
     # Download project creation parameters:
-    project_manager.download_project_parameters(
-        project_name=PROJECT_NAME, path_to_folder=TARGET_FOLDER
-    )
+    project_manager.download_project_info(project_name=PROJECT_NAME,
+                                          path_to_folder=TARGET_FOLDER)
 
     # Download images
     media_manager = MediaManager(
@@ -58,10 +58,15 @@ if __name__ == "__main__":
 
     # Download annotations
     image_id_mapping = media_manager.get_all_images()
-    annotation_manager = AnnotationManager(
-        workspace_id=workspace_id,
-        session=session,
-        project=project,
-        image_to_id_mapping=image_id_mapping
-    )
+    with warnings.catch_warnings():
+        # The AnnotationManager will give a warning that it can only be used to
+        # download data since no annotation reader is passed, but this is exactly
+        # what we plan to do with it so we suppress the warning
+        warnings.simplefilter("ignore")
+        annotation_manager = AnnotationManager(
+            workspace_id=workspace_id,
+            session=session,
+            project=project,
+            image_to_id_mapping=image_id_mapping
+        )
     annotation_manager.download_all_annotations(path_to_folder=TARGET_FOLDER)

@@ -38,6 +38,10 @@ if __name__ == "__main__":
     PROJECT_TYPE = "detection_to_segmentation"
     PROJECT_NAME = "COCO dog detection and segmentation"
 
+    # Change this to True if you want the project to start auto-training after the
+    # annotations have been uploaded
+    AUTO_TRAIN_AFTER_UPLOAD = False
+
     # --------------------------------------------------
     # End of configuration section
     # --------------------------------------------------
@@ -69,8 +73,7 @@ if __name__ == "__main__":
     project = project_manager.get_or_create_project(
         project_name=PROJECT_NAME,
         project_type=PROJECT_TYPE,
-        label_names_task_one=label_names,
-        label_names_task_two=label_names_segmentation
+        labels=[label_names, label_names_segmentation]
     )
 
     # Disable auto training
@@ -92,7 +95,7 @@ if __name__ == "__main__":
 
     # Annotations for detection task
     annotation_reader.prepare_and_set_dataset(
-        task_type=ProjectManager.get_task_types_by_project_type(PROJECT_TYPE)[0]
+        task_type=project.get_trainable_tasks()[0].type
     )
     annotation_manager = AnnotationManager[DatumAnnotationReader](
         session=session,
@@ -104,16 +107,16 @@ if __name__ == "__main__":
     # Upload detection annotations
     annotation_manager.upload_annotations_for_images(list(image_id_mapping.values()))
 
-    # Annotations for segmentation task
+    # Prepare annotations for segmentation task
     segmentation_label_map = copy.deepcopy(annotation_reader.datum_label_map)
     detection_index = segmentation_label_map.pop(label_names[0])
     segmentation_label_map.update({label_names_segmentation[0]: detection_index})
     annotation_reader.override_label_map(segmentation_label_map)
     annotation_reader.prepare_and_set_dataset(
-        task_type=ProjectManager.get_task_types_by_project_type(PROJECT_TYPE)[1]
+        task_type=project.get_trainable_tasks()[1].type
     )
     # Upload segmentation annotations
     annotation_manager.upload_annotations_for_images(
         list(image_id_mapping.values()), append_annotations=True
     )
-    configuration_manager.set_project_auto_train(auto_train=True)
+    configuration_manager.set_project_auto_train(auto_train=AUTO_TRAIN_AFTER_UPLOAD)
