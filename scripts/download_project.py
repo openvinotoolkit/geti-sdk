@@ -21,8 +21,12 @@ if __name__ == "__main__":
     CLUSTER_PASSWORD = "dummy_password"
 
     # Path to target folder for download. The download script will create this folder
-    # if it does not exist, and will create the directories "images" and
-    # "annotations" inside this folder
+    # if it does not exist. The contents of the target folder will be:
+    # 'images'       -- Directory holding all images in the project
+    # 'annotations'  -- Directory holding all annotations in the project, in .json
+    #                    format
+    # 'project.json' -- File containing the project parameters, that can be used to
+    #                    re-create the project.
     TARGET_FOLDER = os.path.join(".", "dummy_project")
 
     # Project configuration

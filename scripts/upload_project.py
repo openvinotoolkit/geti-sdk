@@ -23,9 +23,11 @@ if __name__ == "__main__":
 
     # Path to the folder containing the (previously downloaded) project data. This
     # folder should contain:
-    #   - `images` directory containing the project images
-    #   - `annotations` directory containing the project annotations
-    #   - `project_info.json` file holding the basic project parameters
+    # 'images'       -- Directory holding all images in the project
+    # 'annotations'  -- Directory holding all annotations in the project, in .json
+    #                    format
+    # 'project.json' -- File containing the project parameters, that can be used to
+    #                    re-create the project.
     TARGET_FOLDER = os.path.join(".", "dummy_project")
 
     # Change this to True if you want the project to start auto-training after the
