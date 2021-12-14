@@ -3,7 +3,9 @@ import json
 import os
 import time
 import warnings
-from typing import Dict, Sequence, Generic, TypeVar, Any, List, Optional
+from typing import Dict, Sequence, Generic, TypeVar, Any, List, Optional, Union
+
+from requests import Response
 
 from sc_api_tools.annotation_readers.base_annotation_reader import AnnotationReader
 from sc_api_tools.data_models import Project
@@ -120,7 +122,16 @@ class AnnotationManager(Generic[AnnotationReaderType]):
             method="GET"
         )
 
-    def append_annotation_for_image(self, image_id: str):
+    def append_annotation_for_image(
+            self, image_id: str
+    ) -> Union[Response, dict, list]:
+        """
+        Adds an annotation to the existing annotations for the image with id `image_id`.
+
+        :param image_id: ID of the image to append the annotation for
+        :return: Returns the response of the REST endpoint to post the updated
+            annotation
+        """
         new_annotation_data = self._read_and_convert_annotation_for_image_from_source(
             image_id=image_id
         )
@@ -151,6 +162,14 @@ class AnnotationManager(Generic[AnnotationReaderType]):
         return response
 
     def _read_and_convert_annotation_for_image_from_source(self, image_id: str):
+        """
+        Retrieve the annotation for the image with image_id, and return it in the
+        proper format to be sent to the SC /annotations endpoint. This method uses the
+        `self.annotation_reader` to get the annotation data.
+
+        :param image_id: ID of the image to read the annotation for
+        :return: Dictionary containing the annotation, in SC format
+        """
         image_name = self.image_id_to_name_mapping[image_id]
         annotation_list = self.annotation_reader.get_data(
             filename=image_name, label_name_to_id_mapping=self.label_mapping

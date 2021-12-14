@@ -6,6 +6,8 @@ from typing import Optional, List, Dict, Any, Union, Tuple
 from sc_api_tools.data_models import Project, TaskType
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import ProjectRESTConverter
+from sc_api_tools.data_models.task_type import ANOMALY_TASK_TYPES
+
 from .task_templates import (
     BASE_TEMPLATE,
     CROP_TASK,
@@ -14,10 +16,9 @@ from .task_templates import (
     CLASSIFICATION_TASK,
     ANOMALY_CLASSIFICATION_TASK
 )
-from sc_api_tools.utils.helper_functions import remove_null_fields
-from sc_api_tools.data_models.task_type import ANOMALY_TASK_TYPES
 
 TASK_TYPE_MAPPING = {
+    TaskType.CROP: CROP_TASK,
     TaskType.DETECTION: DETECTION_TASK,
     TaskType.SEGMENTATION: SEGMENTATION_TASK,
     TaskType.CLASSIFICATION: CLASSIFICATION_TASK,
@@ -94,23 +95,19 @@ class ProjectManager:
                 if not is_first_task:
                     # Add crop task and connections, only for tasks that are not
                     # first in the pipeline
-                    project_template = self.add_crop_task(project_template)
+                    project_template = self._add_crop_task(project_template)
                     task_name = "Crop task"
-                    project_template = self.add_connection(
-                        project_template,
-                        to_task=task_name,
-                        from_task=previous_task_name
-                    )
+                    project_template = self._add_connection(project_template,
+                                                            to_task=task_name,
+                                                            from_task=previous_task_name)
                     previous_task_name = task_name
-                project_template, added_task = self.add_task(
-                    project_template, task_type=task_type, labels=task_labels
-                )
+                project_template, added_task = self._add_task(project_template,
+                                                              task_type=task_type,
+                                                              labels=task_labels)
                 task_name = added_task["title"]
-                project_template = self.add_connection(
-                    project_template,
-                    to_task=task_name,
-                    from_task=previous_task_name
-                )
+                project_template = self._add_connection(project_template,
+                                                        to_task=task_name,
+                                                        from_task=previous_task_name)
                 previous_task_name = task_name
                 is_first_task = False
 
@@ -135,7 +132,7 @@ class ProjectManager:
 
         :param project_name: Name of the project to retrieve the data for
         :param path_to_folder: Target folder to save the project data to.
-            Data will be saved as a .json file named "project_info.json"
+            Data will be saved as a .json file named "project.json"
         :raises ValueError: If the project with `project_name` is not found on the
             cluster
         """
@@ -144,9 +141,7 @@ class ProjectManager:
             raise ValueError(
                 f"Project with name {project_name} was not found on the cluster."
             )
-        project.deidentify()
-        project_data = project.to_dict()
-        remove_null_fields(project_data)
+        project_data = ProjectRESTConverter.to_dict(project)
         if not os.path.exists(path_to_folder):
             os.makedirs(path_to_folder)
         project_config_path = os.path.join(path_to_folder, "project.json")
@@ -158,11 +153,19 @@ class ProjectManager:
         )
 
     @staticmethod
-    def add_task(
+    def _add_task(
             project_template: dict,
             task_type: TaskType,
             labels: Union[List[str], List[Dict[str, Any]]]
     ) -> Tuple[dict, dict]:
+        """
+        Adds a task to the pipeline in a project template in dictionary form
+
+        :param project_template:
+        :param task_type:
+        :param labels:
+        :return:
+        """
         new_template = copy.deepcopy(project_template)
         tasks = new_template["pipeline"]["tasks"]
         try:
@@ -183,14 +186,29 @@ class ProjectManager:
         return new_template, task_template
 
     @staticmethod
-    def add_crop_task(project_template: dict) -> dict:
+    def _add_crop_task(project_template: dict) -> dict:
+        """
+        Adds a `crop` task to the pipeline in the project_template
+
+        :param project_template:
+        :return:
+        """
         new_template = copy.deepcopy(project_template)
         tasks = new_template["pipeline"]["tasks"]
         tasks.append(CROP_TASK)
         return new_template
 
     @staticmethod
-    def add_connection(project_template: dict, to_task: str, from_task: str) -> dict:
+    def _add_connection(project_template: dict, to_task: str, from_task: str) -> dict:
+        """
+        Adds a connection between `from_task` and `to_task` in the project_template
+        dictionary
+
+        :param project_template:
+        :param to_task:
+        :param from_task:
+        :return:
+        """
         new_template = copy.deepcopy(project_template)
         connections = new_template["pipeline"]["connections"]
         connections.append({"from": from_task, "to": to_task})

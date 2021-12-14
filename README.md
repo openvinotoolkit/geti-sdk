@@ -7,10 +7,12 @@ the SC REST API. It provides functionality for:
 - Project creation and upload from a previous download
 
 ## Installation
-Navigate to the package directory, and install the requirements using 
+Download or clone the repository and navigate to the package directory. From there, 
+install the requirements using 
 `pip install -r requirements.txt`. Then run `pip install .` to install the package. 
-You can also install it in editable mode if you want to make changes to the package, 
-using `pip install -e .`
+You can also install it in editable mode using `pip install -e .`. This is handy if
+you want to make changes to the package, or want to keep it up to date with the 
+latest code changes in the repository. 
 
 ## Using the package
 The example scripts provide an impression of how the package can be used. Make sure 

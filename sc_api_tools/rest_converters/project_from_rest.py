@@ -5,6 +5,7 @@ import copy
 from omegaconf import OmegaConf
 
 from sc_api_tools.data_models import Project
+from sc_api_tools.utils.helper_functions import remove_null_fields
 
 
 class ProjectRESTConverter:
@@ -27,3 +28,19 @@ class ProjectRESTConverter:
         schema = OmegaConf.structured(Project)
         config = OmegaConf.merge(schema, project_dict_config)
         return cast(Project, OmegaConf.to_object(config))
+
+    @classmethod
+    def to_dict(cls, project: Project) -> Dict[str, Any]:
+        """
+        Converts the `project` to its dictionary representation.
+        This functions removes database UID's and optional fields that are `None`
+        from the output dictionary, to make the output more compact and improve
+        readability.
+
+        :param project: Project to convert to dictionary
+        :return:
+        """
+        project.deidentify()
+        project_data = project.to_dict()
+        remove_null_fields(project_data)
+        return project_data

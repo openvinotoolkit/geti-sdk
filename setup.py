@@ -11,9 +11,9 @@ setuptools.setup(
     description="A module for interacting with the Sonoma Creek REST API",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pypa/sampleproject",
+    url="https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools",
     project_urls={
-        "Bug Tracker": "https://github.com/pypa/sampleproject/issues",
+        "Bug Tracker": "https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/issues",
     },
     classifiers=[
         "Programming Language :: Python :: 3",

@@ -81,7 +81,11 @@ if __name__ == "__main__":
             f"Uploading annotations for task number {task_index+1} of type "
             f"'{task.type}'"
         )
+        append_annotations = True
+        if task_index == 0:
+            append_annotations = False
         annotation_manager.upload_annotations_for_images(
-            image_id_list=list(image_id_mapping.values()), append_annotations=True
+            image_id_list=list(image_id_mapping.values()),
+            append_annotations=append_annotations
         )
     configuration_manager.set_project_auto_train(auto_train=AUTO_TRAIN_AFTER_UPLOAD)
