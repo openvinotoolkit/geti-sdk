@@ -37,7 +37,23 @@ class MediaManager:
             for image in response["media"]:
                 id_ = image["id"]
                 filename = image["name"]
-                name_to_id_mapping.update({filename: id_})
+                # Check for duplicate filenames
+                mapped_filename = None
+                if filename not in name_to_id_mapping.keys():
+                    mapped_filename = filename
+                else:
+                    for index in range(0, total_number_of_images):
+                        new_filename = filename+f'_copy_{index}'
+                        if new_filename not in name_to_id_mapping.keys():
+                            mapped_filename = new_filename
+                            break
+                if mapped_filename is not None:
+                    name_to_id_mapping.update({mapped_filename: id_})
+                else:
+                    print(
+                        f"Unable to determine valid, unique filename for image with id "
+                        f"{id_}. Skipping image retrieval for this image."
+                    )
             if "next_page" in response.keys():
                 response = self.session.get_rest_response(
                     url=response["next_page"],
