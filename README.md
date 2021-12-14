@@ -49,10 +49,10 @@ COCO dataset in various configurations:
 - `create_coco_project_classification.py` -> Creates a single-class classification 
   project with labels "dog" and "car".
   
-NOTE: To run these examples you'll need to have the COCO dataset (or a subset thereof) on
-your local disk. I recommend using the 2017 validation dataset, which contains 5000 
-images. It can be downloaded via
-[this link](http://images.cocodataset.org/zips/val2017.zip) (approx. 1 Gb download).
+> **NOTE**: To run these examples you'll need to have the COCO dataset (or a subset thereof) on
+> your local disk. I recommend using the 2017 validation dataset, which contains 5000 
+> images. It can be downloaded via
+> [this link](http://images.cocodataset.org/zips/val2017.zip) (approx. 1 Gb download).
 
 The above examples work with Datumaro for annotation loading, so in principle they 
 should work with datasets in formats other than COCO too (as long as they're supported 
@@ -80,10 +80,10 @@ What is supported:
   data using the `download_project.py` script and later uploading it again using the 
   `upload_project.py` script. Only annotations and images are backed up, 
   models are not. 
-  **NOTE**: I have only tested backing up with `detection`, `segmentation`, 
-  `classification` and `detection_to_segmentation` projects. I see no reason why it 
-  wouldn't work for `anomaly_classification` and `detection_to_classification` 
-  projects, but please test carefully before relying on this.
+>  **NOTE**: I have only tested backing up with `detection`, `segmentation`, 
+>  `classification` and `detection_to_segmentation` projects. I see no reason why it 
+>  wouldn't work for `anomaly_classification` and `detection_to_classification` 
+>  projects, but please test carefully before relying on this.
   
 What is not (fully) supported:
 - Video and video frame annotations are not (yet) supported.
