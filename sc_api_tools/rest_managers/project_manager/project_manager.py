@@ -214,12 +214,17 @@ class ProjectManager:
         connections.append({"from": from_task, "to": to_task})
         return new_template
 
-    def create_project_from_folder(self, path_to_folder: str) -> Project:
+    def create_project_from_folder(
+            self, path_to_folder: str, project_name: Optional[str] = None
+    ) -> Project:
         """
         Looks for a `project.json` file in the folder at `path_to_folder`, and
         creates a project using the parameters provided in this file
 
         :param path_to_folder: Folder holding the project data
+        :param project_name: Optional name of the project. If not specified, the
+            project name found in the project configuration in the upload folder
+            will be used.
         :return: Project as created on the cluster
         """
         path_to_project = os.path.join(path_to_folder, "project.json")
@@ -231,6 +236,8 @@ class ProjectManager:
         with open(path_to_project, 'r') as file:
             project_data = json.load(file)
         project = ProjectRESTConverter.from_dict(project_data)
+        if project_name is not None:
+            project.name = project_name
         print(
             f"Creating project '{project.name}' from parameters in "
             f"configuration file at {path_to_project}."

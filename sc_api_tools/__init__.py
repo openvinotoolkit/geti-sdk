@@ -14,8 +14,10 @@ from .rest_managers import (
     AnnotationManager
 )
 from .utils import get_default_workspace_id
+from .sc_rest_client import SCRESTClient
 
 name = 'sc-api-tools'
+__version__ = '0.0.1'
 
 __all__ = [
     "SCSession",
@@ -28,5 +30,5 @@ __all__ = [
     "VitensAnnotationReader",
     "SCAnnotationReader",
     "get_default_workspace_id",
-    "utils"
+    "SCRESTClient"
 ]

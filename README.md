@@ -18,23 +18,54 @@ latest code changes in the repository.
 The example scripts provide an impression of how the package can be used. Make sure 
 to change the values under the section "Script configuration" to suit your SC server.
 
-## Scripts
-### Exporting or backing-up projects
-The `scripts` folder provides two utility scripts:
-- `download_project.py` to download a project to a folder on your disk. Only images 
-  and annotations are downloaded. Video's and annotations for video frames are not 
-  supported yet. Also models are not downloaded.
-- `upload_project.py` to re-create a project on an SC cluster using the 
-  data from a previously downloaded project. This can be used to back-up projects, but
-  beware that not all features are supported (see Supported features section below).
-  
-These scripts can be used to either back-up a project (by downloading it and later 
+## Downloading or uploading projects
+The packagage provides a main class `SCRESTClient` that can be used for downloading and
+uploading projects. 
+
+- **Project download** The following python snippet is a minimal example of how to 
+  download a project using the SCRESTClient:
+
+    ```
+    from sc_api_tools import SCRESTClient
+    
+    client = SCRESTClient(
+      host="https://0.0.0.0", username="dummy_user", password="dummy_password"
+    )
+    
+    client.download_project(project_name="dummy_project")
+    ```
+  Here, it is assumed that the project with name 'dummy_project' exists on the cluster. 
+  The client will create a folder named 'dummy_project' in your current working 
+  directory, and download the project parameters, images and annotations to that folder. 
+  Models are not downloaded, and also videos are not supported (yet). The method takes 
+  an optional parameter `target_folder` that can be specified to change the 
+  directory to which the project data is saved.
+
+
+- **Project upload** The following python snippet is a minimal example of how to 
+  re-create a project on an SC cluster using the data from a previously downloaded 
+  project:
+    ```
+    from sc_api_tools import SCRESTClient
+    
+    client = SCRESTClient(
+        host="https://0.0.0.0", username="dummy_user", password="dummy_password"
+    )
+    
+    client.upload_project(target_folder="dummy_project")
+    ```
+  The parameter `target_folder` must be a valid path to the directory holding the 
+  project data. If you want to create the project using a different name than the 
+  original project, you can pass an additional parameter `project_name` to the upload 
+  method.
+
+The client can be used to either back-up a project (by downloading it and later 
 uploading it again to the same cluster), or to migrate a project to a different cluster 
 (download it, and upload it to the target cluster).
 
-## Examples
+## Project creation examples
 ### COCO/Datumaro examples
-The `examples` folder contains three example scripts to create projects based on the 
+The `examples` folder contains four example scripts to create projects based on the 
 COCO dataset in various configurations:
 - `create_coco_project_detection.py` -> Converts the coco annotations for the "dog" class 
   to bounding boxes, and creates a detection project with coco images containing dogs
