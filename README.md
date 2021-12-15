@@ -15,10 +15,7 @@ you want to make changes to the package, or want to keep it up to date with the
 latest code changes in the repository. 
 
 ## Using the package
-The example scripts provide an impression of how the package can be used. Make sure 
-to change the values under the section "Script configuration" to suit your SC server.
-
-## Downloading or uploading projects
+### Downloading and uploading projects
 The packagage provides a main class `SCRESTClient` that can be used for downloading and
 uploading projects. 
 
@@ -63,8 +60,8 @@ The client can be used to either back-up a project (by downloading it and later
 uploading it again to the same cluster), or to migrate a project to a different cluster 
 (download it, and upload it to the target cluster).
 
-## Project creation examples
-### COCO/Datumaro examples
+### Project creation examples
+#### COCO/Datumaro examples
 The `examples` folder contains four example scripts to create projects based on the 
 COCO dataset in various configurations:
 - `create_coco_project_detection.py` -> Converts the coco annotations for the "dog" class 
@@ -89,7 +86,7 @@ The above examples work with Datumaro for annotation loading, so in principle th
 should work with datasets in formats other than COCO too (as long as they're supported 
 by Datumaro).
 
-### Vitens examples
+#### Vitens examples
 The `create_vitens_aeromonas_detection_project.py` script creates a detection project
 using the bacteria colony dataset for the company Vitens (a former Cosmonio customer). 
 This is one of the UserStory datasets. The dataset can be downloaded from 
