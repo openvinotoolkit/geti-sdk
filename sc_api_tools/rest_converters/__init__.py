@@ -1,3 +1,3 @@
-from .project_from_rest import ProjectRESTConverter
+from .project_rest_converter import ProjectRESTConverter
 
 __all__ = ["ProjectRESTConverter"]
