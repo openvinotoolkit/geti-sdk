@@ -154,11 +154,14 @@ class AnnotationManager(Generic[AnnotationReaderType]):
             "media_identifier": existing_annotation["media_identifier"],
             "annotations": annotation_data
         }
-        response = self.session.get_rest_response(
-            url=f"{self.base_url}/images/{image_id}/annotations",
-            method="POST",
-            data=request_data
-        )
+        if annotation_data:
+            response = self.session.get_rest_response(
+                url=f"{self.base_url}/images/{image_id}/annotations",
+                method="POST",
+                data=request_data
+            )
+        else:
+            response = {}
         return response
 
     def _read_and_convert_annotation_for_image_from_source(self, image_id: str):

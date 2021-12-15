@@ -15,10 +15,9 @@ you want to make changes to the package, or want to keep it up to date with the
 latest code changes in the repository. 
 
 ## Using the package
-### Downloading and uploading projects
-The packagage provides a main class `SCRESTClient` that can be used for downloading and
+The package provides a main class `SCRESTClient` that can be used for creating, downloading and
 uploading projects. 
-
+### Downloading and uploading projects
 - **Project download** The following python snippet is a minimal example of how to 
   download a project using the SCRESTClient:
 
@@ -62,20 +61,17 @@ uploading it again to the same cluster), or to migrate a project to a different 
 
 ### Project creation examples
 #### COCO/Datumaro examples
-The `examples` folder contains four example scripts to create projects based on the 
+The `examples` folder contains sample scripts to create projects based on the 
 COCO dataset in various configurations:
-- `create_coco_project_detection.py` -> Converts the coco annotations for the "dog" class 
-  to bounding boxes, and creates a detection project with coco images containing dogs
-    
-- `create_coco_project_segmentation.py` -> Uses the coco polygon annotations for the "dog" 
-  class, and creates a segmentation project with coco images containing dogs
+
+- `create_coco_project_single_task.py` -> Creates a single task project based using 
+  the images from COCO dataset for the "dog" class. Can be set to create either a
+  `Detection`, `Segmentation` or `Classification` project.
   
-- `create_coco_project_pipeline.py` -> Creates a Detection -> Segmentation project that 
+
+- `create_coco_project_task_chain.py` -> Creates a `Detection -> Segmentation` project that 
   contains bounding boxes for "dog" objects, and has the dogs segmented as a "dog shape"
   label.
-  
-- `create_coco_project_classification.py` -> Creates a single-class classification 
-  project with labels "dog" and "car".
   
 > **NOTE**: To run these examples you'll need to have the COCO dataset (or a subset thereof) on
 > your local disk. I recommend using the 2017 validation dataset, which contains 5000 
@@ -87,7 +83,7 @@ should work with datasets in formats other than COCO too (as long as they're sup
 by Datumaro).
 
 #### Vitens examples
-The `create_vitens_aeromonas_detection_project.py` script creates a detection project
+The `create_vitens_aeromonas_project_single_task.py` script creates a detection project
 using the bacteria colony dataset for the company Vitens (a former Cosmonio customer). 
 This is one of the UserStory datasets. The dataset can be downloaded from 
 [this link](https://intel.sharepoint.com/:u:/r/sites/user-story-dataset-sharing/Shared%20Documents/User%20Stories%20Datasets/Detection/Vitens%20Bacteria%20Counting/Vitens%20Aeromonas.zip?csf=1&web=1&e=wFXEle),

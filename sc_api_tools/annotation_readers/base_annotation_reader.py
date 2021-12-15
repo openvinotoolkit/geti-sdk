@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import List, Union
+from typing import List, Union, Dict
 
 from sc_api_tools.data_models import TaskType
 
@@ -51,3 +51,19 @@ class AnnotationReader:
             self.task_type = task_type
         else:
             raise ValueError(f"Unsupported task_type {task_type}")
+
+    @property
+    def applied_filters(self) -> List[Dict[str, Union[List[str], str]]]:
+        """
+        Returns a list of dictionaries representing the filter settings that have
+        been applied to the dataset, if any.
+
+        Dictionaries in this list contain two keys:
+        - 'labels'      -- List of label names which has been filtered on
+        - 'criterion'   -- String representing the criterion that has been used in the
+                           filtering. Can be 'OR', 'AND', 'XOR' or 'NOT'.
+
+        :return: List of filter settings that have been applied to the dataset. Returns
+            an empty list if no filters have been applied.
+        """
+        return []

@@ -57,11 +57,16 @@ class Task:
             for label in self.labels:
                 deidentify(label)
 
-    @property
-    def label_names(self) -> List[str]:
+    def get_label_names(self, include_empty: bool = True) -> List[str]:
         """
         Returns a list of label names for the task
 
-        :return:
+        :param include_empty: True to include the empty label (if present), False to
+            exclude it
+        :return: List of label names for the task
         """
-        return [label.name for label in self.labels]
+        if include_empty:
+            labels = [label.name for label in self.labels]
+        else:
+            labels = [label.name for label in self.labels if not label.is_empty]
+        return labels

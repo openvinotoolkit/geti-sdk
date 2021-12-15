@@ -11,7 +11,7 @@ from datumaro.components.extractor import DatasetItem
 
 from .base_annotation_reader import AnnotationReader
 from sc_api_tools.data_models import TaskType
-from sc_api_tools.utils import get_dict_key_from_value
+from sc_api_tools.utils import get_dict_key_from_value, generate_segmentation_labels
 
 
 class DatumAnnotationReader(AnnotationReader):
@@ -38,7 +38,7 @@ class DatumAnnotationReader(AnnotationReader):
             dataset_format=annotation_format, dataset_path=base_data_folder
         )
         self._override_label_map: Optional[Dict[str, int]] = None
-        self._applied_filters: Optional[List[Dict[str, Union[List[str], str]]]] = []
+        self._applied_filters: List[Dict[str, Union[List[str], str]]] = []
 
     def prepare_and_set_dataset(self, task_type: Union[TaskType, str]):
         if not isinstance(task_type, TaskType):
@@ -59,12 +59,27 @@ class DatumAnnotationReader(AnnotationReader):
         self.dataset.set_dataset(dataset)
         print(f"Dataset is prepared for {task_type} task.")
 
+    def convert_labels_to_segmentation_names(self) -> None:
+        """
+        This method converts the label names in a dataset to '*_shape`, where `*` is
+        the original label name. It can be used to generate unique label names for the
+        segmentation task in a detection_to_segmentation project
+        """
+        segmentation_label_map: Dict[str, int] = {}
+        label_names = list(self.datum_label_map.keys())
+        segmentation_label_names = generate_segmentation_labels(label_names)
+        for name, datum_index in self.datum_label_map.items():
+            label_index = label_names.index(name)
+            segmentation_label_map.update(
+                {segmentation_label_names[label_index]: datum_index}
+            )
+        self.override_label_map(segmentation_label_map)
+
     def get_all_label_names(self) -> List[str]:
         """
-        Retrieves the list of labels and the mapping of label names to integers from
-        a datumaro dataset
+        Retrieves the list of labels names from a datumaro dataset
         """
-        return self.dataset.label_names
+        return list(self.datum_label_map.keys())
 
     @property
     def datum_label_map(self) -> Dict[str, int]:
@@ -152,7 +167,7 @@ class DatumAnnotationReader(AnnotationReader):
         return annotation_list
 
     @property
-    def applied_filters(self) -> Optional[List[Dict[str, Union[List[str], str]]]]:
+    def applied_filters(self) -> List[Dict[str, Union[List[str], str]]]:
         return copy.deepcopy(self._applied_filters)
 
     def filter_dataset(self, labels: Sequence[str], criterion='OR') -> None:
