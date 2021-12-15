@@ -1,15 +1,15 @@
 import os
 
-from sc_api_tools import (
+from sc_api_tools.rest_managers import (
     AnnotationManager,
     ConfigurationManager,
     MediaManager,
-    ProjectManager,
-    VitensAnnotationReader,
-    SCSession,
-    ClusterConfig,
-    get_default_workspace_id
+    ProjectManager
 )
+from sc_api_tools.annotation_readers import VitensAnnotationReader
+from sc_api_tools.http_session import SCSession, ClusterConfig
+from sc_api_tools.utils import get_default_workspace_id
+
 
 if __name__ == "__main__":
 

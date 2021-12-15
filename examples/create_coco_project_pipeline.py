@@ -1,17 +1,16 @@
 import copy
 import os
 
-from sc_api_tools import (
+from sc_api_tools.rest_managers import (
     AnnotationManager,
     ConfigurationManager,
     MediaManager,
-    ProjectManager,
-    DatumAnnotationReader,
-    SCSession,
-    ClusterConfig,
-    get_default_workspace_id,
-    utils
+    ProjectManager
 )
+from sc_api_tools.annotation_readers import DatumAnnotationReader
+from sc_api_tools.http_session import SCSession, ClusterConfig
+from sc_api_tools import utils
+
 
 if __name__ == "__main__":
 
@@ -71,7 +70,7 @@ if __name__ == "__main__":
     label_names_segmentation = utils.generate_segmentation_labels(label_names)
 
     # Create or get project
-    workspace_id = get_default_workspace_id(session)
+    workspace_id = utils.get_default_workspace_id(session)
     project_manager = ProjectManager(session=session, workspace_id=workspace_id)
     project = project_manager.get_or_create_project(
         project_name=PROJECT_NAME,

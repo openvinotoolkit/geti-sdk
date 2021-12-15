@@ -1,16 +1,15 @@
 import os
 
-from sc_api_tools import (
+from sc_api_tools.rest_managers import (
     AnnotationManager,
     ConfigurationManager,
     MediaManager,
     ProjectManager,
-    DatumAnnotationReader,
-    SCSession,
-    ClusterConfig,
-    get_default_workspace_id
 )
-from sc_api_tools.utils import generate_classification_labels
+from sc_api_tools.annotation_readers import DatumAnnotationReader
+from sc_api_tools.http_session import SCSession, ClusterConfig
+from sc_api_tools.utils import get_default_workspace_id, generate_classification_labels
+
 
 if __name__ == "__main__":
     # --------------------------------------------------
