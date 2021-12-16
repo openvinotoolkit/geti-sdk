@@ -1,5 +1,5 @@
 import copy
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 
 from sc_api_tools.data_models import Project
 from sc_api_tools.http_session import SCSession
@@ -121,11 +121,53 @@ class ConfigurationManager:
                 ]
             }
             for name in iteration_names:
-                if name in learning_parameters["parameters"]:
+                if name in [param["name"] for param in learning_parameters["parameters"]]:
                     config_data["components"][0]["parameters"].append(
                         {
                             "name": name,
                             "value": value
                         }
                     )
+            self.set_task_configuration(task_id=task_id, config=config_data)
+
+    def set_project_parameter(
+            self,
+            parameter_group_name: str,
+            parameter_name: str,
+            value: Union[bool, str, float, int]
+    ):
+        """
+        Sets the value for a parameter with `parameter_name` that lives in the
+        group `parameter_group_name`. The parameter is set for all tasks in the project
+
+        :param parameter_name: Name of the parameter
+        :param parameter_group_name: Name of the parameter group name to which the
+            parameter belongs
+        :param value: Value to set for the parameter
+        """
+        for index, task_id in enumerate(self.task_ids):
+            config = self.get_task_configuration(task_id)
+            parameter_group = next(
+                (item for item in config
+                 if item["name"] == parameter_group_name), None
+            )
+            if parameter_group is None:
+                print(
+                    f"Unable to find parameter group named `{parameter_group_name}` in "
+                    f"task #{index+1} in the project. Moving on to the next task."
+                )
+                continue
+            config_data = {
+                "components": [
+                    {
+                    "entity_identifier": parameter_group["entity_identifier"],
+                    "parameters": [
+                        {
+                            "name": parameter_name,
+                            "value": value
+                        }
+                    ]
+                    }
+                ]
+            }
             self.set_task_configuration(task_id=task_id, config=config_data)
