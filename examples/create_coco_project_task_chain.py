@@ -1,7 +1,8 @@
 import os
 
-from sc_api_tools.annotation_readers import DatumAnnotationReader
 from sc_api_tools import SCRESTClient
+from sc_api_tools.annotation_readers import DatumAnnotationReader
+from sc_api_tools.utils import get_task_types_by_project_type
 
 
 if __name__ == "__main__":
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     # Create annotation readers and apply filters. Use Datumaro annotations for both
     # tasks
     annotation_readers_per_task = []
-    for task_type in client.get_task_types_by_project_type(PROJECT_TYPE):
+    for task_type in get_task_types_by_project_type(PROJECT_TYPE):
         annotation_reader = DatumAnnotationReader(
             base_data_folder=PATH_TO_COCO_DATASET,
             annotation_format='coco',

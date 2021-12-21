@@ -25,7 +25,7 @@ from .http_session import SCSession, ClusterConfig
 from .utils import (
     get_default_workspace_id,
     generate_classification_labels,
-    get_task_types_by_project_type
+    get_task_types_by_project_type, is_project_dir
 )
 
 
@@ -376,7 +376,7 @@ class SCRESTClient:
                     reader.get_all_label_names() if reader is not None else None
                 )
 
-        task_types = self.get_task_types_by_project_type(project_type)
+        task_types = get_task_types_by_project_type(project_type)
         labels_per_task = self._check_unique_label_names(
             labels_per_task=labels_per_task,
             task_types=task_types,
@@ -477,14 +477,74 @@ class SCRESTClient:
         else:
             return all_labels
 
-    @classmethod
-    def get_task_types_by_project_type(cls, project_type: str) -> List[TaskType]:
+    def download_all_project(self, target_folder: str) -> List[Project]:
         """
-        Returns a list of TaskTypes that belong to a certain project type. Only returns
-        the types of the trainable tasks in a project of this type
+        Downloads all projects in the default workspace from the SC cluster
 
-        :param project_type: String specifying the project type
-
-        :return: List of task types for all trainable tasks in a project of this type
+        :param target_folder: Directory on local disk to download the project data to.
+            If not specified, this method will create a directory named 'projects' in
+            the current working directory.
+        :return: List of Project objects, each entry corresponding to one of the
+            projects found on the SC cluster
         """
-        return get_task_types_by_project_type(project_type=project_type)
+        # Obtain project details from cluster
+        project_manager = ProjectManager(
+            session=self._session, workspace_id=self._workspace_id
+        )
+        projects = project_manager.get_all_projects()
+
+        # Validate or create target_folder
+        if target_folder is None:
+            target_folder = os.path.join('.', 'projects')
+        if not os.path.exists(target_folder):
+            os.makedirs(target_folder)
+        print(
+            f"Found {len(projects)} projects on the SC cluster. Commencing project "
+            f"download..."
+        )
+
+        # Download all found projects
+        for index, project in enumerate(projects):
+            print(f"Downloading project '{project.name}'... {index+1}/{len(projects)}.")
+            self.download_project(
+                project_name=project.name,
+                target_folder=os.path.join(target_folder, project.name)
+            )
+        return projects
+
+    def upload_all_projects(self, target_folder: str) -> List[Project]:
+        """
+        Uploads all projects found in the directory `target_folder` on local disk to
+        the SC cluster.
+
+        This method expects the directory `target_folder` to contain subfolders. Each
+        subfolder should correspond to the (previously downloaded) data for one
+        project. The method looks for project folders non-recursively, meaning that
+        only folders directly below the `target_folder` in the hierarchy are
+        considered to be uploaded as project.
+
+        :param target_folder: Directory on local disk to retrieve the project data from
+        :return: List of Project objects, each entry corresponding to one of the
+            projects uploaded to the SC cluster
+        """
+        candidate_project_folders = [
+            os.path.join(target_folder, subfolder)
+            for subfolder in os.listdir(target_folder)
+        ]
+        project_folders = [
+            folder for folder in candidate_project_folders if is_project_dir(folder)
+        ]
+        print(
+            f"Found {len(project_folders)} project data folders in the target "
+            f"directory '{target_folder}'. Commencing project upload..."
+        )
+        projects: List[Project] = []
+        for index, project_folder in enumerate(project_folders):
+            print(
+                f"Uploading project from folder '{os.path.basename(project_folder)}'..."
+                f" {index + 1}/{len(project_folders)}."
+            )
+            project = self.upload_project(
+                target_folder=project_folder, enable_auto_train=False
+            )
+            projects.append(project)

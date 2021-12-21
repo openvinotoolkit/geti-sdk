@@ -35,6 +35,22 @@ class ProjectManager:
         self.session = session
         self.base_url = f"workspaces/{workspace_id}/"
 
+    def get_all_projects(self) -> List[Project]:
+        """
+        Returns a list of projects found on the SC cluster
+
+        :return: List of Project objects, containing the project information for each
+            project on the SC cluster
+        """
+        project_list = self.session.get_rest_response(
+            url=f"{self.base_url}projects/",
+            method="GET",
+        )
+        return [
+            ProjectRESTConverter.from_dict(project_input=project)
+            for project in project_list["items"]
+        ]
+
     def get_project_by_name(self, project_name: str) -> Optional[Project]:
         """
         Get a project from the SC cluster by project_name.
@@ -43,18 +59,12 @@ class ProjectManager:
         :return: Project object containing the data of the project, if the project is
             found on the cluster. Returns None if the project doesn't exist
         """
-        project_list = self.session.get_rest_response(
-            url=f"{self.base_url}projects/",
-            method="GET",
-        )
+        project_list = self.get_all_projects()
         project = next(
-            (project for project in project_list["items"]
-             if project["name"] == project_name), None
+            (project for project in project_list
+             if project.name == project_name), None
         )
-        if project is None:
-            return None
-        else:
-            return ProjectRESTConverter.from_dict(project_input=project)
+        return project
 
     @classmethod
     def get_task_types_by_project_type(cls, project_type: str) -> List[TaskType]:
