@@ -120,3 +120,25 @@ What is not (fully) supported:
 - Creating `detection to classification` projects *should* work, but is not tested
 - Other stuff that I may have missed... Please please please test carefully before 
   relying on this tool to back up your projects!!!
+  
+## API reference
+The `SCRESTClient` class provides the following methods:
+
+- `download_project` -- Downloads a project by project name.
+  
+- `upload_project` -- Upload project from a folder.
+  
+- `download_all_projects` -- Downloads all projects found on the SC cluster.
+  
+- `upload_all_projects` -- Uploads all projects found in a specified folder to the SC 
+  cluster.
+  
+- `create_project_single_task` -- Creates a single task project on the SC cluster, 
+  potentially using annotations and labels from an external dataset.
+  
+- `create_task_chain_project` -- Creates a task chain project on the SC cluster, 
+  potentially using annotations and labels from an external dataset.
+  
+For further details regarding these methods, please refer to the method documentation 
+and the [code snippets](#downloading-and-uploading-projects) and 
+[example scripts](#project-creation-examples) provided in this repo.
