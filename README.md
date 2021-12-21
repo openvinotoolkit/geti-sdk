@@ -3,7 +3,7 @@
 This package contains tools to interact with a Sonoma Creek cluster via 
 the SC REST API. It provides functionality for:
 - Project creation from datasets on disk
-- Project downloading (images and annotations)
+- Project downloading (images, videos and annotations)
 - Project creation and upload from a previous download
 
 ## Installation
