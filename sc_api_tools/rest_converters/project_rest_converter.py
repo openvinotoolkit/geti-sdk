@@ -5,10 +5,14 @@ import copy
 from omegaconf import OmegaConf
 
 from sc_api_tools.data_models import Project
-from sc_api_tools.utils.helper_functions import remove_null_fields
+from sc_api_tools.utils.dictionary_helpers import remove_null_fields
 
 
 class ProjectRESTConverter:
+    """
+    Class that handles conversion of SC REST output for project entities to objects and
+    vice versa.
+    """
 
     @classmethod
     def from_dict(cls, project_input: Dict[str, Any]):

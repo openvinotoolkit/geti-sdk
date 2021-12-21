@@ -12,15 +12,6 @@ class TaskType(Enum):
     DATASET = "dataset"
     CROP = "crop"
 
-    @property
-    def is_trainable(self):
-        """
-        Returns True if this instance of TaskType represents a trainable task
-
-        :return: True if the task type is trainable, False otherwise
-        """
-        return self not in NON_TRAINABLE_TASK_TYPES
-
     def __str__(self) -> str:
         """
         Returns the string representation of the TaskType instance

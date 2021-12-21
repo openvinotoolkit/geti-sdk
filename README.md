@@ -14,6 +14,9 @@ You can also install it in editable mode using `pip install -e .`. This is handy
 you want to make changes to the package, or want to keep it up to date with the 
 latest code changes in the repository. 
 
+> **NOTE**: sc-api-tools needs `python==3.8` to run. Unfortunately python 3.9 won't 
+> work yet since not all required packages are available for that version.
+
 ## Using the package
 The package provides a main class `SCRESTClient` that can be used for creating, downloading and
 uploading projects. 

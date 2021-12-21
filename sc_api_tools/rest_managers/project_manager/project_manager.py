@@ -6,7 +6,7 @@ from typing import Optional, List, Dict, Any, Union, Tuple
 from sc_api_tools.data_models import Project, TaskType
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import ProjectRESTConverter
-from sc_api_tools.data_models.task_type import ANOMALY_TASK_TYPES
+from sc_api_tools.data_models.enums.task_type import ANOMALY_TASK_TYPES
 
 from .task_templates import (
     BASE_TEMPLATE,
@@ -16,6 +16,7 @@ from .task_templates import (
     CLASSIFICATION_TASK,
     ANOMALY_CLASSIFICATION_TASK
 )
+from ...utils.project_helpers import get_task_types_by_project_type
 
 TASK_TYPE_MAPPING = {
     TaskType.CROP: CROP_TASK,
@@ -90,16 +91,18 @@ class ProjectManager:
             previous_task_name = "Dataset"
             is_first_task = True
             for task_type, task_labels in zip(
-                    self.get_task_types_by_project_type(project_type), labels
+                    get_task_types_by_project_type(project_type), labels
             ):
                 if not is_first_task:
                     # Add crop task and connections, only for tasks that are not
                     # first in the pipeline
                     project_template = self._add_crop_task(project_template)
                     task_name = "Crop task"
-                    project_template = self._add_connection(project_template,
-                                                            to_task=task_name,
-                                                            from_task=previous_task_name)
+                    project_template = self._add_connection(
+                        project_template,
+                        to_task=task_name,
+                        from_task=previous_task_name
+                    )
                     previous_task_name = task_name
                 project_template, added_task = self._add_task(project_template,
                                                               task_type=task_type,

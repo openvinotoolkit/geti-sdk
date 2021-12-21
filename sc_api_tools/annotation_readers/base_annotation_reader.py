@@ -1,4 +1,6 @@
+import os
 from abc import abstractmethod
+from glob import glob
 from typing import List, Union, Dict
 
 from sc_api_tools.data_models import TaskType
@@ -28,6 +30,21 @@ class AnnotationReader:
         Get annotation data for a certain filename
         """
         raise NotImplementedError
+
+    def get_data_filenames(self) -> List[str]:
+        """
+        Returns a list of annotation files found in the `base_data_folder`
+
+        :return: List of filenames (excluding extension) for all annotation files in
+            the data folder
+        """
+        filepaths = glob(
+            os.path.join(self.base_folder, f'*{self.annotation_format}')
+        )
+        return [
+            os.path.splitext(os.path.basename(filepath))[0]
+            for filepath in filepaths
+        ]
 
     @abstractmethod
     def get_all_label_names(self) -> List[str]:

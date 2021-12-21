@@ -1,9 +1,11 @@
+from datetime import datetime
 from enum import Enum
 
 import attr
-from typing import Any
+from typing import Any, Union, Optional
 
 from sc_api_tools.data_models import TaskType
+from sc_api_tools.data_models.enums import ShapeType, MediaType
 
 
 def deidentify(instance: Any):
@@ -18,14 +20,58 @@ def deidentify(instance: Any):
             setattr(instance, field.name, None)
 
 
-def str_to_task_type(task_type: str) -> TaskType:
+def str_to_task_type(task_type: Union[str, TaskType]) -> TaskType:
     """
     Converts an input string to a task type
 
     :param task_type:
     :return: TaskType instance corresponding to `task_type`
     """
-    return TaskType(task_type)
+    if isinstance(task_type, str):
+        return TaskType(task_type)
+    else:
+        return task_type
+
+
+def str_to_media_type(media_type: Union[str, MediaType]) -> MediaType:
+    """
+    Converts an input string to a media type
+
+    :param media_type:
+    :return: MediaType instance corresponding to `media_type`
+    """
+    if isinstance(media_type, str):
+        return MediaType(media_type)
+    else:
+        return media_type
+
+
+def str_to_shape_type(shape_type: Union[str, ShapeType]) -> ShapeType:
+    """
+    Converts an input string to a shape type
+
+    :param shape_type:
+    :return: ShapeType instance corresponding to `shape_type`
+    """
+    if isinstance(shape_type, str):
+        return ShapeType(shape_type)
+    else:
+        return shape_type
+
+
+def str_to_datetime(datetime_str: Optional[Union[str, datetime]]) -> Optional[datetime]:
+    """
+    Converts a string to a datetime
+
+    :param datetime_str:
+    :return: datetime instance
+    """
+    if isinstance(datetime_str, str):
+        return datetime.fromisoformat(datetime_str)
+    elif isinstance(datetime_str, datetime):
+        return datetime_str
+    elif datetime_str is None:
+        return None
 
 
 def attr_enum_to_str(instance, field, value):

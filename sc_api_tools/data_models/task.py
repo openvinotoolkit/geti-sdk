@@ -3,6 +3,8 @@ from typing import List, Optional, ClassVar
 import attr
 
 from sc_api_tools.data_models import TaskType
+from sc_api_tools.data_models.enums.task_type import NON_TRAINABLE_TASK_TYPES, \
+    ANOMALY_TASK_TYPES
 from sc_api_tools.data_models.label import Label
 from sc_api_tools.data_models.utils import deidentify, str_to_task_type
 
@@ -49,7 +51,16 @@ class Task:
 
         :return: True if the task is trainable, False otherwise
         """
-        return self.type.is_trainable
+        return self.type not in NON_TRAINABLE_TASK_TYPES
+
+    @property
+    def is_anomaly(self):
+        """
+        Returns True if this task is an anomaly task
+
+        :return: True if task is an anomaly type task, False otherwise
+        """
+        return self.type in ANOMALY_TASK_TYPES
 
     def deidentify(self):
         deidentify(self)

@@ -1,18 +1,32 @@
 import os
 import warnings
-from typing import Optional, List, Union, Dict, Any
+from typing import Optional, List, Union
 
-from .annotation_readers import SCAnnotationReader, AnnotationReader, \
+from .annotation_readers import (
+    SCAnnotationReader,
+    AnnotationReader,
     DatumAnnotationReader
+)
 from .rest_managers import (
     ProjectManager,
-    MediaManager,
     AnnotationManager,
-    ConfigurationManager
+    ConfigurationManager,
+    ImageManager,
+    VideoManager
 )
-from .data_models import Project, TaskType
+from .data_models import (
+    Project,
+    TaskType,
+    MediaList,
+    Image,
+    Video
+)
 from .http_session import SCSession, ClusterConfig
-from .utils import get_default_workspace_id, generate_classification_labels
+from .utils import (
+    get_default_workspace_id,
+    generate_classification_labels,
+    get_task_types_by_project_type
+)
 
 
 class SCRESTClient:
@@ -82,23 +96,29 @@ class SCRESTClient:
         )
 
         # Download images
-        media_manager = MediaManager(
+        image_manager = ImageManager(
             workspace_id=self._workspace_id, session=self._session, project=project
         )
-        media_manager.download_all_images(path_to_folder=target_folder)
+        image_manager.download_all(path_to_folder=target_folder)
+
+        # Download videos
+        video_manager = VideoManager(
+            workspace_id=self._workspace_id, session=self._session, project=project
+        )
+        video_manager.download_all(path_to_folder=target_folder)
 
         # Download annotations
-        image_id_mapping = media_manager.get_all_images()
+        images = image_manager.get_all_images()
+        videos = video_manager.get_all_videos()
         with warnings.catch_warnings():
             # The AnnotationManager will give a warning that it can only be used to
             # download data since no annotation reader is passed, but this is exactly
             # what we plan to do with it so we suppress the warning
             warnings.simplefilter("ignore")
             annotation_manager = AnnotationManager(
-                workspace_id=self._workspace_id,
                 session=self._session,
                 project=project,
-                image_to_id_mapping=image_id_mapping
+                media_lists=[images, videos]
             )
         annotation_manager.download_all_annotations(path_to_folder=target_folder)
         print(f"Project '{project.name}' was downloaded successfully.")
@@ -139,11 +159,19 @@ class SCRESTClient:
         )
 
         # Upload images
-        media_manager = MediaManager(
+        image_manager = ImageManager(
             workspace_id=self._workspace_id, session=self._session, project=project
         )
-        image_id_mapping = media_manager.upload_folder(
+        images = image_manager.upload_folder(
             path_to_folder=os.path.join(target_folder, "images")
+        )
+
+        # Upload videos
+        video_manager = VideoManager(
+            workspace_id=self._workspace_id, session=self._session, project=project
+        )
+        videos = video_manager.upload_folder(
+            path_to_folder=os.path.join(target_folder, "videos")
         )
 
         # Disable auto-train to prevent the project from training right away
@@ -151,6 +179,12 @@ class SCRESTClient:
             workspace_id=self._workspace_id, session=self._session, project=project
         )
         configuration_manager.set_project_auto_train(auto_train=False)
+
+        media_lists: List[Union[MediaList[Image], MediaList[Video]]] = []
+        if len(images) > 0:
+            media_lists.append(images)
+        if len(videos) > 0:
+            media_lists.append(videos)
 
         # Upload annotations for all tasks
         for task_index, task in enumerate(project.get_trainable_tasks()):
@@ -160,10 +194,9 @@ class SCRESTClient:
                 task_type_to_label_names_mapping={task.type: task.get_label_names()}
             )
             annotation_manager = AnnotationManager[SCAnnotationReader](
-                workspace_id=self._workspace_id,
                 session=self._session,
                 project=project,
-                image_to_id_mapping=image_id_mapping,
+                media_lists=media_lists,
                 annotation_reader=annotation_reader
             )
             print(
@@ -173,10 +206,16 @@ class SCRESTClient:
             append_annotations = True
             if task_index == 0:
                 append_annotations = False
-            annotation_manager.upload_annotations_for_images(
-                image_id_list=list(image_id_mapping.values()),
-                append_annotations=append_annotations
-            )
+            if len(images) > 0:
+                annotation_manager.upload_annotations_for_images(
+                    images=images,
+                    append_annotations=append_annotations
+                )
+            if len(videos) > 0:
+                annotation_manager.upload_annotations_for_videos(
+                    videos=videos,
+                    append_annotations=append_annotations
+                )
         configuration_manager.set_project_auto_train(
             auto_train=enable_auto_train
         )
@@ -254,17 +293,17 @@ class SCRESTClient:
         configuration_manager.set_project_auto_train(auto_train=False)
 
         # Upload images
-        media_manager = MediaManager(
+        image_manager = ImageManager(
             session=self._session, workspace_id=self._workspace_id, project=project
         )
         if isinstance(annotation_reader, DatumAnnotationReader):
-            image_id_mapping = media_manager.upload_from_list(
+            images = image_manager.upload_from_list(
                 path_to_folder=path_to_images,
                 image_names=annotation_reader.get_all_image_names(),
                 n_images=number_of_images_to_upload
             )
         else:
-            image_id_mapping = media_manager.upload_folder(
+            images = image_manager.upload_folder(
                 path_to_images, n_images=number_of_images_to_upload
             )
 
@@ -276,13 +315,12 @@ class SCRESTClient:
         # Upload annotations
         annotation_manager = AnnotationManager(
             session=self._session,
-            workspace_id=self._workspace_id,
             project=project,
             annotation_reader=annotation_reader,
-            image_to_id_mapping=image_id_mapping
+            media_lists=[images]
         )
         annotation_manager.upload_annotations_for_images(
-            list(image_id_mapping.values())
+            images
         )
         configuration_manager.set_project_auto_train(auto_train=enable_auto_train)
         return project
@@ -361,19 +399,19 @@ class SCRESTClient:
         configuration_manager.set_project_auto_train(auto_train=False)
 
         # Upload images
-        media_manager = MediaManager(
+        image_manager = ImageManager(
             session=self._session, workspace_id=self._workspace_id, project=project
         )
         # Assume that the first task determines the media that will be uploaded
         first_task_reader = annotation_readers_per_task[0]
         if isinstance(first_task_reader, DatumAnnotationReader):
-            image_id_mapping = media_manager.upload_from_list(
+            images = image_manager.upload_from_list(
                 path_to_folder=path_to_images,
                 image_names=first_task_reader.get_all_image_names(),
                 n_images=number_of_images_to_upload
             )
         else:
-            image_id_mapping = media_manager.upload_folder(
+            images = image_manager.upload_folder(
                 path_to_images, n_images=number_of_images_to_upload
             )
 
@@ -386,21 +424,20 @@ class SCRESTClient:
                 # Upload annotations
                 annotation_manager = AnnotationManager(
                     session=self._session,
-                    workspace_id=self._workspace_id,
                     project=project,
                     annotation_reader=reader,
-                    image_to_id_mapping=image_id_mapping
+                    media_lists=[images]
                 )
                 annotation_manager.upload_annotations_for_images(
-                    image_id_list=list(image_id_mapping.values()),
+                    images=images,
                     append_annotations=append_annotations
                 )
                 append_annotations = True
         configuration_manager.set_project_auto_train(auto_train=enable_auto_train)
         return project
 
+    @staticmethod
     def _check_unique_label_names(
-            self,
             labels_per_task: List[List[str]],
             task_types: List[TaskType],
             annotation_readers_per_task: List[AnnotationReader]
@@ -450,4 +487,4 @@ class SCRESTClient:
 
         :return: List of task types for all trainable tasks in a project of this type
         """
-        return ProjectManager.get_task_types_by_project_type(project_type=project_type)
+        return get_task_types_by_project_type(project_type=project_type)

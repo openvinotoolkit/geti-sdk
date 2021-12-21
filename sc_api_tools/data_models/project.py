@@ -2,7 +2,6 @@ from typing import List, Dict, Optional, ClassVar, Any, Union
 
 import attr
 
-from .task_type import TaskType
 from .label import Label
 from .task import Task
 from .utils import deidentify, attr_enum_to_str
