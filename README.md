@@ -99,21 +99,19 @@ What is supported:
   single task segmentation project, you'd pass `project_type='segmentation'`. For a 
   detection -> segmentation task chain, you can pass 
   `project_type=detection_to_segmentation`.
-- Uploading images, and annotations for images to a project
-- Downloading images and annotations for images from a project
+- Uploading images, videos and annotations for images and video frames to a project
+- Downloading images, videos and annotations for images and video frames from a project
 - Setting basic configuration for a project, like turning auto train on/off and 
   setting number of iterations for all tasks
-- **Creating and restoring a backup of an existing project**, by first downloading its 
-  data using the `download_project.py` script and later uploading it again using the 
-  `upload_project.py` script. Only annotations and images are backed up, 
-  models are not. 
+- **Creating and restoring a backup of an existing project**, using the code 
+  snippets provided [above](#downloading-and-uploading-projects). Only 
+  annotations and media are backed up, models are not. 
 >  **NOTE**: I have only tested backing up with `detection`, `segmentation`, 
 >  `classification` and `detection_to_segmentation` projects. I see no reason why it 
 >  wouldn't work for `anomaly_classification` and `detection_to_classification` 
 >  projects, but please test carefully before relying on this.
   
 What is not (fully) supported:
-- Video and video frame annotations are not (yet) supported.
 - Empty labels in a task chain project seem not always to be uploaded correctly. They 
   are handled correctly for the first task, but not if there is an object in the 
   first task but the label for the second task is empty
