@@ -133,11 +133,11 @@ The `SCRESTClient` class provides the following methods:
 - `upload_all_projects` -- Uploads all projects found in a specified folder to the SC 
   cluster.
   
-- `create_project_single_task` -- Creates a single task project on the SC cluster, 
-  potentially using annotations and labels from an external dataset.
+- `create_project_single_task_from_dataset` -- Creates a single task project on the SC 
+  cluster, potentially using labels and uploading annotations from an external dataset.
   
-- `create_task_chain_project` -- Creates a task chain project on the SC cluster, 
-  potentially using annotations and labels from an external dataset.
+- `create_task_chain_project_from_dataset` -- Creates a task chain project on the SC 
+  cluster, potentially using labels and uploading annotations from an external dataset.
   
 For further details regarding these methods, please refer to the method documentation 
 and the [code snippets](#downloading-and-uploading-projects) and 
