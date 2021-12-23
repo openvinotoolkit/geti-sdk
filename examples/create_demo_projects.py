@@ -10,14 +10,8 @@ if __name__ == "__main__":
     # --------------------------------------------------
 
     # Set up REST client with server address and login details
-    """client = SCRESTClient(
-        host="https://0.0.0.0", username="dummy_user", password="dummy_password"
-    )"""
-    vm_host = 'https://10.55.252.73/'
-
-    # Set up REST client with server address and login details
     client = SCRESTClient(
-        host=vm_host, username="admin@sc-project.intel.com", password="@SCAdmin"
+        host="https://0.0.0.0", username="dummy_user", password="dummy_password"
     )
 
     # Dataset configuration
