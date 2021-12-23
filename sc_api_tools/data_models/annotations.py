@@ -222,3 +222,5 @@ class AnnotationScene:
             current_shape_annotation = self.get_by_shape(annotation.shape)
             if current_shape_annotation is not None:
                 current_shape_annotation.extend_labels(annotation.labels)
+            else:
+                self.annotations.append(annotation)
