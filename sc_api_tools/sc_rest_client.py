@@ -25,7 +25,7 @@ from .http_session import SCSession, ClusterConfig
 from .utils import (
     get_default_workspace_id,
     generate_classification_labels,
-    get_task_types_by_project_type, is_project_dir
+    get_task_types_by_project_type
 )
 
 
@@ -99,17 +99,19 @@ class SCRESTClient:
         image_manager = ImageManager(
             workspace_id=self._workspace_id, session=self._session, project=project
         )
-        image_manager.download_all(path_to_folder=target_folder)
+        images = image_manager.get_all_images()
+        if len(images) > 0:
+            image_manager.download_all(path_to_folder=target_folder)
 
         # Download videos
         video_manager = VideoManager(
             workspace_id=self._workspace_id, session=self._session, project=project
         )
-        video_manager.download_all(path_to_folder=target_folder)
+        videos = video_manager.get_all_videos()
+        if len(videos) > 0:
+            video_manager.download_all(path_to_folder=target_folder)
 
         # Download annotations
-        images = image_manager.get_all_images()
-        videos = video_manager.get_all_videos()
         with warnings.catch_warnings():
             # The AnnotationManager will give a warning that it can only be used to
             # download data since no annotation reader is passed, but this is exactly
@@ -186,36 +188,26 @@ class SCRESTClient:
         if len(videos) > 0:
             media_lists.append(videos)
 
-        # Upload annotations for all tasks
-        for task_index, task in enumerate(project.get_trainable_tasks()):
-            annotation_reader = SCAnnotationReader(
-                base_data_folder=os.path.join(target_folder, "annotations"),
-                task_type=task.type,
-                task_type_to_label_names_mapping={task.type: task.get_label_names()}
+        # Upload annotations
+        annotation_reader = SCAnnotationReader(
+            base_data_folder=os.path.join(target_folder, "annotations"),
+            task_type=None,
+        )
+        annotation_manager = AnnotationManager[SCAnnotationReader](
+            session=self._session,
+            project=project,
+            media_lists=media_lists,
+            annotation_reader=annotation_reader
+        )
+        if len(images) > 0:
+            annotation_manager.upload_annotations_for_images(
+                images=images,
             )
-            annotation_manager = AnnotationManager[SCAnnotationReader](
-                session=self._session,
-                project=project,
-                media_lists=media_lists,
-                annotation_reader=annotation_reader
+        if len(videos) > 0:
+            annotation_manager.upload_annotations_for_videos(
+                videos=videos,
             )
-            print(
-                f"Uploading annotations for task number {task_index + 1} of type "
-                f"'{task.type}'"
-            )
-            append_annotations = True
-            if task_index == 0:
-                append_annotations = False
-            if len(images) > 0:
-                annotation_manager.upload_annotations_for_images(
-                    images=images,
-                    append_annotations=append_annotations
-                )
-            if len(videos) > 0:
-                annotation_manager.upload_annotations_for_videos(
-                    videos=videos,
-                    append_annotations=append_annotations
-                )
+
         configuration_manager.set_project_auto_train(
             auto_train=enable_auto_train
         )
@@ -230,6 +222,7 @@ class SCRESTClient:
             annotation_reader: AnnotationReader,
             labels: Optional[List[str]] = None,
             number_of_images_to_upload: int = -1,
+            number_of_images_to_annotate: int = -1,
             enable_auto_train: bool = True
     ) -> Project:
         """
@@ -256,6 +249,9 @@ class SCRESTClient:
         :param number_of_images_to_upload: Optional integer specifying how many images
             should be uploaded. If not specified, all images found in the dataset are
             uploaded.
+        :param number_of_images_to_annotate: Optional integer specifying how many
+            images should be annotated. If not specified, annotations for all images
+            that have annotations available will be uploaded.
         :param enable_auto_train: True to enable auto-training for all tasks directly
             after all annotations have been uploaded. This will directly trigger a
             training round if the conditions for auto-training are met. False to leave
@@ -307,6 +303,12 @@ class SCRESTClient:
                 path_to_images, n_images=number_of_images_to_upload
             )
 
+        if (
+                number_of_images_to_annotate < len(images)
+                and number_of_images_to_annotate != -1
+        ):
+            images = images[:number_of_images_to_annotate]
+
         # Set annotation reader task type
         annotation_reader.task_type = project.get_trainable_tasks()[0].type
         annotation_reader.prepare_and_set_dataset(
@@ -330,9 +332,9 @@ class SCRESTClient:
             project_name: str,
             project_type: str,
             path_to_images: str,
-            annotation_readers_per_task: List[Optional[AnnotationReader]],
-            labels_per_task: Optional[List[List[str]]] = None,
+            label_source_per_task: List[Union[AnnotationReader, List[str]]],
             number_of_images_to_upload: int = -1,
+            number_of_images_to_annotate: int = -1,
             enable_auto_train: bool = True
     ) -> Project:
         """
@@ -351,17 +353,28 @@ class SCRESTClient:
             project will perform. See above for possible values
         :param path_to_images: Path to the folder holding the images on the local disk.
             See above for details.
-        :param annotation_readers_per_task: List of AnnotationReader instances that
-            will be used to obtain annotations for the images for each task. The
-            annotation readers have to be passed in the correct task order. If there
-            are no annotations available from the dataset for one of the tasks, a
-            `None` entry can be passed in the list
-        :param labels_per_task: Optional nested list of labels to use. Each entry in
-            the outermost list corresponds to the list of labels for one task in
-            the task chain.
+        :param label_source_per_task: List containing the label sources for each task
+            in the task chain. Each entry in the list corresponds to the label source
+            for one task. The list can contain either AnnotationReader instances that
+            will be used to obtain the labels for a task, or it can contain a list of
+            labels to use for that task.
+
+            For example, in a detection -> classification project we may have labels
+            for the first task (for instance 'dog'), but no annotations for the second
+            task yet (e.g. ['small', 'large']). In that case the
+            `label_source_per_task` should contain:
+
+                [AnnotationReader(), ['small', 'large']]
+
+            Where the annotation reader has been properly instantiated to read the
+            annotations for the 'dog' labels.
+
         :param number_of_images_to_upload: Optional integer specifying how many images
             should be uploaded. If not specified, all images found in the dataset are
             uploaded.
+        :param number_of_images_to_annotate: Optional integer specifying how many
+            images should be annotated. If not specified, annotations for all images
+            that have annotations available will be uploaded.
         :param enable_auto_train: True to enable auto-training for all tasks directly
             after all annotations have been uploaded. This will directly trigger a
             training round if the conditions for auto-training are met. False to leave
@@ -369,12 +382,15 @@ class SCRESTClient:
         :return: Project object, holding information obtained from the cluster
             regarding the uploaded project
         """
-        if labels_per_task is None:
-            labels_per_task = []
-            for reader in annotation_readers_per_task:
-                labels_per_task.append(
-                    reader.get_all_label_names() if reader is not None else None
-                )
+        labels_per_task = [
+            entry.get_all_label_names()
+            if isinstance(entry, AnnotationReader) else entry
+            for entry in label_source_per_task
+        ]
+        annotation_readers_per_task = [
+            entry if isinstance(entry, AnnotationReader) else None
+            for entry in label_source_per_task
+        ]
 
         task_types = get_task_types_by_project_type(project_type)
         labels_per_task = self._check_unique_label_names(
@@ -414,6 +430,12 @@ class SCRESTClient:
             images = image_manager.upload_folder(
                 path_to_images, n_images=number_of_images_to_upload
             )
+
+        if (
+                number_of_images_to_annotate < len(images)
+                and number_of_images_to_annotate != -1
+        ):
+            images = images[:number_of_images_to_annotate]
 
         append_annotations = False
         for task_type, reader in zip(task_types, annotation_readers_per_task):
@@ -475,9 +497,9 @@ class SCRESTClient:
             else:
                 return new_labels_per_task
         else:
-            return all_labels
+            return labels_per_task
 
-    def download_all_project(self, target_folder: str) -> List[Project]:
+    def download_all_projects(self, target_folder: str) -> List[Project]:
         """
         Downloads all projects in the default workspace from the SC cluster
 
@@ -532,7 +554,8 @@ class SCRESTClient:
             for subfolder in os.listdir(target_folder)
         ]
         project_folders = [
-            folder for folder in candidate_project_folders if is_project_dir(folder)
+            folder for folder in candidate_project_folders
+            if ProjectManager.is_project_dir(folder)
         ]
         print(
             f"Found {len(project_folders)} project data folders in the target "
@@ -548,3 +571,4 @@ class SCRESTClient:
                 target_folder=project_folder, enable_auto_train=False
             )
             projects.append(project)
+        return projects

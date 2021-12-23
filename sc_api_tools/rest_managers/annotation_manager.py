@@ -57,16 +57,17 @@ class AnnotationManager(Generic[AnnotationReaderType]):
         :return:
         """
         for media_list in media_lists:
-            if media_list.media_type == Image:
-                self.image_list.extend(media_list)
-            elif media_list.media_type == Video:
-                self.video_list.extend(media_list)
-            else:
-                raise ValueError(
-                    f"Unsupported media type {media_list.media_type} found in media "
-                    f"lists. Unable to process this media type in the "
-                    f"AnnotationManager."
-                )
+            if len(media_list) > 0:
+                if media_list.media_type == Image:
+                    self.image_list.extend(media_list)
+                elif media_list.media_type == Video:
+                    self.video_list.extend(media_list)
+                else:
+                    raise ValueError(
+                        f"Unsupported media type {media_list.media_type} found in "
+                        f"media lists. Unable to process this media type in the "
+                        f"AnnotationManager."
+                    )
 
     def _get_label_mapping(self, project: Project) -> Dict[str, str]:
         """
@@ -143,7 +144,7 @@ class AnnotationManager(Generic[AnnotationReaderType]):
             annotation
         """
         new_annotation_scene = self._read_2d_media_annotation_from_source(
-            media_item=media_item
+            media_item=media_item, preserve_shape_for_global_labels=True
         )
         try:
             annotation_scene = self.get_latest_annotation_for_2d_media_item(
@@ -159,8 +160,6 @@ class AnnotationManager(Generic[AnnotationReaderType]):
                 annotations=[],
                 kind="annotation"
             )
-        for annotation in annotation_scene.annotations:
-            annotation.deidentify()
         annotation_scene.extend(new_annotation_scene.annotations)
 
         if annotation_scene.has_data:
@@ -206,7 +205,9 @@ class AnnotationManager(Generic[AnnotationReaderType]):
         ]
 
     def _read_2d_media_annotation_from_source(
-            self, media_item: Union[Image, VideoFrame]
+            self,
+            media_item: Union[Image, VideoFrame],
+            preserve_shape_for_global_labels: bool = False
     ) -> AnnotationScene:
         """
         Retrieve the annotation for the media_item, and return it in the
@@ -217,7 +218,9 @@ class AnnotationManager(Generic[AnnotationReaderType]):
         :return: Dictionary containing the annotation, in SC format
         """
         annotation_list = self.annotation_reader.get_data(
-            filename=media_item.name, label_name_to_id_mapping=self.label_mapping
+            filename=media_item.name,
+            label_name_to_id_mapping=self.label_mapping,
+            preserve_shape_for_global_labels=preserve_shape_for_global_labels
         )
         return AnnotationRESTConverter.from_dict(
             {

@@ -2,9 +2,8 @@ import copy
 
 import attr
 from omegaconf import OmegaConf
-from sc_api_tools.data_models import MediaType, ScoredLabel, Image, \
-    VideoFrame
-from typing import List, Dict, Any, Union, cast
+from sc_api_tools.data_models import MediaType, ScoredLabel
+from typing import List, Dict, Any, cast
 
 from sc_api_tools.data_models import AnnotationScene, Annotation
 from sc_api_tools.data_models.annotations import (
@@ -13,11 +12,17 @@ from sc_api_tools.data_models.annotations import (
     Polygon,
     Rectangle
 )
-from sc_api_tools.data_models.media_identifiers import MediaIdentifier, ImageIdentifier, \
+from sc_api_tools.data_models.media_identifiers import (
+    MediaIdentifier,
+    ImageIdentifier,
     VideoFrameIdentifier
+)
 from sc_api_tools.data_models.enums import ShapeType
-from sc_api_tools.data_models.utils import attr_enum_to_str, str_to_shape_type, \
-    str_to_media_type
+from sc_api_tools.data_models.utils import (
+    str_to_shape_type,
+    str_to_media_type,
+    attr_value_serializer
+)
 from sc_api_tools.utils.dictionary_helpers import remove_null_fields
 
 SHAPE_TYPE_MAPPING = {
@@ -32,34 +37,6 @@ MEDIA_IDENTIFIER_MAPPING = {
 
 
 class AnnotationRESTConverter:
-    @staticmethod
-    def annotation_list_to_dict(
-            media_item: Union[Image, VideoFrame],
-            annotations: List[Union[Dict[str, Any], Annotation]]
-    ):
-        """
-        Converts a list of annotations for a certain media_item to a dictionary that
-        can be passed to the REST endpoint for annotation upload.
-
-        :param media_item: MediaItem to which the annotations belong
-        :param annotations: list of annotations
-        :return:
-        """
-        converted_annotations: List[Dict[str, Any]] = []
-        for annotation in annotations:
-            if isinstance(annotation, Annotation):
-                converted_annotations.append(
-                    attr.asdict(
-                        annotation, recurse=True, value_serializer=attr_enum_to_str
-                    )
-                )
-            else:
-                converted_annotations.append(annotation)
-        return {
-            "media_identifier": media_item.identifier.to_dict(),
-            "annotations": converted_annotations,
-        }
-
     @staticmethod
     def to_dict(
             annotation_scene: AnnotationScene, deidentify: bool = True
@@ -76,7 +53,7 @@ class AnnotationRESTConverter:
         if deidentify:
             annotation_scene.deidentify()
         annotation_dict = attr.asdict(
-            annotation_scene, recurse=True, value_serializer=attr_enum_to_str
+            annotation_scene, recurse=True, value_serializer=attr_value_serializer
         )
         remove_null_fields(annotation_dict)
         return annotation_dict
@@ -107,9 +84,9 @@ class AnnotationRESTConverter:
         return cast(ScoredLabel, OmegaConf.to_object(values))
 
     @staticmethod
-    def _annotation_from_dict(input_dict: Dict[str, Any]) -> Annotation:
+    def annotation_from_dict(input_dict: Dict[str, Any]) -> Annotation:
         """
-        Converst a dictionary representing an annotation to an Annotation object
+        Converts a dictionary representing an annotation to an Annotation object
 
         :param input_dict:
         :return:
@@ -150,9 +127,12 @@ class AnnotationRESTConverter:
         input_copy = copy.deepcopy(annotation_scene)
         annotations: List[Annotation] = []
         for annotation in annotation_scene["annotations"]:
-            annotations.append(
-                AnnotationRESTConverter._annotation_from_dict(annotation)
-            )
+            if not isinstance(annotation, Annotation):
+                annotations.append(
+                    AnnotationRESTConverter.annotation_from_dict(annotation)
+                )
+            else:
+                annotations.append(annotation)
         media_identifier = AnnotationRESTConverter._media_identifier_from_dict(
             annotation_scene["media_identifier"]
         )

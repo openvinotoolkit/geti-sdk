@@ -102,7 +102,12 @@ class VitensAnnotationReader(AnnotationReader):
             )
         return shape
 
-    def get_data(self, filename: str, label_name_to_id_mapping: dict):
+    def get_data(
+            self,
+            filename: str,
+            label_name_to_id_mapping: dict,
+            preserve_shape_for_global_labels: bool = False
+    ):
         annotation_filename, separator_token = self._convert_filename(filename)
         annotation_files = [
             self._convert_filename(filename)[0] for filename
@@ -144,10 +149,14 @@ class VitensAnnotationReader(AnnotationReader):
                         f"Unsupported shape of type {shapes[0]['type']} found in "
                         f"annotation source data."
                     )
-                annotation_list.append(
+                sc_annotation = AnnotationRESTConverter.annotation_from_dict(
                     {
                         "shape": new_shape,
-                        "labels": [{"id": label_id} for label_id in new_label_ids]
+                        "labels": [
+                            {"id": label_id, "probability": 1.0}
+                            for label_id in new_label_ids
+                        ]
                     }
                 )
+                annotation_list.append(sc_annotation)
         return annotation_list

@@ -90,3 +90,21 @@ def attr_enum_to_str(instance, field, value):
         return value
 
 
+def attr_value_serializer(instance, field, value):
+    """
+    Converts a value in an attr.s decorated class to string representation, used
+    while converting the attrs object to a dictionary.
+
+    Converts Enums and datetime objects to string representation
+
+    :param instance:
+    :param field:
+    :param value:
+    :return:
+    """
+    if isinstance(value, Enum):
+        return str(value)
+    elif isinstance(value, datetime):
+        return datetime.isoformat(value)
+    else:
+        return value

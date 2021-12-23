@@ -3,8 +3,10 @@ import json
 import os
 from typing import List, Dict, Optional, Union
 
+from sc_api_tools.rest_converters import AnnotationRESTConverter
+
 from .base_annotation_reader import AnnotationReader
-from sc_api_tools.data_models import TaskType
+from sc_api_tools.data_models import TaskType, Annotation
 
 
 class SCAnnotationReader(AnnotationReader):
@@ -12,10 +14,8 @@ class SCAnnotationReader(AnnotationReader):
             self,
             base_data_folder: str,
             annotation_format: str = ".json",
-            task_type: Union[TaskType, str] = "detection",
-            task_type_to_label_names_mapping: Optional[
-                Dict[Union[TaskType, str], List[str]]
-            ] = None
+            task_type: Optional[Union[TaskType, str]] = None,
+            label_names_to_include: Optional[List[str]] = None
     ):
         if annotation_format != '.json':
             raise ValueError(
@@ -27,32 +27,30 @@ class SCAnnotationReader(AnnotationReader):
             annotation_format=annotation_format,
             task_type=task_type
         )
-        if task_type_to_label_names_mapping is not None:
-            for task_type, labels in list(task_type_to_label_names_mapping.items()):
-                if not isinstance(task_type, TaskType):
-                    task_type_to_label_names_mapping.pop(task_type)
-                    task_type_to_label_names_mapping.update(
-                        {TaskType(task_type): labels}
-                    )
-        self._task_label_mapping = task_type_to_label_names_mapping
+        self._label_names_to_include = label_names_to_include
 
-    def _get_labels_for_current_task_type(self, all_labels: List[str]) -> List[str]:
+    def _get_label_names(self, all_labels: List[str]) -> List[str]:
         """
         Returns the labels for the task type the annotation reader is currently set to.
 
         :param all_labels: List of all label names in the project
         """
-        if self._task_label_mapping is None:
+        if self._label_names_to_include is None:
             print("No label mapping defined, including all labels")
             labels = all_labels
         else:
             labels = [
                 label for label in all_labels
-                if label in self._task_label_mapping[self.task_type]
+                if label in self._label_names_to_include
             ]
         return labels
 
-    def get_data(self, filename: str, label_name_to_id_mapping: dict):
+    def get_data(
+            self,
+            filename: str,
+            label_name_to_id_mapping: dict,
+            preserve_shape_for_global_labels: bool = False
+    ) -> List[Annotation]:
         filepath = glob.glob(
             os.path.join(
                 self.base_folder, f"{filename}{self.annotation_format}")
@@ -73,16 +71,21 @@ class SCAnnotationReader(AnnotationReader):
             filepath = filepath[0]
         with open(filepath, 'r') as f:
             data = json.load(f)
-        task_labels = self._get_labels_for_current_task_type(
-            list(label_name_to_id_mapping.keys()))
+
         new_annotations = []
         for annotation in data["annotations"]:
-            labels = annotation["labels"]
-            label_names = [label["name"] for label in labels]
-            for label in labels:
-                label["id"] = label_name_to_id_mapping[label["name"]]
-            if all([label in task_labels for label in label_names]):
-                new_annotations.append(annotation)
+            annotation_object = AnnotationRESTConverter.annotation_from_dict(annotation)
+            for label in annotation_object.labels:
+                label.id = label_name_to_id_mapping[label.name]
+            for label_dict in annotation["labels"]:
+                if self.task_type is not None:
+                    if label_dict["name"] not in self._get_label_names(
+                            list(label_name_to_id_mapping.keys())
+                    ):
+                        annotation_object.pop_label_by_name(
+                            label_name=label_dict["name"]
+                        )
+            new_annotations.append(annotation_object)
         return new_annotations
 
     def get_all_label_names(self) -> List[str]:

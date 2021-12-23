@@ -106,6 +106,45 @@ class Annotation:
         for label in self.labels:
             deidentify(label)
 
+    @property
+    def label_names(self) -> List[str]:
+        """
+        Returns a list of label names for this Annotation
+
+        :return:
+        """
+        return [label.name for label in self.labels]
+
+    def append_label(self, label: ScoredLabel):
+        """
+        Adds a label to the list of labels belonging to this annotation
+
+        :param label:
+        :return:
+        """
+        self.labels.append(label)
+
+    def extend_labels(self, labels: List[ScoredLabel]):
+        """
+        Adds a list of labels to the labels already attached to this annotation
+
+        :param labels: List of ScoredLabels to add
+        :return:
+        """
+        self.labels.extend(labels)
+
+    def pop_label_by_name(self, label_name: str):
+        """
+        Removes a label from the list of labels belonging to this annotation
+
+        :param label_name: Name of the label to remove from the list
+        :return:
+        """
+        for index, label in enumerate(self.labels):
+            if label.name == label_name:
+                break
+        self.labels.pop(index)
+
 
 @attr.s(auto_attribs=True)
 class AnnotationScene:
@@ -156,6 +195,21 @@ class AnnotationScene:
         """
         self.annotations.append(annotation)
 
+    def get_by_shape(self, shape: Shape) -> Optional[Annotation]:
+        """
+        Return the annotation belonging to a specific shape. Returns None if no
+        Annotation is found for the shape.
+
+        :param shape: Shape to return the annotation for
+        :return:
+        """
+        return next(
+            (
+                annotation for annotation in self.annotations
+                if annotation.shape == shape
+            ), None
+        )
+
     def extend(self, annotations: List[Annotation]):
         """
         Extend the list of annotations in the AnnotationScene with additional entries
@@ -164,4 +218,7 @@ class AnnotationScene:
         :param annotations: List of Annotations to add to the AnnotationScene
         :return:
         """
-        self.annotations.extend(annotations)
+        for annotation in annotations:
+            current_shape_annotation = self.get_by_shape(annotation.shape)
+            if current_shape_annotation is not None:
+                current_shape_annotation.extend_labels(annotation.labels)

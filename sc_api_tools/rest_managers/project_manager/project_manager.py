@@ -7,6 +7,7 @@ from sc_api_tools.data_models import Project, TaskType
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import ProjectRESTConverter
 from sc_api_tools.data_models.enums.task_type import ANOMALY_TASK_TYPES
+from sc_api_tools.utils.project_helpers import get_task_types_by_project_type
 
 from .task_templates import (
     BASE_TEMPLATE,
@@ -16,7 +17,7 @@ from .task_templates import (
     CLASSIFICATION_TASK,
     ANOMALY_CLASSIFICATION_TASK
 )
-from ...utils.project_helpers import get_task_types_by_project_type
+
 
 TASK_TYPE_MAPPING = {
     TaskType.CROP: CROP_TASK,
@@ -65,17 +66,6 @@ class ProjectManager:
              if project.name == project_name), None
         )
         return project
-
-    @classmethod
-    def get_task_types_by_project_type(cls, project_type: str) -> List[TaskType]:
-        """
-        Returns a list of task_type for each task in the project pipeline, for a
-        certain 'project_type'
-
-        :param project_type:
-        :return:
-        """
-        return [TaskType(task) for task in project_type.split('_to_')]
 
     def get_or_create_project(
             self,
@@ -256,3 +246,29 @@ class ProjectManager:
             f"configuration file at {path_to_project}."
         )
         return self.get_or_create_project(**project.get_parameters())
+
+
+    @staticmethod
+    def is_project_dir(path_to_folder: str) -> bool:
+        """
+        Returns True if the folder specified in `path_to_folder` is a directory
+        containing valid SC project data that can be used to upload to an SC cluster
+
+        :param path_to_folder: Directory to check
+        :return: True if the directory holds project data, False otherwise
+        """
+        if not os.path.isdir(path_to_folder):
+            return False
+        path_to_project = os.path.join(path_to_folder, "project.json")
+        if not os.path.isfile(path_to_project):
+            return False
+        try:
+            with open(path_to_project, 'r') as file:
+                project_data = json.load(file)
+        except JSONDecodeError:
+            return False
+        try:
+            project = ProjectRESTConverter.from_dict(project_data)
+        except (ValueError, TypeError, KeyError):
+            return False
+        return True

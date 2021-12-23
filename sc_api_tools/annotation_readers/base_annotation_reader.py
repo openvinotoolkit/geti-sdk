@@ -3,7 +3,7 @@ from abc import abstractmethod
 from glob import glob
 from typing import List, Union, Dict
 
-from sc_api_tools.data_models import TaskType
+from sc_api_tools.data_models import TaskType, Annotation
 
 
 class AnnotationReader:
@@ -18,14 +18,18 @@ class AnnotationReader:
             annotation_format: str = ".json",
             task_type: Union[TaskType, str] = TaskType.DETECTION
     ):
-        if not isinstance(task_type, TaskType):
+        if task_type is not None and not isinstance(task_type, TaskType):
             task_type = TaskType(task_type)
         self.base_folder = base_data_folder
         self.annotation_format = annotation_format
         self.task_type = task_type
 
     @abstractmethod
-    def get_data(self, filename: str, label_name_to_id_mapping: dict):
+    def get_data(
+            self, filename: str,
+            label_name_to_id_mapping: dict,
+            preserve_shape_for_global_labels: bool = False
+    ) -> List[Annotation]:
         """
         Get annotation data for a certain filename
         """

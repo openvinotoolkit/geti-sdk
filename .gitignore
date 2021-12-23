@@ -17,3 +17,6 @@ venv.bak/
 
 # PyCharm configuration
 .idea
+
+# Data folder
+examples/data

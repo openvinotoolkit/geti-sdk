@@ -2,3 +2,4 @@ datumaro==0.2.1
 requests==2.26.*
 numpy==1.21.*
 omegaconf==2.1.*
+tqdm==4.62.*

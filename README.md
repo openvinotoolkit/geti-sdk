@@ -62,6 +62,11 @@ The client can be used to either back-up a project (by downloading it and later
 uploading it again to the same cluster), or to migrate a project to a different cluster 
 (download it, and upload it to the target cluster).
 
+#### Up/Downloading all projects
+To up- or download all projects from a cluster, simply use the 
+`client.download_all_projects` and `client.upload_all_projects` methods instead of 
+the single project methods in the code snippets above.
+
 ### Project creation examples
 #### COCO/Datumaro examples
 The `examples` folder contains sample scripts to create projects based on the 
@@ -76,9 +81,32 @@ COCO dataset in various configurations:
   contains bounding boxes for "dog" objects, and has the dogs segmented as a "dog shape"
   label.
   
+
+- `create_demo_projects.py` -> Populates your SC cluster with 6 different projects, 
+  all based on the COCO dataset. Each project represents one of the supported task 
+  within SC MVP. The projects created are:
+  
+  - **Segmentation demo** -- Segmentation of 'dog' and 'person' objects
+  - **Detection demo** -- Detection of 'horse' and 'cat' objects
+  - **Classification demo** -- Single class classification of 'horse' vs 'dog' vs 'cat'
+  - **Anomaly classification demo** -- Anomaly classification of images of animals 
+    ('Normal') vs cars and bicycles ('Anomalous')
+  - **Animal detection to segmentation demo** -- Detection of 'animal', followed by 
+    segmentation into three categories: 'horse', 'dog', 'cat'
+  - **Animal detection to classification demo** -- Detection of 'animal', followed by 
+    classification into three categories: 'horse', 'dog', 'cat'
+  
 > **NOTE**: To run these examples you'll need to have the COCO dataset (or a subset thereof) on
-> your local disk. I recommend using the 2017 validation dataset, which contains 5000 
-> images. It can be downloaded via
+> your local disk. 
+> 
+> I recommend using the 2017 validation dataset, which contains 5000 
+> images. It can be downloaded using the `download_coco.py` script from the `examples` 
+> folder (this is the recommended way to obtain the data!). The script should be ran 
+> from within the `examples` folder, and will extract the dataset in such a way that 
+> all other example scripts can be run once the download completes. **NOTE:** You may 
+> have to turn off your VPN in order to be able to download the data
+> 
+> Alternatively, you can download the COCO data manually via
 > [this link](http://images.cocodataset.org/zips/val2017.zip) (approx. 1 Gb download).
 
 The above examples work with Datumaro for annotation loading, so in principle they 
@@ -98,26 +126,26 @@ What is supported:
   tasks will be created in the project pipeline. For example, if you want to create a 
   single task segmentation project, you'd pass `project_type='segmentation'`. For a 
   detection -> segmentation task chain, you can pass 
-  `project_type=detection_to_segmentation`.
+  `project_type=detection_to_segmentation`. Please see the scripts in the `examples` 
+  folder for examples on how to do this.
+  
 - Uploading images, videos and annotations for images and video frames to a project
+  
 - Downloading images, videos and annotations for images and video frames from a project
+  
 - Setting basic configuration for a project, like turning auto train on/off and 
   setting number of iterations for all tasks
+  
 - **Creating and restoring a backup of an existing project**, using the code 
   snippets provided [above](#downloading-and-uploading-projects). Only 
-  annotations and media are backed up, models are not. 
->  **NOTE**: I have only tested backing up with `detection`, `segmentation`, 
->  `classification` and `detection_to_segmentation` projects. I see no reason why it 
->  wouldn't work for `anomaly_classification` and `detection_to_classification` 
->  projects, but please test carefully before relying on this.
+  annotations and media are backed up, models are not.
   
 What is not (fully) supported:
-- Empty labels in a task chain project seem not always to be uploaded correctly. They 
-  are handled correctly for the first task, but not if there is an object in the 
-  first task but the label for the second task is empty
-- Label hierarchies *should* work, I have tested this briefly but please use caution 
+- Model download and upload
+- Prediction download and upload
+- Backing up project configuration
+- Label hierarchies *should* work, I have tested this but please use caution 
   and test extensively yourself
-- Creating `detection to classification` projects *should* work, but is not tested
 - Other stuff that I may have missed... Please please please test carefully before 
   relying on this tool to back up your projects!!!
   

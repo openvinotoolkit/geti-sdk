@@ -8,9 +8,12 @@ from datumaro.components.annotation import AnnotationType, LabelCategories, \
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
+from sc_api_tools.rest_converters import AnnotationRESTConverter
 
 from .base_annotation_reader import AnnotationReader
 from sc_api_tools.data_models import TaskType
+from sc_api_tools.data_models import Annotation as SCAnnotation
+from sc_api_tools.data_models.enums.task_type import GLOBAL_TASK_TYPES
 from sc_api_tools.utils import get_dict_key_from_value, generate_segmentation_labels
 
 
@@ -20,7 +23,10 @@ class DatumAnnotationReader(AnnotationReader):
     """
 
     _SUPPORTED_TASK_TYPES = [
-        TaskType.DETECTION, TaskType.SEGMENTATION, TaskType.CLASSIFICATION
+        TaskType.DETECTION,
+        TaskType.SEGMENTATION,
+        TaskType.CLASSIFICATION,
+        TaskType.ANOMALY_CLASSIFICATION
     ]
 
     def __init__(
@@ -37,7 +43,7 @@ class DatumAnnotationReader(AnnotationReader):
         self.dataset = DatumaroDataset(
             dataset_format=annotation_format, dataset_path=base_data_folder
         )
-        self._override_label_map: Optional[Dict[str, int]] = None
+        self._override_label_map: Optional[Dict[int, str]] = None
         self._applied_filters: List[Dict[str, Union[List[str], str]]] = []
 
     def prepare_and_set_dataset(self, task_type: Union[TaskType, str]):
@@ -65,13 +71,13 @@ class DatumAnnotationReader(AnnotationReader):
         the original label name. It can be used to generate unique label names for the
         segmentation task in a detection_to_segmentation project
         """
-        segmentation_label_map: Dict[str, int] = {}
-        label_names = list(self.datum_label_map.keys())
+        segmentation_label_map: Dict[int, str] = {}
+        label_names = list(self.datum_label_map.values())
         segmentation_label_names = generate_segmentation_labels(label_names)
-        for name, datum_index in self.datum_label_map.items():
-            label_index = label_names.index(name)
+        for datum_index, label_name  in self.datum_label_map.items():
+            label_index = label_names.index(label_name)
             segmentation_label_map.update(
-                {segmentation_label_names[label_index]: datum_index}
+                {datum_index: segmentation_label_names[label_index]}
             )
         self.override_label_map(segmentation_label_map)
 
@@ -79,19 +85,19 @@ class DatumAnnotationReader(AnnotationReader):
         """
         Retrieves the list of labels names from a datumaro dataset
         """
-        return list(self.datum_label_map.keys())
+        return list(set(self.datum_label_map.values()))
 
     @property
-    def datum_label_map(self) -> Dict[str, int]:
+    def datum_label_map(self) -> Dict[int, str]:
         """
-        :return: Dictionary mapping the label name to the datumaro label id
+        :return: Dictionary mapping the datumaro label id to the label name
         """
         if self._override_label_map is None:
             return self.dataset.label_mapping
         else:
             return self._override_label_map
 
-    def override_label_map(self, new_label_map: Dict[str, int]):
+    def override_label_map(self, new_label_map: Dict[int, str]):
         """
         Overrides the label map defined in the datumaro dataset
 
@@ -115,23 +121,30 @@ class DatumAnnotationReader(AnnotationReader):
         """
         return self.dataset.image_names
 
-    def get_data(self, filename: str, label_name_to_id_mapping: dict):
+    def get_data(
+            self,
+            filename: str,
+            label_name_to_id_mapping: dict,
+            preserve_shape_for_global_labels: bool = False
+    ) -> List[SCAnnotation]:
         ds_item = self.dataset.get_item_by_id(filename)
         image_size = ds_item.image.size
-        annotation_list: List[Dict[str, Any]] = []
+        annotation_list: List[SCAnnotation] = []
         labels = []
         for annotation in ds_item.annotations:
-            label_name = get_dict_key_from_value(
-                self.datum_label_map, annotation.label
-            )
-            if label_name is None:
+            try:
+                label_name = self.datum_label_map[annotation.label]
+            except KeyError:
                 # Label is not in the SC project labels, move on to next annotation
                 # for this dataset item.
                 continue
 
             label_id = label_name_to_id_mapping.get(label_name)
             label = {'id': label_id, 'probability': 1.0}
-            if self.task_type != TaskType.CLASSIFICATION:
+            if (
+                    self.task_type not in GLOBAL_TASK_TYPES
+                    or preserve_shape_for_global_labels
+            ):
                 if isinstance(annotation, Bbox):
                     x1, y1 = annotation.points[0] / image_size[1], \
                              annotation.points[1] / image_size[0]
@@ -151,11 +164,17 @@ class DatumAnnotationReader(AnnotationReader):
                         f"{type(annotation)}. Skipping..."
                     )
                     continue
-                annotation_list.append({"labels": [label], "shape": shape})
+                sc_annotation = AnnotationRESTConverter.annotation_from_dict(
+                    {"labels": [label], "shape": shape}
+                )
+                annotation_list.append(sc_annotation)
             else:
                 labels.append(label)
 
-        if self.task_type == TaskType.CLASSIFICATION:
+        if (
+                not preserve_shape_for_global_labels
+                and self.task_type in GLOBAL_TASK_TYPES
+        ):
             shape = {
                 "type": "RECTANGLE",
                 "x": 0.0,
@@ -163,7 +182,10 @@ class DatumAnnotationReader(AnnotationReader):
                 "width": 1.0,
                 "height": 1.0
             }
-            annotation_list.append({"labels": labels, "shape": shape})
+            sc_annotation = AnnotationRESTConverter.annotation_from_dict(
+                {"labels": labels, "shape": shape}
+            )
+            annotation_list.append(sc_annotation)
         return annotation_list
 
     @property
@@ -181,6 +203,27 @@ class DatumAnnotationReader(AnnotationReader):
             labels=labels, criterion=criterion
         )
         self._applied_filters.append({"labels": labels, "criterion": criterion})
+
+    def group_labels(self, labels_to_group: List[str], group_name: str) -> None:
+        """
+        Group multiple labels into one. Grouping converts the list of labels into one
+        single label named `group_name`.
+
+        This method does not return anything, but instead overrides the label map for
+        the datamaro dataset to account for the grouping.
+
+        :param labels_to_group: List of labels names that should be grouped together
+        :param group_name: Name of the resulting label
+        :return:
+        """
+        label_keys = [
+            get_dict_key_from_value(self.datum_label_map, label)
+            for label in labels_to_group
+        ]
+        new_label_map = copy.deepcopy(self.datum_label_map)
+        for key in label_keys:
+            new_label_map[key] = group_name
+        self.override_label_map(new_label_map=new_label_map)
 
 
 class DatumaroDataset(object):
@@ -211,11 +254,11 @@ class DatumaroDataset(object):
                 self.dataset.env.transforms.get('masks_to_polygons')
             )
             print("Annotations have been converted to polygons")
-        elif task_type == TaskType.CLASSIFICATION:
+        elif task_type in GLOBAL_TASK_TYPES:
             new_dataset = self.dataset.transform(
-                self.dataset.env.transforms.get('masks_to_polygons')
+                self.dataset.env.transforms.get('shapes_to_boxes')
             )
-            print("Classification dataset prepared.")
+            print(f"{str(task_type).capitalize()} dataset prepared.")
         else:
             raise ValueError(f"Unsupported task type {task_type}")
         return new_dataset
@@ -245,12 +288,12 @@ class DatumaroDataset(object):
         return [item.name for item in self.categories]
 
     @property
-    def label_mapping(self) -> Dict[str, int]:
+    def label_mapping(self) -> Dict[int, str]:
         """
         Returns the mapping of label name to label index
         :return:
         """
-        return self.categories._indices
+        return {value: key for key, value in self.categories._indices.items()}
 
     @property
     def image_names(self) -> List[str]:
@@ -291,7 +334,7 @@ class DatumaroDataset(object):
         label_map = self.label_mapping
         # Sanity check for filtering
         for label in labels:
-            if label not in list(label_map.keys()):
+            if label not in list(label_map.values()):
                 raise ValueError(
                     f'Cannot filter on label {label} because this is not in the '
                     f'dataset.'
@@ -301,7 +344,7 @@ class DatumaroDataset(object):
             def select_function(dataset_item: DatasetItem, labels: List[str]):
                 # Filter function to apply to each item in the dataset
                 item_labels = [
-                    get_dict_key_from_value(label_map, x.label) for x
+                    label_map[x.label] for x
                     in dataset_item.annotations
                 ]
                 matches = []
@@ -330,8 +373,9 @@ class DatumaroDataset(object):
             label_categories = LabelCategories.from_iterable(labels)
             new_labelmap = {}
             for label in labels:
-                new_labelmap[label] = label_map[label]
-            label_categories._indices = new_labelmap
+                label_key = get_dict_key_from_value(label_map, label)
+                new_labelmap[label_key] = label
+            label_categories._indices = {v: k for k, v in new_labelmap.items()}
             new_categories = {AnnotationType.label: label_categories}
             # Filter and create a new dataset to update the dataset categories
             self.dataset = Dataset.from_iterable(

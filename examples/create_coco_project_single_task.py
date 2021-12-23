@@ -15,11 +15,12 @@ if __name__ == "__main__":
 
     # Dataset configuration
     # Path to the base folder containing the 'images' and 'annotations' folders
-    PATH_TO_COCO_DATASET = os.path.join("", "dummy_dataset")
+    PATH_TO_COCO_DATASET = "data"
     PATH_TO_IMAGES_IN_COCO_DATASET = os.path.join(  # Path to the actual images
-        PATH_TO_COCO_DATASET, "subset", "images"
+        PATH_TO_COCO_DATASET, "images", "val2017"
     )
-    NUMBER_OF_IMAGES_TO_UPLOAD = 50
+    NUMBER_OF_IMAGES_TO_UPLOAD = 75
+    NUMBER_OF_IMAGES_TO_ANNOTATE = 50
     
     # Labels to filter the dataset on. Only images containing this object will be
     # uploaded and annotated. Multiple labels can be passed, and the way the dataset
@@ -56,5 +57,6 @@ if __name__ == "__main__":
         annotation_reader=annotation_reader,
         labels=LABELS_OF_INTEREST,
         number_of_images_to_upload=NUMBER_OF_IMAGES_TO_UPLOAD,
+        number_of_images_to_annotate=NUMBER_OF_IMAGES_TO_ANNOTATE,
         enable_auto_train=AUTO_TRAIN_AFTER_UPLOAD
     )
