@@ -23,7 +23,8 @@ MEDIA_TYPE_MAPPING = {
     MediaType.IMAGE: Image, MediaType.VIDEO: Video
 }
 MEDIA_SUPPORTED_FORMAT_MAPPING = {
-    MediaType.IMAGE: SUPPORTED_IMAGE_FORMATS, MediaType.VIDEO: SUPPORTED_VIDEO_FORMATS
+    MediaType.IMAGE: SUPPORTED_IMAGE_FORMATS,
+    MediaType.VIDEO: SUPPORTED_VIDEO_FORMATS
 }
 MEDIA_DOWNLOAD_FORMAT_MAPPING = {MediaType.IMAGE: ".jpg", MediaType.VIDEO: ".mp4"}
 
@@ -182,7 +183,10 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         media_formats = MEDIA_SUPPORTED_FORMAT_MAPPING[self._MEDIA_TYPE]
         filepaths: List[str] = []
         for media_extension in media_formats:
-            filepaths += glob(os.path.join(path_to_folder, f'*{media_extension}'))
+            filepaths += glob(
+                os.path.join(path_to_folder, '**', f'*{media_extension}'),
+                recursive=True
+            )
         n_files = len(filepaths)
         if n_media == -1:
             n_to_upload = n_files

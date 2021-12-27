@@ -7,9 +7,20 @@ the SC REST API. It provides functionality for:
 - Project creation and upload from a previous download
 
 ## Installation
-Download or clone the repository and navigate to the package directory. From there, 
-install the requirements using 
-`pip install -r requirements.txt`. Then run `pip install .` to install the package. 
+I recommend using an environment manager such as 
+[Anaconda](https://www.anaconda.com/products/individual) or 
+[venv](https://docs.python.org/3/library/venv.html) to create a new 
+Python environment before installing the package and it's requirements. The package 
+requires Python version 3.8, so make sure to use that version in your environment. 
+
+Once you have created a new environment, follow these steps to install the package:
+
+1. Download or clone the repository and navigate to the package directory. 
+
+2. From there, install the requirements using 
+`pip install -r requirements.txt`. 
+   
+3. Then run `pip install .` to install the package. 
 You can also install it in editable mode using `pip install -e .` This is handy if
 you want to make changes to the package, or want to keep it up to date with the 
 latest code changes in the repository. 
@@ -70,7 +81,18 @@ the single project methods in the code snippets above.
 ### Project creation examples
 #### COCO/Datumaro examples
 The `examples` folder contains sample scripts to create projects based on the 
-COCO dataset in various configurations:
+COCO dataset in various configurations. Follow these steps to run any of the scripts:
+
+
+1. Open the script you want to run, and modify the connection configuration for your 
+   SC cluster. This means you have to specify the host (i.e. the web url or ip address 
+   at which the cluster can be reached) and the username and password (same as what 
+   you use to log in to SC manually)
+   
+2. Open up a terminal and navigate to the 'examples' directory. From there, execute 
+   the script with `python <name_of_script.py>`.
+
+The following example scripts are available:
 
 - `create_coco_project_single_task.py` -> Creates a single task project based using 
   the images from COCO dataset for the "dog" class. Can be set to create either a
@@ -86,28 +108,30 @@ COCO dataset in various configurations:
   all based on the COCO dataset. Each project represents one of the supported task 
   within SC MVP. The projects created are:
   
-  - **Segmentation demo** -- Segmentation of 'dog' and 'person' objects
+  - **Segmentation demo** -- Segmentation of 'dog' and 'frisbee' objects
   - **Detection demo** -- Detection of 'horse' and 'cat' objects
-  - **Classification demo** -- Single class classification of 'horse' vs 'dog' vs 'cat'
+  - **Classification demo** -- Single class classification of 'horse' vs 'zebra' 
+    vs 'cat' vs 'bear'
   - **Anomaly classification demo** -- Anomaly classification of images of animals 
-    ('Normal') vs cars and bicycles ('Anomalous')
+    ('Normal') vs traffic lights and stop signs ('Anomalous')
   - **Animal detection to segmentation demo** -- Detection of 'animal', followed by 
-    segmentation into three categories: 'horse', 'dog', 'cat'
+    segmentation into subcategories: 'horse', 'dog', 'cat', 'cow', 'sheep', 
   - **Animal detection to classification demo** -- Detection of 'animal', followed by 
-    classification into three categories: 'horse', 'dog', 'cat'
+    classification into two categories: 'wild' and 'domestic'
   
-> **NOTE**: To run these examples you'll need to have the COCO dataset (or a subset thereof) on
-> your local disk. 
+> **NOTE**: To run these examples you'll need to have the MS COCO dataset (or a subset thereof) on
+> your local disk. If you run any of the example scripts, you can either: 
+>   
+>    - Specify a path to an existing folder containing at least one subset of the 
+>      COCO dataset
+>   
+>    - Leave the path unspecified, in which case the script will attempt to download 
+>      the val2017 subset of the dataset from the internet. This is an approximately
+>      1 Gb download so it may take some time
 > 
-> I recommend using the 2017 validation dataset, which contains 5000 
-> images. It can be downloaded using the `download_coco.py` script from the `examples` 
-> folder (this is the recommended way to obtain the data!). The script should be ran 
-> from within the `examples` folder, and will extract the dataset in such a way that 
-> all other example scripts can be run once the download completes. **NOTE:** You may 
-> have to turn off your VPN in order to be able to download the data
-> 
-> Alternatively, you can download the COCO data manually via
-> [this link](http://images.cocodataset.org/zips/val2017.zip) (approx. 1 Gb download).
+>
+> Of course, you can also download the val2017 COCO data manually via
+> [this link](http://images.cocodataset.org/zips/val2017.zip).
 
 The above examples work with Datumaro for annotation loading, so in principle they 
 should work with datasets in formats other than COCO too (as long as they're supported 

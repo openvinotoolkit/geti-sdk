@@ -2,8 +2,7 @@ import os
 
 from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers import DatumAnnotationReader
-from sc_api_tools.utils import get_task_types_by_project_type
-
+from sc_api_tools.utils import get_task_types_by_project_type, get_coco_dataset
 
 if __name__ == "__main__":
     # --------------------------------------------------
@@ -16,10 +15,8 @@ if __name__ == "__main__":
 
     # Dataset configuration
     # Path to the base folder containing the 'images' and 'annotations' folders
-    PATH_TO_COCO_DATASET = "data"
-    PATH_TO_IMAGES_IN_COCO_DATASET = os.path.join(  # Path to the actual images
-        PATH_TO_COCO_DATASET, "images", "val2017"
-    )
+    PATH_TO_COCO_DATASET = os.path.join("..", "data")
+
     NUMBER_OF_IMAGES_TO_UPLOAD = 75
     NUMBER_OF_IMAGES_TO_ANNOTATE = 50
 
@@ -40,6 +37,8 @@ if __name__ == "__main__":
     # --------------------------------------------------
     # End of configuration section
     # --------------------------------------------------
+    coco_path = get_coco_dataset(target_folder=PATH_TO_COCO_DATASET)
+
     # Create annotation readers and apply filters. Use Datumaro annotations for both
     # tasks
     label_source_per_task = []
@@ -56,7 +55,7 @@ if __name__ == "__main__":
     client.create_task_chain_project_from_dataset(
         project_name=PROJECT_NAME,
         project_type=PROJECT_TYPE,
-        path_to_images=PATH_TO_IMAGES_IN_COCO_DATASET,
+        path_to_images=coco_path,
         label_source_per_task=label_source_per_task,
         number_of_images_to_upload=NUMBER_OF_IMAGES_TO_UPLOAD,
         number_of_images_to_annotate=NUMBER_OF_IMAGES_TO_ANNOTATE,

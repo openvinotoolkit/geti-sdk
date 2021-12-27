@@ -2,7 +2,7 @@ import glob
 import os
 from typing import List
 
-from .media_manager import BaseMediaManager
+from .media_manager import BaseMediaManager, MEDIA_SUPPORTED_FORMAT_MAPPING
 from sc_api_tools.data_models import MediaType, MediaList, Image
 from sc_api_tools.rest_converters import MediaRESTConverter
 
@@ -84,9 +84,19 @@ class ImageManager(BaseMediaManager[Image]):
             n_to_upload = n_images
         for image_name in image_names[0:n_to_upload]:
             if not extension_included:
-                matches = glob.glob(os.path.join(path_to_folder, image_name)+".*")
+                media_formats = MEDIA_SUPPORTED_FORMAT_MAPPING[self._MEDIA_TYPE]
+                matches: List[str] = []
+                for media_extension in media_formats:
+                    matches += glob.glob(
+                        os.path.join(
+                            path_to_folder, '**', f'{image_name}{media_extension}'
+                        ),
+                        recursive=True
+                    )
             else:
-                matches = [os.path.join(path_to_folder, image_name)]
+                matches = glob.glob(
+                    os.path.join(path_to_folder, '**', image_name), recursive=True
+                )
             if not matches:
                 raise ValueError(
                     f"No matching file found for image with name {image_name}"
