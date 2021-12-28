@@ -3,8 +3,10 @@ import json
 import os
 from typing import Tuple, List, Dict, Any, Union
 
-from .base_annotation_reader import AnnotationReader
 from sc_api_tools.data_models import TaskType
+from sc_api_tools.rest_converters import AnnotationRESTConverter
+
+from .base_annotation_reader import AnnotationReader
 
 
 class VitensAnnotationReader(AnnotationReader):
