@@ -109,7 +109,7 @@ The following example scripts are available:
   within SC MVP. The projects created are:
   
   - **Segmentation demo** -- Segmentation of 'dog' and 'frisbee' objects
-  - **Detection demo** -- Detection of 'horse' and 'cat' objects
+  - **Detection demo** -- Detection of 'person' and 'cell phone' objects
   - **Classification demo** -- Single class classification of 'horse' vs 'zebra' 
     vs 'cat' vs 'bear'
   - **Anomaly classification demo** -- Anomaly classification of images of animals 
