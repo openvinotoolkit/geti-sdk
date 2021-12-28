@@ -1,7 +1,7 @@
 from typing import List, Union, Optional, ClassVar
 
 import attr
-from sc_api_tools.data_models import ScoredLabel
+from sc_api_tools.data_models import ScoredLabel, AnnotationKind
 from sc_api_tools.data_models.media_identifiers import (
     ImageIdentifier,
     VideoFrameIdentifier
@@ -104,7 +104,9 @@ class AnnotationScene:
     _identifier_fields: ClassVar[str] = ["id", "modified"]
 
     annotations: List[Annotation]
-    kind: str = attr.ib(converter=str_to_annotation_kind)
+    kind: str = attr.ib(
+        converter=str_to_annotation_kind, default=AnnotationKind.ANNOTATION
+    )
     media_identifier: Optional[Union[ImageIdentifier, VideoFrameIdentifier]] = None
     id: Optional[str] = None
     modified: Optional[str] = attr.ib(converter=str_to_datetime, default=None)

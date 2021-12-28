@@ -155,7 +155,11 @@ class SCSession(requests.Session):
             )
 
         if response.status_code not in [200, 201]:
-            raise ValueError(method, url, response.json())
+            if response.status_code != 204:
+                data = response.json()
+            else:
+                data = response.status_code
+            raise ValueError(method, url, data)
 
         if contenttype == "json":
             return response.json()

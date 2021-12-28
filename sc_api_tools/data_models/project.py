@@ -98,6 +98,17 @@ class Pipeline:
             outer_list.append(task_labels)
         return outer_list
 
+    def get_all_labels(self) -> List[Label]:
+        """
+        Returns a list of all labels in the pipeline
+
+        :return: List of all labels for every task in the pipeline
+        """
+        label_list: List[Label] = []
+        for task in self.trainable_tasks:
+            label_list.extend(task.labels)
+        return label_list
+
     def deidentify(self):
         """
         Removes all unique database ID's from the tasks and labels in the pipeline.
@@ -236,3 +247,11 @@ class Project:
             "project_type": self.project_type,
             "labels": self.get_labels_per_task(include_empty=False)
         }
+
+    def get_all_labels(self) -> List[Label]:
+        """
+        Returns a list of all labels in the project
+
+        :return: List of all labels in the project
+        """
+        return self.pipeline.get_all_labels()

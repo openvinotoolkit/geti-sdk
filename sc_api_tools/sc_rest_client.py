@@ -48,13 +48,13 @@ class SCRESTClient:
             password: str,
             workspace_id: Optional[str] = None
     ):
-        self._session = SCSession(
+        self.session = SCSession(
             cluster_config=ClusterConfig(
                 host=host, username=username, password=password)
         )
         if workspace_id is None:
-            workspace_id = get_default_workspace_id(self._session)
-        self._workspace_id = workspace_id
+            workspace_id = get_default_workspace_id(self.session)
+        self.workspace_id = workspace_id
 
     def download_project(
             self, project_name: str, target_folder: Optional[str] = None

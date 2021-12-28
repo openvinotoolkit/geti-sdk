@@ -5,6 +5,7 @@ from .task import Task
 from .media import Image, Video, MediaItem, VideoFrame
 from .media_list import MediaList
 from .annotations import AnnotationScene, Annotation
+from .predictions import Prediction
 
 
 __all__ = [
@@ -22,5 +23,6 @@ __all__ = [
     "AnnotationScene",
     "Annotation",
     "ScoredLabel",
-    "VideoFrame"
+    "VideoFrame",
+    "Prediction"
 ]

@@ -2,7 +2,7 @@ import json
 import os
 import time
 import warnings
-from typing import Generic, List, Union, Optional, Dict, Any, TypeVar
+from typing import List, Union, Optional, Dict, Any, TypeVar
 
 from requests import Response
 
