@@ -80,7 +80,7 @@ class SCRESTClient:
         """
         # Obtain project details from cluster
         project_manager = ProjectManager(
-            session=self._session, workspace_id=self._workspace_id
+            session=self.session, workspace_id=self.workspace_id
         )
         project = project_manager.get_project_by_name(project_name)
 
@@ -97,7 +97,7 @@ class SCRESTClient:
 
         # Download images
         image_manager = ImageManager(
-            workspace_id=self._workspace_id, session=self._session, project=project
+            workspace_id=self.workspace_id, session=self.session, project=project
         )
         images = image_manager.get_all_images()
         if len(images) > 0:
@@ -105,7 +105,7 @@ class SCRESTClient:
 
         # Download videos
         video_manager = VideoManager(
-            workspace_id=self._workspace_id, session=self._session, project=project
+            workspace_id=self.workspace_id, session=self.session, project=project
         )
         videos = video_manager.get_all_videos()
         if len(videos) > 0:
@@ -118,7 +118,7 @@ class SCRESTClient:
             # what we plan to do with it so we suppress the warning
             warnings.simplefilter("ignore")
             annotation_manager = AnnotationManager(
-                session=self._session,
+                session=self.session,
                 project=project,
                 media_lists=[images, videos]
             )
@@ -154,7 +154,7 @@ class SCRESTClient:
             regarding the uploaded project
         """
         project_manager = ProjectManager(
-            session=self._session, workspace_id=self._workspace_id
+            session=self.session, workspace_id=self.workspace_id
         )
         project = project_manager.create_project_from_folder(
             path_to_folder=target_folder, project_name=project_name
@@ -162,7 +162,7 @@ class SCRESTClient:
 
         # Upload images
         image_manager = ImageManager(
-            workspace_id=self._workspace_id, session=self._session, project=project
+            workspace_id=self.workspace_id, session=self.session, project=project
         )
         images = image_manager.upload_folder(
             path_to_folder=os.path.join(target_folder, "images")
@@ -170,7 +170,7 @@ class SCRESTClient:
 
         # Upload videos
         video_manager = VideoManager(
-            workspace_id=self._workspace_id, session=self._session, project=project
+            workspace_id=self.workspace_id, session=self.session, project=project
         )
         videos = video_manager.upload_folder(
             path_to_folder=os.path.join(target_folder, "videos")
@@ -178,7 +178,7 @@ class SCRESTClient:
 
         # Disable auto-train to prevent the project from training right away
         configuration_manager = ConfigurationManager(
-            workspace_id=self._workspace_id, session=self._session, project=project
+            workspace_id=self.workspace_id, session=self.session, project=project
         )
         configuration_manager.set_project_auto_train(auto_train=False)
 
@@ -194,7 +194,7 @@ class SCRESTClient:
             task_type=None,
         )
         annotation_manager = AnnotationManager[SCAnnotationReader](
-            session=self._session,
+            session=self.session,
             project=project,
             media_lists=media_lists,
             annotation_reader=annotation_reader
@@ -275,7 +275,7 @@ class SCRESTClient:
 
         # Create project
         project_manager = ProjectManager(
-            session=self._session, workspace_id=self._workspace_id
+            session=self.session, workspace_id=self.workspace_id
         )
         project = project_manager.get_or_create_project(
             project_name=project_name,
@@ -284,13 +284,13 @@ class SCRESTClient:
         )
         # Disable auto training
         configuration_manager = ConfigurationManager(
-            session=self._session, workspace_id=self._workspace_id, project=project
+            session=self.session, workspace_id=self.workspace_id, project=project
         )
         configuration_manager.set_project_auto_train(auto_train=False)
 
         # Upload images
         image_manager = ImageManager(
-            session=self._session, workspace_id=self._workspace_id, project=project
+            session=self.session, workspace_id=self.workspace_id, project=project
         )
         if isinstance(annotation_reader, DatumAnnotationReader):
             images = image_manager.upload_from_list(
@@ -316,7 +316,7 @@ class SCRESTClient:
         )
         # Upload annotations
         annotation_manager = AnnotationManager(
-            session=self._session,
+            session=self.session,
             project=project,
             annotation_reader=annotation_reader,
             media_lists=[images]
@@ -401,7 +401,7 @@ class SCRESTClient:
 
         # Create project
         project_manager = ProjectManager(
-            session=self._session, workspace_id=self._workspace_id
+            session=self.session, workspace_id=self.workspace_id
         )
         project = project_manager.get_or_create_project(
             project_name=project_name,
@@ -410,13 +410,13 @@ class SCRESTClient:
         )
         # Disable auto training
         configuration_manager = ConfigurationManager(
-            session=self._session, workspace_id=self._workspace_id, project=project
+            session=self.session, workspace_id=self.workspace_id, project=project
         )
         configuration_manager.set_project_auto_train(auto_train=False)
 
         # Upload images
         image_manager = ImageManager(
-            session=self._session, workspace_id=self._workspace_id, project=project
+            session=self.session, workspace_id=self.workspace_id, project=project
         )
         # Assume that the first task determines the media that will be uploaded
         first_task_reader = annotation_readers_per_task[0]
@@ -445,7 +445,7 @@ class SCRESTClient:
                 reader.prepare_and_set_dataset(task_type=task_type)
                 # Upload annotations
                 annotation_manager = AnnotationManager(
-                    session=self._session,
+                    session=self.session,
                     project=project,
                     annotation_reader=reader,
                     media_lists=[images]
@@ -511,7 +511,7 @@ class SCRESTClient:
         """
         # Obtain project details from cluster
         project_manager = ProjectManager(
-            session=self._session, workspace_id=self._workspace_id
+            session=self.session, workspace_id=self.workspace_id
         )
         projects = project_manager.get_all_projects()
 
