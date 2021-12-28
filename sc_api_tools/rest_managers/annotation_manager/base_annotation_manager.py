@@ -13,7 +13,7 @@ from sc_api_tools.data_models import (
     Image,
     Video,
     VideoFrame,
-    AnnotationScene
+    AnnotationScene, AnnotationKind
 )
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import AnnotationRESTConverter
@@ -21,7 +21,7 @@ from sc_api_tools.rest_converters import AnnotationRESTConverter
 AnnotationReaderType = TypeVar("AnnotationReaderType", bound=AnnotationReader)
 
 
-class BaseAnnotationManager(Generic[AnnotationReaderType]):
+class BaseAnnotationManager:
     """
     Class to up- or download annotations for 2d media to an existing project
     """
@@ -176,7 +176,7 @@ class BaseAnnotationManager(Generic[AnnotationReaderType]):
             annotation_scene = AnnotationScene(
                 media_identifier=media_item.identifier,
                 annotations=[],
-                kind="annotation"
+                kind=AnnotationKind.ANNOTATION.value
             )
         annotation_scene.extend(new_annotation_scene.annotations)
 
@@ -227,7 +227,7 @@ class BaseAnnotationManager(Generic[AnnotationReaderType]):
             {
                 "media_identifier": media_item.identifier,
                 "annotations": annotation_list,
-                "kind": "annotation"
+                "kind": AnnotationKind.ANNOTATION
             }
         )
 
@@ -281,7 +281,7 @@ class BaseAnnotationManager(Generic[AnnotationReaderType]):
                 skip_count += 1
                 continue
             kind = annotation_scene.kind
-            if kind != "annotation":
+            if kind != AnnotationKind.ANNOTATION:
                 if verbose:
                     print(
                         f"Received invalid annotation of kind {kind} for {media_name} "

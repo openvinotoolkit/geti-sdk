@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Generic
 
 from sc_api_tools.data_models import (
     Video,
@@ -7,10 +7,10 @@ from sc_api_tools.data_models import (
     VideoFrame,
     Image
 )
-from .base_annotation_manager import BaseAnnotationManager
+from .base_annotation_manager import BaseAnnotationManager, AnnotationReaderType
 
 
-class AnnotationManager(BaseAnnotationManager):
+class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
     """
     Class to up- or download annotations for images or videos to an existing project
     """

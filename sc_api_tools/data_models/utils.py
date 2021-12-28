@@ -5,7 +5,7 @@ import attr
 from typing import Any, Union, Optional
 
 from sc_api_tools.data_models import TaskType
-from sc_api_tools.data_models.enums import ShapeType, MediaType
+from sc_api_tools.data_models.enums import ShapeType, MediaType, AnnotationKind
 
 
 def deidentify(instance: Any):
@@ -59,6 +59,19 @@ def str_to_shape_type(shape_type: Union[str, ShapeType]) -> ShapeType:
         return shape_type
 
 
+def str_to_annotation_kind(annotation_kind: Union[str, AnnotationKind]) -> AnnotationKind:
+    """
+    Converts an input string to an annotation kind
+
+    :param annotation_kind:
+    :return: AnnotationKind instance corresponding to `annotation_kind`
+    """
+    if isinstance(annotation_kind, str):
+        return AnnotationKind(annotation_kind)
+    else:
+        return annotation_kind
+
+
 def str_to_datetime(datetime_str: Optional[Union[str, datetime]]) -> Optional[datetime]:
     """
     Converts a string to a datetime
@@ -72,22 +85,6 @@ def str_to_datetime(datetime_str: Optional[Union[str, datetime]]) -> Optional[da
         return datetime_str
     elif datetime_str is None:
         return None
-
-
-def attr_enum_to_str(instance, field, value):
-    """
-    Converts an enum in an attr.s decorated class to string representation, used while
-    converting the attrs object to a dictionary.
-
-    :param instance:
-    :param field:
-    :param value:
-    :return:
-    """
-    if isinstance(value, Enum):
-        return str(value)
-    else:
-        return value
 
 
 def attr_value_serializer(instance, field, value):

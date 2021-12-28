@@ -4,7 +4,7 @@ import attr
 
 from .label import Label
 from .task import Task
-from .utils import deidentify, attr_enum_to_str
+from .utils import deidentify, attr_value_serializer
 
 
 @attr.s(auto_attribs=True)
@@ -200,7 +200,7 @@ class Project:
 
         :return: Dictionary holding the project data
         """
-        output_dict = attr.asdict(self, value_serializer=attr_enum_to_str)
+        output_dict = attr.asdict(self, value_serializer=attr_value_serializer)
         for connection in output_dict["pipeline"]["connections"]:
             from_value = connection.pop("from_")
             connection["from"] = from_value

@@ -2,7 +2,7 @@ from typing import ClassVar, Dict
 
 import attr
 
-from sc_api_tools.data_models.utils import str_to_media_type, attr_enum_to_str
+from sc_api_tools.data_models.utils import str_to_media_type, attr_value_serializer
 
 
 @attr.s(auto_attribs=True)
@@ -21,7 +21,7 @@ class MediaIdentifier:
 
         :return: Dictionary containing the media identifier data
         """
-        return attr.asdict(self, value_serializer=attr_enum_to_str)
+        return attr.asdict(self, value_serializer=attr_value_serializer)
 
 
 @attr.s(auto_attribs=True)

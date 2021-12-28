@@ -6,12 +6,7 @@ from sc_api_tools.data_models import MediaType, ScoredLabel
 from typing import List, Dict, Any, cast
 
 from sc_api_tools.data_models import AnnotationScene, Annotation
-from sc_api_tools.data_models.annotations import (
-    Shape,
-    Ellipse,
-    Polygon,
-    Rectangle
-)
+from sc_api_tools.data_models.shapes import Shape, Rectangle, Ellipse, Polygon
 from sc_api_tools.data_models.media_identifiers import (
     MediaIdentifier,
     ImageIdentifier,
