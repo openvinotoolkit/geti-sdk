@@ -21,16 +21,17 @@ DEFAULT_COCO_PATH = os.path.join(
 )
 
 
-def is_coco_dataset(dataset_path: Optional[str] = None):
+def is_coco_dataset(dataset_path: Optional[str] = None) -> str:
     """
     This method checks if the COCO dataset is present at the specified path. If not,
     this method will attempt to download the dataset to the path specified.
 
     :param dataset_path: Path to check against.
+    :return: Path to the COCO dataset
     """
     if dataset_path is None:
         dataset_path = DEFAULT_COCO_PATH
-    get_coco_dataset(dataset_path, verbose=True)
+    return get_coco_dataset(dataset_path, verbose=True)
 
 
 def create_segmentation_demo_project(

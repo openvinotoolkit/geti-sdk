@@ -2,6 +2,7 @@ import os
 
 from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers import DatumAnnotationReader
+from sc_api_tools.demos import is_coco_dataset
 from sc_api_tools.utils import get_task_types_by_project_type, get_coco_dataset
 
 if __name__ == "__main__":
@@ -14,9 +15,6 @@ if __name__ == "__main__":
     )
 
     # Dataset configuration
-    # Path to the base folder containing the 'images' and 'annotations' folders
-    PATH_TO_COCO_DATASET = os.path.join("..", "data")
-
     NUMBER_OF_IMAGES_TO_UPLOAD = 75
     NUMBER_OF_IMAGES_TO_ANNOTATE = 50
 
@@ -34,17 +32,23 @@ if __name__ == "__main__":
     # annotations have been uploaded
     AUTO_TRAIN_AFTER_UPLOAD = False
 
+    # If you already have the COCO data downloaded on your system, you can point the
+    # `COCO_PATH` to the folder containing it. If you leave the COCO_PATH as None,
+    # the script will attempt to download the data, or use the dataset from the
+    # default path if it has been downloaded before.
+    COCO_PATH = None
+
     # --------------------------------------------------
     # End of configuration section
     # --------------------------------------------------
-    coco_path = get_coco_dataset(target_folder=PATH_TO_COCO_DATASET)
+    coco_path = is_coco_dataset(COCO_PATH)
 
     # Create annotation readers and apply filters. Use Datumaro annotations for both
     # tasks
     label_source_per_task = []
     for task_type in get_task_types_by_project_type(PROJECT_TYPE):
         annotation_reader = DatumAnnotationReader(
-            base_data_folder=PATH_TO_COCO_DATASET,
+            base_data_folder=coco_path,
             annotation_format='coco',
             task_type=task_type
         )

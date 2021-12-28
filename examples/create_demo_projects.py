@@ -27,11 +27,12 @@ if __name__ == "__main__":
     # Set this to True if you want the projects to start auto-training after the
     # annotations have been uploaded. Set to False to disable auto-training for the
     # moment
-    AUTO_TRAIN_AFTER_UPLOAD = True
+    AUTO_TRAIN_AFTER_UPLOAD = False
 
     # If you already have the COCO data downloaded on your system, you can point the
     # `COCO_PATH` to the folder containing it. If you leave the COCO_PATH as None,
-    # the script will attempt to download the data.
+    # the script will attempt to download the data, or use the dataset from the
+    # default path if it has been downloaded before.
     COCO_PATH = None
 
     # --------------------------------------------------
