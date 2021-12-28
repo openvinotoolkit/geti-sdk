@@ -140,10 +140,12 @@ class Annotation:
         :param label_name: Name of the label to remove from the list
         :return:
         """
+        index = None
         for index, label in enumerate(self.labels):
             if label.name == label_name:
                 break
-        self.labels.pop(index)
+        if index is not None:
+            self.labels.pop(index)
 
 
 @attr.s(auto_attribs=True)
