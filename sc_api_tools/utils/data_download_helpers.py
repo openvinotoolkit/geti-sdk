@@ -150,7 +150,8 @@ def directory_has_coco_subset(target_folder: str, coco_subset: COCOSubset) -> bo
 
 def get_coco_dataset(
         target_folder: str = 'data',
-        coco_subset: COCOSubset = COCOSubset.VAL2017
+        coco_subset: Optional[COCOSubset] = None,
+        verbose: bool = False
 ) -> str:
     """
     This method checks if a coco dataset exists in the directory at `target_folder`.
@@ -159,30 +160,52 @@ def get_coco_dataset(
 
     :param target_folder: Folder to get the COCO dataset from, or to download the
         dataset into
-    :param coco_subset: Subset to download
+    :param coco_subset: Optional Subset to download. If passed as None, the script
+        will check if any of the coco subsets exists in the folder, and will not
+        download any data if at least one subset is found.
+    :param verbose: True to print verbose output, False for silent mode
     :return: Path to the COCO dataset
     """
     ensure_directory_exists(target_folder)
-    if directory_has_coco_subset(target_folder=target_folder, coco_subset=coco_subset):
-        print(
-            f"COCO dataset (subset: {str(coco_subset)}) found at path {target_folder}"
-        )
+    found_subset = None
+
+    if coco_subset is None:
+        for subset in COCOSubset:
+            if (
+                    subset.get_annotations() is not None
+                    and directory_has_coco_subset(target_folder, subset)
+            ):
+                found_subset = subset
+                break
+        if found_subset is None:
+            found_subset = COCOSubset.VAL2017
+    else:
+        found_subset = coco_subset
+
+    if directory_has_coco_subset(target_folder=target_folder, coco_subset=found_subset):
+        if verbose:
+            print(
+                f"COCO dataset (subset: {str(found_subset)}) found at path "
+                f"{target_folder}"
+            )
         return target_folder
     else:
-        print(
-            f"COCO dataset was not found at path {target_folder}, making an attempt to "
-            f"download the data."
-        )
+        if verbose:
+            print(
+                f"COCO dataset was not found at path {target_folder}, making an "
+                f"attempt to download the data."
+            )
 
-    image_url = f'http://images.cocodataset.org/zips/{str(coco_subset)}.zip'
-    annotations_name = coco_subset.get_annotations()
+    image_url = f'http://images.cocodataset.org/zips/{str(found_subset)}.zip'
+    annotations_name = found_subset.get_annotations()
     if annotations_name is not None:
         annotations_url = f'http://images.cocodataset.org/annotations/annotations_{annotations_name}.zip'
     else:
-        print(
-            f"Unable to download annotations for COCO subset {coco_subset}. "
-            f"Downloading images only"
-        )
+        if verbose:
+            print(
+                f"Unable to download annotations for COCO subset {found_subset}. "
+                f"Downloading images only"
+            )
         annotations_url = None
 
     # Download the zip files
@@ -206,7 +229,8 @@ def get_coco_dataset(
 
     # Extract images and annotations
     for zipfile_path, target_dir in zip_to_extraction_mapping.items():
-        print(f'Extracting {zipfile_path}...')
+        if verbose:
+            print(f'Extracting {zipfile_path}...')
         with zipfile.ZipFile(zipfile_path, 'r') as zip_ref:
             zip_ref.extractall(target_dir)
 
@@ -222,5 +246,6 @@ def get_coco_dataset(
             if annotation_subset not in image_subset_names:
                 os.remove(filepath)
 
-    print("COCO dataset downloaded and extracted successfully.")
+    if verbose:
+        print("COCO dataset downloaded and extracted successfully.")
     return target_folder

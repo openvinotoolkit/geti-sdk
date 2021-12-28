@@ -19,5 +19,4 @@ venv.bak/
 .idea
 
 # Data folder
-examples/data/
 data/

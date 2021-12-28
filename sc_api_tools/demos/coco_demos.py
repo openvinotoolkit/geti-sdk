@@ -1,9 +1,36 @@
 import os
+from typing import Optional
 
 from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers import DatumAnnotationReader
 from sc_api_tools.data_models import Project
 from sc_api_tools.utils import get_coco_dataset, get_task_types_by_project_type
+from sc_api_tools.utils.data_download_helpers import (
+    COCOSubset,
+    directory_has_coco_subset
+)
+
+DEFAULT_COCO_PATH = os.path.join(
+    os.path.dirname(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(__file__)
+            )
+        )
+    ), 'data'
+)
+
+
+def is_coco_dataset(dataset_path: Optional[str] = None):
+    """
+    This method checks if the COCO dataset is present at the specified path. If not,
+    this method will attempt to download the dataset to the path specified.
+
+    :param dataset_path: Path to check against.
+    """
+    if dataset_path is None:
+        dataset_path = DEFAULT_COCO_PATH
+    get_coco_dataset(dataset_path, verbose=True)
 
 
 def create_segmentation_demo_project(
@@ -11,7 +38,7 @@ def create_segmentation_demo_project(
         n_images: int,
         n_annotations: int = -1,
         auto_train: bool = False,
-        dataset_path: str = os.path.join('..', 'data')
+        dataset_path: Optional[str] = None
 ) -> Project:
     """
     This method creates a demo project of type 'segmentation', based off the MS COCO
@@ -30,11 +57,14 @@ def create_segmentation_demo_project(
         created and the images have been annotated, False to leave auto-training
         turned off.
     :param dataset_path: Path to the COCO dataset to use as data source. Defaults to
-        'data'. If the dataset is not found in the target folder, this method will
-        attempt to download it from the internet.
+        the 'data' directory in the top level folder of the sc_api_tools package. If
+        the dataset is not found in the target folder, this method will attempt to
+        download it from the internet.
     :return: Project object, holding detailed information about the project that was
         created on the SC cluster.
     """
+    if dataset_path is None:
+        dataset_path = DEFAULT_COCO_PATH
     coco_path = get_coco_dataset(dataset_path)
     print("\n ------- Creating segmentation project --------------- \n")
 
@@ -68,7 +98,7 @@ def create_detection_demo_project(
         n_images: int,
         n_annotations: int = -1,
         auto_train: bool = False,
-        dataset_path: str = os.path.join('..', 'data')
+        dataset_path: Optional[str] = None
 ) -> Project:
     """
     This method creates a demo project of type 'detection', based off the MS COCO
@@ -87,11 +117,14 @@ def create_detection_demo_project(
         created and the images have been annotated, False to leave auto-training
         turned off.
     :param dataset_path: Path to the COCO dataset to use as data source. Defaults to
-        'data'. If the dataset is not found in the target folder, this method will
-        attempt to download it from the internet.
+        the 'data' directory in the top level folder of the sc_api_tools package. If
+        the dataset is not found in the target folder, this method will attempt to
+        download it from the internet.
     :return: Project object, holding detailed information about the project that was
         created on the SC cluster.
     """
+    if dataset_path is None:
+        dataset_path = DEFAULT_COCO_PATH
     coco_path = get_coco_dataset(dataset_path)
     print("\n ------- Creating detection project --------------- \n")
 
@@ -125,7 +158,7 @@ def create_classification_demo_project(
         n_images: int,
         n_annotations: int = -1,
         auto_train: bool = False,
-        dataset_path: str = os.path.join('..', 'data')
+        dataset_path: Optional[str] = None
 ) -> Project:
     """
     This method creates a demo project of type 'classification', based off the MS COCO
@@ -145,11 +178,14 @@ def create_classification_demo_project(
         created and the images have been annotated, False to leave auto-training
         turned off.
     :param dataset_path: Path to the COCO dataset to use as data source. Defaults to
-        'data'. If the dataset is not found in the target folder, this method will
-        attempt to download it from the internet.
+        the 'data' directory in the top level folder of the sc_api_tools package. If
+        the dataset is not found in the target folder, this method will attempt to
+        download it from the internet.
     :return: Project object, holding detailed information about the project that was
         created on the SC cluster.
     """
+    if dataset_path is None:
+        dataset_path = DEFAULT_COCO_PATH
     coco_path = get_coco_dataset(dataset_path)
     print("\n ------- Creating classification project --------------- \n")
 
@@ -179,11 +215,11 @@ def create_classification_demo_project(
 
 
 def create_anomaly_classification_demo_project(
-            client: SCRESTClient,
-            n_images: int,
-            n_annotations: int = -1,
-            auto_train: bool = False,
-            dataset_path: str = os.path.join('..', 'data')
+        client: SCRESTClient,
+        n_images: int,
+        n_annotations: int = -1,
+        auto_train: bool = False,
+        dataset_path: Optional[str] = None
 ) -> Project:
     """
     This method creates a demo project of type 'anomaly_classification', based off the
@@ -203,11 +239,14 @@ def create_anomaly_classification_demo_project(
         created and the images have been annotated, False to leave auto-training
         turned off.
     :param dataset_path: Path to the COCO dataset to use as data source. Defaults to
-        'data'. If the dataset is not found in the target folder, this method will
-        attempt to download it from the internet.
+        the 'data' directory in the top level folder of the sc_api_tools package. If
+        the dataset is not found in the target folder, this method will attempt to
+        download it from the internet.
     :return: Project object, holding detailed information about the project that was
         created on the SC cluster.
     """
+    if dataset_path is None:
+        dataset_path = DEFAULT_COCO_PATH
     coco_path = get_coco_dataset(dataset_path)
     print("\n ------- Creating anomaly classification project --------------- \n")
 
@@ -256,7 +295,7 @@ def create_detection_to_segmentation_demo_project(
         n_images: int,
         n_annotations: int = -1,
         auto_train: bool = False,
-        dataset_path: str = os.path.join('..', 'data')
+        dataset_path: Optional[str] = None
 ) -> Project:
     """
     This method creates a demo project of type 'detection_to_segmentation', based
@@ -278,11 +317,14 @@ def create_detection_to_segmentation_demo_project(
         created and the images have been annotated, False to leave auto-training
         turned off.
     :param dataset_path: Path to the COCO dataset to use as data source. Defaults to
-        'data'. If the dataset is not found in the target folder, this method will
-        attempt to download it from the internet.
+        the 'data' directory in the top level folder of the sc_api_tools package. If
+        the dataset is not found in the target folder, this method will attempt to
+        download it from the internet.
     :return: Project object, holding detailed information about the project that was
         created on the SC cluster.
     """
+    if dataset_path is None:
+        dataset_path = DEFAULT_COCO_PATH
     coco_path = get_coco_dataset(dataset_path)
     print(
         "\n ------- Creating detection -> segmentation project --------------- \n"
@@ -326,7 +368,7 @@ def create_detection_to_classification_demo_project(
         n_images: int,
         n_annotations: int = -1,
         auto_train: bool = False,
-        dataset_path: str = os.path.join('..', 'data')
+        dataset_path: Optional[str] = None
 ) -> Project:
     """
     This method creates a demo project of type 'detection_to_classification', based
@@ -346,11 +388,14 @@ def create_detection_to_classification_demo_project(
         created and the images have been annotated, False to leave auto-training
         turned off.
     :param dataset_path: Path to the COCO dataset to use as data source. Defaults to
-        'data'. If the dataset is not found in the target folder, this method will
-        attempt to download it from the internet.
+        the 'data' directory in the top level folder of the sc_api_tools package. If
+        the dataset is not found in the target folder, this method will attempt to
+        download it from the internet.
     :return: Project object, holding detailed information about the project that was
         created on the SC cluster.
     """
+    if dataset_path is None:
+        dataset_path = DEFAULT_COCO_PATH
     coco_path = get_coco_dataset(dataset_path)
     print(
         "\n ------- Creating detection -> segmentation project --------------- \n"

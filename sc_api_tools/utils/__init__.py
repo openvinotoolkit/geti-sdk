@@ -11,5 +11,5 @@ __all__ = [
     "get_dict_key_from_value",
     "remove_null_fields",
     "get_task_types_by_project_type",
-    "get_coco_dataset"
+    "get_coco_dataset",
 ]
