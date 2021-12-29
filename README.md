@@ -114,8 +114,7 @@ The following example scripts are available:
   all based on the COCO dataset. Each project represents one of the supported task 
   within SC MVP. The projects created are:
   
-  - **Segmentation demo** -- Segmentation of 'backpack', 'suitcase' and 'handbag' 
-    objects
+  - **Segmentation demo** -- Segmentation of 'backpack' and 'suitcase' and objects
   - **Detection demo** -- Detection of 'person' and 'cell phone' objects
   - **Classification demo** -- Single class classification of 'horse' vs 'zebra' 
     vs 'cat' vs 'bear'
