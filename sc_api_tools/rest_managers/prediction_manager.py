@@ -383,11 +383,14 @@ class PredictionManager:
                 "Invalid media type found in media_list, unable to download "
                 "predictions."
             )
-        path_to_predictions_folder = os.path.join(
-            path_to_folder, "predictions", folder_name
-        )
+
+        if not path_to_folder.endswith("predictions"):
+            path_to_folder = os.path.join(path_to_folder, 'predictions')
+        path_to_predictions_folder = os.path.join(path_to_folder, folder_name)
+
         if not os.path.exists(path_to_predictions_folder):
             os.makedirs(path_to_predictions_folder)
+
         if verbose:
             print(
                 f"Starting prediction download... saving predictions for "

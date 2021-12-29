@@ -36,7 +36,7 @@ class ImageManager(BaseMediaManager[Image]):
         )
 
     def upload_folder(
-            self, path_to_folder: str, n_images: int = -1
+            self, path_to_folder: str, n_images: int = -1, return_all: bool = True
     ) -> MediaList[Image]:
         """
         Uploads all images in a folder to the project. Returns a MediaList containing
@@ -44,9 +44,14 @@ class ImageManager(BaseMediaManager[Image]):
 
         :param path_to_folder: Folder with images to upload
         :param n_images: Number of images to upload from folder
+        :param return_all: Set to True to return a list of all images in the project
+            after the upload. Set to False to return a list containing only the images
+            uploaded with the current call to this method. Defaults to True
         :return: MediaList containing all image's in the project
         """
-        return self._upload_folder(path_to_folder=path_to_folder, n_media=n_images)
+        return self._upload_folder(
+            path_to_folder=path_to_folder, n_media=n_images, return_all=return_all
+        )
 
     def download_all(self, path_to_folder: str) -> None:
         """
@@ -61,7 +66,8 @@ class ImageManager(BaseMediaManager[Image]):
         path_to_folder: str,
         image_names: List[str],
         extension_included: bool = False,
-        n_images: int = -1
+        n_images: int = -1,
+        return_all: bool = True
     ):
         """
         From a folder containing images `path_to_folder`, this method uploads only
@@ -73,6 +79,9 @@ class ImageManager(BaseMediaManager[Image]):
             included in the name, for each image in the image_names list. Defaults to
             False
         :param n_images: Number of images to upload from the list
+        :param return_all: Set to True to return a list of all images in the project
+            after the upload. Set to False to return a list containing only the images
+            uploaded with the current call to this method. Defaults to True
         :return: Dictionary containing a mapping between the ID's of the images and
             their filenames (excluding extensions). NOTE: Filenames are used as keys,
             ID's as values
@@ -106,7 +115,7 @@ class ImageManager(BaseMediaManager[Image]):
                     f"Multiple files found for image with name {image_name}: {matches}"
                 )
             image_filepaths.append(matches[0])
-        return self._upload_loop(filepaths=image_filepaths)
+        return self._upload_loop(filepaths=image_filepaths, return_all=return_all)
 
     def delete_images(self, images: MediaList[Image]) -> bool:
         """

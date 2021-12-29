@@ -117,6 +117,10 @@ class BaseMediaManager(Generic[MediaTypeVar]):
             raise ValueError(
                 f"Unable to delete individual video frames."
             )
+        print(
+            f"Deleting {len(media_list)} {self.plural_media_name} from project "
+            f"'{self._project_name}'..."
+        )
         for media_item in media_list:
             try:
                 self.session.get_rest_response(url=media_item.base_url, method='DELETE')
@@ -149,17 +153,23 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         )
         return response.json()
 
-    def _upload_loop(self, filepaths: List[str]) -> MediaList[MediaTypeVar]:
+    def _upload_loop(
+            self, filepaths: List[str], return_all: bool = True
+    ) -> MediaList[MediaTypeVar]:
         """
         Uploads media from a list of filepaths. Also checks if media items with the same
         filename exist in the project, to make sure no duplicate items are uploaded.
 
         :param filepaths: List of full filepaths for media that should be
             uploaded
+        :param return_all: Set to True to return a list of all media in the project
+            after the upload. Set to False to return a list containing only the media
+            uploaded with this call. Defaults to True
         :return: MediaList containing a list of all media entities that were uploaded
             to the project
         """
         media_in_project = self._get_all()
+        uploaded_media: MediaList[MediaTypeVar] = MediaList[MediaTypeVar]([])
         upload_count = 0
         skip_count = 0
         print(f"Starting {self._MEDIA_TYPE} upload...")
@@ -174,6 +184,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
                 input_dict=media_dict, media_type=self.__media_type
             )
             media_in_project.append(media_item)
+            uploaded_media.append(media_item)
             upload_count += 1
             if upload_count % 100 == 0:
                 print(
@@ -192,11 +203,13 @@ class BaseMediaManager(Generic[MediaTypeVar]):
                         f"existed in project, these {self.plural_media_name} were" \
                         f" skipped."
         print(msg)
-
-        return media_in_project
+        if return_all:
+            return media_in_project
+        else:
+            return uploaded_media
 
     def _upload_folder(
-            self, path_to_folder: str, n_media: int = -1
+            self, path_to_folder: str, n_media: int = -1, return_all: bool = True
     ) -> MediaList[MediaTypeVar]:
         """
         Uploads all media in a folder to the project. Returns the mapping of filenames
@@ -204,6 +217,9 @@ class BaseMediaManager(Generic[MediaTypeVar]):
 
         :param path_to_folder: Folder with media items to upload
         :param n_media: Number of media to upload from folder
+        :param return_all: Set to True to return a list of all media in the project
+            after the upload. Set to False to return a list containing only the media
+            uploaded with this call. Defaults to True
         :return: MediaList containing a list of all media entities that were uploaded
             to the project
         """
@@ -224,7 +240,9 @@ class BaseMediaManager(Generic[MediaTypeVar]):
             )
         else:
             n_to_upload = n_files if n_files < n_media else n_media
-        return self._upload_loop(filepaths=filepaths[0:n_to_upload])
+        return self._upload_loop(
+            filepaths=filepaths[0:n_to_upload], return_all=return_all
+        )
 
     def _download_all(self, path_to_folder: str) -> None:
         """

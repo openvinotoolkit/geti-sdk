@@ -625,7 +625,8 @@ class SCRESTClient:
     def upload_and_predict_media_folder(
             self,
             project_name: str,
-            target_folder: str,
+            media_folder: str,
+            output_folder: Optional[str] = None,
             delete_after_prediction: bool = False
     ) -> bool:
         """
@@ -640,7 +641,10 @@ class SCRESTClient:
         been downloaded.
 
         :param project_name: Name of the project to upload media to
-        :param target_folder: Path to the folder to upload media from
+        :param media_folder: Path to the folder to upload media from
+        :param output_folder: Path to save the predictions to. If not specified, this
+            method will create a folder named '<media_folder_name>_predictions' on
+            the same level as the media_folder
         :param delete_after_prediction: True to remove the media from the project
             once all predictions are received, False to keep the media in the project.
         :return: True if all media was uploaded, and predictions for all media were
@@ -662,13 +666,17 @@ class SCRESTClient:
         image_manager = ImageManager(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
-        images = image_manager.upload_folder(path_to_folder=target_folder)
+        images = image_manager.upload_folder(
+            path_to_folder=media_folder, return_all=False
+        )
 
         # Upload videos
         video_manager = VideoManager(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
-        videos = video_manager.upload_folder(path_to_folder=target_folder)
+        videos = video_manager.upload_folder(
+            path_to_folder=media_folder, return_all=False
+        )
 
         prediction_manager = PredictionManager(
             session=self.session, workspace_id=self.workspace_id, project=project
@@ -680,18 +688,32 @@ class SCRESTClient:
                 f"trained model yet. Aborting prediction."
             )
 
+        # Set and create output folder if necessary
+        if output_folder is None:
+            output_folder = media_folder + '_predictions'
+        if not os.path.exists(output_folder) and os.path.isdir(output_folder):
+            os.makedirs(output_folder)
+
         # Request image predictions
-        prediction_manager.download_predictions_for_images(
-            images=images, path_to_folder=target_folder
-        )
+        if len(images) > 0:
+            prediction_manager.download_predictions_for_images(
+                images=images, path_to_folder=output_folder
+            )
 
         # Request video predictions
-        prediction_manager.download_predictions_for_videos(
-            videos=videos, path_to_folder=target_folder, inferred_frames_only=False
-        )
+        if len(videos) > 0:
+            prediction_manager.download_predictions_for_videos(
+                videos=videos, path_to_folder=output_folder, inferred_frames_only=False
+            )
+
+        # Delete media if required
         result = True
         if delete_after_prediction:
-            images_deleted = image_manager.delete_images(images=images)
-            videos_deleted = video_manager.delete_videos(videos=videos)
+            images_deleted = True
+            videos_deleted = True
+            if len(images) > 0:
+                images_deleted = image_manager.delete_images(images=images)
+            if len(videos) > 0:
+                videos_deleted = video_manager.delete_videos(videos=videos)
             result = images_deleted and videos_deleted
         return result
