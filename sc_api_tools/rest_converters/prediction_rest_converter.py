@@ -1,9 +1,13 @@
 import copy
 from typing import Dict, Any, List
 
+import attr
+
 from sc_api_tools.data_models import Prediction, Annotation
 from sc_api_tools.data_models.predictions import ResultMedium
+from sc_api_tools.data_models.utils import attr_value_serializer
 from sc_api_tools.rest_converters import AnnotationRESTConverter
+from sc_api_tools.utils import remove_null_fields
 
 
 class PredictionRESTConverter:
@@ -44,3 +48,24 @@ class PredictionRESTConverter:
             }
         )
         return Prediction(**input_copy)
+
+    @staticmethod
+    def to_dict(
+            prediction: Prediction, deidentify: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Converts a Prediction to a dictionary. By default, removes any ID
+        fields in the output dictionary
+
+        :param prediction: Prediction object to convert
+        :param deidentify: True to remove any unique database ID fields in the output,
+            False to keep these fields. Defaults to True
+        :return: Dictionary holding the serialized Prediction data
+        """
+        if deidentify:
+            prediction.deidentify()
+        prediction_dict = attr.asdict(
+            prediction, recurse=True, value_serializer=attr_value_serializer
+        )
+        remove_null_fields(prediction_dict)
+        return prediction_dict

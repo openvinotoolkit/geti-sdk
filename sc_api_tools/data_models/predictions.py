@@ -1,4 +1,4 @@
-from typing import List, Optional, ClassVar
+from typing import List, Optional, ClassVar, Dict
 
 import attr
 from sc_api_tools.data_models import AnnotationScene, AnnotationKind, Label
@@ -39,7 +39,7 @@ class ResultMedium:
             (label.name for label in labels if label.id == self.label_id), None
         )
 
-    def get_data(self, session: SCSession) -> Optional[bytes]:
+    def get_data(self, session: SCSession) -> bytes:
         """
         Download the data belonging to this ResultMedium object
 
@@ -48,17 +48,27 @@ class ResultMedium:
         :return: bytes object holding the data, if any is found
         """
         if self.data is None:
-            response = session.get_rest_response(
-                url=self.url, method="GET", contenttype="jpeg"
-            )
-            if response.status_code == 200:
-                self.data = response.content
-            else:
-                raise ValueError(
-                    f"Unable to retrieve data for result medium {self}, received "
-                    f"response {response} from SC server."
+            if self.url is not None:
+                response = session.get_rest_response(
+                    url=self.url, method="GET", contenttype="jpeg"
                 )
+                if response.status_code == 200:
+                    self.data = response.content
+                else:
+                    raise ValueError(
+                        f"Unable to retrieve data for result medium {self}, received "
+                        f"response {response} from SC server."
+                    )
         return self.data
+
+    @property
+    def friendly_name(self) -> str:
+        """
+        Returns a human readable name with which the result medium can be identified
+
+        :return:
+        """
+        return self.name + '_' + self.label_name
 
 
 @attr.s(auto_attribs=True)
@@ -103,3 +113,27 @@ class Prediction(AnnotationScene):
             annotation.deidentify()
         for map_ in self.maps:
             deidentify(map_)
+
+    @property
+    def has_result_media(self) -> bool:
+        """
+        Returns True if this Prediction has result media belonging to it, False
+        otherwise
+
+        :return:
+        """
+        return len(self.maps) > 0
+
+    def get_result_media_data(self, session: SCSession) -> List[ResultMedium]:
+        """
+        Downloads the data for all result media belonging to this prediction
+
+        :param session: REST session to the SC cluster from which this Prediction
+            was generated
+        :return: List of result media, that have their data downloaded from the cluster
+        """
+        result: List[ResultMedium] = []
+        for medium in self.maps:
+            medium.get_data(session=session)
+            result.append(medium)
+        return result

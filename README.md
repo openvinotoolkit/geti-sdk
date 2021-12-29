@@ -46,10 +46,16 @@ uploading projects.
     ```
   Here, it is assumed that the project with name 'dummy_project' exists on the cluster. 
   The client will create a folder named 'dummy_project' in your current working 
-  directory, and download the project parameters, images and annotations to that folder. 
-  Models are not downloaded, and also videos are not supported (yet). The method takes 
-  an optional parameter `target_folder` that can be specified to change the 
-  directory to which the project data is saved.
+  directory, and download the project parameters, images, videos, annotations and 
+  predictions to that folder. Models are not downloaded. 
+  
+  The method takes 
+  the following optional parameters:
+    - `target_folder` -- Can be specified to change the directory to which the 
+      project data is saved.
+      
+    - `include_predictions` -- Set to True to download the predictions for all images 
+      and videos in the project. Set to False to not download any predictions.
 
 
 - **Project upload** The following python snippet is a minimal example of how to 
@@ -108,7 +114,8 @@ The following example scripts are available:
   all based on the COCO dataset. Each project represents one of the supported task 
   within SC MVP. The projects created are:
   
-  - **Segmentation demo** -- Segmentation of 'dog' and 'frisbee' objects
+  - **Segmentation demo** -- Segmentation of 'backpack', 'suitcase' and 'handbag' 
+    objects
   - **Detection demo** -- Detection of 'person' and 'cell phone' objects
   - **Classification demo** -- Single class classification of 'horse' vs 'zebra' 
     vs 'cat' vs 'bear'
@@ -153,20 +160,24 @@ What is supported:
   `project_type=detection_to_segmentation`. Please see the scripts in the `examples` 
   folder for examples on how to do this.
   
+
 - Uploading images, videos and annotations for images and video frames to a project
   
-- Downloading images, videos and annotations for images and video frames from a project
+
+- Downloading images, videos, annotations, and predictions for all images and 
+  videos/video frames in a project
   
+
 - Setting basic configuration for a project, like turning auto train on/off and 
   setting number of iterations for all tasks
   
+
 - **Creating and restoring a backup of an existing project**, using the code 
   snippets provided [above](#downloading-and-uploading-projects). Only 
   annotations and media are backed up, models are not.
   
 What is not (fully) supported:
 - Model download and upload
-- Prediction download and upload
 - Backing up project configuration
 - Label hierarchies *should* work, I have tested this but please use caution 
   and test extensively yourself

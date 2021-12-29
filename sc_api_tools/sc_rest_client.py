@@ -12,7 +12,8 @@ from .rest_managers import (
     AnnotationManager,
     ConfigurationManager,
     ImageManager,
-    VideoManager
+    VideoManager,
+    PredictionManager
 )
 from .data_models import (
     Project,
@@ -57,7 +58,10 @@ class SCRESTClient:
         self.workspace_id = workspace_id
 
     def download_project(
-            self, project_name: str, target_folder: Optional[str] = None
+            self,
+            project_name: str,
+            target_folder: Optional[str] = None,
+            include_predictions: bool = True
     ) -> Project:
         """
         Download a project with name `project_name` to the local disk. All images and
@@ -66,8 +70,12 @@ class SCRESTClient:
         This method will download data to the path `target_folder`, the contents will
         be:
             'images'       -- Directory holding all images in the project
+            'videos'       -- Directory holding all videos in the project
             'annotations'  -- Directory holding all annotations in the project, in .json
                               format
+            'predictions'  -- Directory holding all predictions in the project, in
+                              .json format. If available, this will include saliency
+                              maps in .jpeg format.
             'project.json' -- File containing the project parameters, that can be used
                               to re-create the project.
 
@@ -75,6 +83,10 @@ class SCRESTClient:
         :param target_folder: Path to the local folder in which the project data
             should be saved. If not specified, a new directory named `project_name`
             will be created inside the current working directory.
+        :param include_predictions: True to also download the predictions for all
+            images and videos in the project, False to not download any predictions.
+            If this is set to True but the project has no trained models, downloading
+            predictions will be skipped.
         :return: Project object, holding information obtained from the cluster
             regarding the downloaded project
         """
@@ -123,6 +135,26 @@ class SCRESTClient:
                 media_lists=[images, videos]
             )
         annotation_manager.download_all_annotations(path_to_folder=target_folder)
+
+        # Download predictions
+        prediction_manager = PredictionManager(
+            workspace_id=self.workspace_id, session=self.session, project=project
+        )
+        if prediction_manager.project_ready and include_predictions:
+            if len(images) > 0:
+                prediction_manager.download_predictions_for_images(
+                    images=images,
+                    path_to_folder=target_folder,
+                    include_result_media=True
+                )
+            if len(videos) > 0:
+                prediction_manager.download_predictions_for_videos(
+                    videos=videos,
+                    path_to_folder=target_folder,
+                    include_result_media=True,
+                    inferred_frames_only=False
+                )
+
         print(f"Project '{project.name}' was downloaded successfully.")
         return project
 
@@ -499,13 +531,19 @@ class SCRESTClient:
         else:
             return labels_per_task
 
-    def download_all_projects(self, target_folder: str) -> List[Project]:
+    def download_all_projects(
+            self, target_folder: str, include_predictions: bool = True
+    ) -> List[Project]:
         """
         Downloads all projects in the default workspace from the SC cluster
 
         :param target_folder: Directory on local disk to download the project data to.
             If not specified, this method will create a directory named 'projects' in
             the current working directory.
+        :param include_predictions: True to also download the predictions for all
+            images and videos in the project, False to not download any predictions.
+            If this is set to True but the project has no trained models, downloading
+            predictions will be skipped.
         :return: List of Project objects, each entry corresponding to one of the
             projects found on the SC cluster
         """
@@ -530,7 +568,8 @@ class SCRESTClient:
             print(f"Downloading project '{project.name}'... {index+1}/{len(projects)}.")
             self.download_project(
                 project_name=project.name,
-                target_folder=os.path.join(target_folder, project.name)
+                target_folder=os.path.join(target_folder, project.name),
+                include_predictions=include_predictions
             )
         return projects
 

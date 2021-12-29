@@ -46,7 +46,7 @@ def create_segmentation_demo_project(
     dataset.
 
     It creates a project with a single 'Segmentation' task, with segmentation mask for
-    labels: 'dog' and 'frisbee'.
+    labels: 'backpack', "suitcase" and 'handbag'.
 
     :param client: SCRESTClient, representing the client for the SC cluster on which
         the project should be created.
@@ -69,7 +69,7 @@ def create_segmentation_demo_project(
     coco_path = get_coco_dataset(dataset_path)
     print("\n ------- Creating segmentation project --------------- \n")
 
-    labels_of_interest = ["dog", "frisbee"]
+    labels_of_interest = ["backpack", "suitcase", "handbag"]
     project_type = "segmentation"
     project_name = "Segmentation demo"
 
