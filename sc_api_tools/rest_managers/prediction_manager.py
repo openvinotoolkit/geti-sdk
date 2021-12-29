@@ -420,21 +420,29 @@ class PredictionManager:
 
             # Download result media belonging to the prediction, if required
             if prediction.has_result_media and include_result_media:
-                result_media = prediction.get_result_media_data(self.session)
-                path_to_result_media_folder = os.path.join(
-                    os.path.basename(path_to_predictions_folder),
-                    "result_media",
-                    media_name_plural
-                )
-                if not os.path.exists(path_to_result_media_folder):
-                    os.makedirs(path_to_result_media_folder)
-                for result_medium in result_media:
-                    result_media_path = os.path.join(
-                        path_to_result_media_folder,
-                        media_item.name + '_' + result_medium.friendly_name + '.jpg'
+                try:
+                    result_media = prediction.get_result_media_data(self.session)
+                except ValueError:
+                    if verbose:
+                        print(
+                            f"Unable to retrieve prediction result map for "
+                            f"{media_name} '{media_item.name}'. Skipping"
+                        )
+                    result_media = None
+                if result_media is not None:
+                    path_to_result_media_folder = os.path.join(
+                        path_to_predictions_folder,
+                        "saliency_maps"
                     )
-                    with open(result_media_path, 'wb') as f:
-                        f.write(result_medium.data)
+                    if not os.path.exists(path_to_result_media_folder):
+                        os.makedirs(path_to_result_media_folder)
+                    for result_medium in result_media:
+                        result_media_path = os.path.join(
+                            path_to_result_media_folder,
+                            media_item.name + '_' + result_medium.friendly_name + '.jpg'
+                        )
+                        with open(result_media_path, 'wb') as f:
+                            f.write(result_medium.data)
 
             # Convert prediction to json and save to file
             export_data = PredictionRESTConverter.to_dict(prediction)

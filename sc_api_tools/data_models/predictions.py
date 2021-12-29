@@ -21,7 +21,7 @@ class ResultMedium:
     _identifier_fields: ClassVar[str] = ["id", "data", "label_id", "url"]
 
     name: str
-    type: str
+    type: Optional[str] = None
     url: Optional[str] = None
     label_id: Optional[str] = None
     id: Optional[str] = None
@@ -38,6 +38,10 @@ class ResultMedium:
         self.label_name = next(
             (label.name for label in labels if label.id == self.label_id), None
         )
+        # Label id is not defined for anomaly classification, it will always return
+        # the saliency map for the 'Anomalous' label
+        if self.name.lower() == 'anomaly map' and self.label_name is None:
+            self.label_name = 'Anomalous'
 
     def get_data(self, session: SCSession) -> bytes:
         """
