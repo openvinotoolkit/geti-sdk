@@ -52,3 +52,13 @@ class VideoManager(BaseMediaManager[Video]):
         :param path_to_folder: path to the folder in which the videos should be saved
         """
         self._download_all(path_to_folder)
+
+    def delete_videos(self, videos: MediaList[Video]) -> bool:
+        """
+        Deletes all Video entities in `videos` from the project
+
+        :param videos: List of Video entities to delete
+        :return: True if all videos on the list were deleted successfully,
+            False otherwise
+        """
+        return self._delete_media(media_list=videos)

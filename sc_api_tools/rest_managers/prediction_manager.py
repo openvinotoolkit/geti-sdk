@@ -63,7 +63,7 @@ class PredictionManager:
         return True
 
     @property
-    def project_ready(self):
+    def ready_to_predict(self):
         """
         Returns True if the project is ready to yield predictions, False otherwise
 
@@ -129,7 +129,7 @@ class PredictionManager:
          - Prediction (for Image/VideoFrame) or List of Predictions (for Video)
          - string containing a message
         """
-        if not self.project_ready:
+        if not self.ready_to_predict:
             msg = f"Not all tasks in project '{self.project.name}' have a trained " \
                   f"model available. Unable to get predictions from the project."
             result = None
@@ -373,16 +373,18 @@ class PredictionManager:
         if media_list.media_type == Image:
             media_name = 'image'
             media_name_plural = 'images'
+            folder_name = 'images'
         elif media_list.media_type == VideoFrame:
             media_name = 'video frame'
             media_name_plural = 'video frames'
+            folder_name = 'videos'
         else:
             raise ValueError(
                 "Invalid media type found in media_list, unable to download "
                 "predictions."
             )
         path_to_predictions_folder = os.path.join(
-            path_to_folder, "predictions", media_name_plural
+            path_to_folder, "predictions", folder_name
         )
         if not os.path.exists(path_to_predictions_folder):
             os.makedirs(path_to_predictions_folder)

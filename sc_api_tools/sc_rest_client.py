@@ -61,21 +61,27 @@ class SCRESTClient:
             self,
             project_name: str,
             target_folder: Optional[str] = None,
-            include_predictions: bool = True
+            include_predictions: bool = False
     ) -> Project:
         """
-        Download a project with name `project_name` to the local disk. All images and
-        image annotations in the project are downloaded.
+        Download a project with name `project_name` to the local disk. All images,
+        image annotations, videos and video frame annotations in the project are
+        downloaded. By default, predictions are not downloaded, but they can be
+        included by passing `include_predictions=True`
 
         This method will download data to the path `target_folder`, the contents will
         be:
-            'images'       -- Directory holding all images in the project
-            'videos'       -- Directory holding all videos in the project
+            'media'        -- Directory containing:
+                 'images'  -- Folder holding all images in the project
+                 'videos'  -- Folder holding all videos in the project
+
             'annotations'  -- Directory holding all annotations in the project, in .json
                               format
+
             'predictions'  -- Directory holding all predictions in the project, in
                               .json format. If available, this will include saliency
                               maps in .jpeg format.
+
             'project.json' -- File containing the project parameters, that can be used
                               to re-create the project.
 
@@ -140,7 +146,7 @@ class SCRESTClient:
         prediction_manager = PredictionManager(
             workspace_id=self.workspace_id, session=self.session, project=project
         )
-        if prediction_manager.project_ready and include_predictions:
+        if prediction_manager.ready_to_predict and include_predictions:
             if len(images) > 0:
                 prediction_manager.download_predictions_for_images(
                     images=images,
@@ -168,9 +174,13 @@ class SCRESTClient:
         Upload a previously downloaded SC project to the cluster. This method expects
         the `target_folder` to contain the following:
 
-            'images'       -- Directory holding all images in the project
+            'media'        -- Directory containing:
+                 'images'  -- Folder holding all images in the project
+                 'videos'  -- Folder holding all videos in the project
+
             'annotations'  -- Directory holding all annotations in the project, in .json
                               format
+
             'project.json' -- File containing the project parameters, that can be used
                               to re-create the project.
 
@@ -611,3 +621,77 @@ class SCRESTClient:
             )
             projects.append(project)
         return projects
+
+    def upload_and_predict_media_folder(
+            self,
+            project_name: str,
+            target_folder: str,
+            delete_after_prediction: bool = False
+    ) -> bool:
+        """
+        Uploads a folder with media (images, videos or both) from local disk at path
+        `target_folder` to the project with name `project_name` on the SC cluster.
+        After the media upload is complete, predictions will be downloaded for all
+        media in the folder. This method will create a 'predictions' directory in
+        the `target_folder`, containing the prediction output in json format.
+
+        If `delete_after_prediction` is set to True, all uploaded media will be
+        removed from the project on the SC cluster after the predictions have
+        been downloaded.
+
+        :param project_name: Name of the project to upload media to
+        :param target_folder: Path to the folder to upload media from
+        :param delete_after_prediction: True to remove the media from the project
+            once all predictions are received, False to keep the media in the project.
+        :return: True if all media was uploaded, and predictions for all media were
+            successfully downloaded. False otherwise
+        """
+        # Obtain project details from cluster
+        project_manager = ProjectManager(
+            session=self.session, workspace_id=self.workspace_id
+        )
+        project = project_manager.get_project_by_name(project_name=project_name)
+        if project is None:
+            print(
+                f"Project '{project_name}' was not found on the cluster. Aborting "
+                f"media upload."
+            )
+            return False
+
+        # Upload images
+        image_manager = ImageManager(
+            session=self.session, workspace_id=self.workspace_id, project=project
+        )
+        images = image_manager.upload_folder(path_to_folder=target_folder)
+
+        # Upload videos
+        video_manager = VideoManager(
+            session=self.session, workspace_id=self.workspace_id, project=project
+        )
+        videos = video_manager.upload_folder(path_to_folder=target_folder)
+
+        prediction_manager = PredictionManager(
+            session=self.session, workspace_id=self.workspace_id, project=project
+        )
+        if not prediction_manager.ready_to_predict:
+            print(
+                f"Project '{project_name}' is not ready to make predictions, likely "
+                f"because one of the tasks in the task chain does not have a "
+                f"trained model yet. Aborting prediction."
+            )
+
+        # Request image predictions
+        prediction_manager.download_predictions_for_images(
+            images=images, path_to_folder=target_folder
+        )
+
+        # Request video predictions
+        prediction_manager.download_predictions_for_videos(
+            videos=videos, path_to_folder=target_folder, inferred_frames_only=False
+        )
+        result = True
+        if delete_after_prediction:
+            images_deleted = image_manager.delete_images(images=images)
+            videos_deleted = video_manager.delete_videos(videos=videos)
+            result = images_deleted and videos_deleted
+        return result

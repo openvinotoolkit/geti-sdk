@@ -8,7 +8,7 @@ from sc_api_tools.data_models import (
     MediaType,
     MediaList,
     Video,
-    Image,
+    Image, VideoFrame,
 )
 from sc_api_tools.data_models.media_list import MediaTypeVar
 from sc_api_tools.data_models.enums.media_type import (
@@ -104,6 +104,33 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         return MediaList.from_rest_list(
             rest_input=raw_media_list, media_type=self.__media_type
         )
+
+    def _delete_media(self, media_list: MediaList[MediaTypeVar]) -> bool:
+        """
+        Deletes all media entities in `media_list` from the project
+
+        :param media_list: List of media entities to delete
+        :return: True if all items on the media list were deleted successfully,
+            False otherwise
+        """
+        if media_list.media_type == VideoFrame:
+            raise ValueError(
+                f"Unable to delete individual video frames."
+            )
+        for media_item in media_list:
+            try:
+                self.session.get_rest_response(url=media_item.base_url, method='DELETE')
+            except ValueError as error:
+                if error.args[-1] == 409:
+                    print(
+                        f"Project '{self._project_name}' is locked for deletion, "
+                        f"unable to delete media. Aborting deletion."
+                    )
+                    return False
+                if error.args[-1] == 404:
+                    # Media item has already been deleted, continue with the rest of
+                    # the list
+                    continue
 
     def _upload(self, filepath: str) -> Dict[str, Any]:
         """
@@ -207,7 +234,9 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         :return:
         """
         media_list = self._get_all()
-        path_to_media_folder = os.path.join(path_to_folder, self.plural_media_name)
+        path_to_media_folder = os.path.join(
+            path_to_folder, "media", self.plural_media_name
+        )
         if not os.path.exists(path_to_media_folder):
             os.makedirs(path_to_media_folder)
         print(

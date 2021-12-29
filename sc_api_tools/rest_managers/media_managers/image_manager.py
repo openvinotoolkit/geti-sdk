@@ -107,3 +107,13 @@ class ImageManager(BaseMediaManager[Image]):
                 )
             image_filepaths.append(matches[0])
         return self._upload_loop(filepaths=image_filepaths)
+
+    def delete_images(self, images: MediaList[Image]) -> bool:
+        """
+        Deletes all Image entities in `images` from the project
+
+        :param images: List of Image entities to delete
+        :return: True if all images on the list were deleted successfully,
+            False otherwise
+        """
+        return self._delete_media(media_list=images)

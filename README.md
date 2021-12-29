@@ -132,8 +132,9 @@ The following example scripts are available:
 >      COCO dataset
 >   
 >    - Leave the path unspecified, in which case the script will attempt to download 
->      the val2017 subset of the dataset from the internet. This is an approximately
->      1 Gb download so it may take some time
+>      the val2017 subset of the dataset from the internet, to a default path in the 
+>      package directory. This is an approximately 1 Gb download so it may take some 
+>      time. After downloading once, all demo scripts will automatically use the data.
 > 
 >
 > Of course, you can also download the val2017 COCO data manually via
@@ -184,20 +185,30 @@ What is not (fully) supported:
   relying on this tool to back up your projects!!!
   
 ## API reference
-The `SCRESTClient` class provides the following methods:
+The high level `SCRESTClient` class provides the following methods:
 
 - `download_project` -- Downloads a project by project name.
   
+
 - `upload_project` -- Upload project from a folder.
   
+
 - `download_all_projects` -- Downloads all projects found on the SC cluster.
   
+
 - `upload_all_projects` -- Uploads all projects found in a specified folder to the SC 
   cluster.
   
+
+- `upload_and_predict_media_folder` -- Upload all media (images and videos) from a 
+  folder on local disk to an existing project on the SC cluster, and download 
+  predictions for all uploaded media.
+  
+
 - `create_project_single_task_from_dataset` -- Creates a single task project on the SC 
   cluster, potentially using labels and uploading annotations from an external dataset.
   
+
 - `create_task_chain_project_from_dataset` -- Creates a task chain project on the SC 
   cluster, potentially using labels and uploading annotations from an external dataset.
   

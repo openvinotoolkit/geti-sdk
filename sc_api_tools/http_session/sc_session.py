@@ -1,3 +1,4 @@
+from json import JSONDecodeError
 from typing import Dict, Optional, Union
 
 import requests
@@ -155,11 +156,11 @@ class SCSession(requests.Session):
             )
 
         if response.status_code not in [200, 201]:
-            if response.status_code != 204:
+            try:
                 data = response.json()
-            else:
-                data = response.status_code
-            raise ValueError(method, url, data)
+            except JSONDecodeError:
+                data = ""
+            raise ValueError(method, url, data, response.status_code)
 
         if contenttype == "json":
             return response.json()
