@@ -1,11 +1,14 @@
+import abc
 from typing import Optional
+import numpy as np
 
 import attr
+from sc_api_tools.http_session import SCSession
 
 from .enums import MediaType
 from .media_identifiers import MediaIdentifier, ImageIdentifier, VideoIdentifier, \
     VideoFrameIdentifier
-from .utils import str_to_media_type, str_to_datetime
+from .utils import str_to_media_type, str_to_datetime, numpy_from_buffer
 
 
 @attr.s(auto_attribs=True)
@@ -116,6 +119,21 @@ class MediaItem:
         """
         return MediaIdentifier(type=self.type)
 
+    @abc.abstractmethod
+    def get_data(self, session: SCSession) -> np.ndarray:
+        """
+        Get the pixel data for this MediaItem. Uses caching.
+
+        Getting data is only supported for Image and VideoFrames. Calling this method
+        on a Video will raise an error.
+
+        :param session: REST session to the SC cluster on which the MediaItem lives
+        :raises ValueError: If the cache is empty and no data can be downloaded
+            from the cluster
+        :return: numpy array holding the pixel data for this MediaItem.
+        """
+        raise NotImplementedError
+
 
 @attr.s(auto_attribs=True)
 class Image(MediaItem):
@@ -127,6 +145,9 @@ class Image(MediaItem):
     """
     media_information: ImageInformation = attr.ib(kw_only=True)
 
+    def __attrs_post_init__(self):
+        self._data: Optional[np.ndarray] = None
+
     @property
     def identifier(self) -> ImageIdentifier:
         """
@@ -135,6 +156,41 @@ class Image(MediaItem):
         :return: ImageIdentifier object that contains the identifiers of the image
         """
         return ImageIdentifier(image_id=self.id, type=self.type)
+
+    def get_data(self, session: SCSession) -> np.ndarray:
+        """
+        Get the pixel data for this Image. This method uses caching: If the cache is
+        empty, it will download the data using the provided session. Otherwise it
+        will return the cached data directly
+
+        :param session: REST session to the SC cluster on which the Image lives
+        :raises ValueError: If the cache is empty and no data can be downloaded
+            from the cluster
+        :return: Numpy.ndarray holding the pixel data for this Image.
+        """
+        if self._data is None:
+            response = session.get_rest_response(
+                url=self.download_url, method="GET", contenttype="jpeg"
+            )
+            if response.status_code == 200:
+                self._data = numpy_from_buffer(response.content)
+            else:
+                raise ValueError(
+                    f"Unable to retrieve data for image {self}, received "
+                    f"response {response} from SC server."
+                )
+        return self._data
+
+    @property
+    def numpy(self) -> Optional[np.ndarray]:
+        """
+        Pixel data for the Image, as a numpy array of shape (width x heigth x 3).
+        If this attribute is None, the pixel data should be downloaded from the
+        cluster first using the `get_data` method
+
+        :return: numpy.ndarray containing the pixel data
+        """
+        return self._data
 
 
 @attr.s(auto_attribs=True)
@@ -156,13 +212,34 @@ class Video(MediaItem):
         """
         return VideoIdentifier(video_id=self.id, type=self.type)
 
+    def get_data(self, session: SCSession) -> np.ndarray:
+        """
+        Getting pixel data directly is not supported for Video entities, they have to
+        be converted to VideoFrames first
+
+        :param session:
+        :return:
+        """
+        raise NotImplementedError(
+            "Getting pixel data directly is not supported for Video entities, please "
+            "extract VideoFrames first"
+        )
+
 
 @attr.s(auto_attribs=True)
 class VideoFrame(MediaItem):
     """
     Class representing a video frame in SC
+
+    :var media_information: Container holding basic information such as width and
+            height about the VideoFrame entity
+    :var data: Pixel data for the VideoFrame. If this is None, the data can be
+        downloaded using the 'get_data' method
     """
     media_information: VideoFrameInformation = attr.ib(kw_only=True)
+
+    def __attrs_post_init__(self):
+        self._data: Optional[np.ndarray] = None
 
     @classmethod
     def from_video(cls, video: Video, frame_index: int) -> 'VideoFrame':
@@ -204,3 +281,38 @@ class VideoFrame(MediaItem):
             type=self.type,
             frame_index=self.media_information.frame_index
         )
+
+    @property
+    def numpy(self) -> Optional[np.ndarray]:
+        """
+        Pixel data for the Image, as a numpy array of shape (width x heigth x 3).
+        If this attribute is None, the pixel data should be downloaded from the
+        cluster first using the `get_data` method
+
+        :return: numpy.ndarray containing the pixel data
+        """
+        return self._data
+
+    def get_data(self, session: SCSession) -> np.ndarray:
+        """
+        Get the pixel data for this VideoFrame. This method uses caching: If the cache
+        is empty, it will download the data using the provided session. Otherwise it
+        will return the cached data directly
+
+        :param session: REST session to the SC cluster on which the VideoFrame lives
+        :raises ValueError: If the cache is empty and no data can be downloaded
+            from the cluster
+        :return: Numpy.ndarray holding the pixel data for this VideoFrame.
+        """
+        if self._data is None:
+            response = session.get_rest_response(
+                url=self.download_url, method="GET", contenttype="jpeg"
+            )
+            if response.status_code == 200:
+                self._data = numpy_from_buffer(response.content)
+            else:
+                raise ValueError(
+                    f"Unable to retrieve data for image {self}, received "
+                    f"response {response} from SC server."
+                )
+        return self._data

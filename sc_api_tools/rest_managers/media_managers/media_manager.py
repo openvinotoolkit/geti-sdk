@@ -3,6 +3,10 @@ import time
 from typing import Dict, List, Type, Any, Generic, ClassVar
 from glob import glob
 
+import cv2
+
+import numpy as np
+
 from sc_api_tools.data_models import (
     Project,
     MediaType,
@@ -15,6 +19,7 @@ from sc_api_tools.data_models.enums.media_type import (
     SUPPORTED_VIDEO_FORMATS,
     SUPPORTED_IMAGE_FORMATS
 )
+from sc_api_tools.data_models.utils import numpy_from_buffer
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters.media_rest_converter import MediaRESTConverter
 
@@ -279,6 +284,9 @@ class BaseMediaManager(Generic[MediaTypeVar]):
             )
             with open(media_filepath, 'wb') as f:
                 f.write(response.content)
+            if isinstance(media_item, (Image, VideoFrame)):
+                # Set the numpy data attribute if the media item supports it
+                media_item._data = numpy_from_buffer(response.content)
             download_count += 1
         t_elapsed = time.time() - t_start
         if download_count > 0:

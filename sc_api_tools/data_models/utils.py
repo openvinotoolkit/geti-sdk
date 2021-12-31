@@ -4,6 +4,9 @@ from enum import Enum
 import attr
 from typing import Any, Union, Optional
 
+import cv2
+import numpy as np
+
 from sc_api_tools.data_models import TaskType
 from sc_api_tools.data_models.enums import ShapeType, MediaType, AnnotationKind
 
@@ -105,3 +108,14 @@ def attr_value_serializer(instance, field, value):
         return datetime.isoformat(value)
     else:
         return value
+
+
+def numpy_from_buffer(buffer: bytes) -> np.ndarray:
+    """
+    Converts a bytes string representing an image into a numpy array
+
+    :param buffer: Bytes object to convert
+    :return: Numpy.ndarray containing the numpy data from the image
+    """
+    numpy_array = np.fromstring(buffer, dtype=np.uint8)
+    return cv2.imdecode(numpy_array, cv2.IMREAD_COLOR)
