@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import attr
 
@@ -32,6 +32,19 @@ class Rectangle(Shape):
     width: float
     height: float
 
+    @property
+    def is_full_box(self) -> bool:
+        """
+        Returns True if this Rectangle represents a box containing the full image
+
+        :return: True if the Rectangle encompasses the full image, False otherwise
+        """
+        return (
+            self.x == 0.0
+            and self.y == 0.0
+            and self.width == 1.0
+            and self.height == 1.0
+        )
 
 @attr.s(auto_attribs=True)
 class Ellipse(Shape):
@@ -73,3 +86,11 @@ class Polygon(Shape):
     :var points: List of Points that make up the polygon
     """
     points: List[Point]
+
+    def points_as_tuples(self) -> List[Tuple[float, float]]:
+        """
+        Returns the list of points for this Polygon as a list of (x, y) tuples
+
+        :return:
+        """
+        return [(point.x, point.y) for point in self.points]

@@ -200,6 +200,10 @@ The high level `SCRESTClient` class provides the following methods:
   cluster.
   
 
+- `upload_and_predict_image` -- Uploads a single image to an existing project on the 
+  SC cluster, and requests a prediction for that image. Optionally, the prediction can 
+  be visualized as an overlay on the image.
+
 - `upload_and_predict_media_folder` -- Upload all media (images and videos) from a 
   folder on local disk to an existing project on the SC cluster, and download 
   predictions for all uploaded media.

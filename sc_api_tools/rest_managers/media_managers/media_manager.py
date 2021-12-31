@@ -1,6 +1,7 @@
+import io
 import os
 import time
-from typing import Dict, List, Type, Any, Generic, ClassVar
+from typing import Dict, List, Type, Any, Generic, ClassVar, BinaryIO
 from glob import glob
 
 import cv2
@@ -141,6 +142,22 @@ class BaseMediaManager(Generic[MediaTypeVar]):
                     # the list
                     continue
 
+    def _upload_bytes(self, buffer: BinaryIO) -> Dict[str, Any]:
+        """
+        Upload a buffer representing a media file to the server
+
+        :param buffer: BinaryIO object representing a media file
+        :return: Dictionary containing the response of the SC cluster, which holds
+            the details of the uploaded entity
+        """
+        response = self.session.get_rest_response(
+            url=f"{self.base_url}",
+            method="POST",
+            contenttype="multipart",
+            data={"file": buffer}
+        )
+        return response.json()
+
     def _upload(self, filepath: str) -> Dict[str, Any]:
         """
         Upload a media file to the server
@@ -150,13 +167,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
             the details of the uploaded entity
         """
         media_bytes = open(filepath, 'rb')
-        response = self.session.get_rest_response(
-            url=f"{self.base_url}",
-            method="POST",
-            contenttype="multipart",
-            data={"file": media_bytes}
-        )
-        return response.json()
+        return self._upload_bytes(media_bytes)
 
     def _upload_loop(
             self, filepaths: List[str], return_all: bool = True

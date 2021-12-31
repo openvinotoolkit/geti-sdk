@@ -1,7 +1,12 @@
 from typing import List, Optional, ClassVar, Dict
 
+import cv2
+import numpy as np
+
 import attr
 from sc_api_tools.data_models import AnnotationScene, AnnotationKind, Label
+from sc_api_tools.data_models.media import MediaInformation
+from sc_api_tools.data_models.shapes import Ellipse, Rectangle, Polygon
 from sc_api_tools.data_models.utils import str_to_annotation_kind, deidentify
 from sc_api_tools.http_session import SCSession
 
@@ -141,3 +146,97 @@ class Prediction(AnnotationScene):
             medium.get_data(session=session)
             result.append(medium)
         return result
+
+    def as_mask(
+            self,
+            media_information: MediaInformation,
+            probability_threshold: Optional[float] = None
+    ):
+        """
+        Converts the shapes in the prediction to a mask that can be overlayed on an
+        image
+
+        :param media_information: MediaInformation object containing the width and
+            heigth of the image for which the mask should be generated.
+        :param probability_threshold: Threshold (between 0 and 1) for the probability.
+            Shapes that are predicted with a probability below this threshold will
+            not be plotted in the mask. If left as None (the default), all predictions
+            will be shown.
+        :return: np.ndarray holding the mask representation of the prediction
+        """
+        image_width = media_information.width
+        image_heigth = media_information.height
+        mask = np.zeros((image_heigth, image_width, 3))
+
+        for annotation in self.annotations:
+            max_prob_label_index = np.argmin(
+                [label.probability for label in annotation.labels]
+            )
+            max_prob_label = annotation.labels[max_prob_label_index]
+            if probability_threshold is not None:
+                if max_prob_label.probability < probability_threshold:
+                    continue
+            color = max_prob_label.color_tuple
+            line_thickness = 3
+            shape = annotation.shape
+            if isinstance(shape, (Ellipse, Rectangle)):
+                x, y = int(shape.x * image_width), int(shape.y * image_heigth)
+                width, height = int(shape.width * image_width), \
+                                int(shape.height * image_heigth)
+                if isinstance(shape, Ellipse):
+                    cv2.ellipse(
+                        mask,
+                        center=(x, y),
+                        axes=(width, height),
+                        angle=0,
+                        color=color,
+                        startAngle=0,
+                        endAngle=360,
+                        thickness=line_thickness
+                    )
+                elif isinstance(shape, Rectangle):
+                    if not shape.is_full_box:
+                        cv2.rectangle(
+                            mask,
+                            pt1=(x, y),
+                            pt2=(x+width, y+height),
+                            color=color,
+                            thickness=line_thickness
+                        )
+                    else:
+                        origin = [
+                            int(0.01*media_information.width),
+                            int(0.99*media_information.height)
+                        ]
+                        for label in annotation.labels:
+                            font = cv2.FONT_HERSHEY_SIMPLEX
+                            font_scale = 1
+                            cv2.putText(
+                                mask,
+                                label.name,
+                                org=origin,
+                                fontFace=font,
+                                fontScale=font_scale,
+                                color=label.color_tuple,
+                                thickness=1
+                            )
+                            text_width, text_height = cv2.getTextSize(
+                                label.name, font, font_scale, line_thickness
+                            )[0]
+                            origin[0] += text_width + 2
+            elif isinstance(shape, Polygon):
+                points = [
+                    (int(x*image_width), int(y*image_heigth))
+                    for (x, y) in shape.points_as_tuples()
+                ]
+                cv2.drawContours(
+                    mask,
+                    contours=points,
+                    color=color,
+                    thickness=line_thickness,
+                    contourIdx=-1
+                )
+        return mask
+
+
+

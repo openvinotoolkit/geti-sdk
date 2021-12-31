@@ -1,4 +1,6 @@
-from typing import Optional, ClassVar, List
+import copy
+
+from typing import Optional, ClassVar, List, Tuple
 
 import attr
 
@@ -54,3 +56,13 @@ class ScoredLabel:
     color: Optional[str] = None
     id: Optional[str] = None
     source: Optional[LabelSource] = None
+
+    @property
+    def color_tuple(self) -> Tuple[int, int, int]:
+        """
+        Returns the color of the label as an RGB tuple
+
+        :return:
+        """
+        hex_color_str = copy.deepcopy(self.color).strip('#')
+        return tuple(int(hex_color_str[i:i+2], 16) for i in (0, 2, 4))

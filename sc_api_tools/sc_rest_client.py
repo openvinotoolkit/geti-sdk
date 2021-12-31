@@ -2,6 +2,10 @@ import os
 import warnings
 from typing import Optional, List, Union
 
+import numpy as np
+from sc_api_tools.data_models import Prediction
+from sc_api_tools.utils import show_image_with_prediction
+
 from .annotation_readers import (
     SCAnnotationReader,
     AnnotationReader,
@@ -718,3 +722,64 @@ class SCRESTClient:
                 videos_deleted = video_manager.delete_videos(videos=videos)
             result = images_deleted and videos_deleted
         return result
+
+    def upload_and_predict_image(
+            self,
+            project_name: str,
+            image: Union[np.ndarray, Image, str, os.PathLike],
+            visualise_output: bool = True,
+            delete_after_prediction: bool = False
+    ) -> Prediction:
+        """
+        Uploads a single image to a project named `project_name` on the SC cluster,
+        and returns a prediction for it.
+
+        :param project_name: Name of the project to upload the image to
+        :param image: Image, numpy array representing an image, or filepath to an
+            image to upload and get a prediction for
+        :param visualise_output: True to show the resulting prediction, overlayed on
+            the image
+        :param delete_after_prediction: True to remove the image from the project
+            once the prediction is received, False to keep the image in the project.
+        :return: Prediction for the image
+        """
+        project_manager = ProjectManager(self.session, workspace_id=self.workspace_id)
+        project = project_manager.get_project_by_name(project_name)
+        if project is None:
+            raise ValueError(
+                f"Project '{project_name}' was not found on the cluster. Aborting "
+                f"image upload."
+            )
+
+        # Upload the image
+        image_manager = ImageManager(
+            session=self.session, workspace_id=self.workspace_id, project=project
+        )
+        needs_upload = True
+        if isinstance(image, Image):
+            image.get_data(self.session)
+            if image.id in image_manager.get_all_images().ids:
+                # Image is already in the project, make sure not to delete it in this
+                # case
+                needs_upload = False
+                image_data = None
+            else:
+                image_data = image.numpy
+        else:
+            image_data = image
+        if needs_upload:
+            uploaded_image = image_manager.upload_image(image=image_data)
+        else:
+            uploaded_image = image
+
+        # Get prediction
+        prediction_manager = PredictionManager(
+            session=self.session, workspace_id=self.workspace_id, project=project
+        )
+        prediction = prediction_manager.get_image_prediction(uploaded_image)
+        uploaded_image.get_data(self.session)
+        if delete_after_prediction and needs_upload:
+            image_manager.delete_images(images=MediaList([uploaded_image]))
+        if visualise_output:
+            show_image_with_prediction(image=uploaded_image, prediction=prediction)
+        return prediction
