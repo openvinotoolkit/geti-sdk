@@ -4,11 +4,7 @@ from typing import Optional
 from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers import DatumAnnotationReader
 from sc_api_tools.data_models import Project
-from sc_api_tools.utils import get_coco_dataset, get_task_types_by_project_type
-from sc_api_tools.utils.data_download_helpers import (
-    COCOSubset,
-    directory_has_coco_subset
-)
+from sc_api_tools.utils import get_coco_dataset_from_path, get_task_types_by_project_type
 
 DEFAULT_COCO_PATH = os.path.join(
     os.path.dirname(
@@ -21,17 +17,20 @@ DEFAULT_COCO_PATH = os.path.join(
 )
 
 
-def is_coco_dataset(dataset_path: Optional[str] = None) -> str:
+def get_coco_dataset(dataset_path: Optional[str] = None) -> str:
     """
     This method checks if the COCO dataset is present at the specified path. If not,
     this method will attempt to download the dataset to the path specified.
+
+    If no path is passed, this method will check or create the default path: the
+    folder 'data' in the top level of the sc-api-tools package.
 
     :param dataset_path: Path to check against.
     :return: Path to the COCO dataset
     """
     if dataset_path is None:
         dataset_path = DEFAULT_COCO_PATH
-    return get_coco_dataset(dataset_path, verbose=True)
+    return get_coco_dataset_from_path(dataset_path, verbose=True)
 
 
 def create_segmentation_demo_project(
@@ -66,7 +65,7 @@ def create_segmentation_demo_project(
     """
     if dataset_path is None:
         dataset_path = DEFAULT_COCO_PATH
-    coco_path = get_coco_dataset(dataset_path)
+    coco_path = get_coco_dataset_from_path(dataset_path)
     print("\n ------- Creating segmentation project --------------- \n")
 
     labels_of_interest = ["backpack", "suitcase"]
@@ -126,7 +125,7 @@ def create_detection_demo_project(
     """
     if dataset_path is None:
         dataset_path = DEFAULT_COCO_PATH
-    coco_path = get_coco_dataset(dataset_path)
+    coco_path = get_coco_dataset_from_path(dataset_path)
     print("\n ------- Creating detection project --------------- \n")
 
     labels_of_interest = ["cell phone", "person"]
@@ -187,7 +186,7 @@ def create_classification_demo_project(
     """
     if dataset_path is None:
         dataset_path = DEFAULT_COCO_PATH
-    coco_path = get_coco_dataset(dataset_path)
+    coco_path = get_coco_dataset_from_path(dataset_path)
     print("\n ------- Creating classification project --------------- \n")
 
     labels_of_interest = ["horse", "cat", "zebra", "bear"]
@@ -248,7 +247,7 @@ def create_anomaly_classification_demo_project(
     """
     if dataset_path is None:
         dataset_path = DEFAULT_COCO_PATH
-    coco_path = get_coco_dataset(dataset_path)
+    coco_path = get_coco_dataset_from_path(dataset_path)
     print("\n ------- Creating anomaly classification project --------------- \n")
 
     animal_labels = ["horse", "dog", "cat", "elephant", "giraffe", "cow", "sheep"]
@@ -326,7 +325,7 @@ def create_detection_to_segmentation_demo_project(
     """
     if dataset_path is None:
         dataset_path = DEFAULT_COCO_PATH
-    coco_path = get_coco_dataset(dataset_path)
+    coco_path = get_coco_dataset_from_path(dataset_path)
     print(
         "\n ------- Creating detection -> segmentation project --------------- \n"
     )
@@ -397,9 +396,9 @@ def create_detection_to_classification_demo_project(
     """
     if dataset_path is None:
         dataset_path = DEFAULT_COCO_PATH
-    coco_path = get_coco_dataset(dataset_path)
+    coco_path = get_coco_dataset_from_path(dataset_path)
     print(
-        "\n ------- Creating detection -> segmentation project --------------- \n"
+        "\n ------- Creating detection -> classification project --------------- \n"
     )
     domestic_labels = ["dog", "cat", "horse", "cow", "sheep"]
     wild_labels = ["elephant", "giraffe", "zebra", "bear"]

@@ -253,7 +253,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         """
         media_list = self._get_all()
         path_to_media_folder = os.path.join(
-            path_to_folder, "media", self.plural_media_name
+            path_to_folder, self.plural_media_name
         )
         if not os.path.exists(path_to_media_folder):
             os.makedirs(path_to_media_folder)

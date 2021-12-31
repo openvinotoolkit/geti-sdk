@@ -373,11 +373,9 @@ class PredictionManager:
         if media_list.media_type == Image:
             media_name = 'image'
             media_name_plural = 'images'
-            folder_name = 'images'
         elif media_list.media_type == VideoFrame:
             media_name = 'video frame'
             media_name_plural = 'video frames'
-            folder_name = 'videos'
         else:
             raise ValueError(
                 "Invalid media type found in media_list, unable to download "
@@ -385,11 +383,9 @@ class PredictionManager:
             )
 
         if not path_to_folder.endswith("predictions"):
-            path_to_folder = os.path.join(path_to_folder, 'predictions')
-        path_to_predictions_folder = os.path.join(path_to_folder, folder_name)
-
-        if not os.path.exists(path_to_predictions_folder):
-            os.makedirs(path_to_predictions_folder)
+            path_to_predictions_folder = os.path.join(path_to_folder, 'predictions')
+        else:
+            path_to_predictions_folder = path_to_folder
 
         if verbose:
             print(

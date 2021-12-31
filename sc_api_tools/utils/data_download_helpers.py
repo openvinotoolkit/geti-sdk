@@ -148,7 +148,7 @@ def directory_has_coco_subset(target_folder: str, coco_subset: COCOSubset) -> bo
     return True
 
 
-def get_coco_dataset(
+def get_coco_dataset_from_path(
         target_folder: str = 'data',
         coco_subset: Optional[COCOSubset] = None,
         verbose: bool = False

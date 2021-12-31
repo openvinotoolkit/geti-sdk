@@ -6,7 +6,7 @@ from sc_api_tools.demos import (
     create_classification_demo_project,
     create_anomaly_classification_demo_project,
     create_detection_to_segmentation_demo_project,
-    create_detection_to_classification_demo_project, is_coco_dataset
+    create_detection_to_classification_demo_project, get_coco_dataset
 )
 
 
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     # --------------------------------------------------
 
     # Check that the MS COCO dataset is found at the path, download otherwise
-    is_coco_dataset(COCO_PATH)
+    get_coco_dataset(COCO_PATH)
 
     # Create the demo projects
     create_segmentation_demo_project(

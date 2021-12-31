@@ -71,16 +71,17 @@ class SCRESTClient:
 
         This method will download data to the path `target_folder`, the contents will
         be:
-            'media'        -- Directory containing:
-                 'images'  -- Folder holding all images in the project
-                 'videos'  -- Folder holding all videos in the project
+            'images'       -- Folder holding all images in the project, if any
+
+            'videos'       -- Folder holding all videos in the project, if any
 
             'annotations'  -- Directory holding all annotations in the project, in .json
                               format
 
             'predictions'  -- Directory holding all predictions in the project, in
                               .json format. If available, this will include saliency
-                              maps in .jpeg format.
+                              maps in .jpeg format. Only created if
+                              `include_predictions=True`
 
             'project.json' -- File containing the project parameters, that can be used
                               to re-create the project.
@@ -174,9 +175,9 @@ class SCRESTClient:
         Upload a previously downloaded SC project to the cluster. This method expects
         the `target_folder` to contain the following:
 
-            'media'        -- Directory containing:
-                 'images'  -- Folder holding all images in the project
-                 'videos'  -- Folder holding all videos in the project
+            'images'       -- Folder holding all images in the project, if any
+
+            'videos'       -- Folder holding all videos in the project, if any
 
             'annotations'  -- Directory holding all annotations in the project, in .json
                               format
