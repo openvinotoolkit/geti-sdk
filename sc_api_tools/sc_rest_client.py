@@ -776,6 +776,11 @@ class SCRESTClient:
         prediction_manager = PredictionManager(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
+        if not prediction_manager.ready_to_predict:
+            raise ValueError(
+                f"Project '{project_name}' is not ready to make predictions. At least "
+                f"one of the tasks in the task chain does not have any models trained."
+            )
         prediction = prediction_manager.get_image_prediction(uploaded_image)
         uploaded_image.get_data(self.session)
         if delete_after_prediction and needs_upload:
