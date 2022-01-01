@@ -1,6 +1,6 @@
 import os
 import warnings
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Tuple
 
 import numpy as np
 from sc_api_tools.data_models import Prediction
@@ -729,7 +729,7 @@ class SCRESTClient:
             image: Union[np.ndarray, Image, str, os.PathLike],
             visualise_output: bool = True,
             delete_after_prediction: bool = False
-    ) -> Prediction:
+    ) -> Tuple[Image, Prediction]:
         """
         Uploads a single image to a project named `project_name` on the SC cluster,
         and returns a prediction for it.
@@ -741,7 +741,9 @@ class SCRESTClient:
             the image
         :param delete_after_prediction: True to remove the image from the project
             once the prediction is received, False to keep the image in the project.
-        :return: Prediction for the image
+        :return: Tuple containing:
+            - Image object representing the image that was uploaded
+            - Prediction for the image
         """
         project_manager = ProjectManager(self.session, workspace_id=self.workspace_id)
         project = project_manager.get_project_by_name(project_name)
@@ -787,4 +789,4 @@ class SCRESTClient:
             image_manager.delete_images(images=MediaList([uploaded_image]))
         if visualise_output:
             show_image_with_prediction(image=uploaded_image, prediction=prediction)
-        return prediction
+        return uploaded_image, prediction
