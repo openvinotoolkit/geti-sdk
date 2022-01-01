@@ -759,14 +759,13 @@ class SCRESTClient:
         )
         needs_upload = True
         if isinstance(image, Image):
-            image.get_data(self.session)
             if image.id in image_manager.get_all_images().ids:
                 # Image is already in the project, make sure not to delete it in this
                 # case
                 needs_upload = False
                 image_data = None
             else:
-                image_data = image.numpy
+                image_data = image.get_data(self.session)
         else:
             image_data = image
         if needs_upload:

@@ -2,6 +2,8 @@ import glob
 import os
 from typing import List, Union
 
+import cv2
+
 import numpy as np
 
 from .media_manager import BaseMediaManager, MEDIA_SUPPORTED_FORMAT_MAPPING
@@ -35,7 +37,9 @@ class ImageManager(BaseMediaManager[Image]):
         if isinstance(image, (str, os.PathLike)):
             image_dict = self._upload(image)
         elif isinstance(image, np.ndarray):
-            image_dict = self.upload_bytes(cv2.imencode('.jpg', image)[1].tobytes())
+            image_dict = self._upload_bytes(cv2.imencode('.jpg', image)[1].tobytes())
+        else:
+            raise TypeError(f"Invalid image type: {type(image)}.")
         return MediaRESTConverter.from_dict(
             input_dict=image_dict, media_type=Image
         )
