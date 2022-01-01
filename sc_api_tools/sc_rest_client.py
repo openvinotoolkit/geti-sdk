@@ -782,11 +782,11 @@ class SCRESTClient:
                 f"one of the tasks in the task chain does not have any models trained."
             )
         prediction = prediction_manager.get_image_prediction(uploaded_image)
+        uploaded_image.get_data(self.session)
 
         if delete_after_prediction and needs_upload:
             image_manager.delete_images(images=MediaList([uploaded_image]))
 
-        uploaded_image.get_data(self.session)
         if visualise_output:
             show_image_with_prediction(image=uploaded_image, prediction=prediction)
 
