@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import UserList
-from typing import List, Dict, Any, Type, TypeVar, cast, Union, Generic, get_args
+from typing import List, Dict, Any, Type, TypeVar, cast, Generic
 
 from omegaconf import OmegaConf
 

@@ -1,5 +1,5 @@
 import abc
-from typing import Optional
+from typing import Optional, List
 import numpy as np
 
 import attr
@@ -224,6 +224,28 @@ class Video(MediaItem):
             "Getting pixel data directly is not supported for Video entities, please "
             "extract VideoFrames first"
         )
+
+    def to_frames(self, frame_stride: Optional[int] = None) -> List['VideoFrame']:
+        """
+        Extract VideoFrames from the Video. Returns a list of VideoFrame objects.
+
+        :param frame_stride: Stride to use for frame extraction. If left as None (the
+            default), the frame_stride stored in the media_information is used.
+        :return: List of VideoFrames constructed from the Video
+        """
+        if frame_stride is None:
+            frame_stride = self.media_information.frame_stride
+        if frame_stride < 0:
+            raise ValueError(
+                f"Invalid frame stride {frame_stride}. Frame stride cannot be "
+                f"negative."
+            )
+        elif frame_stride > self.media_information.frame_count:
+            frame_stride = self.media_information.frame_count - 1
+        return [
+            VideoFrame.from_video(self, frame_index=index)
+            for index in range(0, self.media_information.frame_count, frame_stride)
+        ]
 
 
 @attr.s(auto_attribs=True)
