@@ -3,8 +3,7 @@ import warnings
 from typing import Optional, List, Union, Tuple
 
 import numpy as np
-from sc_api_tools.data_models import Prediction
-from sc_api_tools.utils import show_image_with_prediction
+from sc_api_tools.utils import show_video_frames_with_predictions
 
 from .annotation_readers import (
     SCAnnotationReader,
@@ -24,13 +23,16 @@ from .data_models import (
     TaskType,
     MediaList,
     Image,
-    Video
+    Video,
+    VideoFrame,
+    Prediction
 )
 from .http_session import SCSession, ClusterConfig
 from .utils import (
     get_default_workspace_id,
     generate_classification_labels,
-    get_task_types_by_project_type
+    get_task_types_by_project_type,
+    show_image_with_prediction
 )
 
 
@@ -726,7 +728,7 @@ class SCRESTClient:
     def upload_and_predict_image(
             self,
             project_name: str,
-            image: Union[np.ndarray, Image, str, os.PathLike],
+            image: Union[np.ndarray, Image, VideoFrame, str, os.PathLike],
             visualise_output: bool = True,
             delete_after_prediction: bool = False
     ) -> Tuple[Image, Prediction]:
@@ -768,6 +770,10 @@ class SCRESTClient:
         else:
             image_data = image
         if needs_upload:
+            if image_data is None:
+                raise ValueError(
+                    f"Cannot upload entity {image}. No data available for upload."
+                )
             uploaded_image = image_manager.upload_image(image=image_data)
         else:
             uploaded_image = image
@@ -791,3 +797,90 @@ class SCRESTClient:
             show_image_with_prediction(image=uploaded_image, prediction=prediction)
 
         return uploaded_image, prediction
+
+    def upload_and_predict_video(
+            self,
+            project_name: str,
+            video: Union[Video, str, os.PathLike],
+            frame_stride: Optional[int] = None,
+            visualise_output: bool = True,
+            delete_after_prediction: bool = False
+    ) -> Tuple[MediaList[VideoFrame], List[Prediction]]:
+        """
+        Uploads a single video to a project named `project_name` on the SC cluster,
+        and returns a list of predictions for the frames in the video.
+
+        The parameter 'frame_stride' is used to control the stride for frame
+        extraction. Predictions are only generated for the extracted frames. So to
+        get predictions for all frames, `frame_stride=1` can be passed.
+
+        :param project_name: Name of the project to upload the image to
+        :param video: Video or filepath to a video to upload and get predictions for
+        :param frame_stride: Frame stride to use. This determines the number of
+            frames that will be extracted from the video, and for which predictions
+            will be generated
+        :param visualise_output: True to show the resulting prediction, overlayed on
+            the video frames.
+        :param delete_after_prediction: True to remove the video from the project
+            once the prediction is received, False to keep the video in the project.
+        :return: Tuple containing:
+            - List of VideoFrames extracted from the video, for which predictions
+                have been generated
+            - List of Predictions for the Video
+        """
+        project_manager = ProjectManager(self.session, workspace_id=self.workspace_id)
+        project = project_manager.get_project_by_name(project_name)
+        if project is None:
+            raise ValueError(
+                f"Project '{project_name}' was not found on the cluster. Aborting "
+                f"image upload."
+            )
+        # Upload the video
+        video_manager = VideoManager(
+            session=self.session, workspace_id=self.workspace_id, project=project
+        )
+        needs_upload = True
+        if isinstance(video, Video):
+            if video.id in video_manager.get_all_videos().ids:
+                # Video is already in the project, make sure not to delete it
+                needs_upload = False
+                video_data = None
+            else:
+                video_data = video.get_data(self.session)
+        else:
+            video_data = video
+        if needs_upload:
+            print(f"Uploading video to project '{project_name}'...")
+            uploaded_video = video_manager.upload_video(filepath_to_video=video_data)
+        else:
+            uploaded_video = video
+
+        # Get prediction for frames
+        prediction_manager = PredictionManager(
+            session=self.session, workspace_id=self.workspace_id, project=project
+        )
+        if not prediction_manager.ready_to_predict:
+            raise ValueError(
+                f"Project '{project_name}' is not ready to make predictions. At least "
+                f"one of the tasks in the task chain does not have any models trained."
+            )
+        if frame_stride is None:
+            frame_stride = uploaded_video.media_information.frame_stride
+        frames = MediaList(uploaded_video.to_frames(
+                frame_stride=frame_stride, include_data=True
+            )
+        )
+        print(
+            f"Getting predictions for video '{uploaded_video.name}', using stride "
+            f"{frame_stride}"
+        )
+        predictions = [
+            prediction_manager.get_video_frame_prediction(frame) for frame in frames
+        ]
+        if delete_after_prediction and needs_upload:
+            video_manager.delete_videos(videos=MediaList([uploaded_video]))
+        if visualise_output:
+            show_video_frames_with_predictions(
+                video_frames=frames, predictions=predictions
+            )
+        return frames, predictions

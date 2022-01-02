@@ -28,9 +28,11 @@ class VideoManager(BaseMediaManager[Video]):
             Creek
         """
         video_dict = self._upload(filepath_to_video)
-        return MediaRESTConverter.from_dict(
+        video = MediaRESTConverter.from_dict(
             input_dict=video_dict, media_type=Video
         )
+        video._data = filepath_to_video
+        return video
 
     def upload_folder(
             self, path_to_folder: str, n_videos: int = -1, return_all: bool = True

@@ -1,13 +1,22 @@
 import abc
-from typing import Optional, List
+import os
+import io
+from typing import Optional, List, Union
+import tempfile
+
+import cv2
 import numpy as np
 
 import attr
 from sc_api_tools.http_session import SCSession
 
 from .enums import MediaType
-from .media_identifiers import MediaIdentifier, ImageIdentifier, VideoIdentifier, \
+from .media_identifiers import (
+    MediaIdentifier,
+    ImageIdentifier,
+    VideoIdentifier,
     VideoFrameIdentifier
+)
 from .utils import str_to_media_type, str_to_datetime, numpy_from_buffer
 
 
@@ -120,17 +129,19 @@ class MediaItem:
         return MediaIdentifier(type=self.type)
 
     @abc.abstractmethod
-    def get_data(self, session: SCSession) -> np.ndarray:
+    def get_data(self, session: SCSession) -> Union[np.ndarray, str]:
         """
         Get the pixel data for this MediaItem. Uses caching.
 
-        Getting data is only supported for Image and VideoFrames. Calling this method
-        on a Video will raise an error.
+        For Image and VideoFrames, this method will return a np.ndarray. For Video
+        objects, this method will return a path-like string, pointing to the video
+        on the local disk.
 
         :param session: REST session to the SC cluster on which the MediaItem lives
         :raises ValueError: If the cache is empty and no data can be downloaded
             from the cluster
-        :return: numpy array holding the pixel data for this MediaItem.
+        :return: numpy array holding the pixel data for the MediaItem, or string
+            pointing to the file location for Videos.
         """
         raise NotImplementedError
 
@@ -203,6 +214,9 @@ class Video(MediaItem):
     """
     media_information: VideoInformation = attr.ib(kw_only=True)
 
+    def __attrs_post_init__(self):
+        self._data: Optional[str] = None
+
     @property
     def identifier(self) -> VideoIdentifier:
         """
@@ -212,7 +226,7 @@ class Video(MediaItem):
         """
         return VideoIdentifier(video_id=self.id, type=self.type)
 
-    def get_data(self, session: SCSession) -> np.ndarray:
+    def get_data(self, session: SCSession) -> str:
         """
         Getting pixel data directly is not supported for Video entities, they have to
         be converted to VideoFrames first
@@ -220,17 +234,31 @@ class Video(MediaItem):
         :param session:
         :return:
         """
-        raise NotImplementedError(
-            "Getting pixel data directly is not supported for Video entities, please "
-            "extract VideoFrames first"
-        )
+        if self._data is None:
+            response = session.get_rest_response(
+                url=self.download_url, method="GET", contenttype="jpeg"
+            )
+            if response.status_code == 200:
+                file = tempfile.NamedTemporaryFile()
+                file.write(response.content)
+                file.close()
+                self._data = file.name
+            else:
+                raise ValueError(
+                    f"Unable to retrieve data for image {self}, received "
+                    f"response {response} from SC server."
+                )
+        return self._data
 
-    def to_frames(self, frame_stride: Optional[int] = None) -> List['VideoFrame']:
+    def to_frames(
+            self, frame_stride: Optional[int] = None, include_data: bool = False
+    ) -> List['VideoFrame']:
         """
         Extract VideoFrames from the Video. Returns a list of VideoFrame objects.
 
         :param frame_stride: Stride to use for frame extraction. If left as None (the
             default), the frame_stride stored in the media_information is used.
+        :param include_data: True to include pixel data for the frames, if available.
         :return: List of VideoFrames constructed from the Video
         """
         if frame_stride is None:
@@ -242,10 +270,33 @@ class Video(MediaItem):
             )
         elif frame_stride > self.media_information.frame_count:
             frame_stride = self.media_information.frame_count - 1
-        return [
-            VideoFrame.from_video(self, frame_index=index)
-            for index in range(0, self.media_information.frame_count, frame_stride)
-        ]
+        frames_range = range(0, self.media_information.frame_count, frame_stride)
+        if not include_data:
+            frames = [
+                VideoFrame.from_video(self, frame_index=index)
+                for index in frames_range
+            ]
+        else:
+            frames = [self.get_frame(frame_index=index) for index in frames_range]
+        return frames
+
+    def get_frame(self, frame_index: int) -> 'VideoFrame':
+        """
+        Returns a VideoFrame extracted from the Video, at the specified index.
+
+        This method loads the numpy data for the frame, if available.
+
+        :param frame_index: Index of the frame to extract
+        :return: VideoFrame at the specified index
+        """
+        video_frame = VideoFrame.from_video(video=self, frame_index=frame_index)
+        if self._data is not None:
+            video_capture = cv2.VideoCapture(self._data)
+            video_capture.set(cv2.CAP_PROP_POS_FRAMES, frame_index)
+            success, frame = video_capture.read()
+            if success:
+                video_frame._data = frame
+        return video_frame
 
 
 @attr.s(auto_attribs=True)

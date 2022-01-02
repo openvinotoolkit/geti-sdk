@@ -1,6 +1,8 @@
 import glob
 import os
+import io
 from typing import List, Union
+import datetime
 
 import cv2
 
@@ -37,7 +39,9 @@ class ImageManager(BaseMediaManager[Image]):
         if isinstance(image, (str, os.PathLike)):
             image_dict = self._upload(image)
         elif isinstance(image, np.ndarray):
-            image_dict = self._upload_bytes(cv2.imencode('.jpg', image)[1].tobytes())
+            image_io = io.BytesIO(cv2.imencode('.jpg', image)[1].tobytes())
+            image_io.name = f"numpy_{datetime.datetime.now().isoformat()}.jpg"
+            image_dict = self._upload_bytes(image_io)
         else:
             raise TypeError(f"Invalid image type: {type(image)}.")
         return MediaRESTConverter.from_dict(

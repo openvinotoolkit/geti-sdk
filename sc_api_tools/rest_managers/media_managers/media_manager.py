@@ -199,6 +199,8 @@ class BaseMediaManager(Generic[MediaTypeVar]):
             media_item = MediaRESTConverter.from_dict(
                 input_dict=media_dict, media_type=self.__media_type
             )
+            if isinstance(media_item, Video):
+                media_item._data = filepath
             media_in_project.append(media_item)
             uploaded_media.append(media_item)
             upload_count += 1
@@ -298,6 +300,8 @@ class BaseMediaManager(Generic[MediaTypeVar]):
             if isinstance(media_item, (Image, VideoFrame)):
                 # Set the numpy data attribute if the media item supports it
                 media_item._data = numpy_from_buffer(response.content)
+            elif isinstance(media_item, Video):
+                media_item._data = media_filepath
             download_count += 1
         t_elapsed = time.time() - t_start
         if download_count > 0:

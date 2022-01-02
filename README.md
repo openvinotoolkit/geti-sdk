@@ -204,6 +204,14 @@ The high level `SCRESTClient` class provides the following methods:
   SC cluster, and requests a prediction for that image. Optionally, the prediction can 
   be visualized as an overlay on the image.
 
+
+- `upload_and_predict_video` -- Uploads a single video to an existing project on the 
+  SC cluster, and requests predictions for the frames in the video. As with 
+  upload_and_predict_image, the predictions can be visualized on the frames. The 
+  parameter `frame_stride` can be used to control which frames are extracted for 
+  prediction.
+
+
 - `upload_and_predict_media_folder` -- Upload all media (images and videos) from a 
   folder on local disk to an existing project on the SC cluster, and download 
   predictions for all uploaded media.
