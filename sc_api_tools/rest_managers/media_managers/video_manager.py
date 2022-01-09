@@ -34,7 +34,7 @@ class VideoManager(BaseMediaManager[Video]):
 
         In case a numpy array is passed, this method expects the array to be 4
         dimensional, it's dimensions shaped as: [frames, heigth, width, channels]. The
-        created video framerate will be set to 1 fps.
+        framerate of the created video will be set to 1 fps.
 
         :param video: full path to the video on disk, or numpy array holding the video
             pixel data

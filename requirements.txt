@@ -3,3 +3,4 @@ requests==2.26.*
 numpy==1.21.*
 omegaconf==2.1.*
 tqdm==4.62.*
+opencv-python==4.5.*
