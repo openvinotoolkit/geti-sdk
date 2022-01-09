@@ -216,6 +216,7 @@ class Video(MediaItem):
 
     def __attrs_post_init__(self):
         self._data: Optional[str] = None
+        self._needs_tempfile_deletion: bool = False
 
     @property
     def identifier(self) -> VideoIdentifier:
@@ -239,10 +240,11 @@ class Video(MediaItem):
                 url=self.download_url, method="GET", contenttype="jpeg"
             )
             if response.status_code == 200:
-                file = tempfile.NamedTemporaryFile()
+                file = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
                 file.write(response.content)
                 file.close()
                 self._data = file.name
+                self._needs_tempfile_deletion = True
             else:
                 raise ValueError(
                     f"Unable to retrieve data for image {self}, received "
@@ -297,6 +299,16 @@ class Video(MediaItem):
             if success:
                 video_frame._data = frame
         return video_frame
+
+    def __del__(self):
+        """
+        This method is called when the Video object is deleted. It cleans up the
+        temporary file created to store the video data (if any)
+
+        """
+        if self._needs_tempfile_deletion:
+            if os.path.exists(self._data):
+                os.remove(self._data)
 
 
 @attr.s(auto_attribs=True)

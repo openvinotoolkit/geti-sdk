@@ -1,6 +1,6 @@
 import os
 import warnings
-from typing import Optional, List, Union, Tuple
+from typing import Optional, List, Union, Tuple, Sequence
 
 import numpy as np
 from sc_api_tools.utils import show_video_frames_with_predictions
@@ -801,11 +801,13 @@ class SCRESTClient:
     def upload_and_predict_video(
             self,
             project_name: str,
-            video: Union[Video, str, os.PathLike],
+            video: Union[
+                Video, str, os.PathLike, Union[Sequence[np.ndarray], np.ndarray]
+            ],
             frame_stride: Optional[int] = None,
             visualise_output: bool = True,
             delete_after_prediction: bool = False
-    ) -> Tuple[MediaList[VideoFrame], List[Prediction]]:
+    ) -> Tuple[Video, MediaList[VideoFrame], List[Prediction]]:
         """
         Uploads a single video to a project named `project_name` on the SC cluster,
         and returns a list of predictions for the frames in the video.
@@ -815,7 +817,10 @@ class SCRESTClient:
         get predictions for all frames, `frame_stride=1` can be passed.
 
         :param project_name: Name of the project to upload the image to
-        :param video: Video or filepath to a video to upload and get predictions for
+        :param video: Video or filepath to a video to upload and get predictions for.
+            Can also be a 4D numpy array or a list of 3D numpy arrays, shaped such
+            that the array dimensions represent `frames x width x height x channels`,
+            i.e. each entry holds the pixel data for a video frame.
         :param frame_stride: Frame stride to use. This determines the number of
             frames that will be extracted from the video, and for which predictions
             will be generated
@@ -824,6 +829,7 @@ class SCRESTClient:
         :param delete_after_prediction: True to remove the video from the project
             once the prediction is received, False to keep the video in the project.
         :return: Tuple containing:
+            - Video object holding the data for the uploaded video
             - List of VideoFrames extracted from the video, for which predictions
                 have been generated
             - List of Predictions for the Video
@@ -847,11 +853,16 @@ class SCRESTClient:
                 video_data = None
             else:
                 video_data = video.get_data(self.session)
+        elif isinstance(video, (Sequence, np.ndarray)):
+            if not isinstance(video, np.ndarray):
+                video_data = np.array(video)
+            else:
+                video_data = video
         else:
             video_data = video
         if needs_upload:
             print(f"Uploading video to project '{project_name}'...")
-            uploaded_video = video_manager.upload_video(filepath_to_video=video_data)
+            uploaded_video = video_manager.upload_video(video=video_data)
         else:
             uploaded_video = video
 
@@ -883,4 +894,4 @@ class SCRESTClient:
             show_video_frames_with_predictions(
                 video_frames=frames, predictions=predictions
             )
-        return frames, predictions
+        return uploaded_video, frames, predictions
