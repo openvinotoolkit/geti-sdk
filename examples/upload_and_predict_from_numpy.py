@@ -52,10 +52,13 @@ if __name__ == '__main__':
     # First, we load the image as a numpy array using opencv
     numpy_image = cv2.imread(PATH_TO_IMAGE)
 
+    # Rotate the image by 20 degrees
+    rotated_image = rotate_image(image=numpy_image, angle=20)
+
     # We can upload and predict the resulting array directly:
     sc_image, image_prediction = client.upload_and_predict_image(
         project_name=PROJECT_NAME,
-        image=numpy_image,
+        image=rotated_image,
         visualise_output=True,
         delete_after_prediction=DELETE_AFTER_PREDICTION
     )
@@ -67,8 +70,8 @@ if __name__ == '__main__':
 
     # Create list of rotated images, these will be the frames of the video
     rotation_video = []
-    for angle in [90, 180, 270, 360]:
-        rotation_video.append(rotate_image(numpy_image, angle=angle))
+    for angle in [0, 90, 180, 270, 360]:
+        rotation_video.append(rotate_image(image=numpy_image, angle=angle))
 
     # Create video, upload and predict from the list of frames
     sc_video, video_frames, frame_predictions = client.upload_and_predict_video(
