@@ -28,8 +28,8 @@ PARAMETER_TYPES = Union[
 
 
 def _parameter_dicts_to_list(
-        parameter_dicts: List[Union[Dict[str, Any], ConfigurableParameter]]
-) -> PARAMETER_TYPES:
+        parameter_dicts: List[Union[Dict[str, Any], PARAMETER_TYPES]]
+) -> List[PARAMETER_TYPES]:
     """
     Converts a list of dictionary representations of configurable parameters to a
     list of ConfigurableParameter objects
@@ -47,8 +47,8 @@ def _parameter_dicts_to_list(
         template_type = parameter.get('template_type', None)
         if data_type is None or template_type is None:
             raise ValueError(
-                f"Unable to reconstruct ParameterGroup object from input "
-                f"dictionary: {input_dict}. No data or template type found for "
+                f"Unable to reconstruct ParameterGroup object from input: "
+                f"{parameter_dicts}. No data or template type found for "
                 f"parameter {parameter}"
             )
         data_type = ParameterDataType(data_type)
@@ -81,8 +81,8 @@ def _parameter_dicts_to_list(
             parameter_type = SelectableFloat
         else:
             raise ValueError(
-                f"Unable to reconstruct ParameterGroup object from input "
-                f"dictionary: {input_dict}. Invalid data or template type found "
+                f"Unable to reconstruct ParameterGroup object from input: "
+                f"{parameter_dicts}. Invalid data or template type found "
                 f"for parameter {parameter}"
             )
         parameters.append(parameter_type(**parameter))
@@ -175,7 +175,7 @@ class ParameterGroup:
 
     def get_parameter_by_name(
             self, name: str, group_name: Optional[str] = None
-    ) -> Optional[ConfigurableParameter]:
+    ) -> Optional[PARAMETER_TYPES]:
         """
         Get the data for the configurable parameter named `name` from the ParameterGroup
         This method returns None if no parameter by that name was found
@@ -210,3 +210,19 @@ class ParameterGroup:
             group = self.get_parameter_group_by_name(group_name)
             parameter = group.get_parameter_by_name(name)
         return parameter
+
+    def get_group_containing(self, parameter_name: str) -> Optional['ParameterGroup']:
+        """
+        Returns the parameter group that contains the parameter specified in
+        `parameter_name`. If no group containing the parameter is found, this method
+        returns None
+
+        :param parameter_name: Name of the parameter for which to retrieve the group
+        :return:
+        """
+        if not self.groups or self.get_parameter_by_name(parameter_name) is None:
+            return None
+        group_names = [group.name for group in self.groups]
+        for group_name in group_names:
+            if self.get_parameter_by_name(parameter_name, group_name) is not None:
+                return self.get_parameter_group_by_name(group_name)

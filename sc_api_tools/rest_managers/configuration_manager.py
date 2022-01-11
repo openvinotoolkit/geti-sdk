@@ -1,8 +1,13 @@
-import copy
-from typing import List, Dict, Any, Union
+from typing import Union, Optional
 
-from sc_api_tools.data_models import Project
+from sc_api_tools.data_models import (
+    Project,
+    TaskConfiguration,
+    GlobalConfiguration
+)
+from sc_api_tools.data_models.configurable_parameter_group import PARAMETER_TYPES
 from sc_api_tools.http_session import SCSession
+from sc_api_tools.rest_converters import ConfigurationRESTConverter
 
 
 class ConfigurationManager:
@@ -17,34 +22,32 @@ class ConfigurationManager:
         self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/" \
                         f"configuration/"
 
-    def get_task_configuration(self, task_id: str) -> List[Dict[str, Any]]:
+    def get_task_configuration(self, task_id: str) -> TaskConfiguration:
         """
         Gets the configuration for the task with id `task_id`
 
         :param task_id: ID of the task to get configurations for
-        :return: List containing configuration dictionaries for all components and
-            hyper parameter groups in the task
+        :return: TaskConfiguration holding all component parameters and hyper parameters
+            for the task
         """
         config_data = self.session.get_rest_response(
             url=f"{self.base_url}task_chain/{task_id}",
             method="GET"
         )
-        return config_data["components"]
+        return ConfigurationRESTConverter.task_configuration_from_dict(config_data)
 
-    def get_component_configurations(self, task_id: str) -> List[Dict[str, Any]]:
+    def get_global_configuration(self) -> GlobalConfiguration:
         """
-        Get all component configurations for the task with id `task_id`.
+        Gets the project-wide configurable parameters
 
-        :param task_id: ID of the task to get component configurations for
-        :return: List containing configuration dictionaries for all components
-            in the task
+        :return: GlobalConfiguration instance holding the configurable parameters for
+            all project-wide components
         """
-        task_config = self.get_task_configuration(task_id)
-        component_configs = [
-            config for config in task_config
-            if config["entity_identifier"]["type"] == "COMPONENT_PARAMETERS"
-        ]
-        return component_configs
+        config_data = self.session.get_rest_response(
+            url=f"{self.base_url}global",
+            method="GET"
+        )
+        return ConfigurationRESTConverter.global_configuration_from_rest(config_data)
 
     def set_task_configuration(self, task_id: str, config: dict):
         """
@@ -68,25 +71,8 @@ class ConfigurationManager:
         :param auto_train: True to enable auto_training, False to disable
         """
         for task_id in self.task_ids:
-            config = self.get_component_configurations(task_id)
-            general_parameters = next(
-                (parameters for parameters in config
-                 if parameters["entity_identifier"]["component"] == "TASK_NODE")
-            )
-            entity_identifier = copy.deepcopy(general_parameters["entity_identifier"])
-            config_data = {
-                "components": [
-                    {
-                        "entity_identifier": entity_identifier,
-                        "parameters": [
-                            {
-                                "name": "auto_training",
-                                "value": auto_train
-                            }
-                        ]
-                    }
-                ]
-            }
+            config = self.get_task_configuration(task_id=task_id)
+            config_data = config.set_parameter_value('auto_training', value=auto_train)
             self.set_task_configuration(task_id=task_id, config=config_data)
 
     def set_project_num_iterations(self, value: int = 50):
@@ -95,79 +81,48 @@ class ConfigurationManager:
 
         :param value: Number of iterations to set
         """
-        learning_parameter_group_names = ["learning_parameters", "dataset"]
         iteration_names = ["num_iters", "max_num_epochs"]
         for task_id in self.task_ids:
-            config = self.get_task_configuration(task_id)
-            learning_parameters = next(
-                (item for item in config
-                 if item["name"] in learning_parameter_group_names), None
-            )
-            if learning_parameters is None:
-                raise ValueError(
-                    "Unable to determine learning parameter group from task "
-                    "configuration. Aborting"
-                )
-            learning_parameter_group_entity_identifier = learning_parameters[
-                "entity_identifier"
-            ]
-
-            config_data = {
-                "components": [
-                    {
-                    "entity_identifier": learning_parameter_group_entity_identifier,
-                    "parameters": []
-                    }
-                ]
-            }
-            for name in iteration_names:
-                if name in [param["name"] for param in learning_parameters["parameters"]]:
-                    config_data["components"][0]["parameters"].append(
-                        {
-                            "name": name,
-                            "value": value
-                        }
+            config = self.get_task_configuration(task_id=task_id)
+            parameter: Optional[PARAMETER_TYPES] = None
+            for parameter_name in iteration_names:
+                parameter = config.get_parameter_by_name(parameter_name)
+                if parameter is not None:
+                    self.set_task_configuration(
+                        task_id=task_id,
+                        config=config.set_parameter_value(parameter_name, value=value)
                     )
-            self.set_task_configuration(task_id=task_id, config=config_data)
+                    break
+            if parameter is None:
+                raise ValueError(
+                    f"No iteration parameters were found for task {config.task_title}. "
+                    f"Unable to set number of iterations"
+                )
 
     def set_project_parameter(
             self,
-            parameter_group_name: str,
             parameter_name: str,
-            value: Union[bool, str, float, int]
+            value: Union[bool, str, float, int],
+            parameter_group_name: Optional[str] = None
     ):
         """
         Sets the value for a parameter with `parameter_name` that lives in the
         group `parameter_group_name`. The parameter is set for all tasks in the project
 
+        The `parameter_group_name` can be left as None, in that case this method will
+        attempt to determine the appropriate parameter group automatically.
+
         :param parameter_name: Name of the parameter
-        :param parameter_group_name: Name of the parameter group name to which the
-            parameter belongs
+        :param parameter_group_name: Optional name of the parameter group name to
+            which the parameter belongs. If left as None (the default), this method will
+            attempt to determine the correct parameter group automatically, if needed.
         :param value: Value to set for the parameter
         """
         for index, task_id in enumerate(self.task_ids):
             config = self.get_task_configuration(task_id)
-            parameter_group = next(
-                (item for item in config
-                 if item["name"] == parameter_group_name), None
+            config_data = config.set_parameter_value(
+                parameter_name=parameter_name,
+                value=value,
+                group_name=parameter_group_name
             )
-            if parameter_group is None:
-                print(
-                    f"Unable to find parameter group named `{parameter_group_name}` in "
-                    f"task #{index+1} in the project. Moving on to the next task."
-                )
-                continue
-            config_data = {
-                "components": [
-                    {
-                    "entity_identifier": parameter_group["entity_identifier"],
-                    "parameters": [
-                        {
-                            "name": parameter_name,
-                            "value": value
-                        }
-                    ]
-                    }
-                ]
-            }
             self.set_task_configuration(task_id=task_id, config=config_data)

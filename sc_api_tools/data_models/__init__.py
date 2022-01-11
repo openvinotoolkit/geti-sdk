@@ -6,6 +6,11 @@ from .media import Image, Video, MediaItem, VideoFrame
 from .media_list import MediaList
 from .annotations import AnnotationScene, Annotation
 from .predictions import Prediction
+from .configuration import (
+    TaskConfiguration,
+    ConfigurableParameters,
+    GlobalConfiguration
+)
 
 
 __all__ = [
@@ -24,5 +29,8 @@ __all__ = [
     "Annotation",
     "ScoredLabel",
     "VideoFrame",
-    "Prediction"
+    "Prediction",
+    "TaskConfiguration",
+    "GlobalConfiguration",
+    "ConfigurableParameters"
 ]
