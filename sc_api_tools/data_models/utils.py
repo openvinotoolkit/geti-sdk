@@ -2,13 +2,15 @@ from datetime import datetime
 from enum import Enum
 
 import attr
-from typing import Any, Union, Optional
+from typing import Any, Union, Optional, TypeVar, Type, Callable
 
 import cv2
 import numpy as np
 
 from sc_api_tools.data_models import TaskType
 from sc_api_tools.data_models.enums import ShapeType, MediaType, AnnotationKind
+
+EnumType = TypeVar("EnumType", bound=Enum)
 
 
 def deidentify(instance: Any):
@@ -21,6 +23,50 @@ def deidentify(instance: Any):
     for field in attr.fields(type(instance)):
         if field.name in instance._identifier_fields:
             setattr(instance, field.name, None)
+
+
+def str_to_enum(input_string: Union[str, EnumType], enum: Type[EnumType]) -> EnumType:
+    """
+    Converts an input string to an instance of `enum`
+
+    :param input_string: String to convert
+    :param enum: type of the Enum to which the string belongs
+    :return: Instance of the Enum `enum` corresponding to `input_string`
+    """
+    if isinstance(input_string, str):
+        return enum(input_string)
+    else:
+        return input_string
+
+
+def str_to_enum_converter(
+        enum: Type[EnumType]
+) -> Callable[[Union[str, EnumType]], EnumType]:
+    """
+    Constructs a converter function to convert an input value into an instance of the
+    Enum subclass passed in `enum`
+
+    :param enum: type of the Enum to which the converter should convert
+    :return: Converter function that takes an input value and attempts to convert it
+        into an instance of `enum`
+    """
+    def _converter(input_value: Union[str, EnumType]) -> EnumType:
+        """
+        Converts an input value to an instance of an Enum
+
+        :param input_value: Value to convert
+        :return: Instance of the Enum
+        """
+        if isinstance(input_value, str):
+            return enum(input_value)
+        elif isinstance(input_value, enum):
+            return input_value
+        else:
+            raise ValueError(
+                f"Invalid argument! Cannot convert value {input_value} to Enum "
+                f"{enum.__name__}"
+            )
+    return _converter
 
 
 def str_to_task_type(task_type: Union[str, TaskType]) -> TaskType:

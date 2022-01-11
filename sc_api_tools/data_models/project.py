@@ -161,7 +161,7 @@ class Project:
     name: str
     pipeline: Pipeline
     datasets: List[Dataset]
-    score: float
+    score: Optional[float] = None
     creation_time: Optional[str] = None
     id: Optional[str] = None
     thumbnail: Optional[str] = None
