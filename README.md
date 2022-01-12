@@ -3,7 +3,7 @@
 This package contains tools to interact with a Sonoma Creek cluster via 
 the SC REST API. It provides functionality for:
 - Project creation from datasets on disk
-- Project downloading (images, videos and annotations)
+- Project downloading (images, videos, configuration, annotations, predictions and models)
 - Project creation and upload from a previous download
 
 ## Installation
@@ -46,8 +46,9 @@ uploading projects.
     ```
   Here, it is assumed that the project with name 'dummy_project' exists on the cluster. 
   The client will create a folder named 'dummy_project' in your current working 
-  directory, and download the project parameters, images, videos, annotations and 
-  predictions to that folder. Models are not downloaded. 
+  directory, and download the project parameters, images, videos, annotations, 
+  predictions and the active model for the project (including optimized models derived 
+  from it) to that folder.
   
   The method takes 
   the following optional parameters:
@@ -56,6 +57,10 @@ uploading projects.
       
     - `include_predictions` -- Set to True to download the predictions for all images 
       and videos in the project. Set to False to not download any predictions.
+      
+    - 'include_active_model' -- Set to True to download the active model for the 
+      project, and any optimized models derived from it. If set to False, no models 
+      are downloaded. True by default. 
 
 
 - **Project upload** The following python snippet is a minimal example of how to 
@@ -165,7 +170,7 @@ What is supported:
   to a project
   
 
-- Downloading images, videos, annotations, and predictions for all images and 
+- Downloading images, videos, annotations, models and predictions for all images and 
   videos/video frames in a project. Also downloading the full project configuration 
   is supported.
   
@@ -179,7 +184,7 @@ What is supported:
   annotations, media and configurations are backed up, models are not.
   
 What is not (fully) supported:
-- Model download and upload
+- Model upload
 - Label hierarchies *should* work, I have tested this but please use caution 
   and test extensively yourself
 - Other stuff that I may have missed... Please please please test carefully before 
