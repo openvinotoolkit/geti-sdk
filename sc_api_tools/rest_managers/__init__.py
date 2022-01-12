@@ -3,6 +3,7 @@ from .configuration_manager import ConfigurationManager
 from .project_manager import ProjectManager
 from .media_managers import VideoManager, ImageManager
 from .prediction_manager import PredictionManager
+from .model_manager import ModelManager
 
 __all__ = [
     "AnnotationManager",
@@ -10,5 +11,6 @@ __all__ = [
     "ProjectManager",
     "VideoManager",
     "ImageManager",
-    "PredictionManager"
+    "PredictionManager",
+    "ModelManager"
 ]

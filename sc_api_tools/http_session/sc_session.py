@@ -139,6 +139,8 @@ class SCSession(requests.Session):
             self.headers.pop("Content-Type", None)
         elif contenttype == "":
             self.headers.pop("Content-Type", None)
+        elif contenttype == "zip":
+            self.headers.update({"Content-Type": "application/zip"})
 
         requesturl = f"{self.config.base_url}{url}"
         if contenttype == "json":

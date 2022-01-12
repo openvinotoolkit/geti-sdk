@@ -3,7 +3,7 @@ from .project import Project, Pipeline
 from .label import Label, ScoredLabel
 from .task import Task
 from .media import Image, Video, MediaItem, VideoFrame
-from .media_list import MediaList
+from .containers.media_list import MediaList
 from .annotations import AnnotationScene, Annotation
 from .algorithms import Algorithm
 from .predictions import Prediction
@@ -13,7 +13,8 @@ from .configuration import (
     GlobalConfiguration,
     FullConfiguration
 )
-
+from .model_group import ModelGroup, ModelSummary
+from .model import Model, OptimizedModel
 
 __all__ = [
     "TaskType",
@@ -36,5 +37,9 @@ __all__ = [
     "TaskConfiguration",
     "GlobalConfiguration",
     "ConfigurableParameters",
-    "FullConfiguration"
+    "FullConfiguration",
+    "Model",
+    "ModelGroup",
+    "OptimizedModel",
+    "ModelSummary"
 ]

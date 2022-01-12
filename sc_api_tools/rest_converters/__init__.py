@@ -3,11 +3,13 @@ from .media_rest_converter import MediaRESTConverter
 from .annotation_rest_converter import AnnotationRESTConverter
 from .prediction_rest_converter import PredictionRESTConverter
 from .configuration_rest_converter import ConfigurationRESTConverter
+from .model_rest_converter import ModelRESTConverter
 
 __all__ = [
     "ProjectRESTConverter",
     "MediaRESTConverter",
     "AnnotationRESTConverter",
     "PredictionRESTConverter",
-    "ConfigurationRESTConverter"
+    "ConfigurationRESTConverter",
+    "ModelRESTConverter"
 ]

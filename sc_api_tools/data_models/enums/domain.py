@@ -7,10 +7,10 @@ class Domain(Enum):
     """
     This enum represents the different domains in SC
     """
-    DETECTION = "detection"
-    SEGMENTATION = "segmentation"
-    CLASSIFICATION = "classification"
-    ANOMALY_CLASSIFICATION = "anomaly_classification"
+    DETECTION = "DETECTION"
+    SEGMENTATION = "SEGMENTATION"
+    CLASSIFICATION = "CLASSIFICATION"
+    ANOMALY_CLASSIFICATION = "ANOMALY_CLASSIFICATION"
 
     def __str__(self) -> str:
         """

@@ -5,6 +5,8 @@ from .task_type import TaskType
 from .prediction_mode import PredictionMode
 from .configuration_enums import ConfigurationEntityType
 from .domain import Domain
+from .model_status import ModelStatus
+from .optimization_type import OptimizationType
 
 __all__ = [
     "TaskType",
@@ -13,5 +15,7 @@ __all__ = [
     "AnnotationKind",
     "PredictionMode",
     "ConfigurationEntityType",
-    "Domain"
+    "Domain",
+    "ModelStatus",
+    "OptimizationType"
 ]

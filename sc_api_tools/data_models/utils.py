@@ -25,20 +25,6 @@ def deidentify(instance: Any):
             setattr(instance, field.name, None)
 
 
-def str_to_enum(input_string: Union[str, EnumType], enum: Type[EnumType]) -> EnumType:
-    """
-    Converts an input string to an instance of `enum`
-
-    :param input_string: String to convert
-    :param enum: type of the Enum to which the string belongs
-    :return: Instance of the Enum `enum` corresponding to `input_string`
-    """
-    if isinstance(input_string, str):
-        return enum(input_string)
-    else:
-        return input_string
-
-
 def str_to_enum_converter(
         enum: Type[EnumType]
 ) -> Callable[[Union[str, EnumType]], EnumType]:

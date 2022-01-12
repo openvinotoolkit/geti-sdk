@@ -230,10 +230,8 @@ class ConfigurationManager:
                         parameter.name, parameter.value
                     )
                     try:
-                        self.session.get_rest_response(
-                            url=f"{self.base_url}/task_chain/{task_config.task_id}",
-                            method="POST",
-                            data=config_data
+                        self.set_task_configuration(
+                            task_id=task_config.task_id, config=config_data
                         )
                     except ValueError:
                         failed_parameters.append(

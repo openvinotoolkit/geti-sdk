@@ -393,6 +393,8 @@ class PredictionManager:
                 f"{len(media_list)} {media_name_plural} to folder "
                 f"{path_to_predictions_folder}"
             )
+        if not os.path.exists(path_to_predictions_folder):
+            os.makedirs(path_to_predictions_folder)
         t_start = time.time()
         download_count = 0
         skip_count = 0

@@ -2,7 +2,7 @@ from typing import Dict, Any, Type, cast
 
 from omegaconf import OmegaConf
 
-from sc_api_tools.data_models.media_list import MediaTypeVar
+from sc_api_tools.data_models.containers.media_list import MediaTypeVar
 
 
 class MediaRESTConverter:

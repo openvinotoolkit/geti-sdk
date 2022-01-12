@@ -1,12 +1,7 @@
-import io
 import os
 import time
 from typing import Dict, List, Type, Any, Generic, ClassVar, BinaryIO
 from glob import glob
-
-import cv2
-
-import numpy as np
 
 from sc_api_tools.data_models import (
     Project,
@@ -15,7 +10,7 @@ from sc_api_tools.data_models import (
     Video,
     Image, VideoFrame,
 )
-from sc_api_tools.data_models.media_list import MediaTypeVar
+from sc_api_tools.data_models.containers.media_list import MediaTypeVar
 from sc_api_tools.data_models.enums.media_type import (
     SUPPORTED_VIDEO_FORMATS,
     SUPPORTED_IMAGE_FORMATS

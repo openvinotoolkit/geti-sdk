@@ -3,6 +3,7 @@ import warnings
 from typing import Optional, List, Union, Tuple, Sequence
 
 import numpy as np
+from sc_api_tools.rest_managers import ModelManager
 from sc_api_tools.utils import show_video_frames_with_predictions
 
 from .annotation_readers import (
@@ -67,7 +68,8 @@ class SCRESTClient:
             self,
             project_name: str,
             target_folder: Optional[str] = None,
-            include_predictions: bool = False
+            include_predictions: bool = False,
+            include_active_model: bool = True
     ) -> Project:
         """
         Download a project with name `project_name` to the local disk. All images,
@@ -89,6 +91,11 @@ class SCRESTClient:
                               maps in .jpeg format. Only created if
                               `include_predictions=True`
 
+            'models'      -- Folder containing the active model for the project. This
+                             folder contains zip files holding the data for the active
+                             model, and any optimized models derived from it. Only
+                             downloaded if `include_active_model = True`.
+
             'project.json' -- File containing the project parameters, that can be used
                               to re-create the project.
 
@@ -103,6 +110,9 @@ class SCRESTClient:
             images and videos in the project, False to not download any predictions.
             If this is set to True but the project has no trained models, downloading
             predictions will be skipped.
+        :param include_active_model: True to also download the active model for the
+            project, and any optimized models derived from it. False to not download
+            any models. Defaults to True
         :return: Project object, holding information obtained from the cluster
             regarding the downloaded project
         """
@@ -176,6 +186,13 @@ class SCRESTClient:
             workspace_id=self.workspace_id, session=self.session, project=project
         )
         configuration_manager.download_configuration(path_to_folder=target_folder)
+
+        # Download active model
+        if include_active_model:
+            model_manager = ModelManager(
+                workspace_id=self.workspace_id, session=self.session, project=project
+            )
+            model_manager.download_active_model(path_to_folder=target_folder)
 
         print(f"Project '{project.name}' was downloaded successfully.")
         return project
