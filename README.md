@@ -161,24 +161,25 @@ What is supported:
   folder for examples on how to do this.
   
 
-- Uploading images, videos and annotations for images and video frames to a project
+- Uploading images, videos, annotations for images and video frames and configurations 
+  to a project
   
 
 - Downloading images, videos, annotations, and predictions for all images and 
-  videos/video frames in a project
+  videos/video frames in a project. Also downloading the full project configuration 
+  is supported.
   
 
-- Setting basic configuration for a project, like turning auto train on/off and 
+- Setting configuration for a project, like turning auto train on/off and 
   setting number of iterations for all tasks
   
 
 - **Creating and restoring a backup of an existing project**, using the code 
   snippets provided [above](#downloading-and-uploading-projects). Only 
-  annotations and media are backed up, models are not.
+  annotations, media and configurations are backed up, models are not.
   
 What is not (fully) supported:
 - Model download and upload
-- Backing up project configuration
 - Label hierarchies *should* work, I have tested this but please use caution 
   and test extensively yourself
 - Other stuff that I may have missed... Please please please test carefully before 
