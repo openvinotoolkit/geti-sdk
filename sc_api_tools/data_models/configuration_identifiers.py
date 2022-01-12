@@ -2,6 +2,7 @@ from typing import ClassVar, Dict, Any, Optional
 
 import attr
 
+from sc_api_tools.data_models import Algorithm
 from sc_api_tools.data_models.enums import ConfigurationEntityType
 from sc_api_tools.data_models.utils import str_to_enum_converter, attr_value_serializer
 
@@ -17,8 +18,8 @@ class EntityIdentifier:
     """
     _identifier_fields: ClassVar[str] = ["workspace_id"]
 
-    workspace_id: str
     type: str = attr.ib(converter=str_to_enum_converter(ConfigurationEntityType))
+    workspace_id: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -41,8 +42,21 @@ class HyperParameterGroupIdentifier(EntityIdentifier):
     """
     _identifier_fields: ClassVar[str] = ["model_storage_id", "workspace_id"]
 
-    model_storage_id: str
-    group_name: str
+    group_name: str = attr.ib(kw_only=True)
+    model_storage_id: Optional[str] = None
+    algorithm_name: Optional[str] = attr.ib(repr=False, default=None)
+    model_template_id: Optional[str] = attr.ib(repr=False, default=None)
+
+    def resolve_algorithm(self, algorithm: Algorithm):
+        """
+        Resolves the algorithm name and id of the model template to which the
+        HyperParameterGroup applies
+
+        :param algorithm: Algorithm instance to which the hyper parameters belong
+        :return:
+        """
+        self.algorithm_name = algorithm.algorithm_name
+        self.model_template_id = algorithm.model_template_id
 
 
 @attr.s(auto_attribs=True)
@@ -57,6 +71,6 @@ class ComponentEntityIdentifier(EntityIdentifier):
     """
     _identifier_fields: ClassVar[str] = ["project_id", "task_id", "workspace_id"]
 
-    component: str
-    project_id: str
+    component: str = attr.ib(kw_only=True)
+    project_id: Optional[str] = None
     task_id: Optional[str] = None

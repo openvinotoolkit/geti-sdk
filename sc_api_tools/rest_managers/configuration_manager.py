@@ -1,9 +1,11 @@
-from typing import Union, Optional
+import json
+import os
+from typing import Union, Optional, List, Dict
 
 from sc_api_tools.data_models import (
     Project,
     TaskConfiguration,
-    GlobalConfiguration
+    GlobalConfiguration, FullConfiguration
 )
 from sc_api_tools.data_models.configurable_parameter_group import PARAMETER_TYPES
 from sc_api_tools.http_session import SCSession
@@ -18,9 +20,11 @@ class ConfigurationManager:
     def __init__(self, workspace_id: str, project: Project, session: SCSession):
         self.session = session
         project_id = project.id
+        self.project = project
+        self.workspace_id = workspace_id
         self.task_ids = [task.id for task in project.get_trainable_tasks()]
         self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/" \
-                        f"configuration/"
+                        f"configuration"
 
     def get_task_configuration(self, task_id: str) -> TaskConfiguration:
         """
@@ -31,7 +35,7 @@ class ConfigurationManager:
             for the task
         """
         config_data = self.session.get_rest_response(
-            url=f"{self.base_url}task_chain/{task_id}",
+            url=f"{self.base_url}/task_chain/{task_id}",
             method="GET"
         )
         return ConfigurationRESTConverter.task_configuration_from_dict(config_data)
@@ -44,7 +48,7 @@ class ConfigurationManager:
             all project-wide components
         """
         config_data = self.session.get_rest_response(
-            url=f"{self.base_url}global",
+            url=f"{self.base_url}/global",
             method="GET"
         )
         return ConfigurationRESTConverter.global_configuration_from_rest(config_data)
@@ -58,7 +62,7 @@ class ConfigurationManager:
         :return: Response of the configuration POST endpoint.
         """
         response = self.session.get_rest_response(
-            url=f"{self.base_url}task_chain/{task_id}",
+            url=f"{self.base_url}/task_chain/{task_id}",
             method="POST",
             data=config
         )
@@ -126,3 +130,149 @@ class ConfigurationManager:
                 group_name=parameter_group_name
             )
             self.set_task_configuration(task_id=task_id, config=config_data)
+
+    def get_full_configuration(self) -> FullConfiguration:
+        """
+        Returns the full configuration for a project (for both global and task_chain)
+
+        :return: FullConfiguration object holding the global and task chain
+            configuration
+        """
+        data = self.session.get_rest_response(
+            url=self.base_url,
+            method="GET"
+        )
+        return ConfigurationRESTConverter.full_configuration_from_rest(data)
+
+    def download_configuration(self, path_to_folder: str) -> FullConfiguration:
+        """
+        This method retrieves the full configuration for a project from the cluster
+        and saves it to a file `configuration.json` in the folder specified at
+        `path_to_folder`
+
+        :param path_to_folder: Folder to save the configuration to
+        :return:
+        """
+        config = self.get_full_configuration()
+        config_data = ConfigurationRESTConverter.configuration_to_minimal_dict(config)
+        if not os.path.exists(path_to_folder):
+            os.makedirs(path_to_folder)
+        configuration_path = os.path.join(path_to_folder, "configuration.json")
+        with open(configuration_path, 'w') as file:
+            json.dump(config_data, file)
+        print(
+            f"Project parameters for project '{self.project.name}' were saved to file "
+            f"{configuration_path}."
+        )
+        return config
+
+    def apply_from_object(
+            self, configuration: FullConfiguration
+    ) -> Optional[FullConfiguration]:
+        """
+        This method attempts to apply the configuration values passed in as
+        `configuration` to the project managed by this instance of the
+        ConfigurationManager
+
+        :param configuration: FullConfiguration to be applied
+        :return:
+        """
+        global_config = configuration.global_
+        global_config.apply_identifiers(self.workspace_id, self.project.id)
+
+        project_tasks = self.project.get_trainable_tasks()
+        if len(project_tasks) != len(configuration.task_chain):
+            raise ValueError(
+                f"Structure of the configuration in: '{configuration}' does not match "
+                f"that of the project. Unable to set configuration"
+            )
+        for (task, task_config) in zip(project_tasks, configuration.task_chain):
+            current_task_config = self.get_task_configuration(task_id=task.id)
+            model_storage_ids = [
+                config.entity_identifier.model_storage_id
+                for config in current_task_config.model_configurations
+            ]
+
+            task_config.apply_identifiers(
+                workspace_id=self.workspace_id,
+                project_id=self.project.id,
+                task_id=task.id,
+                model_storage_id=model_storage_ids[0]
+            )
+        data = ConfigurationRESTConverter.configuration_to_minimal_dict(
+            configuration=configuration, deidentify=False
+        )
+        try:
+            result = self.session.get_rest_response(
+                url=self.base_url,
+                method="POST",
+                data=data
+            )
+        except ValueError:
+            failed_parameters: List[Dict[str, str]] = []
+            global_config = configuration.global_
+            task_chain_config = configuration.task_chain
+            for parameter in global_config:
+                config_data = global_config.set_parameter_value(
+                    parameter.name, parameter.value
+                )
+                try:
+                    self.session.get_rest_response(
+                        url=f"{self.base_url}/global",
+                        method="POST",
+                        data=config_data
+                    )
+                except ValueError:
+                    failed_parameters.append({"global": parameter.name})
+            for task_config in task_chain_config:
+                for parameter in task_config:
+                    config_data = task_config.set_parameter_value(
+                        parameter.name, parameter.value
+                    )
+                    try:
+                        self.session.get_rest_response(
+                            url=f"{self.base_url}/task_chain/{task_config.task_id}",
+                            method="POST",
+                            data=config_data
+                        )
+                    except ValueError:
+                        failed_parameters.append(
+                            {task_config.task_title: parameter.name}
+                        )
+            print(
+                f"Setting configuration failed for the following parameters: "
+                f"{failed_parameters}. All other parameters were set successfully."
+            )
+            result = None
+        if result:
+            return configuration
+        else:
+            return None
+
+    def apply_from_file(
+            self, path_to_folder: str, filename: Optional[str] = None
+    ) -> Optional[FullConfiguration]:
+        """
+        This method attempts to apply a configuration from a file on disk. The
+        parameter `path_to_folder` is mandatory and should point to the folder in which
+        the configuration file to upload lives. The parameter `filename` is optional,
+        when left as `None` this method will look for a file `configuration.json` in
+        the specified folder.
+
+        :param path_to_folder: Path to the folder in which the configuration file to
+            apply lives
+        :param filename: Optional filename for the configuration file to apply
+        :return:
+        """
+        if filename is None:
+            filename = 'configuration.json'
+        path_to_config = os.path.join(path_to_folder, filename)
+        if not os.path.isfile(path_to_config):
+            raise ValueError(
+                f"Unable to find configuration file at {path_to_config}. Please "
+                f"provide a valid path to the folder holding the configuration data."
+            )
+        with open(path_to_config, 'r') as file:
+            data = json.load(file)
+        config = ConfigurationRESTConverter.full_configuration_from_rest(data)
+        return self.apply_from_object(config)

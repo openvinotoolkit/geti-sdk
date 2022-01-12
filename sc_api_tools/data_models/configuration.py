@@ -2,6 +2,7 @@ from typing import Optional, Union, ClassVar, List, Dict, Any
 
 import attr
 
+from sc_api_tools.data_models import Algorithm, Project
 from sc_api_tools.data_models.configurable_parameter_group import (
     ParameterGroup,
     PARAMETER_TYPES
@@ -11,7 +12,7 @@ from sc_api_tools.data_models.configuration_identifiers import (
     ComponentEntityIdentifier
 )
 
-from sc_api_tools.data_models.utils import deidentify
+from sc_api_tools.data_models.utils import deidentify, attr_value_serializer
 
 
 @attr.s(auto_attribs=True)
@@ -36,6 +37,7 @@ class ConfigurableParameters(ParameterGroup):
         Removes all unique database ID's from the configurable parameters
 
         """
+        super().deidentify()
         deidentify(self)
         deidentify(self.entity_identifier)
 
@@ -45,18 +47,37 @@ class Configuration:
     """
     Base class representing a set of configurable parameters in SC
     """
-    _identifier_fields: ClassVar[str] = []
+    _identifier_fields: ClassVar[List[str]] = []
 
     components: List[ConfigurableParameters]
 
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Returns the dictionary representation of the Configuration
+
+        :return:
+        """
+        return attr.asdict(self, recurse=True, value_serializer=attr_value_serializer)
+
+
     def deidentify(self):
         """
-        Removes all unique database ID's from the TaskConfiguration
+        Removes all unique database ID's from the Configuration
 
         """
         deidentify(self)
         for config in self.components:
-            deidentify(config)
+            config.deidentify()
+
+    def __iter__(self):
+        """
+        Iterates over all parameters in the configuration
+
+        :return:
+        """
+        parameter_names = self.get_all_parameter_names()
+        for parameter_name in parameter_names:
+            yield self.get_parameter_by_name(parameter_name)
 
     def get_all_parameter_names(self) -> List[str]:
         """
@@ -195,13 +216,26 @@ class GlobalConfiguration(Configuration):
         result = self._set_parameter_value(parameter_name, value, group_name)
         return [result]
 
+    def apply_identifiers(self, workspace_id: str,  project_id: str):
+        """
+        This method applies the unique database identifiers passed in `workspace_id`
+        and `project_id` to all configurable parameters in the GlobalConfiguration
+
+        :param workspace_id: Workspace ID to assign
+        :param project_id: Project ID to assign
+        :return:
+        """
+        for config in self.components:
+            config.entity_identifier.workspace_id = workspace_id
+            config.entity_identifier.project_id = project_id
+
 
 @attr.s(auto_attribs=True)
 class TaskConfiguration(Configuration):
     """
     Class representing the configurable parameters for a task in SC
     """
-    _identifier_fields: ClassVar[str] = ["task_id"]
+    _identifier_fields: ClassVar[List[str]] = ["task_id"]
 
     task_id: Optional[str] = attr.ib(default=None, kw_only=True)
     task_title: str = attr.ib(kw_only=True)
@@ -239,3 +273,71 @@ class TaskConfiguration(Configuration):
         """
         result = self._set_parameter_value(parameter_name, value, group_name)
         return {'components': [result]}
+
+    def resolve_algorithm(self, algorithm: Algorithm):
+        """
+        Resolves the algorithm name and id of the model template for all hyper
+        parameter groups in the task configuration
+
+        :param algorithm: Algorithm instance to which the hyper parameters belong
+        :return:
+        """
+        for config in self.model_configurations:
+            config.entity_identifier.resolve_algorithm(algorithm=algorithm)
+
+    def apply_identifiers(
+            self,
+            workspace_id: str,
+            project_id: str,
+            task_id: str,
+            model_storage_id: str
+    ):
+        """
+        This method applies the unique database identifiers passed in `workspace_id`,
+        `project_id`, `task_id` and `model_storage_id` to all configurable parameters
+        in the TaskConfiguration
+
+        :param workspace_id: Workspace ID to assign
+        :param project_id: Project ID to assign
+        :param task_id: Task ID to assign
+        :param model_storage_id: Model storage ID to assign
+        :return:
+        """
+        self.task_id = task_id
+        for config in self.component_configurations:
+            config.entity_identifier.workspace_id = workspace_id
+            config.entity_identifier.project_id = project_id
+            config.entity_identifier.task_id = task_id
+        for config in self.model_configurations:
+            config.entity_identifier.workspace_id = workspace_id
+            config.entity_identifier.model_storage_id = model_storage_id
+
+
+@attr.s(auto_attribs=True)
+class FullConfiguration:
+    """
+    Class representing the full configuration (both global and task-chain) for a
+    project in SC
+    """
+    global_: GlobalConfiguration
+    task_chain: List[TaskConfiguration]
+
+    def deidentify(self):
+        """
+        Removes all unique database ID's from the Configuration
+
+        """
+        self.global_.deidentify()
+        for task_config in self.task_chain:
+            task_config.deidentify()
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Returns the dictionary representation of the FullConfiguration
+
+        :return:
+        """
+        result = attr.asdict(self, recurse=True, value_serializer=attr_value_serializer)
+        global_dict = result.pop("global_")
+        result.update({"global": global_dict["components"]})
+        return result

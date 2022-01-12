@@ -92,6 +92,9 @@ class SCRESTClient:
             'project.json' -- File containing the project parameters, that can be used
                               to re-create the project.
 
+            'configuration.json' -- File containing the configurable parameters for the
+                                    project
+
         :param project_name: Name of the project to download
         :param target_folder: Path to the local folder in which the project data
             should be saved. If not specified, a new directory named `project_name`
@@ -168,6 +171,12 @@ class SCRESTClient:
                     inferred_frames_only=False
                 )
 
+        # Download configuration
+        configuration_manager = ConfigurationManager(
+            workspace_id=self.workspace_id, session=self.session, project=project
+        )
+        configuration_manager.download_configuration(path_to_folder=target_folder)
+
         print(f"Project '{project.name}' was downloaded successfully.")
         return project
 
@@ -190,6 +199,11 @@ class SCRESTClient:
 
             'project.json' -- File containing the project parameters, that can be used
                               to re-create the project.
+
+            'configuration.json' -- Optional file containing the configurable
+                                    parameters for the project. If this file is not
+                                    present, the configurable parameters for the
+                                    project will be left at their default values.
 
         :param target_folder: Folder holding the project data to upload
         :param project_name: Optional name of the project to create on the cluster. If
@@ -257,6 +271,28 @@ class SCRESTClient:
                 videos=videos,
             )
 
+        configuration_file = os.path.join(target_folder, 'configuration.json')
+        if os.path.isfile(configuration_file):
+            result = None
+            try:
+                result = configuration_manager.apply_from_file(
+                    path_to_folder=target_folder
+                )
+            except ValueError:
+                print(
+                    f"Attempted to set configuration according to the "
+                    f"'configuration.json' file in the project directory, but setting "
+                    f"the configuration failed. Probably the configuration specified "
+                    f"in '{configuration_file}' does "
+                    f"not apply to the default model for one of the tasks in the "
+                    f"project. Please make sure to reconfigure the models manually."
+                )
+            if result is None:
+                warnings.warn(
+                    f"Not all configurable parameters could be set according to the "
+                    f"configuration in {configuration_file}. Please make sure to "
+                    f"verify model configuration manually."
+                )
         configuration_manager.set_project_auto_train(
             auto_train=enable_auto_train
         )

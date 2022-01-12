@@ -1,5 +1,5 @@
 import copy
-from typing import Optional, Sequence, Union, List, Dict, Any, Type, get_args
+from typing import Optional, Sequence, Union, List, Dict, Any, Type, get_args, ClassVar
 
 import attr
 
@@ -16,7 +16,8 @@ from sc_api_tools.data_models.enums.configuration_enums import (
     ParameterDataType,
     ParameterInputType
 )
-from sc_api_tools.data_models.utils import str_to_enum_converter, attr_value_serializer
+from sc_api_tools.data_models.utils import str_to_enum_converter, attr_value_serializer, \
+    deidentify
 
 PARAMETER_TYPES = Union[
     SelectableFloat,
@@ -101,9 +102,11 @@ class ParameterGroup:
     :var parameters: List of configurable parameters
     :var groups: List of parameter groups
     """
+    _non_minimal_fields: ClassVar[List[str]] = ["description"]
+
     header: str
     type: str = attr.ib(converter=str_to_enum_converter(ConfigurableParameterType))
-    description: str
+    description: Optional[str] = None
     parameters: Optional[Sequence[PARAMETER_TYPES]] = None
     name: Optional[str] = None
     groups: Optional[List['ParameterGroup']] = None
@@ -141,6 +144,16 @@ class ParameterGroup:
                 continue
             groups.append(ParameterGroup.from_dict(group_dict))
         return cls(**input_copy, parameters=parameters, groups=groups)
+
+    def deidentify(self):
+        """
+        Removes all identifier fields from the ParameterGroup
+
+        """
+        for parameter in self.parameters:
+            deidentify(parameter)
+        for group in self.groups:
+            group.deidentify()
 
     def parameter_names(self, get_nested: bool = True) -> List[str]:
         """

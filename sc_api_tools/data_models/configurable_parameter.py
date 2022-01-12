@@ -1,4 +1,4 @@
-from typing import Union, Optional, Dict, Any, List
+from typing import Union, Optional, Dict, Any, List, ClassVar
 
 import attr
 
@@ -30,6 +30,12 @@ class ConfigurableParameter:
     :var warning: Optional warning message pointing out possible risks of changing the
         parameter
     """
+    _identifier_fields: ClassVar[List[str]] = []
+    _non_minimal_fields: ClassVar[List[str]] = [
+        "default_value", "description", "editable", "header",
+        "warning", "ui_rules"
+    ]
+
     name: str
     value: Union[str, bool, float, int]
     data_type: Optional[str] = attr.ib(
@@ -85,7 +91,7 @@ class ConfigurableFloat(ConfigurableParameter):
     :var min_value: Minimum value allowed to be set for the configurable float
     :var max_value: Maximum value allowed to be set for the configurable float
     """
-    default_value: float = attr.ib(kw_only=True)
+    default_value: Optional[float] = attr.ib(kw_only=True, default=None)
     value: float = attr.ib(kw_only=True)
     min_value: float = attr.ib(kw_only=True)
     max_value: float = attr.ib(kw_only=True)
@@ -98,7 +104,7 @@ class SelectableFloat(ConfigurableParameter):
 
     :var options: List of options that the selectable float is allowed to take
     """
-    default_value: float = attr.ib(kw_only=True)
+    default_value: Optional[float] = attr.ib(kw_only=True, default=None)
     value: float = attr.ib(kw_only=True)
     options: List[float] = attr.ib(kw_only=True)
 
@@ -110,7 +116,7 @@ class SelectableString(ConfigurableParameter):
 
     :var options: List of options that the selectable string is allowed to take
     """
-    default_value: str = attr.ib(kw_only=True)
+    default_value: Optional[str] = attr.ib(kw_only=True, default=None)
     enum_name: str = attr.ib(kw_only=True)
     value: str = attr.ib(kw_only=True)
     options: List[str] = attr.ib(kw_only=True)
