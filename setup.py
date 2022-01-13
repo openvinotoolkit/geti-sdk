@@ -1,4 +1,5 @@
 import setuptools
+from typing import List
 
 with open("README.md", "r", encoding="utf-8") as readme_file:
     LONG_DESCRIPTION = readme_file.read()
@@ -14,8 +15,8 @@ with open("requirements.txt", 'r', encoding="utf-8") as requirements_file:
 with open("sc_api_tools/__init__.py", 'r', encoding="utf-8") as init_file:
     for line in init_file:
         line = line.strip()
-        if line.startswith("__version__")
-            VERSION = line.split('='')[0].strip()
+        if line.startswith("__version__"):
+            VERSION = line.split("=")[0].strip()
 
 setuptools.setup(
     name="sc-api-tools",
