@@ -295,7 +295,7 @@ class BaseAnnotationManager:
                 path_to_annotations_folder, media_item.name + '.json'
             )
             with open(annotation_path, 'w') as f:
-                json.dump(export_data, f)
+                json.dump(export_data, f, indent=4)
             download_count += 1
         t_elapsed = time.time() - t_start
         if download_count > 0:

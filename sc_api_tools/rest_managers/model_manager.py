@@ -165,5 +165,5 @@ class ModelManager:
             self._download_model(optimized_model, path_to_folder=path_to_folder)
         model_info_filepath = os.path.join(model_filepath, "model_details.json")
         with open(model_info_filepath, 'w') as f:
-            json.dump(model.to_dict(), f)
+            json.dump(model.to_dict(), f, indent=4)
         return model

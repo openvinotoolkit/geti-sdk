@@ -149,7 +149,7 @@ class ProjectManager:
             os.makedirs(path_to_folder)
         project_config_path = os.path.join(path_to_folder, "project.json")
         with open(project_config_path, 'w') as file:
-            json.dump(project_data, file)
+            json.dump(project_data, file, indent=4)
         print(
             f"Project parameters for project '{project_name}' were saved to file "
             f"{project_config_path}."
