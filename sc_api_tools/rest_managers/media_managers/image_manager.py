@@ -40,7 +40,7 @@ class ImageManager(BaseMediaManager[Image]):
             image_dict = self._upload(image)
         elif isinstance(image, np.ndarray):
             image_io = io.BytesIO(cv2.imencode('.jpg', image)[1].tobytes())
-            image_io.name = f"numpy_{datetime.datetime.now().isoformat()}.jpg"
+            image_io.name = f"numpy_{datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S.%f')}.jpg"
             image_dict = self._upload_bytes(image_io)
         else:
             raise TypeError(f"Invalid image type: {type(image)}.")
