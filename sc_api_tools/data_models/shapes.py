@@ -2,6 +2,8 @@ from typing import List, Tuple
 
 import attr
 
+import numpy as np
+
 from sc_api_tools.data_models.utils import str_to_shape_type
 
 
@@ -46,6 +48,7 @@ class Rectangle(Shape):
             and self.height == 1.0
         )
 
+
 @attr.s(auto_attribs=True)
 class Ellipse(Shape):
     """
@@ -87,10 +90,18 @@ class Polygon(Shape):
     """
     points: List[Point]
 
-    def points_as_tuples(self) -> List[Tuple[float, float]]:
+    def points_as_contour(self, image_width: int, image_height: int) -> np.ndarray:
         """
-        Returns the list of points for this Polygon as a list of (x, y) tuples
+        Returns the list of points for this Polygon as a numpy array representing a
+        contour points that can be plotted by openCV's drawContours function
 
+        :param image_width: width of the image to which the shape should be applied
+        :param image_height: heigth of the image to which the shape should be applied
         :return:
         """
-        return [(point.x, point.y) for point in self.points]
+        return np.array(
+            [
+                np.array((int(point.x*image_width), int(point.y*image_height)))
+                for point in self.points
+            ]
+        )

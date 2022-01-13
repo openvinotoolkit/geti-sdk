@@ -165,8 +165,8 @@ class Prediction(AnnotationScene):
         :return: np.ndarray holding the mask representation of the prediction
         """
         image_width = media_information.width
-        image_heigth = media_information.height
-        mask = np.zeros((image_heigth, image_width, 3))
+        image_height = media_information.height
+        mask = np.zeros((image_height, image_width, 3))
 
         for annotation in self.annotations:
             max_prob_label_index = np.argmin(
@@ -180,9 +180,9 @@ class Prediction(AnnotationScene):
             line_thickness = 3
             shape = annotation.shape
             if isinstance(shape, (Ellipse, Rectangle)):
-                x, y = int(shape.x * image_width), int(shape.y * image_heigth)
+                x, y = int(shape.x * image_width), int(shape.y * image_height)
                 width, height = int(shape.width * image_width), \
-                                int(shape.height * image_heigth)
+                                int(shape.height * image_height)
                 if isinstance(shape, Ellipse):
                     cv2.ellipse(
                         mask,
@@ -225,13 +225,12 @@ class Prediction(AnnotationScene):
                             )[0]
                             origin[0] += text_width + 2
             elif isinstance(shape, Polygon):
-                points = [
-                    (int(x*image_width), int(y*image_heigth))
-                    for (x, y) in shape.points_as_tuples()
-                ]
+                contour = shape.points_as_contour(
+                    image_width=image_width, image_height=image_height
+                )
                 cv2.drawContours(
                     mask,
-                    contours=points,
+                    contours=[contour],
                     color=color,
                     thickness=line_thickness,
                     contourIdx=-1

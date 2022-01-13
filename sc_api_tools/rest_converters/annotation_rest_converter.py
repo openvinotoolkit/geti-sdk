@@ -6,7 +6,7 @@ from sc_api_tools.data_models import MediaType, ScoredLabel
 from typing import List, Dict, Any, cast
 
 from sc_api_tools.data_models import AnnotationScene, Annotation
-from sc_api_tools.data_models.shapes import Shape, Rectangle, Ellipse, Polygon
+from sc_api_tools.data_models.shapes import Shape, Rectangle, Ellipse, Polygon, Point
 from sc_api_tools.data_models.media_identifiers import (
     MediaIdentifier,
     ImageIdentifier,
@@ -61,9 +61,14 @@ class AnnotationRESTConverter:
         :param input_dict:
         :return: Shape corresponding to the input dict
         """
-        type_ = str_to_shape_type(input_dict.get("type"))
+        input_copy = copy.deepcopy(input_dict)
+        type_ = str_to_shape_type(input_copy.get("type"))
         class_type = SHAPE_TYPE_MAPPING[type_]
-        return class_type(**input_dict)
+        if issubclass(class_type, Polygon):
+            points_dicts = input_copy.pop("points")
+            points = [Point(**point) for point in points_dicts]
+            input_copy.update({"points": points})
+        return class_type(**input_copy)
 
     @staticmethod
     def _scored_label_from_dict(input_dict: Dict[str, Any]) -> ScoredLabel:
