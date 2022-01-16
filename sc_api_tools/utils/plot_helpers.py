@@ -20,12 +20,21 @@ def show_image_with_annotation_scene(
     :param image: Image to show prediction for
     :param annotation_scene: Annotations or Predictions to overlay on the image
     """
-    alpha = 0.5
+    if isinstance(annotation_scene, AnnotationScene):
+        name = 'Annotation'
+    elif isinstance(annotation_scene, Prediction):
+        name = 'Prediction'
+    else:
+        raise ValueError(
+            f"Invalid input: Unable to plot object of type {type(annotation_scene)}."
+        )
     mask = annotation_scene.as_mask(image.media_information)
-    result = np.uint8(
-        image.numpy * alpha + mask[..., ::-1].copy() * (1 - alpha)
-    )
-    cv2.imshow(f'Prediction for {image.name}', result)
+
+    result = image.numpy.copy()
+    result[np.sum(mask, axis=-1) > 0] = 0
+    result += mask[..., ::-1]
+
+    cv2.imshow(f'{name} for {image.name}', result)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
@@ -47,10 +56,21 @@ def show_video_frames_with_annotation_scenes(
     alpha = 0.5
     image_name = video_frames[0].name.split("_frame_")[0]
     for frame, annotation_scene in zip(video_frames, annotation_scenes):
+        if isinstance(annotation_scene, AnnotationScene):
+            name = 'Annotation'
+        elif isinstance(annotation_scene, Prediction):
+            name = 'Prediction'
+        else:
+            raise ValueError(
+                f"Invalid input: Unable to plot object of type "
+                f"{type(annotation_scene)}."
+            )
         mask = annotation_scene.as_mask(frame.media_information)
-        result = np.uint8(
-            frame.numpy * alpha + mask[..., ::-1].copy() * (1 - alpha)
-        )
-        cv2.imshow(f'Prediction for {image_name}', result)
+
+        result = frame.numpy.copy()
+        result[np.sum(mask, axis=-1) > 0] = 0
+        result += mask[..., ::-1]
+
+        cv2.imshow(f'{name} for {image_name}', result)
         cv2.waitKey(int(wait_time*1000))
         cv2.destroyAllWindows()

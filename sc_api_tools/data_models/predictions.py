@@ -151,7 +151,7 @@ class Prediction(AnnotationScene):
             self,
             media_information: MediaInformation,
             probability_threshold: Optional[float] = None
-    ):
+    ) -> np.ndarray:
         """
         Converts the shapes in the prediction to a mask that can be overlayed on an
         image

@@ -193,7 +193,7 @@ class AnnotationScene:
             labels: List[ScoredLabel],
             color: Tuple[int, int, int],
             line_thickness: int
-    ):
+    ) -> np.ndarray:
         """
         Draws an SC shape entity `shape` on the pixel level mask `mask`. The shape
         will be drawn in the color specified as R,G,B tuple in `color`, using a line
@@ -228,6 +228,16 @@ class AnnotationScene:
                     endAngle=360,
                     thickness=line_thickness
                 )
+                cv2.ellipse(
+                    mask,
+                    center=(x, y),
+                    axes=(width, height),
+                    angle=0,
+                    color=(1, 1, 1),
+                    startAngle=0,
+                    endAngle=360,
+                    thickness=1
+                )
             elif isinstance(shape, Rectangle):
                 if not shape.is_full_box:
                     cv2.rectangle(
@@ -236,6 +246,13 @@ class AnnotationScene:
                         pt2=(x + width, y + height),
                         color=color,
                         thickness=line_thickness
+                    )
+                    cv2.rectangle(
+                        mask,
+                        pt1=(x, y),
+                        pt2=(x + width, y + height),
+                        color=(1, 1, 1),
+                        thickness=1
                     )
                 else:
                     origin = [
@@ -269,9 +286,16 @@ class AnnotationScene:
                 thickness=line_thickness,
                 contourIdx=-1
             )
+            cv2.drawContours(
+                mask,
+                contours=[contour],
+                color=(1, 1, 1),
+                thickness=1,
+                contourIdx=-1
+            )
         return mask
 
-    def as_mask(self, media_information: MediaInformation):
+    def as_mask(self, media_information: MediaInformation) -> np.ndarray:
         """
         Converts the shapes in the annotation scene to a mask that can be overlayed on
         an image
@@ -282,7 +306,7 @@ class AnnotationScene:
         """
         image_width = media_information.width
         image_height = media_information.height
-        mask = np.zeros((image_height, image_width, 3))
+        mask = np.zeros((image_height, image_width, 3), dtype=np.uint8)
 
         for annotation in self.annotations:
             label_to_copy_color = annotation.labels[0]
