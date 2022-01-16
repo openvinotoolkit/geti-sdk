@@ -4,7 +4,7 @@ from typing import Optional, List, Union, Tuple, Sequence
 
 import numpy as np
 from sc_api_tools.rest_managers import ModelManager
-from sc_api_tools.utils import show_video_frames_with_predictions
+from sc_api_tools.utils import show_video_frames_with_annotation_scenes
 
 from .annotation_readers import (
     SCAnnotationReader,
@@ -33,7 +33,7 @@ from .utils import (
     get_default_workspace_id,
     generate_classification_labels,
     get_task_types_by_project_type,
-    show_image_with_prediction
+    show_image_with_annotation_scene
 )
 
 
@@ -687,7 +687,8 @@ class SCRESTClient:
             project_name: str,
             media_folder: str,
             output_folder: Optional[str] = None,
-            delete_after_prediction: bool = False
+            delete_after_prediction: bool = False,
+            skip_if_filename_exists: bool = False
     ) -> bool:
         """
         Uploads a folder with media (images, videos or both) from local disk at path
@@ -707,6 +708,9 @@ class SCRESTClient:
             the same level as the media_folder
         :param delete_after_prediction: True to remove the media from the project
             once all predictions are received, False to keep the media in the project.
+        :param skip_if_filename_exists: Set to True to skip uploading of an image (or
+            video) if an image (or video) with the same filename already exists in the
+            project. Defaults to False
         :return: True if all media was uploaded, and predictions for all media were
             successfully downloaded. False otherwise
         """
@@ -727,7 +731,7 @@ class SCRESTClient:
             session=self.session, workspace_id=self.workspace_id, project=project
         )
         images = image_manager.upload_folder(
-            path_to_folder=media_folder, return_all=False
+            path_to_folder=media_folder, skip_if_filename_exists=skip_if_filename_exists
         )
 
         # Upload videos
@@ -735,7 +739,8 @@ class SCRESTClient:
             session=self.session, workspace_id=self.workspace_id, project=project
         )
         videos = video_manager.upload_folder(
-            path_to_folder=media_folder, return_all=False
+            path_to_folder=media_folder,
+            skip_if_filename_exists=skip_if_filename_exists
         )
 
         prediction_manager = PredictionManager(
@@ -847,7 +852,9 @@ class SCRESTClient:
             image_manager.delete_images(images=MediaList([uploaded_image]))
 
         if visualise_output:
-            show_image_with_prediction(image=uploaded_image, prediction=prediction)
+            show_image_with_annotation_scene(
+                image=uploaded_image, annotation_scene=prediction
+            )
 
         return uploaded_image, prediction
 
@@ -944,7 +951,7 @@ class SCRESTClient:
         if delete_after_prediction and needs_upload:
             video_manager.delete_videos(videos=MediaList([uploaded_video]))
         if visualise_output:
-            show_video_frames_with_predictions(
-                video_frames=frames, predictions=predictions
+            show_video_frames_with_annotation_scenes(
+                video_frames=frames, annotation_scenes=predictions
             )
         return uploaded_video, frames, predictions

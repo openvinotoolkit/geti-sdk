@@ -179,63 +179,11 @@ class Prediction(AnnotationScene):
             color = max_prob_label.color_tuple
             line_thickness = 3
             shape = annotation.shape
-            if isinstance(shape, (Ellipse, Rectangle)):
-                x, y = int(shape.x * image_width), int(shape.y * image_height)
-                width, height = int(shape.width * image_width), \
-                                int(shape.height * image_height)
-                if isinstance(shape, Ellipse):
-                    cv2.ellipse(
-                        mask,
-                        center=(x, y),
-                        axes=(width, height),
-                        angle=0,
-                        color=color,
-                        startAngle=0,
-                        endAngle=360,
-                        thickness=line_thickness
-                    )
-                elif isinstance(shape, Rectangle):
-                    if not shape.is_full_box:
-                        cv2.rectangle(
-                            mask,
-                            pt1=(x, y),
-                            pt2=(x+width, y+height),
-                            color=color,
-                            thickness=line_thickness
-                        )
-                    else:
-                        origin = [
-                            int(0.01*media_information.width),
-                            int(0.99*media_information.height)
-                        ]
-                        for label in annotation.labels:
-                            font = cv2.FONT_HERSHEY_SIMPLEX
-                            font_scale = 1
-                            cv2.putText(
-                                mask,
-                                label.name,
-                                org=origin,
-                                fontFace=font,
-                                fontScale=font_scale,
-                                color=label.color_tuple,
-                                thickness=1
-                            )
-                            text_width, text_height = cv2.getTextSize(
-                                label.name, font, font_scale, line_thickness
-                            )[0]
-                            origin[0] += text_width + 2
-            elif isinstance(shape, Polygon):
-                contour = shape.points_as_contour(
-                    image_width=image_width, image_height=image_height
-                )
-                cv2.drawContours(
-                    mask,
-                    contours=[contour],
-                    color=color,
-                    thickness=line_thickness,
-                    contourIdx=-1
-                )
+            mask = self._add_shape_to_mask(
+                shape=shape,
+                mask=mask,
+                labels=annotation.labels,
+                color=color,
+                line_thickness=line_thickness
+            )
         return mask
-
-
-

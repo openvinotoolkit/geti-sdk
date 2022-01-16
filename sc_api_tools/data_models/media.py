@@ -1,13 +1,14 @@
 import abc
 import os
 import io
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Dict, Any
 import tempfile
 
 import cv2
 import numpy as np
 
 import attr
+
 from sc_api_tools.http_session import SCSession
 
 from .enums import MediaType
@@ -17,7 +18,8 @@ from .media_identifiers import (
     VideoIdentifier,
     VideoFrameIdentifier
 )
-from .utils import str_to_media_type, str_to_datetime, numpy_from_buffer
+from .utils import str_to_media_type, str_to_datetime, numpy_from_buffer, \
+    attr_value_serializer
 
 
 @attr.s(auto_attribs=True)
@@ -144,6 +146,15 @@ class MediaItem:
             pointing to the file location for Videos.
         """
         raise NotImplementedError
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Converts the MediaItem to a dictionary representation
+
+        :return: Dictionary holding the annotation scene data
+        """
+        output_dict = attr.asdict(self, value_serializer=attr_value_serializer)
+        return output_dict
 
 
 @attr.s(auto_attribs=True)

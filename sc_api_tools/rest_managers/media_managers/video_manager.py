@@ -76,7 +76,10 @@ class VideoManager(BaseMediaManager[Video]):
         return uploaded_video
 
     def upload_folder(
-            self, path_to_folder: str, n_videos: int = -1, return_all: bool = True
+            self,
+            path_to_folder: str,
+            n_videos: int = -1,
+            skip_if_filename_exists: bool = False
     ) -> MediaList[Video]:
         """
         Uploads all videos in a folder to the project. Returns the mapping of video
@@ -84,13 +87,15 @@ class VideoManager(BaseMediaManager[Video]):
 
         :param path_to_folder: Folder with videos to upload
         :param n_videos: Number of videos to upload from folder
-        :param return_all: Set to True to return a list of all videos in the project
-            after the upload. Set to False to return a list containing only the videos
-            uploaded with the current call to this method. Defaults to True
+        :param skip_if_filename_exists: Set to True to skip uploading of a video
+            if a video with the same filename already exists in the project.
+            Defaults to False
         :return: MediaList containing all video's in the project
         """
         return self._upload_folder(
-            path_to_folder=path_to_folder, n_media=n_videos, return_all=return_all
+            path_to_folder=path_to_folder,
+            n_media=n_videos,
+            skip_if_filename_exists=skip_if_filename_exists
         )
 
     def download_all(self, path_to_folder: str) -> None:

@@ -165,7 +165,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         return self._upload_bytes(media_bytes)
 
     def _upload_loop(
-            self, filepaths: List[str], return_all: bool = True
+            self, filepaths: List[str], skip_if_filename_exists: bool = False
     ) -> MediaList[MediaTypeVar]:
         """
         Uploads media from a list of filepaths. Also checks if media items with the same
@@ -173,9 +173,9 @@ class BaseMediaManager(Generic[MediaTypeVar]):
 
         :param filepaths: List of full filepaths for media that should be
             uploaded
-        :param return_all: Set to True to return a list of all media in the project
-            after the upload. Set to False to return a list containing only the media
-            uploaded with this call. Defaults to True
+        :param skip_if_filename_exists: Set to True to skip uploading of a media item
+            if a media item with the same filename already exists in the project.
+            Defaults to False
         :return: MediaList containing a list of all media entities that were uploaded
             to the project
         """
@@ -187,7 +187,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         t_start = time.time()
         for filepath in filepaths:
             name, ext = os.path.splitext(os.path.basename(filepath))
-            if name in media_in_project.names:
+            if name in media_in_project.names and skip_if_filename_exists:
                 skip_count += 1
                 continue
             media_dict = self._upload(filepath=filepath)
@@ -216,13 +216,13 @@ class BaseMediaManager(Generic[MediaTypeVar]):
                         f"existed in project, these {self.plural_media_name} were" \
                         f" skipped."
         print(msg)
-        if return_all:
-            return media_in_project
-        else:
-            return uploaded_media
+        return uploaded_media
 
     def _upload_folder(
-            self, path_to_folder: str, n_media: int = -1, return_all: bool = True
+            self,
+            path_to_folder: str,
+            n_media: int = -1,
+            skip_if_filename_exists: bool = False
     ) -> MediaList[MediaTypeVar]:
         """
         Uploads all media in a folder to the project. Returns the mapping of filenames
@@ -230,9 +230,9 @@ class BaseMediaManager(Generic[MediaTypeVar]):
 
         :param path_to_folder: Folder with media items to upload
         :param n_media: Number of media to upload from folder
-        :param return_all: Set to True to return a list of all media in the project
-            after the upload. Set to False to return a list containing only the media
-            uploaded with this call. Defaults to True
+        :param skip_if_filename_exists: Set to True to skip uploading of a media item
+            if a media item with the same filename already exists in the project.
+            Defaults to False
         :return: MediaList containing a list of all media entities that were uploaded
             to the project
         """
@@ -254,7 +254,8 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         else:
             n_to_upload = n_files if n_files < n_media else n_media
         return self._upload_loop(
-            filepaths=filepaths[0:n_to_upload], return_all=return_all
+            filepaths=filepaths[0:n_to_upload],
+            skip_if_filename_exists=skip_if_filename_exists
         )
 
     def _download_all(self, path_to_folder: str) -> None:
