@@ -1,4 +1,4 @@
-from typing import List, Generic
+from typing import List, Generic, Optional, Union
 
 from sc_api_tools.data_models import (
     Video,
@@ -59,9 +59,9 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
         upload_count = 0
         for frame in video_frames:
             if not append_annotations:
-                response = self.upload_annotation_for_2d_media_item(media_item=frame)
+                response = self._upload_annotation_for_2d_media_item(media_item=frame)
             else:
-                response = self.append_annotation_for_2d_media_item(media_item=frame)
+                response = self._append_annotation_for_2d_media_item(media_item=frame)
             if response:
                 upload_count += 1
         return upload_count
@@ -109,9 +109,9 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
         upload_count = 0
         for image in images:
             if not append_annotations:
-                response = self.upload_annotation_for_2d_media_item(media_item=image)
+                response = self._upload_annotation_for_2d_media_item(media_item=image)
             else:
-                response = self.append_annotation_for_2d_media_item(media_item=image)
+                response = self._append_annotation_for_2d_media_item(media_item=image)
             if response:
                 upload_count += 1
         if upload_count > 0:
@@ -188,13 +188,15 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
 
         :param path_to_folder: Folder to save the annotations to
         """
-        if len(self.image_list) > 0:
+        image_list = self._get_all_media_by_type(media_type=Image)
+        video_list = self._get_all_media_by_type(media_type=Video)
+        if len(image_list) > 0:
             self.download_annotations_for_images(
-                images=self.image_list, path_to_folder=path_to_folder
+                images=image_list, path_to_folder=path_to_folder
             )
-        if len(self.video_list) > 0:
+        if len(video_list) > 0:
             self.download_annotations_for_videos(
-                self.video_list, path_to_folder=path_to_folder
+                video_list, path_to_folder=path_to_folder
             )
 
     def upload_annotations_for_all_media(self, append_annotations: bool = False):
@@ -207,11 +209,53 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
             the existing annotations on the server, False to overwrite the server
             annotations by those on the local disk. Defaults to True
         """
-        if len(self.image_list) > 0:
+        image_list = self._get_all_media_by_type(media_type=Image)
+        video_list = self._get_all_media_by_type(media_type=Video)
+        if len(image_list) > 0:
             self.upload_annotations_for_images(
-                images=self.image_list, append_annotations=append_annotations
+                images=image_list, append_annotations=append_annotations
             )
-        if len(self.video_list) > 0:
+        if len(video_list) > 0:
             self.upload_annotations_for_videos(
-                videos=self.video_list, append_annotations=append_annotations
+                videos=video_list, append_annotations=append_annotations
             )
+
+    def upload_annotation(
+            self,
+            media_item: Union[Image, VideoFrame],
+            annotation_scene: AnnotationScene
+    ):
+        """
+        Uploads an annotation for an image or video frame to the SC cluster
+
+        :param media_item: Image or VideoFrame to apply and upload the annotation to
+        :param annotation_scene: AnnotationScene to upload
+        """
+        if not isinstance(media_item, (Image, VideoFrame)):
+            raise ValueError(
+                f"Cannot upload annotation for media item {media_item.name}. This "
+                f"method only supports uploading annotations for single images and "
+                f"video frames. Please use the method `upload_annotations_for_video` "
+                f"to upload video annotations"
+            )
+        self._upload_annotation_for_2d_media_item(
+            media_item=media_item, annotation_scene=annotation_scene
+        )
+
+    def get_annotation(
+            self, media_item: Union[Image, VideoFrame]
+    ) -> AnnotationScene:
+        """
+        Retrieve the latest annotations for an image or video frame from the SC cluster
+
+        :param media_item: Image or VideoFrame to retrieve the annotations for
+        :return: AnnotationScene instance containing the latest annotation data
+        """
+        if not isinstance(media_item, (Image, VideoFrame)):
+            raise ValueError(
+                f"Cannot get annotation for media item {media_item.name}. This method "
+                f"only supports getting annotations for images and video frames. "
+                f"Please use the method `get_latest_annotations_for_video` to retrieve "
+                f"video annotations"
+            )
+        return self._get_latest_annotation_for_2d_media_item(media_item=media_item)

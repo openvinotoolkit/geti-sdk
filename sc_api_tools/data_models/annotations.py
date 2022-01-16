@@ -211,7 +211,7 @@ class AnnotationScene:
             be drawn
         :return: Mask with the shape drawn on it
         """
-        image_width, image_height = mask.shape[0:-1]
+        image_height, image_width = mask.shape[0:-1]
         if isinstance(shape, (Ellipse, Rectangle)):
             x, y = int(shape.x * image_width), int(shape.y * image_height)
             width, height = int(shape.width * image_width), \
@@ -295,3 +295,19 @@ class AnnotationScene:
                 line_thickness=line_thickness
             )
         return mask
+
+    def apply_identifier(
+            self, media_identifier: Union[ImageIdentifier, VideoFrameIdentifier]
+    ):
+        """
+        Applies a `media_identifier` to the current AnnotationScene instance, such
+        that the SC cluster will recognize this AnnotationScene as belonging to the
+        media item identified by the media_identifier.
+
+        This method will first remove all identifying information from the annotation
+        scene, and then apply the new identifier.
+
+        :param media_identifier: Image or VideoFrame identifier to apply
+        """
+        self.deidentify()
+        self.media_identifier = media_identifier

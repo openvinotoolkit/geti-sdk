@@ -149,17 +149,9 @@ class SCRESTClient:
         if len(videos) > 0:
             video_manager.download_all(path_to_folder=target_folder)
 
-        # Download annotations
-        with warnings.catch_warnings():
-            # The AnnotationManager will give a warning that it can only be used to
-            # download data since no annotation reader is passed, but this is exactly
-            # what we plan to do with it so we suppress the warning
-            warnings.simplefilter("ignore")
-            annotation_manager = AnnotationManager(
-                session=self.session,
-                project=project,
-                media_lists=[images, videos]
-            )
+        annotation_manager = AnnotationManager(
+            session=self.session, project=project, workspace_id=self.workspace_id
+        )
         annotation_manager.download_all_annotations(path_to_folder=target_folder)
 
         # Download predictions
@@ -276,7 +268,7 @@ class SCRESTClient:
         annotation_manager = AnnotationManager[SCAnnotationReader](
             session=self.session,
             project=project,
-            media_lists=media_lists,
+            workspace_id=self.workspace_id,
             annotation_reader=annotation_reader
         )
         if len(images) > 0:
@@ -420,8 +412,8 @@ class SCRESTClient:
         annotation_manager = AnnotationManager(
             session=self.session,
             project=project,
+            workspace_id=self.workspace_id,
             annotation_reader=annotation_reader,
-            media_lists=[images]
         )
         annotation_manager.upload_annotations_for_images(
             images
@@ -549,8 +541,8 @@ class SCRESTClient:
                 annotation_manager = AnnotationManager(
                     session=self.session,
                     project=project,
+                    workspace_id=self.workspace_id,
                     annotation_reader=reader,
-                    media_lists=[images]
                 )
                 annotation_manager.upload_annotations_for_images(
                     images=images,

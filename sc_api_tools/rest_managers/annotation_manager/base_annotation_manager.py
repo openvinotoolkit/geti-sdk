@@ -2,7 +2,7 @@ import json
 import os
 import time
 import warnings
-from typing import List, Union, Optional, Dict, Any, TypeVar
+from typing import List, Union, Optional, Dict, Any, TypeVar, Type
 
 from requests import Response
 
@@ -15,10 +15,12 @@ from sc_api_tools.data_models import (
     VideoFrame,
     AnnotationScene, AnnotationKind
 )
+from sc_api_tools.data_models.containers.media_list import MediaTypeVar
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import AnnotationRESTConverter
 
 AnnotationReaderType = TypeVar("AnnotationReaderType", bound=AnnotationReader)
+MediaType = TypeVar("MediaType", Image, Video)
 
 
 class BaseAnnotationManager:
@@ -29,50 +31,51 @@ class BaseAnnotationManager:
     def __init__(
             self,
             session: SCSession,
+            workspace_id: str,
             project: Project,
-            media_lists: List[Union[MediaList[Image], MediaList[Video]]],
             annotation_reader: Optional[AnnotationReaderType] = None
     ):
         self.session = session
-        self.image_list: MediaList[Image] = MediaList([])
-        self.video_list: MediaList[Video] = MediaList([])
-        self.__set_media_lists(media_lists=media_lists)
-
+        self.workspace_id = workspace_id
         self.annotation_reader = annotation_reader
         self._project = project
         if annotation_reader is None:
-            warnings.warn(
-                "You did not specify an annotation reader for the annotation manager, "
-                "this means it can only be used for annotation downloading, but not "
-                "for uploading."
-            )
             label_mapping = None
         else:
             label_mapping = self.__get_label_mapping(project)
         self._label_mapping = label_mapping
 
-    def __set_media_lists(
-            self, media_lists: List[Union[MediaList[Image], MediaList[Video]]]
-    ):
+    def _get_all_media_by_type(
+            self, media_type: Type[MediaType]
+    ) -> MediaList[MediaType]:
         """
-        Populates the image and video lists in the AnnotationManager.
+        Get a list holding all media entities of type `media_type` in the project
 
-        :param media_lists: Input media lists holding the images and videos in the
-            project
-        :return:
+        :return: MediaList holding all media of a certain type in the project
         """
-        for media_list in media_lists:
-            if len(media_list) > 0:
-                if media_list.media_type == Image:
-                    self.image_list.extend(media_list)
-                elif media_list.media_type == Video:
-                    self.video_list.extend(media_list)
-                else:
-                    raise ValueError(
-                        f"Unsupported media type {media_list.media_type} found in "
-                        f"media lists. Unable to process this media type in the "
-                        f"AnnotationManager."
-                    )
+        if media_type == Image:
+            media_name = 'images'
+        elif media_type == Video:
+            media_name = 'videos'
+        else:
+            raise ValueError(f"Invalid media type specified: {media_type}.")
+        response = self.session.get_rest_response(
+            url=f"{self.workspace_id}/media/{media_name}?top=100000",
+            method="GET"
+        )
+        total_number_of_media: int = response["media_count"][media_name]
+        raw_media_list: List[Dict[str, Any]] = []
+        while len(raw_media_list) < total_number_of_media:
+            for media_item_dict in response["media"]:
+                raw_media_list.append(media_item_dict)
+            if "next_page" in response.keys():
+                response = self.session.get_rest_response(
+                    url=response["next_page"],
+                    method="GET"
+                )
+        return MediaList.from_rest_list(
+            rest_input=raw_media_list, media_type=media_type
+        )
 
     def __get_label_mapping(self, project: Project) -> Dict[str, str]:
         """
@@ -113,19 +116,45 @@ class BaseAnnotationManager:
                 "annotation reader has been defined."
             )
 
-    def upload_annotation_for_2d_media_item(
-            self, media_item: Union[Image, VideoFrame]
+    def _upload_annotation_for_2d_media_item(
+            self,
+            media_item: Union[Image, VideoFrame],
+            annotation_scene: Optional[AnnotationScene] = None
     ) -> Dict[str, Any]:
         """
         Uploads a new annotation for an image or video frame to the cluster. This will
         overwrite any current annotations for the media item.
 
+        If an `annotation_scene` is passed, this annotation will be applied to the
+        media_item.
+
+        If `annotation_scene` is left as None and an AnnotationReader is defined for
+        the AnnotationManager, this method will read the annotation for
+        the media item from the AnnotationReader.
+
+        If `annotation_scene` is left as None and no AnnotationReader is defined for
+        the AnnotationManager, this method will raise a ValueError
+
         :param media_item: Image or VideoFrame to upload annotation for
-        :return:
+        :param annotation_scene: Optional AnnotationScene to apply to the media_item.
+            If left as None, this method will read the annotation data using the
+            AnnotationReader
+        :return: Response of the REST endpoint
         """
-        annotation_scene = self._read_2d_media_annotation_from_source(
-            media_item=media_item
-        )
+        if annotation_scene is not None:
+            annotation_scene.apply_identifier(media_identifier=media_item.identifier)
+        else:
+            if self.annotation_reader is not None:
+                annotation_scene = self._read_2d_media_annotation_from_source(
+                    media_item=media_item
+                )
+            else:
+                raise ValueError(
+                    "You attempted to upload an annotation for a media item, but no "
+                    "annotation data was passed directly and no annotation reader was "
+                    "defined for the AnnotationManager. Therefore, the "
+                    "AnnotationManager is unable to upload any annotation data."
+                )
         if annotation_scene.annotations:
             response = self.session.get_rest_response(
                 url=f"{media_item.base_url}/annotations",
@@ -151,7 +180,7 @@ class BaseAnnotationManager:
         """
         return AnnotationRESTConverter.from_dict(response_dict)
 
-    def append_annotation_for_2d_media_item(
+    def _append_annotation_for_2d_media_item(
             self, media_item: Union[Image, VideoFrame]
     ) -> Union[Response, dict, list]:
         """
@@ -165,9 +194,7 @@ class BaseAnnotationManager:
             media_item=media_item, preserve_shape_for_global_labels=True
         )
         try:
-            annotation_scene = self.get_latest_annotation_for_2d_media_item(
-                media_item
-            )
+            annotation_scene = self._get_latest_annotation_for_2d_media_item(media_item)
         except ValueError:
             print(
                 f"No existing annotation found for {str(media_item.type)} named "
@@ -190,7 +217,7 @@ class BaseAnnotationManager:
             response = {}
         return response
 
-    def get_latest_annotation_for_2d_media_item(
+    def _get_latest_annotation_for_2d_media_item(
             self, media_item: Union[Image, VideoFrame]
     ) -> AnnotationScene:
         """
@@ -270,7 +297,7 @@ class BaseAnnotationManager:
         skip_count = 0
         for media_item in media_list:
             try:
-                annotation_scene = self.get_latest_annotation_for_2d_media_item(
+                annotation_scene = self._get_latest_annotation_for_2d_media_item(
                     media_item)
             except ValueError:
                 if verbose:
