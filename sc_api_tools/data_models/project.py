@@ -1,4 +1,5 @@
 from typing import List, Dict, Optional, ClassVar, Any, Union
+from pprint import pformat
 
 import attr
 
@@ -255,3 +256,12 @@ class Project:
         :return: List of all labels in the project
         """
         return self.pipeline.get_all_labels()
+
+    @property
+    def overview(self) -> str:
+        """
+        Returns a string that shows an overview of the project
+
+        :return: String holding an overview of the project
+        """
+        return pformat(self.to_dict())

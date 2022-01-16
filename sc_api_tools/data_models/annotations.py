@@ -1,5 +1,6 @@
 import copy
 from typing import List, Union, Optional, ClassVar, Dict, Any, Tuple
+from pprint import pformat
 
 import numpy as np
 
@@ -22,7 +23,8 @@ from sc_api_tools.data_models.utils import (
     deidentify,
     str_to_datetime,
     str_to_annotation_kind,
-    attr_value_serializer
+    attr_value_serializer,
+    round_dictionary
 )
 
 
@@ -185,6 +187,19 @@ class AnnotationScene:
         """
         output_dict = attr.asdict(self, value_serializer=attr_value_serializer)
         return output_dict
+
+    @property
+    def overview(self) -> str:
+        """
+        Returns a string that gives an overview of the annotation scene
+
+        :return: overview string of the annotation scene
+        """
+        dict_output = self.to_dict()
+        for annotation_dict in dict_output["annotations"]:
+            shape_dict = annotation_dict["shape"]
+            annotation_dict["shape"] = round_dictionary(shape_dict)
+        return pformat(dict_output)
 
     @staticmethod
     def _add_shape_to_mask(

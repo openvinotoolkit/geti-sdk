@@ -1,3 +1,4 @@
+from pprint import pformat
 from typing import Optional, List, Dict, Any
 
 import attr
@@ -62,6 +63,15 @@ class BaseModel:
         :return:
         """
         return attr.asdict(self, recurse=True, value_serializer=attr_value_serializer)
+
+    @property
+    def overview(self) -> str:
+        """
+        Returns a string that represents an overview of the model
+
+        :return:
+        """
+        return pformat(self.to_dict())
 
 
 @attr.s(auto_attribs=True)

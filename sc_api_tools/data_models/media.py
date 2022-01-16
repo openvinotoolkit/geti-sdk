@@ -1,8 +1,8 @@
 import abc
 import os
-import io
 from typing import Optional, List, Union, Dict, Any
 import tempfile
+from pprint import pformat
 
 import cv2
 import numpy as np
@@ -155,6 +155,15 @@ class MediaItem:
         """
         output_dict = attr.asdict(self, value_serializer=attr_value_serializer)
         return output_dict
+
+    @property
+    def overview(self) -> str:
+        """
+        Returns a string holding an overview of the media item
+
+        :return: overview string of the media item
+        """
+        return pformat(self.to_dict())
 
 
 @attr.s(auto_attribs=True)

@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 
 import attr
-from typing import Any, Union, Optional, TypeVar, Type, Callable
+from typing import Any, Union, Optional, TypeVar, Type, Callable, Dict, List
 
 import cv2
 import numpy as np
@@ -151,3 +151,31 @@ def numpy_from_buffer(buffer: bytes) -> np.ndarray:
     """
     numpy_array = np.fromstring(buffer, dtype=np.uint8)
     return cv2.imdecode(numpy_array, cv2.IMREAD_COLOR)
+
+
+def round_dictionary(
+        input_data: Union[Dict[str, Any], List[Any]], decimal_places: int = 3
+) -> Union[Dict[str, Any], List[Any]]:
+    """
+    Converts all floats in a dictionary to string representation, rounded to
+    `decimal_places`
+
+    :param input_data: Input dictionary to convert and round
+    :param decimal_places: Number of decimal places to round to. Defaults to 3
+    :return: dictionary with all floats rounded
+    """
+    if isinstance(input_data, dict):
+        for key, value in input_data.items():
+            if isinstance(value, float):
+                input_data[key] = f"{value:.{decimal_places}f}"
+            elif isinstance(value, (dict, list)):
+                input_data[key] = round_dictionary(value, decimal_places=decimal_places)
+        return input_data
+    elif isinstance(input_data, list):
+        new_list = []
+        for item in input_data:
+            if isinstance(item, float):
+                new_list.append(f"{item:.{decimal_places}f}")
+            elif isinstance(item, (dict, list)):
+                new_list.append(round_dictionary(item, decimal_places=decimal_places))
+        return new_list

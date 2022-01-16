@@ -92,12 +92,12 @@ class Polygon(Shape):
 
     def points_as_contour(self, image_width: int, image_height: int) -> np.ndarray:
         """
-        Returns the list of points for this Polygon as a numpy array representing a
+        Returns the list of points for this Polygon as a numpy array representing
         contour points that can be plotted by openCV's drawContours function
 
         :param image_width: width of the image to which the shape should be applied
         :param image_height: heigth of the image to which the shape should be applied
-        :return:
+        :return: Numpy array containing the contour
         """
         return np.array(
             [

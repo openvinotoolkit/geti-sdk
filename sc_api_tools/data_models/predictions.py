@@ -166,7 +166,7 @@ class Prediction(AnnotationScene):
         """
         image_width = media_information.width
         image_height = media_information.height
-        mask = np.zeros((image_height, image_width, 3))
+        mask = np.zeros((image_height, image_width, 3), dtype=np.uint8)
 
         for annotation in self.annotations:
             max_prob_label_index = np.argmin(

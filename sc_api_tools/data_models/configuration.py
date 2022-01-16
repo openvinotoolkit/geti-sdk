@@ -59,7 +59,6 @@ class Configuration:
         """
         return attr.asdict(self, recurse=True, value_serializer=attr_value_serializer)
 
-
     def deidentify(self):
         """
         Removes all unique database ID's from the Configuration
