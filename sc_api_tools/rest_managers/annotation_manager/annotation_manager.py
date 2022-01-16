@@ -224,12 +224,13 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
             self,
             media_item: Union[Image, VideoFrame],
             annotation_scene: AnnotationScene
-    ):
+    ) -> bool:
         """
         Uploads an annotation for an image or video frame to the SC cluster
 
         :param media_item: Image or VideoFrame to apply and upload the annotation to
         :param annotation_scene: AnnotationScene to upload
+        :return: True if the annotation was uploaded successfully
         """
         if not isinstance(media_item, (Image, VideoFrame)):
             raise ValueError(
@@ -241,6 +242,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
         self._upload_annotation_for_2d_media_item(
             media_item=media_item, annotation_scene=annotation_scene
         )
+        return True
 
     def get_annotation(
             self, media_item: Union[Image, VideoFrame]

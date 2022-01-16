@@ -142,10 +142,12 @@ class BaseAnnotationManager:
         :return: Response of the REST endpoint
         """
         if annotation_scene is not None:
-            annotation_scene.apply_identifier(media_identifier=media_item.identifier)
+            scene_to_upload = annotation_scene.apply_identifier(
+                media_identifier=media_item.identifier
+            )
         else:
             if self.annotation_reader is not None:
-                annotation_scene = self._read_2d_media_annotation_from_source(
+                scene_to_upload = self._read_2d_media_annotation_from_source(
                     media_item=media_item
                 )
             else:
@@ -155,12 +157,12 @@ class BaseAnnotationManager:
                     "defined for the AnnotationManager. Therefore, the "
                     "AnnotationManager is unable to upload any annotation data."
                 )
-        if annotation_scene.annotations:
+        if scene_to_upload.annotations:
             response = self.session.get_rest_response(
                 url=f"{media_item.base_url}/annotations",
                 method="POST",
                 data=AnnotationRESTConverter.to_dict(
-                    annotation_scene, deidentify=False
+                    scene_to_upload, deidentify=False
                 )
             )
         else:

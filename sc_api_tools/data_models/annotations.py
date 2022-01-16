@@ -1,3 +1,4 @@
+import copy
 from typing import List, Union, Optional, ClassVar, Dict, Any, Tuple
 
 import numpy as np
@@ -298,16 +299,21 @@ class AnnotationScene:
 
     def apply_identifier(
             self, media_identifier: Union[ImageIdentifier, VideoFrameIdentifier]
-    ):
+    ) -> 'AnnotationScene':
         """
         Applies a `media_identifier` to the current AnnotationScene instance, such
         that the SC cluster will recognize this AnnotationScene as belonging to the
         media item identified by the media_identifier.
 
-        This method will first remove all identifying information from the annotation
-        scene, and then apply the new identifier.
+        This method creates and returns a new AnnotationScene instance. The instance
+        on which this method is called remains unmodified.
 
         :param media_identifier: Image or VideoFrame identifier to apply
+        :return: new AnnotationScene instance with the identifiers set according to
+            `media_identifier`
         """
-        self.deidentify()
-        self.media_identifier = media_identifier
+        new_annotation = copy.deepcopy(self)
+        new_annotation.media_identifier = media_identifier
+        new_annotation.id = ""
+        new_annotation.modified = ""
+        return new_annotation
