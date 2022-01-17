@@ -7,8 +7,9 @@ from sc_api_tools.data_models import (
     ModelGroup,
     Model,
     OptimizedModel,
-    ModelSummary
+    ModelSummary, Task
 )
+from sc_api_tools.data_models.enums import Domain
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import ModelRESTConverter
 from sc_api_tools.utils import get_supported_algorithms
@@ -86,11 +87,12 @@ class ModelManager:
         model.model_group_id = group_id
         return model
 
-    def get_active_model(self) -> Optional[Model]:
+    def get_active_model_for_task(self, task: Task) -> Optional[Model]:
         """
-        Returns the Model details for the currently active model, if any. If the
-        project does not have any trained models, this method returns None
+        Returns the Model details for the currently active model, for a task if any.
+        If the task does not have any trained models, this method returns None
 
+        :param task: Task object containing details of the task to get the model for
         :return: Model object representing the currently active model in the SC
             project, if any
         """
@@ -99,6 +101,8 @@ class ModelManager:
         group_id: Optional[str] = None
         for group in model_groups:
             if not group.has_trained_models:
+                continue
+            if group.algorithm.domain != Domain.from_task_type(task.type):
                 continue
             model_summary = group.get_latest_model()
             if model_summary is not None:
@@ -141,14 +145,23 @@ class ModelManager:
             f.write(response.content)
         return model
 
-    def download_active_model(self, path_to_folder: str) -> Optional[Model]:
+    def download_active_model_for_task(
+            self, path_to_folder: str, task: Task
+    ) -> Optional[Model]:
         """
-        Downloads the currently active model for the project
-        If the project does not have an active model yet, this method returns None
+        Downloads the currently active model for the task
+        If the task does not have an active model yet, this method returns None
 
+        This method will create a directory 'models' in the path specified in
+        `path_to_folder`
+
+        :param path_to_folder: Path to the target folder in which to save the active
+            model, and all optimized models derived from it.
+        :param task: Task object containing details of the task to download the model
+            for
         :return: Model instance holding the details of the active model
         """
-        model = self.get_active_model()
+        model = self.get_active_model_for_task(task=task)
         if model is None:
             print(
                 f"Project '{self.project.name} does not have any trained models yet, "
@@ -157,13 +170,57 @@ class ModelManager:
             return None
         model_filepath = os.path.join(path_to_folder, 'models')
         print(
-            f"Downloading active model for project {self.project.name} to folder "
-            f"{model_filepath}..."
+            f"Downloading active model for task {task.title} in project "
+            f"{self.project.name} to folder {model_filepath}..."
         )
         self._download_model(model, path_to_folder=path_to_folder)
         for optimized_model in model.optimized_models:
             self._download_model(optimized_model, path_to_folder=path_to_folder)
-        model_info_filepath = os.path.join(model_filepath, "model_details.json")
+        model_info_filepath = os.path.join(
+            model_filepath, f"{task.type}_model_details.json"
+        )
         with open(model_info_filepath, 'w') as f:
             json.dump(model.to_dict(), f, indent=4)
         return model
+
+    def get_all_active_models(self) -> List[Optional[Model]]:
+        """
+        Returns the Model details for the active model for all tasks in the project,
+        if the tasks have any.
+
+        This method returns a list of Models, where the index of the Model in the list
+        corresponds to the index of the task in list of trainable tasks for the project.
+
+        If any of the tasks do not have a trained model, the entry corresponding to
+        the index of that task will be None
+
+        :return: Model object representing the currently active model for the task in
+            the SC project, if any
+        """
+        return [
+            self.get_active_model_for_task(task=task)
+            for task
+            in self.project.get_trainable_tasks()
+        ]
+
+    def download_all_active_models(self, path_to_folder: str) -> List[Optional[Model]]:
+        """
+        Downloads the active models for all tasks in the project.
+
+        This method will create a directory 'models' in the path specified in
+        `path_to_folder`
+
+        :param path_to_folder: Path to the target folder in which to save the active
+            models, and all optimized models derived from them.
+        :return: List of Model objects representing the currently active models
+            (if any) for all tasks in the SC project. The index of the Model in the
+            list corresponds to the index of the task in the list of trainable tasks
+            for the project.
+        """
+        return [
+            self.download_active_model_for_task(
+                path_to_folder=path_to_folder, task=task
+            )
+            for task
+            in self.project.get_trainable_tasks()
+        ]

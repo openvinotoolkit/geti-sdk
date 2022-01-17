@@ -69,7 +69,7 @@ class SCRESTClient:
             project_name: str,
             target_folder: Optional[str] = None,
             include_predictions: bool = False,
-            include_active_model: bool = True
+            include_active_models: bool = True
     ) -> Project:
         """
         Download a project with name `project_name` to the local disk. All images,
@@ -93,8 +93,9 @@ class SCRESTClient:
 
             'models'      -- Folder containing the active model for the project. This
                              folder contains zip files holding the data for the active
-                             model, and any optimized models derived from it. Only
-                             downloaded if `include_active_model = True`.
+                             models for the tasks in the project, and any optimized
+                             models derived from them. Models are only downloaded if
+                             `include_active_models = True`.
 
             'project.json' -- File containing the project parameters, that can be used
                               to re-create the project.
@@ -110,9 +111,9 @@ class SCRESTClient:
             images and videos in the project, False to not download any predictions.
             If this is set to True but the project has no trained models, downloading
             predictions will be skipped.
-        :param include_active_model: True to also download the active model for the
-            project, and any optimized models derived from it. False to not download
-            any models. Defaults to True
+        :param include_active_models: True to also download the active models for all
+            tasks in the project, and any optimized models derived from them. False to
+            not download any models. Defaults to True
         :return: Project object, holding information obtained from the cluster
             regarding the downloaded project
         """
@@ -179,12 +180,12 @@ class SCRESTClient:
         )
         configuration_manager.download_configuration(path_to_folder=target_folder)
 
-        # Download active model
-        if include_active_model:
+        # Download active models
+        if include_active_models:
             model_manager = ModelManager(
                 workspace_id=self.workspace_id, session=self.session, project=project
             )
-            model_manager.download_active_model(path_to_folder=target_folder)
+            model_manager.download_all_active_models(path_to_folder=target_folder)
 
         print(f"Project '{project.name}' was downloaded successfully.")
         return project
