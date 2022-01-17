@@ -120,7 +120,7 @@ class BaseAnnotationManager:
             self,
             media_item: Union[Image, VideoFrame],
             annotation_scene: Optional[AnnotationScene] = None
-    ) -> Dict[str, Any]:
+    ) -> AnnotationScene:
         """
         Uploads a new annotation for an image or video frame to the cluster. This will
         overwrite any current annotations for the media item.
@@ -139,7 +139,7 @@ class BaseAnnotationManager:
         :param annotation_scene: Optional AnnotationScene to apply to the media_item.
             If left as None, this method will read the annotation data using the
             AnnotationReader
-        :return: Response of the REST endpoint
+        :return: AnnotationScene that was uploaded
         """
         if annotation_scene is not None:
             scene_to_upload = annotation_scene.apply_identifier(
@@ -158,16 +158,14 @@ class BaseAnnotationManager:
                     "AnnotationManager is unable to upload any annotation data."
                 )
         if scene_to_upload.annotations:
-            response = self.session.get_rest_response(
+            self.session.get_rest_response(
                 url=f"{media_item.base_url}/annotations",
                 method="POST",
                 data=AnnotationRESTConverter.to_dict(
                     scene_to_upload, deidentify=False
                 )
             )
-        else:
-            response = {}
-        return response
+        return scene_to_upload
 
     @staticmethod
     def annotation_scene_from_rest_response(

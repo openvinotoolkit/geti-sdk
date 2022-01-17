@@ -20,9 +20,9 @@ def show_image_with_annotation_scene(
     :param image: Image to show prediction for
     :param annotation_scene: Annotations or Predictions to overlay on the image
     """
-    if isinstance(annotation_scene, AnnotationScene):
+    if type(annotation_scene) == AnnotationScene:
         name = 'Annotation'
-    elif isinstance(annotation_scene, Prediction):
+    elif type(annotation_scene) == Prediction:
         name = 'Prediction'
     else:
         raise ValueError(
@@ -53,12 +53,11 @@ def show_video_frames_with_annotation_scenes(
         the frames
     :param wait_time: Time to show each frame, in seconds
     """
-    alpha = 0.5
     image_name = video_frames[0].name.split("_frame_")[0]
     for frame, annotation_scene in zip(video_frames, annotation_scenes):
-        if isinstance(annotation_scene, AnnotationScene):
+        if type(annotation_scene) == AnnotationScene:
             name = 'Annotation'
-        elif isinstance(annotation_scene, Prediction):
+        elif type(annotation_scene) == Prediction:
             name = 'Prediction'
         else:
             raise ValueError(

@@ -354,5 +354,8 @@ class AnnotationScene:
         new_annotation = copy.deepcopy(self)
         new_annotation.media_identifier = media_identifier
         new_annotation.id = ""
-        new_annotation.modified = ""
+        new_annotation.modified = None
+        for annotation in new_annotation.annotations:
+            annotation.id = ""
+            annotation.modified = ""
         return new_annotation

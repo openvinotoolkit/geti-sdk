@@ -62,7 +62,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
                 response = self._upload_annotation_for_2d_media_item(media_item=frame)
             else:
                 response = self._append_annotation_for_2d_media_item(media_item=frame)
-            if response:
+            if response.annotations:
                 upload_count += 1
         return upload_count
 
@@ -112,7 +112,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
                 response = self._upload_annotation_for_2d_media_item(media_item=image)
             else:
                 response = self._append_annotation_for_2d_media_item(media_item=image)
-            if response:
+            if response.annotations:
                 upload_count += 1
         if upload_count > 0:
             print(f"Upload complete. Uploaded {upload_count} new image annotations")
@@ -224,13 +224,13 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
             self,
             media_item: Union[Image, VideoFrame],
             annotation_scene: AnnotationScene
-    ) -> bool:
+    ) -> AnnotationScene:
         """
         Uploads an annotation for an image or video frame to the SC cluster
 
         :param media_item: Image or VideoFrame to apply and upload the annotation to
         :param annotation_scene: AnnotationScene to upload
-        :return: True if the annotation was uploaded successfully
+        :return: The uploaded annotation
         """
         if not isinstance(media_item, (Image, VideoFrame)):
             raise ValueError(
@@ -239,10 +239,9 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
                 f"video frames. Please use the method `upload_annotations_for_video` "
                 f"to upload video annotations"
             )
-        self._upload_annotation_for_2d_media_item(
+        return self._upload_annotation_for_2d_media_item(
             media_item=media_item, annotation_scene=annotation_scene
         )
-        return True
 
     def get_annotation(
             self, media_item: Union[Image, VideoFrame]
