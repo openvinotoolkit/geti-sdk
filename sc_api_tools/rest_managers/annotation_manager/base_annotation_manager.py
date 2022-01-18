@@ -193,9 +193,8 @@ class BaseAnnotationManager:
         new_annotation_scene = self._read_2d_media_annotation_from_source(
             media_item=media_item, preserve_shape_for_global_labels=True
         )
-        try:
-            annotation_scene = self._get_latest_annotation_for_2d_media_item(media_item)
-        except ValueError:
+        annotation_scene = self._get_latest_annotation_for_2d_media_item(media_item)
+        if annotation_scene is None:
             print(
                 f"No existing annotation found for {str(media_item.type)} named "
                 f"{media_item.name}"
@@ -219,9 +218,10 @@ class BaseAnnotationManager:
 
     def _get_latest_annotation_for_2d_media_item(
             self, media_item: Union[Image, VideoFrame]
-    ) -> AnnotationScene:
+    ) -> Optional[AnnotationScene]:
         """
-        Retrieve the latest annotation for an image or video frame from the cluster
+        Retrieve the latest annotation for an image or video frame from the cluster.
+        If no annotation is available, this method returns None
 
         :param media_item: Image or VideoFrame to retrieve the annotations for
         :return: Dictionary containing the annotations data
@@ -230,7 +230,10 @@ class BaseAnnotationManager:
             url=f"{media_item.base_url}/annotations/latest",
             method="GET"
         )
-        return self.annotation_scene_from_rest_response(response)
+        if response:
+            return self.annotation_scene_from_rest_response(response)
+        else:
+            return None
 
     def _read_2d_media_annotation_from_source(
             self,
@@ -296,10 +299,9 @@ class BaseAnnotationManager:
         download_count = 0
         skip_count = 0
         for media_item in media_list:
-            try:
-                annotation_scene = self._get_latest_annotation_for_2d_media_item(
+            annotation_scene = self._get_latest_annotation_for_2d_media_item(
                     media_item)
-            except ValueError:
+            if annotation_scene is None:
                 if verbose:
                     print(
                         f"Unable to retrieve latest annotation for {media_name} "

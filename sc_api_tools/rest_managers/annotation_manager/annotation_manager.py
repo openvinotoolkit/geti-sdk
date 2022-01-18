@@ -245,9 +245,10 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
 
     def get_annotation(
             self, media_item: Union[Image, VideoFrame]
-    ) -> AnnotationScene:
+    ) -> Optional[AnnotationScene]:
         """
         Retrieve the latest annotations for an image or video frame from the SC cluster
+        If no annotation is available, this method returns None
 
         :param media_item: Image or VideoFrame to retrieve the annotations for
         :return: AnnotationScene instance containing the latest annotation data

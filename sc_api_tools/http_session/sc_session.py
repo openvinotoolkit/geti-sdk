@@ -76,9 +76,11 @@ class SCSession(requests.Session):
         login_page_url = self._follow_login_redirects(response)
         return login_page_url
 
-    def authenticate(self):
+    def authenticate(self, verbose: bool = True):
         """
         Get a new authentication cookie from the server
+
+        :param verbose: True to print progress output, False to suppress output
         """
         try:
             login_path = self._get_initial_login_url()
@@ -96,7 +98,8 @@ class SCSession(requests.Session):
             raise error
         self.headers.clear()
         self.headers.update({'Content-Type': 'application/x-www-form-urlencoded'})
-        print(f"Authenticating on host {self.config.host}...")
+        if verbose:
+            print(f"Authenticating on host {self.config.host}...")
         response = self.post(
             url=login_path,
             data={"login": self.config.username, "password": self.config.password},
@@ -115,7 +118,8 @@ class SCSession(requests.Session):
             PROXY_COOKIE_NAME: previous_response.cookies.get(PROXY_COOKIE_NAME)
         }
         self._cookies.update(cookie)
-        print("Authentication successful. Cookie received.")
+        if verbose:
+            print("Authentication successful. Cookie received.")
 
     def get_rest_response(
             self, url: str, method: str, contenttype: str = "json", data=None
@@ -147,15 +151,33 @@ class SCSession(requests.Session):
             kw_data_arg = {"json": data}
         else:
             kw_data_arg = {"files": data}
-        response = self.request(
-            method, requesturl, **kw_data_arg, stream=True, cookies=self._cookies
-        )
-        if response.status_code in [401, 403]:
+
+        request_params = {
+            "method": method,
+            "url": requesturl,
+            **kw_data_arg,
+            "stream": True,
+            "cookies": self._cookies
+        }
+        response = self.request(**request_params)
+
+        if (
+                response.status_code in [401, 403]
+                or "text/html" in response.headers.get("Content-Type", [])
+        ):
             # Authentication has likely expired, re-authenticate
-            self.authenticate()
-            response = self.request(
-                method, requesturl, **kw_data_arg, stream=True, cookies=self._cookies
-            )
+            print("Authorization expired, re-authenticating...", end=" ")
+            self.authenticate(verbose=False)
+            print("Done!")
+            response = self.request(**request_params)
+
+        if response.headers.get("Content-Type", None) == "application/json":
+            try:
+                result = response.json()
+            except JSONDecodeError:
+                result = {}
+        else:
+            result = response
 
         if response.status_code not in [200, 201]:
             try:
@@ -164,7 +186,4 @@ class SCSession(requests.Session):
                 data = ""
             raise ValueError(method, url, data, response.status_code)
 
-        if contenttype == "json":
-            return response.json()
-        else:
-            return response
+        return result
