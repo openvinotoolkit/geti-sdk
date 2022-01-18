@@ -226,14 +226,17 @@ class BaseAnnotationManager:
         :param media_item: Image or VideoFrame to retrieve the annotations for
         :return: Dictionary containing the annotations data
         """
-        response = self.session.get_rest_response(
-            url=f"{media_item.base_url}/annotations/latest",
-            method="GET"
-        )
-        if response:
-            return self.annotation_scene_from_rest_response(response)
-        else:
-            return None
+        try:
+            response = self.session.get_rest_response(
+                url=f"{media_item.base_url}/annotations/latest",
+                method="GET"
+            )
+        except ValueError as error:
+            if error.args[-1] in [204, 404]:
+                return None
+            else:
+                raise error
+        return self.annotation_scene_from_rest_response(response)
 
     def _read_2d_media_annotation_from_source(
             self,

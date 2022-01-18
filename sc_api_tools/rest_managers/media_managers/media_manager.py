@@ -132,7 +132,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
                         f"unable to delete media. Aborting deletion."
                     )
                     return False
-                if error.args[-1] == 404:
+                if error.args[-1] == 404 or error.args[-1] == 204:
                     # Media item has already been deleted, continue with the rest of
                     # the list
                     continue
@@ -151,7 +151,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
             contenttype="multipart",
             data={"file": buffer}
         )
-        return response.json()
+        return response
 
     def _upload(self, filepath: str) -> Dict[str, Any]:
         """

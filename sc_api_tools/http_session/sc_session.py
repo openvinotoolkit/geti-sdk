@@ -171,19 +171,16 @@ class SCSession(requests.Session):
             print("Done!")
             response = self.request(**request_params)
 
-        if response.headers.get("Content-Type", None) == "application/json":
-            try:
-                result = response.json()
-            except JSONDecodeError:
-                result = {}
-        else:
-            result = response
-
         if response.status_code not in [200, 201]:
             try:
                 data = response.json()
             except JSONDecodeError:
                 data = ""
             raise ValueError(method, url, data, response.status_code)
+
+        if response.headers.get("Content-Type", None) == "application/json":
+            result = response.json()
+        else:
+            result = response
 
         return result
