@@ -15,6 +15,7 @@ from .configuration import (
 from .model_group import ModelGroup, ModelSummary
 from .model import Model, OptimizedModel
 from .status import ProjectStatus
+from .job import Job
 
 
 __all__ = [
@@ -42,5 +43,6 @@ __all__ = [
     "ModelGroup",
     "OptimizedModel",
     "ModelSummary",
-    "ProjectStatus"
+    "ProjectStatus",
+    "Job"
 ]

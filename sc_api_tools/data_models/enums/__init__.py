@@ -7,6 +7,8 @@ from .configuration_enums import ConfigurationEntityType
 from .domain import Domain
 from .model_status import ModelStatus
 from .optimization_type import OptimizationType
+from .job_type import JobType
+from .job_state import JobState
 
 __all__ = [
     "TaskType",
@@ -17,5 +19,7 @@ __all__ = [
     "ConfigurationEntityType",
     "Domain",
     "ModelStatus",
-    "OptimizationType"
+    "OptimizationType",
+    "JobType",
+    "JobState"
 ]

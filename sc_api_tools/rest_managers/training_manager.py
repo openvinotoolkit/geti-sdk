@@ -1,6 +1,10 @@
-from sc_api_tools.data_models import ProjectStatus, Project
+from typing import Union, Optional, List
+
+from sc_api_tools.data_models import ProjectStatus, Project, Task, Algorithm, Job
+from sc_api_tools.data_models.containers import AlgorithmList
+from sc_api_tools.data_models.project import Dataset
 from sc_api_tools.http_session import SCSession
-from sc_api_tools.rest_converters import StatusRESTConverter
+from sc_api_tools.rest_converters import StatusRESTConverter, JobRESTConverter
 from sc_api_tools.utils import get_supported_algorithms
 
 
@@ -19,10 +23,102 @@ class TrainingManager:
     def get_status(self) -> ProjectStatus:
         """
         Gets the current status of the project from the SC cluster
-        :return:
+
+        :return: ProjectStatus object reflecting the current project status
         """
         response = self.session.get_rest_response(
             url=f"{self.base_url}/status",
             method="GET"
         )
         return StatusRESTConverter.from_dict(response)
+
+    def get_jobs(self, project_only: bool = True) -> List[Job]:
+        """
+        Returns a list of all jobs on the SC cluster.
+
+        If `project_only = True` (the default), only those jobs related to the project
+        managed by this TrainingManager will be returned. If set to False, all jobs in
+        the workspace are returned.
+
+        :param project_only: True to return only those jobs pertaining to the project
+            for which the TrainingManager is active. False to return all jobs in the
+            SC workspace.
+        :return: List of Jobs
+        """
+        response = self.session.get_rest_response(
+            url=f"workspaces/{self.workspace_id}/jobs",
+            method="GET"
+        )
+        job_list = [
+            JobRESTConverter.from_dict(job_dict) for job_dict in response['items']
+        ]
+        if project_only:
+            return [job for job in job_list if job.project_id == self.project.id]
+        else:
+            return job_list
+
+    def get_algorithms_for_task(self, task: Union[Task, int]) -> AlgorithmList:
+        """
+        Returns a list of supported algorithms for a specific task
+
+        The `task` parameter accepts both a Task object and an integer. If an int is
+        passed, this will be considered the index of the task in the list of trainable
+        tasks for the project which is managed by the TrainingManager.
+
+        :param task: Task to get the supported algorithms for. If an integer is passed,
+            this is considered the index of the task in the trainable task list of the
+            project. So passing `task=0` will return the algorithms for the first
+            trainable task, etc.
+        :return: List of supported algorithms for the task
+        """
+        if isinstance(task, int):
+            task = self.project.get_trainable_tasks()[task]
+        return self.supported_algos.get_by_task_type(task.type)
+
+    def train_task(
+            self,
+            task: Union[Task, int],
+            dataset: Optional[Dataset] = None,
+            algorithm: Optional[Algorithm] = None,
+            train_from_scratch: bool = False,
+            enable_pot_optimization: bool = False
+    ) -> Job:
+        """
+        Start training of a specific task in the project
+
+        The `task` parameter accepts both a Task object and an integer. If an int is
+        passed, this will be considered the index of the task in the list of trainable
+        tasks for the project which is managed by the TrainingManager.
+
+        :param task: Task or index of Task to train
+        :param dataset: Optional Dataset to train on
+        :param algorithm: Optional Algorithm to use in training. If left as None (the
+            default), the first algorithm on the list of supported algorithms for the
+            task will be used.
+        :param train_from_scratch: True to train the model from scratch, False to
+            continue training from an existing checkpoint (if any)
+        :param enable_pot_optimization: True to optimize the trained model with POT
+            after training is complete
+        :return:
+        """
+        if isinstance(task, int):
+            task = self.project.get_trainable_tasks()[task]
+        if dataset is None:
+            dataset = self.project.datasets[0]
+        if algorithm is None:
+            algorithm = self.get_algorithms_for_task(task)[0]
+        request_data = [
+            {
+                "dataset_id": dataset.id,
+                "task_id": task.id,
+                "train_from_scratch": train_from_scratch,
+                "enable_pot_optimization": enable_pot_optimization,
+                "model_template_id": algorithm.model_template_id
+            }
+        ]
+        response = self.session.get_rest_response(
+            url=f"{self.base_url}/train",
+            method="POST",
+            data=request_data
+        )
+        return JobRESTConverter.from_dict(response)

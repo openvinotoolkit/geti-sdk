@@ -5,6 +5,7 @@ from .prediction_rest_converter import PredictionRESTConverter
 from .configuration_rest_converter import ConfigurationRESTConverter
 from .model_rest_converter import ModelRESTConverter
 from .status_rest_converter import StatusRESTConverter
+from .job_rest_converter import JobRESTConverter
 
 __all__ = [
     "ProjectRESTConverter",
@@ -13,5 +14,6 @@ __all__ = [
     "PredictionRESTConverter",
     "ConfigurationRESTConverter",
     "ModelRESTConverter",
-    "StatusRESTConverter"
+    "StatusRESTConverter",
+    "JobRESTConverter"
 ]
