@@ -1,11 +1,9 @@
-from typing import Dict, Any, cast
+from typing import Dict, Any
 
 import copy
 
-from omegaconf import OmegaConf
-
 from sc_api_tools.data_models import Project
-from sc_api_tools.utils.dictionary_helpers import remove_null_fields
+from sc_api_tools.utils import deserialize_dictionary, remove_null_fields
 
 
 class ProjectRESTConverter:
@@ -15,7 +13,7 @@ class ProjectRESTConverter:
     """
 
     @classmethod
-    def from_dict(cls, project_input: Dict[str, Any]):
+    def from_dict(cls, project_input: Dict[str, Any]) -> Project:
         """
         Creates a Project from a dictionary representing a project, as
         returned by the /projects endpoint in SC.
@@ -28,10 +26,8 @@ class ProjectRESTConverter:
             from_ = connection.pop("from", None)
             if from_ is not None:
                 connection.update({"from_": from_})
-        project_dict_config = OmegaConf.create(prepared_project)
-        schema = OmegaConf.structured(Project)
-        config = OmegaConf.merge(schema, project_dict_config)
-        return cast(Project, OmegaConf.to_object(config))
+        return deserialize_dictionary(prepared_project, output_type=Project)
+
 
     @classmethod
     def to_dict(cls, project: Project) -> Dict[str, Any]:

@@ -9,8 +9,10 @@ from sc_api_tools.data_models import (
     VideoFrame,
     MediaItem,
     Video,
-    Prediction, MediaList, AnnotationKind
+    Prediction,
+    AnnotationKind
 )
+from sc_api_tools.data_models.containers import MediaList
 from sc_api_tools.data_models.enums import PredictionMode
 from sc_api_tools.http_session import SCSession
 

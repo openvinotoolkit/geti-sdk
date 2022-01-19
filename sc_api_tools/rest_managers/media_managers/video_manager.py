@@ -7,7 +7,8 @@ import cv2
 import numpy as np
 
 from .media_manager import BaseMediaManager
-from sc_api_tools.data_models import MediaType, Video, MediaList
+from sc_api_tools.data_models import MediaType, Video
+from sc_api_tools.data_models.containers import MediaList
 from sc_api_tools.rest_converters import MediaRESTConverter
 
 

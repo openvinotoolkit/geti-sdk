@@ -1,8 +1,7 @@
-from typing import Dict, Any, Type, cast
-
-from omegaconf import OmegaConf
+from typing import Dict, Any, Type
 
 from sc_api_tools.data_models.containers.media_list import MediaTypeVar
+from sc_api_tools.utils import deserialize_dictionary
 
 
 class MediaRESTConverter:
@@ -25,7 +24,5 @@ class MediaRESTConverter:
         :return: Instance of type `media_type` containing the entity represented in
             the REST input in `input_dict`.
         """
-        media_dict_config = OmegaConf.create(input_dict)
-        schema = OmegaConf.structured(media_type)
-        config = OmegaConf.merge(schema, media_dict_config)
-        return cast(media_type, OmegaConf.to_object(config))
+        return deserialize_dictionary(input_dict, output_type=media_type)
+

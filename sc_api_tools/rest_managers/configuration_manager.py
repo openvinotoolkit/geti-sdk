@@ -5,11 +5,12 @@ from typing import Union, Optional, List, Dict
 from sc_api_tools.data_models import (
     Project,
     TaskConfiguration,
-    GlobalConfiguration, FullConfiguration
+    GlobalConfiguration, FullConfiguration, Task, Algorithm
 )
 from sc_api_tools.data_models.configurable_parameter_group import PARAMETER_TYPES
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import ConfigurationRESTConverter
+from sc_api_tools.utils import get_supported_algorithms
 
 
 class ConfigurationManager:
@@ -25,17 +26,27 @@ class ConfigurationManager:
         self.task_ids = [task.id for task in project.get_trainable_tasks()]
         self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/" \
                         f"configuration"
+        self.supported_algos = get_supported_algorithms(session)
 
-    def get_task_configuration(self, task_id: str) -> TaskConfiguration:
+    def get_task_configuration(
+            self, task_id: str, algorithm_name: Optional[str] = None
+    ) -> TaskConfiguration:
         """
         Gets the configuration for the task with id `task_id`
 
         :param task_id: ID of the task to get configurations for
+        :param algorithm_name: Optional name of the algorithm to get configuration for.
+            If an algorithm name is passed, the returned TaskConfiguration will contain
+            only the hyper parameters for that algorithm, and won't hold any
+            component parameters
         :return: TaskConfiguration holding all component parameters and hyper parameters
             for the task
         """
+        url = f"{self.base_url}/task_chain/{task_id}"
+        if algorithm_name is not None:
+            url += f'?algorithm_name={algorithm_name}'
         config_data = self.session.get_rest_response(
-            url=f"{self.base_url}/task_chain/{task_id}",
+            url=url,
             method="GET"
         )
         return ConfigurationRESTConverter.task_configuration_from_dict(config_data)
@@ -143,6 +154,25 @@ class ConfigurationManager:
             method="GET"
         )
         return ConfigurationRESTConverter.full_configuration_from_rest(data)
+
+    def get_for_task_and_algorithm(self, task: Task, algorithm: Algorithm):
+        """
+        Gets the hyper parameters for a specific task and algorithm
+
+        :param task: Task to get hyper parameters for
+        :param algorithm: Algorithm to get hyper parameters for
+        :return: TaskConfiguration holding only the model hyper parameters for the
+            specified algorithm
+        """
+        if algorithm not in self.supported_algos.get_by_task_type(task.type):
+            raise ValueError(
+                f"The requested algorithm '{algorithm.algorithm_name}' is not "
+                f"supported for a task of type '{task.type}'. Unable to retrieve "
+                f"configuration."
+            )
+        return self.get_task_configuration(
+            task_id=task.id, algorithm_name=algorithm.model_template_id
+        )
 
     def download_configuration(self, path_to_folder: str) -> FullConfiguration:
         """

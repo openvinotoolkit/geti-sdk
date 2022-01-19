@@ -3,10 +3,11 @@ from typing import List, Generic, Optional, Union
 from sc_api_tools.data_models import (
     Video,
     AnnotationScene,
-    MediaList,
     VideoFrame,
     Image
 )
+from sc_api_tools.data_models.containers import MediaList
+
 from .base_annotation_manager import BaseAnnotationManager, AnnotationReaderType
 
 

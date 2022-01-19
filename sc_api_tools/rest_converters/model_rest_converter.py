@@ -1,8 +1,7 @@
-from typing import Dict, Any, cast
-
-from omegaconf import OmegaConf
+from typing import Dict, Any
 
 from sc_api_tools.data_models import ModelGroup, Model
+from sc_api_tools.utils import deserialize_dictionary
 
 
 class ModelRESTConverter:
@@ -20,10 +19,7 @@ class ModelRESTConverter:
             SC /model_groups REST endpoint
         :return: ModelGroup object corresponding to the data in `input_dict`
         """
-        model_group_dict_config = OmegaConf.create(input_dict)
-        schema = OmegaConf.structured(ModelGroup)
-        values = OmegaConf.merge(schema, model_group_dict_config)
-        return cast(ModelGroup, OmegaConf.to_object(values))
+        return deserialize_dictionary(input_dict, output_type=ModelGroup)
 
     @staticmethod
     def model_from_dict(input_dict: Dict[str, Any]) -> Model:
@@ -34,7 +30,4 @@ class ModelRESTConverter:
             SC /model_groups/models REST endpoint
         :return: Model object corresponding to the data in `input_dict`
         """
-        model_dict_config = OmegaConf.create(input_dict)
-        schema = OmegaConf.structured(Model)
-        values = OmegaConf.merge(schema, model_dict_config)
-        return cast(Model, OmegaConf.to_object(values))
+        return deserialize_dictionary(input_dict, output_type=Model)

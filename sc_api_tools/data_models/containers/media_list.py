@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 from collections import UserList
-from typing import List, Dict, Any, Type, TypeVar, cast, Generic
-
-from omegaconf import OmegaConf
+from typing import List, Dict, Any, Type, TypeVar, Generic
 
 from sc_api_tools.data_models.media import MediaItem, Video, Image, VideoFrame
+from sc_api_tools.utils.serialization_helpers import deserialize_dictionary
 
 MediaTypeVar = TypeVar("MediaTypeVar", Image, Video, VideoFrame)
 
@@ -86,11 +85,9 @@ class MediaList(UserList, Generic[MediaTypeVar]):
         :return: MediaList holding the media entities contained in `rest_input`,
             where each entity is of type `media_type`
         """
-        output_list = MediaList[MediaTypeVar]([])
-        for media_dict in rest_input:
-            media_dict_config = OmegaConf.create(media_dict)
-            schema = OmegaConf.structured(media_type)
-            config = OmegaConf.merge(schema, media_dict_config)
-            object = cast(media_type, OmegaConf.to_object(config))
-            output_list.append(object)
-        return output_list
+        return MediaList[MediaTypeVar](
+            [
+                deserialize_dictionary(media_dict, output_type=media_type)
+                for media_dict in rest_input
+            ]
+        )

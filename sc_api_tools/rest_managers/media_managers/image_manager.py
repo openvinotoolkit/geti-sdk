@@ -9,7 +9,8 @@ import cv2
 import numpy as np
 
 from .media_manager import BaseMediaManager, MEDIA_SUPPORTED_FORMAT_MAPPING
-from sc_api_tools.data_models import MediaType, MediaList, Image
+from sc_api_tools.data_models import MediaType, Image
+from sc_api_tools.data_models.containers import MediaList
 from sc_api_tools.rest_converters import MediaRESTConverter
 
 

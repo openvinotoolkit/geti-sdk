@@ -22,12 +22,12 @@ from .rest_managers import (
 from .data_models import (
     Project,
     TaskType,
-    MediaList,
     Image,
     Video,
     VideoFrame,
     Prediction
 )
+from .data_models.containers import MediaList
 from .http_session import SCSession, ClusterConfig
 from .utils import (
     get_default_workspace_id,

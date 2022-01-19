@@ -1,12 +1,11 @@
 from typing import List, Optional, ClassVar, Dict
 
-import cv2
 import numpy as np
 
 import attr
-from sc_api_tools.data_models import AnnotationScene, AnnotationKind, Label
+from sc_api_tools.data_models.annotations import AnnotationScene, AnnotationKind
+from sc_api_tools.data_models.label import Label
 from sc_api_tools.data_models.media import MediaInformation
-from sc_api_tools.data_models.shapes import Ellipse, Rectangle, Polygon
 from sc_api_tools.data_models.utils import str_to_annotation_kind, deidentify
 from sc_api_tools.http_session import SCSession
 

@@ -6,11 +6,11 @@ from glob import glob
 from sc_api_tools.data_models import (
     Project,
     MediaType,
-    MediaList,
     Video,
-    Image, VideoFrame,
+    Image,
+    VideoFrame,
 )
-from sc_api_tools.data_models.containers.media_list import MediaTypeVar
+from sc_api_tools.data_models.containers.media_list import MediaTypeVar, MediaList
 from sc_api_tools.data_models.enums.media_type import (
     SUPPORTED_VIDEO_FORMATS,
     SUPPORTED_IMAGE_FORMATS

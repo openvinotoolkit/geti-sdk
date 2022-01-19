@@ -4,6 +4,7 @@ from collections import UserList
 from typing import Dict, Any, Sequence, Optional, List
 
 from sc_api_tools.data_models.algorithms import Algorithm
+from sc_api_tools.data_models.enums import Domain, TaskType
 
 
 class AlgorithmList(UserList):
@@ -47,4 +48,18 @@ class AlgorithmList(UserList):
         raise ValueError(
             f"Algorithm for model template {model_template_id} was not found in the "
             f"list of supported algorithms."
+        )
+
+    def get_by_task_type(self, task_type: TaskType) -> 'AlgorithmList':
+        """
+        Returns a list of supported algorithms for a particular task type
+
+        :param task_type: TaskType to get the supported algorithms for
+        :return: List of supported algorithms for the task type
+        """
+        return AlgorithmList(
+            [
+                algo for algo in self.data
+                if algo.domain == Domain.from_task_type(task_type)
+            ]
         )

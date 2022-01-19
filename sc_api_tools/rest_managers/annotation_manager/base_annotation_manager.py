@@ -9,13 +9,12 @@ from requests import Response
 from sc_api_tools.annotation_readers import AnnotationReader
 from sc_api_tools.data_models import (
     Project,
-    MediaList,
     Image,
     Video,
     VideoFrame,
     AnnotationScene, AnnotationKind
 )
-from sc_api_tools.data_models.containers.media_list import MediaTypeVar
+from sc_api_tools.data_models.containers.media_list import MediaTypeVar, MediaList
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import AnnotationRESTConverter
 
@@ -59,8 +58,11 @@ class BaseAnnotationManager:
             media_name = 'videos'
         else:
             raise ValueError(f"Invalid media type specified: {media_type}.")
+        get_media_url = f"workspaces/{self.workspace_id}/projects/{self._project.id}" \
+                    f"/datasets/{self._project.datasets[0].id}/media/" \
+                    f"{media_name}?top=100000"
         response = self.session.get_rest_response(
-            url=f"{self.workspace_id}/media/{media_name}?top=100000",
+            url=get_media_url,
             method="GET"
         )
         total_number_of_media: int = response["media_count"][media_name]
