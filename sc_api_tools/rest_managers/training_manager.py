@@ -1,7 +1,9 @@
+import time
 from typing import Union, Optional, List
 
 from sc_api_tools.data_models import ProjectStatus, Project, Task, Algorithm, Job
 from sc_api_tools.data_models.containers import AlgorithmList
+from sc_api_tools.data_models.enums import JobState
 from sc_api_tools.data_models.project import Dataset
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import StatusRESTConverter, JobRESTConverter
@@ -49,9 +51,12 @@ class TrainingManager:
             url=f"workspaces/{self.workspace_id}/jobs",
             method="GET"
         )
-        job_list = [
-            JobRESTConverter.from_dict(job_dict) for job_dict in response['items']
-        ]
+        job_list: List[Job] = []
+        for job_dict in response["items"]:
+            job = JobRESTConverter.from_dict(job_dict)
+            job.workspace_id = self.workspace_id
+            job_list.append(job)
+
         if project_only:
             return [job for job in job_list if job.project_id == self.project.id]
         else:
@@ -121,4 +126,47 @@ class TrainingManager:
             method="POST",
             data=request_data
         )
-        return JobRESTConverter.from_dict(response)
+        job = JobRESTConverter.from_dict(response)
+        job.workspace_id = self.workspace_id
+        return job
+
+    def monitor_jobs(self, jobs: List[Job]) -> List[Job]:
+        """
+        Monitors and prints the progress of all jobs in the list `jobs`. Execution is
+        halted until all jobs have either finished, failed or were cancelled.
+
+        Progress will be reported in 15s intervals
+
+        :param jobs: List of jobs to monitor
+        :return: List of finished (or failed) jobs with their status updated
+        """
+        monitoring = True
+        print('---------------- Monitoring progress -------------------')
+        try:
+            while monitoring:
+                msg = ''
+                complete_count = 0
+                for job in jobs:
+                    job.update(self.session)
+                    msg += (
+                        f"{job.description} -- State: {job.status.state} -- "
+                        f"Progress: {job.status.progress:.2f}%\n"
+                    )
+                    if job.status.state in [
+                        JobState.FINISHED,
+                        JobState.CANCELLED,
+                        JobState.FAILED,
+                        JobState.ERROR
+                    ]:
+                        complete_count += 1
+                if complete_count == len(jobs):
+                    monitoring = False
+                print(msg, end='')
+                time.sleep(15)
+        except KeyboardInterrupt:
+            print("Job monitoring interrupted, stopping...")
+            for job in jobs:
+                job.update(self.session)
+            return jobs
+        print("All jobs completed, monitoring stopped.")
+        return jobs

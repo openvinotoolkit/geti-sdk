@@ -1,9 +1,10 @@
-from typing import Optional
+from typing import Optional, Dict, Any
 
 import attr
 from sc_api_tools.data_models.enums import JobState, JobType
 from sc_api_tools.data_models.status import StatusSummary
 from sc_api_tools.data_models.utils import str_to_enum_converter
+from sc_api_tools.http_session import SCSession
 
 
 @attr.s(auto_attribs=True)
@@ -14,6 +15,17 @@ class JobStatus(StatusSummary):
     :var state: Current state of the job
     """
     state: str = attr.ib(converter=str_to_enum_converter(JobState))
+
+    @classmethod
+    def from_dict(cls, status_dict: Dict[str, Any]) -> 'JobStatus':
+        """
+        Creates a JobStatus object from a dictionary
+
+        :param status_dict: Dictionary representing a status, as returned by the SC
+            /status and /jobs endpoints
+        :return: JobStatus object holding the status data contained in `status_dict`
+        """
+        return cls(**status_dict)
 
 
 @attr.s(auto_attribs=True)
@@ -77,3 +89,72 @@ class Job:
     status: JobStatus
     type: str = attr.ib(converter=str_to_enum_converter(JobType))
     metadata: JobMetadata
+
+    def __attrs_post_init__(self):
+        self._workspace_id: Optional[str] = None
+
+    @property
+    def workspace_id(self) -> str:
+        """
+        Returns the unique database ID of the workspace to which the job belongs
+
+        :return: Unique database ID of the workspace to which the job belongs
+        """
+        if self._workspace_id is None:
+            raise ValueError(
+                f"Workspace ID for job {self} is unknown, it was never set."
+            )
+        return self._workspace_id
+
+    @workspace_id.setter
+    def workspace_id(self, workspace_id: str):
+        """
+        Sets the workspace id for the job
+
+        :param workspace_id: Unique database ID of the workspace to which the job
+            belongs
+        """
+        self._workspace_id = workspace_id
+
+    @property
+    def relative_url(self) -> str:
+        """
+        Returns the url at which the Job can be addressed on the SC cluster, relative
+        to the url of the cluster itself
+
+        :return: Relative url for the Job instance
+        """
+        return f"workspaces/{self.workspace_id}/jobs/{self.id}"
+
+    def update(self, session: SCSession) -> 'Job':
+        """
+        Updates the job status to its current value, by making a request to the SC
+        cluster addressed by `session`
+
+        :param session: SCSession to the cluster from which the Job originates
+        :raises ValueError: If no workspace_id has been set for the job prior to
+            calling this method
+        :return: Job with its status updated
+        """
+        response = session.get_rest_response(
+            url=self.relative_url,
+            method='GET'
+        )
+        updated_status = JobStatus.from_dict(response["status"])
+        self.status = updated_status
+        return self
+
+    def cancel(self, session: SCSession) -> 'Job':
+        """
+        Cancels and deletes the job, by making a request to the SC cluster addressed
+        by `session`
+
+        :param session: SCSession to the cluster on which the Job is running
+        :return: Job with updated status
+        """
+        session.get_rest_response(
+            url=self.relative_url,
+            method='DELETE'
+        )
+        self.status.state = JobState.CANCELLED
+        return self

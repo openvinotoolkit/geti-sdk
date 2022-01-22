@@ -74,7 +74,25 @@ class ModelGroup:
         if not self.has_trained_models:
             return None
         versions = [model.version for model in self.models]
-        return [model for model in self.models if model.version == max(versions)][0]
+        return self.get_model_by_version(max(versions))
+
+    def get_model_by_version(self, version: int) -> ModelSummary:
+        """
+        Returns the model with version `version` in the model group. If no model with
+        the version is found, this method raises a ValueError
+
+        :param version: Number specifying the desired model version
+        :return: ModelSummary instance with the specified version, if any
+        """
+        if not self.has_trained_models:
+            return None
+        try:
+            model = next((model for model in self.models if model.version == version))
+        except StopIteration:
+            raise ValueError(
+                f"Model with version {version} does not exist in model group {self}"
+            )
+        return model
 
     def get_algorithm_details(self, session: SCSession) -> Algorithm:
         """

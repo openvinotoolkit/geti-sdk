@@ -1,15 +1,16 @@
 import json
 import os
-from typing import List, Optional, Union, TypeVar
+from typing import List, Optional, TypeVar
 
 from sc_api_tools.data_models import (
     Project,
     ModelGroup,
     Model,
     OptimizedModel,
-    ModelSummary, Task
+    Task,
+    Job, Algorithm
 )
-from sc_api_tools.data_models.enums import Domain
+from sc_api_tools.data_models.enums import Domain, JobState, JobType
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import ModelRESTConverter
 from sc_api_tools.utils import get_supported_algorithms
@@ -30,6 +31,7 @@ class ModelManager:
         self.task_ids = [task.id for task in project.get_trainable_tasks()]
         self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/" \
                         f"model_groups"
+        self.supported_algos = get_supported_algorithms(self.session)
 
     def get_all_model_groups(self) -> List[ModelGroup]:
         """
@@ -45,9 +47,8 @@ class ModelManager:
             ModelRESTConverter.model_group_from_dict(group) for group in response
         ]
         # Update algorithm details
-        supported_algos = get_supported_algorithms(self.session)
         for group in model_groups:
-            group.algorithm = supported_algos.get_by_model_template(
+            group.algorithm = self.supported_algos.get_by_model_template(
                 model_template_id=group.model_template_id
             )
         return model_groups
@@ -68,6 +69,54 @@ class ModelManager:
                 if group.algorithm.algorithm_name == algorithm_name
             ), None
         )
+
+    def get_model_by_algorithm_task_and_version(
+            self,
+            algorithm: Algorithm,
+            version: Optional[int] = None,
+            task: Optional[Task] = None
+    ) -> Optional[Model]:
+        """
+        Retrieves a Model from the SC cluster, corresponding to specific algorithm and
+        model version. If no version is passed, this method will retrieve the latest
+        model for the algorithm.
+
+        If no model for the algorithm is available in the project, this method returns
+        None
+
+        :param algorithm: Algorithm for which to get the model
+        :param version: Version of the model to retrieve. If left as None, returns the
+            latest version
+        :param task: Task for which to get the model. If left as None, this method
+            searches for models for `algorithm` in all tasks in the project
+        :return: Model object corresponding to `algorithm` and `version`, for a
+            specific `task`, if any. If no model is found by those parameters, this
+            method returns None
+        """
+        if task is not None:
+            if algorithm.domain != Domain.from_task_type(task.type):
+                raise ValueError(
+                    f'Unable to retrieve model. The algorithm {algorithm} is not '
+                    f'available for the task {task}'
+                )
+        model_groups = self.get_all_model_groups()
+        model_group: Optional[ModelGroup] = None
+        for group in model_groups:
+            if group.algorithm == algorithm:
+                if task is None:
+                    model_group = group
+                    break
+                else:
+                    if group.task_id == task.id:
+                        model_group = group
+                        break
+        if model_group is None:
+            return None
+        try:
+            model_summary = model_group.get_model_by_version(version=version)
+        except ValueError:
+            return None
+        return self._get_model_detail(model_group.id, model_id=model_summary.id)
 
     def _get_model_detail(self, group_id: str, model_id: str) -> Model:
         """
@@ -224,3 +273,56 @@ class ModelManager:
             for task
             in self.project.get_trainable_tasks()
         ]
+
+    def get_model_for_job(self, job: Job) -> Model:
+        """
+        Returns the model that was created by the `job` from the SC cluster.
+
+        :param job: Job to retrieve the model for
+        :return: Model produced by the job
+        """
+        job.update(self.session)
+        if job.project_id != self.project.id:
+            raise ValueError(
+                f"Cannot get model for job `{job.description}`. This job does not "
+                f"belong to the project managed by this ModelManager instance."
+            )
+        if job.status.state != JobState.FINISHED:
+            raise ValueError(
+                f"Job `{job.description}` is not finished yet, unable to retrieve "
+                f"model for the job. Please wait until job is finished"
+            )
+        metadata = job.metadata
+        task_data = metadata.task
+        version = task_data.model_version
+        algorithm = self.supported_algos.get_by_model_template(
+            task_data.model_template_id)
+        if (
+                hasattr(task_data, 'name')
+                and job.type in (JobType.TRAIN, JobType.INFERENCE, JobType.EVALUATE)
+        ):
+            task_name = task_data.name
+            task = next(
+                (
+                    task for task in self.project.get_trainable_tasks()
+                    if task.title == task_name
+                )
+            )
+            model = self.get_model_by_algorithm_task_and_version(
+                algorithm=algorithm,
+                version=version,
+                task=task
+            )
+            return model
+        if job.type == JobType.OPTIMIZATION:
+            model_group_id, optimized_model_id = None, None
+            if hasattr(metadata, 'model_group_id'):
+                model_group_id = metadata.model_group_id
+            if hasattr(metadata, 'optimized_model_id'):
+                optimized_model_id = metadata.optimized_model_id
+            if model_group_id is not None and optimized_model_id is not None:
+                return self._get_model_detail(model_group_id, optimized_model_id)
+        raise ValueError(
+            f"Unable to retrieve model for job {job.name} of type {job.type}. Getting "
+            f"the model for this job type is not supported. "
+        )

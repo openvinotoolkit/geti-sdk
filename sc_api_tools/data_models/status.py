@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict, Any
 
 import attr
 
@@ -17,6 +17,17 @@ class StatusSummary:
     message: str
     progress: float
     time_remaining: float
+
+    @classmethod
+    def from_dict(cls, status_dict: Dict[str, Any]) -> 'StatusSummary':
+        """
+        Creates a StatusSummary object from a dictionary
+
+        :param status_dict: Dictionary representing a status, as returned by the SC
+            /status and /jobs endpoints
+        :return: StatusSummary object holding the status data contained in `status_dict`
+        """
+        return cls(**status_dict)
 
 
 @attr.s(auto_attribs=True)
