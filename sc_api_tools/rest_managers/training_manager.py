@@ -141,27 +141,33 @@ class TrainingManager:
         :return: List of finished (or failed) jobs with their status updated
         """
         monitoring = True
+        completed_states = [
+            JobState.FINISHED,
+            JobState.CANCELLED,
+            JobState.FAILED,
+            JobState.ERROR
+        ]
         print('---------------- Monitoring progress -------------------')
+        jobs_to_monitor = [
+            job for job in jobs if job.status.state not in completed_states
+        ]
         try:
             while monitoring:
                 msg = ''
                 complete_count = 0
-                for job in jobs:
+                for job in jobs_to_monitor:
                     job.update(self.session)
                     msg += (
-                        f"{job.description} -- State: {job.status.state} -- "
-                        f"Progress: {job.status.progress:.2f}%\n"
+                        f"{job.name}  -- "
+                        f"  Phase: {job.status.message} "
+                        f"  State: {job.status.state} "
+                        f"  Progress: {job.status.progress:.1f}%"
                     )
-                    if job.status.state in [
-                        JobState.FINISHED,
-                        JobState.CANCELLED,
-                        JobState.FAILED,
-                        JobState.ERROR
-                    ]:
+                    if job.status.state in completed_states:
                         complete_count += 1
-                if complete_count == len(jobs):
+                if complete_count == len(jobs_to_monitor):
                     monitoring = False
-                print(msg, end='')
+                print(msg + '\n')
                 time.sleep(15)
         except KeyboardInterrupt:
             print("Job monitoring interrupted, stopping...")

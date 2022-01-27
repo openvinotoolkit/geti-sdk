@@ -1,6 +1,6 @@
 from typing import Dict, Any
 
-from sc_api_tools.data_models import ModelGroup, Model
+from sc_api_tools.data_models import ModelGroup, Model, OptimizedModel
 from sc_api_tools.utils import deserialize_dictionary
 
 
@@ -31,3 +31,14 @@ class ModelRESTConverter:
         :return: Model object corresponding to the data in `input_dict`
         """
         return deserialize_dictionary(input_dict, output_type=Model)
+
+    @staticmethod
+    def optimized_model_from_dict(input_dict: Dict[str, Any]) -> OptimizedModel:
+        """
+        Converts a dictionary representing an optimized model to a OptimizedModel object
+
+        :param input_dict: Dictionary representing an optimized model, as returned by
+            the SC /model_groups/models REST endpoint
+        :return: OptimizedModel object corresponding to the data in `input_dict`
+        """
+        return deserialize_dictionary(input_dict, output_type=OptimizedModel)

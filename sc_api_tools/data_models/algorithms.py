@@ -1,3 +1,5 @@
+from typing import Optional
+
 import attr
 
 from sc_api_tools.data_models.utils import str_to_enum_converter
@@ -14,3 +16,4 @@ class Algorithm:
     model_size: str
     model_template_id: str
     gigaflops: float
+    summary: Optional[str] = None

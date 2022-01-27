@@ -1,9 +1,10 @@
+from pprint import pformat
 from typing import Optional, Dict, Any
 
 import attr
 from sc_api_tools.data_models.enums import JobState, JobType
 from sc_api_tools.data_models.status import StatusSummary
-from sc_api_tools.data_models.utils import str_to_enum_converter
+from sc_api_tools.data_models.utils import str_to_enum_converter, attr_value_serializer
 from sc_api_tools.http_session import SCSession
 
 
@@ -158,3 +159,20 @@ class Job:
         )
         self.status.state = JobState.CANCELLED
         return self
+
+    @property
+    def overview(self) -> str:
+        """
+        Returns a string that shows an overview of the project
+
+        :return: String holding an overview of the project
+        """
+        return pformat(self.to_dict())
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Returns the dictionary representation of the job
+
+        :return:
+        """
+        return attr.asdict(self, recurse=True, value_serializer=attr_value_serializer)

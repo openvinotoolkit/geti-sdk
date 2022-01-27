@@ -1,6 +1,6 @@
 import os
 import time
-from typing import Dict, List, Type, Any, Generic, ClassVar, BinaryIO
+from typing import Dict, List, Type, Any, Generic, ClassVar, BinaryIO, Iterable
 from glob import glob
 
 from sc_api_tools.data_models import (
@@ -114,6 +114,8 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         :return: True if all items on the media list were deleted successfully,
             False otherwise
         """
+        if not isinstance(media_list, MediaList) and isinstance(media_list, Iterable):
+            media_list = MediaList(media_list)
         if media_list.media_type == VideoFrame:
             raise ValueError(
                 f"Unable to delete individual video frames."

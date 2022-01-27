@@ -20,7 +20,7 @@ def get_supported_algorithms(
         query = ''
     else:
         query = f'?domain={domain}'
-    algorithm_rest_response= rest_session.get_rest_response(
+    algorithm_rest_response = rest_session.get_rest_response(
         url=f"supported_algorithms{query}",
         method="GET"
     )

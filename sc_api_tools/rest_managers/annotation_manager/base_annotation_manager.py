@@ -184,7 +184,7 @@ class BaseAnnotationManager:
 
     def _append_annotation_for_2d_media_item(
             self, media_item: Union[Image, VideoFrame]
-    ) -> Union[Response, dict, list]:
+    ) -> AnnotationScene:
         """
         Adds an annotation to the existing annotations for the `media_item`
 
@@ -214,9 +214,9 @@ class BaseAnnotationManager:
                 method="POST",
                 data=AnnotationRESTConverter.to_dict(annotation_scene, deidentify=False)
             )
+            return AnnotationRESTConverter.from_dict(response)
         else:
-            response = {}
-        return response
+            return annotation_scene
 
     def _get_latest_annotation_for_2d_media_item(
             self, media_item: Union[Image, VideoFrame]

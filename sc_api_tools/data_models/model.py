@@ -1,11 +1,16 @@
+import json
 from pprint import pformat
 from typing import Optional, List, Dict, Any
 
 import attr
 
 from sc_api_tools.data_models.enums import ModelStatus, OptimizationType
-from sc_api_tools.data_models.utils import str_to_datetime, str_to_enum_converter, \
+from sc_api_tools.data_models.utils import (
+    str_to_datetime,
+    str_to_enum_converter,
     attr_value_serializer
+)
+from sc_api_tools.utils import deserialize_dictionary
 
 
 @attr.s(auto_attribs=True)
@@ -36,6 +41,7 @@ class BaseModel:
 
     def __attrs_post_init__(self):
         self._model_group_id: Optional[str] = None
+        self._base_url: Optional[str] = None
 
     @property
     def model_group_id(self) -> Optional[str]:
@@ -46,6 +52,56 @@ class BaseModel:
         :return: ID of the model group for the model
         """
         return self._model_group_id
+
+    @model_group_id.setter
+    def model_group_id(self, id_: str):
+        """
+        Set the model group id for this model
+
+        :param id: ID to set
+        """
+        self._model_group_id = id_
+
+    @property
+    def base_url(self) -> Optional[str]:
+        """
+        Returns the base url that can be used to get the model details, download the
+        model, etc., if available
+
+        :return: base url at which the model can be addressed. The url is defined
+            relative to the ip address or hostname of the SC cluster
+        """
+        if self._base_url is not None:
+            return self._base_url
+        else:
+            raise ValueError(
+                f"Insufficient data to determine base url for model {self}. Please "
+                f"make sure that property `base_url` is set first."
+            )
+
+    @base_url.setter
+    def base_url(self, base_url: str):
+        """
+        Sets the base url that can be used to get the model details, download the
+        model, etc.
+
+        :param base_url: base url at which the model can be addressed
+        :return:
+        """
+        if self.model_group_id is not None:
+            if self.model_group_id in base_url:
+                if base_url.endswith(f'models/{self.id}'):
+                    base_url = base_url
+                else:
+                    base_url += f'/models/{self.id}'
+            else:
+                base_url += f'/{self.model_group_id}/models/{self.id}'
+        else:
+            base_url = base_url
+        if hasattr(self, 'optimized_models'):
+            for model in self.optimized_models:
+                model._base_url = base_url + f'/optimized_models/{model.id}'
+        self._base_url = base_url
 
     @model_group_id.setter
     def model_group_id(self, id_: str):
@@ -120,3 +176,25 @@ class Model(BaseModel):
         self._model_group_id = id_
         for model in self.optimized_models:
             model.model_group_id = id_
+
+    @classmethod
+    def from_dict(cls, model_dict: Dict[str, Any]) -> 'Model':
+        """
+        Creates a Model instance from a dictionary holding the model data
+
+        :param model_dict: Dictionary representing a model
+        :return: Model instance reflecting the data contained in `model_dict`
+        """
+        return deserialize_dictionary(model_dict, cls)
+
+    @classmethod
+    def from_file(cls, filepath: str) -> 'Model':
+        """
+        Creates a Model instance from a .json file holding the model data
+
+        :param filepath: Path to a json file holding the model data
+        :return:
+        """
+        with open(filepath, 'r') as file:
+            model_dict = json.load(file)
+        return cls.from_dict(model_dict=model_dict)

@@ -9,6 +9,7 @@ from .model_status import ModelStatus
 from .optimization_type import OptimizationType
 from .job_type import JobType
 from .job_state import JobState
+from .openvino_model_name import OpenvinoModelName
 
 __all__ = [
     "TaskType",
@@ -21,5 +22,6 @@ __all__ = [
     "ModelStatus",
     "OptimizationType",
     "JobType",
-    "JobState"
+    "JobState",
+    "OpenvinoModelName"
 ]

@@ -2,9 +2,13 @@ from enum import Enum
 
 
 class OptimizationType(Enum):
-    MO = 'MO'
-    POT = 'POT'
+    """
+    This Enum represents the optimization type for an OptimizedModel in SC
+    """
     NNCF = 'NNCF'
+    POT = 'POT'
+    MO = 'MO'
+
 
     def __str__(self) -> str:
         """

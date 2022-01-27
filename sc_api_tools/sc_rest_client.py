@@ -11,6 +11,8 @@ from .annotation_readers import (
     AnnotationReader,
     DatumAnnotationReader
 )
+from .data_models.enums import OptimizationType
+from .deployment import Deployment, DeployedModel
 from .rest_managers import (
     ProjectManager,
     AnnotationManager,
@@ -186,6 +188,9 @@ class SCRESTClient:
                 workspace_id=self.workspace_id, session=self.session, project=project
             )
             model_manager.download_all_active_models(path_to_folder=target_folder)
+
+        # Download deployment
+        self.deploy_project(project.name, output_folder=target_folder)
 
         print(f"Project '{project.name}' was downloaded successfully.")
         return project
@@ -948,3 +953,69 @@ class SCRESTClient:
                 video_frames=frames, annotation_scenes=predictions
             )
         return uploaded_video, frames, predictions
+
+    def deploy_project(
+            self,
+            project_name: str,
+            output_folder: Optional[Union[str, os.PathLike]] = None
+    ) -> Deployment:
+        """
+        Deploys a project by creating a Deployment instance. The Deployment contains
+        the optimized active models for each task in the project, and can be loaded
+        with OpenVINO to run inference locally.
+
+        :param project_name: Name of the project to deploy
+        :param output_folder: Path to a folder on local disk to which the Deployment
+            should be downloaded. If no path is specified, the deployment will not be
+            saved.
+        :return: Deployment for the project
+        """
+        project_manager = ProjectManager(self.session, workspace_id=self.workspace_id)
+        project = project_manager.get_project_by_name(project_name)
+        if project is None:
+            raise ValueError(
+                f"Project '{project_name}' was not found on the cluster. Aborting "
+                f"project deployment."
+            )
+        model_manager = ModelManager(
+            session=self.session, workspace_id=self.workspace_id, project=project
+        )
+        active_models = model_manager.get_all_active_models()
+        configuration_manager = ConfigurationManager(
+            session=self.session, workspace_id=self.workspace_id, project=project
+        )
+        configuration = configuration_manager.get_full_configuration()
+        if len(active_models) != len(project.get_trainable_tasks()):
+            raise ValueError(
+                f"Project `{project.name}` does not have a trained model for each "
+                f"task in the project. Unable to create deployment, please ensure all "
+                f"tasks are trained first."
+            )
+        deployed_models: List[DeployedModel] = []
+        for model_index, model in enumerate(active_models):
+            model_config = configuration.task_chain[model_index]
+            optimized_models = model.optimized_models
+            optimization_types = [
+                op_model.optimization_type for op_model in optimized_models
+            ]
+            preferred_model = optimized_models[0]
+            for optimization_type in OptimizationType:
+                if optimization_type in optimization_types:
+                    preferred_model = optimized_models[
+                        optimization_types.index(optimization_type)
+                    ]
+                    break
+            deployed_model = DeployedModel.from_model_and_hypers(
+                model=preferred_model,
+                hyper_parameters=model_config
+            )
+            print(
+                f"Retrieving {preferred_model.optimization_type} model data for "
+                f"{project.get_trainable_tasks()[model_index].title}..."
+            )
+            deployed_model.get_data(source=self.session)
+            deployed_models.append(deployed_model)
+        deployment = Deployment(project=project, models=deployed_models)
+        if output_folder is not None:
+            deployment.save(output_folder)
+        return deployment

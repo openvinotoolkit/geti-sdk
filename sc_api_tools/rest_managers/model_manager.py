@@ -134,6 +134,7 @@ class ModelManager:
         )
         model = ModelRESTConverter.model_from_dict(model_detail)
         model.model_group_id = group_id
+        model.base_url = self.base_url
         return model
 
     def get_active_model_for_task(self, task: Task) -> Optional[Model]:
@@ -176,11 +177,15 @@ class ModelManager:
         if isinstance(model, Model):
             url = f"{self.base_url}/{model.model_group_id}/models/{model.id}/export"
             filename = f"{model.name}_base.zip"
-        else:
+        elif isinstance(model, OptimizedModel):
             url = f"{self.base_url}/{model.model_group_id}/models/" \
                   f"{model.previous_trained_revision_id}/optimized_models/" \
                   f"{model.id}/export"
             filename = f"{model.name}_{model.optimization_type}_optimized.zip"
+        else:
+            raise ValueError(
+                f"Invalid model type: `{type(model)}. Unable to download model data."
+            )
         response = self.session.get_rest_response(
             url=url,
             method="GET",

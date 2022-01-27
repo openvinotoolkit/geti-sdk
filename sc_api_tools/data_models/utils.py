@@ -149,7 +149,7 @@ def numpy_from_buffer(buffer: bytes) -> np.ndarray:
     :param buffer: Bytes object to convert
     :return: Numpy.ndarray containing the numpy data from the image
     """
-    numpy_array = np.fromstring(buffer, dtype=np.uint8)
+    numpy_array = np.frombuffer(buffer, dtype=np.uint8)
     return cv2.imdecode(numpy_array, cv2.IMREAD_COLOR)
 
 
