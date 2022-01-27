@@ -4,6 +4,7 @@ import attr
 
 import numpy as np
 
+from sc_api_tools.data_models.enums import ShapeType
 from sc_api_tools.data_models.utils import str_to_shape_type
 
 
@@ -33,6 +34,9 @@ class Rectangle(Shape):
     y: float
     width: float
     height: float
+    type: str = attr.ib(
+        converter=str_to_shape_type, default=ShapeType.RECTANGLE, kw_only=True
+    )
 
     @property
     def is_full_box(self) -> bool:
@@ -65,6 +69,9 @@ class Ellipse(Shape):
     y: float
     width: float
     height: float
+    type: str = attr.ib(
+        converter=str_to_shape_type, default=ShapeType.ELLIPSE, kw_only=True
+    )
 
 
 @attr.s(auto_attribs=True)
@@ -89,6 +96,9 @@ class Polygon(Shape):
     :var points: List of Points that make up the polygon
     """
     points: List[Point]
+    type: str = attr.ib(
+        converter=str_to_shape_type, default=ShapeType.POLYGON, kw_only=True
+    )
 
     def points_as_contour(self, image_width: int, image_height: int) -> np.ndarray:
         """

@@ -66,3 +66,19 @@ class ScoredLabel:
         """
         hex_color_str = copy.deepcopy(self.color).strip('#')
         return tuple(int(hex_color_str[i:i+2], 16) for i in (0, 2, 4))
+
+    @classmethod
+    def from_label(cls, label: Label, probability: float) -> 'ScoredLabel':
+        """
+        Creates a ScoredLabel instance from an input Label and probability score
+
+        :param label: Label to convert to ScoredLabel
+        :param probability: probability score for the label
+        :return: ScoredLabel instance corresponding to `label` and `probability`
+        """
+        return ScoredLabel(
+            name=label.name,
+            probability=probability,
+            color=label.color,
+            id=label.id
+        )

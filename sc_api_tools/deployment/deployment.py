@@ -6,9 +6,11 @@ import attr
 
 import numpy as np
 
-from sc_api_tools.data_models import Project, Task, TaskType
+from sc_api_tools.data_models import Project, Task, TaskType, Prediction
 from sc_api_tools.data_models.enums import OpenvinoModelName
 from sc_api_tools.deployment.deployed_model import DeployedModel
+from sc_api_tools.deployment.prediction_converters.detection import \
+    convert_detection_output
 from sc_api_tools.rest_converters import ProjectRESTConverter
 
 
@@ -87,9 +89,7 @@ class Deployment:
 
     def infer(
             self, image: np.ndarray
-    ) -> List[
-        Union[np.ndarray, List['openvino.model_zoo.model_api.models.utils.Detection']]
-    ]:
+    ) -> List[Union[np.ndarray, Prediction]]:
         """
         Runs inference on an image for the full model chain in the deployment
 
@@ -98,20 +98,30 @@ class Deployment:
         :param image: Image to run inference on
         :return: inference results
         """
-        result: List[np.ndarray] = []
+        result: List[Union[np.ndarray, Prediction]] = []
         if len(self.models) > 1:
             raise NotImplementedError(
                 f"Running inference for a deployment of a task-chain project is not "
                 f"yet supported. Please use inference on each individual model "
                 f"instead."
             )
-        for model in self.models:
+        for model, task in zip(self.models, self.project.get_trainable_tasks()):
             preprocessed_image, metadata = model.preprocess(image)
             inference_results = model.infer(preprocessed_image)
             postprocessing_results = model.postprocess(
                 inference_results, metadata=metadata
             )
-            result.append(postprocessing_results)
+            if task.type == TaskType.DETECTION:
+                result.append(
+                    convert_detection_output(
+                        model_output=postprocessing_results,
+                        image_width=image.shape[1],
+                        image_height=image.shape[0],
+                        labels=task.labels
+                    )
+                )
+            else:
+                result.append(postprocessing_results)
         return result
 
     @staticmethod

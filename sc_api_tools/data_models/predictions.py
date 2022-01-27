@@ -89,7 +89,7 @@ class Prediction(AnnotationScene):
     :var kind: Kind of prediction (Annotation or Prediction)
     :var media_identifier: Identifier of the media entity to which this Prediction
         applies
-    :var modified: Data and time at which this Prediction was last modified
+    :var modified: Date and time at which this Prediction was last modified
     :var maps: List of additional result media belonging to this prediction
     """
     kind: str = attr.ib(
