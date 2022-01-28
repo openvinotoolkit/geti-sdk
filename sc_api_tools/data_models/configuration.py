@@ -121,6 +121,7 @@ class Configuration:
             if parameter is not None:
                 result.update({'entity_identifier': config.entity_identifier.to_dict()})
                 parameter_value_dict = {'name': parameter_name, 'value': value}
+                parameter.value = value
                 if config.groups:
                     group = config.get_group_containing(parameter_name)
                     if group is not None:

@@ -214,3 +214,27 @@ class ConfigurationRESTConverter:
             for task_config in task_chain_list
         ]
         return FullConfiguration(global_=global_config, task_chain=task_chain_config)
+
+    @staticmethod
+    def configurable_parameter_list_to_rest(
+            configurable_parameter_list: List[ConfigurableParameters]
+    ) -> Dict[str, List[Dict[str, Any]]]:
+        """
+        Converts a list of model hyper parameters to a dictionary that can be sent to
+        the /configuration POST endpoints
+
+        :param configurable_parameter_list: List of ConfigurableParameter instances
+        :return: Dictionary containing:
+            - 'components': list of dictionaries representing configurable parameters,
+                            that are conforming to the /configuration REST endpoints
+        """
+        rest_parameters: List[Dict[str, Any]] = []
+        for parameter_set in configurable_parameter_list:
+            parameter_copy = copy.deepcopy(parameter_set)
+            ConfigurationRESTConverter._remove_non_minimal_fields(
+                parameter_copy
+            )
+            parameter_dict = parameter_copy.to_dict()
+            remove_null_fields(parameter_dict)
+            rest_parameters.append(parameter_dict)
+        return {'components': rest_parameters}

@@ -1,12 +1,14 @@
 import time
-from typing import Union, Optional, List
+from typing import Union, Optional, List, Any, Dict
 
-from sc_api_tools.data_models import ProjectStatus, Project, Task, Algorithm, Job
+from sc_api_tools.data_models import ProjectStatus, Project, Task, Algorithm, Job, \
+    TaskConfiguration
 from sc_api_tools.data_models.containers import AlgorithmList
 from sc_api_tools.data_models.enums import JobState
 from sc_api_tools.data_models.project import Dataset
 from sc_api_tools.http_session import SCSession
-from sc_api_tools.rest_converters import StatusRESTConverter, JobRESTConverter
+from sc_api_tools.rest_converters import StatusRESTConverter, JobRESTConverter, \
+    ConfigurationRESTConverter
 from sc_api_tools.utils import get_supported_algorithms
 
 
@@ -86,7 +88,8 @@ class TrainingManager:
             dataset: Optional[Dataset] = None,
             algorithm: Optional[Algorithm] = None,
             train_from_scratch: bool = False,
-            enable_pot_optimization: bool = False
+            enable_pot_optimization: bool = False,
+            hyper_parameters: Optional[TaskConfiguration] = None
     ) -> Job:
         """
         Start training of a specific task in the project
@@ -104,7 +107,8 @@ class TrainingManager:
             continue training from an existing checkpoint (if any)
         :param enable_pot_optimization: True to optimize the trained model with POT
             after training is complete
-        :return:
+        :param hyper_parameters: Optional hyper parameters to use for training
+        :return: The training job that has been created
         """
         if isinstance(task, int):
             task = self.project.get_trainable_tasks()[task]
@@ -112,15 +116,23 @@ class TrainingManager:
             dataset = self.project.datasets[0]
         if algorithm is None:
             algorithm = self.get_algorithms_for_task(task)[0]
-        request_data = [
+        request_data: List[Dict[str, Any]] = [
             {
                 "dataset_id": dataset.id,
                 "task_id": task.id,
                 "train_from_scratch": train_from_scratch,
                 "enable_pot_optimization": enable_pot_optimization,
-                "model_template_id": algorithm.model_template_id
+                "model_template_id": algorithm.model_template_id,
             }
         ]
+            
+        if hyper_parameters is not None:
+            hypers = hyper_parameters.model_configurations
+            hypers_rest = (
+                ConfigurationRESTConverter.configurable_parameter_list_to_rest(hypers)
+            )
+            request_data[0].update({"hyper_parameters": hypers_rest})
+
         response = self.session.get_rest_response(
             url=f"{self.base_url}/train",
             method="POST",
