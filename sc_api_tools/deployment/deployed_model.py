@@ -3,7 +3,7 @@ import os
 import shutil
 import tempfile
 import zipfile
-from typing import Optional, Union, Dict, Tuple, Any
+from typing import Optional, Union, Dict, Tuple, Any, List
 
 import attr
 
@@ -99,7 +99,9 @@ class DeployedModel(OptimizedModel):
                 shutil.rmtree(os.path.dirname(self._model_data_path))
 
     def load_inference_model(
-            self, model_name: OpenvinoModelName, device: str = 'CPU'
+            self, model_name: OpenvinoModelName,
+            device: str = 'CPU',
+            configuration: Optional[Dict[str, Any]] = None
     ):
         """
         Loads the actual model weights to a specified device.
@@ -111,6 +113,11 @@ class DeployedModel(OptimizedModel):
             from openvino.model_zoo.model_api.models import Model as OMZModel
             from openvino.model_zoo.model_api.adapters import create_core, \
                 OpenvinoAdapter
+            from sc_api_tools.deployment.model_wrappers import (
+                AnomalyClassification,
+                BlurSegmentation,
+                OteClassification
+            )
         except ImportError as error:
             raise ValueError(
                 f"Unable to load inference model for {self}. Relevant OpenVINO "
@@ -129,7 +136,7 @@ class DeployedModel(OptimizedModel):
         model = OMZModel.create_model(
             name=str(model_name),
             model_adapter=model_adapter,
-            configuration=None,
+            configuration=configuration,
             preload=True
         )
         self._inference_model = model
@@ -231,7 +238,11 @@ class DeployedModel(OptimizedModel):
             self,
             inference_results: Dict[str, np.ndarray],
             metadata: Optional[Dict[str, Any]] = None
-    ) -> Union[np.ndarray, 'openvino.model_zoo.model_api.models.utils.Detection']:
+    ) -> Union[
+            np.ndarray,
+            'openvino.model_zoo.model_api.models.utils.Detection',
+            List[Tuple[int, float]]
+    ]:
         """
         Postprocesses model outputs
 

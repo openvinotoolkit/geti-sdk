@@ -10,8 +10,7 @@ class OpenvinoModelName(Enum):
     OTE_CLASSIFICATION = 'ote_classification'
     SEGMENTATION = 'segmentation'
     BLUR_SEGMENTATION = 'blur_segmentation'
-    PADIM = 'padim'
-    STFPM = 'stfpm'
+    ANOMALY_CLASSIFICATION = 'anomaly_classification'
 
     def __str__(self) -> str:
         """

@@ -1,3 +1,4 @@
+import abc
 from typing import List, Tuple
 
 import attr
@@ -16,6 +17,27 @@ class Shape:
     :var type: Type of the shape
     """
     type: str = attr.ib(converter=str_to_shape_type)
+
+    @abc.abstractmethod
+    def to_roi(self) -> 'Rectangle':
+        """
+        Returns the bounding box containing the shape, as an instance of the Rectangle
+        class
+
+        :return: Rectangle representing the bounding box for the shape
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def to_absolute_coordinates(self, parent_roi: 'Rectangle') -> 'Shape':
+        """
+        Converts the Shape to absolute coordinates, given the rectangle
+        representing it's parent region of interest.
+
+        :param parent_roi: Region of interest containing the shape
+        :return: Shape converted to the coordinate system of it's parent roi
+        """
+        raise NotImplementedError
 
 
 @attr.s(auto_attribs=True)
@@ -38,6 +60,26 @@ class Rectangle(Shape):
         converter=str_to_shape_type, default=ShapeType.RECTANGLE, kw_only=True
     )
 
+    def to_pixel_coordinates(
+            self, image_width: int, image_height: int
+    ) -> Tuple[Tuple[int, int], Tuple[int, int]]:
+        """
+        Gets the x, y coordinates of the edges of the rectangle, in number of pixels,
+        if the rectangle would be applied to an image with dimensions `image_heigth x
+        image_width` pixels
+
+        :param image_width: Width of the image for which to get the pixel coordinates
+            of the rectangle
+        :param image_height: Height of the image for which to get the pixel coordinates
+            of the rectangle
+        :return: Tuple containing two pairs of integers representing:
+            (x_min, x_max), (y_min, y_max)
+        """
+        return (
+                (int(self.x*image_width), int((self.x+self.width)*image_width)),
+                (int(self.y*image_height), int((self.y+self.height)*image_height))
+        )
+
     @property
     def is_full_box(self) -> bool:
         """
@@ -51,6 +93,31 @@ class Rectangle(Shape):
             and self.width == 1.0
             and self.height == 1.0
         )
+
+    def to_roi(self) -> 'Rectangle':
+        """
+        Returns the bounding box containing the shape, as an instance of the Rectangle
+        class
+
+        :return: Rectangle representing the bounding box for the shape
+        """
+        return self
+
+    def to_absolute_coordinates(self, parent_roi: 'Rectangle') -> 'Rectangle':
+        """
+        Converts the Rectangle to absolute coordinates, given the rectangle
+        representing it's parent region of interest.
+
+        :param parent_roi: Region of interest containing the rectangle
+        :return: Rectangle converted to the coordinate system of it's parent
+        """
+        x_min = parent_roi.x + self.x*parent_roi.width
+        y_min = parent_roi.y + self.y*parent_roi.height
+        width = parent_roi.width * self.width
+        height = parent_roi.height * self.height
+        return Rectangle(
+                x=x_min, y=y_min, width=width, height=height
+            )
 
 
 @attr.s(auto_attribs=True)
@@ -72,6 +139,31 @@ class Ellipse(Shape):
     type: str = attr.ib(
         converter=str_to_shape_type, default=ShapeType.ELLIPSE, kw_only=True
     )
+
+    def to_roi(self) -> 'Rectangle':
+        """
+        Returns the bounding box containing the Ellipse, as an instance of the Rectangle
+        class
+
+        :return: Rectangle representing the bounding box for the ellipse
+        """
+        return Rectangle(x=self.x, y=self.y, width=self.width, height=self.height)
+
+    def to_absolute_coordinates(self, parent_roi: Rectangle) -> 'Ellipse':
+        """
+        Converts the Ellipse to absolute coordinates, given the rectangle
+        representing it's parent region of interest.
+
+        :param parent_roi: Region of interest containing the ellipse
+        :return: Ellipse converted to the coordinate system of it's parent
+        """
+        x_min = parent_roi.x + self.x*parent_roi.width
+        y_min = parent_roi.y + self.y*parent_roi.height
+        width = parent_roi.width * self.width
+        height = parent_roi.height * self.height
+        return Ellipse(
+                x=x_min, y=y_min, width=width, height=height
+            )
 
 
 @attr.s(auto_attribs=True)
@@ -106,7 +198,7 @@ class Polygon(Shape):
         contour points that can be plotted by openCV's drawContours function
 
         :param image_width: width of the image to which the shape should be applied
-        :param image_height: heigth of the image to which the shape should be applied
+        :param image_height: height of the image to which the shape should be applied
         :return: Numpy array containing the contour
         """
         return np.array(
@@ -115,3 +207,37 @@ class Polygon(Shape):
                 for point in self.points
             ]
         )
+
+    def to_roi(self) -> 'Rectangle':
+        """
+        Returns the bounding box containing the Polygon, as an instance of the Rectangle
+        class
+
+        :return: Rectangle representing the bounding box for the polygon
+        """
+        points_array = np.array([(point.x, point.y) for point in self.points])
+        min_xy = points_array.min(axis=0)
+        max_xy = points_array.max(axis=0)
+
+        return Rectangle(
+            x=min_xy[0],
+            y=min_xy[1],
+            width=max_xy[0] - min_xy[0],
+            height=max_xy[1] - min_xy[1]
+        )
+
+    def to_absolute_coordinates(self, parent_roi: Rectangle) -> 'Polygon':
+        """
+        Converts the Polygon to absolute coordinates, given the rectangle
+        representing it's parent region of interest.
+
+        :param parent_roi: Region of interest containing the polygon
+        :return: Polygon converted to the coordinate system of it's parent ROI
+        """
+        absolute_points = [
+            Point(
+                x=parent_roi.x + point.x*parent_roi.width,
+                y=parent_roi.y + point.y*parent_roi.height
+            ) for point in self.points
+        ]
+        return Polygon(points=absolute_points)

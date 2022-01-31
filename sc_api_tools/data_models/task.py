@@ -3,8 +3,11 @@ from typing import List, Optional, ClassVar
 import attr
 
 from sc_api_tools.data_models import TaskType
-from sc_api_tools.data_models.enums.task_type import NON_TRAINABLE_TASK_TYPES, \
-    ANOMALY_TASK_TYPES
+from sc_api_tools.data_models.enums.task_type import (
+    NON_TRAINABLE_TASK_TYPES,
+    ANOMALY_TASK_TYPES,
+    GLOBAL_TASK_TYPES
+)
 from sc_api_tools.data_models.label import Label
 from sc_api_tools.data_models.utils import deidentify, str_to_task_type
 
@@ -45,7 +48,7 @@ class Task:
         return task_type
 
     @property
-    def is_trainable(self):
+    def is_trainable(self) -> bool:
         """
         Returns True if this Task represents a trainable task
 
@@ -54,7 +57,17 @@ class Task:
         return self.type not in NON_TRAINABLE_TASK_TYPES
 
     @property
-    def is_anomaly(self):
+    def is_global(self) -> bool:
+        """
+        Returns True if this Task represents a trainable task that produces global
+            labels, False otherwise
+
+        :return: True if the task produces global labels, False otherwise
+        """
+        return self.type in GLOBAL_TASK_TYPES
+
+    @property
+    def is_anomaly(self) -> bool:
         """
         Returns True if this task is an anomaly task
 

@@ -125,7 +125,6 @@ class TrainingManager:
                 "model_template_id": algorithm.model_template_id,
             }
         ]
-            
         if hyper_parameters is not None:
             hypers = hyper_parameters.model_configurations
             hypers_rest = (
