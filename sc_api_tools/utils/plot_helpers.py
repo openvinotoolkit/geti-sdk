@@ -6,12 +6,13 @@ import cv2
 
 from sc_api_tools.data_models.annotations import AnnotationScene
 from sc_api_tools.data_models.media import Image, VideoFrame
+from sc_api_tools.data_models.media import MediaInformation
 from sc_api_tools.data_models.predictions import Prediction
 from sc_api_tools.data_models.containers import MediaList
 
 
 def show_image_with_annotation_scene(
-        image: Union[Image, VideoFrame],
+        image: Union[Image, VideoFrame, np.ndarray],
         annotation_scene: Union[AnnotationScene, Prediction]
 ):
     """
@@ -21,20 +22,31 @@ def show_image_with_annotation_scene(
     :param annotation_scene: Annotations or Predictions to overlay on the image
     """
     if type(annotation_scene) == AnnotationScene:
-        name = 'Annotation'
+        plot_type = 'Annotation'
     elif type(annotation_scene) == Prediction:
-        name = 'Prediction'
+        plot_type = 'Prediction'
     else:
         raise ValueError(
             f"Invalid input: Unable to plot object of type {type(annotation_scene)}."
         )
-    mask = annotation_scene.as_mask(image.media_information)
+    if isinstance(image, np.ndarray):
+        media_information = MediaInformation(
+            "", height=image.shape[1], width=image.shape[0]
+        )
+        name = 'Numpy image'
+    else:
+        media_information = image.media_information
+        name = image.name
+    mask = annotation_scene.as_mask(media_information)
 
-    result = image.numpy.copy()
+    if isinstance(image, np.ndarray):
+        result = image.copy()
+    else:
+        result = image.numpy.copy()
     result[np.sum(mask, axis=-1) > 0] = 0
     result += mask[..., ::-1]
 
-    cv2.imshow(f'{name} for {image.name}', result)
+    cv2.imshow(f'{plot_type} for {name}', result)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 

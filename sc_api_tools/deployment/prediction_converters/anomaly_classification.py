@@ -1,5 +1,3 @@
-from typing import List
-
 import numpy as np
 
 from sc_api_tools.data_models import Label, Prediction, ScoredLabel, Annotation

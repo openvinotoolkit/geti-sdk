@@ -12,7 +12,7 @@ from sc_api_tools.deployment.deployed_model import DeployedModel
 from sc_api_tools.deployment.prediction_converters import (
     convert_classification_output,
     convert_detection_output,
-    convert_anomaly_classification_output
+    convert_anomaly_classification_output, convert_segmentation_output
 )
 from sc_api_tools.rest_converters import ProjectRESTConverter
 
@@ -115,7 +115,7 @@ class Deployment:
             model.load_inference_model(device=device)
         self._are_models_loaded = True
 
-    def infer(self, image: np.ndarray) -> Union[np.ndarray, Prediction]:
+    def infer(self, image: np.ndarray) -> Prediction:
         """
         Runs inference on an image for the full model chain in the deployment
 
@@ -125,6 +125,7 @@ class Deployment:
         :param image: Image to run inference on
         :return: inference results
         """
+        # Single task inference
         if self.is_single_task:
             return self._infer_task(image, task=self.project.get_trainable_tasks()[0])
 
@@ -132,7 +133,10 @@ class Deployment:
         intermediate_result: Optional[IntermediateInferenceResult] = None
         rois: Optional[List[ROI]] = None
         image_views: Optional[List[np.ndarray]] = None
+
+        # Pipeline inference
         for task in self.project.pipeline.tasks[1:]:
+
             # First task in the pipeline generates the initial result and ROIs
             if task.is_trainable and previous_labels is None:
                 task_prediction = self._infer_task(image, task=task)
@@ -148,14 +152,9 @@ class Deployment:
                     rois=rois
                 )
                 previous_labels = [label for label in task.labels if not label.is_empty]
+
             # Downstream trainable tasks
             elif task.is_trainable:
-                if task.type == TaskType.SEGMENTATION:
-                    raise NotImplementedError(
-                        f"Unable to run inference for the pipeline in the deployed "
-                        f"project: Inferring downstream segmentation tasks is not "
-                        f"supported yet"
-                    )
                 if rois is None or image_views is None or intermediate_result is None:
                     raise NotImplementedError(
                         f"Unable to run inference for the pipeline in the deployed "
@@ -166,10 +165,13 @@ class Deployment:
                 for roi, view in zip(rois, image_views):
                     view_prediction = self._infer_task(view, task)
                     if task.is_global:
+                        # Global tasks add their labels to the existing shape in the ROI
                         intermediate_result.extend_annotations(
                             view_prediction.annotations, roi=roi
                         )
                     else:
+                        # Local tasks create new shapes in the image coordinate system,
+                        # and generate ROI's corresponding to the new shapes
                         for annotation in view_prediction.annotations:
                             intermediate_result.append_annotation(annotation, roi=roi)
                             new_rois.append(ROI.from_annotation(annotation))
@@ -177,6 +179,8 @@ class Deployment:
                             new_roi.to_absolute_coordinates(parent_roi=roi)
                             for new_roi in new_rois
                         ]
+                previous_labels = [label for label in task.labels if not label.is_empty]
+
             # Downstream flow control tasks
             else:
                 if previous_labels is None:
@@ -197,9 +201,7 @@ class Deployment:
                     )
         return intermediate_result.prediction
 
-    def _infer_task(
-            self, image: np.ndarray, task: Task
-    ) -> Union[Prediction, np.ndarray]:
+    def _infer_task(self, image: np.ndarray, task: Task) -> Prediction:
         """
         Runs pre-processing, inference, and post-processing on the input `image`, for
         the model associated with the `task`
@@ -236,6 +238,13 @@ class Deployment:
                 normal_label=next(
                     (label for label in task.labels if label.name == 'Normal')
                 )
+            )
+        elif task.type == TaskType.SEGMENTATION:
+            soft_prediction = metadata.get("soft_predictions", None)
+            return convert_segmentation_output(
+                model_output=postprocessing_results,
+                labels=task.labels,
+                soft_prediction=soft_prediction
             )
         else:
             return postprocessing_results

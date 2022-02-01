@@ -7,7 +7,8 @@ import numpy as np
 import attr
 import cv2
 
-from sc_api_tools.data_models import ScoredLabel, AnnotationKind
+from sc_api_tools.data_models.label import ScoredLabel
+from sc_api_tools.data_models.enums import AnnotationKind
 from sc_api_tools.data_models.media import MediaInformation
 from sc_api_tools.data_models.media_identifiers import (
     ImageIdentifier,
@@ -26,6 +27,7 @@ from sc_api_tools.data_models.utils import (
     attr_value_serializer,
     round_dictionary
 )
+from sc_api_tools.utils.dictionary_helpers import remove_null_fields
 
 
 @attr.s(auto_attribs=True)
@@ -201,6 +203,7 @@ class AnnotationScene:
         for annotation_dict in dict_output["annotations"]:
             shape_dict = annotation_dict["shape"]
             annotation_dict["shape"] = round_dictionary(shape_dict)
+        remove_null_fields(dict_output)
         return pformat(dict_output)
 
     @staticmethod

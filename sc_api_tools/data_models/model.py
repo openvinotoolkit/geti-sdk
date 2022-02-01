@@ -1,6 +1,7 @@
+import copy
 import json
 from pprint import pformat
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, ClassVar
 
 import attr
 
@@ -8,9 +9,11 @@ from sc_api_tools.data_models.enums import ModelStatus, OptimizationType
 from sc_api_tools.data_models.utils import (
     str_to_datetime,
     str_to_enum_converter,
-    attr_value_serializer
+    attr_value_serializer,
+    deidentify
 )
 from sc_api_tools.utils import deserialize_dictionary
+from sc_api_tools.utils.dictionary_helpers import remove_null_fields
 
 
 @attr.s(auto_attribs=True)
@@ -27,6 +30,10 @@ class BaseModel:
     """
     Class representing the basic information about a Model or OptimizedModel in SC
     """
+    _identifier_fields: ClassVar[str] = [
+        "id", "previous_revision_id", "previous_trained_revision_id"
+    ]
+
     name: str
     fps_throughput: str
     latency: str
@@ -58,7 +65,7 @@ class BaseModel:
         """
         Set the model group id for this model
 
-        :param id: ID to set
+        :param id_: ID to set
         """
         self._model_group_id = id_
 
@@ -127,7 +134,18 @@ class BaseModel:
 
         :return:
         """
-        return pformat(self.to_dict())
+        deidentified = copy.deepcopy(self)
+        deidentified.deidentify()
+        overview_dict = deidentified.to_dict()
+        remove_null_fields(overview_dict)
+        return pformat(overview_dict)
+
+    def deidentify(self):
+        """
+        Removes unique database IDs from the BaseModel
+        :return:
+        """
+        deidentify(self)
 
 
 @attr.s(auto_attribs=True)

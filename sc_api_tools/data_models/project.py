@@ -4,6 +4,8 @@ from pprint import pformat
 
 import attr
 
+from sc_api_tools.utils.dictionary_helpers import remove_null_fields
+
 from .label import Label
 from .task import Task
 from .utils import deidentify, attr_value_serializer
@@ -267,4 +269,6 @@ class Project:
         """
         deidentified = copy.deepcopy(self)
         deidentified.deidentify()
-        return pformat(deidentified.to_dict())
+        overview_dict = deidentified.to_dict()
+        remove_null_fields(overview_dict)
+        return pformat(overview_dict)
