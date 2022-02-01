@@ -173,10 +173,10 @@ class Deployment:
                         for annotation in view_prediction.annotations:
                             intermediate_result.append_annotation(annotation, roi=roi)
                             new_rois.append(ROI.from_annotation(annotation))
-                    intermediate_result.rois = [
-                        new_roi.to_absolute_coordinates(parent_roi=roi)
-                        for new_roi in new_rois
-                    ]
+                        intermediate_result.rois = [
+                            new_roi.to_absolute_coordinates(parent_roi=roi)
+                            for new_roi in new_rois
+                        ]
             # Downstream flow control tasks
             else:
                 if previous_labels is None:

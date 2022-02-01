@@ -118,5 +118,5 @@ class IntermediateInferenceResult:
         :param roi: ROI for which the annotations are predicted
         """
         for annotation in annotations:
-            annotation.shape = roi.shape
+            annotation.shape = roi.original_shape
         self.prediction.extend(annotations)

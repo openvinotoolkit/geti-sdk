@@ -1,7 +1,7 @@
 import attr
 
 from sc_api_tools.data_models import Annotation
-from sc_api_tools.data_models.shapes import Rectangle
+from sc_api_tools.data_models.shapes import Rectangle, Shape
 
 
 @attr.s(auto_attribs=True)
@@ -12,6 +12,7 @@ class ROI(Annotation):
     labels (for instance a detection or segmentation task).
     """
     shape: Rectangle = attr.ib(kw_only=True)
+    original_shape: Shape = attr.ib(kw_only=True)
 
     @classmethod
     def from_annotation(cls, annotation: Annotation) -> 'ROI':
@@ -21,7 +22,11 @@ class ROI(Annotation):
         :param annotation: Annotation to convert to region of interest
         :return: ROI containing the annotation
         """
-        return ROI(labels=annotation.labels, shape=annotation.shape.to_roi())
+        return cls(
+            labels=annotation.labels,
+            shape=annotation.shape.to_roi(),
+            original_shape=annotation.shape
+        )
 
     def to_absolute_coordinates(self, parent_roi: 'ROI') -> 'ROI':
         """
@@ -32,5 +37,6 @@ class ROI(Annotation):
         """
         return ROI(
             labels=self.labels,
-            shape=self.shape.to_absolute_coordinates(parent_roi.shape)
+            shape=self.shape.to_absolute_coordinates(parent_roi.shape),
+            original_shape=self.original_shape.to_absolute_coordinates(parent_roi.shape)
         )
