@@ -1,3 +1,4 @@
+import copy
 from typing import List, Dict, Optional, ClassVar, Any, Union
 from pprint import pformat
 
@@ -264,4 +265,6 @@ class Project:
 
         :return: String holding an overview of the project
         """
-        return pformat(self.to_dict())
+        deidentified = copy.deepcopy(self)
+        deidentified.deidentify()
+        return pformat(deidentified.to_dict())

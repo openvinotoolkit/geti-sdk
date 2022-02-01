@@ -1,3 +1,4 @@
+import glob
 import json
 import os
 import shutil
@@ -13,9 +14,10 @@ from sc_api_tools.data_models import (
     OptimizedModel,
     TaskConfiguration
 )
-from sc_api_tools.data_models.enums import OpenvinoModelName
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import ConfigurationRESTConverter, ModelRESTConverter
+
+from sc_api_tools.deployment.data_models.enums import OpenvinoModelName
 
 
 @attr.s(auto_attribs=True)
@@ -53,6 +55,24 @@ class DeployedModel(OptimizedModel):
                     model_dir = self._model_data_path
                 with zipfile.ZipFile(source, 'r') as zipped_source_model:
                     zipped_source_model.extractall(model_dir)
+
+                # Unzip the python wheel to get the model config.json
+                python_dir = os.path.join(model_dir, 'python')
+                wheel_path = glob.glob(os.path.join(python_dir, '*.whl'))[0]
+                unzipped_wheel_dir = os.path.join(python_dir, 'unzipped_wheel')
+                with zipfile.ZipFile(wheel_path, 'r') as zipped_wheel:
+                    zipped_wheel.extractall(unzipped_wheel_dir)
+                config_path = glob.glob(
+                    os.path.join(unzipped_wheel_dir, '**', 'config.json'),
+                    recursive=True
+                )
+                if config_path:
+                    shutil.copyfile(
+                        src=config_path[0],
+                        dst=os.path.join(model_dir, 'model', 'config.json')
+                    )
+                shutil.rmtree(unzipped_wheel_dir)
+
                 self._model_data_path = os.path.join(model_dir, 'model')
                 self.get_data(self._model_data_path)
             elif os.path.isdir(source):
@@ -99,24 +119,30 @@ class DeployedModel(OptimizedModel):
                 shutil.rmtree(os.path.dirname(self._model_data_path))
 
     def load_inference_model(
-            self, model_name: OpenvinoModelName,
+            self,
             device: str = 'CPU',
             configuration: Optional[Dict[str, Any]] = None
     ):
         """
         Loads the actual model weights to a specified device.
 
+        :param device: Device (CPU or GPU) to load the model to. Defaults to 'CPU'
+        :param configuration: Optional dictionary holding additional configuration
+            parameters for the model
         :return: OpenVino inference engine model that can be used to make predictions
             on images
         """
         try:
-            from openvino.model_zoo.model_api.models import Model as OMZModel
-            from openvino.model_zoo.model_api.adapters import create_core, \
+            from openvino.model_zoo.model_api.adapters import (
+                create_core,
                 OpenvinoAdapter
+            )
+            from openvino.model_zoo.model_api.models import Model as OMZModel
+            from openvino.model_zoo.model_api.models import SSD, SegmentationModel
             from sc_api_tools.deployment.model_wrappers import (
                 AnomalyClassification,
                 BlurSegmentation,
-                OteClassification
+                OteClassification,
             )
         except ImportError as error:
             raise ValueError(
@@ -133,6 +159,46 @@ class DeployedModel(OptimizedModel):
             plugin_config=None,
             max_num_requests=1
         )
+
+        # Load model configuration
+        config_path = os.path.join(self._model_data_path, 'config.json')
+        if os.path.isfile(config_path):
+            with open(config_path, 'r') as config_file:
+                configuration_json = json.load(config_file)
+            model_type = configuration_json.get("type_of_model")
+            parameters = configuration_json.get("model_parameters")
+            if configuration is not None:
+                configuration.update(parameters)
+            else:
+                configuration = parameters
+        else:
+            raise ValueError(
+                f"Missing configuration file `config.json` for deployed model `{self}`,"
+                f" unable to load inference model."
+            )
+
+        try:
+            model_name = OpenvinoModelName(model_type)
+        except ValueError:
+            raise NotImplementedError(
+                f"Loading inference model for model type {model_type} is currently not "
+                f"supported. This package provides support for the following model "
+                f"types: {[model.value for model in OpenvinoModelName]}."
+            )
+
+        # Make sure all parameters we're passing to the model wrapper are valid for
+        # the model
+        valid_model_parameters = list(
+            OMZModel.get_model(str(model_name)).parameters().keys()
+        )
+        for parameter_name in list(configuration.keys()):
+            if (
+                    parameter_name not in valid_model_parameters
+                    or parameter_name == 'labels'
+            ):
+                configuration.pop(parameter_name)
+
+        # Create model wrapper with the loaded configuration
         model = OMZModel.create_model(
             name=str(model_name),
             model_adapter=model_adapter,

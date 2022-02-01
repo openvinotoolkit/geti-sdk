@@ -95,6 +95,9 @@ class IntermediateInferenceResult:
         Appends an Annotation instance to the prediction results, taking into account
         the ROI for which the annotation was predicted
 
+        This method can be used to add annotations produced by a downstream local task
+        to the prediction results
+
         :param annotation: Annotation to append to the inference results
         :param roi: ROI in which the prediction was made
         """
@@ -102,3 +105,18 @@ class IntermediateInferenceResult:
         self.prediction.append(
             Annotation(labels=annotation.labels, shape=absolute_shape)
         )
+
+    def extend_annotations(self, annotations: List[Annotation], roi: ROI):
+        """
+        Extends the list of annotations for the current prediction results, taking
+        into account the ROI for which the annotation was predicted
+
+        This method can be used to add labels produced by a global downstream task to
+        the ROI output of it's upstream local task
+
+        :param annotations: List of annotations holding the labels to append
+        :param roi: ROI for which the annotations are predicted
+        """
+        for annotation in annotations:
+            annotation.shape = roi.shape
+        self.prediction.extend(annotations)

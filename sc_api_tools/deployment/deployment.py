@@ -1,13 +1,12 @@
 import json
 import os
-from typing import List, Union, Optional, Dict, Any
+from typing import List, Union, Optional
 
 import attr
 
 import numpy as np
 
 from sc_api_tools.data_models import Project, Task, TaskType, Prediction, Label
-from sc_api_tools.data_models.enums import OpenvinoModelName
 from sc_api_tools.deployment.data_models import ROI, IntermediateInferenceResult
 from sc_api_tools.deployment.deployed_model import DeployedModel
 from sc_api_tools.deployment.prediction_converters import (
@@ -113,26 +112,7 @@ class Deployment:
         :param device: Device to load the inference models to
         """
         for model, task in zip(self.models, self.project.get_trainable_tasks()):
-            model_name = self._get_model_name(model, task)
-
-            # Load additional model configuration from the hyper parameters, if needed
-            configuration: Optional[Dict[str, Any]] = None
-            if task.type == TaskType.SEGMENTATION:
-                if model_name == OpenvinoModelName.BLUR_SEGMENTATION:
-                    threshold_name = 'soft_threshold'
-                    blur_name = 'blur_strength'
-                    configuration = {
-                        threshold_name: model.hyper_parameters.get_parameter_by_name(
-                            threshold_name
-                        ).value,
-                        blur_name: model.hyper_parameters.get_parameter_by_name(
-                            blur_name
-                        ).value
-                    }
-
-            model.load_inference_model(
-                model_name=model_name, device=device, configuration=configuration
-            )
+            model.load_inference_model(device=device)
         self._are_models_loaded = True
 
     def infer(self, image: np.ndarray) -> Union[np.ndarray, Prediction]:
@@ -185,9 +165,13 @@ class Deployment:
                 new_rois: List[ROI] = []
                 for roi, view in zip(rois, image_views):
                     view_prediction = self._infer_task(view, task)
-                    for annotation in view_prediction.annotations:
-                        intermediate_result.append_annotation(annotation, roi=roi)
-                        if not task.is_global:
+                    if task.is_global:
+                        intermediate_result.extend_annotations(
+                            view_prediction.annotations, roi=roi
+                        )
+                    else:
+                        for annotation in view_prediction.annotations:
+                            intermediate_result.append_annotation(annotation, roi=roi)
                             new_rois.append(ROI.from_annotation(annotation))
                     intermediate_result.rois = [
                         new_roi.to_absolute_coordinates(parent_roi=roi)
@@ -255,28 +239,6 @@ class Deployment:
             )
         else:
             return postprocessing_results
-
-    @staticmethod
-    def _get_model_name(model: DeployedModel, task: Task) -> OpenvinoModelName:
-        """
-        Returns the name of the openvino model corresponding to the deployed `model`
-
-        :param model: DeployedModel to get the name for
-        :param task: Task corresponding to the model
-        :return: OpenvinoModelName instance corresponding to the model name for `model`
-        """
-        task_type = task.type
-        if task_type == TaskType.DETECTION:
-            return OpenvinoModelName.SSD
-        elif task_type == TaskType.CLASSIFICATION:
-            return OpenvinoModelName.OTE_CLASSIFICATION
-        elif task_type == TaskType.ANOMALY_CLASSIFICATION:
-            return OpenvinoModelName.ANOMALY_CLASSIFICATION
-        elif task_type == TaskType.SEGMENTATION:
-            model_name_parameter = model.hyper_parameters.get_parameter_by_name(
-                "class_name"
-            )
-            return OpenvinoModelName(model_name_parameter.value)
 
     def _get_model_for_task(self, task: Task) -> DeployedModel:
         """

@@ -195,7 +195,9 @@ class AnnotationScene:
 
         :return: overview string of the annotation scene
         """
-        dict_output = self.to_dict()
+        deidentified = copy.deepcopy(self)
+        deidentified.deidentify()
+        dict_output = deidentified.to_dict()
         for annotation_dict in dict_output["annotations"]:
             shape_dict = annotation_dict["shape"]
             annotation_dict["shape"] = round_dictionary(shape_dict)
