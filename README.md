@@ -20,8 +20,11 @@ Once you have created a new environment, follow these steps to install the packa
 
 2. From there, install the requirements using 
 `pip install -r requirements.txt`. 
+
+3. (Optional) If you plan on using the package to deploy inference models, install the 
+   requirements for deployment using `pip install -r requirements-deployment.txt`.
    
-3. Then run `pip install .` to install the package. 
+4. Then run `pip install .` to install the package. 
 You can also install it in editable mode using `pip install -e .` This is handy if
 you want to make changes to the package, or want to keep it up to date with the 
 latest code changes in the repository. 
