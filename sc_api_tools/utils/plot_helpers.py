@@ -31,7 +31,7 @@ def show_image_with_annotation_scene(
         )
     if isinstance(image, np.ndarray):
         media_information = MediaInformation(
-            "", height=image.shape[1], width=image.shape[0]
+            "", height=image.shape[0], width=image.shape[1]
         )
         name = 'Numpy image'
     else:
