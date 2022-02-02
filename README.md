@@ -123,7 +123,7 @@ The `deployment.save` method will save the deployment to the folder named
 
 ### Examples
 The [examples](examples/README.md) folder contains example scripts, showing various 
-usecases for the packages .
+usecases for the package.
 
 ## Supported features
 What is supported:

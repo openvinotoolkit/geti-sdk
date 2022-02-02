@@ -64,3 +64,9 @@ using the bacteria colony dataset for the company Vitens (a former Cosmonio cust
 This is one of the UserStory datasets. The dataset can be downloaded from 
 [this link](https://intel.sharepoint.com/:u:/r/sites/user-story-dataset-sharing/Shared%20Documents/User%20Stories%20Datasets/Detection/Vitens%20Bacteria%20Counting/Vitens%20Aeromonas.zip?csf=1&web=1&e=wFXEle),
 but the data is confidential, so please treat it as such.
+
+## Uploading and getting predictions for media
+The example scripts `upload_and_predict_from_numpy.py` and 
+`upload_and_predict_media_from_folder.py` show how to upload either a single media 
+item directly from memory, or upload an entire folder of media items and 
+get predictions for the media from the cluster. 
