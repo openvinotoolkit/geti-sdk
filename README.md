@@ -5,6 +5,7 @@ the SC REST API. It provides functionality for:
 - Project creation from datasets on disk
 - Project downloading (images, videos, configuration, annotations, predictions and models)
 - Project creation and upload from a previous download
+- Deploying a project for local inference with OpenVINO
 
 ## Installation
 I recommend using an environment manager such as 
@@ -89,76 +90,44 @@ To up- or download all projects from a cluster, simply use the
 `client.download_all_projects` and `client.upload_all_projects` methods instead of 
 the single project methods in the code snippets above.
 
-### Project creation examples
-#### COCO/Datumaro examples
-The `examples` folder contains sample scripts to create projects based on the 
-COCO dataset in various configurations. Follow these steps to run any of the scripts:
+### Deploying a project
+The following code snippet shows how to create a deployment for local inference with 
+OpenVINO:
+```
+import cv2
 
+from sc_api_tools import SCRESTClient
 
-1. Open the script you want to run, and modify the connection configuration for your 
-   SC cluster. This means you have to specify the host (i.e. the web url or ip address 
-   at which the cluster can be reached) and the username and password (same as what 
-   you use to log in to SC manually)
-   
-2. Open up a terminal and navigate to the 'examples' directory. From there, execute 
-   the script with `python <name_of_script.py>`.
+client = SCRESTClient(
+        host="https://0.0.0.0", username="dummy_user", password="dummy_password"
+    )
 
-The following example scripts are available:
+# Download the model data and create a `Deployment`    
+deployment = client.deploy_project(project_name="dummy_project")
 
-- `create_coco_project_single_task.py` -> Creates a single task project based using 
-  the images from COCO dataset for the "dog" class. Can be set to create either a
-  `Detection`, `Segmentation` or `Classification` project.
-  
+# Load the inference models for all tasks in the project, for CPU inference
+deployment.load_inference_models(device='CPU')
 
-- `create_coco_project_task_chain.py` -> Creates a `Detection -> Segmentation` project that 
-  contains bounding boxes for "dog" objects, and has the dogs segmented as a "dog shape"
-  label.
-  
+# Run inference
+dummy_image = cv2.imread('dummy_image.png')
+prediction = deployment.infer(image=dummy_image)
 
-- `create_demo_projects.py` -> Populates your SC cluster with 6 different projects, 
-  all based on the COCO dataset. Each project represents one of the supported task 
-  within SC MVP. The projects created are:
-  
-  - **Segmentation demo** -- Segmentation of 'backpack' and 'suitcase' and objects
-  - **Detection demo** -- Detection of 'person' and 'cell phone' objects
-  - **Classification demo** -- Single class classification of 'horse' vs 'zebra' 
-    vs 'cat' vs 'bear'
-  - **Anomaly classification demo** -- Anomaly classification of images of animals 
-    ('Normal') vs traffic lights and stop signs ('Anomalous')
-  - **Animal detection to segmentation demo** -- Detection of 'animal', followed by 
-    segmentation into subcategories: 'horse', 'dog', 'cat', 'cow', 'sheep', 
-  - **Animal detection to classification demo** -- Detection of 'animal', followed by 
-    classification into two categories: 'wild' and 'domestic'
-  
-> **NOTE**: To run these examples you'll need to have the MS COCO dataset (or a subset thereof) on
-> your local disk. If you run any of the example scripts, you can either: 
->   
->    - Specify a path to an existing folder containing at least one subset of the 
->      COCO dataset
->   
->    - Leave the path unspecified, in which case the script will attempt to download 
->      the val2017 subset of the dataset from the internet, to a default path in the 
->      package directory. This is an approximately 1 Gb download so it may take some 
->      time. After downloading once, all demo scripts will automatically use the data.
-> 
->
-> Of course, you can also download the val2017 COCO data manually via
-> [this link](http://images.cocodataset.org/zips/val2017.zip).
+# Save the deployment to disk
+deployment.save(path_to_folder="dummy_project")
+```
+The `deployment.infer` method takes a numpy image as input. 
 
-The above examples work with Datumaro for annotation loading, so in principle they 
-should work with datasets in formats other than COCO too (as long as they're supported 
-by Datumaro).
+The `deployment.save` method will save the deployment to the folder named 
+'dummy_project', on the local disk. The deployment can be reloaded again later using 
+`Deployment.from_folder('dummy_project')`.
 
-#### Vitens examples
-The `create_vitens_aeromonas_project_single_task.py` script creates a detection project
-using the bacteria colony dataset for the company Vitens (a former Cosmonio customer). 
-This is one of the UserStory datasets. The dataset can be downloaded from 
-[this link](https://intel.sharepoint.com/:u:/r/sites/user-story-dataset-sharing/Shared%20Documents/User%20Stories%20Datasets/Detection/Vitens%20Bacteria%20Counting/Vitens%20Aeromonas.zip?csf=1&web=1&e=wFXEle),
-but the data is confidential, so please treat it as such.
+### Examples
+The [examples](examples/README.md) folder contains example scripts, showing various 
+usecases for the packages .
 
 ## Supported features
 What is supported:
-- Creating projects. You can pass a variable `project_type` to control what kind of 
+- **Creating projects**. You can pass a variable `project_type` to control what kind of 
   tasks will be created in the project pipeline. For example, if you want to create a 
   single task segmentation project, you'd pass `project_type='segmentation'`. For a 
   detection -> segmentation task chain, you can pass 
@@ -166,18 +135,22 @@ What is supported:
   folder for examples on how to do this.
   
 
-- Uploading images, videos, annotations for images and video frames and configurations 
+- **Uploading** images, videos, annotations for images and video frames and configurations 
   to a project
   
 
-- Downloading images, videos, annotations, models and predictions for all images and 
+- **Downloading** images, videos, annotations, models and predictions for all images and 
   videos/video frames in a project. Also downloading the full project configuration 
   is supported.
   
 
-- Setting configuration for a project, like turning auto train on/off and 
+- **Setting configuration for a project**, like turning auto train on/off and 
   setting number of iterations for all tasks
   
+
+- **Deploying a project** to load OpenVINO inference models for all tasks in the pipeline, 
+  and running the full pipeline inference on a local machine.
+
 
 - **Creating and restoring a backup of an existing project**, using the code 
   snippets provided [above](#downloading-and-uploading-projects). Only 
@@ -222,6 +195,11 @@ The high level `SCRESTClient` class provides the following methods:
   folder on local disk to an existing project on the SC cluster, and download 
   predictions for all uploaded media.
   
+
+- `deploy_project` -- Downloads the active model for all tasks in the project as an 
+  OpenVINO inference model. The resulting `Deployment` can be used to run inference 
+  for the project on a local machine. Pipeline inference is also supported.
+
 
 - `create_project_single_task_from_dataset` -- Creates a single task project on the SC 
   cluster, potentially using labels and uploading annotations from an external dataset.
