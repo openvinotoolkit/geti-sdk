@@ -131,6 +131,10 @@ The `deployment.save` method will save the deployment to the folder named
 The [examples](examples/README.md) folder contains example scripts, showing various 
 usecases for the package.
 
+
+In addition, the [notebooks](notebooks/README.md) folder contains jupyter notebooks 
+with more example use cases for the `sc-api-tools` package.
+
 ## Supported features
 What is supported:
 - **Creating projects**. You can pass a variable `project_type` to control what kind of 
