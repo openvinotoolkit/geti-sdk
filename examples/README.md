@@ -1,3 +1,4 @@
+# Examples for sc-api-tools
 ## Creating a project from an existing dataset
 #### COCO/Datumaro examples
 This folder contains sample scripts to create projects based on the 
