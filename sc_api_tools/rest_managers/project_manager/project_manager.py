@@ -247,7 +247,6 @@ class ProjectManager:
         )
         return self.get_or_create_project(**project.get_parameters())
 
-
     @staticmethod
     def is_project_dir(path_to_folder: str) -> bool:
         """
@@ -265,10 +264,27 @@ class ProjectManager:
         try:
             with open(path_to_project, 'r') as file:
                 project_data = json.load(file)
-        except JSONDecodeError:
+        except json.decoder.JSONDecodeError:
             return False
         try:
             project = ProjectRESTConverter.from_dict(project_data)
         except (ValueError, TypeError, KeyError):
             return False
         return True
+
+    def list_projects(self) -> List[Project]:
+        """
+        This method prints an overview of all projects that currently exists on the
+        cluster, in the workspace managed by the ProjectManager
+
+        NOTE: While this method also returns a list of all the projects, it is
+        primarily meant to be used in an interactive environment, such as a
+        Jupyter Notebook.
+
+        :return: List of all Projects on the cluster. The returned list is the same as
+            the list returned by the `get_all_projects` method
+        """
+        projects = self.get_all_projects()
+        for project in projects:
+            print(project.summary+"\n")
+        return projects

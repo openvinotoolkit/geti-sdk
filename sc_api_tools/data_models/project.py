@@ -263,7 +263,9 @@ class Project:
     @property
     def overview(self) -> str:
         """
-        Returns a string that shows an overview of the project
+        Returns a string that shows an overview of the project. This still shows all
+        the detailed information of the project. If less details are required, please
+        use the `summary` property
 
         :return: String holding an overview of the project
         """
@@ -272,3 +274,20 @@ class Project:
         overview_dict = deidentified.to_dict()
         remove_null_fields(overview_dict)
         return pformat(overview_dict)
+
+    @property
+    def summary(self) -> str:
+        """
+        Returns a string that gives a very brief summary of the project. This is the
+        least detailed representation of the project, if more details are required
+        please use the `overview` property
+
+        :return: String holding a brief summary of the project
+        """
+        summary_str = f"Project: {self.name}\n"
+        for task_index, (task, labels) in enumerate(
+                zip(self.get_trainable_tasks(), self.pipeline.get_labels_per_task())
+        ):
+            summary_str += f"  Task {task_index+1}: {task.title}\n    Labels: " \
+                            f"{[label.name for label in labels]}\n"
+        return summary_str

@@ -20,3 +20,6 @@ venv.bak/
 
 # Data folder
 data/
+
+# Jupyter and ipython checkpoints
+*.ipynb_checkpoints
