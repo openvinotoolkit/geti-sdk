@@ -43,7 +43,7 @@ class LabelAnnotationRequirements:
     """
     id: str
     label_name: str
-    color: str
+    label_color: str
     value: int
 
 
@@ -101,3 +101,18 @@ class ProjectStatus:
     project_score: float
     status: StatusSummary
     tasks: List[TaskStatus]
+
+    @property
+    def summary(self) -> str:
+        """
+        Returns a string that gives a very brief summary of the project status.
+
+        :return: String holding a brief summary of the project status
+        """
+        summary_str = f"Project status:\n  {self.status.message}\n"
+        for task in self.tasks:
+            if task.is_training:
+                summary_str += f"    Task: {task.title}\n" \
+                               f"    Progress: {task.status.progress:.1f}%\n"
+        summary_str += f"  Latest score: {self.project_score*100:.1f}%\n"
+        return summary_str

@@ -63,3 +63,33 @@ class AlgorithmList(UserList):
                 if algo.domain == Domain.from_task_type(task_type)
             ]
         )
+
+    @property
+    def summary(self) -> str:
+        """
+        Returns a string that gives a very brief summary of the algorithm list.
+
+        :return: String holding a brief summary of the list of algorithms
+        """
+        summary_str = "Algorithms:\n"
+        for algorithm in self.data:
+            summary_str += f"  Name: {algorithm.algorithm_name}\n" \
+                           f"    Domain: {algorithm.domain}\n" \
+                           f"    Model size: {algorithm.model_size}\n" \
+                           f"    Gigaflops: {algorithm.gigaflops}\n\n"
+        return summary_str
+
+    def get_by_name(self, name: str) -> Algorithm:
+        """
+        Retrieves an algorithm from the list by its algorithm_name
+
+        :param name: Name of the Algorithm to get
+        :return: Algorithm holding the algorithm details
+        """
+        for algo in self.data:
+            if algo.algorithm_name == name:
+                return algo
+        raise ValueError(
+            f"Algorithm named {name} was not found in the "
+            f"list of supported algorithms."
+        )
