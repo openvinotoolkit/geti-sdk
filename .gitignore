@@ -18,8 +18,8 @@ venv.bak/
 # PyCharm configuration
 .idea
 
-# Data folder
-data/
+# Data folder for COCO data
+/data/
 
 # Jupyter and ipython checkpoints
 *.ipynb_checkpoints
