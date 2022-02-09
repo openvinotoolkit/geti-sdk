@@ -31,3 +31,12 @@ The following notebooks are currently provided:
 - [004 create_pipeline_project_from_dataset](004_create_pipeline_project_from_dataset.ipynb) 
   -- This notebook shows how to create a pipeline project (with two trainable tasks in 
   it) from an existing dataset, and how to upload images and annotations to it.
+  
+
+- [005 deploy_project](005_deploy_project.ipynb) -- This notebook shows how to create 
+  a deployment for a project in order to run inference locally with OpenVINO. 
+  
+
+- [006 train_project](005_train_project.ipynb) -- This notebook shows how to start a 
+  training job for a task in a project, monitor the job's progress and get the model 
+  that was trained in the job once the training completes. 
