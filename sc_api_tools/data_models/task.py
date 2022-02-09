@@ -1,4 +1,6 @@
-from typing import List, Optional, ClassVar
+import copy
+from pprint import pformat
+from typing import List, Optional, ClassVar, Dict, Any
 
 import attr
 
@@ -9,7 +11,9 @@ from sc_api_tools.data_models.enums.task_type import (
     GLOBAL_TASK_TYPES
 )
 from sc_api_tools.data_models.label import Label
-from sc_api_tools.data_models.utils import deidentify, str_to_task_type
+from sc_api_tools.data_models.utils import deidentify, str_to_task_type, \
+    attr_value_serializer
+from sc_api_tools.utils import remove_null_fields
 
 
 @attr.s(auto_attribs=True)
@@ -94,3 +98,41 @@ class Task:
         else:
             labels = [label.name for label in self.labels if not label.is_empty]
         return labels
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Returns the dictionary representation of the task
+
+        :return:
+        """
+        return attr.asdict(self, recurse=True, value_serializer=attr_value_serializer)
+
+    @property
+    def overview(self) -> str:
+        """
+        Returns a string that shows an overview of the task. This still shows all
+        the detailed information of the task. If less details are required, please
+        use the `summary` property
+
+        :return: String holding an overview of the project
+        """
+        deidentified = copy.deepcopy(self)
+        deidentified.deidentify()
+        overview_dict = deidentified.to_dict()
+        remove_null_fields(overview_dict)
+        return pformat(overview_dict)
+
+    @property
+    def summary(self) -> str:
+        """
+        Returns a string that gives a very brief summary of the task. This is the
+        least detailed representation of the task, if more details are required
+        please use the `overview` property
+
+        :return: String holding a brief summary of the task
+        """
+        summary_str = f"Task: {self.title}\n  Type: {self.type} \n  Labels:\n"
+        for label in self.labels:
+            summary_str += f"    Name: {label.name},  Group: {label.group},  " \
+                           f"Parent: {label.parent_id}\n"
+        return summary_str

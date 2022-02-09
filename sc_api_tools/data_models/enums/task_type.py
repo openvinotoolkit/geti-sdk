@@ -20,6 +20,15 @@ class TaskType(Enum):
         """
         return self.value
 
+    @property
+    def is_trainable(self) -> bool:
+        """
+        Returns True if a task of this TaskType is trainable, False otherwise
+
+        :return:
+        """
+        return self not in NON_TRAINABLE_TASK_TYPES
+
 
 NON_TRAINABLE_TASK_TYPES = [TaskType.DATASET, TaskType.CROP]
 

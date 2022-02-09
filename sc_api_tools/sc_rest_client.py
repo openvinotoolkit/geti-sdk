@@ -377,7 +377,7 @@ class SCRESTClient:
         project_manager = ProjectManager(
             session=self.session, workspace_id=self.workspace_id
         )
-        project = project_manager.get_or_create_project(
+        project = project_manager.create_project(
             project_name=project_name,
             project_type=project_type,
             labels=[labels]
@@ -503,7 +503,7 @@ class SCRESTClient:
         project_manager = ProjectManager(
             session=self.session, workspace_id=self.workspace_id
         )
-        project = project_manager.get_or_create_project(
+        project = project_manager.create_project(
             project_name=project_name,
             project_type=project_type,
             labels=labels_per_task

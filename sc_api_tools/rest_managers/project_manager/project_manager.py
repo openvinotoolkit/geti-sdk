@@ -87,34 +87,41 @@ class ProjectManager:
             print(f"Project with name {project_name} already exists, continuing with "
                   f"exiting project. No new project has been created.")
         else:
-            project_template = copy.deepcopy(BASE_TEMPLATE)
-            previous_task_name = "Dataset"
-            is_first_task = True
-            for task_type, task_labels in zip(
-                    get_task_types_by_project_type(project_type), labels
-            ):
-                if not is_first_task:
-                    # Add crop task and connections, only for tasks that are not
-                    # first in the pipeline
-                    project_template = self._add_crop_task(project_template)
-                    task_name = "Crop task"
-                    project_template = self._add_connection(
-                        project_template,
-                        to_task=task_name,
-                        from_task=previous_task_name
-                    )
-                    previous_task_name = task_name
-                project_template, added_task = self._add_task(project_template,
-                                                              task_type=task_type,
-                                                              labels=task_labels)
-                task_name = added_task["title"]
-                project_template = self._add_connection(project_template,
-                                                        to_task=task_name,
-                                                        from_task=previous_task_name)
-                previous_task_name = task_name
-                is_first_task = False
+            project = self.create_project(
+                project_name=project_name, project_type=project_type, labels=labels
+            )
+        return project
 
-            project_template["name"] = project_name
+    def create_project(
+            self,
+            project_name: str,
+            project_type: str,
+            labels: List[Union[List[str], List[Dict[str, Any]]]]
+    ) -> Project:
+        """
+        Creates a new project with name `project_name` on the cluster, containing
+        tasks according to the `project_type` specified. Labels for each task are
+        specified in the `labels` parameter, which should be a nested list (each entry
+         in the outermost list corresponds to the labels for one of the tasks in the
+         project pipeline)
+
+        :param project_name: Name of the project
+        :param project_type: Type of the project
+        :param labels: Nested list of labels
+        :raises ValueError: If a project with name `project_name` already exists in
+            the workspace
+        :return: Project object, as created on the cluster
+        """
+        project = self.get_project_by_name(project_name)
+        if project is not None:
+            raise ValueError(
+                f"Project with name '{project_name}' already exists, unable to create "
+                f"project."
+            )
+        else:
+            project_template = self._create_project_template(
+                project_name=project_name, project_type=project_type, labels=labels
+            )
             project = self.session.get_rest_response(
                 url=f"{self.base_url}projects",
                 method="POST",
@@ -285,6 +292,53 @@ class ProjectManager:
             the list returned by the `get_all_projects` method
         """
         projects = self.get_all_projects()
+        print(f"{len(projects)} projects were found on the platform:\n")
         for project in projects:
-            print(project.summary+"\n")
+            print(" " + project.summary + "\n")
         return projects
+
+    def _create_project_template(
+            self,
+            project_name: str,
+            project_type: str,
+            labels: List[Union[List[str], List[Dict[str, Any]]]]
+    ) -> Dict[str, Any]:
+        """
+        Creates a template dictionary with data for project creation that is ready to
+        be sent to  the cluster.
+
+        :param project_name: Name of the project
+        :param project_type: Type of the project
+        :param labels: Nested list of labels
+        :return: Dictionary containing the data to create a project named
+            `project_name`, of type `project_type` and with labels `labels`
+        """
+        project_template = copy.deepcopy(BASE_TEMPLATE)
+        previous_task_name = "Dataset"
+        is_first_task = True
+        for task_type, task_labels in zip(
+                get_task_types_by_project_type(project_type), labels
+        ):
+            if not is_first_task:
+                # Add crop task and connections, only for tasks that are not
+                # first in the pipeline
+                project_template = self._add_crop_task(project_template)
+                task_name = "Crop task"
+                project_template = self._add_connection(
+                    project_template,
+                    to_task=task_name,
+                    from_task=previous_task_name
+                )
+                previous_task_name = task_name
+            project_template, added_task = self._add_task(project_template,
+                                                          task_type=task_type,
+                                                          labels=task_labels)
+            task_name = added_task["title"]
+            project_template = self._add_connection(project_template,
+                                                    to_task=task_name,
+                                                    from_task=previous_task_name)
+            previous_task_name = task_name
+            is_first_task = False
+
+        project_template["name"] = project_name
+        return project_template
