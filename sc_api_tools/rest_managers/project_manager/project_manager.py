@@ -166,14 +166,14 @@ class ProjectManager:
     def _add_task(
             project_template: dict,
             task_type: TaskType,
-            labels: Union[List[str], List[Dict[str, Any]]]
+            labels: Union[List[str], List[Dict[str, Any]]],
     ) -> Tuple[dict, dict]:
         """
         Adds a task to the pipeline in a project template in dictionary form
 
-        :param project_template:
-        :param task_type:
-        :param labels:
+        :param project_template: Dictionary representing the project creation data
+        :param task_type: Type of the task to be added
+        :param labels: Labels to be used for the task
         :return:
         """
         new_template = copy.deepcopy(project_template)
@@ -184,8 +184,17 @@ class ProjectManager:
             raise ValueError(
                 f"Task of type {task_type} is currently not supported."
             ) from error
+
+        # Make sure the task title is unique in the pipeline
+        task_titles_in_template = [task["title"] for task in tasks]
+        unique_task_title = ProjectManager._ensure_unique_task_name(
+            task_template["title"], task_titles_in_template
+        )
+        task_template["title"] = unique_task_title
+
         if task_type.value not in ANOMALY_TASK_TYPES:
-            label_group_name = f"default_{task_type}"
+            label_group_name = f"default_{unique_task_title.lower()}"
+
             for label in labels:
                 if isinstance(label, str):
                     label_info = {"name": label, "group": label_group_name}
@@ -196,17 +205,21 @@ class ProjectManager:
         return new_template, task_template
 
     @staticmethod
-    def _add_crop_task(project_template: dict) -> dict:
+    def _add_crop_task(project_template: dict) -> Tuple[dict, dict]:
         """
         Adds a `crop` task to the pipeline in the project_template
 
         :param project_template:
-        :return:
+        :return: Tuple containing:
+            - A dictionary representing the new project_template, with the crop task
+                added to it
+            - A dictionary representing the crop task that was added to the template
         """
         new_template = copy.deepcopy(project_template)
         tasks = new_template["pipeline"]["tasks"]
-        tasks.append(CROP_TASK)
-        return new_template
+        crop_task = copy.deepcopy(CROP_TASK)
+        tasks.append(crop_task)
+        return new_template, crop_task
 
     @staticmethod
     def _add_connection(project_template: dict, to_task: str, from_task: str) -> dict:
@@ -315,30 +328,65 @@ class ProjectManager:
         """
         project_template = copy.deepcopy(BASE_TEMPLATE)
         previous_task_name = "Dataset"
+        previous_task_type = TaskType.DATASET
+        task_names_in_template: List[str] = [previous_task_name]
         is_first_task = True
         for task_type, task_labels in zip(
                 get_task_types_by_project_type(project_type), labels
         ):
-            if not is_first_task:
+            if not is_first_task and not previous_task_type.is_global:
                 # Add crop task and connections, only for tasks that are not
-                # first in the pipeline
-                project_template = self._add_crop_task(project_template)
-                task_name = "Crop task"
+                # first in the pipeline and are not preceded by a global task
+                project_template, crop_task = self._add_crop_task(project_template)
+                unique_task_name = self._ensure_unique_task_name(
+                    crop_task["title"], task_names_in_template
+                )
+                crop_task["title"] = unique_task_name
+
                 project_template = self._add_connection(
                     project_template,
-                    to_task=task_name,
+                    to_task=unique_task_name,
                     from_task=previous_task_name
                 )
-                previous_task_name = task_name
+                previous_task_name = unique_task_name
             project_template, added_task = self._add_task(project_template,
                                                           task_type=task_type,
                                                           labels=task_labels)
             task_name = added_task["title"]
+
             project_template = self._add_connection(project_template,
                                                     to_task=task_name,
                                                     from_task=previous_task_name)
             previous_task_name = task_name
+            previous_task_type = task_type
             is_first_task = False
 
         project_template["name"] = project_name
         return project_template
+
+    @staticmethod
+    def _ensure_unique_task_name(
+            task_name: str, task_names_in_template: List[str]
+    ) -> str:
+        """
+        This method checks that the `task_name` passed is not already in the list of
+        `task_names_in_template`. If the task_name is already in the list, this method
+        will generate a new task_name that is unique
+
+        NOTE: This method updates the list of task_names_in_template with the unique
+        task_name that is ensured in this method. This update is done in-place
+
+        :param task_name: Task name to check
+        :param task_names_in_template: List of task names that are already taken in the
+            project template
+        :return: Name of the task that is guaranteed to be unique in the template
+        """
+        ii = 2
+        if task_name in task_names_in_template:
+            new_task_name = f"{task_name} {ii}"
+            while new_task_name in task_names_in_template:
+                ii += 1
+                new_task_name = f'{task_name} {ii}'
+            task_name = new_task_name
+        task_names_in_template.append(task_name)
+        return task_name

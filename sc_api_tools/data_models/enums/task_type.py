@@ -29,6 +29,24 @@ class TaskType(Enum):
         """
         return self not in NON_TRAINABLE_TASK_TYPES
 
+    @property
+    def is_global(self) -> bool:
+        """
+        Returns True if a task of this TaskType produces global labels, False otherwise
+
+        :return:
+        """
+        return self in GLOBAL_TASK_TYPES
+
+    @property
+    def is_anomaly(self) -> bool:
+        """
+        Returns True if a task of this TaskType is an anomaly task, False otherwise
+
+        :return:
+        """
+        return self in ANOMALY_TASK_TYPES
+
 
 NON_TRAINABLE_TASK_TYPES = [TaskType.DATASET, TaskType.CROP]
 

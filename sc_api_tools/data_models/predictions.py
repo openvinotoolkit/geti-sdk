@@ -168,9 +168,9 @@ class Prediction(AnnotationScene):
         mask = np.zeros((image_height, image_width, 3), dtype=np.uint8)
 
         for annotation in self.annotations:
-            max_prob_label_index = np.argmin(
+            max_prob_label_index = int(np.argmax(
                 [label.probability for label in annotation.labels]
-            )
+            ))
             max_prob_label = annotation.labels[max_prob_label_index]
             if probability_threshold is not None:
                 if max_prob_label.probability < probability_threshold:

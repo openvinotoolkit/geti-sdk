@@ -2,6 +2,8 @@ import copy
 from typing import List, Dict, Optional, ClassVar, Any, Union
 from pprint import pformat
 
+import numpy as np
+
 import attr
 
 from sc_api_tools.utils.dictionary_helpers import remove_null_fields
