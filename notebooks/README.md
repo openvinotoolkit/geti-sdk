@@ -13,13 +13,16 @@ below:
    up the jupyter server and should take you to the jupyter web interface.
    
 ## Notebooks
-- **001 create_project** -- This notebook shows how to create a project, and explains 
-  the parameters that can be used to control the project properties.
+The following notebooks are currently provided:
+- [001 create_project](001_create_project.ipynb) -- This notebook shows how to create 
+  a project, and explains the parameters that can be used to control the project 
+  properties.
   
 
-- **002 create_project_from_dataset** -- This notebook shows how to create a project 
-  from an existing dataset, and upload images and annotations to it.
+- [002 create_project_from_dataset](002_create_project_from_dataset.ipynb) -- This 
+  notebook shows how to create a project from an existing dataset, and upload images 
+  and annotations to it.
   
 
-- **003 upload_and_predict_image** -- This notebook shows how to upload an image to an 
-  existing project, and get a prediction for it
+- [003 upload_and_predict_image](003_upload_and_predict_image.ipynb) -- This notebook 
+  shows how to upload an image to an existing project, and get a prediction for it
