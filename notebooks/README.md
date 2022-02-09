@@ -26,3 +26,8 @@ The following notebooks are currently provided:
 
 - [003 upload_and_predict_image](003_upload_and_predict_image.ipynb) -- This notebook 
   shows how to upload an image to an existing project, and get a prediction for it
+  
+
+- [004 create_pipeline_project_from_dataset](004_create_pipeline_project_from_dataset.ipynb) 
+  -- This notebook shows how to create a pipeline project (with two trainable tasks in 
+  it) from an existing dataset, and how to upload images and annotations to it.
