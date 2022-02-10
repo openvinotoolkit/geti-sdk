@@ -111,8 +111,9 @@ class ProjectStatus:
         """
         summary_str = f"Project status:\n  {self.status.message}\n"
         for task in self.tasks:
-            if task.is_training:
-                summary_str += f"    Task: {task.title}\n" \
-                               f"    Progress: {task.status.progress:.1f}%\n"
+            summary_str += f"    Task: {task.title}\n" \
+                           f"      State: {task.status.message}\n"
+            if task.is_training or task.status.progress != -1.0:
+                summary_str += f"      Progress: {task.status.progress:.1f}%\n"
         summary_str += f"  Latest score: {self.project_score*100:.1f}%\n"
         return summary_str
