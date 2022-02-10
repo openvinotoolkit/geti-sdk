@@ -1,3 +1,5 @@
+import copy
+from pprint import pformat
 from typing import Union, Optional, Dict, Any, List, ClassVar
 
 import attr
@@ -7,6 +9,7 @@ from sc_api_tools.data_models.enums.configuration_enums import (
     ParameterInputType
 )
 from sc_api_tools.data_models.utils import str_to_enum_converter, attr_value_serializer
+from sc_api_tools.utils import remove_null_fields
 
 
 @attr.s(auto_attribs=True)
@@ -71,6 +74,20 @@ class ConfigurableParameter:
         """
         summary_str = f"{self.header} -- Name: {self.name} -- Value: {self.value}"
         return summary_str
+
+    @property
+    def overview(self) -> str:
+        """
+        Returns a string that shows an overview of the configurable parameter. This
+        still shows all the metadata of the parameter. If less details are required,
+        please use the `summary` property
+
+        :return: String holding an overview of the configurable parameter
+        """
+        overview_dict = self.to_dict()
+        remove_null_fields(overview_dict)
+        overview_dict.pop('ui_rules')
+        return pformat(overview_dict)
 
 
 @attr.s(auto_attribs=True)

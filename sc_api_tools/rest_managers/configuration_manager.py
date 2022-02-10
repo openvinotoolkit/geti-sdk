@@ -64,7 +64,7 @@ class ConfigurationManager:
         )
         return ConfigurationRESTConverter.global_configuration_from_rest(config_data)
 
-    def set_task_configuration(self, task_id: str, config: dict):
+    def _set_task_configuration(self, task_id: str, config: dict):
         """
         Update the configuration for a task
 
@@ -88,7 +88,7 @@ class ConfigurationManager:
         for task_id in self.task_ids:
             config = self.get_task_configuration(task_id=task_id)
             config_data = config.set_parameter_value('auto_training', value=auto_train)
-            self.set_task_configuration(task_id=task_id, config=config_data)
+            self._set_task_configuration(task_id=task_id, config=config_data)
 
     def set_project_num_iterations(self, value: int = 50):
         """
@@ -103,10 +103,9 @@ class ConfigurationManager:
             for parameter_name in iteration_names:
                 parameter = config.get_parameter_by_name(parameter_name)
                 if parameter is not None:
-                    self.set_task_configuration(
-                        task_id=task_id,
-                        config=config.set_parameter_value(parameter_name, value=value)
-                    )
+                    self._set_task_configuration(task_id=task_id,
+                                                 config=config.set_parameter_value(
+                                                     parameter_name, value=value))
                     break
             if parameter is None:
                 raise ValueError(
@@ -140,7 +139,7 @@ class ConfigurationManager:
                 value=value,
                 group_name=parameter_group_name
             )
-            self.set_task_configuration(task_id=task_id, config=config_data)
+            self._set_task_configuration(task_id=task_id, config=config_data)
 
     def get_full_configuration(self) -> FullConfiguration:
         """
@@ -260,9 +259,8 @@ class ConfigurationManager:
                         parameter.name, parameter.value
                     )
                     try:
-                        self.set_task_configuration(
-                            task_id=task_config.task_id, config=config_data
-                        )
+                        self._set_task_configuration(task_id=task_config.task_id,
+                                                     config=config_data)
                     except ValueError:
                         failed_parameters.append(
                             {task_config.task_title: parameter.name}
@@ -304,3 +302,48 @@ class ConfigurationManager:
             data = json.load(file)
         config = ConfigurationRESTConverter.full_configuration_from_rest(data)
         return self.apply_from_object(config)
+
+    def set_configuration(
+            self,
+            configuration: Union[
+                FullConfiguration, GlobalConfiguration, TaskConfiguration
+            ]
+    ):
+        """
+        Sets the configuration for the project. This method accepts either a
+        FullConfiguration, TaskConfiguration or GlobalConfiguration object
+
+        :param configuration: Configuration to set
+        :return:
+        """
+        if isinstance(configuration, FullConfiguration):
+            full_configuration = configuration
+        elif isinstance(configuration, TaskConfiguration):
+            full_configuration = self.get_full_configuration()
+            if configuration.task_id is None:
+                raise ValueError(
+                    "Cannot set a TaskConfiguration without a task_id. Please make "
+                    "sure to set a valid task_id."
+                )
+            # Find index of configuration in the task chain
+            task_index: Optional[int] = None
+            for ti, task_configuration in enumerate(full_configuration.task_chain):
+                if task_configuration.task_id == configuration.task_id:
+                    task_index = ti
+                    break
+            if task_index is None:
+                raise ValueError(
+                    f"Unable to find task with id {configuration.task_id} in the "
+                    f"project. Please make sure that the task_id for the configuration "
+                    f"you have provided is valid"
+                )
+            full_configuration.task_chain[task_index] = configuration
+        elif isinstance(configuration, GlobalConfiguration):
+            full_configuration = self.get_full_configuration()
+            full_configuration.global_ = configuration
+        else:
+            raise TypeError(
+                f"Invalid configuration of type '{type(configuration)}' received. "
+                f"Unable to set configuration."
+            )
+        self.apply_from_object(full_configuration)

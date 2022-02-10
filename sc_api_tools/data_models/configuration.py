@@ -51,6 +51,10 @@ class Configuration:
 
     components: List[ConfigurableParameters]
 
+    def __attrs_post_init__(self):
+        for parameter_name in self.get_all_parameter_names():
+            setattr(self, parameter_name, self.get_parameter_by_name(parameter_name))
+
     def to_dict(self) -> Dict[str, Any]:
         """
         Returns the dictionary representation of the Configuration
