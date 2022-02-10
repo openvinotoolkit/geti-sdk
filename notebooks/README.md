@@ -50,7 +50,13 @@ The following notebooks are currently provided:
   training job for a task in a project, monitor the job's progress and get the model 
   that was trained in the job once the training completes. 
 
+
 - [008 deploy_project](008_deploy_project.ipynb) -- This notebook shows how to create 
-  a deployment for a project in order to run inference locally with OpenVINO. 
+  a deployment for a project in order to run inference locally with OpenVINO.
   
 
+- [009 download_and_upload_project](009_download_and_upload_project.ipynb) -- This 
+notebook shows how to download a project to local disk, including all media, 
+  annotations as well as the project configuration. The notebook also demonstrates how 
+  to re-create the project from a previously downloaded project, and upload all 
+  downloaded data to the newly created project.
