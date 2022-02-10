@@ -1,7 +1,9 @@
 # Notebooks for sc-api-tools
 ## Getting started
-To get started with the example notebooks provided in this folder, follow the steps 
-below: 
+To get started with the example notebooks provided in this folder, please make sure 
+that you have installed the `sc-api-tools` package. The steps to install the package 
+can be found in the [main readme](../README.md) in this repository. Once the package 
+is installed, you can follow the steps below to set up the notebooks.
 1. Navigate to this folder in a terminal 
    
 2. Activate the python environment in which you installed the sc-api-tools package 
@@ -10,7 +12,9 @@ below:
    run the notebooks
    
 4. When the installation completes, run `jupyter lab` in your terminal. This will fire 
-   up the jupyter server and should take you to the jupyter web interface.
+   up the jupyter server and should take you straight to the jupyter web interface.
+   
+5. The notebooks should show up in the side menu of the jupyter web interface. 
    
 ## Notebooks
 The following notebooks are currently provided:

@@ -71,13 +71,18 @@ class SCRESTClient:
             project_name: str,
             target_folder: Optional[str] = None,
             include_predictions: bool = False,
-            include_active_models: bool = True
+            include_active_models: bool = False,
+            include_deployment: bool = False
     ) -> Project:
         """
         Download a project with name `project_name` to the local disk. All images,
         image annotations, videos and video frame annotations in the project are
-        downloaded. By default, predictions are not downloaded, but they can be
-        included by passing `include_predictions=True`
+        downloaded. By default, predictions and models are not downloaded, but they
+        can be included by passing `include_predictions=True` and
+        `include_active_models=True`, respectively.
+
+        In addition, if `include_deployment` is set to True, this method will create
+        and download a deployment for the project as well.
 
         This method will download data to the path `target_folder`, the contents will
         be:
@@ -99,6 +104,10 @@ class SCRESTClient:
                              models derived from them. Models are only downloaded if
                              `include_active_models = True`.
 
+            `deployment`  -- Folder containing the deployment for the project, that
+                             can be used for local inference. The deployment is only
+                             created if `include_deployment = True`.
+
             'project.json' -- File containing the project parameters, that can be used
                               to re-create the project.
 
@@ -113,9 +122,12 @@ class SCRESTClient:
             images and videos in the project, False to not download any predictions.
             If this is set to True but the project has no trained models, downloading
             predictions will be skipped.
-        :param include_active_models: True to also download the active models for all
+        :param include_active_models: True to download the active models for all
             tasks in the project, and any optimized models derived from them. False to
-            not download any models. Defaults to True
+            not download any models. Defaults to False
+        :param include_deployment: True to create and download a deployment for the
+            project, that can be used for local inference with OpenVINO. Defaults to
+            False.
         :return: Project object, holding information obtained from the cluster
             regarding the downloaded project
         """
@@ -190,7 +202,9 @@ class SCRESTClient:
             model_manager.download_all_active_models(path_to_folder=target_folder)
 
         # Download deployment
-        self.deploy_project(project.name, output_folder=target_folder)
+        if include_deployment:
+            print("Creating deployment for project...")
+            self.deploy_project(project.name, output_folder=target_folder)
 
         print(f"Project '{project.name}' was downloaded successfully.")
         return project
@@ -238,6 +252,12 @@ class SCRESTClient:
             path_to_folder=target_folder, project_name=project_name
         )
 
+        # Disable auto-train to prevent the project from training right away
+        configuration_manager = ConfigurationManager(
+            workspace_id=self.workspace_id, session=self.session, project=project
+        )
+        configuration_manager.set_project_auto_train(auto_train=False)
+
         # Upload images
         image_manager = ImageManager(
             workspace_id=self.workspace_id, session=self.session, project=project
@@ -253,12 +273,6 @@ class SCRESTClient:
         videos = video_manager.upload_folder(
             path_to_folder=os.path.join(target_folder, "videos")
         )
-
-        # Disable auto-train to prevent the project from training right away
-        configuration_manager = ConfigurationManager(
-            workspace_id=self.workspace_id, session=self.session, project=project
-        )
-        configuration_manager.set_project_auto_train(auto_train=False)
 
         media_lists: List[Union[MediaList[Image], MediaList[Video]]] = []
         if len(images) > 0:

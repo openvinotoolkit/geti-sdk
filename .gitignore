@@ -24,3 +24,4 @@ venv.bak/
 # Jupyter and ipython checkpoints
 /notebooks/.ipynb_checkpoints
 /notebooks/deployments
+/notebooks/projects
