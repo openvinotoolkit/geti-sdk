@@ -239,3 +239,18 @@ class ParameterGroup:
         for group_name in group_names:
             if self.get_parameter_by_name(parameter_name, group_name) is not None:
                 return self.get_parameter_group_by_name(group_name)
+
+    @property
+    def summary(self) -> str:
+        """
+        Returns a string containing a very brief summary of the ParameterGroup
+
+        :return: string holding a very short summary of the ParameterGroup
+        """
+        summary_str = f"{self.header}"
+        for parameter in self.parameters:
+            summary_str += f"\n  {parameter.summary}"
+        for group in self.groups:
+            summary_str += f"\n  {group.summary}"
+        summary_str += "\n"
+        return summary_str

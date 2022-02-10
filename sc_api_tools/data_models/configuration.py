@@ -229,6 +229,18 @@ class GlobalConfiguration(Configuration):
             config.entity_identifier.workspace_id = workspace_id
             config.entity_identifier.project_id = project_id
 
+    @property
+    def summary(self) -> str:
+        """
+        Returns a string containing a very brief summary of the GlobalConfiguration
+
+        :return: string holding a very short summary of the GlobalConfiguration
+        """
+        summary_str = "Configuration for global components:\n"
+        for configurable_parameters in self.components:
+            summary_str += f"  {configurable_parameters.summary}\n"
+        return summary_str
+
 
 @attr.s(auto_attribs=True)
 class TaskConfiguration(Configuration):
@@ -312,6 +324,18 @@ class TaskConfiguration(Configuration):
             config.entity_identifier.workspace_id = workspace_id
             config.entity_identifier.model_storage_id = model_storage_id
 
+    @property
+    def summary(self) -> str:
+        """
+        Returns a string containing a very brief summary of the TaskConfiguration
+
+        :return: string holding a very short summary of the TaskConfiguration
+        """
+        summary_str = f"Configuration for {self.task_title}:\n"
+        for configurable_parameters in self.components:
+            summary_str += f"  {configurable_parameters.summary}\n"
+        return summary_str
+
 
 @attr.s(auto_attribs=True)
 class FullConfiguration:
@@ -341,3 +365,16 @@ class FullConfiguration:
         global_dict = result.pop("global_")
         result.update({"global": global_dict["components"]})
         return result
+
+    @property
+    def summary(self) -> str:
+        """
+        Returns a string containing a very brief summary of the FullConfiguration
+
+        :return: string holding a very short summary of the FullConfiguration
+        """
+        summary_str = "Full project configuration:\n"
+        summary_str += f"  {self.global_.summary}\n"
+        for task_configuration in self.task_chain:
+            summary_str += f"  {task_configuration.summary}\n"
+        return summary_str

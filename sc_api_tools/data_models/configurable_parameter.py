@@ -61,6 +61,17 @@ class ConfigurableParameter:
         """
         return attr.asdict(self, recurse=True, value_serializer=attr_value_serializer)
 
+    @property
+    def summary(self) -> str:
+        """
+        Returns a string containing a very brief summary of the ConfigurableParameter
+        object
+
+        :return: string holding a very short summary of the ConfigurableParameter
+        """
+        summary_str = f"{self.header} -- Name: {self.name} -- Value: {self.value}"
+        return summary_str
+
 
 @attr.s(auto_attribs=True)
 class ConfigurableBoolean(ConfigurableParameter):
