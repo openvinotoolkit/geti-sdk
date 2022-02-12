@@ -193,7 +193,7 @@ class ProjectManager:
         task_template["title"] = unique_task_title
 
         if task_type.value not in ANOMALY_TASK_TYPES:
-            label_group_name = f"default_{unique_task_title.lower()}"
+            label_group_name = f"{unique_task_title.lower()} label group"
 
             for label in labels:
                 if isinstance(label, str):
@@ -390,3 +390,60 @@ class ProjectManager:
             task_name = new_task_name
         task_names_in_template.append(task_name)
         return task_name
+
+    def delete_project(
+            self, project: Union[str, Project], requires_confirmation: bool = True
+    ) -> None:
+        """
+        Deletes a project. The `project` to delete can either by a Project object or a
+        string containing the name of the project to delete.
+
+        By default, this method will ask for user confirmation before deleting the
+        project. This can be overridden by passing `requires_confirmation = False`.
+
+        :param project: Project to delete, either a string containing the project
+            name or a Project instance
+        :param requires_confirmation: True to ask for user confirmation before
+            deleting the project, False to delete without confirmation. Defaults to
+            True
+        """
+        if isinstance(project, str):
+            project = self.get_project_by_name(project_name=project)
+        if not isinstance(project, Project):
+            raise TypeError(f"{type(project)} is not a valid project type.")
+
+        if requires_confirmation:
+            media_response = self.session.get_rest_response(
+                url=f"{self.base_url}projects/{project.id}/datasets/"
+                    f"{project.datasets[0].id}/media",
+                method="GET"
+            )
+
+            media_count = media_response.get("media_count", {"images": 0, "videos": 0})
+            user_confirmation = input(
+                f"CAUTION: You are about to delete project '{project.name}', "
+                f"containing {media_count['images']} images and {media_count['videos']}"
+                f" videos, from the platform. Are you sure you want to continue? Type "
+                f"Y or YES to continue, any other key to cancel."
+            )
+            if not (
+                    user_confirmation.lower() == "yes"
+                    or user_confirmation.lower() == "y"
+            ):
+                print("Aborting project deletion.")
+                return
+        try:
+            self.session.get_rest_response(
+                url=f"{self.base_url}projects/{project.id}",
+                method="DELETE"
+            )
+        except ValueError as error:
+            if error.args[-1] == 409:
+                raise ValueError(
+                    f"Project {project.name} is locked for deletion/modification. "
+                    f"Please wait until all jobs related to this project are finished "
+                    f"or cancel them to allow deletion/modification."
+                )
+            else:
+                raise error
+        print(f"Project '{project.name}' deleted successfully.")
