@@ -91,3 +91,14 @@ class MediaList(UserList, Generic[MediaTypeVar]):
                 for media_dict in rest_input
             ]
         )
+
+    @property
+    def has_duplicate_filenames(self) -> bool:
+        """
+        Returns True if the media list contains at least two items that have the same
+        filename, False otherwise
+
+        :return:
+        """
+        filenames = self.names
+        return len(set(filenames)) != len(filenames)

@@ -342,6 +342,7 @@ class VideoFrame(MediaItem):
         downloaded using the 'get_data' method
     """
     media_information: VideoFrameInformation = attr.ib(kw_only=True)
+    video_name: Optional[str] = attr.ib(kw_only=True, default=None)
 
     def __attrs_post_init__(self):
         self._data: Optional[np.ndarray] = None
@@ -370,7 +371,8 @@ class VideoFrame(MediaItem):
             thumbnail=f"{base_url}/display/thumb",
             media_information=frame_information,
             state=video.state,
-            id=video.id
+            id=video.id,
+            video_name=video.name
         )
 
     @property

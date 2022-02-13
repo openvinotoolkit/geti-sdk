@@ -154,7 +154,10 @@ class SCRESTClient:
         )
         images = image_manager.get_all_images()
         if len(images) > 0:
-            image_manager.download_all(path_to_folder=target_folder)
+            image_manager.download_all(
+                path_to_folder=target_folder,
+                append_image_uid=images.has_duplicate_filenames
+            )
 
         # Download videos
         video_manager = VideoManager(
@@ -162,12 +165,27 @@ class SCRESTClient:
         )
         videos = video_manager.get_all_videos()
         if len(videos) > 0:
-            video_manager.download_all(path_to_folder=target_folder)
+            video_manager.download_all(
+                path_to_folder=target_folder,
+                append_video_uid=videos.has_duplicate_filenames
+            )
 
+        # Download annotations
         annotation_manager = AnnotationManager(
             session=self.session, project=project, workspace_id=self.workspace_id
         )
-        annotation_manager.download_all_annotations(path_to_folder=target_folder)
+        if len(images) > 0:
+            annotation_manager.download_annotations_for_images(
+                images=images,
+                path_to_folder=target_folder,
+                append_image_uid=images.has_duplicate_filenames
+            )
+        if len(videos) > 0:
+            annotation_manager.download_annotations_for_videos(
+                videos=videos,
+                path_to_folder=target_folder,
+                append_video_uid=videos.has_duplicate_filenames
+            )
 
         # Download predictions
         prediction_manager = PredictionManager(

@@ -270,6 +270,7 @@ class BaseAnnotationManager:
             self,
             media_list: Union[MediaList[Image], MediaList[VideoFrame]],
             path_to_folder: str,
+            append_media_uid: bool = False,
             verbose: bool = True
     ) -> float:
         """
@@ -278,6 +279,9 @@ class BaseAnnotationManager:
         :param media_list: List of images or video frames to download the annotations
             for
         :param path_to_folder: Folder to save the annotations to
+        :param append_media_uid: True to append the UID of a media item to the
+            annotation filename (separated from the original filename by an underscore,
+             i.e. '{filename}_{media_id}').
         :return: Returns the time elapsed to download the annotations, in seconds
         """
         path_to_annotations_folder = os.path.join(path_to_folder, "annotations")
@@ -305,7 +309,8 @@ class BaseAnnotationManager:
         skip_count = 0
         for media_item in media_list:
             annotation_scene = self._get_latest_annotation_for_2d_media_item(
-                    media_item)
+                    media_item
+            )
             if annotation_scene is None:
                 if verbose:
                     print(
@@ -325,8 +330,28 @@ class BaseAnnotationManager:
                 continue
             export_data = AnnotationRESTConverter.to_dict(annotation_scene)
 
+            filename = media_item.name + '.json'
+            if append_media_uid:
+                if isinstance(media_item, Image):
+                    filename = f"{media_item.name}_{media_item.id}"
+                elif isinstance(media_item, VideoFrame):
+                    if media_item.video_name is not None:
+                        filename = f"{media_item.video_name}_" \
+                                   f"{media_item.media_information.video_id}_frame_" \
+                                   f"{media_item.media_information.frame_index}"
+                    else:
+                        video_name = media_item.name.split("_frame_")[0]
+                        filename = f"{video_name}_" \
+                                   f"{media_item.media_information.video_id}_frame_" \
+                                   f"{media_item.media_information.frame_index}"
+                else:
+                    raise TypeError(
+                        f"Received invalid media item of type {type(media_item)}."
+                    )
+
             annotation_path = os.path.join(
-                path_to_annotations_folder, media_item.name + '.json'
+                path_to_annotations_folder,
+                filename
             )
             with open(annotation_path, 'w') as f:
                 json.dump(export_data, f, indent=4)

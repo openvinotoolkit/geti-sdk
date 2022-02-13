@@ -123,13 +123,19 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
             )
 
     def download_annotations_for_video(
-            self, video: Video, path_to_folder: str
+            self, video: Video, path_to_folder: str, append_video_uid: bool = False
     ) -> float:
         """
         Downloads video annotations from the server to a target folder on disk
 
         :param video: Video for which to download the annotations
         :param path_to_folder: Folder to save the annotations to
+        :param append_video_uid: True to append the UID of the video to the
+             annotation filename (separated from the original filename by an underscore,
+             i.e. '{filename}_{media_id}'). This can be useful if the project contains
+             videos with duplicate filenames. If left as False, the video filename and
+             frame index for the annotation are used as filename for the downloaded
+             annotation.
         :return: Returns the time elapsed to download the annotations, in seconds
         """
         annotations = self.get_latest_annotations_for_video(video=video)
@@ -140,28 +146,43 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
         )
         if len(frame_list) > 0:
             return self._download_annotations_for_2d_media_list(
-                media_list=frame_list, path_to_folder=path_to_folder, verbose=False
+                media_list=frame_list,
+                path_to_folder=path_to_folder,
+                verbose=False,
+                append_media_uid=append_video_uid
             )
         else:
             return 0
 
     def download_annotations_for_images(
-            self, images: MediaList[Image], path_to_folder: str
+            self,
+            images: MediaList[Image],
+            path_to_folder: str,
+            append_image_uid: bool = False
     ) -> float:
         """
         Downloads image annotations from the server to a target folder on disk
 
         :param images: List of images for which to download the annotations
         :param path_to_folder: Folder to save the annotations to
+        :param append_image_uid: True to append the UID of the image to the
+            annotation filename (separated from the original filename by an underscore,
+             i.e. '{filename}_{media_id}'). This can be useful if the project contains
+             images with duplicate filenames. If left as False, the image filename is
+             used as filename for the downloaded annotation as well.
         :return: Returns the time elapsed to download the annotations, in seconds
         """
         return self._download_annotations_for_2d_media_list(
             media_list=images,
-            path_to_folder=path_to_folder
+            path_to_folder=path_to_folder,
+            append_media_uid=append_image_uid
         )
 
     def download_annotations_for_videos(
-            self, videos: MediaList[Video], path_to_folder: str
+            self,
+            videos: MediaList[Video],
+            path_to_folder: str,
+            append_video_uid: bool = False
     ) -> float:
         """
         Downloads annotations for a list of videos from the server to a target folder
@@ -169,6 +190,12 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
 
         :param videos: List of videos for which to download the annotations
         :param path_to_folder: Folder to save the annotations to
+        :param append_video_uid: True to append the UID of the video to the
+             annotation filename (separated from the original filename by an underscore,
+             i.e. '{filename}_{media_id}'). This can be useful if the project contains
+             videos with duplicate filenames. If left as False, the video filename and
+             frame index for the annotation are used as filename for the downloaded
+             annotation.
         :return: Time elapsed to download the annotations, in seconds
         """
         t_total = 0
@@ -178,7 +205,9 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
         )
         for video in videos:
             t_total += self.download_annotations_for_video(
-                video=video, path_to_folder=path_to_folder
+                video=video,
+                path_to_folder=path_to_folder,
+                append_video_uid=append_video_uid
             )
         print(f"Video annotation download finished in {t_total:.1f} seconds.")
         return t_total

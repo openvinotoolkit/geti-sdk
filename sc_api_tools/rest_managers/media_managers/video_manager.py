@@ -99,13 +99,18 @@ class VideoManager(BaseMediaManager[Video]):
             skip_if_filename_exists=skip_if_filename_exists
         )
 
-    def download_all(self, path_to_folder: str) -> None:
+    def download_all(self, path_to_folder: str, append_video_uid: bool = False) -> None:
         """
         Download all videos in a project to a folder on the local disk.
 
         :param path_to_folder: path to the folder in which the videos should be saved
+        :param append_video_uid: True to append the UID of a video to the
+            filename (separated from the original filename by an underscore, i.e.
+            '{filename}_{video_id}'). If there are videos in the project with
+            duplicate filename, this must be set to True to ensure all videos are
+            downloaded. Otherwise videos with the same name will be skipped.
         """
-        self._download_all(path_to_folder)
+        self._download_all(path_to_folder, append_media_uid=append_video_uid)
 
     def delete_videos(self, videos: MediaList[Video]) -> bool:
         """

@@ -167,7 +167,9 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         return self._upload_bytes(media_bytes)
 
     def _upload_loop(
-            self, filepaths: List[str], skip_if_filename_exists: bool = False
+            self,
+            filepaths: List[str],
+            skip_if_filename_exists: bool = False,
     ) -> MediaList[MediaTypeVar]:
         """
         Uploads media from a list of filepaths. Also checks if media items with the same
@@ -260,11 +262,16 @@ class BaseMediaManager(Generic[MediaTypeVar]):
             skip_if_filename_exists=skip_if_filename_exists
         )
 
-    def _download_all(self, path_to_folder: str) -> None:
+    def _download_all(
+            self, path_to_folder: str, append_media_uid: bool = False
+    ) -> None:
         """
         Download all media entities in a project to a folder on the local disk.
 
         :param path_to_folder: path to the folder in which the media should be saved
+        :param append_media_uid: True to append the UID of a media item to the
+            filename (separated from the original filename by an underscore, i.e.
+            '{filename}_{media_id}').
         :return:
         """
         media_list = self._get_all()
@@ -281,9 +288,14 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         download_count = 0
         existing_count = 0
         for media_item in media_list:
+            uid_string = ""
+            if append_media_uid:
+                uid_string = f"_{media_item.id}"
             media_filepath = os.path.join(
                 path_to_media_folder,
-                media_item.name + MEDIA_DOWNLOAD_FORMAT_MAPPING[self._MEDIA_TYPE]
+                media_item.name
+                + uid_string
+                + MEDIA_DOWNLOAD_FORMAT_MAPPING[self._MEDIA_TYPE]
             )
             if os.path.exists(media_filepath) and os.path.isfile(media_filepath):
                 existing_count += 1
