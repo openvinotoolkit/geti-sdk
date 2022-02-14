@@ -3,8 +3,6 @@ import warnings
 from typing import Optional, List, Union, Tuple, Sequence
 
 import numpy as np
-from sc_api_tools.rest_managers import ModelManager
-from sc_api_tools.utils import show_video_frames_with_annotation_scenes
 
 from .annotation_readers import (
     SCAnnotationReader,
@@ -19,7 +17,8 @@ from .rest_managers import (
     ConfigurationManager,
     ImageManager,
     VideoManager,
-    PredictionManager
+    PredictionManager,
+    ModelManager
 )
 from .data_models import (
     Project,
@@ -35,7 +34,8 @@ from .utils import (
     get_default_workspace_id,
     generate_classification_labels,
     get_task_types_by_project_type,
-    show_image_with_annotation_scene
+    show_image_with_annotation_scene,
+    show_video_frames_with_annotation_scenes
 )
 
 
