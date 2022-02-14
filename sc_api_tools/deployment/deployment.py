@@ -68,7 +68,7 @@ class Deployment:
         # Save project data
         project_filepath = os.path.join(deployment_folder, 'project.json')
         with open(project_filepath, 'w') as project_file:
-            json.dump(project_dict, project_file)
+            json.dump(project_dict, project_file, indent=4)
         # Save model for each task
         for task, model in zip(self.project.get_trainable_tasks(), self.models):
             model_dir = os.path.join(deployment_folder, task.title)

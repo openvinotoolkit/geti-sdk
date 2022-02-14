@@ -279,13 +279,13 @@ class DeployedModel(OptimizedModel):
         )
         config_filepath = os.path.join(path_to_folder, 'hyper_parameters.json')
         with open(config_filepath, 'w') as config_file:
-            json.dump(config_dict, config_file)
+            json.dump(config_dict, config_file, indent=4)
 
         model_detail_dict = self.to_dict()
         model_detail_dict.pop('hyper_parameters')
         model_detail_path = os.path.join(path_to_folder, 'model.json')
         with open(model_detail_path, 'w') as model_detail_file:
-            json.dump(model_detail_dict, model_detail_file)
+            json.dump(model_detail_dict, model_detail_file, indent=4)
         return True
 
     def preprocess(
