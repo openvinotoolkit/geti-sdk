@@ -89,7 +89,8 @@ class TrainingManager:
             algorithm: Optional[Algorithm] = None,
             train_from_scratch: bool = False,
             enable_pot_optimization: bool = False,
-            hyper_parameters: Optional[TaskConfiguration] = None
+            hyper_parameters: Optional[TaskConfiguration] = None,
+            hpo_parameters: Optional[Dict[str, Any]] = None
     ) -> Job:
         """
         Start training of a specific task in the project
@@ -108,6 +109,8 @@ class TrainingManager:
         :param enable_pot_optimization: True to optimize the trained model with POT
             after training is complete
         :param hyper_parameters: Optional hyper parameters to use for training
+        :param hpo_parameters: Optional set of parameters to use for automatic hyper
+            parameter optimization. Only supported for version 1.1 and up
         :return: The training job that has been created
         """
         if isinstance(task, int):
@@ -116,26 +119,31 @@ class TrainingManager:
             dataset = self.project.datasets[0]
         if algorithm is None:
             algorithm = self.get_algorithms_for_task(task)[0]
-        request_data: List[Dict[str, Any]] = [
-            {
+        request_data: Dict[str, Any] = {
                 "dataset_id": dataset.id,
                 "task_id": task.id,
                 "train_from_scratch": train_from_scratch,
                 "enable_pot_optimization": enable_pot_optimization,
                 "model_template_id": algorithm.model_template_id,
             }
-        ]
         if hyper_parameters is not None:
             hypers = hyper_parameters.model_configurations
             hypers_rest = (
                 ConfigurationRESTConverter.configurable_parameter_list_to_rest(hypers)
             )
-            request_data[0].update({"hyper_parameters": hypers_rest})
+            request_data.update({"hyper_parameters": hypers_rest})
+        if hpo_parameters is not None:
+            request_data.update(
+                {
+                    "enable_hyper_parameter_optimization": True,
+                    "hpo_parameters": hpo_parameters
+                }
+            )
 
         response = self.session.get_rest_response(
             url=f"{self.base_url}/train",
             method="POST",
-            data=request_data
+            data=[request_data]
         )
         job = JobRESTConverter.from_dict(response)
         job.workspace_id = self.workspace_id
