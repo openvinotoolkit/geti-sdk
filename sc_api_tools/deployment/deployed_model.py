@@ -294,7 +294,8 @@ class DeployedModel(OptimizedModel):
         """
         Preprocesses an image for inference
 
-        :param image: Numpy array containing pixel data
+        :param image: Numpy array containing pixel data. The image is expected to have
+            dimensions [height x width x channels], with the channels in RGB order
         :return: Dictionary holding the preprocessing result, the original shape of
             the image and the shape after preprocessing
         """

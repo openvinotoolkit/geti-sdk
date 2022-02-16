@@ -119,10 +119,9 @@ class Deployment:
         """
         Runs inference on an image for the full model chain in the deployment
 
-        NOTE: For now this is not supported for a detection -> segmentation pipeline
-        project
-
-        :param image: Image to run inference on
+        :param image: Image to run inference on, as a numpy array containing the pixel
+            data. The image is expected to have dimensions [height x width x channels],
+            with the channels in RGB order
         :return: inference results
         """
         # Single task inference
