@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 import attr
 
@@ -101,6 +101,8 @@ class ProjectStatus:
     project_score: float
     status: StatusSummary
     tasks: List[TaskStatus]
+    n_running_jobs: Optional[int] = None
+    n_running_jobs_project: Optional[int] = None
 
     @property
     def summary(self) -> str:

@@ -28,6 +28,13 @@ class ConfigurationManager:
                         f"configuration"
         self.supported_algos = get_supported_algorithms(session)
 
+        # Query the project status to make sure that the project is loaded. Then we
+        # can safely fetch the configuration later on, even for newly created projects
+        self.session.get_rest_response(
+            url=f"workspaces/{workspace_id}/projects/{project_id}/status",
+            method="GET"
+        )
+
     def get_task_configuration(
             self, task_id: str, algorithm_name: Optional[str] = None
     ) -> TaskConfiguration:
