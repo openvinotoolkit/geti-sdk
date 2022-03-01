@@ -68,7 +68,7 @@ class AnnotationReader:
         """
         if not isinstance(task_type, TaskType):
             task_type = TaskType(task_type)
-        if task_type in [TaskType.DETECTION, TaskType.SEGMENTATION]:
+        if task_type in [TaskType.DETECTION, TaskType.SEGMENTATION, TaskType.CLASSIFICATION]:
             self.task_type = task_type
         else:
             raise ValueError(f"Unsupported task_type {task_type}")

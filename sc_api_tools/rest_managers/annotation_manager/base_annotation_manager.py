@@ -252,7 +252,7 @@ class BaseAnnotationManager:
 
         :param media_item: MediaItem to read the annotation for
         :return: Dictionary containing the annotation, in SC format
-        """
+        """            
         annotation_list = self.annotation_reader.get_data(
             filename=media_item.name,
             label_name_to_id_mapping=self.label_mapping,

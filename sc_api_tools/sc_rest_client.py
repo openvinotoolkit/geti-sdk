@@ -351,6 +351,7 @@ class SCRESTClient:
             project_name: str,
             project_type: str,
             path_to_images: str,
+            path_to_videos: str,
             annotation_reader: AnnotationReader,
             labels: Optional[List[str]] = None,
             number_of_images_to_upload: int = -1,
@@ -441,6 +442,17 @@ class SCRESTClient:
         ):
             images = images[:number_of_images_to_annotate]
 
+        # Upload videos
+        videos = []
+        video_manager = None
+        if path_to_videos is not None:
+            video_manager = VideoManager(
+                workspace_id=self.workspace_id, session=self.session, project=project
+            )
+            videos = video_manager.upload_folder(
+                path_to_folder=path_to_videos
+            )
+
         # Set annotation reader task type
         annotation_reader.task_type = project.get_trainable_tasks()[0].type
         annotation_reader.prepare_and_set_dataset(
@@ -451,11 +463,17 @@ class SCRESTClient:
             session=self.session,
             project=project,
             workspace_id=self.workspace_id,
-            annotation_reader=annotation_reader,
+            annotation_reader=annotation_reader
         )
         annotation_manager.upload_annotations_for_images(
             images
         )
+
+        if len(videos) > 0:
+            annotation_manager.upload_annotations_for_videos(
+                videos=videos,
+            )
+
         configuration_manager.set_project_auto_train(auto_train=enable_auto_train)
         return project
 
