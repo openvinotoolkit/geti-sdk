@@ -46,12 +46,11 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
         :return:
         """
         annotation_filenames = self.annotation_reader.get_data_filenames()
-        video_fname = video.name.rsplit('_',1)[0]
         video_annotation_names = [
             filename for filename in annotation_filenames
-            if filename.startswith(f"{video_fname}_frame_")
+            if filename.startswith(f"{video.name}_frame_")
         ]
-        frame_indices = [int(name.split('_')[-2:-1][0]) for name in video_annotation_names]
+        frame_indices = [int(name.split('_')[-1]) for name in video_annotation_names]
         video_frames = MediaList(
             [
                 VideoFrame.from_video(video=video, frame_index=frame_index)

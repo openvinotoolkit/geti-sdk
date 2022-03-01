@@ -93,67 +93,6 @@ def create_segmentation_demo_project(
     )
 
 
-def create_unity_detection_demo_project(
-        client: SCRESTClient,
-        n_images: int,
-        n_annotations: int = -1,
-        auto_train: bool = False,
-        dataset_path: Optional[str] = None
-) -> Project:
-    """
-    This method creates a demo project of type 'detection', based off the MS COCO
-    dataset.
-
-    It creates a project with a single 'Detection' task, with labels and annotations
-    for 'cell phone' and 'person' objects
-
-    :param client: SCRESTClient, representing the client for the SC cluster on which
-        the project should be created.
-    :param n_images: Number of images that should be uploaded. Pass -1 to upload all
-        available images in the dataset for the given labels
-    :param n_annotations: Number of images that should be annotated. Pass -1 to
-        upload annotations for all images.
-    :param auto_train: True to set auto-training to True once the project has been
-        created and the images have been annotated, False to leave auto-training
-        turned off.
-    :param dataset_path: Path to the COCO dataset to use as data source. Defaults to
-        the 'data' directory in the top level folder of the sc_api_tools package. If
-        the dataset is not found in the target folder, this method will attempt to
-        download it from the internet.
-    :return: Project object, holding detailed information about the project that was
-        created on the SC cluster.
-    """
-    if dataset_path is None:
-        dataset_path = DEFAULT_COCO_PATH
-    coco_path = get_coco_dataset_from_path(dataset_path)
-    print("\n ------- Creating detection project --------------- \n")
-
-    labels_of_interest = ["pumpkin"]
-    project_type = "detection"
-    project_name = "Detection demo"
-
-    # Create annotation reader
-    annotation_reader = DatumAnnotationReader(
-        base_data_folder=coco_path,
-        annotation_format='coco'
-    )
-    annotation_reader.filter_dataset(
-        labels=labels_of_interest, criterion='AND'
-    )
-    # Create project and upload data
-    return client.create_single_task_project_from_dataset(
-        project_name=project_name,
-        project_type=project_type,
-        path_to_images=coco_path,
-        path_to_videos=None,
-        annotation_reader=annotation_reader,
-        labels=labels_of_interest,
-        number_of_images_to_upload=n_images,
-        number_of_images_to_annotate=n_annotations,
-        enable_auto_train=auto_train
-    )
-
-
 def create_detection_demo_project(
         client: SCRESTClient,
         n_images: int,
