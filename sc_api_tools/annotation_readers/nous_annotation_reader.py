@@ -1,6 +1,7 @@
 import glob
 import json
 import os
+import re
 from typing import Tuple, List, Dict, Any, Union, Optional
 
 from sc_api_tools.data_models import TaskType
@@ -76,36 +77,14 @@ class NOUSAnnotationReader(AnnotationReader):
                 filename of the image, without the UID
             - The name_separator token that separates the uid from the filename. This
                 should be '_'
-            - The full filename except the last part. In case of a video frame, this
-                should have only the frame UID removed so it can be used to get a
-                precise match for the frame annotation
+            - The UID part of the filename.
         """
-        name_separator = '.json'
-        return filename.split(name_separator)[0], name_separator, filename
-
-    def _find_filename(self, filename: str) -> Tuple[str, str, str]:
-        idx = filename.rfind("_")
-        if idx == -1:
-            print("Failed to decode the filename.")
-            return "", "", ""
-
-        name = filename[:idx]
-        image_id = filename[idx:]
-
-        real_json = ""
-        for json_file in os.listdir(self.base_folder):
-            if name in json_file:
-                with open(self.base_folder + "/" + json_file, "r") as info:
-                    data = json.load(info)
-
-                if data["image_id"] in image_id:
-                    real_json = json_file
-                    break
-
-        if real_json == "":
-            return "", "", ""
-
-        return real_json.split(".json")[0], ".json", filename
+        name_separator = '_'
+        uuid_pattern = re.compile("[0-9a-fA-F]{24}")
+        uuid_matches = uuid_pattern.search(filename)
+        uuid_start_index = uuid_matches.span()[0]
+        filename_no_uid = filename[:uuid_start_index-1]
+        return filename_no_uid, name_separator, uuid_matches.group()
 
     def _get_new_shape(self, x: float, y: float, radius: float) -> dict:
         """
@@ -215,24 +194,22 @@ class NOUSAnnotationReader(AnnotationReader):
             preserve_shape_for_global_labels: bool = False,
             frame: int = -1
     ):
-        annotation_filename, separator_token, full_filename = self._find_filename(
+        media_filename, separator_token, uuid = self._convert_filename(
             filename
         )
 
         if frame != -1:
-            annotation_filename = annotation_filename+'_frame_'+str(frame)
-            annotation_files = [
-                self._convert_filename(filename)[0]+'_frame_'+str(frame) for filename
-                in os.listdir(self.base_folder)
-            ]
+            annotation_filename = f'{media_filename}_frame_{frame}'
         else:
-            annotation_files = [
-                self._convert_filename(filename)[0] for filename
-                in os.listdir(self.base_folder)
-            ]
+            annotation_filename = media_filename
+
+        annotation_files = [
+            self._convert_filename(filename)[0] for filename
+            in os.listdir(self.base_folder)
+        ]
 
         filepath = glob.glob(
-            os.path.join(self.base_folder, f"{annotation_filename}{separator_token}*")
+            os.path.join(self.base_folder, f"{annotation_filename}*")
         )
 
         annotation_list = []
@@ -240,14 +217,23 @@ class NOUSAnnotationReader(AnnotationReader):
             print(f"No annotation file found for image {filename}.")
         else:
             if len(filepath) != 1:
-                # Try again to get a unique match, this time with the full filename
-                filepath = glob.glob(
-                    os.path.join(
-                        self.base_folder, f"{full_filename}{separator_token}*"
-                    )
-                )
+                # Try to match the annotation files against the media uuid
+                for filename in filepath:
+                    with open(filename, 'r') as f:
+                        data = json.load(f)
+                    if data.get("image_id", None) == uuid:
+                        filepath = [filename]
+                        break
+                    if data.get("video_id", None) == uuid:
+                        frame_idx = int(data.get("frame_id", -2))
+                        if frame_idx == frame:
+                            filepath = [filename]
+                            break
                 if len(filepath) == 0:
-                    print(f"No annotation file found for image {full_filename}.")
+                    print(
+                        f"No annotation file found for image or video frame "
+                        f"{full_filename}."
+                    )
                     return []
                 elif len(filepath) != 1:
                     print(
@@ -274,9 +260,6 @@ class NOUSAnnotationReader(AnnotationReader):
 
                 new_label_ids = []
                 for label in labels:
-                    if label == "No Object" or label == "No Class" or label == "Empty":
-                        continue
-
                     new_label_ids.append(label_name_to_id_mapping[label])
 
                 if len(new_label_ids) == 0:

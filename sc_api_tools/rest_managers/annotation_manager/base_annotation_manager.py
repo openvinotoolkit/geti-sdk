@@ -212,10 +212,17 @@ class BaseAnnotationManager:
         annotation_scene.extend(new_annotation_scene.annotations)
 
         if annotation_scene.has_data:
+            rest_data = AnnotationRESTConverter.to_dict(
+                annotation_scene, deidentify=False
+            )
+            if self.session.version != '1.0':
+                rest_data.pop("kind", None)
+                rest_data.pop("annotation_state_per_task", None)
+                rest_data.pop("id", None)
             response = self.session.get_rest_response(
                 url=f"{media_item.base_url}/annotations",
                 method="POST",
-                data=AnnotationRESTConverter.to_dict(annotation_scene, deidentify=False)
+                data=rest_data
             )
             return AnnotationRESTConverter.from_dict(response)
         else:
