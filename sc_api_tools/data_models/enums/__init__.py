@@ -1,4 +1,5 @@
 from .annotation_kind import AnnotationKind
+from .annotation_state import AnnotationState
 from .shape_type import ShapeType
 from .media_type import MediaType
 from .task_type import TaskType
@@ -16,6 +17,7 @@ __all__ = [
     "MediaType",
     "ShapeType",
     "AnnotationKind",
+    "AnnotationState",
     "PredictionMode",
     "ConfigurationEntityType",
     "Domain",

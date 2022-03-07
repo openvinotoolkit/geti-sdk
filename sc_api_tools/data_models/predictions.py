@@ -3,7 +3,8 @@ from typing import List, Optional, ClassVar, Dict
 import numpy as np
 
 import attr
-from sc_api_tools.data_models.annotations import AnnotationScene, AnnotationKind
+from sc_api_tools.data_models.enums import AnnotationKind
+from sc_api_tools.data_models.annotation_scene import AnnotationScene
 from sc_api_tools.data_models.label import Label
 from sc_api_tools.data_models.media import MediaInformation
 from sc_api_tools.data_models.utils import str_to_annotation_kind, deidentify

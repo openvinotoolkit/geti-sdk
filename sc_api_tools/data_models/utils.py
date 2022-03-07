@@ -55,6 +55,38 @@ def str_to_enum_converter(
     return _converter
 
 
+def str_to_optional_enum_converter(
+        enum: Type[EnumType]
+) -> Callable[[Union[str, EnumType]], EnumType]:
+    """
+    Constructs a converter function to convert an input value into an instance of the
+    Enum subclass passed in `enum`
+
+    :param enum: type of the Enum to which the converter should convert
+    :return: Converter function that takes an input value and attempts to convert it
+        into an instance of `enum`
+    """
+    def _converter(input_value: Optional[Union[str, EnumType]]) -> Optional[EnumType]:
+        """
+        Converts an input value to an instance of an Enum
+
+        :param input_value: Value to convert
+        :return: Instance of the Enum
+        """
+        if isinstance(input_value, str):
+            return enum(input_value)
+        elif isinstance(input_value, enum):
+            return input_value
+        elif input_value is None:
+            return None
+        else:
+            raise ValueError(
+                f"Invalid argument! Cannot convert value {input_value} to Enum "
+                f"{enum.__name__}"
+            )
+    return _converter
+
+
 def str_to_task_type(task_type: Union[str, TaskType]) -> TaskType:
     """
     Converts an input string to a task type

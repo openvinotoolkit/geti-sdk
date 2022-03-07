@@ -2,10 +2,11 @@ import copy
 
 import attr
 from omegaconf import OmegaConf
-from sc_api_tools.data_models import MediaType, ScoredLabel
+from sc_api_tools.data_models import MediaType, ScoredLabel, AnnotationScene
 from typing import List, Dict, Any, cast
 
-from sc_api_tools.data_models import AnnotationScene, Annotation
+from sc_api_tools.data_models import Annotation
+from sc_api_tools.data_models.annotation_scene import TaskAnnotationState
 from sc_api_tools.data_models.shapes import Shape, Rectangle, Ellipse, Polygon, Point
 from sc_api_tools.data_models.media_identifiers import (
     MediaIdentifier,
@@ -139,4 +140,9 @@ class AnnotationRESTConverter:
         input_copy.update(
             {"annotations": annotations, "media_identifier": media_identifier}
         )
+        if "annotation_state_per_task" in annotation_scene:
+            annotation_states: List[TaskAnnotationState] = []
+            for annotation_state in annotation_scene["annotation_state_per_task"]:
+                annotation_states.append(TaskAnnotationState(**annotation_state))
+            input_copy.update({"annotation_state_per_task": annotation_states})
         return AnnotationScene(**input_copy)

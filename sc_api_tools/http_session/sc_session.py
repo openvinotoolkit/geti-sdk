@@ -47,6 +47,20 @@ class SCSession(requests.Session):
                 f"Please use a full hostname, including the protocol for http "
                 f"servers. For example: https://10.0.0.1"
             )
+        self._product_info = self.get_rest_response('/product_info', 'GET')
+
+    @property
+    def version(self) -> str:
+        """
+        Returns the version of SonomaCreek that is running on the server
+
+        :return: string holding the SC version number
+        """
+        version = self._product_info.get('product-version', '1.0')
+        if version.startswith('1.1.'):
+            return '1.1'
+        else:
+            return '1.0'
 
     def _follow_login_redirects(self, response: Response) -> str:
         """

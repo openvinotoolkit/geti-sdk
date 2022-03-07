@@ -4,7 +4,7 @@ import numpy as np
 
 import cv2
 
-from sc_api_tools.data_models.annotations import AnnotationScene
+from sc_api_tools.data_models.annotation_scene import AnnotationScene
 from sc_api_tools.data_models.media import Image, VideoFrame
 from sc_api_tools.data_models.media import MediaInformation
 from sc_api_tools.data_models.predictions import Prediction

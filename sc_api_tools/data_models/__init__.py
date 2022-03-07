@@ -3,7 +3,8 @@ from .project import Project, Pipeline
 from .label import Label, ScoredLabel
 from .task import Task
 from .media import Image, Video, MediaItem, VideoFrame
-from .annotations import AnnotationScene, Annotation
+from .annotations import Annotation
+from .annotation_scene import AnnotationScene
 from .algorithms import Algorithm
 from .predictions import Prediction
 from .configuration import (
@@ -29,7 +30,6 @@ __all__ = [
     "Video",
     "MediaItem",
     "MediaType",
-    "AnnotationScene",
     "Annotation",
     "Algorithm",
     "ScoredLabel",

@@ -60,7 +60,7 @@ class AlgorithmList(UserList):
         return AlgorithmList(
             [
                 algo for algo in self.data
-                if algo.domain == Domain.from_task_type(task_type)
+                if algo.task_type == task_type
             ]
         )
 
@@ -74,7 +74,7 @@ class AlgorithmList(UserList):
         summary_str = "Algorithms:\n"
         for algorithm in self.data:
             summary_str += f"  Name: {algorithm.algorithm_name}\n" \
-                           f"    Domain: {algorithm.domain}\n" \
+                           f"    Task type: {algorithm.task_type}\n" \
                            f"    Model size: {algorithm.model_size}\n" \
                            f"    Gigaflops: {algorithm.gigaflops}\n\n"
         return summary_str

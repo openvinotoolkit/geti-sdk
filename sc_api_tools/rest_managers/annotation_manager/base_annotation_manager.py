@@ -160,12 +160,15 @@ class BaseAnnotationManager:
                     "AnnotationManager is unable to upload any annotation data."
                 )
         if scene_to_upload.annotations:
+            rest_data = AnnotationRESTConverter.to_dict(
+                scene_to_upload, deidentify=False
+            )
+            if self.session.version != '1.0':
+                rest_data.pop("kind")
             self.session.get_rest_response(
                 url=f"{media_item.base_url}/annotations",
                 method="POST",
-                data=AnnotationRESTConverter.to_dict(
-                    scene_to_upload, deidentify=False
-                )
+                data=rest_data
             )
         return scene_to_upload
 
