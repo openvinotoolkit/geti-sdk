@@ -1,6 +1,6 @@
 import json
 import os
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Callable
 
 import attr
 
@@ -9,11 +9,6 @@ import numpy as np
 from sc_api_tools.data_models import Project, Task, TaskType, Prediction, Label
 from sc_api_tools.deployment.data_models import ROI, IntermediateInferenceResult
 from sc_api_tools.deployment.deployed_model import DeployedModel
-from sc_api_tools.deployment.prediction_converters import (
-    convert_classification_output,
-    convert_detection_output,
-    convert_anomaly_classification_output, convert_segmentation_output
-)
 from sc_api_tools.rest_converters import ProjectRESTConverter
 
 
@@ -32,6 +27,10 @@ class Deployment:
         """
         self._is_single_task: bool = len(self.project.get_trainable_tasks()) == 1
         self._are_models_loaded: bool = False
+        self._detection_converter: Optional[Callable] = None
+        self._classification_converter: Optional[Callable] = None
+        self._segmentation_converter: Optional[Callable] = None
+        self._anomaly_classification_converter: Optional[Callable] = None
 
     @property
     def is_single_task(self) -> bool:
@@ -113,6 +112,19 @@ class Deployment:
         """
         for model, task in zip(self.models, self.project.get_trainable_tasks()):
             model.load_inference_model(device=device)
+
+        from sc_api_tools.deployment.prediction_converters import (
+            convert_classification_output,
+            convert_detection_output,
+            convert_anomaly_classification_output,
+            convert_segmentation_output
+        )
+
+        self._detection_converter = convert_detection_output
+        self._classification_converter = convert_classification_output
+        self._anomaly_classification_converter = convert_anomaly_classification_output
+        self._segmentation_converter = convert_segmentation_output
+
         self._are_models_loaded = True
 
     def infer(self, image: np.ndarray) -> Prediction:
@@ -124,6 +136,12 @@ class Deployment:
             with the channels in RGB order
         :return: inference results
         """
+        if not self.are_models_loaded:
+            raise ValueError(
+                f"Deployment '{self}' is not ready to infer, the inference models are "
+                f"not loaded. Please call 'load_inference_models' first."
+            )
+
         # Single task inference
         if self.is_single_task:
             return self._infer_task(image, task=self.project.get_trainable_tasks()[0])
@@ -217,19 +235,19 @@ class Deployment:
         )
 
         if task.type == TaskType.DETECTION:
-            return convert_detection_output(
+            return self._detection_converter(
                     model_output=postprocessing_results,
                     image_width=image.shape[1],
                     image_height=image.shape[0],
                     labels=task.labels
                 )
         elif task.type == TaskType.CLASSIFICATION:
-            return convert_classification_output(
+            return self._classification_converter(
                 model_output=postprocessing_results,
                 labels=task.labels
             )
         elif task.type == TaskType.ANOMALY_CLASSIFICATION:
-            return convert_anomaly_classification_output(
+            return self._anomaly_classification_converter(
                 model_output=postprocessing_results,
                 anomalous_label=next(
                     (label for label in task.labels if label.name == 'Anomalous')
@@ -240,7 +258,7 @@ class Deployment:
             )
         elif task.type == TaskType.SEGMENTATION:
             soft_prediction = metadata.get("soft_predictions", None)
-            return convert_segmentation_output(
+            return self._segmentation_converter(
                 model_output=postprocessing_results,
                 labels=task.labels,
                 soft_prediction=soft_prediction
