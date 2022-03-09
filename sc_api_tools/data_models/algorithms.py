@@ -31,4 +31,5 @@ class Algorithm:
         :return: 
         """
         if self.domain is not None and self.task_type is None:
-            self.task_type = TaskType[str(self.domain).lower()]
+            self.task_type = TaskType.from_domain(self.domain)
+            self.domain = None

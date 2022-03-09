@@ -47,6 +47,16 @@ class TaskType(Enum):
         """
         return self in ANOMALY_TASK_TYPES
 
+    @classmethod
+    def from_domain(cls, domain: 'Domain'):
+        """
+        Instantiates a TaskType from a given Domain
+
+        :param domain: Domain to get the TaskType for
+        :return: TaskType instance corresponding to the `domain`
+        """
+        return cls[domain.name]
+
 
 NON_TRAINABLE_TASK_TYPES = [TaskType.DATASET, TaskType.CROP]
 
