@@ -41,7 +41,7 @@ from zipfile import ZipFile
 import uuid
 import shutil
 import os
-from typing import Union, Optional, List
+from typing import Union, Optional, List, Dict, Any
 import sys
 from argparse import ArgumentParser, SUPPRESS
 
@@ -78,7 +78,8 @@ def migrate_nous_project(
     rest_client: SCRESTClient,
     export_path: Union[str, os.PathLike],
     project_type: str,
-    project_name: Optional[str] = None
+    project_name: Optional[str] = None,
+    labels: Optional[Union[List[str], List[Dict[str, Any]]]] = None
 ):
     """
     README:
@@ -123,9 +124,14 @@ def migrate_nous_project(
     # Read all the labels from the annotation files
     '''
     For single task projects, all the labels found in the 
-    annotation files will be used when creating a new project on SC
+    annotation files will be used when creating a new project on SC. 
+    
+    If the `labels` argument is passed, the labels will not be determined from the 
+    annotation reader but the label data inside the `labels` variable will be used 
+    instead.
     '''
-    labels = annotation_reader.get_all_label_names()
+    if labels is None:
+        labels = annotation_reader.get_all_label_names()
 
     # Create project
     project_manager = ProjectManager(
