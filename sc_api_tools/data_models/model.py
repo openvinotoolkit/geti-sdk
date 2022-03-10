@@ -169,10 +169,10 @@ class Model(BaseModel):
     Class representing a Model in SC
     """
     architecture: str = attr.ib(kw_only=True)
-    version: int = attr.ib(kw_only=True)
     score_up_to_date: bool = attr.ib(kw_only=True)
     optimization_capabilities: OptimizationCapabilities = attr.ib(kw_only=True)
     optimized_models: List[OptimizedModel] = attr.ib(kw_only=True)
+    version: Optional[int] = attr.ib(default=None, kw_only=True)  # 'version' is deprecated in v1.1
 
     @property
     def model_group_id(self) -> Optional[str]:

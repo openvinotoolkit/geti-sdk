@@ -152,7 +152,7 @@ class ModelManager:
         for group in model_groups:
             if not group.has_trained_models:
                 continue
-            if group.algorithm.domain != Domain.from_task_type(task.type):
+            if group.algorithm.task_type != task.type:
                 continue
             model_summary = group.get_latest_model()
             if model_summary is not None:

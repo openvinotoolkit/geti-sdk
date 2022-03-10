@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import ClassVar, List, Optional, Union
 
 import attr
@@ -30,8 +31,8 @@ class ModelSummary:
 
     name: str
     creation_date: str = attr.ib(converter=str_to_datetime)
-    version: int
     score_up_to_date: bool
+    version: Optional[int] = None  # 'version' is removed in v1.1
     score: Optional[float] = attr.ib(default=None)
     active_model: bool = attr.ib(default=False)
     id: Optional[str] = attr.ib(default=None, repr=False)
@@ -73,8 +74,8 @@ class ModelGroup:
         """
         if not self.has_trained_models:
             return None
-        versions = [model.version for model in self.models]
-        return self.get_model_by_version(max(versions))
+        creation_dates = [model.creation_date for model in self.models]
+        return self.get_model_by_creation_date(max(creation_dates))
 
     def get_model_by_version(self, version: int) -> ModelSummary:
         """
@@ -91,6 +92,30 @@ class ModelGroup:
         except StopIteration:
             raise ValueError(
                 f"Model with version {version} does not exist in model group {self}"
+            )
+        return model
+
+    def get_model_by_creation_date(self, creation_date: datetime) -> ModelSummary:
+        """
+        Returns the model created on `creation_date` in the model group. If no model
+        by that date is found, this method raises a ValueError
+
+        :param creation_date: Datetime object representing the desired creation_date
+        :return: ModelSummary instance with the specified creation_date, if any
+        """
+        if not self.has_trained_models:
+            return None
+        try:
+            model = next(
+                (
+                    model for model in self.models
+                    if model.creation_date == creation_date
+                )
+            )
+        except StopIteration:
+            raise ValueError(
+                f"Model with creation date {creation_date} does not exist in model "
+                f"group {self}"
             )
         return model
 
