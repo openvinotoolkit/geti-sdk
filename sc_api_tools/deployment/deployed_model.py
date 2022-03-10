@@ -180,11 +180,14 @@ class DeployedModel(OptimizedModel):
         try:
             model_name = OpenvinoModelName(model_type)
         except ValueError:
-            raise NotImplementedError(
-                f"Loading inference model for model type {model_type} is currently not "
-                f"supported. This package provides support for the following model "
-                f"types: {[model.value for model in OpenvinoModelName]}."
-            )
+            try:
+                model_name = OpenvinoModelName[model_type]
+            except KeyError:
+                raise NotImplementedError(
+                    f"Loading inference model for model type {model_type} is currently "
+                    f"not supported. This package provides support for the following "
+                    f"model types: {[model.name for model in OpenvinoModelName]}."
+                )
 
         # Make sure all parameters we're passing to the model wrapper are valid for
         # the model
