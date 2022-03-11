@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     migrate_nous_chain(
         rest_client=client,
-        export_path='C:/Projects/SC/API/hat-segmentation.zip',
+        export_path='C:/Projects/SC/API/hat-det-seg-chain.zip',
         task_types=['detection', 'segmentation'],
         labels_per_task=[['hard hat'], ['hard hat shape']],
         project_name='dummy_pipeline_project'
