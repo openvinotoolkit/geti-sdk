@@ -9,6 +9,10 @@ class TaskType(Enum):
     SEGMENTATION = "segmentation"
     CLASSIFICATION = "classification"
     ANOMALY_CLASSIFICATION = "anomaly_classification"
+    ANOMALY_DETECTION = "anomaly_detection"
+    ANOMALY_SEGMENTATION = "anomaly_segmentation"
+    INSTANCE_SEGMENTATION = "instance_segmentation"
+    ROTATED_DETECTION = "rotated_detection"
     DATASET = "dataset"
     CROP = "crop"
 
@@ -60,6 +64,10 @@ class TaskType(Enum):
 
 NON_TRAINABLE_TASK_TYPES = [TaskType.DATASET, TaskType.CROP]
 
-ANOMALY_TASK_TYPES = [TaskType.ANOMALY_CLASSIFICATION]
+ANOMALY_TASK_TYPES = [
+    TaskType.ANOMALY_CLASSIFICATION,
+    TaskType.ANOMALY_DETECTION,
+    TaskType.ANOMALY_SEGMENTATION
+]
 
 GLOBAL_TASK_TYPES = [TaskType.CLASSIFICATION, TaskType.ANOMALY_CLASSIFICATION]
