@@ -197,7 +197,7 @@ def migrate_nous_chain(
     rest_client: SCRESTClient,
     export_path: Union[str, os.PathLike],
     task_types: List[str],
-    labels_per_task: List[List[str]],
+    labels_per_task: List[Union[List[str], List[Dict[str, Any]]]],
     project_name: Optional[str] = None
 ):
     """
