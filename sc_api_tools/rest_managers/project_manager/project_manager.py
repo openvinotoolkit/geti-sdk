@@ -6,7 +6,6 @@ from typing import Optional, List, Dict, Any, Union, Tuple
 from sc_api_tools.data_models import Project, TaskType
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import ProjectRESTConverter
-from sc_api_tools.data_models.enums.task_type import ANOMALY_TASK_TYPES
 from sc_api_tools.utils.project_helpers import get_task_types_by_project_type
 
 from .task_templates import (
@@ -15,7 +14,11 @@ from .task_templates import (
     DETECTION_TASK,
     SEGMENTATION_TASK,
     CLASSIFICATION_TASK,
-    ANOMALY_CLASSIFICATION_TASK
+    ANOMALY_CLASSIFICATION_TASK,
+    ANOMALY_DETECTION_TASK,
+    ANOMALY_SEGMENTATION_TASK,
+    INSTANCE_SEGMENTATION_TASK,
+    ROTATED_DETECTION_TASK
 )
 
 
@@ -24,7 +27,11 @@ TASK_TYPE_MAPPING = {
     TaskType.DETECTION: DETECTION_TASK,
     TaskType.SEGMENTATION: SEGMENTATION_TASK,
     TaskType.CLASSIFICATION: CLASSIFICATION_TASK,
-    TaskType.ANOMALY_CLASSIFICATION: ANOMALY_CLASSIFICATION_TASK
+    TaskType.ANOMALY_CLASSIFICATION: ANOMALY_CLASSIFICATION_TASK,
+    TaskType.ANOMALY_DETECTION: ANOMALY_DETECTION_TASK,
+    TaskType.ANOMALY_SEGMENTATION: ANOMALY_SEGMENTATION_TASK,
+    TaskType.INSTANCE_SEGMENTATION: INSTANCE_SEGMENTATION_TASK,
+    TaskType.ROTATED_DETECTION: ROTATED_DETECTION_TASK
 }
 
 
@@ -192,7 +199,7 @@ class ProjectManager:
         )
         task_template["title"] = unique_task_title
 
-        if task_type.value not in ANOMALY_TASK_TYPES:
+        if not task_type.is_anomaly:
             label_group_name = f"{unique_task_title.lower()} label group"
 
             for label in labels:

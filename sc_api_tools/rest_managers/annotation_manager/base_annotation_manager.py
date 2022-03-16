@@ -160,6 +160,7 @@ class BaseAnnotationManager:
                     "AnnotationManager is unable to upload any annotation data."
                 )
         if scene_to_upload.annotations:
+            scene_to_upload.prepare_for_post()
             rest_data = AnnotationRESTConverter.to_dict(
                 scene_to_upload, deidentify=False
             )

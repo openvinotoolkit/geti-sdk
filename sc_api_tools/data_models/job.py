@@ -42,7 +42,7 @@ class TaskMetadata:
     """
     model_template_id: str
     model_architecture: str
-    model_version: int
+    model_version: Optional[int] = None
     name: Optional[str] = None
     dataset_storage_id: Optional[str] = None
 

@@ -1013,7 +1013,10 @@ class SCRESTClient:
         model_manager = ModelManager(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
-        active_models = model_manager.get_all_active_models()
+        active_models = [
+            model for model in model_manager.get_all_active_models()
+            if model is not None
+        ]
         configuration_manager = ConfigurationManager(
             session=self.session, workspace_id=self.workspace_id, project=project
         )

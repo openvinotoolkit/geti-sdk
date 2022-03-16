@@ -36,6 +36,30 @@ ANOMALY_CLASSIFICATION_TASK = {
     "labels": []
 }
 
+ANOMALY_DETECTION_TASK = {
+    "title": "Anomaly detection task",
+    "task_type": "anomaly_detection",
+    "labels": []
+}
+
+ANOMALY_SEGMENTATION_TASK = {
+    "title": "Anomaly segmentation task",
+    "task_type": "anomaly_segmentation",
+    "labels": []
+}
+
+INSTANCE_SEGMENTATION_TASK = {
+    "title": "Instance segmentation task",
+    "task_type": "instance_segmentation",
+    "labels": []
+}
+
+ROTATED_DETECTION_TASK = {
+    "title": "Rotated detection task",
+    "task_type": "rotated_detection",
+    "labels": []
+}
+
 CROP_TASK = {
     "title": "Crop task",
     "task_type": "crop"

@@ -58,7 +58,8 @@ class AnnotationScene:
     :var annotation_state_per_task: Optional dictionary holding the annotation state
         for this AnnotationScene for each task in the project pipeline.
     """
-    _identifier_fields: ClassVar[str] = ["id", "modified"]
+    _identifier_fields: ClassVar[List[str]] = ["id", "modified"]
+    _GET_only_fields: ClassVar[List[str]] = ["annotation_state_per_task"]
 
     annotations: List[Annotation]
     kind: str = attr.ib(
@@ -89,6 +90,16 @@ class AnnotationScene:
         self.media_identifier = None
         for annotation in self.annotations:
             annotation.deidentify()
+
+    def prepare_for_post(self):
+        """
+        Removes all fields that are not valid for making a POST request to the
+        /annotations endpoint
+
+        :return:
+        """
+        for field_name in self._GET_only_fields:
+            setattr(self, field_name, None)
 
     def append(self, annotation: Annotation):
         """
