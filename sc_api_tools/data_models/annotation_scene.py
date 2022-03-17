@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 
 from sc_api_tools.data_models.annotations import Annotation
-from sc_api_tools.data_models.enums import AnnotationKind, AnnotationState
+from sc_api_tools.data_models.enums import AnnotationKind
 from sc_api_tools.data_models.label import ScoredLabel
 from sc_api_tools.data_models.media import MediaInformation
 from sc_api_tools.data_models.media_identifiers import (
@@ -20,25 +20,15 @@ from sc_api_tools.data_models.shapes import (
     Rectangle,
     Polygon,
 )
+from sc_api_tools.data_models.task_annotation_state import TaskAnnotationState
 from sc_api_tools.data_models.utils import (
     str_to_annotation_kind,
     str_to_datetime,
     deidentify,
     attr_value_serializer,
     round_dictionary,
-    str_to_enum_converter,
 )
 from sc_api_tools.utils import remove_null_fields
-
-
-@attr.s(auto_attribs=True)
-class TaskAnnotationState:
-    """
-    This class represents the state of an annotation for a particular task in the SC
-    project
-    """
-    task_id: str
-    state: str = attr.ib(converter=str_to_enum_converter(AnnotationState))
 
 
 @attr.s(auto_attribs=True)

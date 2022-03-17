@@ -6,7 +6,7 @@ from sc_api_tools.data_models import MediaType, ScoredLabel, AnnotationScene
 from typing import List, Dict, Any, cast
 
 from sc_api_tools.data_models import Annotation
-from sc_api_tools.data_models.annotation_scene import TaskAnnotationState
+from sc_api_tools.data_models.task_annotation_state import TaskAnnotationState
 from sc_api_tools.data_models.shapes import Shape, Rectangle, Ellipse, Polygon, Point
 from sc_api_tools.data_models.media_identifiers import (
     MediaIdentifier,

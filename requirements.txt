@@ -1,4 +1,4 @@
-datumaro==0.2.1
+datumaro==0.3
 requests==2.26.*
 numpy>=1.19.5
 omegaconf==2.1.*
