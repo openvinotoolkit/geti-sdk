@@ -14,5 +14,3 @@ class TaskAnnotationState:
     state: str = attr.ib(
         converter=str_to_enum_converter_by_name_or_value(AnnotationState)
     )
-
-
