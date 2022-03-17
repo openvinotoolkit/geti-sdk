@@ -32,6 +32,7 @@ class ModelSummary:
     name: str
     creation_date: str = attr.ib(converter=str_to_datetime)
     score_up_to_date: bool
+    size: Optional[int] = None
     version: Optional[int] = None  # 'version' is removed in v1.1
     score: Optional[float] = attr.ib(default=None)
     active_model: bool = attr.ib(default=False)

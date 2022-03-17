@@ -39,6 +39,7 @@ class BaseModel:
     latency: str
     precision: List[str]
     creation_date: str = attr.ib(converter=str_to_datetime)
+    size: Optional[int] = None
     target_device: Optional[str] = None
     target_device_type: Optional[str] = None
     previous_revision_id: Optional[str] = None
