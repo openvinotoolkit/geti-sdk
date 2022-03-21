@@ -38,7 +38,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
-    packages=["sc_api_tools"],
+    packages=setuptools.find_packages(),
     python_requires=">=3.8",
     install_requires=get_requirements('requirements.txt'),
     extras_require={
