@@ -25,3 +25,5 @@ venv.bak/
 /notebooks/.ipynb_checkpoints
 /notebooks/deployments
 /notebooks/projects
+
+build
