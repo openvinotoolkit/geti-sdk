@@ -1,11 +1,12 @@
 import copy
 import json
 import os
-from typing import Optional, List, Dict, Any, Union, Tuple
+from typing import Optional, List, Dict, Any, Union, Tuple, Sequence, Mapping
 
-from sc_api_tools.data_models import Project, TaskType
+from sc_api_tools.data_models import Project, TaskType, Task
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import ProjectRESTConverter
+from sc_api_tools.utils import remove_null_fields
 from sc_api_tools.utils.project_helpers import get_task_types_by_project_type
 
 from .task_templates import (
@@ -454,3 +455,90 @@ class ProjectManager:
             else:
                 raise error
         print(f"Project '{project.name}' deleted successfully.")
+
+    def add_labels(
+        self,
+        labels: Union[List[str], List[Dict[str, Any]]],
+        project: Project,
+        task: Optional[Task] = None
+    ) -> Project:
+        """
+        Adds the `labels` to the project labels. For a project with multiple tasks,
+        the `task` parameter can be used to specify the task for which the labels
+        should be added.
+
+        :param labels: List of labels to add. Can either be a list of strings
+            representing label names, or a list of dictionaries representing label
+            properties
+        :param project: Project to which the labels should be added
+        :param task: Optional Task to add the labels for. Can be left as None for a
+            single task project, but is required for a task chain project
+        :return: Updated Project instance with the new labels added to it
+        """
+        # Validate inputs and server version
+        if self.session.version < '1.1':
+            raise ValueError(
+                f"Your server is running SonomaCreek version {self.session.version}. "
+                f"Unfortunately this version does not support adding labels, please "
+                f"upgrade to SC1.1 or higher."
+            )
+        if task is not None and task not in project.get_trainable_tasks():
+            raise ValueError(
+                f"The provided task {task} is not part of project {project}."
+            )
+        if len(project.get_trainable_tasks()) > 1 and task is None:
+            raise ValueError(
+                f"Project '{project}' is a task-chain project, but no target task was "
+                f"specified. Please provide a valid task to perform label addition."
+            )
+        task_index = 0 if task is None else project.get_trainable_tasks().index(task)
+
+        # Update the list of labels for the task
+        label_list = project.get_labels_per_task()[task_index]
+        formatted_labels: List[Dict[str, Any]] = []
+        for label_data in labels:
+            if isinstance(label_data, str):
+                label_dict = {
+                    "name": label_data,
+                    "color": "#000000",
+                    "group": label_data
+                }
+            elif isinstance(label_data, dict):
+                label_name = label_data.get("name", None)
+                if label_name is None:
+                    raise ValueError(
+                        f"Unable to add label {label_data}: Label name not specified."
+                    )
+                if "color" not in label_data:
+                    label_data.update({"color": "#000000"})
+                if "group" not in label_data:
+                    label_data.update({"group": label_name})
+                label_dict = label_data
+            else:
+                raise ValueError(
+                    f"Invalid input label format found for label {label_data}. Please "
+                    f"provide either the label name as a string or a dictionary of "
+                    f"label properties."
+                )
+            formatted_labels.append(label_dict)
+        label_list.extend(formatted_labels)
+
+        # Prepare data for the update request
+        project_data = project.to_dict()
+        task_id = project.get_trainable_tasks()[task_index].id
+        task_data = next(
+            (
+                task for task in project_data["pipeline"]["tasks"]
+                if task["id"] == task_id
+            )
+        )
+        task_data["labels"] = label_list
+        remove_null_fields(project_data)
+        print(project_data)
+        response = self.session.get_rest_response(
+                url=f"{self.base_url}projects/{project.id}",
+                method="PUT",
+                data=project_data
+            )
+        return ProjectRESTConverter.from_dict(response)
+
