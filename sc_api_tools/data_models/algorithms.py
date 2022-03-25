@@ -23,6 +23,7 @@ class Algorithm:
     task_type: Optional[str] = attr.ib(
         default=None, converter=str_to_optional_enum_converter(TaskType)
     )
+    supports_auto_hpo: Optional[bool] = None
 
     def __attrs_post_init__(self):
         """
