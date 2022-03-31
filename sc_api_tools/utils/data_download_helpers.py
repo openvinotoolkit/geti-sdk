@@ -8,6 +8,17 @@ import requests
 from tqdm import tqdm
 
 
+DEFAULT_COCO_PATH = os.path.join(
+    os.path.dirname(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(__file__)
+            )
+        )
+    ), 'data'
+)
+
+
 class COCOSubset(Enum):
     """
     This Enum represents a certain subset of the MS COCO dataset
@@ -249,3 +260,19 @@ def get_coco_dataset_from_path(
     if verbose:
         print("COCO dataset downloaded and extracted successfully.")
     return target_folder
+
+
+def get_coco_dataset(dataset_path: Optional[str] = None) -> str:
+    """
+    This method checks if the COCO dataset is present at the specified path. If not,
+    this method will attempt to download the dataset to the path specified.
+
+    If no path is passed, this method will check or create the default path: the
+    folder 'data' in the top level of the sc-api-tools package.
+
+    :param dataset_path: Path to check against.
+    :return: Path to the COCO dataset
+    """
+    if dataset_path is None:
+        dataset_path = DEFAULT_COCO_PATH
+    return get_coco_dataset_from_path(dataset_path, verbose=True)

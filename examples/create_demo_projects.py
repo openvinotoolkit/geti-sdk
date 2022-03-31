@@ -1,14 +1,14 @@
 from sc_api_tools import SCRESTClient
 
-from sc_api_tools.demos import (
+from demos import (
     create_segmentation_demo_project,
     create_detection_demo_project,
     create_classification_demo_project,
     create_anomaly_classification_demo_project,
     create_detection_to_segmentation_demo_project,
-    create_detection_to_classification_demo_project, get_coco_dataset
+    create_detection_to_classification_demo_project
 )
-
+from sc_api_tools.utils import get_coco_dataset
 
 if __name__ == "__main__":
     # --------------------------------------------------

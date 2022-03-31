@@ -2,8 +2,7 @@ import os
 
 from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers import DatumAnnotationReader
-from sc_api_tools.demos import get_coco_dataset
-from sc_api_tools.utils import get_task_types_by_project_type, get_coco_dataset_from_path
+from sc_api_tools.utils import get_task_types_by_project_type, get_coco_dataset
 
 if __name__ == "__main__":
     # --------------------------------------------------
