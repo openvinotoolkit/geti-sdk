@@ -40,7 +40,7 @@ if __name__ == "__main__":
     # --------------------------------------------------
 
     # Check that the MS COCO dataset is found at the path, download otherwise
-    get_coco_dataset(COCO_PATH)
+    get_coco_dataset(COCO_PATH, verbose=True)
 
     # Create the demo projects
     create_segmentation_demo_project(

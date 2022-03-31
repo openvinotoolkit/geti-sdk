@@ -262,7 +262,7 @@ def get_coco_dataset_from_path(
     return target_folder
 
 
-def get_coco_dataset(dataset_path: Optional[str] = None) -> str:
+def get_coco_dataset(dataset_path: Optional[str] = None, verbose: bool = False) -> str:
     """
     This method checks if the COCO dataset is present at the specified path. If not,
     this method will attempt to download the dataset to the path specified.
@@ -271,8 +271,9 @@ def get_coco_dataset(dataset_path: Optional[str] = None) -> str:
     folder 'data' in the top level of the sc-api-tools package.
 
     :param dataset_path: Path to check against.
+    :param verbose: True to print detailed output, False to check silently
     :return: Path to the COCO dataset
     """
     if dataset_path is None:
         dataset_path = DEFAULT_COCO_PATH
-    return get_coco_dataset_from_path(dataset_path, verbose=True)
+    return get_coco_dataset_from_path(dataset_path, verbose=verbose)
