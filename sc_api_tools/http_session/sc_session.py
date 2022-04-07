@@ -1,5 +1,5 @@
 from json import JSONDecodeError
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Union, Any
 
 import requests
 import urllib3

@@ -1,6 +1,7 @@
 import os
 import time
-from typing import Dict, List, Type, Any, Generic, ClassVar, BinaryIO, Iterable
+from typing import Dict, List, Type, Any, Generic, ClassVar, BinaryIO, Iterable, \
+    Sequence
 from glob import glob
 
 from sc_api_tools.data_models import (
@@ -106,7 +107,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
             rest_input=raw_media_list, media_type=self.__media_type
         )
 
-    def _delete_media(self, media_list: MediaList[MediaTypeVar]) -> bool:
+    def _delete_media(self, media_list: Sequence[MediaTypeVar]) -> bool:
         """
         Deletes all media entities in `media_list` from the project
 
@@ -114,7 +115,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         :return: True if all items on the media list were deleted successfully,
             False otherwise
         """
-        if not isinstance(media_list, MediaList) and isinstance(media_list, Iterable):
+        if not isinstance(media_list, MediaList) and isinstance(media_list, Sequence):
             media_list = MediaList(media_list)
         if media_list.media_type == VideoFrame:
             raise ValueError(
@@ -138,6 +139,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
                     # Media item has already been deleted, continue with the rest of
                     # the list
                     continue
+        return True
 
     def _upload_bytes(self, buffer: BinaryIO) -> Dict[str, Any]:
         """

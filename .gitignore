@@ -27,3 +27,6 @@ venv.bak/
 /notebooks/projects
 
 build
+
+# Test reports
+.coverage

@@ -1,0 +1,483 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Content-Type:
+      - application/json
+      Cookie:
+      - _oauth2_proxy=leVKiWenZfTkEWHPyDZUDqzidB6Q2VZUh0g0fe-Or-Uq2B20wb2EiaHoVyQ62BYigFP6sCk0R31XcYhvcyUKsndX7gKzgyuo1Xpa54I3xhe6RUWg_Rssvokk-iC_Rn8y25lXGLN8_J0E83J4zlpSkiMkTBv1btJppgF2aaD2gaj5RaVI53HNHmkblq76FHrJeOuRwmgBOkyPKJ21bYdVmYNUBI1qjAatX3dp-y4FUHBcUG7iVyiHrW4PvQj8hACLechi2QB_T95ZR9a9jxOsW0nYFHzvOvQvx-Zr5b7AjyezAJiFaHdjY0xfH4TLdraV8DOjiWLu-E6aSX5RweOaNbYDuTiL-MIHf-GJeu7Xra0dVurRVvoGNSOYIKa_pbK7iaGGOvTfel78oDqGq7GXGjlcUNFI2gWJhfz2pGHjtRwjeXjhv-o61vn88n89ypCNiWw6HpqCN_Zwm-GrTcpyfb9YReDusckEba-fpezQ0u0DKRptCgCJOqMDFskqQGp1vvvPIvljaLUf-8khiBcyL5AQnF_7hRSo0uvdl8j8URXRDekiwCIAFE40U1vDPBvcIstXV6CVeWXuwA-MTO8kCKvTz6b2HvOdVHNdcbBDtstmcJIhWhlrIK3vSPm1cNwlnvgPjN1SLgKDXGVaMyJA7RR4eoilYSmZDy0ruHUNVawco0FUOy4OUHzo0_rxI3UkeDpO0dQov9pvY5uKIZamDMF3fydiyzf2kaBY5IIKTR2QRIhw2RJWBU6hCXuhIBuy8LBRQOKcf7FQ6iY5zBQphXY1-J5vbgLNTKWAHQSYgRCtRyOPq0tBoqi3UYyLZXHPAfS5pBnPEcqQA_XEaER75xBWJUBbZxdN_NPDVuVBPkgJnq1Qo3xAemBXm1MHVmedM5KoNIqzsKXMOt_gzJjyXzO6pAKvJLHj65kdwotEo2sSmKxn8ieUx_LL54wRY5vSHSkdHqfp_RtBdPvBCjGpmStrgp4ka8yhpyov9swMFXvWErn8XXNeXv1lKBOaQ2ZrFDGBluNeinm19NVohnvMZaoE1XZX7lf9IWlCy1_BZqOZT16mmtiVvmBwgZ_u1JzkJY9agf3PbPM5hUJ_oqj8UJsIHFRkAAll5PX_o0JWCx7E6bN5cFzcByD5w6U2GX1SFrfCTKrpAxU-6nJgrUi99mzmV-IMRoWaQEkRzHUlbrE3YzqCuTiPrq-gpVtyGCwQsO53L14mroZ8f3M8ObkR7o4LyiMY8ELQDd5TjC6Tp434TbDsMMzrWdfPo0cCiVHrEWAsxUPA1ncnGG8k_etSqPJcyop2GRa0UlIDpN4oY9ZFO4Lk_lZA7JX0xKzsQjg4xwA9Zdypy7p_yHJmE_cx3P4HpP9KdSRmzg8HE2Ai6jArOlgxTRiOXphJAEZYtlIO6tw3HeypAG0vS49ccZoXmKfSFXk0DVBgYlhbM9SExLSQxgPU1La5Xo_nA_GH3FUaav7Zmo_C1Kk33Fb33u7IW6tYdRKRwTkmyEcSL2glOXxYuda3U-mJEU6ZbkkzDYjBiiV_7OjShk15oLqoFDH-QQ8FvMV2vEMz-naRCRwBmBGVT96583MGPeNDYFLDUTtEunDGZwdwZuXbxdBwgMM2eKgKI_V0J_CwLo5iV3xQU15gracOG030DPh2JxPhPRHOf8SDUxya9jYonus4WVDvY_9Wg-BV7mXc2o-gaGYFY0yZdu6treC18doe_IkQXVzXwLHFi6rK-1vcAL-BADrtI38I8bDv7kBi9SD2ZzQm2DOseqW13unwTDIY-L1pvQ8N5NHM5uQJE0-JecokniDXBJzxOFVKmFUhI3cjtSYrmdAlWU9GuY6H-O3C_y6Dn4-tfCZ4VZNP2Mc1lEo7aMPB0TcGADOBQGMgIx2B8gm_JmXE4llwuycwcrOAt1mVbVB_nEwuYEHQuPkUpeTD5PEcajffNSUENBUnYpNgnlBPWEhQxXm4rpsI2nJGQfx2g0VqhM7fpTMkSQJcx2zcCQaqVAz325EaRjL0k5CskJEi-AT7AM1Fu7C2PiNukdoz5j2d6SDZpXUnWmxX_QtJPma7sfR1FgaX6fFU11JXc_pjGHB1Ar0Q5iCNO2txM1qztWJ29sCIHBnxRpbjMTBbBbHkX-f-Tc4e_5N7NDjq6C50A-aejKccnZ6_0cK3zIbs3XloSd-_geIqb7K3gErqJlPr4WZs208YTFrAU4bqV2d1l06M13FrEFIBUhdGf0HqS1aOCbU=|1649321365|P-xKaMFdthK2Q31cS7pUjd00ruJOLQ-ZydESy5rQqG0=;
+        _oauth2_proxy=leVKiWenZfTkEWHPyDZUDqzidB6Q2VZUh0g0fe-Or-Uq2B20wb2EiaHoVyQ62BYigFP6sCk0R31XcYhvcyUKsndX7gKzgyuo1Xpa54I3xhe6RUWg_Rssvokk-iC_Rn8y25lXGLN8_J0E83J4zlpSkiMkTBv1btJppgF2aaD2gaj5RaVI53HNHmkblq76FHrJeOuRwmgBOkyPKJ21bYdVmYNUBI1qjAatX3dp-y4FUHBcUG7iVyiHrW4PvQj8hACLechi2QB_T95ZR9a9jxOsW0nYFHzvOvQvx-Zr5b7AjyezAJiFaHdjY0xfH4TLdraV8DOjiWLu-E6aSX5RweOaNbYDuTiL-MIHf-GJeu7Xra0dVurRVvoGNSOYIKa_pbK7iaGGOvTfel78oDqGq7GXGjlcUNFI2gWJhfz2pGHjtRwjeXjhv-o61vn88n89ypCNiWw6HpqCN_Zwm-GrTcpyfb9YReDusckEba-fpezQ0u0DKRptCgCJOqMDFskqQGp1vvvPIvljaLUf-8khiBcyL5AQnF_7hRSo0uvdl8j8URXRDekiwCIAFE40U1vDPBvcIstXV6CVeWXuwA-MTO8kCKvTz6b2HvOdVHNdcbBDtstmcJIhWhlrIK3vSPm1cNwlnvgPjN1SLgKDXGVaMyJA7RR4eoilYSmZDy0ruHUNVawco0FUOy4OUHzo0_rxI3UkeDpO0dQov9pvY5uKIZamDMF3fydiyzf2kaBY5IIKTR2QRIhw2RJWBU6hCXuhIBuy8LBRQOKcf7FQ6iY5zBQphXY1-J5vbgLNTKWAHQSYgRCtRyOPq0tBoqi3UYyLZXHPAfS5pBnPEcqQA_XEaER75xBWJUBbZxdN_NPDVuVBPkgJnq1Qo3xAemBXm1MHVmedM5KoNIqzsKXMOt_gzJjyXzO6pAKvJLHj65kdwotEo2sSmKxn8ieUx_LL54wRY5vSHSkdHqfp_RtBdPvBCjGpmStrgp4ka8yhpyov9swMFXvWErn8XXNeXv1lKBOaQ2ZrFDGBluNeinm19NVohnvMZaoE1XZX7lf9IWlCy1_BZqOZT16mmtiVvmBwgZ_u1JzkJY9agf3PbPM5hUJ_oqj8UJsIHFRkAAll5PX_o0JWCx7E6bN5cFzcByD5w6U2GX1SFrfCTKrpAxU-6nJgrUi99mzmV-IMRoWaQEkRzHUlbrE3YzqCuTiPrq-gpVtyGCwQsO53L14mroZ8f3M8ObkR7o4LyiMY8ELQDd5TjC6Tp434TbDsMMzrWdfPo0cCiVHrEWAsxUPA1ncnGG8k_etSqPJcyop2GRa0UlIDpN4oY9ZFO4Lk_lZA7JX0xKzsQjg4xwA9Zdypy7p_yHJmE_cx3P4HpP9KdSRmzg8HE2Ai6jArOlgxTRiOXphJAEZYtlIO6tw3HeypAG0vS49ccZoXmKfSFXk0DVBgYlhbM9SExLSQxgPU1La5Xo_nA_GH3FUaav7Zmo_C1Kk33Fb33u7IW6tYdRKRwTkmyEcSL2glOXxYuda3U-mJEU6ZbkkzDYjBiiV_7OjShk15oLqoFDH-QQ8FvMV2vEMz-naRCRwBmBGVT96583MGPeNDYFLDUTtEunDGZwdwZuXbxdBwgMM2eKgKI_V0J_CwLo5iV3xQU15gracOG030DPh2JxPhPRHOf8SDUxya9jYonus4WVDvY_9Wg-BV7mXc2o-gaGYFY0yZdu6treC18doe_IkQXVzXwLHFi6rK-1vcAL-BADrtI38I8bDv7kBi9SD2ZzQm2DOseqW13unwTDIY-L1pvQ8N5NHM5uQJE0-JecokniDXBJzxOFVKmFUhI3cjtSYrmdAlWU9GuY6H-O3C_y6Dn4-tfCZ4VZNP2Mc1lEo7aMPB0TcGADOBQGMgIx2B8gm_JmXE4llwuycwcrOAt1mVbVB_nEwuYEHQuPkUpeTD5PEcajffNSUENBUnYpNgnlBPWEhQxXm4rpsI2nJGQfx2g0VqhM7fpTMkSQJcx2zcCQaqVAz325EaRjL0k5CskJEi-AT7AM1Fu7C2PiNukdoz5j2d6SDZpXUnWmxX_QtJPma7sfR1FgaX6fFU11JXc_pjGHB1Ar0Q5iCNO2txM1qztWJ29sCIHBnxRpbjMTBbBbHkX-f-Tc4e_5N7NDjq6C50A-aejKccnZ6_0cK3zIbs3XloSd-_geIqb7K3gErqJlPr4WZs208YTFrAU4bqV2d1l06M13FrEFIBUhdGf0HqS1aOCbU=|1649321365|P-xKaMFdthK2Q31cS7pUjd00ruJOLQ-ZydESy5rQqG0=;
+        _oauth2_proxy_csrf=_LdfeivZPBykQcR4Bxebd-0YvTEpqvNJyNxpeGg5AI1VEe6tJX5OXjn5QZhzufcWNzW6OEiZqhKn6-6nWbj1IvpGrO5fwDX-uemGys4yBT4LgbnRptaLh1U=|1649321364|8mEae4_Ls4t6q8uvLsYNXiHf7N7GsA0yYeqNRo9BR3s=
+    method: GET
+    uri: https://10.55.252.155//api/v1.0/workspaces/624c004b234370fcf24bf38c/projects/624ea5b7234370fcf24c09cd/configuration/task_chain/624ea5b7234370fcf24c09d1
+  response:
+    body:
+      string: '{"components":[{"description":"Learning Parameters","entity_identifier":{"group_name":"learning_parameters","model_storage_id":"624ea5b7234370fcf24c09d2","type":"HYPER_PARAMETER_GROUP","workspace_id":"624c004b234370fcf24bf38c"},"header":"Learning
+        Parameters","id":"624ea5b9234370fcf24c09db-0","name":"learning_parameters","parameters":[{"auto_hpo_state":"possible","auto_hpo_value":null,"data_type":"integer","default_value":8,"description":"The
+        number of training samples seen in each iteration of training. Increasing
+        this value improves training time and may make the training more stable. A
+        larger batch size has higher memory requirements.","editable":true,"header":"Batch
+        size","max_value":512,"min_value":1,"name":"batch_size","template_type":"input","ui_rules":{},"value":8,"warning":"Increasing
+        this value may cause the system to use more memory than available, potentially
+        causing out of memory errors, please update with caution."},{"auto_hpo_state":"possible","auto_hpo_value":null,"data_type":"float","default_value":0.008,"description":"Increasing
+        this value will speed up training convergence but might make it unstable.","editable":true,"header":"Learning
+        rate","max_value":0.1,"min_value":1e-07,"name":"learning_rate","template_type":"input","ui_rules":{},"value":0.008,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":200,"description":"","editable":true,"header":"Number
+        of iterations for learning rate warmup","max_value":10000,"min_value":0,"name":"learning_rate_warmup_iters","template_type":"input","ui_rules":{},"value":200,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":300,"description":"Increasing
+        this value causes the results to be more robust but training time will be
+        longer.","editable":true,"header":"Number of training iterations","max_value":100000,"min_value":1,"name":"num_iters","template_type":"input","ui_rules":{},"value":300,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":4,"description":"Increasing
+        this value might improve training speed however it might cause out of memory
+        errors. If the number of workers is set to zero, data loading will happen
+        in the main training thread.","editable":true,"header":"Number of cpu threads
+        to use during batch generation","max_value":36,"min_value":0,"name":"num_workers","template_type":"input","ui_rules":{},"value":4,"warning":null}],"type":"PARAMETER_GROUP"},{"description":"Postprocessing","entity_identifier":{"group_name":"postprocessing","model_storage_id":"624ea5b7234370fcf24c09d2","type":"HYPER_PARAMETER_GROUP","workspace_id":"624c004b234370fcf24bf38c"},"header":"Postprocessing","id":"624ea5b9234370fcf24c09db-2","name":"postprocessing","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"float","default_value":0.35,"description":"This
+        threshold only takes effect if the threshold is not set based on the result.","editable":true,"header":"Confidence
+        threshold","max_value":1,"min_value":0,"name":"confidence_threshold","template_type":"input","ui_rules":{},"value":0.35,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":true,"description":"Confidence
+        threshold is derived from the results","editable":true,"header":"Result based
+        confidence threshold","name":"result_based_confidence_threshold","template_type":"input","ui_rules":{},"value":true,"warning":null}],"type":"PARAMETER_GROUP"},{"description":"Specify
+        the distribution of annotated samples over the training, validation and test
+        sets.","entity_identifier":{"component":"SUBSET_MANAGER","project_id":"624ea5b7234370fcf24c09cd","task_id":"624ea5b7234370fcf24c09d1","type":"COMPONENT_PARAMETERS","workspace_id":"624c004b234370fcf24bf38c"},"groups":[{"description":"Specify
+        the distributions of annotated samples over training, validation and test
+        set.","header":"Subset distribution","name":"subset_parameters","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"float","default_value":0.3,"description":"Fraction
+        of annotated data that will be assigned to the test set","editable":true,"header":"Test
+        set proportion","max_value":1.0,"min_value":0.1,"name":"test_proportion","template_type":"input","ui_rules":{"action":"SHOW","operator":"AND","rules":[{"operator":"EQUAL_TO","parameter":["auto_subset_fractions"],"type":"RULE","value":false}],"type":"UI_RULES"},"value":0.3,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"float","default_value":0.5,"description":"Fraction
+        of annotated data that will be assigned to the training set","editable":true,"header":"Training
+        set proportion","max_value":1.0,"min_value":0.1,"name":"train_proportion","template_type":"input","ui_rules":{"action":"SHOW","operator":"AND","rules":[{"operator":"EQUAL_TO","parameter":["auto_subset_fractions"],"type":"RULE","value":false}],"type":"UI_RULES"},"value":0.5,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"float","default_value":0.2,"description":"Fraction
+        of annotated data that will be assigned to the validation set","editable":true,"header":"Validation
+        set proportion","max_value":1.0,"min_value":0.1,"name":"validation_proportion","template_type":"input","ui_rules":{"action":"SHOW","operator":"AND","rules":[{"operator":"EQUAL_TO","parameter":["auto_subset_fractions"],"type":"RULE","value":false}],"type":"UI_RULES"},"value":0.2,"warning":null}],"type":"PARAMETER_GROUP"}],"header":"Subset
+        splitting","id":"624ea5b731683af273fc636b","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":true,"description":"If
+        this setting is enabled, the system will automatically determine the most
+        optimal distribution of the annotated samples over training, validation and
+        test set. Disable this setting to manually specify the proportions.","editable":true,"header":"Automatically
+        determine subset proportions","name":"auto_subset_fractions","template_type":"input","ui_rules":{},"value":true,"warning":null}],"type":"CONFIGURABLE_PARAMETERS"},{"description":"Specify
+        the number of required annotations for a task","entity_identifier":{"component":"DATASET_COUNTER","project_id":"624ea5b7234370fcf24c09cd","task_id":"624ea5b7234370fcf24c09d1","type":"COMPONENT_PARAMETERS","workspace_id":"624c004b234370fcf24bf38c"},"header":"Annotation
+        requirements","id":"624ea5b731683af273fc636c","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":false,"description":"If
+        this is ON, the first training will only be triggered when each label is present
+        in N images, while N is number of required images for the first training.
+        Otherwise, first training will be triggered when N images have been annotated.
+        If first training has been triggered, this parameter will not take effect.","editable":true,"header":"Label
+        constraint for the first training","name":"label_constraint_first_training","template_type":"input","ui_rules":{},"value":false,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":12,"description":"The
+        minimum number of images that is required before auto-train is triggered for
+        the first time.","editable":true,"header":"Number of images required for the
+        first training","max_value":10000,"min_value":3,"name":"required_images_first_training","template_type":"input","ui_rules":{},"value":12,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":6,"description":"The
+        minimum number of new annotations required before auto-train is triggered.
+        This is applicable after one successful training round.","editable":true,"header":"Number
+        of images required for retraining","max_value":10000,"min_value":6,"name":"required_images_retraining","template_type":"input","ui_rules":{},"value":6,"warning":null}],"type":"CONFIGURABLE_PARAMETERS"},{"description":"General
+        settings for a task.","entity_identifier":{"component":"TASK_NODE","project_id":"624ea5b7234370fcf24c09cd","task_id":"624ea5b7234370fcf24c09d1","type":"COMPONENT_PARAMETERS","workspace_id":"624c004b234370fcf24bf38c"},"header":"General","id":"624ea5b831683af273fc636e","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":true,"description":"Set
+        to True to allow the task to start training automatically when it is ready
+        to train.","editable":true,"header":"Auto-training","name":"auto_training","template_type":"input","ui_rules":{},"value":true,"warning":null}],"type":"CONFIGURABLE_PARAMETERS"}],"task_id":"624ea5b7234370fcf24c09d1","task_title":"Detection
+        task"}
+
+        '
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '8809'
+      Content-Security-Policy:
+      - frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 07 Apr 2022 08:50:01 GMT
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      x-envoy-decorator-operation:
+      - impt-nous-resource.impt.svc.cluster.local:5000/*
+      x-envoy-upstream-service-time:
+      - '71'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Content-Type:
+      - application/json
+      Cookie:
+      - _oauth2_proxy=leVKiWenZfTkEWHPyDZUDqzidB6Q2VZUh0g0fe-Or-Uq2B20wb2EiaHoVyQ62BYigFP6sCk0R31XcYhvcyUKsndX7gKzgyuo1Xpa54I3xhe6RUWg_Rssvokk-iC_Rn8y25lXGLN8_J0E83J4zlpSkiMkTBv1btJppgF2aaD2gaj5RaVI53HNHmkblq76FHrJeOuRwmgBOkyPKJ21bYdVmYNUBI1qjAatX3dp-y4FUHBcUG7iVyiHrW4PvQj8hACLechi2QB_T95ZR9a9jxOsW0nYFHzvOvQvx-Zr5b7AjyezAJiFaHdjY0xfH4TLdraV8DOjiWLu-E6aSX5RweOaNbYDuTiL-MIHf-GJeu7Xra0dVurRVvoGNSOYIKa_pbK7iaGGOvTfel78oDqGq7GXGjlcUNFI2gWJhfz2pGHjtRwjeXjhv-o61vn88n89ypCNiWw6HpqCN_Zwm-GrTcpyfb9YReDusckEba-fpezQ0u0DKRptCgCJOqMDFskqQGp1vvvPIvljaLUf-8khiBcyL5AQnF_7hRSo0uvdl8j8URXRDekiwCIAFE40U1vDPBvcIstXV6CVeWXuwA-MTO8kCKvTz6b2HvOdVHNdcbBDtstmcJIhWhlrIK3vSPm1cNwlnvgPjN1SLgKDXGVaMyJA7RR4eoilYSmZDy0ruHUNVawco0FUOy4OUHzo0_rxI3UkeDpO0dQov9pvY5uKIZamDMF3fydiyzf2kaBY5IIKTR2QRIhw2RJWBU6hCXuhIBuy8LBRQOKcf7FQ6iY5zBQphXY1-J5vbgLNTKWAHQSYgRCtRyOPq0tBoqi3UYyLZXHPAfS5pBnPEcqQA_XEaER75xBWJUBbZxdN_NPDVuVBPkgJnq1Qo3xAemBXm1MHVmedM5KoNIqzsKXMOt_gzJjyXzO6pAKvJLHj65kdwotEo2sSmKxn8ieUx_LL54wRY5vSHSkdHqfp_RtBdPvBCjGpmStrgp4ka8yhpyov9swMFXvWErn8XXNeXv1lKBOaQ2ZrFDGBluNeinm19NVohnvMZaoE1XZX7lf9IWlCy1_BZqOZT16mmtiVvmBwgZ_u1JzkJY9agf3PbPM5hUJ_oqj8UJsIHFRkAAll5PX_o0JWCx7E6bN5cFzcByD5w6U2GX1SFrfCTKrpAxU-6nJgrUi99mzmV-IMRoWaQEkRzHUlbrE3YzqCuTiPrq-gpVtyGCwQsO53L14mroZ8f3M8ObkR7o4LyiMY8ELQDd5TjC6Tp434TbDsMMzrWdfPo0cCiVHrEWAsxUPA1ncnGG8k_etSqPJcyop2GRa0UlIDpN4oY9ZFO4Lk_lZA7JX0xKzsQjg4xwA9Zdypy7p_yHJmE_cx3P4HpP9KdSRmzg8HE2Ai6jArOlgxTRiOXphJAEZYtlIO6tw3HeypAG0vS49ccZoXmKfSFXk0DVBgYlhbM9SExLSQxgPU1La5Xo_nA_GH3FUaav7Zmo_C1Kk33Fb33u7IW6tYdRKRwTkmyEcSL2glOXxYuda3U-mJEU6ZbkkzDYjBiiV_7OjShk15oLqoFDH-QQ8FvMV2vEMz-naRCRwBmBGVT96583MGPeNDYFLDUTtEunDGZwdwZuXbxdBwgMM2eKgKI_V0J_CwLo5iV3xQU15gracOG030DPh2JxPhPRHOf8SDUxya9jYonus4WVDvY_9Wg-BV7mXc2o-gaGYFY0yZdu6treC18doe_IkQXVzXwLHFi6rK-1vcAL-BADrtI38I8bDv7kBi9SD2ZzQm2DOseqW13unwTDIY-L1pvQ8N5NHM5uQJE0-JecokniDXBJzxOFVKmFUhI3cjtSYrmdAlWU9GuY6H-O3C_y6Dn4-tfCZ4VZNP2Mc1lEo7aMPB0TcGADOBQGMgIx2B8gm_JmXE4llwuycwcrOAt1mVbVB_nEwuYEHQuPkUpeTD5PEcajffNSUENBUnYpNgnlBPWEhQxXm4rpsI2nJGQfx2g0VqhM7fpTMkSQJcx2zcCQaqVAz325EaRjL0k5CskJEi-AT7AM1Fu7C2PiNukdoz5j2d6SDZpXUnWmxX_QtJPma7sfR1FgaX6fFU11JXc_pjGHB1Ar0Q5iCNO2txM1qztWJ29sCIHBnxRpbjMTBbBbHkX-f-Tc4e_5N7NDjq6C50A-aejKccnZ6_0cK3zIbs3XloSd-_geIqb7K3gErqJlPr4WZs208YTFrAU4bqV2d1l06M13FrEFIBUhdGf0HqS1aOCbU=|1649321365|P-xKaMFdthK2Q31cS7pUjd00ruJOLQ-ZydESy5rQqG0=;
+        _oauth2_proxy=leVKiWenZfTkEWHPyDZUDqzidB6Q2VZUh0g0fe-Or-Uq2B20wb2EiaHoVyQ62BYigFP6sCk0R31XcYhvcyUKsndX7gKzgyuo1Xpa54I3xhe6RUWg_Rssvokk-iC_Rn8y25lXGLN8_J0E83J4zlpSkiMkTBv1btJppgF2aaD2gaj5RaVI53HNHmkblq76FHrJeOuRwmgBOkyPKJ21bYdVmYNUBI1qjAatX3dp-y4FUHBcUG7iVyiHrW4PvQj8hACLechi2QB_T95ZR9a9jxOsW0nYFHzvOvQvx-Zr5b7AjyezAJiFaHdjY0xfH4TLdraV8DOjiWLu-E6aSX5RweOaNbYDuTiL-MIHf-GJeu7Xra0dVurRVvoGNSOYIKa_pbK7iaGGOvTfel78oDqGq7GXGjlcUNFI2gWJhfz2pGHjtRwjeXjhv-o61vn88n89ypCNiWw6HpqCN_Zwm-GrTcpyfb9YReDusckEba-fpezQ0u0DKRptCgCJOqMDFskqQGp1vvvPIvljaLUf-8khiBcyL5AQnF_7hRSo0uvdl8j8URXRDekiwCIAFE40U1vDPBvcIstXV6CVeWXuwA-MTO8kCKvTz6b2HvOdVHNdcbBDtstmcJIhWhlrIK3vSPm1cNwlnvgPjN1SLgKDXGVaMyJA7RR4eoilYSmZDy0ruHUNVawco0FUOy4OUHzo0_rxI3UkeDpO0dQov9pvY5uKIZamDMF3fydiyzf2kaBY5IIKTR2QRIhw2RJWBU6hCXuhIBuy8LBRQOKcf7FQ6iY5zBQphXY1-J5vbgLNTKWAHQSYgRCtRyOPq0tBoqi3UYyLZXHPAfS5pBnPEcqQA_XEaER75xBWJUBbZxdN_NPDVuVBPkgJnq1Qo3xAemBXm1MHVmedM5KoNIqzsKXMOt_gzJjyXzO6pAKvJLHj65kdwotEo2sSmKxn8ieUx_LL54wRY5vSHSkdHqfp_RtBdPvBCjGpmStrgp4ka8yhpyov9swMFXvWErn8XXNeXv1lKBOaQ2ZrFDGBluNeinm19NVohnvMZaoE1XZX7lf9IWlCy1_BZqOZT16mmtiVvmBwgZ_u1JzkJY9agf3PbPM5hUJ_oqj8UJsIHFRkAAll5PX_o0JWCx7E6bN5cFzcByD5w6U2GX1SFrfCTKrpAxU-6nJgrUi99mzmV-IMRoWaQEkRzHUlbrE3YzqCuTiPrq-gpVtyGCwQsO53L14mroZ8f3M8ObkR7o4LyiMY8ELQDd5TjC6Tp434TbDsMMzrWdfPo0cCiVHrEWAsxUPA1ncnGG8k_etSqPJcyop2GRa0UlIDpN4oY9ZFO4Lk_lZA7JX0xKzsQjg4xwA9Zdypy7p_yHJmE_cx3P4HpP9KdSRmzg8HE2Ai6jArOlgxTRiOXphJAEZYtlIO6tw3HeypAG0vS49ccZoXmKfSFXk0DVBgYlhbM9SExLSQxgPU1La5Xo_nA_GH3FUaav7Zmo_C1Kk33Fb33u7IW6tYdRKRwTkmyEcSL2glOXxYuda3U-mJEU6ZbkkzDYjBiiV_7OjShk15oLqoFDH-QQ8FvMV2vEMz-naRCRwBmBGVT96583MGPeNDYFLDUTtEunDGZwdwZuXbxdBwgMM2eKgKI_V0J_CwLo5iV3xQU15gracOG030DPh2JxPhPRHOf8SDUxya9jYonus4WVDvY_9Wg-BV7mXc2o-gaGYFY0yZdu6treC18doe_IkQXVzXwLHFi6rK-1vcAL-BADrtI38I8bDv7kBi9SD2ZzQm2DOseqW13unwTDIY-L1pvQ8N5NHM5uQJE0-JecokniDXBJzxOFVKmFUhI3cjtSYrmdAlWU9GuY6H-O3C_y6Dn4-tfCZ4VZNP2Mc1lEo7aMPB0TcGADOBQGMgIx2B8gm_JmXE4llwuycwcrOAt1mVbVB_nEwuYEHQuPkUpeTD5PEcajffNSUENBUnYpNgnlBPWEhQxXm4rpsI2nJGQfx2g0VqhM7fpTMkSQJcx2zcCQaqVAz325EaRjL0k5CskJEi-AT7AM1Fu7C2PiNukdoz5j2d6SDZpXUnWmxX_QtJPma7sfR1FgaX6fFU11JXc_pjGHB1Ar0Q5iCNO2txM1qztWJ29sCIHBnxRpbjMTBbBbHkX-f-Tc4e_5N7NDjq6C50A-aejKccnZ6_0cK3zIbs3XloSd-_geIqb7K3gErqJlPr4WZs208YTFrAU4bqV2d1l06M13FrEFIBUhdGf0HqS1aOCbU=|1649321365|P-xKaMFdthK2Q31cS7pUjd00ruJOLQ-ZydESy5rQqG0=;
+        _oauth2_proxy_csrf=_LdfeivZPBykQcR4Bxebd-0YvTEpqvNJyNxpeGg5AI1VEe6tJX5OXjn5QZhzufcWNzW6OEiZqhKn6-6nWbj1IvpGrO5fwDX-uemGys4yBT4LgbnRptaLh1U=|1649321364|8mEae4_Ls4t6q8uvLsYNXiHf7N7GsA0yYeqNRo9BR3s=
+    method: GET
+    uri: https://10.55.252.155//api/v1.0/workspaces/624c004b234370fcf24bf38c/projects/624ea5b7234370fcf24c09cd/configuration
+  response:
+    body:
+      string: '{"global":[{"description":"Specify the configuration for project level
+        active learning.","entity_identifier":{"component":"ACTIVE_MANAGER","project_id":"624ea5b7234370fcf24c09cd","task_id":"","type":"COMPONENT_PARAMETERS","workspace_id":"624c004b234370fcf24bf38c"},"header":"Active
+        Learning","id":"624ea5b831683af273fc636d","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":500,"description":"Number
+        of images analysed after training for active learning","editable":true,"header":"Number
+        of images analysed after training for active learning","max_value":10000,"min_value":10,"name":"max_unseen_media","template_type":"input","ui_rules":{},"value":500,"warning":null}],"type":"CONFIGURABLE_PARAMETERS"},{"description":"Specify
+        parameters to control how datasets are managed in the system.","entity_identifier":{"component":"PIPELINE_DATASET_MANAGER","project_id":"624ea5b7234370fcf24c09cd","task_id":"","type":"COMPONENT_PARAMETERS","workspace_id":"624c004b234370fcf24bf38c"},"header":"Dataset
+        management","id":"624ea5b831683af273fc636f","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":false,"description":"Enabling
+        NDR will help to prevent annotating very similar images. Note that this does
+        not remove any data from the project,it is only used in selecting images for
+        active learning.","editable":true,"header":"Use Near Duplicate Removal (NDR)
+        for active learning","name":"use_ndr","template_type":"input","ui_rules":{},"value":false,"warning":null}],"type":"CONFIGURABLE_PARAMETERS"}],"task_chain":[{"components":[{"description":"Learning
+        Parameters","entity_identifier":{"group_name":"learning_parameters","model_storage_id":"624ea5b7234370fcf24c09d2","type":"HYPER_PARAMETER_GROUP","workspace_id":"624c004b234370fcf24bf38c"},"header":"Learning
+        Parameters","id":"624ea5b9234370fcf24c09db-0","name":"learning_parameters","parameters":[{"auto_hpo_state":"possible","auto_hpo_value":null,"data_type":"integer","default_value":8,"description":"The
+        number of training samples seen in each iteration of training. Increasing
+        this value improves training time and may make the training more stable. A
+        larger batch size has higher memory requirements.","editable":true,"header":"Batch
+        size","max_value":512,"min_value":1,"name":"batch_size","template_type":"input","ui_rules":{},"value":8,"warning":"Increasing
+        this value may cause the system to use more memory than available, potentially
+        causing out of memory errors, please update with caution."},{"auto_hpo_state":"possible","auto_hpo_value":null,"data_type":"float","default_value":0.008,"description":"Increasing
+        this value will speed up training convergence but might make it unstable.","editable":true,"header":"Learning
+        rate","max_value":0.1,"min_value":1e-07,"name":"learning_rate","template_type":"input","ui_rules":{},"value":0.008,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":200,"description":"","editable":true,"header":"Number
+        of iterations for learning rate warmup","max_value":10000,"min_value":0,"name":"learning_rate_warmup_iters","template_type":"input","ui_rules":{},"value":200,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":300,"description":"Increasing
+        this value causes the results to be more robust but training time will be
+        longer.","editable":true,"header":"Number of training iterations","max_value":100000,"min_value":1,"name":"num_iters","template_type":"input","ui_rules":{},"value":300,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":4,"description":"Increasing
+        this value might improve training speed however it might cause out of memory
+        errors. If the number of workers is set to zero, data loading will happen
+        in the main training thread.","editable":true,"header":"Number of cpu threads
+        to use during batch generation","max_value":36,"min_value":0,"name":"num_workers","template_type":"input","ui_rules":{},"value":4,"warning":null}],"type":"PARAMETER_GROUP"},{"description":"Postprocessing","entity_identifier":{"group_name":"postprocessing","model_storage_id":"624ea5b7234370fcf24c09d2","type":"HYPER_PARAMETER_GROUP","workspace_id":"624c004b234370fcf24bf38c"},"header":"Postprocessing","id":"624ea5b9234370fcf24c09db-2","name":"postprocessing","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"float","default_value":0.35,"description":"This
+        threshold only takes effect if the threshold is not set based on the result.","editable":true,"header":"Confidence
+        threshold","max_value":1,"min_value":0,"name":"confidence_threshold","template_type":"input","ui_rules":{},"value":0.35,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":true,"description":"Confidence
+        threshold is derived from the results","editable":true,"header":"Result based
+        confidence threshold","name":"result_based_confidence_threshold","template_type":"input","ui_rules":{},"value":true,"warning":null}],"type":"PARAMETER_GROUP"},{"description":"Specify
+        the distribution of annotated samples over the training, validation and test
+        sets.","entity_identifier":{"component":"SUBSET_MANAGER","project_id":"624ea5b7234370fcf24c09cd","task_id":"624ea5b7234370fcf24c09d1","type":"COMPONENT_PARAMETERS","workspace_id":"624c004b234370fcf24bf38c"},"groups":[{"description":"Specify
+        the distributions of annotated samples over training, validation and test
+        set.","header":"Subset distribution","name":"subset_parameters","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"float","default_value":0.3,"description":"Fraction
+        of annotated data that will be assigned to the test set","editable":true,"header":"Test
+        set proportion","max_value":1.0,"min_value":0.1,"name":"test_proportion","template_type":"input","ui_rules":{"action":"SHOW","operator":"AND","rules":[{"operator":"EQUAL_TO","parameter":["auto_subset_fractions"],"type":"RULE","value":false}],"type":"UI_RULES"},"value":0.3,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"float","default_value":0.5,"description":"Fraction
+        of annotated data that will be assigned to the training set","editable":true,"header":"Training
+        set proportion","max_value":1.0,"min_value":0.1,"name":"train_proportion","template_type":"input","ui_rules":{"action":"SHOW","operator":"AND","rules":[{"operator":"EQUAL_TO","parameter":["auto_subset_fractions"],"type":"RULE","value":false}],"type":"UI_RULES"},"value":0.5,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"float","default_value":0.2,"description":"Fraction
+        of annotated data that will be assigned to the validation set","editable":true,"header":"Validation
+        set proportion","max_value":1.0,"min_value":0.1,"name":"validation_proportion","template_type":"input","ui_rules":{"action":"SHOW","operator":"AND","rules":[{"operator":"EQUAL_TO","parameter":["auto_subset_fractions"],"type":"RULE","value":false}],"type":"UI_RULES"},"value":0.2,"warning":null}],"type":"PARAMETER_GROUP"}],"header":"Subset
+        splitting","id":"624ea5b731683af273fc636b","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":true,"description":"If
+        this setting is enabled, the system will automatically determine the most
+        optimal distribution of the annotated samples over training, validation and
+        test set. Disable this setting to manually specify the proportions.","editable":true,"header":"Automatically
+        determine subset proportions","name":"auto_subset_fractions","template_type":"input","ui_rules":{},"value":true,"warning":null}],"type":"CONFIGURABLE_PARAMETERS"},{"description":"Specify
+        the number of required annotations for a task","entity_identifier":{"component":"DATASET_COUNTER","project_id":"624ea5b7234370fcf24c09cd","task_id":"624ea5b7234370fcf24c09d1","type":"COMPONENT_PARAMETERS","workspace_id":"624c004b234370fcf24bf38c"},"header":"Annotation
+        requirements","id":"624ea5b731683af273fc636c","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":false,"description":"If
+        this is ON, the first training will only be triggered when each label is present
+        in N images, while N is number of required images for the first training.
+        Otherwise, first training will be triggered when N images have been annotated.
+        If first training has been triggered, this parameter will not take effect.","editable":true,"header":"Label
+        constraint for the first training","name":"label_constraint_first_training","template_type":"input","ui_rules":{},"value":false,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":12,"description":"The
+        minimum number of images that is required before auto-train is triggered for
+        the first time.","editable":true,"header":"Number of images required for the
+        first training","max_value":10000,"min_value":3,"name":"required_images_first_training","template_type":"input","ui_rules":{},"value":12,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":6,"description":"The
+        minimum number of new annotations required before auto-train is triggered.
+        This is applicable after one successful training round.","editable":true,"header":"Number
+        of images required for retraining","max_value":10000,"min_value":6,"name":"required_images_retraining","template_type":"input","ui_rules":{},"value":6,"warning":null}],"type":"CONFIGURABLE_PARAMETERS"},{"description":"General
+        settings for a task.","entity_identifier":{"component":"TASK_NODE","project_id":"624ea5b7234370fcf24c09cd","task_id":"624ea5b7234370fcf24c09d1","type":"COMPONENT_PARAMETERS","workspace_id":"624c004b234370fcf24bf38c"},"header":"General","id":"624ea5b831683af273fc636e","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":true,"description":"Set
+        to True to allow the task to start training automatically when it is ready
+        to train.","editable":true,"header":"Auto-training","name":"auto_training","template_type":"input","ui_rules":{},"value":true,"warning":null}],"type":"CONFIGURABLE_PARAMETERS"}],"task_id":"624ea5b7234370fcf24c09d1","task_title":"Detection
+        task"}]}
+
+        '
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '10430'
+      Content-Security-Policy:
+      - frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 07 Apr 2022 08:50:01 GMT
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      x-envoy-decorator-operation:
+      - impt-nous-resource.impt.svc.cluster.local:5000/*
+      x-envoy-upstream-service-time:
+      - '98'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Content-Type:
+      - application/json
+      Cookie:
+      - _oauth2_proxy=leVKiWenZfTkEWHPyDZUDqzidB6Q2VZUh0g0fe-Or-Uq2B20wb2EiaHoVyQ62BYigFP6sCk0R31XcYhvcyUKsndX7gKzgyuo1Xpa54I3xhe6RUWg_Rssvokk-iC_Rn8y25lXGLN8_J0E83J4zlpSkiMkTBv1btJppgF2aaD2gaj5RaVI53HNHmkblq76FHrJeOuRwmgBOkyPKJ21bYdVmYNUBI1qjAatX3dp-y4FUHBcUG7iVyiHrW4PvQj8hACLechi2QB_T95ZR9a9jxOsW0nYFHzvOvQvx-Zr5b7AjyezAJiFaHdjY0xfH4TLdraV8DOjiWLu-E6aSX5RweOaNbYDuTiL-MIHf-GJeu7Xra0dVurRVvoGNSOYIKa_pbK7iaGGOvTfel78oDqGq7GXGjlcUNFI2gWJhfz2pGHjtRwjeXjhv-o61vn88n89ypCNiWw6HpqCN_Zwm-GrTcpyfb9YReDusckEba-fpezQ0u0DKRptCgCJOqMDFskqQGp1vvvPIvljaLUf-8khiBcyL5AQnF_7hRSo0uvdl8j8URXRDekiwCIAFE40U1vDPBvcIstXV6CVeWXuwA-MTO8kCKvTz6b2HvOdVHNdcbBDtstmcJIhWhlrIK3vSPm1cNwlnvgPjN1SLgKDXGVaMyJA7RR4eoilYSmZDy0ruHUNVawco0FUOy4OUHzo0_rxI3UkeDpO0dQov9pvY5uKIZamDMF3fydiyzf2kaBY5IIKTR2QRIhw2RJWBU6hCXuhIBuy8LBRQOKcf7FQ6iY5zBQphXY1-J5vbgLNTKWAHQSYgRCtRyOPq0tBoqi3UYyLZXHPAfS5pBnPEcqQA_XEaER75xBWJUBbZxdN_NPDVuVBPkgJnq1Qo3xAemBXm1MHVmedM5KoNIqzsKXMOt_gzJjyXzO6pAKvJLHj65kdwotEo2sSmKxn8ieUx_LL54wRY5vSHSkdHqfp_RtBdPvBCjGpmStrgp4ka8yhpyov9swMFXvWErn8XXNeXv1lKBOaQ2ZrFDGBluNeinm19NVohnvMZaoE1XZX7lf9IWlCy1_BZqOZT16mmtiVvmBwgZ_u1JzkJY9agf3PbPM5hUJ_oqj8UJsIHFRkAAll5PX_o0JWCx7E6bN5cFzcByD5w6U2GX1SFrfCTKrpAxU-6nJgrUi99mzmV-IMRoWaQEkRzHUlbrE3YzqCuTiPrq-gpVtyGCwQsO53L14mroZ8f3M8ObkR7o4LyiMY8ELQDd5TjC6Tp434TbDsMMzrWdfPo0cCiVHrEWAsxUPA1ncnGG8k_etSqPJcyop2GRa0UlIDpN4oY9ZFO4Lk_lZA7JX0xKzsQjg4xwA9Zdypy7p_yHJmE_cx3P4HpP9KdSRmzg8HE2Ai6jArOlgxTRiOXphJAEZYtlIO6tw3HeypAG0vS49ccZoXmKfSFXk0DVBgYlhbM9SExLSQxgPU1La5Xo_nA_GH3FUaav7Zmo_C1Kk33Fb33u7IW6tYdRKRwTkmyEcSL2glOXxYuda3U-mJEU6ZbkkzDYjBiiV_7OjShk15oLqoFDH-QQ8FvMV2vEMz-naRCRwBmBGVT96583MGPeNDYFLDUTtEunDGZwdwZuXbxdBwgMM2eKgKI_V0J_CwLo5iV3xQU15gracOG030DPh2JxPhPRHOf8SDUxya9jYonus4WVDvY_9Wg-BV7mXc2o-gaGYFY0yZdu6treC18doe_IkQXVzXwLHFi6rK-1vcAL-BADrtI38I8bDv7kBi9SD2ZzQm2DOseqW13unwTDIY-L1pvQ8N5NHM5uQJE0-JecokniDXBJzxOFVKmFUhI3cjtSYrmdAlWU9GuY6H-O3C_y6Dn4-tfCZ4VZNP2Mc1lEo7aMPB0TcGADOBQGMgIx2B8gm_JmXE4llwuycwcrOAt1mVbVB_nEwuYEHQuPkUpeTD5PEcajffNSUENBUnYpNgnlBPWEhQxXm4rpsI2nJGQfx2g0VqhM7fpTMkSQJcx2zcCQaqVAz325EaRjL0k5CskJEi-AT7AM1Fu7C2PiNukdoz5j2d6SDZpXUnWmxX_QtJPma7sfR1FgaX6fFU11JXc_pjGHB1Ar0Q5iCNO2txM1qztWJ29sCIHBnxRpbjMTBbBbHkX-f-Tc4e_5N7NDjq6C50A-aejKccnZ6_0cK3zIbs3XloSd-_geIqb7K3gErqJlPr4WZs208YTFrAU4bqV2d1l06M13FrEFIBUhdGf0HqS1aOCbU=|1649321365|P-xKaMFdthK2Q31cS7pUjd00ruJOLQ-ZydESy5rQqG0=;
+        _oauth2_proxy=leVKiWenZfTkEWHPyDZUDqzidB6Q2VZUh0g0fe-Or-Uq2B20wb2EiaHoVyQ62BYigFP6sCk0R31XcYhvcyUKsndX7gKzgyuo1Xpa54I3xhe6RUWg_Rssvokk-iC_Rn8y25lXGLN8_J0E83J4zlpSkiMkTBv1btJppgF2aaD2gaj5RaVI53HNHmkblq76FHrJeOuRwmgBOkyPKJ21bYdVmYNUBI1qjAatX3dp-y4FUHBcUG7iVyiHrW4PvQj8hACLechi2QB_T95ZR9a9jxOsW0nYFHzvOvQvx-Zr5b7AjyezAJiFaHdjY0xfH4TLdraV8DOjiWLu-E6aSX5RweOaNbYDuTiL-MIHf-GJeu7Xra0dVurRVvoGNSOYIKa_pbK7iaGGOvTfel78oDqGq7GXGjlcUNFI2gWJhfz2pGHjtRwjeXjhv-o61vn88n89ypCNiWw6HpqCN_Zwm-GrTcpyfb9YReDusckEba-fpezQ0u0DKRptCgCJOqMDFskqQGp1vvvPIvljaLUf-8khiBcyL5AQnF_7hRSo0uvdl8j8URXRDekiwCIAFE40U1vDPBvcIstXV6CVeWXuwA-MTO8kCKvTz6b2HvOdVHNdcbBDtstmcJIhWhlrIK3vSPm1cNwlnvgPjN1SLgKDXGVaMyJA7RR4eoilYSmZDy0ruHUNVawco0FUOy4OUHzo0_rxI3UkeDpO0dQov9pvY5uKIZamDMF3fydiyzf2kaBY5IIKTR2QRIhw2RJWBU6hCXuhIBuy8LBRQOKcf7FQ6iY5zBQphXY1-J5vbgLNTKWAHQSYgRCtRyOPq0tBoqi3UYyLZXHPAfS5pBnPEcqQA_XEaER75xBWJUBbZxdN_NPDVuVBPkgJnq1Qo3xAemBXm1MHVmedM5KoNIqzsKXMOt_gzJjyXzO6pAKvJLHj65kdwotEo2sSmKxn8ieUx_LL54wRY5vSHSkdHqfp_RtBdPvBCjGpmStrgp4ka8yhpyov9swMFXvWErn8XXNeXv1lKBOaQ2ZrFDGBluNeinm19NVohnvMZaoE1XZX7lf9IWlCy1_BZqOZT16mmtiVvmBwgZ_u1JzkJY9agf3PbPM5hUJ_oqj8UJsIHFRkAAll5PX_o0JWCx7E6bN5cFzcByD5w6U2GX1SFrfCTKrpAxU-6nJgrUi99mzmV-IMRoWaQEkRzHUlbrE3YzqCuTiPrq-gpVtyGCwQsO53L14mroZ8f3M8ObkR7o4LyiMY8ELQDd5TjC6Tp434TbDsMMzrWdfPo0cCiVHrEWAsxUPA1ncnGG8k_etSqPJcyop2GRa0UlIDpN4oY9ZFO4Lk_lZA7JX0xKzsQjg4xwA9Zdypy7p_yHJmE_cx3P4HpP9KdSRmzg8HE2Ai6jArOlgxTRiOXphJAEZYtlIO6tw3HeypAG0vS49ccZoXmKfSFXk0DVBgYlhbM9SExLSQxgPU1La5Xo_nA_GH3FUaav7Zmo_C1Kk33Fb33u7IW6tYdRKRwTkmyEcSL2glOXxYuda3U-mJEU6ZbkkzDYjBiiV_7OjShk15oLqoFDH-QQ8FvMV2vEMz-naRCRwBmBGVT96583MGPeNDYFLDUTtEunDGZwdwZuXbxdBwgMM2eKgKI_V0J_CwLo5iV3xQU15gracOG030DPh2JxPhPRHOf8SDUxya9jYonus4WVDvY_9Wg-BV7mXc2o-gaGYFY0yZdu6treC18doe_IkQXVzXwLHFi6rK-1vcAL-BADrtI38I8bDv7kBi9SD2ZzQm2DOseqW13unwTDIY-L1pvQ8N5NHM5uQJE0-JecokniDXBJzxOFVKmFUhI3cjtSYrmdAlWU9GuY6H-O3C_y6Dn4-tfCZ4VZNP2Mc1lEo7aMPB0TcGADOBQGMgIx2B8gm_JmXE4llwuycwcrOAt1mVbVB_nEwuYEHQuPkUpeTD5PEcajffNSUENBUnYpNgnlBPWEhQxXm4rpsI2nJGQfx2g0VqhM7fpTMkSQJcx2zcCQaqVAz325EaRjL0k5CskJEi-AT7AM1Fu7C2PiNukdoz5j2d6SDZpXUnWmxX_QtJPma7sfR1FgaX6fFU11JXc_pjGHB1Ar0Q5iCNO2txM1qztWJ29sCIHBnxRpbjMTBbBbHkX-f-Tc4e_5N7NDjq6C50A-aejKccnZ6_0cK3zIbs3XloSd-_geIqb7K3gErqJlPr4WZs208YTFrAU4bqV2d1l06M13FrEFIBUhdGf0HqS1aOCbU=|1649321365|P-xKaMFdthK2Q31cS7pUjd00ruJOLQ-ZydESy5rQqG0=;
+        _oauth2_proxy_csrf=_LdfeivZPBykQcR4Bxebd-0YvTEpqvNJyNxpeGg5AI1VEe6tJX5OXjn5QZhzufcWNzW6OEiZqhKn6-6nWbj1IvpGrO5fwDX-uemGys4yBT4LgbnRptaLh1U=|1649321364|8mEae4_Ls4t6q8uvLsYNXiHf7N7GsA0yYeqNRo9BR3s=
+    method: GET
+    uri: https://10.55.252.155//api/v1.0/workspaces/624c004b234370fcf24bf38c/projects/624ea5b7234370fcf24c09cd/configuration/task_chain/624ea5b7234370fcf24c09d1
+  response:
+    body:
+      string: '{"components":[{"description":"Learning Parameters","entity_identifier":{"group_name":"learning_parameters","model_storage_id":"624ea5b7234370fcf24c09d2","type":"HYPER_PARAMETER_GROUP","workspace_id":"624c004b234370fcf24bf38c"},"header":"Learning
+        Parameters","id":"624ea5b9234370fcf24c09db-0","name":"learning_parameters","parameters":[{"auto_hpo_state":"possible","auto_hpo_value":null,"data_type":"integer","default_value":8,"description":"The
+        number of training samples seen in each iteration of training. Increasing
+        this value improves training time and may make the training more stable. A
+        larger batch size has higher memory requirements.","editable":true,"header":"Batch
+        size","max_value":512,"min_value":1,"name":"batch_size","template_type":"input","ui_rules":{},"value":8,"warning":"Increasing
+        this value may cause the system to use more memory than available, potentially
+        causing out of memory errors, please update with caution."},{"auto_hpo_state":"possible","auto_hpo_value":null,"data_type":"float","default_value":0.008,"description":"Increasing
+        this value will speed up training convergence but might make it unstable.","editable":true,"header":"Learning
+        rate","max_value":0.1,"min_value":1e-07,"name":"learning_rate","template_type":"input","ui_rules":{},"value":0.008,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":200,"description":"","editable":true,"header":"Number
+        of iterations for learning rate warmup","max_value":10000,"min_value":0,"name":"learning_rate_warmup_iters","template_type":"input","ui_rules":{},"value":200,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":300,"description":"Increasing
+        this value causes the results to be more robust but training time will be
+        longer.","editable":true,"header":"Number of training iterations","max_value":100000,"min_value":1,"name":"num_iters","template_type":"input","ui_rules":{},"value":300,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":4,"description":"Increasing
+        this value might improve training speed however it might cause out of memory
+        errors. If the number of workers is set to zero, data loading will happen
+        in the main training thread.","editable":true,"header":"Number of cpu threads
+        to use during batch generation","max_value":36,"min_value":0,"name":"num_workers","template_type":"input","ui_rules":{},"value":4,"warning":null}],"type":"PARAMETER_GROUP"},{"description":"Postprocessing","entity_identifier":{"group_name":"postprocessing","model_storage_id":"624ea5b7234370fcf24c09d2","type":"HYPER_PARAMETER_GROUP","workspace_id":"624c004b234370fcf24bf38c"},"header":"Postprocessing","id":"624ea5b9234370fcf24c09db-2","name":"postprocessing","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"float","default_value":0.35,"description":"This
+        threshold only takes effect if the threshold is not set based on the result.","editable":true,"header":"Confidence
+        threshold","max_value":1,"min_value":0,"name":"confidence_threshold","template_type":"input","ui_rules":{},"value":0.35,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":true,"description":"Confidence
+        threshold is derived from the results","editable":true,"header":"Result based
+        confidence threshold","name":"result_based_confidence_threshold","template_type":"input","ui_rules":{},"value":true,"warning":null}],"type":"PARAMETER_GROUP"},{"description":"Specify
+        the distribution of annotated samples over the training, validation and test
+        sets.","entity_identifier":{"component":"SUBSET_MANAGER","project_id":"624ea5b7234370fcf24c09cd","task_id":"624ea5b7234370fcf24c09d1","type":"COMPONENT_PARAMETERS","workspace_id":"624c004b234370fcf24bf38c"},"groups":[{"description":"Specify
+        the distributions of annotated samples over training, validation and test
+        set.","header":"Subset distribution","name":"subset_parameters","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"float","default_value":0.3,"description":"Fraction
+        of annotated data that will be assigned to the test set","editable":true,"header":"Test
+        set proportion","max_value":1.0,"min_value":0.1,"name":"test_proportion","template_type":"input","ui_rules":{"action":"SHOW","operator":"AND","rules":[{"operator":"EQUAL_TO","parameter":["auto_subset_fractions"],"type":"RULE","value":false}],"type":"UI_RULES"},"value":0.3,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"float","default_value":0.5,"description":"Fraction
+        of annotated data that will be assigned to the training set","editable":true,"header":"Training
+        set proportion","max_value":1.0,"min_value":0.1,"name":"train_proportion","template_type":"input","ui_rules":{"action":"SHOW","operator":"AND","rules":[{"operator":"EQUAL_TO","parameter":["auto_subset_fractions"],"type":"RULE","value":false}],"type":"UI_RULES"},"value":0.5,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"float","default_value":0.2,"description":"Fraction
+        of annotated data that will be assigned to the validation set","editable":true,"header":"Validation
+        set proportion","max_value":1.0,"min_value":0.1,"name":"validation_proportion","template_type":"input","ui_rules":{"action":"SHOW","operator":"AND","rules":[{"operator":"EQUAL_TO","parameter":["auto_subset_fractions"],"type":"RULE","value":false}],"type":"UI_RULES"},"value":0.2,"warning":null}],"type":"PARAMETER_GROUP"}],"header":"Subset
+        splitting","id":"624ea5b731683af273fc636b","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":true,"description":"If
+        this setting is enabled, the system will automatically determine the most
+        optimal distribution of the annotated samples over training, validation and
+        test set. Disable this setting to manually specify the proportions.","editable":true,"header":"Automatically
+        determine subset proportions","name":"auto_subset_fractions","template_type":"input","ui_rules":{},"value":true,"warning":null}],"type":"CONFIGURABLE_PARAMETERS"},{"description":"Specify
+        the number of required annotations for a task","entity_identifier":{"component":"DATASET_COUNTER","project_id":"624ea5b7234370fcf24c09cd","task_id":"624ea5b7234370fcf24c09d1","type":"COMPONENT_PARAMETERS","workspace_id":"624c004b234370fcf24bf38c"},"header":"Annotation
+        requirements","id":"624ea5b731683af273fc636c","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":false,"description":"If
+        this is ON, the first training will only be triggered when each label is present
+        in N images, while N is number of required images for the first training.
+        Otherwise, first training will be triggered when N images have been annotated.
+        If first training has been triggered, this parameter will not take effect.","editable":true,"header":"Label
+        constraint for the first training","name":"label_constraint_first_training","template_type":"input","ui_rules":{},"value":false,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":12,"description":"The
+        minimum number of images that is required before auto-train is triggered for
+        the first time.","editable":true,"header":"Number of images required for the
+        first training","max_value":10000,"min_value":3,"name":"required_images_first_training","template_type":"input","ui_rules":{},"value":12,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":6,"description":"The
+        minimum number of new annotations required before auto-train is triggered.
+        This is applicable after one successful training round.","editable":true,"header":"Number
+        of images required for retraining","max_value":10000,"min_value":6,"name":"required_images_retraining","template_type":"input","ui_rules":{},"value":6,"warning":null}],"type":"CONFIGURABLE_PARAMETERS"},{"description":"General
+        settings for a task.","entity_identifier":{"component":"TASK_NODE","project_id":"624ea5b7234370fcf24c09cd","task_id":"624ea5b7234370fcf24c09d1","type":"COMPONENT_PARAMETERS","workspace_id":"624c004b234370fcf24bf38c"},"header":"General","id":"624ea5b831683af273fc636e","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":true,"description":"Set
+        to True to allow the task to start training automatically when it is ready
+        to train.","editable":true,"header":"Auto-training","name":"auto_training","template_type":"input","ui_rules":{},"value":true,"warning":null}],"type":"CONFIGURABLE_PARAMETERS"}],"task_id":"624ea5b7234370fcf24c09d1","task_title":"Detection
+        task"}
+
+        '
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '8809'
+      Content-Security-Policy:
+      - frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 07 Apr 2022 08:50:01 GMT
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      x-envoy-decorator-operation:
+      - impt-nous-resource.impt.svc.cluster.local:5000/*
+      x-envoy-upstream-service-time:
+      - '79'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"task_chain": [{"components": [{"header": "Learning Parameters", "type":
+      "PARAMETER_GROUP", "parameters": [{"name": "batch_size", "data_type": "integer",
+      "template_type": "input", "auto_hpo_state": "possible", "value": 4, "min_value":
+      1, "max_value": 512}, {"name": "learning_rate", "data_type": "float", "template_type":
+      "input", "auto_hpo_state": "possible", "value": 0.008, "min_value": 1e-07, "max_value":
+      0.1}, {"name": "learning_rate_warmup_iters", "data_type": "integer", "template_type":
+      "input", "auto_hpo_state": "not_possible", "value": 200, "min_value": 0, "max_value":
+      10000}, {"name": "num_iters", "data_type": "integer", "template_type": "input",
+      "auto_hpo_state": "not_possible", "value": 300, "min_value": 1, "max_value":
+      100000}, {"name": "num_workers", "data_type": "integer", "template_type": "input",
+      "auto_hpo_state": "not_possible", "value": 4, "min_value": 0, "max_value": 36}],
+      "name": "learning_parameters", "entity_identifier": {"type": "HYPER_PARAMETER_GROUP",
+      "workspace_id": "624c004b234370fcf24bf38c", "group_name": "learning_parameters",
+      "model_storage_id": "624ea5b7234370fcf24c09d2"}, "id": "624ea5b9234370fcf24c09db-0"},
+      {"header": "Postprocessing", "type": "PARAMETER_GROUP", "parameters": [{"name":
+      "confidence_threshold", "data_type": "float", "template_type": "input", "auto_hpo_state":
+      "not_possible", "value": 0.35, "min_value": 0, "max_value": 1}, {"name": "result_based_confidence_threshold",
+      "data_type": "boolean", "template_type": "input", "auto_hpo_state": "not_possible",
+      "value": true}], "name": "postprocessing", "entity_identifier": {"type": "HYPER_PARAMETER_GROUP",
+      "workspace_id": "624c004b234370fcf24bf38c", "group_name": "postprocessing",
+      "model_storage_id": "624ea5b7234370fcf24c09d2"}, "id": "624ea5b9234370fcf24c09db-2"},
+      {"header": "Subset splitting", "type": "CONFIGURABLE_PARAMETERS", "parameters":
+      [{"name": "auto_subset_fractions", "data_type": "boolean", "template_type":
+      "input", "auto_hpo_state": "not_possible", "value": true}], "groups": [{"header":
+      "Subset distribution", "type": "PARAMETER_GROUP", "parameters": [{"name": "test_proportion",
+      "data_type": "float", "template_type": "input", "auto_hpo_state": "not_possible",
+      "value": 0.3, "min_value": 0.1, "max_value": 1.0}, {"name": "train_proportion",
+      "data_type": "float", "template_type": "input", "auto_hpo_state": "not_possible",
+      "value": 0.5, "min_value": 0.1, "max_value": 1.0}, {"name": "validation_proportion",
+      "data_type": "float", "template_type": "input", "auto_hpo_state": "not_possible",
+      "value": 0.2, "min_value": 0.1, "max_value": 1.0}], "name": "subset_parameters"}],
+      "entity_identifier": {"type": "COMPONENT_PARAMETERS", "workspace_id": "624c004b234370fcf24bf38c",
+      "component": "SUBSET_MANAGER", "project_id": "624ea5b7234370fcf24c09cd", "task_id":
+      "624ea5b7234370fcf24c09d1"}, "id": "624ea5b731683af273fc636b"}, {"header": "Annotation
+      requirements", "type": "CONFIGURABLE_PARAMETERS", "parameters": [{"name": "label_constraint_first_training",
+      "data_type": "boolean", "template_type": "input", "auto_hpo_state": "not_possible",
+      "value": false}, {"name": "required_images_first_training", "data_type": "integer",
+      "template_type": "input", "auto_hpo_state": "not_possible", "value": 12, "min_value":
+      3, "max_value": 10000}, {"name": "required_images_retraining", "data_type":
+      "integer", "template_type": "input", "auto_hpo_state": "not_possible", "value":
+      6, "min_value": 6, "max_value": 10000}], "entity_identifier": {"type": "COMPONENT_PARAMETERS",
+      "workspace_id": "624c004b234370fcf24bf38c", "component": "DATASET_COUNTER",
+      "project_id": "624ea5b7234370fcf24c09cd", "task_id": "624ea5b7234370fcf24c09d1"},
+      "id": "624ea5b731683af273fc636c"}, {"header": "General", "type": "CONFIGURABLE_PARAMETERS",
+      "parameters": [{"name": "auto_training", "data_type": "boolean", "template_type":
+      "input", "auto_hpo_state": "not_possible", "value": true}], "entity_identifier":
+      {"type": "COMPONENT_PARAMETERS", "workspace_id": "624c004b234370fcf24bf38c",
+      "component": "TASK_NODE", "project_id": "624ea5b7234370fcf24c09cd", "task_id":
+      "624ea5b7234370fcf24c09d1"}, "id": "624ea5b831683af273fc636e"}], "task_id":
+      "624ea5b7234370fcf24c09d1", "task_title": "Detection task"}], "global": [{"header":
+      "Active Learning", "type": "CONFIGURABLE_PARAMETERS", "parameters": [{"name":
+      "max_unseen_media", "data_type": "integer", "template_type": "input", "auto_hpo_state":
+      "not_possible", "value": 500, "min_value": 10, "max_value": 10000}], "entity_identifier":
+      {"type": "COMPONENT_PARAMETERS", "workspace_id": "624c004b234370fcf24bf38c",
+      "component": "ACTIVE_MANAGER", "project_id": "624ea5b7234370fcf24c09cd"}, "id":
+      "624ea5b831683af273fc636d"}, {"header": "Dataset management", "type": "CONFIGURABLE_PARAMETERS",
+      "parameters": [{"name": "use_ndr", "data_type": "boolean", "template_type":
+      "input", "auto_hpo_state": "not_possible", "value": false}], "entity_identifier":
+      {"type": "COMPONENT_PARAMETERS", "workspace_id": "624c004b234370fcf24bf38c",
+      "component": "PIPELINE_DATASET_MANAGER", "project_id": "624ea5b7234370fcf24c09cd"},
+      "id": "624ea5b831683af273fc636f"}]}'
+    headers:
+      Content-Length:
+      - '5082'
+      Content-Type:
+      - application/json
+      Cookie:
+      - _oauth2_proxy=leVKiWenZfTkEWHPyDZUDqzidB6Q2VZUh0g0fe-Or-Uq2B20wb2EiaHoVyQ62BYigFP6sCk0R31XcYhvcyUKsndX7gKzgyuo1Xpa54I3xhe6RUWg_Rssvokk-iC_Rn8y25lXGLN8_J0E83J4zlpSkiMkTBv1btJppgF2aaD2gaj5RaVI53HNHmkblq76FHrJeOuRwmgBOkyPKJ21bYdVmYNUBI1qjAatX3dp-y4FUHBcUG7iVyiHrW4PvQj8hACLechi2QB_T95ZR9a9jxOsW0nYFHzvOvQvx-Zr5b7AjyezAJiFaHdjY0xfH4TLdraV8DOjiWLu-E6aSX5RweOaNbYDuTiL-MIHf-GJeu7Xra0dVurRVvoGNSOYIKa_pbK7iaGGOvTfel78oDqGq7GXGjlcUNFI2gWJhfz2pGHjtRwjeXjhv-o61vn88n89ypCNiWw6HpqCN_Zwm-GrTcpyfb9YReDusckEba-fpezQ0u0DKRptCgCJOqMDFskqQGp1vvvPIvljaLUf-8khiBcyL5AQnF_7hRSo0uvdl8j8URXRDekiwCIAFE40U1vDPBvcIstXV6CVeWXuwA-MTO8kCKvTz6b2HvOdVHNdcbBDtstmcJIhWhlrIK3vSPm1cNwlnvgPjN1SLgKDXGVaMyJA7RR4eoilYSmZDy0ruHUNVawco0FUOy4OUHzo0_rxI3UkeDpO0dQov9pvY5uKIZamDMF3fydiyzf2kaBY5IIKTR2QRIhw2RJWBU6hCXuhIBuy8LBRQOKcf7FQ6iY5zBQphXY1-J5vbgLNTKWAHQSYgRCtRyOPq0tBoqi3UYyLZXHPAfS5pBnPEcqQA_XEaER75xBWJUBbZxdN_NPDVuVBPkgJnq1Qo3xAemBXm1MHVmedM5KoNIqzsKXMOt_gzJjyXzO6pAKvJLHj65kdwotEo2sSmKxn8ieUx_LL54wRY5vSHSkdHqfp_RtBdPvBCjGpmStrgp4ka8yhpyov9swMFXvWErn8XXNeXv1lKBOaQ2ZrFDGBluNeinm19NVohnvMZaoE1XZX7lf9IWlCy1_BZqOZT16mmtiVvmBwgZ_u1JzkJY9agf3PbPM5hUJ_oqj8UJsIHFRkAAll5PX_o0JWCx7E6bN5cFzcByD5w6U2GX1SFrfCTKrpAxU-6nJgrUi99mzmV-IMRoWaQEkRzHUlbrE3YzqCuTiPrq-gpVtyGCwQsO53L14mroZ8f3M8ObkR7o4LyiMY8ELQDd5TjC6Tp434TbDsMMzrWdfPo0cCiVHrEWAsxUPA1ncnGG8k_etSqPJcyop2GRa0UlIDpN4oY9ZFO4Lk_lZA7JX0xKzsQjg4xwA9Zdypy7p_yHJmE_cx3P4HpP9KdSRmzg8HE2Ai6jArOlgxTRiOXphJAEZYtlIO6tw3HeypAG0vS49ccZoXmKfSFXk0DVBgYlhbM9SExLSQxgPU1La5Xo_nA_GH3FUaav7Zmo_C1Kk33Fb33u7IW6tYdRKRwTkmyEcSL2glOXxYuda3U-mJEU6ZbkkzDYjBiiV_7OjShk15oLqoFDH-QQ8FvMV2vEMz-naRCRwBmBGVT96583MGPeNDYFLDUTtEunDGZwdwZuXbxdBwgMM2eKgKI_V0J_CwLo5iV3xQU15gracOG030DPh2JxPhPRHOf8SDUxya9jYonus4WVDvY_9Wg-BV7mXc2o-gaGYFY0yZdu6treC18doe_IkQXVzXwLHFi6rK-1vcAL-BADrtI38I8bDv7kBi9SD2ZzQm2DOseqW13unwTDIY-L1pvQ8N5NHM5uQJE0-JecokniDXBJzxOFVKmFUhI3cjtSYrmdAlWU9GuY6H-O3C_y6Dn4-tfCZ4VZNP2Mc1lEo7aMPB0TcGADOBQGMgIx2B8gm_JmXE4llwuycwcrOAt1mVbVB_nEwuYEHQuPkUpeTD5PEcajffNSUENBUnYpNgnlBPWEhQxXm4rpsI2nJGQfx2g0VqhM7fpTMkSQJcx2zcCQaqVAz325EaRjL0k5CskJEi-AT7AM1Fu7C2PiNukdoz5j2d6SDZpXUnWmxX_QtJPma7sfR1FgaX6fFU11JXc_pjGHB1Ar0Q5iCNO2txM1qztWJ29sCIHBnxRpbjMTBbBbHkX-f-Tc4e_5N7NDjq6C50A-aejKccnZ6_0cK3zIbs3XloSd-_geIqb7K3gErqJlPr4WZs208YTFrAU4bqV2d1l06M13FrEFIBUhdGf0HqS1aOCbU=|1649321365|P-xKaMFdthK2Q31cS7pUjd00ruJOLQ-ZydESy5rQqG0=;
+        _oauth2_proxy=leVKiWenZfTkEWHPyDZUDqzidB6Q2VZUh0g0fe-Or-Uq2B20wb2EiaHoVyQ62BYigFP6sCk0R31XcYhvcyUKsndX7gKzgyuo1Xpa54I3xhe6RUWg_Rssvokk-iC_Rn8y25lXGLN8_J0E83J4zlpSkiMkTBv1btJppgF2aaD2gaj5RaVI53HNHmkblq76FHrJeOuRwmgBOkyPKJ21bYdVmYNUBI1qjAatX3dp-y4FUHBcUG7iVyiHrW4PvQj8hACLechi2QB_T95ZR9a9jxOsW0nYFHzvOvQvx-Zr5b7AjyezAJiFaHdjY0xfH4TLdraV8DOjiWLu-E6aSX5RweOaNbYDuTiL-MIHf-GJeu7Xra0dVurRVvoGNSOYIKa_pbK7iaGGOvTfel78oDqGq7GXGjlcUNFI2gWJhfz2pGHjtRwjeXjhv-o61vn88n89ypCNiWw6HpqCN_Zwm-GrTcpyfb9YReDusckEba-fpezQ0u0DKRptCgCJOqMDFskqQGp1vvvPIvljaLUf-8khiBcyL5AQnF_7hRSo0uvdl8j8URXRDekiwCIAFE40U1vDPBvcIstXV6CVeWXuwA-MTO8kCKvTz6b2HvOdVHNdcbBDtstmcJIhWhlrIK3vSPm1cNwlnvgPjN1SLgKDXGVaMyJA7RR4eoilYSmZDy0ruHUNVawco0FUOy4OUHzo0_rxI3UkeDpO0dQov9pvY5uKIZamDMF3fydiyzf2kaBY5IIKTR2QRIhw2RJWBU6hCXuhIBuy8LBRQOKcf7FQ6iY5zBQphXY1-J5vbgLNTKWAHQSYgRCtRyOPq0tBoqi3UYyLZXHPAfS5pBnPEcqQA_XEaER75xBWJUBbZxdN_NPDVuVBPkgJnq1Qo3xAemBXm1MHVmedM5KoNIqzsKXMOt_gzJjyXzO6pAKvJLHj65kdwotEo2sSmKxn8ieUx_LL54wRY5vSHSkdHqfp_RtBdPvBCjGpmStrgp4ka8yhpyov9swMFXvWErn8XXNeXv1lKBOaQ2ZrFDGBluNeinm19NVohnvMZaoE1XZX7lf9IWlCy1_BZqOZT16mmtiVvmBwgZ_u1JzkJY9agf3PbPM5hUJ_oqj8UJsIHFRkAAll5PX_o0JWCx7E6bN5cFzcByD5w6U2GX1SFrfCTKrpAxU-6nJgrUi99mzmV-IMRoWaQEkRzHUlbrE3YzqCuTiPrq-gpVtyGCwQsO53L14mroZ8f3M8ObkR7o4LyiMY8ELQDd5TjC6Tp434TbDsMMzrWdfPo0cCiVHrEWAsxUPA1ncnGG8k_etSqPJcyop2GRa0UlIDpN4oY9ZFO4Lk_lZA7JX0xKzsQjg4xwA9Zdypy7p_yHJmE_cx3P4HpP9KdSRmzg8HE2Ai6jArOlgxTRiOXphJAEZYtlIO6tw3HeypAG0vS49ccZoXmKfSFXk0DVBgYlhbM9SExLSQxgPU1La5Xo_nA_GH3FUaav7Zmo_C1Kk33Fb33u7IW6tYdRKRwTkmyEcSL2glOXxYuda3U-mJEU6ZbkkzDYjBiiV_7OjShk15oLqoFDH-QQ8FvMV2vEMz-naRCRwBmBGVT96583MGPeNDYFLDUTtEunDGZwdwZuXbxdBwgMM2eKgKI_V0J_CwLo5iV3xQU15gracOG030DPh2JxPhPRHOf8SDUxya9jYonus4WVDvY_9Wg-BV7mXc2o-gaGYFY0yZdu6treC18doe_IkQXVzXwLHFi6rK-1vcAL-BADrtI38I8bDv7kBi9SD2ZzQm2DOseqW13unwTDIY-L1pvQ8N5NHM5uQJE0-JecokniDXBJzxOFVKmFUhI3cjtSYrmdAlWU9GuY6H-O3C_y6Dn4-tfCZ4VZNP2Mc1lEo7aMPB0TcGADOBQGMgIx2B8gm_JmXE4llwuycwcrOAt1mVbVB_nEwuYEHQuPkUpeTD5PEcajffNSUENBUnYpNgnlBPWEhQxXm4rpsI2nJGQfx2g0VqhM7fpTMkSQJcx2zcCQaqVAz325EaRjL0k5CskJEi-AT7AM1Fu7C2PiNukdoz5j2d6SDZpXUnWmxX_QtJPma7sfR1FgaX6fFU11JXc_pjGHB1Ar0Q5iCNO2txM1qztWJ29sCIHBnxRpbjMTBbBbHkX-f-Tc4e_5N7NDjq6C50A-aejKccnZ6_0cK3zIbs3XloSd-_geIqb7K3gErqJlPr4WZs208YTFrAU4bqV2d1l06M13FrEFIBUhdGf0HqS1aOCbU=|1649321365|P-xKaMFdthK2Q31cS7pUjd00ruJOLQ-ZydESy5rQqG0=;
+        _oauth2_proxy_csrf=_LdfeivZPBykQcR4Bxebd-0YvTEpqvNJyNxpeGg5AI1VEe6tJX5OXjn5QZhzufcWNzW6OEiZqhKn6-6nWbj1IvpGrO5fwDX-uemGys4yBT4LgbnRptaLh1U=|1649321364|8mEae4_Ls4t6q8uvLsYNXiHf7N7GsA0yYeqNRo9BR3s=
+    method: POST
+    uri: https://10.55.252.155//api/v1.0/workspaces/624c004b234370fcf24bf38c/projects/624ea5b7234370fcf24c09cd/configuration
+  response:
+    body:
+      string: '{"result":"success"}
+
+        '
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '21'
+      Content-Security-Policy:
+      - frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 07 Apr 2022 08:50:02 GMT
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      x-envoy-decorator-operation:
+      - impt-nous-resource.impt.svc.cluster.local:5000/*
+      x-envoy-upstream-service-time:
+      - '117'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Content-Type:
+      - application/json
+      Cookie:
+      - _oauth2_proxy=leVKiWenZfTkEWHPyDZUDqzidB6Q2VZUh0g0fe-Or-Uq2B20wb2EiaHoVyQ62BYigFP6sCk0R31XcYhvcyUKsndX7gKzgyuo1Xpa54I3xhe6RUWg_Rssvokk-iC_Rn8y25lXGLN8_J0E83J4zlpSkiMkTBv1btJppgF2aaD2gaj5RaVI53HNHmkblq76FHrJeOuRwmgBOkyPKJ21bYdVmYNUBI1qjAatX3dp-y4FUHBcUG7iVyiHrW4PvQj8hACLechi2QB_T95ZR9a9jxOsW0nYFHzvOvQvx-Zr5b7AjyezAJiFaHdjY0xfH4TLdraV8DOjiWLu-E6aSX5RweOaNbYDuTiL-MIHf-GJeu7Xra0dVurRVvoGNSOYIKa_pbK7iaGGOvTfel78oDqGq7GXGjlcUNFI2gWJhfz2pGHjtRwjeXjhv-o61vn88n89ypCNiWw6HpqCN_Zwm-GrTcpyfb9YReDusckEba-fpezQ0u0DKRptCgCJOqMDFskqQGp1vvvPIvljaLUf-8khiBcyL5AQnF_7hRSo0uvdl8j8URXRDekiwCIAFE40U1vDPBvcIstXV6CVeWXuwA-MTO8kCKvTz6b2HvOdVHNdcbBDtstmcJIhWhlrIK3vSPm1cNwlnvgPjN1SLgKDXGVaMyJA7RR4eoilYSmZDy0ruHUNVawco0FUOy4OUHzo0_rxI3UkeDpO0dQov9pvY5uKIZamDMF3fydiyzf2kaBY5IIKTR2QRIhw2RJWBU6hCXuhIBuy8LBRQOKcf7FQ6iY5zBQphXY1-J5vbgLNTKWAHQSYgRCtRyOPq0tBoqi3UYyLZXHPAfS5pBnPEcqQA_XEaER75xBWJUBbZxdN_NPDVuVBPkgJnq1Qo3xAemBXm1MHVmedM5KoNIqzsKXMOt_gzJjyXzO6pAKvJLHj65kdwotEo2sSmKxn8ieUx_LL54wRY5vSHSkdHqfp_RtBdPvBCjGpmStrgp4ka8yhpyov9swMFXvWErn8XXNeXv1lKBOaQ2ZrFDGBluNeinm19NVohnvMZaoE1XZX7lf9IWlCy1_BZqOZT16mmtiVvmBwgZ_u1JzkJY9agf3PbPM5hUJ_oqj8UJsIHFRkAAll5PX_o0JWCx7E6bN5cFzcByD5w6U2GX1SFrfCTKrpAxU-6nJgrUi99mzmV-IMRoWaQEkRzHUlbrE3YzqCuTiPrq-gpVtyGCwQsO53L14mroZ8f3M8ObkR7o4LyiMY8ELQDd5TjC6Tp434TbDsMMzrWdfPo0cCiVHrEWAsxUPA1ncnGG8k_etSqPJcyop2GRa0UlIDpN4oY9ZFO4Lk_lZA7JX0xKzsQjg4xwA9Zdypy7p_yHJmE_cx3P4HpP9KdSRmzg8HE2Ai6jArOlgxTRiOXphJAEZYtlIO6tw3HeypAG0vS49ccZoXmKfSFXk0DVBgYlhbM9SExLSQxgPU1La5Xo_nA_GH3FUaav7Zmo_C1Kk33Fb33u7IW6tYdRKRwTkmyEcSL2glOXxYuda3U-mJEU6ZbkkzDYjBiiV_7OjShk15oLqoFDH-QQ8FvMV2vEMz-naRCRwBmBGVT96583MGPeNDYFLDUTtEunDGZwdwZuXbxdBwgMM2eKgKI_V0J_CwLo5iV3xQU15gracOG030DPh2JxPhPRHOf8SDUxya9jYonus4WVDvY_9Wg-BV7mXc2o-gaGYFY0yZdu6treC18doe_IkQXVzXwLHFi6rK-1vcAL-BADrtI38I8bDv7kBi9SD2ZzQm2DOseqW13unwTDIY-L1pvQ8N5NHM5uQJE0-JecokniDXBJzxOFVKmFUhI3cjtSYrmdAlWU9GuY6H-O3C_y6Dn4-tfCZ4VZNP2Mc1lEo7aMPB0TcGADOBQGMgIx2B8gm_JmXE4llwuycwcrOAt1mVbVB_nEwuYEHQuPkUpeTD5PEcajffNSUENBUnYpNgnlBPWEhQxXm4rpsI2nJGQfx2g0VqhM7fpTMkSQJcx2zcCQaqVAz325EaRjL0k5CskJEi-AT7AM1Fu7C2PiNukdoz5j2d6SDZpXUnWmxX_QtJPma7sfR1FgaX6fFU11JXc_pjGHB1Ar0Q5iCNO2txM1qztWJ29sCIHBnxRpbjMTBbBbHkX-f-Tc4e_5N7NDjq6C50A-aejKccnZ6_0cK3zIbs3XloSd-_geIqb7K3gErqJlPr4WZs208YTFrAU4bqV2d1l06M13FrEFIBUhdGf0HqS1aOCbU=|1649321365|P-xKaMFdthK2Q31cS7pUjd00ruJOLQ-ZydESy5rQqG0=;
+        _oauth2_proxy=leVKiWenZfTkEWHPyDZUDqzidB6Q2VZUh0g0fe-Or-Uq2B20wb2EiaHoVyQ62BYigFP6sCk0R31XcYhvcyUKsndX7gKzgyuo1Xpa54I3xhe6RUWg_Rssvokk-iC_Rn8y25lXGLN8_J0E83J4zlpSkiMkTBv1btJppgF2aaD2gaj5RaVI53HNHmkblq76FHrJeOuRwmgBOkyPKJ21bYdVmYNUBI1qjAatX3dp-y4FUHBcUG7iVyiHrW4PvQj8hACLechi2QB_T95ZR9a9jxOsW0nYFHzvOvQvx-Zr5b7AjyezAJiFaHdjY0xfH4TLdraV8DOjiWLu-E6aSX5RweOaNbYDuTiL-MIHf-GJeu7Xra0dVurRVvoGNSOYIKa_pbK7iaGGOvTfel78oDqGq7GXGjlcUNFI2gWJhfz2pGHjtRwjeXjhv-o61vn88n89ypCNiWw6HpqCN_Zwm-GrTcpyfb9YReDusckEba-fpezQ0u0DKRptCgCJOqMDFskqQGp1vvvPIvljaLUf-8khiBcyL5AQnF_7hRSo0uvdl8j8URXRDekiwCIAFE40U1vDPBvcIstXV6CVeWXuwA-MTO8kCKvTz6b2HvOdVHNdcbBDtstmcJIhWhlrIK3vSPm1cNwlnvgPjN1SLgKDXGVaMyJA7RR4eoilYSmZDy0ruHUNVawco0FUOy4OUHzo0_rxI3UkeDpO0dQov9pvY5uKIZamDMF3fydiyzf2kaBY5IIKTR2QRIhw2RJWBU6hCXuhIBuy8LBRQOKcf7FQ6iY5zBQphXY1-J5vbgLNTKWAHQSYgRCtRyOPq0tBoqi3UYyLZXHPAfS5pBnPEcqQA_XEaER75xBWJUBbZxdN_NPDVuVBPkgJnq1Qo3xAemBXm1MHVmedM5KoNIqzsKXMOt_gzJjyXzO6pAKvJLHj65kdwotEo2sSmKxn8ieUx_LL54wRY5vSHSkdHqfp_RtBdPvBCjGpmStrgp4ka8yhpyov9swMFXvWErn8XXNeXv1lKBOaQ2ZrFDGBluNeinm19NVohnvMZaoE1XZX7lf9IWlCy1_BZqOZT16mmtiVvmBwgZ_u1JzkJY9agf3PbPM5hUJ_oqj8UJsIHFRkAAll5PX_o0JWCx7E6bN5cFzcByD5w6U2GX1SFrfCTKrpAxU-6nJgrUi99mzmV-IMRoWaQEkRzHUlbrE3YzqCuTiPrq-gpVtyGCwQsO53L14mroZ8f3M8ObkR7o4LyiMY8ELQDd5TjC6Tp434TbDsMMzrWdfPo0cCiVHrEWAsxUPA1ncnGG8k_etSqPJcyop2GRa0UlIDpN4oY9ZFO4Lk_lZA7JX0xKzsQjg4xwA9Zdypy7p_yHJmE_cx3P4HpP9KdSRmzg8HE2Ai6jArOlgxTRiOXphJAEZYtlIO6tw3HeypAG0vS49ccZoXmKfSFXk0DVBgYlhbM9SExLSQxgPU1La5Xo_nA_GH3FUaav7Zmo_C1Kk33Fb33u7IW6tYdRKRwTkmyEcSL2glOXxYuda3U-mJEU6ZbkkzDYjBiiV_7OjShk15oLqoFDH-QQ8FvMV2vEMz-naRCRwBmBGVT96583MGPeNDYFLDUTtEunDGZwdwZuXbxdBwgMM2eKgKI_V0J_CwLo5iV3xQU15gracOG030DPh2JxPhPRHOf8SDUxya9jYonus4WVDvY_9Wg-BV7mXc2o-gaGYFY0yZdu6treC18doe_IkQXVzXwLHFi6rK-1vcAL-BADrtI38I8bDv7kBi9SD2ZzQm2DOseqW13unwTDIY-L1pvQ8N5NHM5uQJE0-JecokniDXBJzxOFVKmFUhI3cjtSYrmdAlWU9GuY6H-O3C_y6Dn4-tfCZ4VZNP2Mc1lEo7aMPB0TcGADOBQGMgIx2B8gm_JmXE4llwuycwcrOAt1mVbVB_nEwuYEHQuPkUpeTD5PEcajffNSUENBUnYpNgnlBPWEhQxXm4rpsI2nJGQfx2g0VqhM7fpTMkSQJcx2zcCQaqVAz325EaRjL0k5CskJEi-AT7AM1Fu7C2PiNukdoz5j2d6SDZpXUnWmxX_QtJPma7sfR1FgaX6fFU11JXc_pjGHB1Ar0Q5iCNO2txM1qztWJ29sCIHBnxRpbjMTBbBbHkX-f-Tc4e_5N7NDjq6C50A-aejKccnZ6_0cK3zIbs3XloSd-_geIqb7K3gErqJlPr4WZs208YTFrAU4bqV2d1l06M13FrEFIBUhdGf0HqS1aOCbU=|1649321365|P-xKaMFdthK2Q31cS7pUjd00ruJOLQ-ZydESy5rQqG0=;
+        _oauth2_proxy_csrf=_LdfeivZPBykQcR4Bxebd-0YvTEpqvNJyNxpeGg5AI1VEe6tJX5OXjn5QZhzufcWNzW6OEiZqhKn6-6nWbj1IvpGrO5fwDX-uemGys4yBT4LgbnRptaLh1U=|1649321364|8mEae4_Ls4t6q8uvLsYNXiHf7N7GsA0yYeqNRo9BR3s=
+    method: GET
+    uri: https://10.55.252.155//api/v1.0/workspaces/624c004b234370fcf24bf38c/projects/624ea5b7234370fcf24c09cd/configuration/task_chain/624ea5b7234370fcf24c09d1
+  response:
+    body:
+      string: '{"components":[{"description":"Learning Parameters","entity_identifier":{"group_name":"learning_parameters","model_storage_id":"624ea5b7234370fcf24c09d2","type":"HYPER_PARAMETER_GROUP","workspace_id":"624c004b234370fcf24bf38c"},"header":"Learning
+        Parameters","id":"624ea5ba234370fcf24c09e1-0","name":"learning_parameters","parameters":[{"auto_hpo_state":"possible","auto_hpo_value":null,"data_type":"integer","default_value":8,"description":"The
+        number of training samples seen in each iteration of training. Increasing
+        this value improves training time and may make the training more stable. A
+        larger batch size has higher memory requirements.","editable":true,"header":"Batch
+        size","max_value":512,"min_value":1,"name":"batch_size","template_type":"input","ui_rules":{},"value":4,"warning":"Increasing
+        this value may cause the system to use more memory than available, potentially
+        causing out of memory errors, please update with caution."},{"auto_hpo_state":"possible","auto_hpo_value":null,"data_type":"float","default_value":0.008,"description":"Increasing
+        this value will speed up training convergence but might make it unstable.","editable":true,"header":"Learning
+        rate","max_value":0.1,"min_value":1e-07,"name":"learning_rate","template_type":"input","ui_rules":{},"value":0.008,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":200,"description":"","editable":true,"header":"Number
+        of iterations for learning rate warmup","max_value":10000,"min_value":0,"name":"learning_rate_warmup_iters","template_type":"input","ui_rules":{},"value":200,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":300,"description":"Increasing
+        this value causes the results to be more robust but training time will be
+        longer.","editable":true,"header":"Number of training iterations","max_value":100000,"min_value":1,"name":"num_iters","template_type":"input","ui_rules":{},"value":300,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":4,"description":"Increasing
+        this value might improve training speed however it might cause out of memory
+        errors. If the number of workers is set to zero, data loading will happen
+        in the main training thread.","editable":true,"header":"Number of cpu threads
+        to use during batch generation","max_value":36,"min_value":0,"name":"num_workers","template_type":"input","ui_rules":{},"value":4,"warning":null}],"type":"PARAMETER_GROUP"},{"description":"Postprocessing","entity_identifier":{"group_name":"postprocessing","model_storage_id":"624ea5b7234370fcf24c09d2","type":"HYPER_PARAMETER_GROUP","workspace_id":"624c004b234370fcf24bf38c"},"header":"Postprocessing","id":"624ea5ba234370fcf24c09e1-2","name":"postprocessing","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"float","default_value":0.35,"description":"This
+        threshold only takes effect if the threshold is not set based on the result.","editable":true,"header":"Confidence
+        threshold","max_value":1,"min_value":0,"name":"confidence_threshold","template_type":"input","ui_rules":{},"value":0.35,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":true,"description":"Confidence
+        threshold is derived from the results","editable":true,"header":"Result based
+        confidence threshold","name":"result_based_confidence_threshold","template_type":"input","ui_rules":{},"value":true,"warning":null}],"type":"PARAMETER_GROUP"},{"description":"Specify
+        the distribution of annotated samples over the training, validation and test
+        sets.","entity_identifier":{"component":"SUBSET_MANAGER","project_id":"624ea5b7234370fcf24c09cd","task_id":"624ea5b7234370fcf24c09d1","type":"COMPONENT_PARAMETERS","workspace_id":"624c004b234370fcf24bf38c"},"groups":[{"description":"Specify
+        the distributions of annotated samples over training, validation and test
+        set.","header":"Subset distribution","name":"subset_parameters","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"float","default_value":0.3,"description":"Fraction
+        of annotated data that will be assigned to the test set","editable":true,"header":"Test
+        set proportion","max_value":1.0,"min_value":0.1,"name":"test_proportion","template_type":"input","ui_rules":{"action":"SHOW","operator":"AND","rules":[{"operator":"EQUAL_TO","parameter":["auto_subset_fractions"],"type":"RULE","value":false}],"type":"UI_RULES"},"value":0.3,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"float","default_value":0.5,"description":"Fraction
+        of annotated data that will be assigned to the training set","editable":true,"header":"Training
+        set proportion","max_value":1.0,"min_value":0.1,"name":"train_proportion","template_type":"input","ui_rules":{"action":"SHOW","operator":"AND","rules":[{"operator":"EQUAL_TO","parameter":["auto_subset_fractions"],"type":"RULE","value":false}],"type":"UI_RULES"},"value":0.5,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"float","default_value":0.2,"description":"Fraction
+        of annotated data that will be assigned to the validation set","editable":true,"header":"Validation
+        set proportion","max_value":1.0,"min_value":0.1,"name":"validation_proportion","template_type":"input","ui_rules":{"action":"SHOW","operator":"AND","rules":[{"operator":"EQUAL_TO","parameter":["auto_subset_fractions"],"type":"RULE","value":false}],"type":"UI_RULES"},"value":0.2,"warning":null}],"type":"PARAMETER_GROUP"}],"header":"Subset
+        splitting","id":"624ea5ba234370fcf24c09de","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":true,"description":"If
+        this setting is enabled, the system will automatically determine the most
+        optimal distribution of the annotated samples over training, validation and
+        test set. Disable this setting to manually specify the proportions.","editable":true,"header":"Automatically
+        determine subset proportions","name":"auto_subset_fractions","template_type":"input","ui_rules":{},"value":true,"warning":null}],"type":"CONFIGURABLE_PARAMETERS"},{"description":"Specify
+        the number of required annotations for a task","entity_identifier":{"component":"DATASET_COUNTER","project_id":"624ea5b7234370fcf24c09cd","task_id":"624ea5b7234370fcf24c09d1","type":"COMPONENT_PARAMETERS","workspace_id":"624c004b234370fcf24bf38c"},"header":"Annotation
+        requirements","id":"624ea5ba234370fcf24c09df","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":false,"description":"If
+        this is ON, the first training will only be triggered when each label is present
+        in N images, while N is number of required images for the first training.
+        Otherwise, first training will be triggered when N images have been annotated.
+        If first training has been triggered, this parameter will not take effect.","editable":true,"header":"Label
+        constraint for the first training","name":"label_constraint_first_training","template_type":"input","ui_rules":{},"value":false,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":12,"description":"The
+        minimum number of images that is required before auto-train is triggered for
+        the first time.","editable":true,"header":"Number of images required for the
+        first training","max_value":10000,"min_value":3,"name":"required_images_first_training","template_type":"input","ui_rules":{},"value":12,"warning":null},{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"integer","default_value":6,"description":"The
+        minimum number of new annotations required before auto-train is triggered.
+        This is applicable after one successful training round.","editable":true,"header":"Number
+        of images required for retraining","max_value":10000,"min_value":6,"name":"required_images_retraining","template_type":"input","ui_rules":{},"value":6,"warning":null}],"type":"CONFIGURABLE_PARAMETERS"},{"description":"General
+        settings for a task.","entity_identifier":{"component":"TASK_NODE","project_id":"624ea5b7234370fcf24c09cd","task_id":"624ea5b7234370fcf24c09d1","type":"COMPONENT_PARAMETERS","workspace_id":"624c004b234370fcf24bf38c"},"header":"General","id":"624ea5ba234370fcf24c09e0","parameters":[{"auto_hpo_state":"not_possible","auto_hpo_value":null,"data_type":"boolean","default_value":true,"description":"Set
+        to True to allow the task to start training automatically when it is ready
+        to train.","editable":true,"header":"Auto-training","name":"auto_training","template_type":"input","ui_rules":{},"value":true,"warning":null}],"type":"CONFIGURABLE_PARAMETERS"}],"task_id":"624ea5b7234370fcf24c09d1","task_title":"Detection
+        task"}
+
+        '
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '8809'
+      Content-Security-Policy:
+      - frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 07 Apr 2022 08:50:02 GMT
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      x-envoy-decorator-operation:
+      - impt-nous-resource.impt.svc.cluster.local:5000/*
+      x-envoy-upstream-service-time:
+      - '90'
+    status:
+      code: 200
+      message: OK
+version: 1

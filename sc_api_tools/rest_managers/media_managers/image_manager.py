@@ -1,7 +1,7 @@
 import glob
 import os
 import io
-from typing import List, Union
+from typing import List, Union, Sequence
 import datetime
 
 import cv2
@@ -143,7 +143,7 @@ class ImageManager(BaseMediaManager[Image]):
             filepaths=image_filepaths, skip_if_filename_exists=skip_if_filename_exists
         )
 
-    def delete_images(self, images: MediaList[Image]) -> bool:
+    def delete_images(self, images: Sequence[Image]) -> bool:
         """
         Deletes all Image entities in `images` from the project
 

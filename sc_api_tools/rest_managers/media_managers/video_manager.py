@@ -1,7 +1,7 @@
 import os
 import datetime
 import tempfile
-from typing import Union
+from typing import Union, Sequence
 
 import cv2
 import numpy as np
@@ -112,7 +112,7 @@ class VideoManager(BaseMediaManager[Video]):
         """
         self._download_all(path_to_folder, append_media_uid=append_video_uid)
 
-    def delete_videos(self, videos: MediaList[Video]) -> bool:
+    def delete_videos(self, videos: Sequence[Video]) -> bool:
         """
         Deletes all Video entities in `videos` from the project
 

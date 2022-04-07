@@ -1,0 +1,90 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Content-Type:
+      - application/json
+      Cookie:
+      - _oauth2_proxy=Xo2RPWjWDJCOZoGTfrA9jnJWBG_YqyGp-X2yuhuZ_IXzS62_v1ZEBOqiWYGEEY69hsSJRNAj-g4UfSPHOBgwKADoNo5qBmnOrYUaOspZqo9tVwhOtNrcmEzcJ-SUMNZie6lZwOGABckyXxGc2twbAkQNCzQHZFdJlAzPD710wz7fwsDmKfcJC_tt5fytuTIstsfDOebYR5k4TsgeV6hrynz_WSqlWy-XZDPV60S4ipfjsgkhN0_xiClpQIg5jf4KbpulTzkLACaKW1w1U61178C5JadiJjjjsMdbuSat6rdaqx-RjfXjDA-IeGukJro7p3l3aMejeL4Om1BOzjNgbHhY16QBI_AM0aiV3f2aV0rPy86324017EZbnAIcRkEjLrT8WKe0OAzqWC12JJplH4ur5RmXVZ4_cn5GSXnnze2ddmx5fJ2SuPpaRpbnYUYkZnRX2XzjwD0sUNk86UkAHfv119eapwoi8lh7YQIvO6nfM7-8nNZ-n2DeIXSwT8waNuO_-9tUR7wNf1ErQwNo79B4wtCNdOYae6vh3hR0C6vit1U3Y_jF8L28zVXL2yVOpFD3iEoNucmZ0DSyyaaMPvCDw-WC224BaS_jxa2h7fOtsKVoVgrYDeLOMNuuKytztRnCMJKbm2XNAI4zCKxnZUXi1G7fBFtSQxInXcRG5vkjLmpWEZoMoon1iu1449OMRpcAPxRQfPGGiWwawQ8nHs57fWyMwrXqoi6-R9Kqpd2CQVL1VREBIZe_AgVGEn_hqzgjuP9GrFZJOhTO9dWpIlpdiUGWVoYeC2S06eoPISC0wEt9DSpmdzYtsTMINsh9TcUutYe9BkV4Mn6bIcIOYvJDeV8E_7n_-Z0dPXlUcxXO77xjgWI3J1fqV0-_O34C9tpIj8wF-82wEKeSKcN2AkJZWpy1lGcOue6ofza0J8mm6yDfARa5TMyJXTxwpOYaKCkngjKxIhi62iVtO7e5lva6YrOnhJYXsIKwy79ZUNtFEkAQXJfL5Ab8_T6UZj2VDkZXYRgKDtQ4zJ6D2cg8WxZqgyZ3bw149G9nwRVYyutN4DRNqPIIURu9d4WnJFHlG31SVZYvhGMUcR-UnKr8lfG3QbrO3stgy10QI1T6kavf4JqdTXHQ6BnvMAjsGzaK7wrfOHbEcUmtsMY_cLxGQjWsEktisQFW7j3af6F0HCeurY1iVRtxw061HZuSyLvkJ4xuePG3N0PXgSDG09FoxnELGSjHsIIQ2y_bB8onMdesTsZ2jLTVclqXMl4bTDcA2NxX3JM52ut6Lk3_jKoRmD45y4xYs1Ur5q3Xae9B_8PZ4p3cFy_hY5FwaBq92fFrppcTYnbZITcnOOzQXPkhBHXGGX_R2hoba61ZWTmNPdlr-BZB0Tk_HhJjhf-UfYMUek6LX8iRrBVYMSuNYlKdillBzLHEUd-Bah-pKfBWNXv7tlEQPt8oF-Tokh45v27RzhwPUZ-gBrHxJXWMSjCCSkWKnpwyw6AimliJnCcuigB1Z97gKY-i5CmKN_YgWE6kBZ06InSsa0rRPbFrMiYoip7dnAr1JODzYNO8Tk-BJGsULsZyjZd3XimgRx5Nbo0wobvJ3jGpYxZiRqJ7CA8FkUeIQzGY820ZqMu3HsTU4kQ-1qaMZIXUvraNB-hJbNWX68MvkSt-2OFDd_ojlz-vGa4w8UVc86dJxEY_K4pI7TwJeTAY1p_7_tgRZ0Y7zSLDk00fASEdVizLDyIrxY8ZvTlcDRE7JZ76m8YifEcigfSgd3u1dXy33fifso-mbgq93TUapk2RVAb8aSvAiHXaeWOjs0gcQrKo3a4rCfDzUQ-4ceq-cRSPbYeQRaA-8vbUX1WnurFtaZRz-ssnVM0S8hJNGBNrd-VVXY_wkk9Ha7kYYASnxsFIxi0xlMrpVdWXBmpsEXK07RambRCHXSD6wUqaPxS0xOE_M41gBNmB5BHd0KnqNQVTuxyIs5FOPWP_zUCCbyYJFHWDi1I8Cg3RPcCgNVtJqEtepTyll7DXWej69AB84LGh_s6uGu7cG8eYB9tLSePJw0MzwvBf2gCQQrfyft8p-unaBb1qNuG5j6O_YkHJvXr3YGVGdD06mp7p9QmRyURtTngvFYEP4xnmpoLv71gxb2cDqdZmmwZzyv3udEJZkncQoqUX-2goiYgDaw2at6QiX--Eso-tFl6NMe5FA2_ZsCX2lymrQ-n4uv8virXeZgxEjGMYMNHF61poKUG0|1649321397|2-eOt82B1UvpDtVu5Tuz_dy0tcs8ziYTZWEr6Pa8agA=;
+        _oauth2_proxy=Xo2RPWjWDJCOZoGTfrA9jnJWBG_YqyGp-X2yuhuZ_IXzS62_v1ZEBOqiWYGEEY69hsSJRNAj-g4UfSPHOBgwKADoNo5qBmnOrYUaOspZqo9tVwhOtNrcmEzcJ-SUMNZie6lZwOGABckyXxGc2twbAkQNCzQHZFdJlAzPD710wz7fwsDmKfcJC_tt5fytuTIstsfDOebYR5k4TsgeV6hrynz_WSqlWy-XZDPV60S4ipfjsgkhN0_xiClpQIg5jf4KbpulTzkLACaKW1w1U61178C5JadiJjjjsMdbuSat6rdaqx-RjfXjDA-IeGukJro7p3l3aMejeL4Om1BOzjNgbHhY16QBI_AM0aiV3f2aV0rPy86324017EZbnAIcRkEjLrT8WKe0OAzqWC12JJplH4ur5RmXVZ4_cn5GSXnnze2ddmx5fJ2SuPpaRpbnYUYkZnRX2XzjwD0sUNk86UkAHfv119eapwoi8lh7YQIvO6nfM7-8nNZ-n2DeIXSwT8waNuO_-9tUR7wNf1ErQwNo79B4wtCNdOYae6vh3hR0C6vit1U3Y_jF8L28zVXL2yVOpFD3iEoNucmZ0DSyyaaMPvCDw-WC224BaS_jxa2h7fOtsKVoVgrYDeLOMNuuKytztRnCMJKbm2XNAI4zCKxnZUXi1G7fBFtSQxInXcRG5vkjLmpWEZoMoon1iu1449OMRpcAPxRQfPGGiWwawQ8nHs57fWyMwrXqoi6-R9Kqpd2CQVL1VREBIZe_AgVGEn_hqzgjuP9GrFZJOhTO9dWpIlpdiUGWVoYeC2S06eoPISC0wEt9DSpmdzYtsTMINsh9TcUutYe9BkV4Mn6bIcIOYvJDeV8E_7n_-Z0dPXlUcxXO77xjgWI3J1fqV0-_O34C9tpIj8wF-82wEKeSKcN2AkJZWpy1lGcOue6ofza0J8mm6yDfARa5TMyJXTxwpOYaKCkngjKxIhi62iVtO7e5lva6YrOnhJYXsIKwy79ZUNtFEkAQXJfL5Ab8_T6UZj2VDkZXYRgKDtQ4zJ6D2cg8WxZqgyZ3bw149G9nwRVYyutN4DRNqPIIURu9d4WnJFHlG31SVZYvhGMUcR-UnKr8lfG3QbrO3stgy10QI1T6kavf4JqdTXHQ6BnvMAjsGzaK7wrfOHbEcUmtsMY_cLxGQjWsEktisQFW7j3af6F0HCeurY1iVRtxw061HZuSyLvkJ4xuePG3N0PXgSDG09FoxnELGSjHsIIQ2y_bB8onMdesTsZ2jLTVclqXMl4bTDcA2NxX3JM52ut6Lk3_jKoRmD45y4xYs1Ur5q3Xae9B_8PZ4p3cFy_hY5FwaBq92fFrppcTYnbZITcnOOzQXPkhBHXGGX_R2hoba61ZWTmNPdlr-BZB0Tk_HhJjhf-UfYMUek6LX8iRrBVYMSuNYlKdillBzLHEUd-Bah-pKfBWNXv7tlEQPt8oF-Tokh45v27RzhwPUZ-gBrHxJXWMSjCCSkWKnpwyw6AimliJnCcuigB1Z97gKY-i5CmKN_YgWE6kBZ06InSsa0rRPbFrMiYoip7dnAr1JODzYNO8Tk-BJGsULsZyjZd3XimgRx5Nbo0wobvJ3jGpYxZiRqJ7CA8FkUeIQzGY820ZqMu3HsTU4kQ-1qaMZIXUvraNB-hJbNWX68MvkSt-2OFDd_ojlz-vGa4w8UVc86dJxEY_K4pI7TwJeTAY1p_7_tgRZ0Y7zSLDk00fASEdVizLDyIrxY8ZvTlcDRE7JZ76m8YifEcigfSgd3u1dXy33fifso-mbgq93TUapk2RVAb8aSvAiHXaeWOjs0gcQrKo3a4rCfDzUQ-4ceq-cRSPbYeQRaA-8vbUX1WnurFtaZRz-ssnVM0S8hJNGBNrd-VVXY_wkk9Ha7kYYASnxsFIxi0xlMrpVdWXBmpsEXK07RambRCHXSD6wUqaPxS0xOE_M41gBNmB5BHd0KnqNQVTuxyIs5FOPWP_zUCCbyYJFHWDi1I8Cg3RPcCgNVtJqEtepTyll7DXWej69AB84LGh_s6uGu7cG8eYB9tLSePJw0MzwvBf2gCQQrfyft8p-unaBb1qNuG5j6O_YkHJvXr3YGVGdD06mp7p9QmRyURtTngvFYEP4xnmpoLv71gxb2cDqdZmmwZzyv3udEJZkncQoqUX-2goiYgDaw2at6QiX--Eso-tFl6NMe5FA2_ZsCX2lymrQ-n4uv8virXeZgxEjGMYMNHF61poKUG0|1649321397|2-eOt82B1UvpDtVu5Tuz_dy0tcs8ziYTZWEr6Pa8agA=;
+        _oauth2_proxy_csrf=q-BARP60DadKd5PUpEfEq-MmXJS3WTlBJZH5hcdFnH4u5V-p88GIZGRdyJDGU_GmSfEyo4wsC-z3iTj8BbVe1PHBicvJWehhhG8lxfUZSBE01v_LSyqSrOU=|1649321396|4m6k0R9GKVMqyc_gTBf6TbUyg8yIiZI1rYFi7c3Rhuo=
+    method: GET
+    uri: https://10.55.252.155//api/v1.0/supported_algorithms
+  response:
+    body:
+      string: '{"items":[{"algorithm_name":"PADIM","gigaflops":3.9,"model_size":168.4,"model_template_id":"ote_anomaly_classification_padim","summary":"This
+        model is faster and in many cases more accurate, but it requires a fixed position
+        of the objects within the image.","supports_auto_hpo":false,"task_type":"anomaly_classification"},{"algorithm_name":"STFPM","gigaflops":5.6,"model_size":21.1,"model_template_id":"ote_anomaly_classification_stfpm","summary":"Use
+        this model when the position of the objects in the image frame might differ
+        between images.","supports_auto_hpo":false,"task_type":"anomaly_classification"},{"algorithm_name":"PADIM","gigaflops":3.9,"model_size":168.4,"model_template_id":"ote_anomaly_detection_padim","summary":"This
+        model is faster and in many cases more accurate, but it requires a fixed position
+        of the objects within the image.","supports_auto_hpo":false,"task_type":"anomaly_detection"},{"algorithm_name":"STFPM","gigaflops":5.6,"model_size":21.1,"model_template_id":"ote_anomaly_detection_stfpm","summary":"Use
+        this model when the position of the objects in the image frame might differ
+        between images.","supports_auto_hpo":false,"task_type":"anomaly_detection"},{"algorithm_name":"PADIM","gigaflops":3.9,"model_size":168.4,"model_template_id":"ote_anomaly_segmentation_padim","summary":"This
+        model is faster and in many cases more accurate, but it requires a fixed position
+        of the objects within the image.","supports_auto_hpo":false,"task_type":"anomaly_segmentation"},{"algorithm_name":"STFPM","gigaflops":5.6,"model_size":21.1,"model_template_id":"ote_anomaly_segmentation_stfpm","summary":"Use
+        this model when the position of the objects in the image frame might differ
+        between images.","supports_auto_hpo":false,"task_type":"anomaly_segmentation"},{"algorithm_name":"EfficientNet-B0","gigaflops":0.81,"model_size":4.09,"model_template_id":"Custom_Image_Classification_EfficinetNet-B0","summary":"Provides
+        better performance on large datasets, but may be not so stable in case of
+        small amount of training data.","supports_auto_hpo":true,"task_type":"classification"},{"algorithm_name":"EfficientNet-V2-S","gigaflops":5.76,"model_size":20.23,"model_template_id":"Custom_Image_Classification_EfficientNet-V2-S","summary":"This
+        model is quite slow, but provides superior single and multi label classification
+        performance.","supports_auto_hpo":true,"task_type":"classification"},{"algorithm_name":"MobileNet-V3-large-1x","gigaflops":0.44,"model_size":4.29,"model_template_id":"Custom_Image_Classification_MobileNet-V3-large-1x","summary":"Custom
+        Image Classification MobileNet-V3-large-1x","supports_auto_hpo":true,"task_type":"classification"},{"algorithm_name":"MaskRCNN-EfficientNetB2B","gigaflops":68.48,"model_size":13.27,"model_template_id":"Custom_Counting_Instance_Segmentation_MaskRCNN_EfficientNetB2B","summary":"Counting
+        algorithm provides counting of objects and object instance masks. This model
+        is based on MaskRCNN-EfficientNetB2B which is faster in training and inference
+        but less accurate.","supports_auto_hpo":true,"task_type":"instance_segmentation"},{"algorithm_name":"MaskRCNN-ResNet50","gigaflops":533.8,"model_size":177.9,"model_template_id":"Custom_Counting_Instance_Segmentation_MaskRCNN_ResNet50","summary":"Counting
+        algorithm provides counting of objects and object instance masks. This model
+        is based on MaskRCNN-ResNet50 which gives accurate predictions but slower
+        during training and inference.","supports_auto_hpo":true,"task_type":"instance_segmentation"},{"algorithm_name":"YOLOX","gigaflops":6.5,"model_size":20.4,"model_template_id":"Custom_Object_Detection_YOLOX","summary":"Model
+        with fastest inference speed, more than 2x compared to SSD, and comparable,
+        slightly slower, training time. Works best on datasets with large objects,
+        can struggle with small objects.","supports_auto_hpo":true,"task_type":"detection"},{"algorithm_name":"ATSS","gigaflops":20.6,"model_size":9.1,"model_template_id":"Custom_Object_Detection_Gen3_ATSS","summary":"Model
+        with medium inference speed and comparable to SSD training time. Works well
+        enough regardless of dataset size and difficulty.","supports_auto_hpo":true,"task_type":"detection"},{"algorithm_name":"SSD","gigaflops":9.4,"model_size":7.6,"model_template_id":"Custom_Object_Detection_Gen3_SSD","summary":"Model
+        with fast inference speed and training time. Works better on simple datasets
+        with large and distinguishable objects.","supports_auto_hpo":true,"task_type":"detection"},{"algorithm_name":"MaskRCNN-EfficientNetB2B","gigaflops":68.48,"model_size":13.27,"model_template_id":"Custom_Rotated_Detection_via_Instance_Segmentation_MaskRCNN_EfficientNetB2B","summary":"Rotated
+        object detection models detect objects as rotated bounding boxes. This model
+        is based on MaskRCNN-EfficientNetB2B which is faster in training and inference
+        but less accurate.","supports_auto_hpo":true,"task_type":"rotated_detection"},{"algorithm_name":"MaskRCNN-ResNet50","gigaflops":533.8,"model_size":177.9,"model_template_id":"Custom_Rotated_Detection_via_Instance_Segmentation_MaskRCNN_ResNet50","summary":"Rotated
+        object detection models detect objects as rotated bounding boxes. This model
+        is based on MaskRCNN-ResNet50 which gives accurate predictions but slower
+        during training and inference.","supports_auto_hpo":true,"task_type":"rotated_detection"},{"algorithm_name":"Lite-HRNet-18-mod2
+        OCR","gigaflops":3.63,"model_size":4.8,"model_template_id":"Custom_Semantic_Segmentation_Lite-HRNet-18-mod2_OCR","summary":"Middle-sized
+        architecture which based on the Lite-HRNet backbone with OCR head for the
+        balance between the fast inference and long training.","supports_auto_hpo":true,"task_type":"segmentation"},{"algorithm_name":"Lite-HRNet-18
+        OCR","gigaflops":3.45,"model_size":4.5,"model_template_id":"Custom_Semantic_Segmentation_Lite-HRNet-18_OCR","summary":"Middle-sized
+        architecture which based on the Lite-HRNet backbone with OCR head for the
+        balance between the fast inference and long training.","supports_auto_hpo":true,"task_type":"segmentation"},{"algorithm_name":"Lite-HRNet-s-mod2
+        OCR","gigaflops":1.82,"model_size":3.5,"model_template_id":"Custom_Semantic_Segmentation_Lite-HRNet-s-mod2_OCR","summary":"Lightweight
+        architecture which based on the Lite-HRNet backbone with OCR head for the
+        fast inference and training on the limited amount of data.","supports_auto_hpo":true,"task_type":"segmentation"},{"algorithm_name":"Lite-HRNet-x-mod3
+        OCR","gigaflops":13.97,"model_size":6.4,"model_template_id":"Custom_Semantic_Segmentation_Lite-HRNet-x-mod3_OCR","summary":"Heavy-size
+        architecture which based on the Lite-HRNet backbone with OCR head for the
+        accurate predictions but long training.","supports_auto_hpo":true,"task_type":"segmentation"}]}
+
+        '
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '6748'
+      Content-Security-Policy:
+      - frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 07 Apr 2022 08:50:19 GMT
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      x-envoy-decorator-operation:
+      - impt-nous-resource.impt.svc.cluster.local:5000/*
+      x-envoy-upstream-service-time:
+      - '22'
+    status:
+      code: 200
+      message: OK
+version: 1
