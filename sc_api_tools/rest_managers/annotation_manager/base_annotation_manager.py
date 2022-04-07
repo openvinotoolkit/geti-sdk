@@ -344,17 +344,17 @@ class BaseAnnotationManager:
             filename = media_item.name + '.json'
             if append_media_uid:
                 if isinstance(media_item, Image):
-                    filename = f"{media_item.name}_{media_item.id}"
+                    filename = f"{media_item.name}_{media_item.id}.json"
                 elif isinstance(media_item, VideoFrame):
                     if media_item.video_name is not None:
                         filename = f"{media_item.video_name}_" \
                                    f"{media_item.media_information.video_id}_frame_" \
-                                   f"{media_item.media_information.frame_index}"
+                                   f"{media_item.media_information.frame_index}.json"
                     else:
                         video_name = media_item.name.split("_frame_")[0]
                         filename = f"{video_name}_" \
                                    f"{media_item.media_information.video_id}_frame_" \
-                                   f"{media_item.media_information.frame_index}"
+                                   f"{media_item.media_information.frame_index}.json"
                 else:
                     raise TypeError(
                         f"Received invalid media item of type {type(media_item)}."
