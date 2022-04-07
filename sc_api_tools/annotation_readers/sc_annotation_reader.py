@@ -99,10 +99,20 @@ class SCAnnotationReader(AnnotationReader):
         annotation_files = glob.glob(
             os.path.join(self.base_folder, f"*{self.annotation_format}")
         )
+        if len(annotation_files) == 0:
+            raise ValueError(
+                f"No valid annotation files were found in folder {self.base_folder}"
+            )
         for annotation_file in annotation_files:
             with open(annotation_file, 'r') as f:
                 data = json.load(f)
-            for annotation in data["annotations"]:
+            for annotation in data.get("annotations", None):
+                if annotation is None:
+                    raise ValueError(
+                        f"Annotation file '{annotation_file}' does not contain any "
+                        f"annotations. Please make sure that this is a valid "
+                        f"annotation file."
+                    )
                 labels = [label["name"] for label in annotation["labels"]]
                 for label in labels:
                     if label not in unique_label_names:
