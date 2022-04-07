@@ -106,13 +106,14 @@ class SCAnnotationReader(AnnotationReader):
         for annotation_file in annotation_files:
             with open(annotation_file, 'r') as f:
                 data = json.load(f)
-            for annotation in data.get("annotations", None):
-                if annotation is None:
-                    raise ValueError(
-                        f"Annotation file '{annotation_file}' does not contain any "
-                        f"annotations. Please make sure that this is a valid "
-                        f"annotation file."
-                    )
+            annotations = data.get("annotations", None)
+            if annotations is None:
+                raise ValueError(
+                    f"Annotation file '{annotation_file}' does not contain any "
+                    f"annotations. Please make sure that this is a valid "
+                    f"annotation file."
+                )
+            for annotation in annotations:
                 labels = [label["name"] for label in annotation["labels"]]
                 for label in labels:
                     if label not in unique_label_names:
