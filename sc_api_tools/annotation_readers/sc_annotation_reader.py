@@ -96,8 +96,11 @@ class SCAnnotationReader(AnnotationReader):
         """
         print(f"Reading annotation files in folder {self.base_folder}...")
         unique_label_names = []
-        for annotation_file in os.listdir(self.base_folder):
-            with open(os.path.join(self.base_folder, annotation_file), 'r') as f:
+        annotation_files = glob.glob(
+            os.path.join(self.base_folder, f"*{self.annotation_format}")
+        )
+        for annotation_file in annotation_files:
+            with open(annotation_file, 'r') as f:
                 data = json.load(f)
             for annotation in data["annotations"]:
                 labels = [label["name"] for label in annotation["labels"]]
