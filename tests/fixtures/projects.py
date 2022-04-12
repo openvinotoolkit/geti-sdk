@@ -2,7 +2,7 @@ import pytest
 
 from sc_api_tools import SCRESTClient
 from sc_api_tools.rest_managers import ProjectManager
-from tests.project_service import ProjectService
+from tests.helpers.project_service import ProjectService
 
 
 @pytest.fixture(scope="class")

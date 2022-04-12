@@ -4,9 +4,16 @@ from vcr import VCR
 
 from sc_api_tools import SCRESTClient
 from sc_api_tools.data_models import Project
-from sc_api_tools.rest_managers import ProjectManager, ConfigurationManager, \
-    ImageManager, AnnotationManager, TrainingManager, VideoManager, ModelManager, \
-    PredictionManager
+from sc_api_tools.rest_managers import (
+    ProjectManager,
+    ConfigurationManager,
+    ImageManager,
+    AnnotationManager,
+    TrainingManager,
+    VideoManager,
+    ModelManager,
+    PredictionManager,
+)
 
 
 class ProjectService:

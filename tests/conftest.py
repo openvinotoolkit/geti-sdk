@@ -3,19 +3,28 @@ import os
 from typing import Dict, Any
 
 import pytest
+from _pytest.main import Session
 
 from vcr.record_mode import RecordMode
 
 from sc_api_tools.http_session import ClusterConfig
 
-from .helpers import TestMode, get_sdk_fixtures, are_cassettes_available
+from .helpers import (
+    TestMode,
+    get_sdk_fixtures,
+    are_cassettes_available,
+    replace_host_name_in_cassettes,
+)
+
+
+BASE_TEST_PATH = os.path.dirname(os.path.abspath(__file__))
 
 pytest_plugins = get_sdk_fixtures()
 
-HOST = "https://10.55.252.155/"
-USERNAME = "admin@sc-project.intel.com"
-PASSWORD = "@SCAdmin"
-TEST_MODE = TestMode.OFFLINE
+TEST_MODE = TestMode[os.environ.get("TEST_MODE", "OFFLINE")]
+HOST = os.environ.get("SC_HOST", "https://dummy_host").strip("/")
+USERNAME = os.environ.get("SC_USERNAME", "dummy_user")
+PASSWORD = os.environ.get("SC_PASSWORD", "dummy_password")
 
 
 @pytest.fixture(scope="session")
@@ -64,4 +73,17 @@ def base_test_path() -> str:
     """
     This fixture returns the absolute path to the `tests` folder
     """
-    yield os.path.dirname(os.path.abspath(__file__))
+    yield BASE_TEST_PATH
+
+
+def pytest_sessionfinish(session: Session, exitstatus: int) -> None:
+    """
+    This function is called after a pytest test run finishes.
+
+    :param session: Pytest session instance
+    :param exitstatus: Exitstatus with which the tests completed
+    :return:
+    """
+    if TEST_MODE == TestMode.RECORD:
+        replace_host_name_in_cassettes(HOST)
+        print(f" Hostname {HOST} was replaced in all cassette files successfully.")

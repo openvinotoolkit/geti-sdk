@@ -5,7 +5,7 @@ import pytest
 from sc_api_tools import SCRESTClient
 from sc_api_tools.rest_managers import ProjectManager
 from sc_api_tools.data_models import Project, TaskType
-from tests.project_service import ProjectService
+from tests.helpers.project_service import ProjectService
 
 
 class TestProjectManager:

@@ -10,7 +10,7 @@ from _pytest.fixtures import FixtureRequest
 
 from sc_api_tools.data_models import Project
 
-from tests.project_service import ProjectService
+from tests.helpers.project_service import ProjectService
 
 
 class TestImageManager:

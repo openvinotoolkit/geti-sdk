@@ -1,8 +1,4 @@
-import os
 from enum import Enum
-from typing import List
-
-BASE_TEST_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestMode(Enum):
@@ -25,31 +21,3 @@ class TestMode(Enum):
     ONLINE = 'online'
     OFFLINE = 'offline'
     RECORD = 'record'
-
-
-def get_sdk_fixtures() -> List[str]:
-    """
-    Returns the list of fixtures available to the SDK
-
-    :return: list of fixture paths for pytest to import
-    """
-    fixture_filenames = os.listdir(os.path.join(BASE_TEST_PATH, 'fixtures'))
-    fixtures: List[str] = []
-    for filename in fixture_filenames:
-        if filename.endswith('.py') and not filename.startswith('__'):
-            fixtures.append(f"tests.fixtures.{filename[0:-3]}")
-    return fixtures
-
-
-def are_cassettes_available() -> bool:
-    """
-    Checks that the VCR cassettes required to run the tests offline are available
-
-    :return: True if the cassettes are available in the proper path, False otherwise
-    """
-    cassette_path = os.path.join(BASE_TEST_PATH, 'fixtures', 'cassettes')
-    if not os.path.isdir(cassette_path):
-        return False
-    if len(os.listdir(cassette_path)) > 0:
-        return True
-    return False

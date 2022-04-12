@@ -2,7 +2,7 @@ from typing import List
 
 import pytest
 
-from tests.project_service import ProjectService
+from tests.helpers.project_service import ProjectService
 
 
 class TestConfigurationManager:

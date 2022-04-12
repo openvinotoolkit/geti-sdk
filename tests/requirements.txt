@@ -2,3 +2,4 @@ vcrpy==4.1.*
 pytest==7.1.*
 pytest-recording==0.12.*
 pytest-cov==3.0.*
+pytest-env==0.6.*
