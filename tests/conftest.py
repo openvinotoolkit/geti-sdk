@@ -1,23 +1,19 @@
 """ This module defines the test configuration """
 import os
-from typing import Dict, Any
+import shutil
+import tempfile
 
 import pytest
 from _pytest.main import Session
-
-from vcr.record_mode import RecordMode
 
 from sc_api_tools.http_session import ClusterConfig
 
 from .helpers import (
     TestMode,
     get_sdk_fixtures,
-    are_cassettes_available,
     replace_host_name_in_cassettes,
 )
-
-
-BASE_TEST_PATH = os.path.dirname(os.path.abspath(__file__))
+from .helpers.constants import BASE_TEST_PATH, CASSETTE_PATH, RECORD_CASSETTE_KEY
 
 pytest_plugins = get_sdk_fixtures()
 
@@ -41,34 +37,6 @@ def fxt_server_config() -> ClusterConfig:
 
 
 @pytest.fixture(scope="session")
-def vcr_record_config() -> Dict[str, Any]:
-    """
-    This fixture determines the record mode for the VCR cassettes used in the tests
-    """
-    if TEST_MODE == TestMode.RECORD:
-        if are_cassettes_available():
-            raise ValueError(
-                "Tests were set to run in RECORD mode, but several cassettes were "
-                "already found on the system. Please remove all old cassettes (by "
-                "deleting 'fixtures/cassettes') before recording a new set."
-            )
-        yield {"record_mode": RecordMode.NEW_EPISODES}
-    elif TEST_MODE == TestMode.ONLINE:
-        host = HOST.strip("https://").strip("/")
-        yield {"record_mode": RecordMode.NONE, "ignore_hosts": [host]}
-    elif TEST_MODE == TestMode.OFFLINE:
-        if not are_cassettes_available():
-            raise ValueError(
-                "Tests were set to run in OFFLINE mode, but no cassettes were found "
-                "on the system. Please make sure that the cassettes for the SDK test "
-                "suite are available in 'fixtures/cassettes'."
-            )
-        yield {"record_mode": RecordMode.NONE}
-    else:
-        raise NotImplementedError(f"TestMode {TEST_MODE} is not implemented")
-
-
-@pytest.fixture(scope="session")
 def base_test_path() -> str:
     """
     This fixture returns the absolute path to the `tests` folder
@@ -76,14 +44,59 @@ def base_test_path() -> str:
     yield BASE_TEST_PATH
 
 
+@pytest.fixture(scope="session")
+def test_mode() -> TestMode:
+    """
+    This fixture returns the TestMode with which the tests are run
+    :return:
+    """
+    yield TEST_MODE
+
+
+def pytest_sessionstart(session: Session) -> None:
+    """
+    This function is called before a pytest test run begins.
+
+    If the tests are run in record mode, this hook sets up a temporary directory to
+    record the new cassettes to.
+
+    :param session: Pytest session instance that has just been created
+    """
+    if TEST_MODE == TestMode.RECORD:
+        record_cassette_path = tempfile.mkdtemp()
+        print(f"Cassettes will be recorded to `{record_cassette_path}`.")
+        os.environ.update({RECORD_CASSETTE_KEY: record_cassette_path})
+
+
 def pytest_sessionfinish(session: Session, exitstatus: int) -> None:
     """
     This function is called after a pytest test run finishes.
 
-    :param session: Pytest session instance
+    If the tests are run in record mode, this hook handles saving and cleaning the
+    recorded cassettes
+
+    :param session: Pytest session that has just finished
     :param exitstatus: Exitstatus with which the tests completed
-    :return:
     """
     if TEST_MODE == TestMode.RECORD:
-        replace_host_name_in_cassettes(HOST)
-        print(f" Hostname {HOST} was replaced in all cassette files successfully.")
+        record_cassette_path = os.environ.pop(RECORD_CASSETTE_KEY)
+        if exitstatus == 0:
+            print("Recording successful! Wrapping up....")
+            # Copy recorded cassettes to fixtures/cassettes
+            print(
+                f"Copying newly recorded cassettes from `{record_cassette_path}` to "
+                f"`{CASSETTE_PATH}`."
+            )
+            if os.path.exists(CASSETTE_PATH):
+                shutil.rmtree(CASSETTE_PATH)
+            shutil.move(record_cassette_path, CASSETTE_PATH)
+
+            # Scrub hostname from cassettes
+            replace_host_name_in_cassettes(HOST)
+            print(
+                f" Hostname {HOST} was scrubbed from all cassette files successfully."
+            )
+        else:
+            # Clean up any cassettes already recorded
+            if os.path.exists(record_cassette_path):
+                shutil.rmtree(record_cassette_path)

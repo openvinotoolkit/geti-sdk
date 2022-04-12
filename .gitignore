@@ -30,3 +30,7 @@ build
 
 # Test reports
 .coverage
+
+# Test server configurations
+/tests/online.ini
+/tests/record.ini
