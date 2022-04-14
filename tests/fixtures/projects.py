@@ -1,8 +1,10 @@
+from typing import Callable
+
 import pytest
 
 from sc_api_tools import SCRESTClient
 from sc_api_tools.rest_managers import ProjectManager
-from tests.helpers.project_service import ProjectService
+from tests.helpers import ProjectService, force_delete_project
 
 
 @pytest.fixture(scope="class")
@@ -32,3 +34,15 @@ def fxt_project_service(
     project_service = ProjectService(client=fxt_client, vcr=fxt_vcr)
     yield project_service
     project_service.delete_project()
+
+
+@pytest.fixture(scope="class")
+def fxt_project_finalizer(fxt_project_manager) -> Callable[[str], None]:
+    """
+    This fixture returns a finalizer to ensure project deletion
+
+    :var project_name: Name of the project for which to add the finalizer
+    """
+    def _project_finalizer(project_name: str) -> None:
+        force_delete_project(project_name, fxt_project_manager)
+    return _project_finalizer

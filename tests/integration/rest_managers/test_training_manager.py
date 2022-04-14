@@ -4,27 +4,21 @@ from sc_api_tools.annotation_readers import DatumAnnotationReader
 from sc_api_tools.data_models import Job, Project, ProjectStatus
 from sc_api_tools.data_models.enums import JobState
 
-from tests.helpers import ProjectService
+from tests.helpers import ProjectService, get_or_create_annotated_project_for_test_class
+from tests.helpers.constants import PROJECT_PREFIX
 
 
 class TestTrainingManager:
     @staticmethod
-    def ensure_test_project(
+    def ensure_annotated_project(
             project_service: ProjectService, annotation_reader: DatumAnnotationReader
     ) -> Project:
-        project_exists = project_service.has_project
-        project = project_service.get_or_create_project(
-            project_name="sdk_test_training_manager",
+        return get_or_create_annotated_project_for_test_class(
+            project_service=project_service,
+            annotation_reader=annotation_reader,
             project_type="detection",
+            project_name=f"{PROJECT_PREFIX}_training_manager"
         )
-        if not project_exists:
-            project_service.set_auto_train(False)
-            project_service.set_minimal_training_hypers()
-            project_service.add_annotated_media(
-                annotation_reader=annotation_reader,
-                n_images=-1
-            )
-        return project
 
     @pytest.mark.vcr()
     def test_train_task_and_get_jobs(
@@ -37,10 +31,8 @@ class TestTrainingManager:
         sufficient annotations works
 
         """
-        project = self.ensure_test_project(
-            project_service=fxt_project_service,
-            annotation_reader=fxt_annotation_reader
-        )
+        project = self.ensure_annotated_project(project_service=fxt_project_service,
+                                                annotation_reader=fxt_annotation_reader)
 
         task = project.get_trainable_tasks()[0]
         job = fxt_project_service.training_manager.train_task(
@@ -72,9 +64,7 @@ class TestTrainingManager:
         Test that fetching project status works
 
         """
-        self.ensure_test_project(
-            project_service=fxt_project_service,
-            annotation_reader=fxt_annotation_reader
-        )
+        self.ensure_annotated_project(project_service=fxt_project_service,
+                                      annotation_reader=fxt_annotation_reader)
         status = fxt_project_service.training_manager.get_status()
         assert isinstance(status, ProjectStatus)

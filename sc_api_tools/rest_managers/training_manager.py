@@ -148,7 +148,7 @@ class TrainingManager:
         job.workspace_id = self.workspace_id
         return job
 
-    def monitor_jobs(self, jobs: List[Job]) -> List[Job]:
+    def monitor_jobs(self, jobs: List[Job], timeout: int = 10000) -> List[Job]:
         """
         Monitors and prints the progress of all jobs in the list `jobs`. Execution is
         halted until all jobs have either finished, failed or were cancelled.
@@ -156,6 +156,7 @@ class TrainingManager:
         Progress will be reported in 15s intervals
 
         :param jobs: List of jobs to monitor
+        :param timeout: Timeout (in seconds) after which to stop the monitoring
         :return: List of finished (or failed) jobs with their status updated
         """
         monitoring = True
@@ -170,7 +171,9 @@ class TrainingManager:
             job for job in jobs if job.status.state not in completed_states
         ]
         try:
-            while monitoring:
+            t_start = time.time()
+            t_elapsed = 0
+            while monitoring and t_elapsed < timeout:
                 msg = ''
                 complete_count = 0
                 for job in jobs_to_monitor:
@@ -187,10 +190,14 @@ class TrainingManager:
                     monitoring = False
                 print(msg + '\n')
                 time.sleep(15)
+                t_elapsed = time.time() - t_start
         except KeyboardInterrupt:
             print("Job monitoring interrupted, stopping...")
             for job in jobs:
                 job.update(self.session)
             return jobs
-        print("All jobs completed, monitoring stopped.")
+        if t_elapsed < timeout:
+            print("All jobs completed, monitoring stopped.")
+        else:
+            print(f"Monitoring stopped after {t_elapsed:.1f} seconds due to timeout.")
         return jobs

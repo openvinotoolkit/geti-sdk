@@ -42,6 +42,7 @@ class ProjectManager:
     """
     def __init__(self, session: SCSession, workspace_id: str):
         self.session = session
+        self.workspace_id = workspace_id
         self.base_url = f"workspaces/{workspace_id}/"
 
     def get_all_projects(self) -> List[Project]:

@@ -3,6 +3,7 @@ from typing import List
 import pytest
 
 from tests.helpers.project_service import ProjectService
+from tests.helpers.constants import PROJECT_PREFIX
 
 
 class TestConfigurationManager:
@@ -26,7 +27,7 @@ class TestConfigurationManager:
         6. GET the task configuration again, and assert that the batch size has changed
         """
         project = fxt_project_service.create_project(
-            project_name="sdk_test_configuration_manager",
+            project_name=f"{PROJECT_PREFIX}_configuration_manager",
             project_type="detection",
             labels=[fxt_default_labels]
         )

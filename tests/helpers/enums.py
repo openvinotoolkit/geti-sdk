@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class TestMode(Enum):
+class SdkTestMode(Enum):
     """
     This Enum represents the different modes available for running the tests. The
     available modes are:

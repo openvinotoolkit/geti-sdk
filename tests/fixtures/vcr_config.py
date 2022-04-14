@@ -8,7 +8,7 @@ from vcr import VCR
 from vcr.record_mode import RecordMode
 
 
-from tests.helpers import TestMode, are_cassettes_available
+from tests.helpers import SdkTestMode, are_cassettes_available
 from tests.helpers.constants import (
     RECORD_CASSETTE_KEY,
     CASSETTE_PATH,
@@ -17,16 +17,16 @@ from tests.helpers.constants import (
 
 
 @pytest.fixture(scope="session")
-def vcr_record_config(test_mode, fxt_server_config) -> Dict[str, Any]:
+def vcr_record_config(fxt_test_mode, fxt_server_config) -> Dict[str, Any]:
     """
     This fixture determines the record mode for the VCR cassettes used in the tests
     """
-    if test_mode == TestMode.RECORD:
+    if fxt_test_mode == SdkTestMode.RECORD:
         yield {"record_mode": RecordMode.NEW_EPISODES}
-    elif test_mode == TestMode.ONLINE:
+    elif fxt_test_mode == SdkTestMode.ONLINE:
         host = fxt_server_config.host.strip("https://").strip("/")
         yield {"record_mode": RecordMode.NONE, "ignore_hosts": [host]}
-    elif test_mode == TestMode.OFFLINE:
+    elif fxt_test_mode == SdkTestMode.OFFLINE:
         if not are_cassettes_available():
             raise ValueError(
                 f"Tests were set to run in OFFLINE mode, but no cassettes were found "
@@ -35,7 +35,7 @@ def vcr_record_config(test_mode, fxt_server_config) -> Dict[str, Any]:
             )
         yield {"record_mode": RecordMode.NONE}
     else:
-        raise NotImplementedError(f"TestMode {test_mode} is not implemented")
+        raise NotImplementedError(f"SdkTestMode {fxt_test_mode} is not implemented")
 
 
 @pytest.fixture(scope='session')
@@ -53,12 +53,12 @@ def vcr_config(vcr_record_config) -> Dict[str, Any]:
 
 
 @pytest.fixture(scope='session')
-def vcr_cassette_dir(base_test_path, test_mode) -> str:
+def vcr_cassette_dir(fxt_test_mode) -> str:
     """
     Returns the path to the directory from which cassettes should be read (in offline
     mode), or to which they should be recorded (in record mode).
     """
-    if test_mode == TestMode.RECORD:
+    if fxt_test_mode == SdkTestMode.RECORD:
         yield os.environ.get(RECORD_CASSETTE_KEY)
     else:
         yield CASSETTE_PATH

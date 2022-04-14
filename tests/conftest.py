@@ -5,11 +5,13 @@ import tempfile
 
 import pytest
 from _pytest.main import Session
+from sc_api_tools import SCRESTClient
 
 from sc_api_tools.http_session import ClusterConfig
+from tests.helpers.project_helpers import remove_all_test_projects
 
 from .helpers import (
-    TestMode,
+    SdkTestMode,
     get_sdk_fixtures,
     replace_host_name_in_cassettes,
 )
@@ -17,10 +19,11 @@ from .helpers.constants import BASE_TEST_PATH, CASSETTE_PATH, RECORD_CASSETTE_KE
 
 pytest_plugins = get_sdk_fixtures()
 
-TEST_MODE = TestMode[os.environ.get("TEST_MODE", "OFFLINE")]
+TEST_MODE = SdkTestMode[os.environ.get("TEST_MODE", "OFFLINE")]
 HOST = os.environ.get("SC_HOST", "https://dummy_host").strip("/")
 USERNAME = os.environ.get("SC_USERNAME", "dummy_user")
 PASSWORD = os.environ.get("SC_PASSWORD", "dummy_password")
+CLEAR_EXISTING_TEST_PROJECTS = os.environ.get("CLEAR_EXISTING_TEST_PROJECTS", False)
 
 
 @pytest.fixture(scope="session")
@@ -37,7 +40,7 @@ def fxt_server_config() -> ClusterConfig:
 
 
 @pytest.fixture(scope="session")
-def base_test_path() -> str:
+def fxt_base_test_path() -> str:
     """
     This fixture returns the absolute path to the `tests` folder
     """
@@ -45,9 +48,9 @@ def base_test_path() -> str:
 
 
 @pytest.fixture(scope="session")
-def test_mode() -> TestMode:
+def fxt_test_mode() -> SdkTestMode:
     """
-    This fixture returns the TestMode with which the tests are run
+    This fixture returns the SdkTestMode with which the tests are run
     :return:
     """
     yield TEST_MODE
@@ -62,7 +65,11 @@ def pytest_sessionstart(session: Session) -> None:
 
     :param session: Pytest session instance that has just been created
     """
-    if TEST_MODE == TestMode.RECORD:
+    if CLEAR_EXISTING_TEST_PROJECTS and TEST_MODE != SdkTestMode.OFFLINE:
+        remove_all_test_projects(
+            SCRESTClient(host=HOST, username=USERNAME, password=PASSWORD)
+        )
+    if TEST_MODE == SdkTestMode.RECORD:
         record_cassette_path = tempfile.mkdtemp()
         print(f"Cassettes will be recorded to `{record_cassette_path}`.")
         os.environ.update({RECORD_CASSETTE_KEY: record_cassette_path})
@@ -78,7 +85,7 @@ def pytest_sessionfinish(session: Session, exitstatus: int) -> None:
     :param session: Pytest session that has just finished
     :param exitstatus: Exitstatus with which the tests completed
     """
-    if TEST_MODE == TestMode.RECORD:
+    if TEST_MODE == SdkTestMode.RECORD:
         record_cassette_path = os.environ.pop(RECORD_CASSETTE_KEY)
         if exitstatus == 0:
             print("Recording successful! Wrapping up....")

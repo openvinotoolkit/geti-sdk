@@ -43,6 +43,15 @@ class TaskType(Enum):
         return self in GLOBAL_TASK_TYPES
 
     @property
+    def is_local(self) -> bool:
+        """
+        Returns True if a task of this TaskType produces local labels, False otherwise
+
+        :return:
+        """
+        return self not in GLOBAL_TASK_TYPES and self not in NON_TRAINABLE_TASK_TYPES
+
+    @property
     def is_anomaly(self) -> bool:
         """
         Returns True if a task of this TaskType is an anomaly task, False otherwise
@@ -50,6 +59,15 @@ class TaskType(Enum):
         :return:
         """
         return self in ANOMALY_TASK_TYPES
+
+    @property
+    def is_segmentation(self) -> bool:
+        """
+        Returns True if a task of this TaskType is an anomaly task, False otherwise
+
+        :return:
+        """
+        return self in SEGMENTATION_TASK_TYPES
 
     @classmethod
     def from_domain(cls, domain: 'Domain'):
@@ -71,3 +89,9 @@ ANOMALY_TASK_TYPES = [
 ]
 
 GLOBAL_TASK_TYPES = [TaskType.CLASSIFICATION, TaskType.ANOMALY_CLASSIFICATION]
+
+SEGMENTATION_TASK_TYPES = [
+    TaskType.SEGMENTATION,
+    TaskType.ANOMALY_SEGMENTATION,
+    TaskType.INSTANCE_SEGMENTATION
+]

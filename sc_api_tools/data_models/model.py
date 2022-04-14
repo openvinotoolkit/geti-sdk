@@ -23,8 +23,9 @@ class OptimizationCapabilities:
     """
     Class representing model optimization capabilities in SC
     """
-    is_filter_pruning_enabled: bool
     is_nncf_supported: bool
+    is_filter_pruning_enabled: Optional[bool] = None #  deprecated in v1.1
+    is_filter_pruning_supported: Optional[bool] = None
 
 
 @attr.s(auto_attribs=True)

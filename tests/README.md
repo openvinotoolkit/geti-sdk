@@ -23,14 +23,14 @@ If you want to run the test suite against a real SC server (for example to make 
 that the SDK data models are still up to date with the SC REST contracts), make sure to set
 the server configuration in [conftest.py](./conftest.py) properly: This file contains variables 
 defining the server configuration (`HOST`, `USERNAME` and `PASSWORD`). In addition, 
-the `TEST_MODE` variable should be set to `TestMode.ONLINE` to allow making actual 
+the `TEST_MODE` variable should be set to `SdkTestMode.ONLINE` to allow making actual 
 http requests to the server.
 
 ##### Record mode
 If you have added a new test that makes http requests, all cassettes should be deleted 
 and re-recorded to maintain consistency across the recorded responses. This can be done 
 by deleting the full [cassettes](fixtures/cassettes) folder and running the test suite 
-in `RECORD` mode by setting `TEST_MODE = TestMode.RECORD`. 
+in `RECORD` mode by setting `TEST_MODE = SdkTestMode.RECORD`. 
 
 > **WARNING**: Running the test suite in `ONLINE` or `RECORD` mode will increase the 
 > time required for test execution considerably

@@ -15,7 +15,8 @@ from sc_api_tools.rest_managers import (
     ModelManager,
     PredictionManager,
 )
-from tests.helpers.constants import CASSETTE_EXTENSION
+from .constants import CASSETTE_EXTENSION, PROJECT_PREFIX
+from .finalizers import force_delete_project
 
 
 class ProjectService:
@@ -56,7 +57,7 @@ class ProjectService:
 
     def create_project(
             self,
-            project_name: str = "sdk_test_project_simple",
+            project_name: Optional[str] = None,
             project_type: str = "classification",
             labels: Optional[List[Union[List[str], List[Dict[str, Any]]]]] = None
     ) -> Project:
@@ -68,6 +69,8 @@ class ProjectService:
         :param labels: List of labels for each task
         :return: the created project
         """
+        if project_name is None:
+            project_name = f"{PROJECT_PREFIX}_project_simple"
         if self._project is None:
             if labels is None:
                 labels = [["cube", "cylinder"]]
@@ -216,8 +219,9 @@ class ProjectService:
     def model_manager(self) -> ModelManager:
         """ Returns the ModelManager instance for the project """
         if self._model_manager is None:
-            cassette_name = f"{self.project.name}_model_manager.{CASSETTE_EXTENSION}"
-            with self.vcr.use_cassette(cassette_name):
+            with self.vcr.use_cassette(
+                    f"{self.project.name}_model_manager.{CASSETTE_EXTENSION}"
+            ):
                 self._model_manager = ModelManager(
                     session=self.session,
                     workspace_id=self.workspace_id,
@@ -228,17 +232,10 @@ class ProjectService:
     def delete_project(self):
         """ Deletes the project from the server """
         if self._project is not None:
-            cassette_name = f"{self.project.name}_deletion.{CASSETTE_EXTENSION}"
-            with self.vcr.use_cassette(cassette_name):
-                try:
-                    self.project_manager.delete_project(
-                        self.project.name, requires_confirmation=False
-                    )
-                except TypeError:
-                    print(
-                        f"Project {self.project.name} was already deleted from the "
-                        f"server."
-                    )
+            with self.vcr.use_cassette(
+                f"{self.project.name}_deletion.{CASSETTE_EXTENSION}"
+            ):
+                force_delete_project(self.project.name, self.project_manager)
                 self.reset_state()
 
     def reset_state(self) -> None:
@@ -262,8 +259,9 @@ class ProjectService:
             all images for which the annotation reader contains annotations
         """
         data_path = annotation_reader.base_folder
-        cassette_name = f"{self.project.name}_add_annotated_media.{CASSETTE_EXTENSION}"
-        with self.vcr.use_cassette(cassette_name):
+        with self.vcr.use_cassette(
+            f"{self.project.name}_add_annotated_media.{CASSETTE_EXTENSION}"
+        ):
             if isinstance(annotation_reader, DatumAnnotationReader):
                 images = self.image_manager.upload_from_list(
                     path_to_folder=data_path,
@@ -277,17 +275,19 @@ class ProjectService:
 
             if n_images < len(images) and n_images != -1:
                 images = images[:n_images]
-
-            # Set annotation reader task type
-            annotation_reader.task_type = self.project.get_trainable_tasks()[0].type
-            annotation_reader.prepare_and_set_dataset(
-                task_type=self.project.get_trainable_tasks()[0].type
-            )
-            self.annotation_manager.annotation_reader = annotation_reader
-            # Upload annotations
-            self.annotation_manager.upload_annotations_for_images(
-                images
-            )
+            # Annotation preparation and upload
+            for task_index, task in enumerate(self.project.get_trainable_tasks()):
+                # Set annotation reader task type
+                annotation_reader.task_type = task.type
+                annotation_reader.prepare_and_set_dataset(
+                    task_type=task.type
+                )
+                self.annotation_manager.annotation_reader = annotation_reader
+                # Upload annotations
+                self.annotation_manager.upload_annotations_for_images(
+                    images=images,
+                    append_annotations=task_index > 0
+                )
 
     def set_auto_train(self, auto_train: bool = True) -> None:
         """
@@ -296,7 +296,7 @@ class ProjectService:
         :param auto_train: True to turn auto_training on, False to turn it off
         """
         with self.vcr.use_cassette(
-                f"{self.project.name}_set_auto_train.{CASSETTE_EXTENSION}"
+            f"{self.project.name}_set_auto_train.{CASSETTE_EXTENSION}"
         ):
             self.configuration_manager.set_project_auto_train(auto_train=auto_train)
 
@@ -307,7 +307,7 @@ class ProjectService:
 
         """
         with self.vcr.use_cassette(
-                f"{self.project.name}_set_minimal_hypers.{CASSETTE_EXTENSION}"
+            f"{self.project.name}_set_minimal_hypers.{CASSETTE_EXTENSION}"
         ):
             self.configuration_manager.set_project_num_iterations(1)
             for task in self.project.get_trainable_tasks():

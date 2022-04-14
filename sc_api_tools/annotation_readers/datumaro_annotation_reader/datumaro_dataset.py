@@ -30,17 +30,17 @@ class DatumaroDataset(object):
 
         :param task_type: TaskType to prepare the dataset for
         """
-        if task_type == TaskType.DETECTION:
+        if task_type in [TaskType.DETECTION, TaskType.ROTATED_DETECTION]:
             new_dataset = self.dataset.transform(
                 self.dataset.env.transforms.get('shapes_to_boxes')
             )
             print("Annotations have been converted to boxes")
-        elif task_type == TaskType.SEGMENTATION:
+        elif task_type.is_segmentation:
             new_dataset = self.dataset.transform(
                 self.dataset.env.transforms.get('masks_to_polygons')
             )
             print("Annotations have been converted to polygons")
-        elif task_type in GLOBAL_TASK_TYPES:
+        elif task_type.is_global:
             new_dataset = self.dataset.transform(
                 self.dataset.env.transforms.get('shapes_to_boxes')
             )

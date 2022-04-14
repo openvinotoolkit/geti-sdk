@@ -5,7 +5,9 @@ import pytest
 from sc_api_tools import SCRESTClient
 from sc_api_tools.rest_managers import ProjectManager
 from sc_api_tools.data_models import Project, TaskType
+
 from tests.helpers.project_service import ProjectService
+from tests.helpers.constants import PROJECT_PREFIX
 
 
 class TestProjectManager:
@@ -85,7 +87,8 @@ class TestProjectManager:
         as expected
         """
         project = fxt_project_service.create_project(
-            project_name="sdk_test_project_hierarchical", project_type="classification",
+            project_name=f"{PROJECT_PREFIX}_project_hierarchical",
+            project_type="classification",
             labels=[fxt_hierarchical_classification_labels])
         assert isinstance(project, Project)
 

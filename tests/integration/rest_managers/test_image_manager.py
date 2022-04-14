@@ -11,6 +11,7 @@ from _pytest.fixtures import FixtureRequest
 from sc_api_tools.data_models import Project
 
 from tests.helpers.project_service import ProjectService
+from tests.helpers.constants import PROJECT_PREFIX
 
 
 class TestImageManager:
@@ -19,7 +20,7 @@ class TestImageManager:
             project_service: ProjectService, labels: List[str]
     ) -> Project:
         return project_service.get_or_create_project(
-            project_name="sdk_test_image_manager",
+            project_name=f"{PROJECT_PREFIX}_image_manager",
             project_type="detection",
             labels=[labels]
         )

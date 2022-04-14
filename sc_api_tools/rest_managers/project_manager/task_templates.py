@@ -18,9 +18,21 @@ DETECTION_TASK = {
     "labels": []
 }
 
+ROTATED_DETECTION_TASK = {
+    "title": "Rotated detection task",
+    "task_type": "rotated_detection",
+    "labels": []
+}
+
 SEGMENTATION_TASK = {
     "title": "Segmentation task",
     "task_type": "segmentation",
+    "labels": []
+}
+
+INSTANCE_SEGMENTATION_TASK = {
+    "title": "Instance segmentation task",
+    "task_type": "instance_segmentation",
     "labels": []
 }
 
