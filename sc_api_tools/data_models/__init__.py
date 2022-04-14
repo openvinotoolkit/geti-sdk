@@ -7,6 +7,7 @@ from .annotations import Annotation
 from .annotation_scene import AnnotationScene
 from .algorithms import Algorithm
 from .predictions import Prediction
+from .performance import Performance
 from .configuration import (
     TaskConfiguration,
     ConfigurableParameters,
@@ -35,6 +36,7 @@ __all__ = [
     "ScoredLabel",
     "VideoFrame",
     "Prediction",
+    "Performance",
     "TaskConfiguration",
     "GlobalConfiguration",
     "ConfigurableParameters",

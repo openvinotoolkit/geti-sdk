@@ -15,6 +15,8 @@ from sc_api_tools.data_models.utils import (
 from sc_api_tools.utils import deserialize_dictionary
 from sc_api_tools.utils.dictionary_helpers import remove_null_fields
 
+from .performance import Performance
+
 
 @attr.s(auto_attribs=True)
 class OptimizationCapabilities:
@@ -44,7 +46,8 @@ class BaseModel:
     target_device_type: Optional[str] = None
     previous_revision_id: Optional[str] = None
     previous_trained_revision_id: Optional[str] = None
-    score: Optional[float] = attr.ib(default=None)
+    score: Optional[float] = attr.ib(default=None)  # 'score' is removed in v1.1
+    performance: Optional[Performance] = None
     id: Optional[str] = attr.ib(default=None)
 
     def __attrs_post_init__(self):

@@ -1,5 +1,6 @@
 from typing import Optional, List, Union, Dict, Any
 
+from sc_api_tools.annotation_readers import AnnotationReader, DatumAnnotationReader
 from vcr import VCR
 
 from sc_api_tools import SCRESTClient
@@ -234,3 +235,67 @@ class ProjectService:
         self._project = None
         for manager_name in self._manager_names:
             setattr(self, manager_name, None)
+
+    def add_annotated_media(
+            self, annotation_reader: AnnotationReader, n_images: int = 12
+    ) -> None:
+        """
+        Adds annotated media to the project
+
+        :param annotation_reader: AnnotationReader to use to get annotations for the
+            media
+        :param n_images: Number of annotated images to upload. If set to -1, uploads
+            all images for which the annotation reader contains annotations
+        """
+        data_path = annotation_reader.base_folder
+        cassette_name = f"{self.project.name}_add_annotated_media"
+        with self.vcr.use_cassette(cassette_name):
+            if isinstance(annotation_reader, DatumAnnotationReader):
+                images = self.image_manager.upload_from_list(
+                    path_to_folder=data_path,
+                    image_names=annotation_reader.get_all_image_names(),
+                    n_images=n_images
+                )
+            else:
+                images = self.image_manager.upload_folder(
+                    data_path, n_images=n_images
+                )
+
+            if n_images < len(images) and n_images != -1:
+                images = images[:n_images]
+
+            # Set annotation reader task type
+            annotation_reader.task_type = self.project.get_trainable_tasks()[0].type
+            annotation_reader.prepare_and_set_dataset(
+                task_type=self.project.get_trainable_tasks()[0].type
+            )
+            self.annotation_manager.annotation_reader = annotation_reader
+            # Upload annotations
+            self.annotation_manager.upload_annotations_for_images(
+                images
+            )
+
+    def set_auto_train(self, auto_train: bool = True) -> None:
+        """
+        Sets the 'auto_training' parameter for all tasks in the project to `auto_train`
+
+        :param auto_train: True to turn auto_training on, False to turn it off
+        """
+        self.configuration_manager.set_project_auto_train(auto_train=auto_train)
+
+    def set_minimal_training_hypers(self) -> None:
+        """
+        Configures the project to use the lowest possible batch size and number of
+        epochs to perform a minimal training round
+
+        """
+        self.configuration_manager.set_project_num_iterations(1)
+        for task in self.project.get_trainable_tasks():
+            task_config = self.configuration_manager.get_task_configuration(task.id)
+            try:
+                task_config.set_parameter_value('batch_size', 1)
+            except ValueError:
+                print(
+                    f"Parameter batch_size was not found in the configuration for "
+                    f"task {task.summary}. Unable to configure batch size"
+                )

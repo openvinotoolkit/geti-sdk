@@ -2,12 +2,11 @@ import copy
 from typing import List, Dict, Optional, ClassVar, Any, Union
 from pprint import pformat
 
-import numpy as np
-
 import attr
 
 from sc_api_tools.utils.dictionary_helpers import remove_null_fields
 
+from .performance import Performance
 from .label import Label
 from .task import Task
 from .utils import deidentify, attr_value_serializer
@@ -167,7 +166,8 @@ class Project:
     name: str
     pipeline: Pipeline
     datasets: List[Dataset]
-    score: Optional[float] = None
+    score: Optional[float] = None  # 'score' is removed in v1.1
+    performance: Optional[Performance] = None
     creation_time: Optional[str] = None
     id: Optional[str] = None
     thumbnail: Optional[str] = None

@@ -18,7 +18,7 @@ def fxt_project_manager(fxt_client: SCRESTClient) -> ProjectManager:
 @pytest.fixture(scope="class")
 def fxt_project_service(
     fxt_vcr,
-    fxt_client
+    fxt_client,
 ) -> ProjectService:
     """
     This fixture provides a service for creating a project and the corresponding

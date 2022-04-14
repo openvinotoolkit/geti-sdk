@@ -25,9 +25,9 @@ def vcr_record_config(test_mode, fxt_server_config) -> Dict[str, Any]:
     elif test_mode == TestMode.OFFLINE:
         if not are_cassettes_available():
             raise ValueError(
-                "Tests were set to run in OFFLINE mode, but no cassettes were found "
-                "on the system. Please make sure that the cassettes for the SDK test "
-                "suite are available in 'fixtures/cassettes'."
+                f"Tests were set to run in OFFLINE mode, but no cassettes were found "
+                f"on the system. Please make sure that the cassettes for the SDK test "
+                f"suite are available in '{CASSETTE_PATH}'."
             )
         yield {"record_mode": RecordMode.NONE}
     else:
@@ -35,7 +35,7 @@ def vcr_record_config(test_mode, fxt_server_config) -> Dict[str, Any]:
 
 
 @pytest.fixture(scope='session')
-def vcr_config(vcr_record_config):
+def vcr_config(vcr_record_config) -> Dict[str, Any]:
     """
     This fixture defines the configuration for VCR.py
     """

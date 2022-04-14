@@ -108,10 +108,9 @@ class BaseAnnotationManager:
         :return:
         """
         if self.annotation_reader is not None:
-            if self._label_mapping is not None:
-                return self._label_mapping
-            else:
+            if self._label_mapping is None:
                 self._label_mapping = self.__get_label_mapping(self._project)
+            return self._label_mapping
         else:
             raise ValueError(
                 "Unable to get label mapping for this annotation manager, no "

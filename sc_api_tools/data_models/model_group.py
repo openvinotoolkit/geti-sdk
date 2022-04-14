@@ -6,6 +6,7 @@ import attr
 from sc_api_tools.data_models.utils import str_to_datetime
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.utils.algorithm_helpers import get_supported_algorithms
+from . import Performance
 
 from .algorithms import Algorithm
 from .model import Model
@@ -34,7 +35,8 @@ class ModelSummary:
     score_up_to_date: bool
     size: Optional[int] = None
     version: Optional[int] = None  # 'version' is removed in v1.1
-    score: Optional[float] = attr.ib(default=None)
+    score: Optional[float] = attr.ib(default=None)  # 'score' is removed in v1.1
+    performance: Optional[Performance] = None
     active_model: bool = attr.ib(default=False)
     id: Optional[str] = attr.ib(default=None, repr=False)
     model_storage_id: Optional[str] = attr.ib(default=None, repr=False)
