@@ -40,8 +40,8 @@ class TaskMetadata:
     :var model_version: Version of the model currently used by the job
     :var dataset_storage_id: Unique database ID of the dataset storage used by the job
     """
-    model_template_id: str
-    model_architecture: str
+    model_architecture: Optional[str] = None
+    model_template_id: Optional[str] = None
     model_version: Optional[int] = None
     name: Optional[str] = None
     dataset_storage_id: Optional[str] = None
@@ -153,11 +153,18 @@ class Job:
         :param session: SCSession to the cluster on which the Job is running
         :return: Job with updated status
         """
-        session.get_rest_response(
-            url=self.relative_url,
-            method='DELETE'
-        )
-        self.status.state = JobState.CANCELLED
+        try:
+            session.get_rest_response(
+                url=self.relative_url,
+                method='DELETE'
+            )
+            self.status.state = JobState.CANCELLED
+        except ValueError as error:
+            if error.args[-1] == 404:
+                print(f"Job '{self.name}' is not active anymore, unable to delete.")
+                self.status.state = JobState.INACTIVE
+            else:
+                raise error
         return self
 
     @property

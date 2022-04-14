@@ -2,6 +2,8 @@ from typing import List, Dict, Any, Optional
 
 import attr
 
+from sc_api_tools.data_models import Performance
+
 
 @attr.s(auto_attribs=True)
 class StatusSummary:
@@ -98,9 +100,10 @@ class ProjectStatus:
     """
     is_training: bool
     n_required_annotations: int
-    project_score: float
     status: StatusSummary
     tasks: List[TaskStatus]
+    project_score: Optional[float] = None  # 'project_score' is deprecated in v1.1, replaced by project_performance
+    project_performance: Optional[Performance] = None
     n_running_jobs: Optional[int] = None
     n_running_jobs_project: Optional[int] = None
 

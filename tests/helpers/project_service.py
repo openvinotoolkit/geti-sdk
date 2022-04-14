@@ -100,7 +100,7 @@ class ProjectService:
         :param labels: List of labels for each task
         :return: the existing or newly created project
         """
-        if self._project is None:
+        if not self.has_project:
             self.create_project(
                 project_name=project_name, project_type=project_type, labels=labels
             )
@@ -119,6 +119,13 @@ class ProjectService:
                 "call `ProjectService.create_project` to create a new project first."
             )
         return self._project
+
+    @property
+    def has_project(self) -> bool:
+        """
+        Returns True if the ProjectService contains an existing project, False otherwise
+        """
+        return self._project is not None
 
     @property
     def image_manager(self) -> ImageManager:
@@ -294,6 +301,7 @@ class ProjectService:
             task_config = self.configuration_manager.get_task_configuration(task.id)
             try:
                 task_config.set_parameter_value('batch_size', 1)
+                self.configuration_manager.set_configuration(task_config)
             except ValueError:
                 print(
                     f"Parameter batch_size was not found in the configuration for "

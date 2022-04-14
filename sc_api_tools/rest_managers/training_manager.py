@@ -102,8 +102,7 @@ class TrainingManager:
         :param task: Task or index of Task to train
         :param dataset: Optional Dataset to train on
         :param algorithm: Optional Algorithm to use in training. If left as None (the
-            default), the first algorithm on the list of supported algorithms for the
-            task will be used.
+            default), the default algorithm for the task will be used.
         :param train_from_scratch: True to train the model from scratch, False to
             continue training from an existing checkpoint (if any)
         :param enable_pot_optimization: True to optimize the trained model with POT
@@ -118,7 +117,7 @@ class TrainingManager:
         if dataset is None:
             dataset = self.project.datasets[0]
         if algorithm is None:
-            algorithm = self.get_algorithms_for_task(task)[0]
+            algorithm = self.supported_algos.get_default_for_task_type(task.type)
         request_data: Dict[str, Any] = {
                 "dataset_id": dataset.id,
                 "task_id": task.id,

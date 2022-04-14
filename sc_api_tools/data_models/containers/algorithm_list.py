@@ -4,7 +4,18 @@ from collections import UserList
 from typing import Dict, Any, Sequence, Optional, List
 
 from sc_api_tools.data_models.algorithms import Algorithm
-from sc_api_tools.data_models.enums import Domain, TaskType
+from sc_api_tools.data_models.enums import TaskType
+
+DEFAULT_ALGORITHMS = {
+    "classification": "Custom_Image_Classification_EfficinetNet-B0",
+    "detection": "Custom_Object_Detection_Gen3_ATSS",
+    "segmentation": "Custom_Semantic_Segmentation_Lite-HRNet-18_OCR",
+    "anomaly_classification": "ote_anomaly_classification_padim",
+    "anomaly_detection": "ote_anomaly_classification_padim",
+    "anomaly_segmentation": "ote_anomaly_segmentation_padim",
+    "rotated_detection": "Custom_Rotated_Detection_via_Instance_Segmentation_MaskRCNN_ResNet50",
+    "instance_segmentation": "Custom_Counting_Instance_Segmentation_MaskRCNN_ResNet50",
+}
 
 
 class AlgorithmList(UserList):
@@ -93,3 +104,15 @@ class AlgorithmList(UserList):
             f"Algorithm named {name} was not found in the "
             f"list of supported algorithms."
         )
+
+    def get_default_for_task_type(self, task_type: TaskType) -> Algorithm:
+        """
+        Returns the default algorithm for a given task type. If there is no algorithm
+        for the task type in the AlgorithmList, this method will raise a ValueError.
+
+        :param task_type: TaskType of the task to get the default algorithm for
+        :raises: ValueError if there are no available algorithms for the specified
+            task_type in the AlgorithmList
+        :return: Default algorithm for the task
+        """
+        return self.get_by_model_template(DEFAULT_ALGORITHMS[str(task_type)])

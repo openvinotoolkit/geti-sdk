@@ -94,8 +94,12 @@ To up- or download all projects from a cluster, simply use the
 the single project methods in the code snippets above.
 
 ### Deploying a project
-> **NOTE**: Before running inference locally, please install the 
-> required packages for deployment using `pip install -r requirements-deployment.txt`
+
+> **WARNING**: The deployment-related features of this package are in an experimental 
+> stage, and subject to change.
+
+**NOTE**: Before running inference locally, please install the 
+required packages for deployment using `pip install -r requirements-deployment.txt`
 
 The following code snippet shows how to create a deployment for local inference with 
 OpenVINO:
