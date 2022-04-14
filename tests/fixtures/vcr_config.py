@@ -9,7 +9,11 @@ from vcr.record_mode import RecordMode
 
 
 from tests.helpers import TestMode, are_cassettes_available
-from tests.helpers.constants import RECORD_CASSETTE_KEY, CASSETTE_PATH
+from tests.helpers.constants import (
+    RECORD_CASSETTE_KEY,
+    CASSETTE_PATH,
+    CASSETTE_EXTENSION
+)
 
 
 @pytest.fixture(scope="session")
@@ -42,6 +46,7 @@ def vcr_config(vcr_record_config) -> Dict[str, Any]:
     vcr_config_dict = {
         "filter_headers": ["authorization"],
         "ignore_localhost": True,
+        "path_transformer": VCR.ensure_suffix(f'.{CASSETTE_EXTENSION}')
     }
     vcr_config_dict.update(vcr_record_config)
     return vcr_config_dict

@@ -4,7 +4,7 @@ from typing import Any
 
 import yaml
 
-from .constants import DUMMY_HOST, CASSETTE_PATH
+from .constants import DUMMY_HOST, CASSETTE_PATH, CASSETTE_EXTENSION
 
 
 def are_cassettes_available() -> bool:
@@ -29,7 +29,9 @@ def replace_host_name_in_cassettes(server_address: str) -> None:
     :param server_address: Server address to search for and replace
     """
     host_name = server_address.strip("https://").strip("/")
-    for cassette_path in glob.glob(os.path.join(CASSETTE_PATH, "*.yaml")):
+    for cassette_path in glob.glob(
+            os.path.join(CASSETTE_PATH, f"*.{CASSETTE_EXTENSION}")
+    ):
         replace_host_name_in_cassette(
             host_name=host_name, path_to_cassette_file=cassette_path
         )

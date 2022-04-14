@@ -3,6 +3,8 @@ import pytest
 from sc_api_tools import SCRESTClient
 from sc_api_tools.http_session import SCSession
 
+from tests.helpers.constants import CASSETTE_EXTENSION
+
 
 DUMMY_USER = 'dummy_user'
 DUMMY_PASSWORD = 'dummy_password'
@@ -15,7 +17,7 @@ def fxt_sc_session(fxt_vcr, fxt_server_config) -> SCSession:
     authentication
     """
     with fxt_vcr.use_cassette(
-            "session.yaml",
+            f"session.{CASSETTE_EXTENSION}",
             filter_post_data_parameters=[
                 ('login', DUMMY_USER), ('password', DUMMY_PASSWORD)
             ]
@@ -30,7 +32,7 @@ def fxt_client(fxt_vcr, fxt_server_config) -> SCRESTClient:
     authentication and retrieved a default workspace id
     """
     with fxt_vcr.use_cassette(
-            "client.yaml",
+            f"client.{CASSETTE_EXTENSION}",
             filter_post_data_parameters=[
                 ('login', DUMMY_USER), ('password', DUMMY_PASSWORD)
             ]

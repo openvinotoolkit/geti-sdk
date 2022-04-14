@@ -15,6 +15,7 @@ from sc_api_tools.rest_managers import (
     ModelManager,
     PredictionManager,
 )
+from tests.helpers.constants import CASSETTE_EXTENSION
 
 
 class ProjectService:
@@ -70,7 +71,7 @@ class ProjectService:
         if self._project is None:
             if labels is None:
                 labels = [["cube", "cylinder"]]
-            with self.vcr.use_cassette(f"{project_name}.yaml"):
+            with self.vcr.use_cassette(f"{project_name}.{CASSETTE_EXTENSION}"):
                 project = self.project_manager.create_project(
                     project_name=project_name,
                     project_type=project_type,
@@ -131,8 +132,9 @@ class ProjectService:
     def image_manager(self) -> ImageManager:
         """ Returns the ImageManager instance for the project """
         if self._image_manager is None:
-            cassette_name = f"{self.project.name}_image_manager.yaml"
-            with self.vcr.use_cassette(cassette_name):
+            with self.vcr.use_cassette(
+                f"{self.project.name}_image_manager.{CASSETTE_EXTENSION}"
+            ):
                 self._image_manager = ImageManager(
                     session=self.session,
                     workspace_id=self.workspace_id,
@@ -144,8 +146,9 @@ class ProjectService:
     def video_manager(self) -> VideoManager:
         """ Returns the VideoManager instance for the project """
         if self._video_manager is None:
-            cassette_name = f"{self.project.name}_video_manager.yaml"
-            with self.vcr.use_cassette(cassette_name):
+            with self.vcr.use_cassette(
+                f"{self.project.name}_video_manager.{CASSETTE_EXTENSION}"
+            ):
                 self._video_manager = VideoManager(
                     session=self.session,
                     workspace_id=self.workspace_id,
@@ -157,8 +160,9 @@ class ProjectService:
     def annotation_manager(self) -> AnnotationManager:
         """ Returns the AnnotationManager instance for the project """
         if self._annotation_manager is None:
-            cassette_name = f"{self.project.name}_annotation_manager.yaml"
-            with self.vcr.use_cassette(cassette_name):
+            with self.vcr.use_cassette(
+                f"{self.project.name}_annotation_manager.{CASSETTE_EXTENSION}"
+            ):
                 self._annotation_manager = AnnotationManager(
                     session=self.session,
                     workspace_id=self.workspace_id,
@@ -170,8 +174,9 @@ class ProjectService:
     def configuration_manager(self) -> ConfigurationManager:
         """ Returns the ConfigurationManager instance for the project """
         if self._configuration_manager is None:
-            cassette_name = f"{self.project.name}_configuration_manager.yaml"
-            with self.vcr.use_cassette(cassette_name):
+            with self.vcr.use_cassette(
+                f"{self.project.name}_configuration_manager.{CASSETTE_EXTENSION}"
+            ):
                 self._configuration_manager = ConfigurationManager(
                     session=self.session,
                     workspace_id=self.workspace_id,
@@ -183,8 +188,9 @@ class ProjectService:
     def training_manager(self) -> TrainingManager:
         """ Returns the TrainingManager instance for the project """
         if self._training_manager is None:
-            cassette_name = f"{self.project.name}_training_manager.yaml"
-            with self.vcr.use_cassette(cassette_name):
+            with self.vcr.use_cassette(
+                f"{self.project.name}_training_manager.{CASSETTE_EXTENSION}"
+            ):
                 self._training_manager = TrainingManager(
                     session=self.session,
                     workspace_id=self.workspace_id,
@@ -196,8 +202,9 @@ class ProjectService:
     def prediction_manager(self) -> PredictionManager:
         """ Returns the PredictionManager instance for the project """
         if self._prediction_manager is None:
-            cassette_name = f"{self.project.name}_prediction_manager.yaml"
-            with self.vcr.use_cassette(cassette_name):
+            with self.vcr.use_cassette(
+                    f"{self.project.name}_prediction_manager.{CASSETTE_EXTENSION}"
+            ):
                 self._prediction_manager = PredictionManager(
                     session=self.session,
                     workspace_id=self.workspace_id,
@@ -209,7 +216,7 @@ class ProjectService:
     def model_manager(self) -> ModelManager:
         """ Returns the ModelManager instance for the project """
         if self._model_manager is None:
-            cassette_name = f"{self.project.name}_model_manager.yaml"
+            cassette_name = f"{self.project.name}_model_manager.{CASSETTE_EXTENSION}"
             with self.vcr.use_cassette(cassette_name):
                 self._model_manager = ModelManager(
                     session=self.session,
@@ -221,7 +228,7 @@ class ProjectService:
     def delete_project(self):
         """ Deletes the project from the server """
         if self._project is not None:
-            cassette_name = f"{self.project.name}_deletion.yaml"
+            cassette_name = f"{self.project.name}_deletion.{CASSETTE_EXTENSION}"
             with self.vcr.use_cassette(cassette_name):
                 try:
                     self.project_manager.delete_project(
@@ -255,7 +262,7 @@ class ProjectService:
             all images for which the annotation reader contains annotations
         """
         data_path = annotation_reader.base_folder
-        cassette_name = f"{self.project.name}_add_annotated_media"
+        cassette_name = f"{self.project.name}_add_annotated_media.{CASSETTE_EXTENSION}"
         with self.vcr.use_cassette(cassette_name):
             if isinstance(annotation_reader, DatumAnnotationReader):
                 images = self.image_manager.upload_from_list(
@@ -288,7 +295,10 @@ class ProjectService:
 
         :param auto_train: True to turn auto_training on, False to turn it off
         """
-        self.configuration_manager.set_project_auto_train(auto_train=auto_train)
+        with self.vcr.use_cassette(
+                f"{self.project.name}_set_auto_train.{CASSETTE_EXTENSION}"
+        ):
+            self.configuration_manager.set_project_auto_train(auto_train=auto_train)
 
     def set_minimal_training_hypers(self) -> None:
         """
@@ -296,14 +306,17 @@ class ProjectService:
         epochs to perform a minimal training round
 
         """
-        self.configuration_manager.set_project_num_iterations(1)
-        for task in self.project.get_trainable_tasks():
-            task_config = self.configuration_manager.get_task_configuration(task.id)
-            try:
-                task_config.set_parameter_value('batch_size', 1)
-                self.configuration_manager.set_configuration(task_config)
-            except ValueError:
-                print(
-                    f"Parameter batch_size was not found in the configuration for "
-                    f"task {task.summary}. Unable to configure batch size"
-                )
+        with self.vcr.use_cassette(
+                f"{self.project.name}_set_minimal_hypers.{CASSETTE_EXTENSION}"
+        ):
+            self.configuration_manager.set_project_num_iterations(1)
+            for task in self.project.get_trainable_tasks():
+                task_config = self.configuration_manager.get_task_configuration(task.id)
+                try:
+                    task_config.set_parameter_value('batch_size', 1)
+                    self.configuration_manager.set_configuration(task_config)
+                except ValueError:
+                    print(
+                        f"Parameter batch_size was not found in the configuration for "
+                        f"task {task.summary}. Unable to configure batch size"
+                    )
