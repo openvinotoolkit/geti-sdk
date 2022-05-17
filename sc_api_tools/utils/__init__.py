@@ -1,3 +1,13 @@
+"""
+Introduction
+------------
+
+The `utils` package contains utility functions used throughout the SDK.
+
+Module contents
+---------------
+"""
+
 from .dictionary_helpers import get_dict_key_from_value, remove_null_fields
 from .label_helpers import generate_segmentation_labels, generate_classification_labels
 from .workspace_helpers import get_default_workspace_id

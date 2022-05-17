@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sc_api_tools.rest_managers &mdash; SonomaCreek SDK v1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sc_api_tools.utils" href="sc_api_tools.utils.html" />
+    <link rel="prev" title="sc_api_tools.rest_converters" href="sc_api_tools.rest_converters.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> SonomaCreek SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="sc_api_tools.html">SonomaCreek SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sc_api_tools.html#module-contents">Module contents</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="sc_api_tools.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.annotation_readers.html">sc_api_tools.annotation_readers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.data_models.html">sc_api_tools.data_models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.deployment.html">sc_api_tools.deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.http_session.html">sc_api_tools.http_session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.rest_converters.html">sc_api_tools.rest_converters</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">sc_api_tools.rest_managers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-contents">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.utils.html">sc_api_tools.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SonomaCreek SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="sc_api_tools.html">SonomaCreek SDK</a> &raquo;</li>
+      <li>sc_api_tools.rest_managers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/sc_api_tools.rest_managers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-sc_api_tools.rest_managers">
+<span id="sc-api-tools-rest-managers"></span><h1>sc_api_tools.rest_managers<a class="headerlink" href="#module-sc_api_tools.rest_managers" title="Permalink to this headline"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h2>
+<p>The <cite>rest_managers</cite> package contains clients for interacting with the various entities (
+such as <a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><code class="xref py py-class docutils literal notranslate"><span class="pre">Project</span></code></a>,
+<a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></a> and
+<a class="reference internal" href="sc_api_tools.data_models.html#id167" title="sc_api_tools.data_models.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a>)
+on the SC cluster.</p>
+<p>All rest managers are initialized with a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code> and a workspace id. The
+<a class="reference internal" href="sc_api_tools.rest_managers.project_manager.html#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager" title="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProjectManager</span></code></a>
+can be initialized with just that, while all other clients are initialized
+<em>per project</em> and thus take an additional <cite>project</cite> argument.</p>
+<p>For example, to initialize the
+<a class="reference internal" href="sc_api_tools.rest_managers.media_managers.html#sc_api_tools.rest_managers.media_managers.image_manager.ImageManager" title="sc_api_tools.rest_managers.media_managers.image_manager.ImageManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageManager</span></code></a> for
+a specific project and get a list of all images in the project, the following code
+snippet can be used:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sc_api_tools</span> <span class="kn">import</span> <span class="n">SCRESTClient</span>
+<span class="kn">from</span> <span class="nn">sc_api_tools.rest_managers</span> <span class="kn">import</span> <span class="n">ProjectManager</span><span class="p">,</span> <span class="n">ImageManager</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">SCRESTClient</span><span class="p">(</span>
+  <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://0.0.0.0&quot;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;dummy_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;dummy_password&quot;</span>
+<span class="p">)</span>
+
+<span class="n">project_manager</span> <span class="o">=</span> <span class="n">ProjectManager</span><span class="p">(</span><span class="n">session</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">session</span><span class="p">,</span> <span class="n">workspace_id</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">workspace_id</span><span class="p">)</span>
+<span class="n">project</span> <span class="o">=</span> <span class="n">project_manager</span><span class="o">.</span><span class="n">get_project_by_name</span><span class="p">(</span><span class="n">project_name</span><span class="o">=</span><span class="s1">&#39;dummy_project&#39;</span><span class="p">)</span>
+
+<span class="n">image_manager</span> <span class="o">=</span> <span class="n">ImageManager</span><span class="p">(</span><span class="n">session</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">session</span><span class="p">,</span> <span class="n">workspace_id</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">workspace_id</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">)</span>
+<span class="n">image_manager</span><span class="o">.</span><span class="n">get_all_images</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_managers.project_manager.project_manager.</span></span><span class="sig-name descname"><span class="pre">ProjectManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager" title="Permalink to this definition"></a></dt>
+<dd><p>Class to get or create a project in a certain workspace</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.get_all_projects">
+<span class="sig-name descname"><span class="pre">get_all_projects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.get_all_projects" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of projects found on the SC cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of Project objects, containing the project information for each
+project on the SC cluster</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.get_project_by_name">
+<span class="sig-name descname"><span class="pre">get_project_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.get_project_by_name" title="Permalink to this definition"></a></dt>
+<dd><p>Get a project from the SC cluster by project_name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>project_name</strong> – Name of the project to get</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Project object containing the data of the project, if the project is
+found on the cluster. Returns None if the project doesn’t exist</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.get_or_create_project">
+<span class="sig-name descname"><span class="pre">get_or_create_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.get_or_create_project" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a new project with name <cite>project_name</cite> on the cluster, or retrieves
+the data for an existing project with <cite>project_name</cite> if it exists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> – Name of the project</p></li>
+<li><p><strong>project_type</strong> – Type of the project</p></li>
+<li><p><strong>labels</strong> – Nested list of labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.create_project">
+<span class="sig-name descname"><span class="pre">create_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.create_project" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a new project with name <cite>project_name</cite> on the cluster, containing
+tasks according to the <cite>project_type</cite> specified. Labels for each task are
+specified in the <cite>labels</cite> parameter, which should be a nested list (each entry
+in the outermost list corresponds to the labels for one of the tasks in the
+project pipeline)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> – Name of the project</p></li>
+<li><p><strong>project_type</strong> – Type of the project</p></li>
+<li><p><strong>labels</strong> – Nested list of labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If a project with name <cite>project_name</cite> already exists in
+the workspace</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Project object, as created on the cluster</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.download_project_info">
+<span class="sig-name descname"><span class="pre">download_project_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.download_project_info" title="Permalink to this definition"></a></dt>
+<dd><p>For a project on the SC cluster with name <cite>project_name</cite>, this method gets the
+project data that can be used to create a project with the
+<cite>ProjectManager.get_or_create_project</cite> method. The data is retrieved
+from the cluster and saved in the target folder <cite>path_to_folder</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> – Name of the project to retrieve the data for</p></li>
+<li><p><strong>path_to_folder</strong> – Target folder to save the project data to.
+Data will be saved as a .json file named “project.json”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the project with <cite>project_name</cite> is not found on the
+cluster</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.create_project_from_folder">
+<span class="sig-name descname"><span class="pre">create_project_from_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.create_project_from_folder" title="Permalink to this definition"></a></dt>
+<dd><p>Looks for a <cite>project.json</cite> file in the folder at <cite>path_to_folder</cite>, and
+creates a project using the parameters provided in this file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_folder</strong> – Folder holding the project data</p></li>
+<li><p><strong>project_name</strong> – Optional name of the project. If not specified, the
+project name found in the project configuration in the upload folder
+will be used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Project as created on the cluster</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.is_project_dir">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_project_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.is_project_dir" title="Permalink to this definition"></a></dt>
+<dd><p>Returns True if the folder specified in <cite>path_to_folder</cite> is a directory
+containing valid SC project data that can be used to upload to an SC cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_to_folder</strong> – Directory to check</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the directory holds project data, False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.list_projects">
+<span class="sig-name descname"><span class="pre">list_projects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.list_projects" title="Permalink to this definition"></a></dt>
+<dd><p>This method prints an overview of all projects that currently exists on the
+cluster, in the workspace managed by the ProjectManager</p>
+<p>NOTE: While this method also returns a list of all the projects, it is
+primarily meant to be used in an interactive environment, such as a
+Jupyter Notebook.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of all Projects on the cluster. The returned list is the same as
+the list returned by the <cite>get_all_projects</cite> method</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.delete_project">
+<span class="sig-name descname"><span class="pre">delete_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requires_confirmation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.delete_project" title="Permalink to this definition"></a></dt>
+<dd><p>Deletes a project. The <cite>project</cite> to delete can either by a Project object or a
+string containing the name of the project to delete.</p>
+<p>By default, this method will ask for user confirmation before deleting the
+project. This can be overridden by passing <cite>requires_confirmation = False</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project</strong> – Project to delete, either a string containing the project
+name or a Project instance</p></li>
+<li><p><strong>requires_confirmation</strong> – True to ask for user confirmation before
+deleting the project, False to delete without confirmation. Defaults to
+True</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.add_labels">
+<span class="sig-name descname"><span class="pre">add_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.task.Task" title="sc_api_tools.data_models.task.Task"><span class="pre">sc_api_tools.data_models.task.Task</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.add_labels" title="Permalink to this definition"></a></dt>
+<dd><p>Adds the <cite>labels</cite> to the project labels. For a project with multiple tasks,
+the <cite>task</cite> parameter can be used to specify the task for which the labels
+should be added.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> – List of labels to add. Can either be a list of strings
+representing label names, or a list of dictionaries representing label
+properties</p></li>
+<li><p><strong>project</strong> – Project to which the labels should be added</p></li>
+<li><p><strong>task</strong> – Optional Task to add the labels for. Can be left as None for a
+single task project, but is required for a task chain project</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updated Project instance with the new labels added to it</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.media_managers.image_manager.ImageManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_managers.media_managers.image_manager.</span></span><span class="sig-name descname"><span class="pre">ImageManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.media_managers.image_manager.ImageManager" title="Permalink to this definition"></a></dt>
+<dd><p>Class to manage image uploads and downloads for a certain project</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.media_managers.image_manager.ImageManager.get_all_images">
+<span class="sig-name descname"><span class="pre">get_all_images</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.media_managers.image_manager.ImageManager.get_all_images" title="Permalink to this definition"></a></dt>
+<dd><p>Get the ID’s and filenames of all images in the project</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>MediaList containing all Image entities in the project</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.media_managers.image_manager.ImageManager.upload_image">
+<span class="sig-name descname"><span class="pre">upload_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.media_managers.image_manager.ImageManager.upload_image" title="Permalink to this definition"></a></dt>
+<dd><p>Upload an image file to the server</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filepath_to_image</strong> – full path to the image on disk</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>String containing the unique ID of the image, generated by Sonoma
+Creek</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.media_managers.image_manager.ImageManager.upload_folder">
+<span class="sig-name descname"><span class="pre">upload_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_if_filename_exists</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.media_managers.image_manager.ImageManager.upload_folder" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads all images in a folder to the project. Returns a MediaList containing
+all images in the project after upload.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_folder</strong> – Folder with images to upload</p></li>
+<li><p><strong>n_images</strong> – Number of images to upload from folder</p></li>
+<li><p><strong>skip_if_filename_exists</strong> – Set to True to skip uploading of an image
+if an image with the same filename already exists in the project.
+Defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MediaList containing all image’s in the project</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.media_managers.image_manager.ImageManager.download_all">
+<span class="sig-name descname"><span class="pre">download_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_image_uid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.media_managers.image_manager.ImageManager.download_all" title="Permalink to this definition"></a></dt>
+<dd><p>Download all images in a project to a folder on the local disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_folder</strong> – path to the folder in which the images should be saved</p></li>
+<li><p><strong>append_image_uid</strong> – True to append the UID of an image to the
+filename (separated from the original filename by an underscore, i.e.
+‘{filename}_{image_id}’). If there are images in the project with
+duplicate filename, this must be set to True to ensure all images are
+downloaded. Otherwise images with the same name will be skipped.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.media_managers.image_manager.ImageManager.upload_from_list">
+<span class="sig-name descname"><span class="pre">upload_from_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension_included</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_if_filename_exists</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.media_managers.image_manager.ImageManager.upload_from_list" title="Permalink to this definition"></a></dt>
+<dd><p>From a folder containing images <cite>path_to_folder</cite>, this method uploads only
+those images that have their filenames included in the <cite>image_names</cite> list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_folder</strong> – Folder containing the images</p></li>
+<li><p><strong>image_names</strong> – List of names of the images that should be uploaded</p></li>
+<li><p><strong>extension_included</strong> – Set to True if the extension of the image is
+included in the name, for each image in the image_names list. Defaults to
+False</p></li>
+<li><p><strong>n_images</strong> – Number of images to upload from the list</p></li>
+<li><p><strong>skip_if_filename_exists</strong> – Set to True to skip uploading of an image
+if an image with the same filename already exists in the project.
+Defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary containing a mapping between the ID’s of the images and
+their filenames (excluding extensions). NOTE: Filenames are used as keys,
+ID’s as values</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.media_managers.image_manager.ImageManager.delete_images">
+<span class="sig-name descname"><span class="pre">delete_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.media_managers.image_manager.ImageManager.delete_images" title="Permalink to this definition"></a></dt>
+<dd><p>Deletes all Image entities in <cite>images</cite> from the project</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>images</strong> – List of Image entities to delete</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if all images on the list were deleted successfully,
+False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.media_managers.video_manager.VideoManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_managers.media_managers.video_manager.</span></span><span class="sig-name descname"><span class="pre">VideoManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.media_managers.video_manager.VideoManager" title="Permalink to this definition"></a></dt>
+<dd><p>Class to manage video uploads and downloads for a certain project</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.media_managers.video_manager.VideoManager.get_all_videos">
+<span class="sig-name descname"><span class="pre">get_all_videos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.media_managers.video_manager.VideoManager.get_all_videos" title="Permalink to this definition"></a></dt>
+<dd><p>Get the ID’s and filenames of all videos in the project</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dictionary containing the ID’s (as keys) and filenames (as values)
+of the videos in the project</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.media_managers.video_manager.VideoManager.upload_video">
+<span class="sig-name descname"><span class="pre">upload_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.media_managers.video_manager.VideoManager.upload_video" title="Permalink to this definition"></a></dt>
+<dd><p>Upload a video file to the server. Accepts either a path to a video file, or
+a numpy array containing pixel data for video frames.</p>
+<p>In case a numpy array is passed, this method expects the array to be 4
+dimensional, it’s dimensions shaped as: [frames, heigth, width, channels]. The
+framerate of the created video will be set to 1 fps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>video</strong> – full path to the video on disk, or numpy array holding the video
+pixel data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>String containing the unique ID of the video, generated by Sonoma
+Creek</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.media_managers.video_manager.VideoManager.upload_folder">
+<span class="sig-name descname"><span class="pre">upload_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_videos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_if_filename_exists</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.media_managers.video_manager.VideoManager.upload_folder" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads all videos in a folder to the project. Returns the mapping of video
+filename to the unique ID assigned by Sonoma Creek.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_folder</strong> – Folder with videos to upload</p></li>
+<li><p><strong>n_videos</strong> – Number of videos to upload from folder</p></li>
+<li><p><strong>skip_if_filename_exists</strong> – Set to True to skip uploading of a video
+if a video with the same filename already exists in the project.
+Defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MediaList containing all video’s in the project</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.media_managers.video_manager.VideoManager.download_all">
+<span class="sig-name descname"><span class="pre">download_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_video_uid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.media_managers.video_manager.VideoManager.download_all" title="Permalink to this definition"></a></dt>
+<dd><p>Download all videos in a project to a folder on the local disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_folder</strong> – path to the folder in which the videos should be saved</p></li>
+<li><p><strong>append_video_uid</strong> – True to append the UID of a video to the
+filename (separated from the original filename by an underscore, i.e.
+‘{filename}_{video_id}’). If there are videos in the project with
+duplicate filename, this must be set to True to ensure all videos are
+downloaded. Otherwise videos with the same name will be skipped.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.media_managers.video_manager.VideoManager.delete_videos">
+<span class="sig-name descname"><span class="pre">delete_videos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">videos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.media_managers.video_manager.VideoManager.delete_videos" title="Permalink to this definition"></a></dt>
+<dd><p>Deletes all Video entities in <cite>videos</cite> from the project</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>videos</strong> – List of Video entities to delete</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if all videos on the list were deleted successfully,
+False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_managers.annotation_manager.annotation_manager.</span></span><span class="sig-name descname"><span class="pre">AnnotationManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_reader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.AnnotationReaderType</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager" title="Permalink to this definition"></a></dt>
+<dd><p>Class to up- or download annotations for images or videos to an existing project</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.get_latest_annotations_for_video">
+<span class="sig-name descname"><span class="pre">get_latest_annotations_for_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id11" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.get_latest_annotations_for_video" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve all latest annotations for a video from the cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>video</strong> – Video to get the annotations for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of AnnotationScene’s, each entry corresponds to an
+AnnotationScene for a single frame in the video</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotations_for_video">
+<span class="sig-name descname"><span class="pre">upload_annotations_for_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotations_for_video" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads annotations for a video. If append_annotations is set to True,
+annotations will be appended to the existing annotations for the video in the
+project. If set to False, existing annotations will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video</strong> – Video to upload annotations for</p></li>
+<li><p><strong>append_annotations</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotations_for_videos">
+<span class="sig-name descname"><span class="pre">upload_annotations_for_videos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">videos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotations_for_videos" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads annotations for a list of videos. If append_annotations is set to True,
+annotations will be appended to the existing annotations for the video in the
+project. If set to False, existing annotations will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>videos</strong> – List of videos to upload annotations for</p></li>
+<li><p><strong>append_annotations</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotations_for_images">
+<span class="sig-name descname"><span class="pre">upload_annotations_for_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotations_for_images" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads annotations for a list of images. If append_annotations is set to True,
+annotations will be appended to the existing annotations for the image in the
+project. If set to False, existing annotations will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>images</strong> – List of images to upload annotations for</p></li>
+<li><p><strong>append_annotations</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.download_annotations_for_video">
+<span class="sig-name descname"><span class="pre">download_annotations_for_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_video_uid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.download_annotations_for_video" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads video annotations from the server to a target folder on disk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video</strong> – Video for which to download the annotations</p></li>
+<li><p><strong>path_to_folder</strong> – Folder to save the annotations to</p></li>
+<li><p><strong>append_video_uid</strong> – True to append the UID of the video to the
+annotation filename (separated from the original filename by an underscore,
+i.e. ‘{filename}_{media_id}’). This can be useful if the project contains
+videos with duplicate filenames. If left as False, the video filename and
+frame index for the annotation are used as filename for the downloaded
+annotation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the time elapsed to download the annotations, in seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.download_annotations_for_images">
+<span class="sig-name descname"><span class="pre">download_annotations_for_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_image_uid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.download_annotations_for_images" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads image annotations from the server to a target folder on disk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>images</strong> – List of images for which to download the annotations</p></li>
+<li><p><strong>path_to_folder</strong> – Folder to save the annotations to</p></li>
+<li><p><strong>append_image_uid</strong> – <p>True to append the UID of the image to the
+annotation filename (separated from the original filename by an underscore,</p>
+<blockquote>
+<div><p>i.e. ‘{filename}_{media_id}’). This can be useful if the project contains
+images with duplicate filenames. If left as False, the image filename is
+used as filename for the downloaded annotation as well.</p>
+</div></blockquote>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the time elapsed to download the annotations, in seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.download_annotations_for_videos">
+<span class="sig-name descname"><span class="pre">download_annotations_for_videos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">videos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_video_uid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.download_annotations_for_videos" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads annotations for a list of videos from the server to a target folder
+on disk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>videos</strong> – List of videos for which to download the annotations</p></li>
+<li><p><strong>path_to_folder</strong> – Folder to save the annotations to</p></li>
+<li><p><strong>append_video_uid</strong> – True to append the UID of the video to the
+annotation filename (separated from the original filename by an underscore,
+i.e. ‘{filename}_{media_id}’). This can be useful if the project contains
+videos with duplicate filenames. If left as False, the video filename and
+frame index for the annotation are used as filename for the downloaded
+annotation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Time elapsed to download the annotations, in seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.download_all_annotations">
+<span class="sig-name descname"><span class="pre">download_all_annotations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.download_all_annotations" title="Permalink to this definition"></a></dt>
+<dd><p>Donwnloads all annotations for the project to a target folder on disk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_to_folder</strong> – Folder to save the annotations to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotations_for_all_media">
+<span class="sig-name descname"><span class="pre">upload_annotations_for_all_media</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">append_annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotations_for_all_media" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads annotations for all media in the project, If append_annotations is set
+to True, annotations will be appended to the existing annotations for the
+media on the server. If set to False, existing annotations will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>append_annotations</strong> – True to append annotations from the local disk to
+the existing annotations on the server, False to overwrite the server
+annotations by those on the local disk. Defaults to True</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotation">
+<span class="sig-name descname"><span class="pre">upload_annotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">media_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#id132" title="sc_api_tools.data_models.media.VideoFrame"><span class="pre">sc_api_tools.data_models.media.VideoFrame</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_scene</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id11" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id11" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotation" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads an annotation for an image or video frame to the SC cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>media_item</strong> – Image or VideoFrame to apply and upload the annotation to</p></li>
+<li><p><strong>annotation_scene</strong> – AnnotationScene to upload</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The uploaded annotation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.get_annotation">
+<span class="sig-name descname"><span class="pre">get_annotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">media_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#id132" title="sc_api_tools.data_models.media.VideoFrame"><span class="pre">sc_api_tools.data_models.media.VideoFrame</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id11" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.get_annotation" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve the latest annotations for an image or video frame from the SC cluster
+If no annotation is available, this method returns None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>media_item</strong> – Image or VideoFrame to retrieve the annotations for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>AnnotationScene instance containing the latest annotation data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.configuration_manager.ConfigurationManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_managers.configuration_manager.</span></span><span class="sig-name descname"><span class="pre">ConfigurationManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.configuration_manager.ConfigurationManager" title="Permalink to this definition"></a></dt>
+<dd><p>Class to manage configuration for a certain project</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.get_task_configuration">
+<span class="sig-name descname"><span class="pre">get_task_configuration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id48" title="sc_api_tools.data_models.configuration.TaskConfiguration"><span class="pre">sc_api_tools.data_models.configuration.TaskConfiguration</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.get_task_configuration" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the configuration for the task with id <cite>task_id</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>task_id</strong> – ID of the task to get configurations for</p></li>
+<li><p><strong>algorithm_name</strong> – Optional name of the algorithm to get configuration for.
+If an algorithm name is passed, the returned TaskConfiguration will contain
+only the hyper parameters for that algorithm, and won’t hold any
+component parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>TaskConfiguration holding all component parameters and hyper parameters
+for the task</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.get_global_configuration">
+<span class="sig-name descname"><span class="pre">get_global_configuration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id43" title="sc_api_tools.data_models.configuration.GlobalConfiguration"><span class="pre">sc_api_tools.data_models.configuration.GlobalConfiguration</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.get_global_configuration" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the project-wide configurable parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>GlobalConfiguration instance holding the configurable parameters for
+all project-wide components</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.set_project_auto_train">
+<span class="sig-name descname"><span class="pre">set_project_auto_train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auto_train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.set_project_auto_train" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the <cite>auto_train</cite> parameter for all tasks in the project</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>auto_train</strong> – True to enable auto_training, False to disable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.set_project_num_iterations">
+<span class="sig-name descname"><span class="pre">set_project_num_iterations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.set_project_num_iterations" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the number of iterations to train for each task in the project</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> – Number of iterations to set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.set_project_parameter">
+<span class="sig-name descname"><span class="pre">set_project_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.set_project_parameter" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the value for a parameter with <cite>parameter_name</cite> that lives in the
+group <cite>parameter_group_name</cite>. The parameter is set for all tasks in the project</p>
+<p>The <cite>parameter_group_name</cite> can be left as None, in that case this method will
+attempt to determine the appropriate parameter group automatically.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameter_name</strong> – Name of the parameter</p></li>
+<li><p><strong>parameter_group_name</strong> – Optional name of the parameter group name to
+which the parameter belongs. If left as None (the default), this method will
+attempt to determine the correct parameter group automatically, if needed.</p></li>
+<li><p><strong>value</strong> – Value to set for the parameter</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.get_full_configuration">
+<span class="sig-name descname"><span class="pre">get_full_configuration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id56" title="sc_api_tools.data_models.configuration.FullConfiguration"><span class="pre">sc_api_tools.data_models.configuration.FullConfiguration</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.get_full_configuration" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the full configuration for a project (for both global and task_chain)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>FullConfiguration object holding the global and task chain
+configuration</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.get_for_task_and_algorithm">
+<span class="sig-name descname"><span class="pre">get_for_task_and_algorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.task.Task" title="sc_api_tools.data_models.task.Task"><span class="pre">sc_api_tools.data_models.task.Task</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id0" title="sc_api_tools.data_models.algorithms.Algorithm"><span class="pre">sc_api_tools.data_models.algorithms.Algorithm</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.get_for_task_and_algorithm" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the hyper parameters for a specific task and algorithm</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>task</strong> – Task to get hyper parameters for</p></li>
+<li><p><strong>algorithm</strong> – Algorithm to get hyper parameters for</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>TaskConfiguration holding only the model hyper parameters for the
+specified algorithm</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.download_configuration">
+<span class="sig-name descname"><span class="pre">download_configuration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id56" title="sc_api_tools.data_models.configuration.FullConfiguration"><span class="pre">sc_api_tools.data_models.configuration.FullConfiguration</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.download_configuration" title="Permalink to this definition"></a></dt>
+<dd><p>This method retrieves the full configuration for a project from the cluster
+and saves it to a file <cite>configuration.json</cite> in the folder specified at
+<cite>path_to_folder</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_to_folder</strong> – Folder to save the configuration to</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.apply_from_object">
+<span class="sig-name descname"><span class="pre">apply_from_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id56" title="sc_api_tools.data_models.configuration.FullConfiguration"><span class="pre">sc_api_tools.data_models.configuration.FullConfiguration</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id56" title="sc_api_tools.data_models.configuration.FullConfiguration"><span class="pre">sc_api_tools.data_models.configuration.FullConfiguration</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.apply_from_object" title="Permalink to this definition"></a></dt>
+<dd><p>This method attempts to apply the configuration values passed in as
+<cite>configuration</cite> to the project managed by this instance of the
+ConfigurationManager</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configuration</strong> – FullConfiguration to be applied</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.apply_from_file">
+<span class="sig-name descname"><span class="pre">apply_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id56" title="sc_api_tools.data_models.configuration.FullConfiguration"><span class="pre">sc_api_tools.data_models.configuration.FullConfiguration</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.apply_from_file" title="Permalink to this definition"></a></dt>
+<dd><p>This method attempts to apply a configuration from a file on disk. The
+parameter <cite>path_to_folder</cite> is mandatory and should point to the folder in which
+the configuration file to upload lives. The parameter <cite>filename</cite> is optional,
+when left as <cite>None</cite> this method will look for a file <cite>configuration.json</cite> in
+the specified folder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_folder</strong> – Path to the folder in which the configuration file to
+apply lives</p></li>
+<li><p><strong>filename</strong> – Optional filename for the configuration file to apply</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.set_configuration">
+<span class="sig-name descname"><span class="pre">set_configuration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id56" title="sc_api_tools.data_models.configuration.FullConfiguration"><span class="pre">sc_api_tools.data_models.configuration.FullConfiguration</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#id43" title="sc_api_tools.data_models.configuration.GlobalConfiguration"><span class="pre">sc_api_tools.data_models.configuration.GlobalConfiguration</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#id48" title="sc_api_tools.data_models.configuration.TaskConfiguration"><span class="pre">sc_api_tools.data_models.configuration.TaskConfiguration</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.configuration_manager.ConfigurationManager.set_configuration" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the configuration for the project. This method accepts either a
+FullConfiguration, TaskConfiguration or GlobalConfiguration object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>configuration</strong> – Configuration to set</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.prediction_manager.PredictionManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_managers.prediction_manager.</span></span><span class="sig-name descname"><span class="pre">PredictionManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.prediction_manager.PredictionManager" title="Permalink to this definition"></a></dt>
+<dd><p>Class to download predictions from an existing SC project</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.prediction_manager.PredictionManager.ready_to_predict">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ready_to_predict</span></span><a class="headerlink" href="#sc_api_tools.rest_managers.prediction_manager.PredictionManager.ready_to_predict" title="Permalink to this definition"></a></dt>
+<dd><p>Returns True if the project is ready to yield predictions, False otherwise</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.prediction_manager.PredictionManager.mode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.enums.html#sc_api_tools.data_models.enums.prediction_mode.PredictionMode" title="sc_api_tools.data_models.enums.prediction_mode.PredictionMode"><span class="pre">sc_api_tools.data_models.enums.prediction_mode.PredictionMode</span></a></em><a class="headerlink" href="#sc_api_tools.rest_managers.prediction_manager.PredictionManager.mode" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Returns the current mode used to retrieve predictions. There are three options:</dt><dd><ul class="simple">
+<li><p>auto</p></li>
+<li><p>latest</p></li>
+<li><p>online</p></li>
+</ul>
+</dd>
+</dl>
+<p>Auto will fetch prediction from the database if it is up to date and
+otherwise send an inference request. Online will always send an
+inference request and latest will not send an inference request but grabs
+the latest result from the database.</p>
+<p>By default, the mode is set to <cite>auto</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Current PredictionMode used to retrieve predictions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.prediction_manager.PredictionManager.get_image_prediction">
+<span class="sig-name descname"><span class="pre">get_image_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id211" title="sc_api_tools.data_models.predictions.Prediction"><span class="pre">sc_api_tools.data_models.predictions.Prediction</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.prediction_manager.PredictionManager.get_image_prediction" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a prediction for an image from the SC cluster, if available</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>image</strong> – Image to get the prediction for. The image has to be present in
+the project on the cluster already.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Prediction for the image</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.prediction_manager.PredictionManager.get_video_frame_prediction">
+<span class="sig-name descname"><span class="pre">get_video_frame_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id132" title="sc_api_tools.data_models.media.VideoFrame"><span class="pre">sc_api_tools.data_models.media.VideoFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id211" title="sc_api_tools.data_models.predictions.Prediction"><span class="pre">sc_api_tools.data_models.predictions.Prediction</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.prediction_manager.PredictionManager.get_video_frame_prediction" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a prediction for a video frame from the SC cluster, if available</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>video_frame</strong> – VideoFrame to get the prediction for. The frame has to be
+present in the project on the cluster already.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Prediction for the video frame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.prediction_manager.PredictionManager.get_video_predictions">
+<span class="sig-name descname"><span class="pre">get_video_predictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id211" title="sc_api_tools.data_models.predictions.Prediction"><span class="pre">sc_api_tools.data_models.predictions.Prediction</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.prediction_manager.PredictionManager.get_video_predictions" title="Permalink to this definition"></a></dt>
+<dd><p>Gets a list of predictions for a video from the SC cluster, if available</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>video</strong> – Video to get the predictions for. The video has to be present in
+the project on the cluster already.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of Predictions for the video</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.prediction_manager.PredictionManager.download_predictions_for_images">
+<span class="sig-name descname"><span class="pre">download_predictions_for_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_result_media</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.prediction_manager.PredictionManager.download_predictions_for_images" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads image predictions from the server to a target folder on disk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>images</strong> – List of images for which to download the predictions</p></li>
+<li><p><strong>path_to_folder</strong> – Folder to save the predictions to</p></li>
+<li><p><strong>include_result_media</strong> – True to also download the result media belonging
+to the predictions, if any. False to skip downloading result media</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the time elapsed to download the predictions, in seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.prediction_manager.PredictionManager.download_predictions_for_videos">
+<span class="sig-name descname"><span class="pre">download_predictions_for_videos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">videos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_result_media</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inferred_frames_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.prediction_manager.PredictionManager.download_predictions_for_videos" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads predictions for a list of videos from the server to a target folder
+on disk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>videos</strong> – List of videos for which to download the predictions</p></li>
+<li><p><strong>path_to_folder</strong> – Folder to save the predictions to</p></li>
+<li><p><strong>include_result_media</strong> – True to also download the result media belonging
+to the predictions, if any. False to skip downloading result media</p></li>
+<li><p><strong>inferred_frames_only</strong> – True to only download frames that already have
+a prediction, False to run inference on the full video for all videos in
+the list.
+WARNING: Setting this to False may cause the download to take a long time!</p></li>
+<li><p><strong>frame_stride</strong> – Optional frame stride to use when generating predictions.
+This is only used when <cite>inferred_frames_only = False</cite>. If left unspecified,
+the frame_stride is deduced from the video</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Time elapsed to download the predictions, in seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.prediction_manager.PredictionManager.download_predictions_for_video">
+<span class="sig-name descname"><span class="pre">download_predictions_for_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_result_media</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inferred_frames_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.prediction_manager.PredictionManager.download_predictions_for_video" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads video predictions from the server to a target folder on disk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video</strong> – Video for which to download the predictions</p></li>
+<li><p><strong>path_to_folder</strong> – Folder to save the predictions to</p></li>
+<li><p><strong>include_result_media</strong> – True to also download the result media belonging
+to the predictions, if any. False to skip downloading result media</p></li>
+<li><p><strong>inferred_frames_only</strong> – True to only download frames that already have
+a prediction, False to run inference on the full video.
+WARNING: Setting this to False may cause the download to take a long time!</p></li>
+<li><p><strong>frame_stride</strong> – Optional frame stride to use when generating predictions.
+This is only used when <cite>inferred_frames_only = False</cite>. If left unspecified,
+the frame_stride is deduced from the video</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the time elapsed to download the predictions, in seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.model_manager.ModelManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_managers.model_manager.</span></span><span class="sig-name descname"><span class="pre">ModelManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.model_manager.ModelManager" title="Permalink to this definition"></a></dt>
+<dd><p>Class to manage the models and model groups for a certain project</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.model_manager.ModelManager.get_all_model_groups">
+<span class="sig-name descname"><span class="pre">get_all_model_groups</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id187" title="sc_api_tools.data_models.model_group.ModelGroup"><span class="pre">sc_api_tools.data_models.model_group.ModelGroup</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.model_manager.ModelManager.get_all_model_groups" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of all model groups in the project</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of model groups in the project</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.model_manager.ModelManager.get_model_group_by_algo_name">
+<span class="sig-name descname"><span class="pre">get_model_group_by_algo_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">algorithm_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id187" title="sc_api_tools.data_models.model_group.ModelGroup"><span class="pre">sc_api_tools.data_models.model_group.ModelGroup</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.model_manager.ModelManager.get_model_group_by_algo_name" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the model group for the algorithm named <cite>algorithm_name</cite>, if any. If
+no model group for this algorithm is found in the project, this method returns
+None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>algorithm_name</strong> – Name of the algorithm</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ModelGroup instance corresponding to this algorithm</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.model_manager.ModelManager.get_model_by_algorithm_task_and_version">
+<span class="sig-name descname"><span class="pre">get_model_by_algorithm_task_and_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id0" title="sc_api_tools.data_models.algorithms.Algorithm"><span class="pre">sc_api_tools.data_models.algorithms.Algorithm</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.task.Task" title="sc_api_tools.data_models.task.Task"><span class="pre">sc_api_tools.data_models.task.Task</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id167" title="sc_api_tools.data_models.model.Model"><span class="pre">sc_api_tools.data_models.model.Model</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.model_manager.ModelManager.get_model_by_algorithm_task_and_version" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieves a Model from the SC cluster, corresponding to specific algorithm and
+model version. If no version is passed, this method will retrieve the latest
+model for the algorithm.</p>
+<p>If no model for the algorithm is available in the project, this method returns
+None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>algorithm</strong> – Algorithm for which to get the model</p></li>
+<li><p><strong>version</strong> – Version of the model to retrieve. If left as None, returns the
+latest version</p></li>
+<li><p><strong>task</strong> – Task for which to get the model. If left as None, this method
+searches for models for <cite>algorithm</cite> in all tasks in the project</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Model object corresponding to <cite>algorithm</cite> and <cite>version</cite>, for a
+specific <cite>task</cite>, if any. If no model is found by those parameters, this
+method returns None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.model_manager.ModelManager.get_active_model_for_task">
+<span class="sig-name descname"><span class="pre">get_active_model_for_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.task.Task" title="sc_api_tools.data_models.task.Task"><span class="pre">sc_api_tools.data_models.task.Task</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id167" title="sc_api_tools.data_models.model.Model"><span class="pre">sc_api_tools.data_models.model.Model</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.model_manager.ModelManager.get_active_model_for_task" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the Model details for the currently active model, for a task if any.
+If the task does not have any trained models, this method returns None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>task</strong> – Task object containing details of the task to get the model for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Model object representing the currently active model in the SC
+project, if any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.model_manager.ModelManager.download_active_model_for_task">
+<span class="sig-name descname"><span class="pre">download_active_model_for_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.task.Task" title="sc_api_tools.data_models.task.Task"><span class="pre">sc_api_tools.data_models.task.Task</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id167" title="sc_api_tools.data_models.model.Model"><span class="pre">sc_api_tools.data_models.model.Model</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.model_manager.ModelManager.download_active_model_for_task" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads the currently active model for the task
+If the task does not have an active model yet, this method returns None</p>
+<p>This method will create a directory ‘models’ in the path specified in
+<cite>path_to_folder</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_folder</strong> – Path to the target folder in which to save the active
+model, and all optimized models derived from it.</p></li>
+<li><p><strong>task</strong> – Task object containing details of the task to download the model
+for</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Model instance holding the details of the active model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.model_manager.ModelManager.get_all_active_models">
+<span class="sig-name descname"><span class="pre">get_all_active_models</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id167" title="sc_api_tools.data_models.model.Model"><span class="pre">sc_api_tools.data_models.model.Model</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.model_manager.ModelManager.get_all_active_models" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the Model details for the active model for all tasks in the project,
+if the tasks have any.</p>
+<p>This method returns a list of Models, where the index of the Model in the list
+corresponds to the index of the task in list of trainable tasks for the project.</p>
+<p>If any of the tasks do not have a trained model, the entry corresponding to
+the index of that task will be None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Model object representing the currently active model for the task in
+the SC project, if any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.model_manager.ModelManager.download_all_active_models">
+<span class="sig-name descname"><span class="pre">download_all_active_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id167" title="sc_api_tools.data_models.model.Model"><span class="pre">sc_api_tools.data_models.model.Model</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.model_manager.ModelManager.download_all_active_models" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads the active models for all tasks in the project.</p>
+<p>This method will create a directory ‘models’ in the path specified in
+<cite>path_to_folder</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_to_folder</strong> – Path to the target folder in which to save the active
+models, and all optimized models derived from them.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of Model objects representing the currently active models
+(if any) for all tasks in the SC project. The index of the Model in the
+list corresponds to the index of the task in the list of trainable tasks
+for the project.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.model_manager.ModelManager.get_model_for_job">
+<span class="sig-name descname"><span class="pre">get_model_for_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id77" title="sc_api_tools.data_models.job.Job"><span class="pre">sc_api_tools.data_models.job.Job</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id167" title="sc_api_tools.data_models.model.Model"><span class="pre">sc_api_tools.data_models.model.Model</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.model_manager.ModelManager.get_model_for_job" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the model that was created by the <cite>job</cite> from the SC cluster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>job</strong> – Job to retrieve the model for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Model produced by the job</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.training_manager.TrainingManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_managers.training_manager.</span></span><span class="sig-name descname"><span class="pre">TrainingManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.training_manager.TrainingManager" title="Permalink to this definition"></a></dt>
+<dd><p>Class to manage training jobs for a certain project</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.training_manager.TrainingManager.get_status">
+<span class="sig-name descname"><span class="pre">get_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.status.ProjectStatus" title="sc_api_tools.data_models.status.ProjectStatus"><span class="pre">sc_api_tools.data_models.status.ProjectStatus</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.training_manager.TrainingManager.get_status" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the current status of the project from the SC cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>ProjectStatus object reflecting the current project status</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.training_manager.TrainingManager.get_jobs">
+<span class="sig-name descname"><span class="pre">get_jobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id77" title="sc_api_tools.data_models.job.Job"><span class="pre">sc_api_tools.data_models.job.Job</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.training_manager.TrainingManager.get_jobs" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of all jobs on the SC cluster.</p>
+<p>If <cite>project_only = True</cite> (the default), only those jobs related to the project
+managed by this TrainingManager will be returned. If set to False, all jobs in
+the workspace are returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>project_only</strong> – True to return only those jobs pertaining to the project
+for which the TrainingManager is active. False to return all jobs in the
+SC workspace.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of Jobs</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.training_manager.TrainingManager.get_algorithms_for_task">
+<span class="sig-name descname"><span class="pre">get_algorithms_for_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.task.Task" title="sc_api_tools.data_models.task.Task"><span class="pre">sc_api_tools.data_models.task.Task</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.algorithm_list.AlgorithmList" title="sc_api_tools.data_models.containers.algorithm_list.AlgorithmList"><span class="pre">sc_api_tools.data_models.containers.algorithm_list.AlgorithmList</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.training_manager.TrainingManager.get_algorithms_for_task" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of supported algorithms for a specific task</p>
+<p>The <cite>task</cite> parameter accepts both a Task object and an integer. If an int is
+passed, this will be considered the index of the task in the list of trainable
+tasks for the project which is managed by the TrainingManager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>task</strong> – Task to get the supported algorithms for. If an integer is passed,
+this is considered the index of the task in the trainable task list of the
+project. So passing <cite>task=0</cite> will return the algorithms for the first
+trainable task, etc.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of supported algorithms for the task</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.training_manager.TrainingManager.train_task">
+<span class="sig-name descname"><span class="pre">train_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.task.Task" title="sc_api_tools.data_models.task.Task"><span class="pre">sc_api_tools.data_models.task.Task</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id232" title="sc_api_tools.data_models.project.Dataset"><span class="pre">sc_api_tools.data_models.project.Dataset</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id0" title="sc_api_tools.data_models.algorithms.Algorithm"><span class="pre">sc_api_tools.data_models.algorithms.Algorithm</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_from_scratch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_pot_optimization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyper_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id48" title="sc_api_tools.data_models.configuration.TaskConfiguration"><span class="pre">sc_api_tools.data_models.configuration.TaskConfiguration</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hpo_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id77" title="sc_api_tools.data_models.job.Job"><span class="pre">sc_api_tools.data_models.job.Job</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.training_manager.TrainingManager.train_task" title="Permalink to this definition"></a></dt>
+<dd><p>Start training of a specific task in the project</p>
+<p>The <cite>task</cite> parameter accepts both a Task object and an integer. If an int is
+passed, this will be considered the index of the task in the list of trainable
+tasks for the project which is managed by the TrainingManager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>task</strong> – Task or index of Task to train</p></li>
+<li><p><strong>dataset</strong> – Optional Dataset to train on</p></li>
+<li><p><strong>algorithm</strong> – Optional Algorithm to use in training. If left as None (the
+default), the default algorithm for the task will be used.</p></li>
+<li><p><strong>train_from_scratch</strong> – True to train the model from scratch, False to
+continue training from an existing checkpoint (if any)</p></li>
+<li><p><strong>enable_pot_optimization</strong> – True to optimize the trained model with POT
+after training is complete</p></li>
+<li><p><strong>hyper_parameters</strong> – Optional hyper parameters to use for training</p></li>
+<li><p><strong>hpo_parameters</strong> – Optional set of parameters to use for automatic hyper
+parameter optimization. Only supported for version 1.1 and up</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The training job that has been created</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.training_manager.TrainingManager.monitor_jobs">
+<span class="sig-name descname"><span class="pre">monitor_jobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id77" title="sc_api_tools.data_models.job.Job"><span class="pre">sc_api_tools.data_models.job.Job</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id77" title="sc_api_tools.data_models.job.Job"><span class="pre">sc_api_tools.data_models.job.Job</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.training_manager.TrainingManager.monitor_jobs" title="Permalink to this definition"></a></dt>
+<dd><p>Monitors and prints the progress of all jobs in the list <cite>jobs</cite>. Execution is
+halted until all jobs have either finished, failed or were cancelled.</p>
+<p>Progress will be reported in 15s intervals</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>jobs</strong> – List of jobs to monitor</p></li>
+<li><p><strong>timeout</strong> – Timeout (in seconds) after which to stop the monitoring</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of finished (or failed) jobs with their status updated</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sc_api_tools.rest_converters.html" class="btn btn-neutral float-left" title="sc_api_tools.rest_converters" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sc_api_tools.utils.html" class="btn btn-neutral float-right" title="sc_api_tools.utils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Ludo Cornelissen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

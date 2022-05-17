@@ -36,12 +36,15 @@ class AnnotationScene:
     """
     Class representing all annotations for a certain media entity in SC
 
-    :var annotations: List of annotations belonging to the media entity
+    :var annotations: List of
+        :py:class:`~sc_api_tools.data_models.annotations.Annotation`s belonging to the
+        media entity
     :var id: unique database ID of the AnnotationScene in SC
-    :var kind: Kind of annotation (Annotation or Prediction)
+    :var kind: :py:class:`~sc_api_tools.data_models.enums.annotation_kind.AnnotationKind`
+        of the annotation (Annotation or Prediction)
     :var media_identifier: Identifier of the media entity to which this AnnotationScene
         applies
-    :var modified: Data and time at which this AnnotationScene was last modified
+    :var modified: Date and time at which this AnnotationScene was last modified
     :var labels_to_revisit_full_scene: Optional list of database ID's of the labels
         that may not be up to date and therefore need to be revisited for this
         AnnotationScene.

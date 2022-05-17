@@ -1,3 +1,143 @@
+"""
+Introduction
+------------
+
+The `data_models` package contains the SDK representation for all entities in SC, such
+as :py:class:`~sc_api_tools.data_models.annotation_scene.AnnotationScene`,
+:py:class:`~sc_api_tools.data_models.media.Image`,
+:py:class:`~sc_api_tools.data_models.project.Project` and
+:py:class:`~sc_api_tools.data_models.model.Model` and many more.
+
+When interacting with the SC cluster through the
+:py:class:`sc_api_tools.sc_rest_client.SCRESTClient` or the
+:py:mod:`~sc_api_tools.rest_managers`, all entities retrieved from the cluster will be
+deserialized into the data models defined in this package.
+
+Module contents
+---------------
+
+Algorithm-related entities
+++++++++++++++++++++++++++
+
+.. automodule:: sc_api_tools.data_models.algorithms
+   :members:
+   :undoc-members:
+
+Project-related entities
+++++++++++++++++++++++++
+
+.. automodule:: sc_api_tools.data_models.task
+   :members:
+   :undoc-members:
+
+.. automodule:: sc_api_tools.data_models.project
+   :members:
+   :undoc-members:
+
+Annotation-related entities
++++++++++++++++++++++++++++
+.. automodule:: sc_api_tools.data_models.label
+   :members:
+   :undoc-members:
+
+.. automodule:: sc_api_tools.data_models.shapes
+   :members:
+   :undoc-members:
+
+.. automodule:: sc_api_tools.data_models.annotations
+   :members:
+   :undoc-members:
+
+.. automodule:: sc_api_tools.data_models.annotation_scene
+   :members:
+   :undoc-members:
+
+Configuration-related entities
+++++++++++++++++++++++++++++++
+
+.. automodule:: sc_api_tools.data_models.configurable_parameter
+   :members:
+   :undoc-members:
+
+.. automodule:: sc_api_tools.data_models.configurable_parameter_group
+   :members:
+   :undoc-members:
+
+.. automodule:: sc_api_tools.data_models.configuration_identifiers
+   :members:
+   :undoc-members:
+
+.. automodule:: sc_api_tools.data_models.configuration
+   :members:
+   :undoc-members:
+
+Model-related entities
+++++++++++++++++++++++
+
+.. automodule:: sc_api_tools.data_models.model
+   :members:
+   :undoc-members:
+
+.. automodule:: sc_api_tools.data_models.model_group
+   :members:
+   :undoc-members:
+
+Media-related entities
+++++++++++++++++++++++
+
+.. automodule:: sc_api_tools.data_models.media
+   :members:
+   :undoc-members:
+
+.. automodule:: sc_api_tools.data_models.media_identifiers
+   :members:
+   :undoc-members:
+
+.. automodule:: sc_api_tools.data_models.task_annotation_state
+   :members:
+   :undoc-members:
+
+Prediction-related entities
++++++++++++++++++++++++++++
+
+.. automodule:: sc_api_tools.data_models.predictions
+   :members:
+   :undoc-members:
+
+Status- and job-related entities
+++++++++++++++++++++++++++++++++
+
+.. automodule:: sc_api_tools.data_models.status
+   :members:
+   :undoc-members:
+
+.. automodule:: sc_api_tools.data_models.job
+   :members:
+   :undoc-members:
+
+Utility functions
++++++++++++++++++
+
+.. automodule:: sc_api_tools.data_models.utils
+   :members:
+   :undoc-members:
+
+Custom container classes
+++++++++++++++++++++++++
+
+.. automodule:: sc_api_tools.data_models.containers
+   :members:
+   :undoc-members:
+
+Enumerations
+++++++++++++
+
+.. automodule:: sc_api_tools.data_models.enums
+   :members:
+   :undoc-members:
+
+"""
+
 from .enums import TaskType, AnnotationKind, MediaType
 from .project import Project, Pipeline
 from .label import Label, ScoredLabel

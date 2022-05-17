@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sc_api_tools.annotation_readers &mdash; SonomaCreek SDK v1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sc_api_tools.data_models" href="sc_api_tools.data_models.html" />
+    <link rel="prev" title="SonomaCreek SDK" href="sc_api_tools.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> SonomaCreek SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="sc_api_tools.html">SonomaCreek SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sc_api_tools.html#module-contents">Module contents</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="sc_api_tools.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">sc_api_tools.annotation_readers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-sc_api_tools.annotation_readers.base_annotation_reader">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.data_models.html">sc_api_tools.data_models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.deployment.html">sc_api_tools.deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.http_session.html">sc_api_tools.http_session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.rest_converters.html">sc_api_tools.rest_converters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.rest_managers.html">sc_api_tools.rest_managers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.utils.html">sc_api_tools.utils</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SonomaCreek SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="sc_api_tools.html">SonomaCreek SDK</a> &raquo;</li>
+      <li>sc_api_tools.annotation_readers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/sc_api_tools.annotation_readers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-sc_api_tools.annotation_readers">
+<span id="sc-api-tools-annotation-readers"></span><h1>sc_api_tools.annotation_readers<a class="headerlink" href="#module-sc_api_tools.annotation_readers" title="Permalink to this headline"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h2>
+<p>The <cite>annotation_readers</cite> package contains the
+<a class="reference internal" href="#sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader" title="sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotationReader</span></code></a> base
+class, which provides an interface for implementing custom annotation readers.</p>
+<p>Annotation readers server to load annotation files in custom formats and convert them
+to SC format, such that they can be uploaded to an SC project.</p>
+</section>
+<section id="module-sc_api_tools.annotation_readers.base_annotation_reader">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sc_api_tools.annotation_readers.base_annotation_reader" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.annotation_readers.base_annotation_reader.</span></span><span class="sig-name descname"><span class="pre">AnnotationReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_data_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.enums.html#sc_api_tools.data_models.enums.task_type.TaskType" title="sc_api_tools.data_models.enums.task_type.TaskType"><span class="pre">sc_api_tools.data_models.enums.task_type.TaskType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">TaskType.DETECTION</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class for annotation reading, to handle loading and converting annotations
+to Sonoma Creek format</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader.get_data">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_name_to_id_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve_shape_for_global_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.annotations.Annotation" title="sc_api_tools.data_models.annotations.Annotation"><span class="pre">sc_api_tools.data_models.annotations.Annotation</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader.get_data" title="Permalink to this definition"></a></dt>
+<dd><p>Get annotation data for a certain filename</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader.get_data_filenames">
+<span class="sig-name descname"><span class="pre">get_data_filenames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader.get_data_filenames" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of annotation files found in the <cite>base_data_folder</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of filenames (excluding extension) for all annotation files in
+the data folder</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader.get_all_label_names">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_all_label_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader.get_all_label_names" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of unique label names that were found in the annotation data
+folder belonging to this AnnotationReader instance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader.prepare_and_set_dataset">
+<span class="sig-name descname"><span class="pre">prepare_and_set_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.enums.html#sc_api_tools.data_models.enums.task_type.TaskType" title="sc_api_tools.data_models.enums.task_type.TaskType"><span class="pre">sc_api_tools.data_models.enums.task_type.TaskType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader.prepare_and_set_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Prepares a dataset for uploading annotations for a certain task_type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader.applied_filters">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">applied_filters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader.applied_filters" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of dictionaries representing the filter settings that have
+been applied to the dataset, if any.</p>
+<p>Dictionaries in this list contain two keys:
+- ‘labels’      – List of label names which has been filtered on
+- ‘criterion’   – String representing the criterion that has been used in the</p>
+<blockquote>
+<div><p>filtering. Can be ‘OR’, ‘AND’, ‘XOR’ or ‘NOT’.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of filter settings that have been applied to the dataset. Returns
+an empty list if no filters have been applied.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-sc_api_tools.annotation_readers.sc_annotation_reader"></span><dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.sc_annotation_reader.SCAnnotationReader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.annotation_readers.sc_annotation_reader.</span></span><span class="sig-name descname"><span class="pre">SCAnnotationReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_data_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.enums.html#sc_api_tools.data_models.enums.task_type.TaskType" title="sc_api_tools.data_models.enums.task_type.TaskType"><span class="pre">sc_api_tools.data_models.enums.task_type.TaskType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_names_to_include</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.annotation_readers.sc_annotation_reader.SCAnnotationReader" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader" title="sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.sc_annotation_reader.SCAnnotationReader.get_data">
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_name_to_id_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve_shape_for_global_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.annotations.Annotation" title="sc_api_tools.data_models.annotations.Annotation"><span class="pre">sc_api_tools.data_models.annotations.Annotation</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.annotation_readers.sc_annotation_reader.SCAnnotationReader.get_data" title="Permalink to this definition"></a></dt>
+<dd><p>Get annotation data for a certain filename</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.sc_annotation_reader.SCAnnotationReader.get_all_label_names">
+<span class="sig-name descname"><span class="pre">get_all_label_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.annotation_readers.sc_annotation_reader.SCAnnotationReader.get_all_label_names" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve the unique label names for all annotations in the annotation folder</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of label names</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader"></span><dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.</span></span><span class="sig-name descname"><span class="pre">DatumAnnotationReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_data_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.enums.html#sc_api_tools.data_models.enums.task_type.TaskType" title="sc_api_tools.data_models.enums.task_type.TaskType"><span class="pre">sc_api_tools.data_models.enums.task_type.TaskType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">TaskType.DETECTION</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader" title="sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader</span></code></a></p>
+<p>Class to read annotations using datumaro</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.prepare_and_set_dataset">
+<span class="sig-name descname"><span class="pre">prepare_and_set_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.enums.html#sc_api_tools.data_models.enums.task_type.TaskType" title="sc_api_tools.data_models.enums.task_type.TaskType"><span class="pre">sc_api_tools.data_models.enums.task_type.TaskType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.prepare_and_set_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Prepares a dataset for uploading annotations for a certain task_type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.convert_labels_to_segmentation_names">
+<span class="sig-name descname"><span class="pre">convert_labels_to_segmentation_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.convert_labels_to_segmentation_names" title="Permalink to this definition"></a></dt>
+<dd><p>This method converts the label names in a dataset to ‘<a href="#id1"><span class="problematic" id="id2">*</span></a>_shape`, where <cite>*</cite> is
+the original label name. It can be used to generate unique label names for the
+segmentation task in a detection_to_segmentation project</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.get_all_label_names">
+<span class="sig-name descname"><span class="pre">get_all_label_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.get_all_label_names" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieves the list of labels names from a datumaro dataset</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.datum_label_map">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">datum_label_map</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.datum_label_map" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dictionary mapping the datumaro label id to the label name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.override_label_map">
+<span class="sig-name descname"><span class="pre">override_label_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_label_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.override_label_map" title="Permalink to this definition"></a></dt>
+<dd><p>Overrides the label map defined in the datumaro dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.reset_label_map">
+<span class="sig-name descname"><span class="pre">reset_label_map</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.reset_label_map" title="Permalink to this definition"></a></dt>
+<dd><p>Resets the label map back to the original one from the datumaro dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.get_all_image_names">
+<span class="sig-name descname"><span class="pre">get_all_image_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.get_all_image_names" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of image names in the dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.get_data">
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_name_to_id_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve_shape_for_global_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.annotations.Annotation" title="sc_api_tools.data_models.annotations.Annotation"><span class="pre">sc_api_tools.data_models.annotations.Annotation</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.get_data" title="Permalink to this definition"></a></dt>
+<dd><p>Get annotation data for a certain filename</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.applied_filters">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">applied_filters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.applied_filters" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of dictionaries representing the filter settings that have
+been applied to the dataset, if any.</p>
+<p>Dictionaries in this list contain two keys:
+- ‘labels’      – List of label names which has been filtered on
+- ‘criterion’   – String representing the criterion that has been used in the</p>
+<blockquote>
+<div><p>filtering. Can be ‘OR’, ‘AND’, ‘XOR’ or ‘NOT’.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of filter settings that have been applied to the dataset. Returns
+an empty list if no filters have been applied.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.filter_dataset">
+<span class="sig-name descname"><span class="pre">filter_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'OR'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.filter_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Retain only those items with annotations in the list of labels passed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Param</dt>
+<dd class="field-odd"><p>labels     List of labels to filter on</p>
+</dd>
+<dt class="field-even">Param</dt>
+<dd class="field-even"><p>criterion  Filter criterion, currently “OR” or “AND” are implemented</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.group_labels">
+<span class="sig-name descname"><span class="pre">group_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels_to_group</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.group_labels" title="Permalink to this definition"></a></dt>
+<dd><p>Group multiple labels into one. Grouping converts the list of labels into one
+single label named <cite>group_name</cite>.</p>
+<p>This method does not return anything, but instead overrides the label map for
+the datamaro dataset to account for the grouping.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels_to_group</strong> – List of labels names that should be grouped together</p></li>
+<li><p><strong>group_name</strong> – Name of the resulting label</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.get_annotation_stats">
+<span class="sig-name descname"><span class="pre">get_annotation_stats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.get_annotation_stats" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the object and image counts per label in the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Dictionary containing label names as keys, and as values:
+- n_images: Number of images containing this label
+- n_objects: Number of independent objects with this label</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sc_api_tools.html" class="btn btn-neutral float-left" title="SonomaCreek SDK" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sc_api_tools.data_models.html" class="btn btn-neutral float-right" title="sc_api_tools.data_models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Ludo Cornelissen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
