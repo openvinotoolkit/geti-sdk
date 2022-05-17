@@ -232,13 +232,13 @@ class NOUSAnnotationReader(AnnotationReader):
                 if len(filepath) == 0:
                     print(
                         f"No annotation file found for image or video frame "
-                        f"{full_filename}."
+                        f"{filename}."
                     )
                     return []
                 elif len(filepath) != 1:
                     print(
                         f"Multiple matching annotation files found for image with "
-                        f"name {full_filename}. Skipping this image..."
+                        f"name {filename}. Skipping this image..."
                     )
                     return []
 

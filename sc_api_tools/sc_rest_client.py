@@ -84,35 +84,44 @@ class SCRESTClient:
         In addition, if `include_deployment` is set to True, this method will create
         and download a deployment for the project as well.
 
-        This method will download data to the path `target_folder`, the contents will
-        be:
-            'images'       -- Folder holding all images in the project, if any
+        This method will download data to the path `target_folder`, the contents of the
+        folder will be:
 
-            'videos'       -- Folder holding all videos in the project, if any
+            images
+                Folder holding all images in the project, if any
 
-            'annotations'  -- Directory holding all annotations in the project, in .json
-                              format
+            videos
+                Folder holding all videos in the project, if any
 
-            'predictions'  -- Directory holding all predictions in the project, in
-                              .json format. If available, this will include saliency
-                              maps in .jpeg format. Only created if
-                              `include_predictions=True`
+            annotations
+                Directory holding all annotations in the project, in .json format
 
-            'models'      -- Folder containing the active model for the project. This
-                             folder contains zip files holding the data for the active
-                             models for the tasks in the project, and any optimized
-                             models derived from them. Models are only downloaded if
-                             `include_active_models = True`.
+            predictions
+                Directory holding all predictions in the project, in .json format. If
+                available, this will include saliency maps in .jpeg format. Only created if
+                `include_predictions=True`
 
-            `deployment`  -- Folder containing the deployment for the project, that
-                             can be used for local inference. The deployment is only
-                             created if `include_deployment = True`.
+            models
+                Folder containing the active model for the project. This folder contains
+                zip files holding the data for the active models for the tasks in the
+                project, and any optimized models derived from them. Models are only
+                downloaded if `include_active_models = True`.
 
-            'project.json' -- File containing the project parameters, that can be used
-                              to re-create the project.
+            deployment
+                Folder containing the deployment for the project, that can be used for
+                local inference. The deployment is only created if
+                `include_deployment = True`.
 
-            'configuration.json' -- File containing the configurable parameters for the
-                                    project
+            project.json
+                File containing the project parameters, that can be used to re-create the
+                project.
+
+            configuration.json
+                File containing the configurable parameters for the active models in the
+                project
+
+        Downloading a project may take a substantial amount of time if the project
+        dataset is large.
 
         :param project_name: Name of the project to download
         :param target_folder: Path to the local folder in which the project data
@@ -237,20 +246,23 @@ class SCRESTClient:
         Upload a previously downloaded SC project to the cluster. This method expects
         the `target_folder` to contain the following:
 
-            'images'       -- Folder holding all images in the project, if any
+            images
+                Folder holding all images in the project, if any
 
-            'videos'       -- Folder holding all videos in the project, if any
+            videos
+                Folder holding all videos in the project, if any
 
-            'annotations'  -- Directory holding all annotations in the project, in .json
-                              format
+            annotations
+                Directory holding all annotations in the project, in .json format
 
-            'project.json' -- File containing the project parameters, that can be used
-                              to re-create the project.
+            project.json
+                File containing the project parameters, that can be used to re-create
+                the project.
 
-            'configuration.json' -- Optional file containing the configurable
-                                    parameters for the project. If this file is not
-                                    present, the configurable parameters for the
-                                    project will be left at their default values.
+            configuration.json
+                Optional file containing the configurable parameters for the active
+                models in the project. If this file is not present, the configurable
+                parameters for the project will be left at their default values.
 
         :param target_folder: Folder holding the project data to upload
         :param project_name: Optional name of the project to create on the cluster. If
@@ -363,7 +375,15 @@ class SCRESTClient:
 
         The type of task that will be in the project can be controlled by setting the
         `project_type`, options are:
-            'classification', 'detection', 'segmentation', 'anomaly_classification'
+
+            * classification
+            * detection
+            * segmentation
+            * anomaly_classification
+            * anomaly_detection
+            * anomaly_segmentation
+            * instance_segmentation
+            * rotated_detection
 
         If a project called `project_name` exists on the server, this method will
         attempt to upload the media and annotations to the existing project.
@@ -476,7 +496,9 @@ class SCRESTClient:
 
         The type of task that will be in the project can be controlled by setting the
         `project_type`, current options are:
-            'detection_to_segmentation', 'detection_to_classification'
+
+            * detection_to_segmentation
+            * detection_to_classification
 
         If a project called `project_name` exists on the server, this method will
         attempt to upload the media and annotations to the existing project.
@@ -833,6 +855,7 @@ class SCRESTClient:
         :param delete_after_prediction: True to remove the image from the project
             once the prediction is received, False to keep the image in the project.
         :return: Tuple containing:
+
             - Image object representing the image that was uploaded
             - Prediction for the image
         """
@@ -920,9 +943,10 @@ class SCRESTClient:
         :param delete_after_prediction: True to remove the video from the project
             once the prediction is received, False to keep the video in the project.
         :return: Tuple containing:
+
             - Video object holding the data for the uploaded video
             - List of VideoFrames extracted from the video, for which predictions
-                have been generated
+              have been generated
             - List of Predictions for the Video
         """
         project_manager = ProjectManager(self.session, workspace_id=self.workspace_id)

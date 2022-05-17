@@ -72,9 +72,10 @@ class TaskType(Enum):
     @classmethod
     def from_domain(cls, domain: 'Domain'):
         """
-        Instantiates a TaskType from a given Domain
+        Instantiates a :py:class:`~sc_api_tools.data_models.enums.task_type.TaskType`
+        from a given :py:class:`~sc_api_tools.data_models.enums.domain.Domain`
 
-        :param domain: Domain to get the TaskType for
+        :param domain: domain to get the TaskType for
         :return: TaskType instance corresponding to the `domain`
         """
         return cls[domain.name]

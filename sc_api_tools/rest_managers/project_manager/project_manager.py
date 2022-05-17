@@ -111,8 +111,8 @@ class ProjectManager:
         Creates a new project with name `project_name` on the cluster, containing
         tasks according to the `project_type` specified. Labels for each task are
         specified in the `labels` parameter, which should be a nested list (each entry
-         in the outermost list corresponds to the labels for one of the tasks in the
-         project pipeline)
+        in the outermost list corresponds to the labels for one of the tasks in the
+        project pipeline)
 
         :param project_name: Name of the project
         :param project_type: Type of the project

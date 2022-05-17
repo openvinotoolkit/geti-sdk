@@ -233,7 +233,7 @@ class TestSCRESTClient:
 
         # Make several attempts to get the prediction, first attempts trigger the
         # inference server to start up but the requests may time out
-        n_attempts = 5 if fxt_test_mode != SdkTestMode.OFFLINE else 1
+        n_attempts = 2 if fxt_test_mode != SdkTestMode.OFFLINE else 1
         sleep_time = 20 if fxt_test_mode != SdkTestMode.OFFLINE else 1
         for j in range(n_attempts):
             try:
@@ -245,11 +245,11 @@ class TestSCRESTClient:
                 )
             except ValueError as error:
                 prediction = None
+                time.sleep(sleep_time)
                 print(error)
             if prediction is not None:
                 assert isinstance(prediction, Prediction)
                 break
-            time.sleep(sleep_time)
 
     @pytest.mark.vcr()
     def test_deployment(
