@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sc_api_tools.rest_managers.annotation_manager package &mdash; SonomaCreek SDK v1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> SonomaCreek SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sc_api_tools.html">SonomaCreek SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sc_api_tools.html#module-contents">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sc_api_tools.html#subpackages">Subpackages</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SonomaCreek SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>sc_api_tools.rest_managers.annotation_manager package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/sc_api_tools.rest_managers.annotation_manager.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sc-api-tools-rest-managers-annotation-manager-package">
+<h1>sc_api_tools.rest_managers.annotation_manager package<a class="headerlink" href="#sc-api-tools-rest-managers-annotation-manager-package" title="Permalink to this headline"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-sc_api_tools.rest_managers.annotation_manager.annotation_manager">
+<span id="sc-api-tools-rest-managers-annotation-manager-annotation-manager-module"></span><h2>sc_api_tools.rest_managers.annotation_manager.annotation_manager module<a class="headerlink" href="#module-sc_api_tools.rest_managers.annotation_manager.annotation_manager" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_managers.annotation_manager.annotation_manager.</span></span><span class="sig-name descname"><span class="pre">AnnotationManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_reader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.AnnotationReaderType</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.BaseAnnotationManager" title="sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.BaseAnnotationManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.BaseAnnotationManager</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.AnnotationReaderType</span></code>]</p>
+<p>Class to up- or download annotations for images or videos to an existing project</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.get_latest_annotations_for_video">
+<span class="sig-name descname"><span class="pre">get_latest_annotations_for_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id11" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.get_latest_annotations_for_video" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve all latest annotations for a video from the cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>video</strong> – Video to get the annotations for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of AnnotationScene’s, each entry corresponds to an
+AnnotationScene for a single frame in the video</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotations_for_video">
+<span class="sig-name descname"><span class="pre">upload_annotations_for_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotations_for_video" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads annotations for a video. If append_annotations is set to True,
+annotations will be appended to the existing annotations for the video in the
+project. If set to False, existing annotations will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video</strong> – Video to upload annotations for</p></li>
+<li><p><strong>append_annotations</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotations_for_videos">
+<span class="sig-name descname"><span class="pre">upload_annotations_for_videos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">videos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotations_for_videos" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads annotations for a list of videos. If append_annotations is set to True,
+annotations will be appended to the existing annotations for the video in the
+project. If set to False, existing annotations will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>videos</strong> – List of videos to upload annotations for</p></li>
+<li><p><strong>append_annotations</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotations_for_images">
+<span class="sig-name descname"><span class="pre">upload_annotations_for_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotations_for_images" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads annotations for a list of images. If append_annotations is set to True,
+annotations will be appended to the existing annotations for the image in the
+project. If set to False, existing annotations will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>images</strong> – List of images to upload annotations for</p></li>
+<li><p><strong>append_annotations</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.download_annotations_for_video">
+<span class="sig-name descname"><span class="pre">download_annotations_for_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_video_uid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.download_annotations_for_video" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads video annotations from the server to a target folder on disk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video</strong> – Video for which to download the annotations</p></li>
+<li><p><strong>path_to_folder</strong> – Folder to save the annotations to</p></li>
+<li><p><strong>append_video_uid</strong> – True to append the UID of the video to the
+annotation filename (separated from the original filename by an underscore,
+i.e. ‘{filename}_{media_id}’). This can be useful if the project contains
+videos with duplicate filenames. If left as False, the video filename and
+frame index for the annotation are used as filename for the downloaded
+annotation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the time elapsed to download the annotations, in seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.download_annotations_for_images">
+<span class="sig-name descname"><span class="pre">download_annotations_for_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_image_uid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.download_annotations_for_images" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads image annotations from the server to a target folder on disk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>images</strong> – List of images for which to download the annotations</p></li>
+<li><p><strong>path_to_folder</strong> – Folder to save the annotations to</p></li>
+<li><p><strong>append_image_uid</strong> – <p>True to append the UID of the image to the
+annotation filename (separated from the original filename by an underscore,</p>
+<blockquote>
+<div><p>i.e. ‘{filename}_{media_id}’). This can be useful if the project contains
+images with duplicate filenames. If left as False, the image filename is
+used as filename for the downloaded annotation as well.</p>
+</div></blockquote>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the time elapsed to download the annotations, in seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.download_annotations_for_videos">
+<span class="sig-name descname"><span class="pre">download_annotations_for_videos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">videos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_video_uid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.download_annotations_for_videos" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads annotations for a list of videos from the server to a target folder
+on disk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>videos</strong> – List of videos for which to download the annotations</p></li>
+<li><p><strong>path_to_folder</strong> – Folder to save the annotations to</p></li>
+<li><p><strong>append_video_uid</strong> – True to append the UID of the video to the
+annotation filename (separated from the original filename by an underscore,
+i.e. ‘{filename}_{media_id}’). This can be useful if the project contains
+videos with duplicate filenames. If left as False, the video filename and
+frame index for the annotation are used as filename for the downloaded
+annotation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Time elapsed to download the annotations, in seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.download_all_annotations">
+<span class="sig-name descname"><span class="pre">download_all_annotations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.download_all_annotations" title="Permalink to this definition"></a></dt>
+<dd><p>Donwnloads all annotations for the project to a target folder on disk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_to_folder</strong> – Folder to save the annotations to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotations_for_all_media">
+<span class="sig-name descname"><span class="pre">upload_annotations_for_all_media</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">append_annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotations_for_all_media" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads annotations for all media in the project, If append_annotations is set
+to True, annotations will be appended to the existing annotations for the
+media on the server. If set to False, existing annotations will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>append_annotations</strong> – True to append annotations from the local disk to
+the existing annotations on the server, False to overwrite the server
+annotations by those on the local disk. Defaults to True</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotation">
+<span class="sig-name descname"><span class="pre">upload_annotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">media_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#id132" title="sc_api_tools.data_models.media.VideoFrame"><span class="pre">sc_api_tools.data_models.media.VideoFrame</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_scene</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id11" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id11" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.upload_annotation" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads an annotation for an image or video frame to the SC cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>media_item</strong> – Image or VideoFrame to apply and upload the annotation to</p></li>
+<li><p><strong>annotation_scene</strong> – AnnotationScene to upload</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The uploaded annotation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.get_annotation">
+<span class="sig-name descname"><span class="pre">get_annotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">media_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#id132" title="sc_api_tools.data_models.media.VideoFrame"><span class="pre">sc_api_tools.data_models.media.VideoFrame</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id11" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager.get_annotation" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve the latest annotations for an image or video frame from the SC cluster
+If no annotation is available, this method returns None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>media_item</strong> – Image or VideoFrame to retrieve the annotations for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>AnnotationScene instance containing the latest annotation data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sc_api_tools.rest_managers.annotation_manager.base_annotation_manager">
+<span id="sc-api-tools-rest-managers-annotation-manager-base-annotation-manager-module"></span><h2>sc_api_tools.rest_managers.annotation_manager.base_annotation_manager module<a class="headerlink" href="#module-sc_api_tools.rest_managers.annotation_manager.base_annotation_manager" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.BaseAnnotationManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.</span></span><span class="sig-name descname"><span class="pre">BaseAnnotationManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_reader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.AnnotationReaderType</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.BaseAnnotationManager" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to up- or download annotations for 2d media to an existing project</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.BaseAnnotationManager.label_mapping">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">label_mapping</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.BaseAnnotationManager.label_mapping" title="Permalink to this definition"></a></dt>
+<dd><p>Returns dictionary with label names as keys and label ids as values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.BaseAnnotationManager.annotation_scene_from_rest_response">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">annotation_scene_from_rest_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id11" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.BaseAnnotationManager.annotation_scene_from_rest_response" title="Permalink to this definition"></a></dt>
+<dd><p>Converts a dictionary with annotation data obtained from the SC /annotations
+rest endpoint into an annotation scene</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>response_dict</strong> – Dictionary containing the annotation data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>AnnotationScene object corresponding to the data in the response_dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sc_api_tools.rest_managers.annotation_manager.nous_annotation_manager">
+<span id="sc-api-tools-rest-managers-annotation-manager-nous-annotation-manager-module"></span><h2>sc_api_tools.rest_managers.annotation_manager.nous_annotation_manager module<a class="headerlink" href="#module-sc_api_tools.rest_managers.annotation_manager.nous_annotation_manager" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.nous_annotation_manager.NOUSAnnotationManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_managers.annotation_manager.nous_annotation_manager.</span></span><span class="sig-name descname"><span class="pre">NOUSAnnotationManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_reader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.AnnotationReaderType</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.nous_annotation_manager.NOUSAnnotationManager" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager" title="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">sc_api_tools.annotation_readers.nous_annotation_reader.NOUSAnnotationReader</span></code>]</p>
+<p>Class to up- or download annotations for images or videos to an existing project.
+The purpose of this class is to handle annotation upload for annotations in
+exported NOUS projects</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.nous_annotation_manager.NOUSAnnotationManager.upload_annotations_for_video">
+<span class="sig-name descname"><span class="pre">upload_annotations_for_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.nous_annotation_manager.NOUSAnnotationManager.upload_annotations_for_video" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads annotations for a video. If append_annotations is set to True,
+annotations will be appended to the existing annotations for the video in the
+project. If set to False, existing annotations will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video</strong> – Video to upload annotations for</p></li>
+<li><p><strong>append_annotations</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sc_api_tools.rest_managers.annotation_manager">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sc_api_tools.rest_managers.annotation_manager" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.AnnotationManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_managers.annotation_manager.</span></span><span class="sig-name descname"><span class="pre">AnnotationManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_reader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.AnnotationReaderType</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.AnnotationManager" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.BaseAnnotationManager" title="sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.BaseAnnotationManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.BaseAnnotationManager</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.AnnotationReaderType</span></code>]</p>
+<p>Class to up- or download annotations for images or videos to an existing project</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.AnnotationManager.get_latest_annotations_for_video">
+<span class="sig-name descname"><span class="pre">get_latest_annotations_for_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id11" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.AnnotationManager.get_latest_annotations_for_video" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve all latest annotations for a video from the cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>video</strong> – Video to get the annotations for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of AnnotationScene’s, each entry corresponds to an
+AnnotationScene for a single frame in the video</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.AnnotationManager.upload_annotations_for_video">
+<span class="sig-name descname"><span class="pre">upload_annotations_for_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.AnnotationManager.upload_annotations_for_video" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads annotations for a video. If append_annotations is set to True,
+annotations will be appended to the existing annotations for the video in the
+project. If set to False, existing annotations will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video</strong> – Video to upload annotations for</p></li>
+<li><p><strong>append_annotations</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.AnnotationManager.upload_annotations_for_videos">
+<span class="sig-name descname"><span class="pre">upload_annotations_for_videos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">videos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.AnnotationManager.upload_annotations_for_videos" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads annotations for a list of videos. If append_annotations is set to True,
+annotations will be appended to the existing annotations for the video in the
+project. If set to False, existing annotations will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>videos</strong> – List of videos to upload annotations for</p></li>
+<li><p><strong>append_annotations</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.AnnotationManager.upload_annotations_for_images">
+<span class="sig-name descname"><span class="pre">upload_annotations_for_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.AnnotationManager.upload_annotations_for_images" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads annotations for a list of images. If append_annotations is set to True,
+annotations will be appended to the existing annotations for the image in the
+project. If set to False, existing annotations will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>images</strong> – List of images to upload annotations for</p></li>
+<li><p><strong>append_annotations</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.AnnotationManager.download_annotations_for_video">
+<span class="sig-name descname"><span class="pre">download_annotations_for_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_video_uid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.AnnotationManager.download_annotations_for_video" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads video annotations from the server to a target folder on disk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video</strong> – Video for which to download the annotations</p></li>
+<li><p><strong>path_to_folder</strong> – Folder to save the annotations to</p></li>
+<li><p><strong>append_video_uid</strong> – True to append the UID of the video to the
+annotation filename (separated from the original filename by an underscore,
+i.e. ‘{filename}_{media_id}’). This can be useful if the project contains
+videos with duplicate filenames. If left as False, the video filename and
+frame index for the annotation are used as filename for the downloaded
+annotation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the time elapsed to download the annotations, in seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.AnnotationManager.download_annotations_for_images">
+<span class="sig-name descname"><span class="pre">download_annotations_for_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_image_uid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.AnnotationManager.download_annotations_for_images" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads image annotations from the server to a target folder on disk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>images</strong> – List of images for which to download the annotations</p></li>
+<li><p><strong>path_to_folder</strong> – Folder to save the annotations to</p></li>
+<li><p><strong>append_image_uid</strong> – <p>True to append the UID of the image to the
+annotation filename (separated from the original filename by an underscore,</p>
+<blockquote>
+<div><p>i.e. ‘{filename}_{media_id}’). This can be useful if the project contains
+images with duplicate filenames. If left as False, the image filename is
+used as filename for the downloaded annotation as well.</p>
+</div></blockquote>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns the time elapsed to download the annotations, in seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.AnnotationManager.download_annotations_for_videos">
+<span class="sig-name descname"><span class="pre">download_annotations_for_videos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">videos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.containers.html#sc_api_tools.data_models.containers.media_list.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_video_uid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.AnnotationManager.download_annotations_for_videos" title="Permalink to this definition"></a></dt>
+<dd><p>Downloads annotations for a list of videos from the server to a target folder
+on disk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>videos</strong> – List of videos for which to download the annotations</p></li>
+<li><p><strong>path_to_folder</strong> – Folder to save the annotations to</p></li>
+<li><p><strong>append_video_uid</strong> – True to append the UID of the video to the
+annotation filename (separated from the original filename by an underscore,
+i.e. ‘{filename}_{media_id}’). This can be useful if the project contains
+videos with duplicate filenames. If left as False, the video filename and
+frame index for the annotation are used as filename for the downloaded
+annotation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Time elapsed to download the annotations, in seconds</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.AnnotationManager.download_all_annotations">
+<span class="sig-name descname"><span class="pre">download_all_annotations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.AnnotationManager.download_all_annotations" title="Permalink to this definition"></a></dt>
+<dd><p>Donwnloads all annotations for the project to a target folder on disk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_to_folder</strong> – Folder to save the annotations to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.AnnotationManager.upload_annotations_for_all_media">
+<span class="sig-name descname"><span class="pre">upload_annotations_for_all_media</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">append_annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.AnnotationManager.upload_annotations_for_all_media" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads annotations for all media in the project, If append_annotations is set
+to True, annotations will be appended to the existing annotations for the
+media on the server. If set to False, existing annotations will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>append_annotations</strong> – True to append annotations from the local disk to
+the existing annotations on the server, False to overwrite the server
+annotations by those on the local disk. Defaults to True</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.AnnotationManager.upload_annotation">
+<span class="sig-name descname"><span class="pre">upload_annotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">media_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#id132" title="sc_api_tools.data_models.media.VideoFrame"><span class="pre">sc_api_tools.data_models.media.VideoFrame</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_scene</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id11" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#id11" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.AnnotationManager.upload_annotation" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads an annotation for an image or video frame to the SC cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>media_item</strong> – Image or VideoFrame to apply and upload the annotation to</p></li>
+<li><p><strong>annotation_scene</strong> – AnnotationScene to upload</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The uploaded annotation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.AnnotationManager.get_annotation">
+<span class="sig-name descname"><span class="pre">get_annotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">media_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id121" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#id132" title="sc_api_tools.data_models.media.VideoFrame"><span class="pre">sc_api_tools.data_models.media.VideoFrame</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#id11" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.AnnotationManager.get_annotation" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve the latest annotations for an image or video frame from the SC cluster
+If no annotation is available, this method returns None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>media_item</strong> – Image or VideoFrame to retrieve the annotations for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>AnnotationScene instance containing the latest annotation data</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.NOUSAnnotationManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_managers.annotation_manager.</span></span><span class="sig-name descname"><span class="pre">NOUSAnnotationManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id236" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_reader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">sc_api_tools.rest_managers.annotation_manager.base_annotation_manager.AnnotationReaderType</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.NOUSAnnotationManager" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager" title="sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">sc_api_tools.rest_managers.annotation_manager.annotation_manager.AnnotationManager</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">sc_api_tools.annotation_readers.nous_annotation_reader.NOUSAnnotationReader</span></code>]</p>
+<p>Class to up- or download annotations for images or videos to an existing project.
+The purpose of this class is to handle annotation upload for annotations in
+exported NOUS projects</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.annotation_manager.NOUSAnnotationManager.upload_annotations_for_video">
+<span class="sig-name descname"><span class="pre">upload_annotations_for_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#id126" title="sc_api_tools.data_models.media.Video"><span class="pre">sc_api_tools.data_models.media.Video</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">append_annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.annotation_manager.NOUSAnnotationManager.upload_annotations_for_video" title="Permalink to this definition"></a></dt>
+<dd><p>Uploads annotations for a video. If append_annotations is set to True,
+annotations will be appended to the existing annotations for the video in the
+project. If set to False, existing annotations will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video</strong> – Video to upload annotations for</p></li>
+<li><p><strong>append_annotations</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Ludo Cornelissen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
