@@ -81,9 +81,10 @@
              
   <span class="target" id="module-sc_api_tools"></span><section id="sonomacreek-sdk">
 <h1>SonomaCreek SDK<a class="headerlink" href="#sonomacreek-sdk" title="Permalink to this headline"></a></h1>
-<p>Welcome to the documentation for the SonomaCreek REST SDK! These pages contain the documentation
-for the main SDK class, <a class="reference internal" href="#sc_api_tools.sc_rest_client.SCRESTClient" title="sc_api_tools.sc_rest_client.SCRESTClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCRESTClient</span></code></a>, as well
-as for the subpackages in the SDK.</p>
+<p>Welcome to the documentation for the SonomaCreek REST SDK! These pages contain the
+documentation for the main SDK class,
+<a class="reference internal" href="#sc_api_tools.sc_rest_client.SCRESTClient" title="sc_api_tools.sc_rest_client.SCRESTClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCRESTClient</span></code></a>, as well as for the subpackages
+in the SDK.</p>
 <p>The <a class="reference internal" href="#sc_api_tools.sc_rest_client.SCRESTClient" title="sc_api_tools.sc_rest_client.SCRESTClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCRESTClient</span></code></a> class implements convenience
 methods for common operations that can be performed on the SC cluster, such as
 creating a project from a pre-existing dataset, downloading or uploading a project,
@@ -142,8 +143,8 @@ folder will be:</p>
 <dt>annotations</dt><dd><p>Directory holding all annotations in the project, in .json format</p>
 </dd>
 <dt>predictions</dt><dd><p>Directory holding all predictions in the project, in .json format. If
-available, this will include saliency maps in .jpeg format. Only created if
-<cite>include_predictions=True</cite></p>
+available, this will include saliency maps in .jpeg format. Only
+created if <cite>include_predictions=True</cite></p>
 </dd>
 <dt>models</dt><dd><p>Folder containing the active model for the project. This folder contains
 zip files holding the data for the active models for the tasks in the
@@ -154,8 +155,8 @@ downloaded if <cite>include_active_models = True</cite>.</p>
 local inference. The deployment is only created if
 <cite>include_deployment = True</cite>.</p>
 </dd>
-<dt>project.json</dt><dd><p>File containing the project parameters, that can be used to re-create the
-project.</p>
+<dt>project.json</dt><dd><p>File containing the project parameters, that can be used to re-create
+the project.</p>
 </dd>
 <dt>configuration.json</dt><dd><p>File containing the configurable parameters for the active models in the
 project</p>

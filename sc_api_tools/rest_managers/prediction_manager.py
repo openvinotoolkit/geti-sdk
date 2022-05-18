@@ -462,7 +462,7 @@ class PredictionManager:
             msg = f"Downloaded {download_count} predictions to folder " \
                   f"{path_to_predictions_folder} in {t_elapsed:.1f} seconds."
         else:
-            msg = f"No predictions were downloaded."
+            msg = "No predictions were downloaded."
         if skip_count > 0:
             msg = msg + f" Was unable to retrieve predictions for {skip_count} " \
                         f"{media_name_plural}, these {media_name_plural} were skipped."

@@ -27,7 +27,7 @@ if __name__ == "__main__":
     # Dataset configuration
     NUMBER_OF_IMAGES_TO_UPLOAD = 75
     NUMBER_OF_IMAGES_TO_ANNOTATE = 50
-    
+
     # Labels to filter the dataset on. Only images containing this object will be
     # uploaded and annotated. Multiple labels can be passed, and the way the dataset
     # is filtered can be configured. See the 'Create annotation reader' section below

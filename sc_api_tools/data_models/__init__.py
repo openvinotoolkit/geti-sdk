@@ -172,6 +172,7 @@ __all__ = [
     "MediaItem",
     "MediaType",
     "Annotation",
+    "AnnotationScene",
     "Algorithm",
     "ScoredLabel",
     "VideoFrame",

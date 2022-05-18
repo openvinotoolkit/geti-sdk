@@ -11,4 +11,4 @@ class TestSCSession:
         Test that the 'version' attribute of the session is assigned a valid product
         version
         """
-        assert fxt_sc_session.version in ['1.0', '1.1']
+        assert fxt_sc_session.version[0:3] in ['1.0', '1.1', '1.2']

@@ -1,5 +1,5 @@
 from json import JSONDecodeError
-from typing import Dict, Optional, Union, Any
+from typing import Dict, Optional, Union
 
 import requests
 import urllib3
@@ -39,13 +39,13 @@ class SCSession(requests.Session):
             # http hosts should include port number in REST request
             if cluster_config.host.count(":") != 2:
                 raise ValueError(
-                    f"Please add a port number to the hostname, for "
-                    f"example: http://10.0.0.1:5001"
+                    "Please add a port number to the hostname, for "
+                    "example: http://10.0.0.1:5001"
                 )
         else:
             raise ValueError(
-                f"Please use a full hostname, including the protocol for http "
-                f"servers. For example: https://10.0.0.1"
+                "Please use a full hostname, including the protocol for http "
+                "servers. For example: https://10.0.0.1"
             )
         self._product_info = self.get_rest_response('/product_info', 'GET')
 
@@ -56,11 +56,8 @@ class SCSession(requests.Session):
 
         :return: string holding the SC version number
         """
-        version = self._product_info.get('product-version', '1.0')
-        if version.startswith('1.1.'):
-            return '1.1'
-        else:
-            return '1.0'
+        version_string = self._product_info.get('product-version', '1.0.0-')
+        return version_string.split('-')[0]
 
     def _follow_login_redirects(self, response: Response) -> str:
         """

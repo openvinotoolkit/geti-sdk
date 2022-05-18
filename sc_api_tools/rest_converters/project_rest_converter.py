@@ -28,7 +28,6 @@ class ProjectRESTConverter:
                 connection.update({"from_": from_})
         return deserialize_dictionary(prepared_project, output_type=Project)
 
-
     @classmethod
     def to_dict(cls, project: Project) -> Dict[str, Any]:
         """

@@ -210,7 +210,8 @@ def get_coco_dataset_from_path(
     image_url = f'http://images.cocodataset.org/zips/{str(found_subset)}.zip'
     annotations_name = found_subset.get_annotations()
     if annotations_name is not None:
-        annotations_url = f'http://images.cocodataset.org/annotations/annotations_{annotations_name}.zip'
+        annotations_url = f'http://images.cocodataset.org/annotations/' \
+                          f'annotations_{annotations_name}.zip'
     else:
         if verbose:
             print(

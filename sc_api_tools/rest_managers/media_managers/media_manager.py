@@ -1,7 +1,15 @@
 import os
 import time
-from typing import Dict, List, Type, Any, Generic, ClassVar, BinaryIO, Iterable, \
+from typing import (
+    Dict,
+    List,
+    Type,
+    Any,
+    Generic,
+    ClassVar,
+    BinaryIO,
     Sequence
+)
 from glob import glob
 
 from sc_api_tools.data_models import (
@@ -119,7 +127,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
             media_list = MediaList(media_list)
         if media_list.media_type == VideoFrame:
             raise ValueError(
-                f"Unable to delete individual video frames."
+                "Unable to delete individual video frames."
             )
         print(
             f"Deleting {len(media_list)} {self.plural_media_name} from project "

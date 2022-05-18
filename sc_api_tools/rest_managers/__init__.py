@@ -28,10 +28,14 @@ snippet can be used:
      host="https://0.0.0.0", username="dummy_user", password="dummy_password"
    )
 
-   project_manager = ProjectManager(session=client.session, workspace_id=client.workspace_id)
+   project_manager = ProjectManager(
+       session=client.session, workspace_id=client.workspace_id
+   )
    project = project_manager.get_project_by_name(project_name='dummy_project')
 
-   image_manager = ImageManager(session=client.session, workspace_id=client.workspace_id, project=project)
+   image_manager = ImageManager(
+       session=client.session, workspace_id=client.workspace_id, project=project
+   )
    image_manager.get_all_images()
 
 Module contents

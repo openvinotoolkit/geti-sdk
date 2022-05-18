@@ -121,6 +121,7 @@ def str_to_enum_converter_by_name_or_value(
             )
     return _converter
 
+
 def str_to_task_type(task_type: Union[str, TaskType]) -> TaskType:
     """
     Converts an input string to a task type
@@ -160,7 +161,9 @@ def str_to_shape_type(shape_type: Union[str, ShapeType]) -> ShapeType:
         return shape_type
 
 
-def str_to_annotation_kind(annotation_kind: Union[str, AnnotationKind]) -> AnnotationKind:
+def str_to_annotation_kind(
+        annotation_kind: Union[str, AnnotationKind]
+) -> AnnotationKind:
     """
     Converts an input string to an annotation kind
 

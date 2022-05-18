@@ -2,7 +2,7 @@ from typing import Optional, Union, ClassVar, List, Dict, Any
 
 import attr
 
-from sc_api_tools.data_models import Algorithm, Project
+from sc_api_tools.data_models import Algorithm
 from sc_api_tools.data_models.configurable_parameter_group import (
     ParameterGroup,
     PARAMETER_TYPES

@@ -1,10 +1,7 @@
 import json
 import os
 import time
-import warnings
 from typing import List, Union, Optional, Dict, Any, TypeVar, Type
-
-from requests import Response
 
 from sc_api_tools.annotation_readers import AnnotationReader
 from sc_api_tools.data_models import (
@@ -14,7 +11,7 @@ from sc_api_tools.data_models import (
     VideoFrame,
     AnnotationScene, AnnotationKind
 )
-from sc_api_tools.data_models.containers.media_list import MediaTypeVar, MediaList
+from sc_api_tools.data_models.containers.media_list import MediaList
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import AnnotationRESTConverter
 
@@ -59,8 +56,8 @@ class BaseAnnotationManager:
         else:
             raise ValueError(f"Invalid media type specified: {media_type}.")
         get_media_url = f"workspaces/{self.workspace_id}/projects/{self._project.id}" \
-                    f"/datasets/{self._project.datasets[0].id}/media/" \
-                    f"{media_name}?top=100000"
+                        f"/datasets/{self._project.datasets[0].id}/media/" \
+                        f"{media_name}?top=100000"
         response = self.session.get_rest_response(
             url=get_media_url,
             method="GET"
@@ -262,7 +259,7 @@ class BaseAnnotationManager:
 
         :param media_item: MediaItem to read the annotation for
         :return: Dictionary containing the annotation, in SC format
-        """            
+        """
         annotation_list = self.annotation_reader.get_data(
             filename=media_item.name,
             label_name_to_id_mapping=self.label_mapping,
@@ -371,7 +368,7 @@ class BaseAnnotationManager:
             msg = f"Downloaded {download_count} annotations to folder " \
                   f"{path_to_annotations_folder} in {t_elapsed:.1f} seconds."
         else:
-            msg = f"No annotations were downloaded."
+            msg = "No annotations were downloaded."
         if skip_count > 0:
             msg = msg + f" Was unable to retrieve annotations for {skip_count} " \
                         f"{media_name_plural}, these {media_name_plural} were skipped."

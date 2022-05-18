@@ -4,6 +4,7 @@ from typing import List
 with open("README.md", "r", encoding="utf-8") as readme_file:
     LONG_DESCRIPTION = readme_file.read()
 
+
 def get_requirements(filename: str) -> List[str]:
     """
     Gets the required packages from the `filename` specified
@@ -15,6 +16,7 @@ def get_requirements(filename: str) -> List[str]:
             if requirement and not requirement.startswith(('#', '-f')):
                 required_packages.append(requirement)
     return required_packages
+
 
 with open("sc_api_tools/__init__.py", 'r', encoding="utf-8") as init_file:
     for line in init_file:

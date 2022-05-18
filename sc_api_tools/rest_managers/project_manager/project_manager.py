@@ -1,7 +1,7 @@
 import copy
 import json
 import os
-from typing import Optional, List, Dict, Any, Union, Tuple, Sequence, Mapping
+from typing import Optional, List, Dict, Any, Union, Tuple
 
 from sc_api_tools.data_models import Project, TaskType, Task
 from sc_api_tools.http_session import SCSession
@@ -296,7 +296,7 @@ class ProjectManager:
         except json.decoder.JSONDecodeError:
             return False
         try:
-            project = ProjectRESTConverter.from_dict(project_data)
+            ProjectRESTConverter.from_dict(project_data)
         except (ValueError, TypeError, KeyError):
             return False
         return True
@@ -542,4 +542,3 @@ class ProjectManager:
                 data=project_data
             )
         return ProjectRESTConverter.from_dict(response)
-

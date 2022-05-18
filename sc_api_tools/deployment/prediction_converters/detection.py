@@ -26,7 +26,7 @@ def convert_detection_output(
     """
     annotations: List[Annotation] = []
     empty_label = next((label for label in labels if label.is_empty), None)
-    if len(labels) == 0:
+    if len(model_output) == 0:
         if empty_label is not None:
             return Prediction(
                 annotations=[
@@ -38,9 +38,9 @@ def convert_detection_output(
             )
         else:
             raise ValueError(
-                f"Received empty model output, but no empty label was available to "
-                f"assign. Please include the empty label in the list of available "
-                f"labels."
+                "Received empty model output, but no empty label was available to "
+                "assign. Please include the empty label in the list of available "
+                "labels."
             )
     if empty_label is not None:
         labels.pop(labels.index(empty_label))

@@ -3,8 +3,8 @@ Introduction
 ------------
 
 The `annotation_readers` package contains the
-:py:class:`~sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader` base
-class, which provides an interface for implementing custom annotation readers.
+:py:class:`~sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader`
+base class, which provides an interface for implementing custom annotation readers.
 
 Annotation readers server to load annotation files in custom formats and convert them
 to SC format, such that they can be uploaded to an SC project.

@@ -102,7 +102,8 @@ class ProjectStatus:
     n_required_annotations: int
     status: StatusSummary
     tasks: List[TaskStatus]
-    project_score: Optional[float] = None  # 'project_score' is deprecated in v1.1, replaced by project_performance
+    project_score: Optional[float] = None
+    # 'project_score' is deprecated in v1.1, replaced by project_performance
     project_performance: Optional[Performance] = None
     n_running_jobs: Optional[int] = None
     n_running_jobs_project: Optional[int] = None

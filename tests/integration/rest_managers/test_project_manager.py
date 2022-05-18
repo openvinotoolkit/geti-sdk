@@ -52,7 +52,8 @@ class TestProjectManager:
             labels=[['none']]
         )
         assert project_get_or_create.name == project.name
-        assert project_get_or_create.get_trainable_tasks()[0].task_type == TaskType.CLASSIFICATION
+        project_task = project_get_or_create.get_trainable_tasks()[0]
+        assert project_task.task_type == TaskType.CLASSIFICATION
 
         project_manager.delete_project(project, requires_confirmation=False)
         assert project_manager.get_project_by_name(project.name) is None

@@ -2,9 +2,10 @@
 SonomaCreek SDK
 ===============
 
-Welcome to the documentation for the SonomaCreek REST SDK! These pages contain the documentation
-for the main SDK class, :py:class:`~sc_api_tools.sc_rest_client.SCRESTClient`, as well
-as for the subpackages in the SDK.
+Welcome to the documentation for the SonomaCreek REST SDK! These pages contain the
+documentation for the main SDK class,
+:py:class:`~sc_api_tools.sc_rest_client.SCRESTClient`, as well as for the subpackages
+in the SDK.
 
 The :py:class:`~sc_api_tools.sc_rest_client.SCRESTClient` class implements convenience
 methods for common operations that can be performed on the SC cluster, such as

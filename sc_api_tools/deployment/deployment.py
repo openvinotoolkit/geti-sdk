@@ -174,9 +174,9 @@ class Deployment:
             elif task.is_trainable:
                 if rois is None or image_views is None or intermediate_result is None:
                     raise NotImplementedError(
-                        f"Unable to run inference for the pipeline in the deployed "
-                        f"project: A flow control task is required between each "
-                        f"trainable task in the pipeline."
+                        "Unable to run inference for the pipeline in the deployed "
+                        "project: A flow control task is required between each "
+                        "trainable task in the pipeline."
                     )
                 new_rois: List[ROI] = []
                 for roi, view in zip(rois, image_views):

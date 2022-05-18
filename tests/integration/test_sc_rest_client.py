@@ -1,6 +1,7 @@
 import os
 import time
-from typing import List, Optional
+from typing import List
+import numpy as np
 
 import cv2
 import pytest
@@ -9,7 +10,6 @@ from _pytest.fixtures import FixtureRequest
 from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers import DatumAnnotationReader
 from sc_api_tools.data_models import Project, Prediction
-from sc_api_tools.data_models.enums import JobState
 from sc_api_tools.rest_managers import ImageManager, AnnotationManager
 
 from tests.helpers import (
@@ -285,6 +285,8 @@ class TestSCRESTClient:
             visualise_output=False
         )
 
-        assert online_prediction.as_mask(
-            image.media_information
-        ) == local_prediction.as_mask(image.media_information)
+        online_mask = online_prediction.as_mask(image.media_information)
+        local_mask = local_prediction.as_mask(image.media_information)
+
+        assert online_mask.shape == local_mask.shape
+        assert np.all(local_mask == online_mask)

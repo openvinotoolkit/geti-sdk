@@ -1,13 +1,10 @@
 """
 NOUS2SC Migration Script
 
-This script is a reference for demonstrating how to migrate a NOUS project export 
+This script is a reference for demonstrating how to migrate a NOUS project export
 to an instance of Sonoma Creek.
 
-It uses the SC API script from
-https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools
-
-A customised NOUSAnnotationReader and NOUSAnnotationManager have been added 
+A customised NOUSAnnotationReader and NOUSAnnotationManager have been added
 
 NOTE:
 
@@ -212,8 +209,10 @@ def migrate_nous_chain(
     rect: [x,y,w,h]
       labels:['person', 'hat']
 
-    From this information alone it is NOT possible to know which label is for the Det task or Class task.
-    Therefore, when migrating a chain from NOUS to SC we need to provide which labels belong to which task.
+    From this information alone it is NOT possible to know which label is for the Det
+    task or Class task.
+    Therefore, when migrating a chain from NOUS to SC we need to provide which labels
+    belong to which task.
 
     Example:
     migrate_nous_chain(client,
@@ -311,7 +310,8 @@ def migrate_nous_chain(
 
     # Now process the second task
     # Filter on the second task labels
-    # Upload with the append_annotations option to 'add' second task annotation to the first
+    # Upload with the append_annotations option to 'add' second task annotation to
+    # the first
 
     # Set annotation reader task type
     annotation_readers_per_task[1].task_type = project.get_trainable_tasks()[1].type
@@ -368,7 +368,8 @@ def build_argparser():
     )
     args.add_argument(
         "-ct", "--chain_task", required=False, nargs='+',
-        help='Optional. Tasks used for chain project. Format: -tc detection segmentation'
+        help='Optional. Tasks used for chain project. '
+             'Format: -tc detection segmentation'
     )
     args.add_argument(
         "-l", "--labels", required=False, nargs='+',

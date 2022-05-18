@@ -20,7 +20,7 @@ try:
     from openvino.model_zoo.model_api.models.classification import Classification
     from openvino.model_zoo.model_api.models.types import BooleanValue
     from openvino.model_zoo.model_api.models.utils import pad_image
-except ImportError as e:
+except ImportError:
     import warnings
     warnings.warn("ModelAPI was not found.")
 
@@ -80,7 +80,9 @@ def get_multiclass_predictions(logits: np.ndarray, activate: bool = True):
     return [(index, logits[index])]
 
 
-def get_multilabel_predictions(logits: np.ndarray, pos_thr: float = 0.5, activate: bool = True):
+def get_multilabel_predictions(
+        logits: np.ndarray, pos_thr: float = 0.5, activate: bool = True
+):
     if activate:
         logits = sigmoid_numpy(logits)
     scores = []

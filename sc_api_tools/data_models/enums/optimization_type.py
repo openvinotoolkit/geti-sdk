@@ -9,7 +9,6 @@ class OptimizationType(Enum):
     POT = 'POT'
     MO = 'MO'
 
-
     def __str__(self) -> str:
         """
         Returns the string representation of the OptimizationType instance

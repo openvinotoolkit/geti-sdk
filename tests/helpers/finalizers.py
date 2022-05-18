@@ -15,7 +15,7 @@ def force_delete_project(project_name: str, project_manager: ProjectManager) -> 
         project_manager.delete_project(
             project=project_name, requires_confirmation=False
         )
-    except TypeError as error:
+    except TypeError:
         print(
             f"Project {project_name} was not found on the server, it was most "
             f"likely already deleted."

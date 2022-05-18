@@ -70,7 +70,7 @@ class TaskType(Enum):
         return self in SEGMENTATION_TASK_TYPES
 
     @classmethod
-    def from_domain(cls, domain: 'Domain'):
+    def from_domain(cls, domain):
         """
         Instantiates a :py:class:`~sc_api_tools.data_models.enums.task_type.TaskType`
         from a given :py:class:`~sc_api_tools.data_models.enums.domain.Domain`

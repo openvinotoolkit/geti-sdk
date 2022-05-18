@@ -33,7 +33,9 @@ class BlurSegmentation(SegmentationModel):
         parameters = super().parameters()
         parameters.update({
             'soft_threshold': NumericalValue(default_value=0.5, min=0.0, max=1.0),
-            'blur_strength': NumericalValue(value_type=int, default_value=1, min=0, max=25)
+            'blur_strength': NumericalValue(
+                value_type=int, default_value=1, min=0, max=25
+            )
         })
 
         return parameters

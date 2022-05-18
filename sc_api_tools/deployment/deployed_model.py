@@ -56,25 +56,9 @@ class DeployedModel(OptimizedModel):
                 with zipfile.ZipFile(source, 'r') as zipped_source_model:
                     zipped_source_model.extractall(model_dir)
 
-                # Unzip the python wheel to get the model config.json
-                python_dir = os.path.join(model_dir, 'python')
-                wheel_path = glob.glob(os.path.join(python_dir, '*.whl'))[0]
-                unzipped_wheel_dir = os.path.join(python_dir, 'unzipped_wheel')
-                with zipfile.ZipFile(wheel_path, 'r') as zipped_wheel:
-                    zipped_wheel.extractall(unzipped_wheel_dir)
-                config_path = glob.glob(
-                    os.path.join(unzipped_wheel_dir, '**', 'config.json'),
-                    recursive=True
-                )
-                if config_path:
-                    shutil.copyfile(
-                        src=config_path[0],
-                        dst=os.path.join(model_dir, 'model', 'config.json')
-                    )
-                shutil.rmtree(unzipped_wheel_dir)
-
                 self._model_data_path = os.path.join(model_dir, 'model')
                 self.get_data(self._model_data_path)
+
             elif os.path.isdir(source):
                 if 'model' in os.listdir(source):
                     source = os.path.join(source, 'model')
@@ -310,8 +294,8 @@ class DeployedModel(OptimizedModel):
             metadata: Optional[Dict[str, Any]] = None
     ) -> Union[
             np.ndarray,
-            'openvino.model_zoo.model_api.models.utils.Detection',
-            List[Tuple[int, float]]
+            List[Tuple[int, float]],
+            Any
     ]:
         """
         Postprocesses model outputs
@@ -319,7 +303,13 @@ class DeployedModel(OptimizedModel):
         :param inference_results: Dictionary holding the results of inference
         :param metadata: Dictionary holding metadata
         :return: Postprocessed inference results. The exact format depends on the
-            type of model that is loaded.
+            type of model that is loaded:
+            * For segmentation models, it will be a numpy array holding the output mask
+            * For classification models, it will be a list of tuples holding the
+                output class index and class probability
+            * For detection models, it will be an instance of
+                `openvino.model_zoo.model_api.models.utils.Detection`, holding the
+                bounding box output
         """
         return self._inference_model.postprocess(inference_results, meta=metadata)
 

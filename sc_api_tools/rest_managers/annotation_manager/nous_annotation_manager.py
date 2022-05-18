@@ -78,7 +78,7 @@ class NOUSAnnotationManager(AnnotationManager[NOUSAnnotationReader]):
 
         :param media_item: MediaItem to read the annotation for
         :return: Dictionary containing the annotation, in SC format
-        """            
+        """
         if hasattr(media_item, 'parent_video_file'):
             filename = media_item.parent_video_file
         else:

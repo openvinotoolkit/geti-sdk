@@ -116,7 +116,8 @@ def convert_segmentation_output(
                     # In this case a contour does not represent a hole
                     contour = list((point[0][0], point[0][1]) for point in contour)
 
-                    # Split contour into subcontours that do not have self intersections.
+                    # Split contour into subcontours that do not have self
+                    # intersections.
                     subcontours = get_subcontours(contour)
 
                     for subcontour in subcontours:
@@ -152,9 +153,9 @@ def convert_segmentation_output(
                         else:
                             # Contour is a closed polygon with area == 0
                             warnings.warn(
-                                "The geometry of the segmentation map you are converting "
-                                "is not fully supported. Polygons with a area of zero "
-                                "will be removed.",
+                                "The geometry of the segmentation map you are "
+                                "converting is not fully supported. Polygons with a "
+                                "area of zero will be removed.",
                                 UserWarning,
                             )
                 else:

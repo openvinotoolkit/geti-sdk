@@ -16,8 +16,11 @@ from sc_api_tools.data_models.enums.configuration_enums import (
     ParameterDataType,
     ParameterInputType
 )
-from sc_api_tools.data_models.utils import str_to_enum_converter, attr_value_serializer, \
-    deidentify
+from sc_api_tools.data_models.utils import (
+    str_to_enum_converter,
+    attr_value_serializer,
+    deidentify,
+)
 
 PARAMETER_TYPES = Union[
     SelectableFloat,

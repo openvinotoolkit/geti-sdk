@@ -24,7 +24,7 @@ class OptimizationCapabilities:
     Class representing model optimization capabilities in SC
     """
     is_nncf_supported: bool
-    is_filter_pruning_enabled: Optional[bool] = None #  deprecated in v1.1
+    is_filter_pruning_enabled: Optional[bool] = None  # deprecated in v1.1
     is_filter_pruning_supported: Optional[bool] = None
 
 
@@ -177,7 +177,8 @@ class Model(BaseModel):
     score_up_to_date: bool = attr.ib(kw_only=True)
     optimization_capabilities: OptimizationCapabilities = attr.ib(kw_only=True)
     optimized_models: List[OptimizedModel] = attr.ib(kw_only=True)
-    version: Optional[int] = attr.ib(default=None, kw_only=True)  # 'version' is deprecated in v1.1
+    version: Optional[int] = attr.ib(default=None, kw_only=True)
+    # 'version' is deprecated in v1.1
 
     @property
     def model_group_id(self) -> Optional[str]:

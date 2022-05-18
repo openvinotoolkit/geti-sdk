@@ -1,4 +1,3 @@
-import copy
 from pprint import pformat
 from typing import Union, Optional, Dict, Any, List, ClassVar
 
@@ -95,7 +94,7 @@ class ConfigurableBoolean(ConfigurableParameter):
     """
     Class representing a configurable boolean in SC
     """
-    default_value: Optional[bool] = attr.ib(default=None,kw_only=True)
+    default_value: Optional[bool] = attr.ib(default=None, kw_only=True)
     value: bool = attr.ib(kw_only=True)
 
 

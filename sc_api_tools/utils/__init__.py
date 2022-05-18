@@ -13,7 +13,10 @@ from .label_helpers import generate_segmentation_labels, generate_classification
 from .workspace_helpers import get_default_workspace_id
 from .project_helpers import get_task_types_by_project_type
 from .data_download_helpers import get_coco_dataset
-from .plot_helpers import show_image_with_annotation_scene, show_video_frames_with_annotation_scenes
+from .plot_helpers import (
+    show_image_with_annotation_scene,
+    show_video_frames_with_annotation_scenes
+)
 from .algorithm_helpers import get_supported_algorithms
 from .serialization_helpers import deserialize_dictionary
 

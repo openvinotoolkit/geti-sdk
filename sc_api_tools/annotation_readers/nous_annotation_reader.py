@@ -45,9 +45,10 @@ class NOUSAnnotationReader(AnnotationReader):
         return label
 
     def get_all_label_names(self):
-        '''
-        Gets all the NOUS labels in a project and removes labels that contain 'Empty' and Task (i.e. 'detection')
-        '''
+        """
+        Gets all the NOUS labels in a project and removes labels that contain 'Empty'
+        and Task (i.e. 'detection')
+        """
         print(f"Reading annotation files in folder {self.base_folder}...")
         unique_label_names = []
         for annotation_file in os.listdir(self.base_folder):
@@ -133,9 +134,9 @@ class NOUSAnnotationReader(AnnotationReader):
         if y+height > 1:
             height = 1-y
 
-        if self.task_type == TaskType.DETECTION or \
-            self.task_type == TaskType.CLASSIFICATION or \
-            self.task_type == TaskType.SEGMENTATION:
+        if self.task_type in [
+            TaskType.DETECTION, TaskType.CLASSIFICATION, TaskType.SEGMENTATION
+        ]:
             new_shape = {
                 "type": "RECTANGLE",
                 "x": x,
@@ -249,10 +250,13 @@ class NOUSAnnotationReader(AnnotationReader):
                 shapes = entry["shapes"]
 
                 if self.label_filter is not None:
-                    #filter annotation for labels
-                    labels = [label["name"] for label in entry["labels"] if label["name"] in self.label_filter]
+                    # filter annotation for labels
+                    labels = [
+                        label["name"] for label in entry["labels"]
+                        if label["name"] in self.label_filter
+                    ]
                     if len(labels) == 0:
-                        #no labels match the filter
+                        # no labels match the filter
                         continue
                 else:
                     labels = [label["name"] for label in entry["labels"]]
@@ -276,7 +280,8 @@ class NOUSAnnotationReader(AnnotationReader):
                     )
                 elif shapes[0]["type"] == "rect":
                     geometry = shapes[0]["geometry"]
-                    x, y, w, h = geometry["x"], geometry["y"], geometry["width"], geometry["height"]
+                    x, y = geometry["x"], geometry["y"]
+                    w, h = geometry["width"], geometry["height"]
                     new_shape = self._get_new_rect(x=x, y=y, width=w, height=h)
                 else:
                     raise ValueError(

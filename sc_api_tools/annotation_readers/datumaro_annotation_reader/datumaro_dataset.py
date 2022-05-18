@@ -8,7 +8,6 @@ from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
 
 from sc_api_tools.data_models import TaskType
-from sc_api_tools.data_models.enums.task_type import GLOBAL_TASK_TYPES
 from sc_api_tools.utils import get_dict_key_from_value
 
 

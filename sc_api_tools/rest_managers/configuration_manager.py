@@ -1,6 +1,7 @@
 import json
 import os
 from typing import Union, Optional, List, Dict
+import time
 
 from sc_api_tools.data_models import (
     Project,
@@ -34,6 +35,9 @@ class ConfigurationManager:
             url=f"workspaces/{workspace_id}/projects/{project_id}/status",
             method="GET"
         )
+        # Hack: Wait for some time to make sure that the configurations are
+        # initialized properly
+        time.sleep(1)
 
     def get_task_configuration(
             self, task_id: str, algorithm_name: Optional[str] = None

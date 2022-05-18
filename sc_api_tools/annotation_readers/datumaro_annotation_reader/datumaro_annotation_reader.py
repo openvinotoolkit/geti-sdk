@@ -71,7 +71,7 @@ class DatumAnnotationReader(AnnotationReader):
         segmentation_label_map: Dict[int, str] = {}
         label_names = list(self.datum_label_map.values())
         segmentation_label_names = generate_segmentation_labels(label_names)
-        for datum_index, label_name  in self.datum_label_map.items():
+        for datum_index, label_name in self.datum_label_map.items():
             label_index = label_names.index(label_name)
             segmentation_label_map.update(
                 {datum_index: segmentation_label_names[label_index]}
@@ -143,10 +143,10 @@ class DatumAnnotationReader(AnnotationReader):
                     or preserve_shape_for_global_labels
             ):
                 if isinstance(annotation, Bbox):
-                    x1, y1 = annotation.points[0] / image_size[1], \
-                             annotation.points[1] / image_size[0]
-                    x2, y2 = annotation.points[2] / image_size[1], \
-                             annotation.points[3] / image_size[0]
+                    x1 = annotation.points[0] / image_size[1]
+                    y1 = annotation.points[1] / image_size[0]
+                    x2 = annotation.points[2] / image_size[1]
+                    y2 = annotation.points[3] / image_size[0]
                     shape = {'type': 'RECTANGLE',
                              'x': x1, 'y': y1, 'width': x2 - x1, 'height': y2 - y1}
                 elif isinstance(annotation, Polygon):

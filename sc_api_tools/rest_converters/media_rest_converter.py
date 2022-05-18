@@ -25,4 +25,3 @@ class MediaRESTConverter:
             the REST input in `input_dict`.
         """
         return deserialize_dictionary(input_dict, output_type=media_type)
-

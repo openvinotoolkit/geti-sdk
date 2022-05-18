@@ -1,7 +1,7 @@
 import glob
 import json
 import os
-from typing import List, Dict, Optional, Union
+from typing import List, Optional, Union
 
 from sc_api_tools.rest_converters import AnnotationRESTConverter
 

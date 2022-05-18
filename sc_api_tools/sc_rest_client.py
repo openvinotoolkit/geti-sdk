@@ -98,8 +98,8 @@ class SCRESTClient:
 
             predictions
                 Directory holding all predictions in the project, in .json format. If
-                available, this will include saliency maps in .jpeg format. Only created if
-                `include_predictions=True`
+                available, this will include saliency maps in .jpeg format. Only
+                created if `include_predictions=True`
 
             models
                 Folder containing the active model for the project. This folder contains
@@ -113,8 +113,8 @@ class SCRESTClient:
                 `include_deployment = True`.
 
             project.json
-                File containing the project parameters, that can be used to re-create the
-                project.
+                File containing the project parameters, that can be used to re-create
+                the project.
 
             configuration.json
                 File containing the configurable parameters for the active models in the
@@ -874,7 +874,7 @@ class SCRESTClient:
         needs_upload = True
         if isinstance(image, Image):
             if image.id in image_manager.get_all_images().ids:
-                # Image is already in the project, make sure not to delete it 
+                # Image is already in the project, make sure not to delete it
                 needs_upload = False
                 image_data = None
             else:

@@ -32,5 +32,5 @@ def generate_classification_labels(
             label_list.append({"name": label, "group": f"{label}_group"})
     else:
         for label in labels:
-            label_list.append({"name": label, "group": f"default_classification_group"})
+            label_list.append({"name": label, "group": "default_classification_group"})
     return label_list
