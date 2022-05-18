@@ -1,4 +1,30 @@
 # Examples for sc-api-tools
+
+## Getting started
+The example scripts provided here show several common usecases for the SC SDK. To run 
+the examples, simply:
+1. Install the sc-api-tools package into your python environment
+2. Create a `.env` file containing the login details for you Sonoma Creek instance, 
+   following the instructions in the [Credentials management](#credentials-management) 
+   box.
+3. In your terminal, navigate to the `examples` folder
+4. Activate your python environment
+5. Run the example script you'd like to run using `python <name_of_script.py>`
+
+> ### Credentials management
+> 
+> The example scripts rely on a `.env` file to load the login details for the SonomaCreek 
+> instance which they run against. To provide the credentials for your SC instance, 
+> create a file named `.env` directly in the `examples` directory. The file should have 
+> the following contents:
+> ```shell
+> # SonomaCreek instance details
+> HOST=
+> USERNAME=
+> PASSWORD=
+> ```
+> Where you should of course fill the details appropriate for your instance. 
+
 ## Creating a project from an existing dataset
 #### COCO/Datumaro examples
 This folder contains sample scripts to create projects based on the 

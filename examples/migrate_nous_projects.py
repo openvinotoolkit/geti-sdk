@@ -1,3 +1,5 @@
+from dotenv import dotenv_values
+
 from sc_api_tools import SCRESTClient
 
 from sc_api_tools.nous import migrate_nous_chain, migrate_nous_project
@@ -5,10 +7,20 @@ from sc_api_tools.nous import migrate_nous_chain, migrate_nous_project
 
 if __name__ == '__main__':
 
+    # Get credentials from .env file
+    env_variables = dotenv_values(dotenv_path=".env")
+
+    if not env_variables:
+        raise ValueError(
+            "Unable to load login details from .env file, please make sure the file "
+            "exists at the root of the `examples` directory."
+        )
+
+    # Set up REST client with server address and login details
     client = SCRESTClient(
-        host="https://10.211.120.60",
-        username="a@a.com",
-        password="Password1"
+        host=env_variables.get("HOST"),
+        username=env_variables.get("USERNAME"),
+        password=env_variables.get("PASSWORD")
     )
 
     migrate_nous_project(

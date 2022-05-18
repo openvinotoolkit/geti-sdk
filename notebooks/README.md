@@ -10,12 +10,30 @@ is installed, you can follow the steps below to set up the notebooks.
    
 3. Run `pip install -r requirements-notebooks.txt` to install the packages required to 
    run the notebooks
+
+4. Create a `.env` file containing the login details for you Sonoma Creek instance, 
+   following the instructions in the [Credentials management](#credentials-management) 
+   box.
+
+5. In your terminal, navigate to the `notebooks` directory and execute the command 
+   `jupyter lab`. This will fire up the jupyter server and should take you straight to 
+   the jupyter web interface.
    
-4. When the installation completes, run `jupyter lab` in your terminal. This will fire 
-   up the jupyter server and should take you straight to the jupyter web interface.
+6. The notebooks should show up in the side menu of the jupyter web interface. 
    
-5. The notebooks should show up in the side menu of the jupyter web interface. 
-   
+> ### Credentials management
+> The notebooks rely on a `.env` file to load the login details for the SonomaCreek 
+> instance which they run against. To provide the credentials for your SC instance, 
+> create a file named `.env` directly in the `notebooks` directory. The file should have 
+> the following contents:
+> ```shell
+> # SonomaCreek instance details
+> HOST=
+> USERNAME=
+> PASSWORD=
+> ```
+> Where you should of course fill the details appropriate for your instance. 
+
 ## Notebooks
 The following notebooks are currently provided:
 - [001 create_project](001_create_project.ipynb) -- This notebook shows how to create 

@@ -9,7 +9,7 @@ such as :py:class:`~sc_api_tools.data_models.project.Project`,
 on the SC cluster.
 
 All rest managers are initialized with a
-:py:class:`~sc_api_tools.http_session.sc_session.Session` and a workspace id. The
+:py:class:`~sc_api_tools.http_session.sc_session.SCSession` and a workspace id. The
 :py:class:`~sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager`
 can be initialized with just that, while all other clients are initialized
 *per project* and thus take an additional `project` argument.

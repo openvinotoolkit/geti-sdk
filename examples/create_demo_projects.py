@@ -1,3 +1,5 @@
+from dotenv import dotenv_values
+
 from sc_api_tools import SCRESTClient
 
 from demos import (
@@ -11,13 +13,23 @@ from demos import (
 from sc_api_tools.utils import get_coco_dataset
 
 if __name__ == "__main__":
+    # Get credentials from .env file
+    env_variables = dotenv_values(dotenv_path=".env")
+
+    if not env_variables:
+        raise ValueError(
+            "Unable to load login details from .env file, please make sure the file "
+            "exists at the root of the `examples` directory."
+        )
+
     # --------------------------------------------------
     # Configuration section
     # --------------------------------------------------
-
     # Set up REST client with server address and login details
     client = SCRESTClient(
-        host="https://0.0.0.0", username="dummy_user", password="dummy_password"
+        host=env_variables.get("HOST"),
+        username=env_variables.get("USERNAME"),
+        password=env_variables.get("PASSWORD")
     )
 
     # Dataset configuration
