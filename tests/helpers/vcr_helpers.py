@@ -28,7 +28,7 @@ def replace_host_name_in_cassettes(server_address: str) -> None:
 
     :param server_address: Server address to search for and replace
     """
-    host_name = server_address.strip("https://").strip("/")
+    host_name = server_address.replace("https://", "").strip("/")
     for cassette_path in glob.glob(
             os.path.join(CASSETTE_PATH, f"*.{CASSETTE_EXTENSION}")
     ):
