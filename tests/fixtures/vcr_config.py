@@ -24,7 +24,7 @@ def vcr_record_config(fxt_test_mode, fxt_server_config) -> Dict[str, Any]:
     if fxt_test_mode == SdkTestMode.RECORD:
         yield {"record_mode": RecordMode.NEW_EPISODES}
     elif fxt_test_mode == SdkTestMode.ONLINE:
-        host = fxt_server_config.host.strip("https://").strip("/")
+        host = fxt_server_config.host.replace("https://", "").strip("/")
         yield {"record_mode": RecordMode.NONE, "ignore_hosts": [host]}
     elif fxt_test_mode == SdkTestMode.OFFLINE:
         if not are_cassettes_available():
