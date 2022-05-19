@@ -20,11 +20,10 @@ jobs:
         # os: [ubuntu-latest, windows-latest]
         python-version: ['3.8']
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code using caching for Git LFS
+        uses: nschloe/action-cached-lfs-checkout@v1.1.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Pull cassettes with Git-LFS
-        uses: cresh-io/action-cached-git-lfs-pull@v1
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
