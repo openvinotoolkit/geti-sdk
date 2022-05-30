@@ -3,6 +3,8 @@
 SonomaCreek SDK documentation
 ======================================
 
+Welcome to the documentation for the SonomaCreek SDK!
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
