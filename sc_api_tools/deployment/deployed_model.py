@@ -1,7 +1,8 @@
-import glob
+import importlib.util
 import json
 import os
 import shutil
+import sys
 import tempfile
 import zipfile
 from typing import Optional, Union, Dict, Tuple, Any, List
@@ -17,7 +18,8 @@ from sc_api_tools.data_models import (
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import ConfigurationRESTConverter, ModelRESTConverter
 
-from sc_api_tools.deployment.data_models.enums import OpenvinoModelName
+MODEL_DIR_NAME = 'model'
+WRAPPER_DIR_NAME = 'model_wrappers'
 
 
 @attr.s(auto_attribs=True)
@@ -32,6 +34,8 @@ class DeployedModel(OptimizedModel):
         super().__attrs_post_init__()
         self._model_data_path: Optional[str] = None
         self._needs_tempdir_deletion: bool = False
+        self._has_custom_model_wrappers: bool = False
+        self.openvino_model_parameters: Optional[Dict[str, Any]] = None
 
     def get_data(self, source: Union[str, os.PathLike, SCSession]):
         """
@@ -56,12 +60,23 @@ class DeployedModel(OptimizedModel):
                 with zipfile.ZipFile(source, 'r') as zipped_source_model:
                     zipped_source_model.extractall(model_dir)
 
-                self._model_data_path = os.path.join(model_dir, 'model')
+                self._model_data_path = os.path.join(model_dir, MODEL_DIR_NAME)
+
+                # Check if the model includes custom model wrappers, if so include them
+                # in the data dir
+                python_path = os.path.join(model_dir, 'python')
+                if WRAPPER_DIR_NAME in os.listdir(python_path):
+                    wrappers_path = os.path.join(python_path, WRAPPER_DIR_NAME)
+                    wrappers_destination_path = os.path.join(
+                        self._model_data_path, WRAPPER_DIR_NAME
+                    )
+                    shutil.copytree(src=wrappers_path, dst=wrappers_destination_path)
+                    self._has_custom_model_wrappers = True
                 self.get_data(self._model_data_path)
 
             elif os.path.isdir(source):
-                if 'model' in os.listdir(source):
-                    source = os.path.join(source, 'model')
+                if MODEL_DIR_NAME in os.listdir(source):
+                    source = os.path.join(source, MODEL_DIR_NAME)
                 source_contents = os.listdir(source)
                 if 'model.bin' in source_contents and 'model.xml' in source_contents:
                     self._model_data_path = source
@@ -71,6 +86,8 @@ class DeployedModel(OptimizedModel):
                         f"file 'model.xml' and weights file 'model.bin' were not found "
                         f"at the path specified. "
                     )
+                if WRAPPER_DIR_NAME in source_contents:
+                    self._has_custom_model_wrappers = True
 
         elif isinstance(source, SCSession):
             if self.base_url is None:
@@ -122,12 +139,6 @@ class DeployedModel(OptimizedModel):
                 OpenvinoAdapter
             )
             from openvino.model_zoo.model_api.models import Model as OMZModel
-            from openvino.model_zoo.model_api.models import SSD, SegmentationModel
-            from sc_api_tools.deployment.model_wrappers import (
-                AnomalyClassification,
-                BlurSegmentation,
-                OteClassification,
-            )
         except ImportError as error:
             raise ValueError(
                 f"Unable to load inference model for {self}. Relevant OpenVINO "
@@ -151,6 +162,7 @@ class DeployedModel(OptimizedModel):
                 configuration_json = json.load(config_file)
             model_type = configuration_json.get("type_of_model")
             parameters = configuration_json.get("model_parameters")
+            parameters.pop("labels", None)
             if configuration is not None:
                 configuration.update(parameters)
             else:
@@ -161,37 +173,32 @@ class DeployedModel(OptimizedModel):
                 f" unable to load inference model."
             )
 
-        try:
-            model_name = OpenvinoModelName(model_type)
-        except ValueError:
-            try:
-                model_name = OpenvinoModelName[model_type]
-            except KeyError:
-                raise NotImplementedError(
-                    f"Loading inference model for model type {model_type} is currently "
-                    f"not supported. This package provides support for the following "
-                    f"model types: {[model.name for model in OpenvinoModelName]}."
-                )
-
-        # Make sure all parameters we're passing to the model wrapper are valid for
-        # the model
-        valid_model_parameters = list(
-            OMZModel.get_model(str(model_name)).parameters().keys()
-        )
-        for parameter_name in list(configuration.keys()):
-            if (
-                    parameter_name not in valid_model_parameters
-                    or parameter_name == 'labels'
-            ):
-                configuration.pop(parameter_name)
-
         # Create model wrapper with the loaded configuration
+        # First, add custom wrapper (if any) to path so that we can find it
+        if self._has_custom_model_wrappers:
+            wrapper_module_path = os.path.join(self._model_data_path, WRAPPER_DIR_NAME)
+            module_name = WRAPPER_DIR_NAME
+            try:
+                spec = importlib.util.spec_from_file_location(
+                    module_name, wrapper_module_path
+                )
+                module = importlib.util.module_from_spec(spec)
+                sys.modules[module_name] = module
+                spec.loader.exec_module(module)
+            except ImportError as ex:
+                raise ImportError(
+                    f"Unable to load inference model for {self}. A custom model wrapper"
+                    f"is required, but could not be found at path "
+                    f"{wrapper_module_path}."
+                ) from ex
+
         model = OMZModel.create_model(
-            name=str(model_name),
+            name=model_type,
             model_adapter=model_adapter,
             configuration=configuration,
             preload=True
         )
+        self.openvino_model_parameters = configuration
         self._inference_model = model
 
     @classmethod
@@ -255,11 +262,11 @@ class DeployedModel(OptimizedModel):
         if not os.path.exists(path_to_folder):
             os.makedirs(path_to_folder)
 
-        for model_file in os.listdir(self._model_data_path):
-            shutil.copyfile(
-                src=os.path.join(self._model_data_path, model_file),
-                dst=os.path.join(path_to_folder, model_file)
-            )
+        shutil.copytree(
+            src=self._model_data_path,
+            dst=path_to_folder,
+            dirs_exist_ok=True
+        )
 
         config_dict = ConfigurationRESTConverter.configuration_to_minimal_dict(
             self.hyper_parameters

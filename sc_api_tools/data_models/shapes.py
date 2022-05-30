@@ -1,12 +1,21 @@
 import abc
-from typing import List, Tuple
+from typing import List, Tuple, TypeVar, Union
 
 import attr
 
 import numpy as np
 
+from ote_sdk.entities.shapes.shape import (
+    ShapeType as OteShapeType
+)
+from ote_sdk.entities.shapes.rectangle import Rectangle as OteRectangle
+from ote_sdk.entities.shapes.ellipse import Ellipse as OteEllipse
+from ote_sdk.entities.shapes.polygon import Polygon as OtePolygon
+
 from sc_api_tools.data_models.enums import ShapeType
 from sc_api_tools.data_models.utils import str_to_shape_type
+
+OteShapeTypeVar = TypeVar('OteShapeTypeVar', OtePolygon, OteEllipse, OtePolygon)
 
 
 @attr.s(auto_attribs=True)
@@ -38,6 +47,23 @@ class Shape:
         :return: Shape converted to the coordinate system of it's parent roi
         """
         raise NotImplementedError
+
+    @classmethod
+    def from_ote(
+            cls, ote_shape: OteShapeTypeVar
+    ) -> Union['Rectangle', 'Ellipse', 'Polygon']:
+        """
+        Creates a Shape entity from a corresponding shape in the OTE SDK.
+
+        :param ote_shape: OTE SDK shape to convert from
+        :return: Shape entity created from the ote_shape
+        """
+        shape_mapping = {
+            OteShapeType.RECTANGLE: Rectangle,
+            OteShapeType.ELLIPSE: Ellipse,
+            OteShapeType.POLYGON: Polygon
+        }
+        return shape_mapping[ote_shape.type].from_ote(ote_shape)
 
 
 @attr.s(auto_attribs=True)
@@ -119,6 +145,22 @@ class Rectangle(Shape):
                 x=x_min, y=y_min, width=width, height=height
             )
 
+    @classmethod
+    def from_ote(cls, ote_shape: OteRectangle) -> 'Rectangle':
+        """
+        Creates a :py:class`~sc_api_tools.data_models.shapes.Rectangle` from
+        the OTE SDK Rectangle entity passed.
+
+        :param ote_shape: OTE SDK Rectangle entity to convert from
+        :return: Rectangle instance created according to the ote_shape
+        """
+        return cls(
+            x=ote_shape.x1,
+            y=ote_shape.y1,
+            width=ote_shape.width,
+            height=ote_shape.height
+        )
+
 
 @attr.s(auto_attribs=True)
 class Ellipse(Shape):
@@ -164,6 +206,22 @@ class Ellipse(Shape):
         return Ellipse(
                 x=x_min, y=y_min, width=width, height=height
             )
+
+    @classmethod
+    def from_ote(cls, ote_shape: OteEllipse) -> 'Ellipse':
+        """
+        Creates a :py:class`~sc_api_tools.data_models.shapes.Ellipse` from
+        the OTE SDK Ellipse entity passed.
+
+        :param ote_shape: OTE SDK Ellipse entity to convert from
+        :return: Ellipse instance created according to the ote_shape
+        """
+        return cls(
+            x=ote_shape.x1,
+            y=ote_shape.y1,
+            width=ote_shape.width,
+            height=ote_shape.height
+        )
 
 
 @attr.s(auto_attribs=True)
@@ -241,3 +299,17 @@ class Polygon(Shape):
             ) for point in self.points
         ]
         return Polygon(points=absolute_points)
+
+    @classmethod
+    def from_ote(cls, ote_shape: OtePolygon) -> 'Polygon':
+        """
+        Creates a :py:class`~sc_api_tools.data_models.shapes.Polygon` from
+        the OTE SDK Polygon entity passed.
+
+        :param ote_shape: OTE SDK Polygon entity to convert from
+        :return: Polygon instance created according to the ote_shape
+        """
+        points = [Point(x=ote_point.x, y=ote_point.y) for ote_point in ote_shape.points]
+        return cls(
+            points=points
+        )

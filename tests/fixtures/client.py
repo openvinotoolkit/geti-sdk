@@ -20,7 +20,8 @@ def fxt_sc_session(fxt_vcr, fxt_server_config) -> SCSession:
             f"session.{CASSETTE_EXTENSION}",
             filter_post_data_parameters=[
                 ('login', DUMMY_USER), ('password', DUMMY_PASSWORD)
-            ]
+            ],
+            allow_playback_repeats=True
     ):
         yield SCSession(cluster_config=fxt_server_config)
 

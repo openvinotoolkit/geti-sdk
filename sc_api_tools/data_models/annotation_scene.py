@@ -6,6 +6,11 @@ import attr
 import cv2
 import numpy as np
 
+from ote_sdk.entities.annotation import (
+    AnnotationSceneEntity,
+    AnnotationSceneKind
+)
+
 from sc_api_tools.data_models.annotations import Annotation
 from sc_api_tools.data_models.enums import AnnotationKind
 from sc_api_tools.data_models.label import ScoredLabel
@@ -316,3 +321,22 @@ class AnnotationScene:
             annotation.id = ""
             annotation.modified = ""
         return new_annotation
+
+    @classmethod
+    def from_ote(cls, ote_annotation_scene: AnnotationSceneEntity) -> 'AnnotationScene':
+        """
+        Creates a :py:class:`~sc_api_tools.data_models.annotation_scene.AnnotationScene`
+        instance from a given OTE SDK AnnotationSceneEntity object.
+
+        :param ote_annotation_scene: OTE AnnotationSceneEntity object to create the
+            instance from
+        :return: AnnotationScene instance
+        """
+        annotations = [
+            Annotation.from_ote(annotation)
+            for annotation in ote_annotation_scene.annotations
+        ]
+        return cls(
+            annotations=annotations,
+            id=ote_annotation_scene.id,
+        )

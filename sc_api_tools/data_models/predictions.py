@@ -1,8 +1,11 @@
+from datetime import datetime
 from typing import List, Optional, ClassVar
 
 import numpy as np
 
 import attr
+
+from sc_api_tools.data_models.annotations import Annotation
 from sc_api_tools.data_models.enums import AnnotationKind
 from sc_api_tools.data_models.annotation_scene import AnnotationScene
 from sc_api_tools.data_models.label import Label
@@ -187,3 +190,26 @@ class Prediction(AnnotationScene):
                 line_thickness=line_thickness
             )
         return mask
+
+    def filter_by_confidence(self, confidence_threshold: float) -> 'Prediction':
+        """
+        Returns a new Prediction instance containing only those predicted annotations
+        that have a confidence higher than `confidence_threshold`.
+
+        :param confidence_threshold: Float between 0 and 1. Annotations that only
+            have predicted labels with a probability lower than this value will be
+            filtered out.
+        :return: new Prediction object containing only annotations with a predicted
+            probability higher than the confidence_threshold
+        """
+        annotations: List[Annotation] = []
+        for annotation in self.annotations:
+            max_prob = max([label.probability for label in annotation.labels])
+            if max_prob > confidence_threshold:
+                annotations.append(annotation)
+
+        return Prediction(
+            annotations=annotations,
+            media_identifier=self.media_identifier,
+            modified=datetime.now().isoformat()
+        )

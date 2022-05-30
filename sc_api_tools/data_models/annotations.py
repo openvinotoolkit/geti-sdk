@@ -2,11 +2,13 @@ from typing import List, Union, Optional, ClassVar
 
 import attr
 
+from ote_sdk.entities.annotation import Annotation as OteAnnotation
+
 from sc_api_tools.data_models.label import ScoredLabel
 from sc_api_tools.data_models.shapes import (
     Rectangle,
     Ellipse,
-    Polygon
+    Polygon, Shape
 )
 from sc_api_tools.data_models.utils import (
     deidentify,
@@ -85,3 +87,19 @@ class Annotation:
                 break
         if index is not None:
             self.labels.pop(index)
+
+    @classmethod
+    def from_ote(cls, ote_annotation: OteAnnotation) -> 'Annotation':
+        """
+        Creates a :py:class:`~sc_api_tools.data_models.annotations.Annotation` instance
+        from a given OTE SDK Annotation object.
+
+        :param ote_annotation: OTE Annotation object to create the instance from
+        :return: Annotation instance
+        """
+        shape = Shape.from_ote(ote_annotation.shape)
+        labels = [
+            ScoredLabel.from_ote(ote_label)
+            for ote_label in ote_annotation.get_labels(include_empty=True)
+        ]
+        return Annotation(shape=shape, labels=labels, id=ote_annotation.id)

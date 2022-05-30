@@ -1,4 +1,7 @@
 from enum import Enum
+from typing import Optional
+
+from ote_sdk.entities.model_template import Domain as OteDomain
 
 
 class TaskType(Enum):
@@ -79,6 +82,21 @@ class TaskType(Enum):
         :return: TaskType instance corresponding to the `domain`
         """
         return cls[domain.name]
+
+    def to_ote_domain(self) -> OteDomain:
+        """
+        Converts a TaskType instance to an OTE SDK Domain object.
+
+        NOTE: Not all TaskTypes have a counterpart in the OTE SDK Domain Enum, for
+        example TaskType.DATASET and TaskType.CROP cannot be converted to a Domain. For
+        those TaskTypes, a `Domain.NULL` instance will be returned.
+
+        :return: Domain instance corresponding to the TaskType instance
+        """
+        if self in NON_TRAINABLE_TASK_TYPES:
+            return OteDomain.NULL
+        else:
+            return OteDomain[self.name]
 
 
 NON_TRAINABLE_TASK_TYPES = [TaskType.DATASET, TaskType.CROP]
