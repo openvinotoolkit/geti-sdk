@@ -44,6 +44,8 @@ setuptools.setup(
     python_requires=">=3.8",
     install_requires=get_requirements('requirements.txt'),
     extras_require={
-        'deployment': get_requirements('requirements-deployment.txt')
+        'deployment': get_requirements('requirements-deployment.txt'),
+        'docs': get_requirements('./docs/requirements.txt'),
+        'tests': get_requirements('./tests/requirements.txt')
     }
 )

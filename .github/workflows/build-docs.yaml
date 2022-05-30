@@ -1,0 +1,47 @@
+name: Build Sphinx documentation
+
+on:
+  workflow_dispatch: # run on request (no need for PR)
+
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - ".github/**" # Ignore changes towards the .github directory
+
+jobs:
+  build_docs:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install package with deployment, docs and test requirements
+        run: |
+          pip install ".[deployment,docs,tests]"
+
+      - name: Build sphinx documentation
+        uses: ammaraskar/sphinx-action@master
+        with:
+          docs-folder: "docs/"
+
+      - name: Commit documentation changes
+        run: |
+          git fetch
+          git checkout gh-pages
+          rm -r gh-pages
+          cp -r docs/build/html/* gh-pages/
+          cd gh-pages
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Update documentation" -a || true
+          # The above command will fail if no changes were present, so we ignore
+          # the return code.
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          branch: gh-pages
+          directory: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}

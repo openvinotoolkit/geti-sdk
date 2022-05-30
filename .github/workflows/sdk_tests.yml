@@ -2,7 +2,8 @@
 
 name: SDK tests
 
-# Controls when the action will run. This action can be triggered manually (workflow_dispatch trigger), and it will be run automatically when a PR to main is made.
+# Controls when the action will run. This action can be triggered manually
+# (workflow_dispatch trigger), and it will be run automatically when a PR to main is made.
 on:
   workflow_dispatch:
   
@@ -18,7 +19,7 @@ jobs:
     strategy:
       matrix:
         # os: [ubuntu-latest, windows-latest]
-        python-version: ['3.8']
+        python-version: ['3.8', '3.9']
     steps:
 
       - name: Checkout code with caching for Git LFS
