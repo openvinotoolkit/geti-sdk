@@ -35,7 +35,7 @@ jobs:
         run: |
           git checkout gh-pages
           git fetch && git pull
-          cp -r docs/build/html/* /
+          cp -r docs/build/html/* ./
           touch .nojekyll
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
