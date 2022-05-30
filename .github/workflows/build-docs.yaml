@@ -26,9 +26,10 @@ jobs:
           pip install ".[deployment,docs,tests]"
 
       - name: Build sphinx documentation
-        uses: ammaraskar/sphinx-action@master
-        with:
-          docs-folder: "docs/"
+        run: |
+          cd docs
+          make html
+          cd ..
 
       - name: Commit documentation changes
         run: |
