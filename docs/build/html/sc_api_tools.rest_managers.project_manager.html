@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sc_api_tools.rest_managers.project_manager package &mdash; SonomaCreek SDK v1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> SonomaCreek SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sc_api_tools.html">SonomaCreek SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sc_api_tools.html#subpackages">Subpackages</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SonomaCreek SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>sc_api_tools.rest_managers.project_manager package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/sc_api_tools.rest_managers.project_manager.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sc-api-tools-rest-managers-project-manager-package">
+<h1>sc_api_tools.rest_managers.project_manager package<a class="headerlink" href="#sc-api-tools-rest-managers-project-manager-package" title="Permalink to this headline"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-sc_api_tools.rest_managers.project_manager.project_manager">
+<span id="sc-api-tools-rest-managers-project-manager-project-manager-module"></span><h2>sc_api_tools.rest_managers.project_manager.project_manager module<a class="headerlink" href="#module-sc_api_tools.rest_managers.project_manager.project_manager" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_managers.project_manager.project_manager.</span></span><span class="sig-name descname"><span class="pre">ProjectManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to get or create a project in a certain workspace</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.get_all_projects">
+<span class="sig-name descname"><span class="pre">get_all_projects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.get_all_projects" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of projects found on the SC cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of Project objects, containing the project information for each
+project on the SC cluster</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.get_project_by_name">
+<span class="sig-name descname"><span class="pre">get_project_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.get_project_by_name" title="Permalink to this definition"></a></dt>
+<dd><p>Get a project from the SC cluster by project_name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>project_name</strong> – Name of the project to get</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Project object containing the data of the project, if the project is
+found on the cluster. Returns None if the project doesn’t exist</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.get_or_create_project">
+<span class="sig-name descname"><span class="pre">get_or_create_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.get_or_create_project" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a new project with name <cite>project_name</cite> on the cluster, or retrieves
+the data for an existing project with <cite>project_name</cite> if it exists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> – Name of the project</p></li>
+<li><p><strong>project_type</strong> – Type of the project</p></li>
+<li><p><strong>labels</strong> – Nested list of labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.create_project">
+<span class="sig-name descname"><span class="pre">create_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.create_project" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a new project with name <cite>project_name</cite> on the cluster, containing
+tasks according to the <cite>project_type</cite> specified. Labels for each task are
+specified in the <cite>labels</cite> parameter, which should be a nested list (each entry
+in the outermost list corresponds to the labels for one of the tasks in the
+project pipeline)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> – Name of the project</p></li>
+<li><p><strong>project_type</strong> – Type of the project</p></li>
+<li><p><strong>labels</strong> – Nested list of labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If a project with name <cite>project_name</cite> already exists in
+the workspace</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Project object, as created on the cluster</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.download_project_info">
+<span class="sig-name descname"><span class="pre">download_project_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.download_project_info" title="Permalink to this definition"></a></dt>
+<dd><p>For a project on the SC cluster with name <cite>project_name</cite>, this method gets the
+project data that can be used to create a project with the
+<cite>ProjectManager.get_or_create_project</cite> method. The data is retrieved
+from the cluster and saved in the target folder <cite>path_to_folder</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> – Name of the project to retrieve the data for</p></li>
+<li><p><strong>path_to_folder</strong> – Target folder to save the project data to.
+Data will be saved as a .json file named “project.json”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the project with <cite>project_name</cite> is not found on the
+cluster</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.create_project_from_folder">
+<span class="sig-name descname"><span class="pre">create_project_from_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.create_project_from_folder" title="Permalink to this definition"></a></dt>
+<dd><p>Looks for a <cite>project.json</cite> file in the folder at <cite>path_to_folder</cite>, and
+creates a project using the parameters provided in this file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_folder</strong> – Folder holding the project data</p></li>
+<li><p><strong>project_name</strong> – Optional name of the project. If not specified, the
+project name found in the project configuration in the upload folder
+will be used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Project as created on the cluster</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.is_project_dir">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_project_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.is_project_dir" title="Permalink to this definition"></a></dt>
+<dd><p>Returns True if the folder specified in <cite>path_to_folder</cite> is a directory
+containing valid SC project data that can be used to upload to an SC cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_to_folder</strong> – Directory to check</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the directory holds project data, False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.list_projects">
+<span class="sig-name descname"><span class="pre">list_projects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.list_projects" title="Permalink to this definition"></a></dt>
+<dd><p>This method prints an overview of all projects that currently exists on the
+cluster, in the workspace managed by the ProjectManager</p>
+<p>NOTE: While this method also returns a list of all the projects, it is
+primarily meant to be used in an interactive environment, such as a
+Jupyter Notebook.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of all Projects on the cluster. The returned list is the same as
+the list returned by the <cite>get_all_projects</cite> method</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.delete_project">
+<span class="sig-name descname"><span class="pre">delete_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requires_confirmation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.delete_project" title="Permalink to this definition"></a></dt>
+<dd><p>Deletes a project. The <cite>project</cite> to delete can either by a Project object or a
+string containing the name of the project to delete.</p>
+<p>By default, this method will ask for user confirmation before deleting the
+project. This can be overridden by passing <cite>requires_confirmation = False</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project</strong> – Project to delete, either a string containing the project
+name or a Project instance</p></li>
+<li><p><strong>requires_confirmation</strong> – True to ask for user confirmation before
+deleting the project, False to delete without confirmation. Defaults to
+True</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.add_labels">
+<span class="sig-name descname"><span class="pre">add_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.task.Task" title="sc_api_tools.data_models.task.Task"><span class="pre">sc_api_tools.data_models.task.Task</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager.add_labels" title="Permalink to this definition"></a></dt>
+<dd><p>Adds the <cite>labels</cite> to the project labels. For a project with multiple tasks,
+the <cite>task</cite> parameter can be used to specify the task for which the labels
+should be added.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> – List of labels to add. Can either be a list of strings
+representing label names, or a list of dictionaries representing label
+properties</p></li>
+<li><p><strong>project</strong> – Project to which the labels should be added</p></li>
+<li><p><strong>task</strong> – Optional Task to add the labels for. Can be left as None for a
+single task project, but is required for a task chain project</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updated Project instance with the new labels added to it</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sc_api_tools.rest_managers.project_manager.task_templates">
+<span id="sc-api-tools-rest-managers-project-manager-task-templates-module"></span><h2>sc_api_tools.rest_managers.project_manager.task_templates module<a class="headerlink" href="#module-sc_api_tools.rest_managers.project_manager.task_templates" title="Permalink to this headline"></a></h2>
+</section>
+<section id="module-sc_api_tools.rest_managers.project_manager">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sc_api_tools.rest_managers.project_manager" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.ProjectManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_managers.project_manager.</span></span><span class="sig-name descname"><span class="pre">ProjectManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.ProjectManager" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to get or create a project in a certain workspace</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.ProjectManager.get_all_projects">
+<span class="sig-name descname"><span class="pre">get_all_projects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.ProjectManager.get_all_projects" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of projects found on the SC cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of Project objects, containing the project information for each
+project on the SC cluster</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.ProjectManager.get_project_by_name">
+<span class="sig-name descname"><span class="pre">get_project_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.ProjectManager.get_project_by_name" title="Permalink to this definition"></a></dt>
+<dd><p>Get a project from the SC cluster by project_name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>project_name</strong> – Name of the project to get</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Project object containing the data of the project, if the project is
+found on the cluster. Returns None if the project doesn’t exist</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.ProjectManager.get_or_create_project">
+<span class="sig-name descname"><span class="pre">get_or_create_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.ProjectManager.get_or_create_project" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a new project with name <cite>project_name</cite> on the cluster, or retrieves
+the data for an existing project with <cite>project_name</cite> if it exists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> – Name of the project</p></li>
+<li><p><strong>project_type</strong> – Type of the project</p></li>
+<li><p><strong>labels</strong> – Nested list of labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.ProjectManager.create_project">
+<span class="sig-name descname"><span class="pre">create_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.ProjectManager.create_project" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a new project with name <cite>project_name</cite> on the cluster, containing
+tasks according to the <cite>project_type</cite> specified. Labels for each task are
+specified in the <cite>labels</cite> parameter, which should be a nested list (each entry
+in the outermost list corresponds to the labels for one of the tasks in the
+project pipeline)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> – Name of the project</p></li>
+<li><p><strong>project_type</strong> – Type of the project</p></li>
+<li><p><strong>labels</strong> – Nested list of labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If a project with name <cite>project_name</cite> already exists in
+the workspace</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Project object, as created on the cluster</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.ProjectManager.download_project_info">
+<span class="sig-name descname"><span class="pre">download_project_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.ProjectManager.download_project_info" title="Permalink to this definition"></a></dt>
+<dd><p>For a project on the SC cluster with name <cite>project_name</cite>, this method gets the
+project data that can be used to create a project with the
+<cite>ProjectManager.get_or_create_project</cite> method. The data is retrieved
+from the cluster and saved in the target folder <cite>path_to_folder</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> – Name of the project to retrieve the data for</p></li>
+<li><p><strong>path_to_folder</strong> – Target folder to save the project data to.
+Data will be saved as a .json file named “project.json”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the project with <cite>project_name</cite> is not found on the
+cluster</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.ProjectManager.create_project_from_folder">
+<span class="sig-name descname"><span class="pre">create_project_from_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.ProjectManager.create_project_from_folder" title="Permalink to this definition"></a></dt>
+<dd><p>Looks for a <cite>project.json</cite> file in the folder at <cite>path_to_folder</cite>, and
+creates a project using the parameters provided in this file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_to_folder</strong> – Folder holding the project data</p></li>
+<li><p><strong>project_name</strong> – Optional name of the project. If not specified, the
+project name found in the project configuration in the upload folder
+will be used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Project as created on the cluster</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.ProjectManager.is_project_dir">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_project_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.ProjectManager.is_project_dir" title="Permalink to this definition"></a></dt>
+<dd><p>Returns True if the folder specified in <cite>path_to_folder</cite> is a directory
+containing valid SC project data that can be used to upload to an SC cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_to_folder</strong> – Directory to check</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the directory holds project data, False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.ProjectManager.list_projects">
+<span class="sig-name descname"><span class="pre">list_projects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.ProjectManager.list_projects" title="Permalink to this definition"></a></dt>
+<dd><p>This method prints an overview of all projects that currently exists on the
+cluster, in the workspace managed by the ProjectManager</p>
+<p>NOTE: While this method also returns a list of all the projects, it is
+primarily meant to be used in an interactive environment, such as a
+Jupyter Notebook.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of all Projects on the cluster. The returned list is the same as
+the list returned by the <cite>get_all_projects</cite> method</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.ProjectManager.delete_project">
+<span class="sig-name descname"><span class="pre">delete_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requires_confirmation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.ProjectManager.delete_project" title="Permalink to this definition"></a></dt>
+<dd><p>Deletes a project. The <cite>project</cite> to delete can either by a Project object or a
+string containing the name of the project to delete.</p>
+<p>By default, this method will ask for user confirmation before deleting the
+project. This can be overridden by passing <cite>requires_confirmation = False</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project</strong> – Project to delete, either a string containing the project
+name or a Project instance</p></li>
+<li><p><strong>requires_confirmation</strong> – True to ask for user confirmation before
+deleting the project, False to delete without confirmation. Defaults to
+True</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.rest_managers.project_manager.ProjectManager.add_labels">
+<span class="sig-name descname"><span class="pre">add_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.task.Task" title="sc_api_tools.data_models.task.Task"><span class="pre">sc_api_tools.data_models.task.Task</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_managers.project_manager.ProjectManager.add_labels" title="Permalink to this definition"></a></dt>
+<dd><p>Adds the <cite>labels</cite> to the project labels. For a project with multiple tasks,
+the <cite>task</cite> parameter can be used to specify the task for which the labels
+should be added.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> – List of labels to add. Can either be a list of strings
+representing label names, or a list of dictionaries representing label
+properties</p></li>
+<li><p><strong>project</strong> – Project to which the labels should be added</p></li>
+<li><p><strong>task</strong> – Optional Task to add the labels for. Can be left as None for a
+single task project, but is required for a task chain project</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updated Project instance with the new labels added to it</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Ludo Cornelissen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

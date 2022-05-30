@@ -1,0 +1,23 @@
+datumaro==0.3
+requests==2.26.*
+numpy>=1.19.5
+omegaconf==2.1.*
+opencv-python==4.5.*
+python-dotenv>=0.20.0
+tqdm>=4.62.3
+ote-sdk@ git+https://github.com/openvinotoolkit/training_extensions/@83a70cdd11d7c1bbc11ceb1b758750fb4bd18aae#egg=ote-sdk&subdirectory=ote_sdk
+
+[deployment]
+openvino==2022.1.0
+openmodelzoo-modelapi@ git+https://github.com/openvinotoolkit/open_model_zoo/@releases/2021/SCMVP#egg=openmodelzoo-modelapi&subdirectory=demos/common/python
+
+[docs]
+sphinx==4.5.*
+sphinx-rtd-theme==1.0.*
+
+[tests]
+vcrpy==4.1.*
+pytest==7.1.*
+pytest-recording==0.12.*
+pytest-cov==3.0.*
+pytest-env==0.6.*
