@@ -180,7 +180,7 @@ class DeployedModel(OptimizedModel):
             module_name = WRAPPER_DIR_NAME
             try:
                 spec = importlib.util.spec_from_file_location(
-                    module_name, wrapper_module_path
+                    module_name, os.path.join(wrapper_module_path, '__init__.py')
                 )
                 module = importlib.util.module_from_spec(spec)
                 sys.modules[module_name] = module
@@ -318,7 +318,7 @@ class DeployedModel(OptimizedModel):
                 `openvino.model_zoo.model_api.models.utils.Detection`, holding the
                 bounding box output
         """
-        return self._inference_model.postprocess(inference_results, meta=metadata)
+        return self._inference_model.postprocess(inference_results, metadata)
 
     def infer(
             self, preprocessed_image: Dict[str, np.ndarray]

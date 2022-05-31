@@ -1,6 +1,6 @@
 # This is a basic workflow that is manually triggered
 
-name: SDK tests
+name: SDK PR tests
 
 # Controls when the action will run. This action can be triggered manually
 # (workflow_dispatch trigger), and it will be run automatically when a PR to main is made.

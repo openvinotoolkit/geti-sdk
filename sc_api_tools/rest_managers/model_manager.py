@@ -94,7 +94,7 @@ class ModelManager:
             method returns None
         """
         if task is not None:
-            if algorithm.domain != Domain.from_task_type(task.type):
+            if algorithm.task_type != task.type:
                 raise ValueError(
                     f'Unable to retrieve model. The algorithm {algorithm} is not '
                     f'available for the task {task}'

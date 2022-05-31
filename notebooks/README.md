@@ -11,7 +11,7 @@ is installed, you can follow the steps below to set up the notebooks.
 3. Run `pip install -r requirements-notebooks.txt` to install the packages required to 
    run the notebooks
 
-4. Create a `.env` file containing the login details for you Sonoma Creek instance, 
+4. Create a `.env` file containing the login details for your Sonoma Creek instance, 
    following the instructions in the [Credentials management](#credentials-management) 
    box.
 
