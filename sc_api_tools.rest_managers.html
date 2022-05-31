@@ -92,11 +92,11 @@ such as <a class="reference internal" href="sc_api_tools.data_models.html#sc_api
 on the SC cluster.</p>
 <p>All rest managers are initialized with a
 <a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><code class="xref py py-class docutils literal notranslate"><span class="pre">SCSession</span></code></a> and a workspace id. The
-<a class="reference internal" href="sc_api_tools.rest_managers.project_manager.html#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager" title="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProjectManager</span></code></a>
+<a class="reference internal" href="#sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager" title="sc_api_tools.rest_managers.project_manager.project_manager.ProjectManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProjectManager</span></code></a>
 can be initialized with just that, while all other clients are initialized
 <em>per project</em> and thus take an additional <cite>project</cite> argument.</p>
 <p>For example, to initialize the
-<a class="reference internal" href="sc_api_tools.rest_managers.media_managers.html#sc_api_tools.rest_managers.media_managers.image_manager.ImageManager" title="sc_api_tools.rest_managers.media_managers.image_manager.ImageManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageManager</span></code></a> for
+<a class="reference internal" href="#sc_api_tools.rest_managers.media_managers.image_manager.ImageManager" title="sc_api_tools.rest_managers.media_managers.image_manager.ImageManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImageManager</span></code></a> for
 a specific project and get a list of all images in the project, the following code
 snippet can be used:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sc_api_tools</span> <span class="kn">import</span> <span class="n">SCRESTClient</span>
