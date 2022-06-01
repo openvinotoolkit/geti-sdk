@@ -35,18 +35,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install ".[deployment,tests]"
 
-      - name: Configure proxy
+      - name: Configure proxy and run nightly tests
         run: |
           export no_proxy=$SC_HOST,$no_proxy
           export NO_PROXY=$SC_HOST,$NO_PROXY
           export SC_HOST=https://$SC_HOST
-
-      - name: Nightly tests
-        run: |
           echo host=$SC_HOST
           echo no_proxy=$no_proxy
           echo NO_PROXY=$NO_PROXY
-          curl $SC_HOST/user/login
+
           pytest tests/nightly --cov=sc_api_tools
 
       - name: Integration tests
