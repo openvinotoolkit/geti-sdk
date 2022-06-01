@@ -13,6 +13,8 @@ env:
   SC_PASSWORD: ${{ secrets.SC_PASSWORD }}
   TEST_MODE: "ONLINE"
   CLEAR_EXISTING_TEST_PROJECTS: 1
+  ACTIONS_RUNNER_HOOK_JOB_STARTED: /scripts/nightly_setup.sh
+  ACTIONS_RUNNER_HOOK_JOB_COMPLETED: /scripts/nightly_teardown.sh
 
 jobs:
   build:
@@ -31,9 +33,11 @@ jobs:
           python-version: '3.8'
 
       - name: Install package with deployment and test requirements
+        # OTE SDK and openmodelzoo have to be uninstalled first to guarantee that
+        # these package use the version specified in the requirements
         run: |
+          conda activate sc_sdk_nightly_tests
           python -m pip install --upgrade pip
-          pip uninstall -y openmodelzoo-modelapi
           pip install ".[deployment,tests]"
 
       - name: Nightly tests

@@ -5,4 +5,4 @@ omegaconf==2.1.*
 opencv-python==4.5.*
 python-dotenv>=0.20.0
 tqdm>=4.62.3
-ote-sdk @ git+https://github.com/openvinotoolkit/training_extensions/@83a70cdd11d7c1bbc11ceb1b758750fb4bd18aae#egg=ote-sdk&subdirectory=ote_sdk
+ote-sdk @ git+https://github.com/openvinotoolkit/training_extensions/@releases/v0.2.0-sc1.1#egg=ote-sdk&subdirectory=ote_sdk
