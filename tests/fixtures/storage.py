@@ -1,3 +1,5 @@
+import os
+
 import pytest
 import tempfile
 import shutil
@@ -15,3 +17,14 @@ def fxt_temp_directory() -> str:
     tempdir = tempfile.mkdtemp()
     yield tempdir
     shutil.rmtree(tempdir)
+
+
+@pytest.fixture(scope="session")
+def fxt_artifact_directory() -> str:
+    """
+    Returns the path to the directory in which test artifacts should be saved, when the
+    tests are run in the CI pipeline.
+
+    :return: Path to the directory for test artifacts
+    """
+    yield os.environ.get("ARTIFACT_DIRECTORY")

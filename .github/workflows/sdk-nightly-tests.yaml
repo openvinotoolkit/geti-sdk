@@ -15,6 +15,7 @@ env:
   CLEAR_EXISTING_TEST_PROJECTS: 1
   ACTIONS_RUNNER_HOOK_JOB_STARTED: /scripts/nightly_setup.sh
   ACTIONS_RUNNER_HOOK_JOB_COMPLETED: /scripts/nightly_teardown.sh
+  ARTIFACT_DIRECTORY: /artifacts
 
 jobs:
   build:
@@ -41,6 +42,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install ".[deployment,tests]"
 
+      - name: Create artifact directory
+        run: mkdir $ARTIFACT_DIRECTORY
+
       - name: Nightly tests
         # Proxy settings have to be configured and SC_HOST set to full address before
         # tests can run
@@ -50,6 +54,15 @@ jobs:
           export SC_HOST=https://$SC_HOST
 
           pytest tests/nightly --cov=sc_api_tools
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts
+          path: $ARTIFACT_DIRECTORY
+
+      - name: Clean up artifact directory
+        run: rm -r $ARTIFACT_DIRECTORY
 
       - name: Integration tests
         run: |

@@ -9,6 +9,7 @@ from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers import DatumAnnotationReader
 from sc_api_tools.data_models import Prediction, Job
 from sc_api_tools.data_models.enums import JobState
+from sc_api_tools.utils import show_image_with_annotation_scene
 from tests.helpers import ProjectService, get_or_create_annotated_project_for_test_class
 from tests.helpers.constants import PROJECT_PREFIX
 
@@ -107,7 +108,8 @@ class TestNightlyProject:
             fxt_project_service_no_vcr: ProjectService,
             fxt_client_no_vcr: SCRESTClient,
             fxt_temp_directory: str,
-            fxt_image_path: str
+            fxt_image_path: str,
+            fxt_artifact_directory: str
     ):
         """
         Tests local deployment for the project. Compares the local prediction to the
@@ -151,3 +153,20 @@ class TestNightlyProject:
         print(local_prediction.overview)
         print("\n\n-------- Online prediction --------")
         print(online_prediction.overview)
+
+        # Save the predictions as test artifacts
+        predictions_dir = os.path.join(fxt_artifact_directory, 'predictions')
+        if not os.path.isdir(predictions_dir):
+            os.makedirs(predictions_dir)
+        local_prediction_path = os.path.join(predictions_dir, project.name + "_local")
+        online_prediction_path = os.path.join(predictions_dir, project.name + "_online")
+        show_image_with_annotation_scene(
+            image=image,
+            annotation_scene=local_prediction,
+            filepath=local_prediction_path
+        )
+        show_image_with_annotation_scene(
+            image=image,
+            annotation_scene=online_prediction,
+            filepath=online_prediction_path
+        )

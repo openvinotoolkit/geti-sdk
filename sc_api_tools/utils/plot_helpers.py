@@ -1,4 +1,4 @@
-from typing import Union, List
+from typing import Union, List, Optional
 
 import numpy as np
 
@@ -13,13 +13,16 @@ from sc_api_tools.data_models.containers import MediaList
 
 def show_image_with_annotation_scene(
         image: Union[Image, VideoFrame, np.ndarray],
-        annotation_scene: Union[AnnotationScene, Prediction]
+        annotation_scene: Union[AnnotationScene, Prediction],
+        filepath: Optional[str] = None
 ):
     """
     Displays an image with an annotation_scene overlayed on top of it.
 
     :param image: Image to show prediction for
     :param annotation_scene: Annotations or Predictions to overlay on the image
+    :param filepath: Optional filepath to save the image with annotation overlay to.
+        If left as None, the image will be shown in a new opencv window
     """
     if type(annotation_scene) == AnnotationScene:
         plot_type = 'Annotation'
@@ -46,9 +49,12 @@ def show_image_with_annotation_scene(
     result[np.sum(mask, axis=-1) > 0] = 0
     result += mask[..., ::-1]
 
-    cv2.imshow(f'{plot_type} for {name}', result)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    if filepath is None:
+        cv2.imshow(f'{plot_type} for {name}', result)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+    else:
+        cv2.imwrite(filepath, result)
 
 
 def show_video_frames_with_annotation_scenes(
