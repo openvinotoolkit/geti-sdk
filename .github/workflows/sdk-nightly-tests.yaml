@@ -8,7 +8,7 @@ on:
 env:
   # Environment variables, login details for the SC instance to run the tests against
   # Secrets are configured on repository level (Settings > Secrets)
-  SC_HOST: "https://${{ secrets.SC_HOST }}"
+  SC_HOST: ${{ secrets.SC_HOST }}
   SC_USERNAME: ${{ secrets.SC_USERNAME }}
   SC_PASSWORD: ${{ secrets.SC_PASSWORD }}
   TEST_MODE: "ONLINE"
@@ -37,7 +37,8 @@ jobs:
 
       - name: Configure proxy
         run: |
-          export no_proxy=$SC_HOST
+          export no_proxy=$SC_HOST,$no_proxy
+          export NO_PROXY=$SC_HOST,$NO_PROXY
           export SC_HOST="https://$SC_HOST"
 
       - name: Nightly tests
