@@ -33,7 +33,7 @@ jobs:
       - name: Install package with deployment and test requirements
         run: |
           python -m pip install --upgrade pip
-          pip uninstall openmodelzoo-modelapi
+          pip uninstall -y openmodelzoo-modelapi
           pip install ".[deployment,tests]"
 
       - name: Nightly tests
