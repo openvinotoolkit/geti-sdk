@@ -8,7 +8,7 @@ on:
 env:
   # Environment variables, login details for the SC instance to run the tests against
   # Secrets are configured on repository level (Settings > Secrets)
-  SC_HOST: ${{ secrets.SC_HOST }}
+  SC_HOST: "https://${{ secrets.SC_HOST }}"
   SC_USERNAME: ${{ secrets.SC_USERNAME }}
   SC_PASSWORD: ${{ secrets.SC_PASSWORD }}
   TEST_MODE: "ONLINE"
@@ -35,9 +35,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install ".[deployment,tests]"
 
+      - name: Configure proxy
+        run: |
+          export NO_PROXY=$SC_HOST
+          export SC_HOST="https://$SC_HOST"
+
       - name: Nightly tests
         run: |
-          echo "Running nightly tests on host $SC_HOST"
           pytest tests/nightly --cov=sc_api_tools
 
       - name: Integration tests
