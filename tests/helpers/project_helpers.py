@@ -15,7 +15,8 @@ def get_or_create_annotated_project_for_test_class(
         annotation_reader: AnnotationReader,
         project_name: str,
         project_type: str = "detection",
-        enable_auto_train: bool = False
+        enable_auto_train: bool = False,
+        use_default_hypers: bool = False
 ):
     """
     This function returns an annotated project with `project_name` of type
@@ -26,6 +27,9 @@ def get_or_create_annotated_project_for_test_class(
     :param project_name: Name of the project
     :param project_type: Type of the project
     :param enable_auto_train: True to turn auto-training on, False to leave it off
+    :param use_default_hypers: True to use the default hyper parameters for training,
+        False to set hyper parameters such that the training time is minimized
+        (i.e. single epoch, low batch size, etc.)
     :return: Project instance corresponding to the project on the SC server
     """
     project_exists = project_service.has_project
@@ -34,12 +38,14 @@ def get_or_create_annotated_project_for_test_class(
         project_type=project_type,
     )
     if not project_exists:
-        project_service.set_auto_train(enable_auto_train)
-        project_service.set_minimal_training_hypers()
+        project_service.set_auto_train(False)
+        if not use_default_hypers:
+            project_service.set_minimal_training_hypers()
         project_service.add_annotated_media(
             annotation_reader=annotation_reader,
             n_images=-1
         )
+        project_service.set_auto_train(enable_auto_train)
     return project
 
 

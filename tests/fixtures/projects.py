@@ -20,7 +20,7 @@ def fxt_project_manager(fxt_client: SCRESTClient) -> ProjectManager:
 @pytest.fixture(scope="class")
 def fxt_project_service(
     fxt_vcr,
-    fxt_client,
+    fxt_client: SCRESTClient,
 ) -> ProjectService:
     """
     This fixture provides a service for creating a project and the corresponding
@@ -37,7 +37,16 @@ def fxt_project_service(
 
 
 @pytest.fixture(scope="class")
-def fxt_project_finalizer(fxt_project_manager) -> Callable[[str], None]:
+def fxt_project_service_no_vcr(fxt_client_no_vcr: SCRESTClient) -> ProjectService:
+    project_service = ProjectService(
+        client=fxt_client_no_vcr, vcr=None
+    )
+    yield project_service
+    # project_service.delete_project()
+
+
+@pytest.fixture(scope="class")
+def fxt_project_finalizer(fxt_project_manager: ProjectManager) -> Callable[[str], None]:
     """
     This fixture returns a finalizer to ensure project deletion
 

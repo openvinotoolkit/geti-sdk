@@ -10,7 +10,6 @@ on:
   pull_request:
     branches:
       - main 
-  
 
 jobs:
   build:
@@ -32,13 +31,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
+      - name: Install package with deployment and test requirements
         run: |
           python -m pip install --upgrade pip
-          pip install flake8
-          pip install -r requirements.txt
-          pip install -r requirements-deployment.txt
-          pip install -r tests/requirements.txt
+          pip install ".[deployment,tests]"
 
       - name: Lint with flake8
         run: |
@@ -49,4 +45,4 @@ jobs:
 
       - name: Test with pytest
         run: |
-          pytest tests -c tests/offline.ini --cov=sc_api_tools 
+          pytest tests/integration -c tests/offline.ini --cov=sc_api_tools

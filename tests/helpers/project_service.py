@@ -1,3 +1,4 @@
+from contextlib import nullcontext
 from typing import Optional, List, Union, Dict, Any
 
 from sc_api_tools.annotation_readers import AnnotationReader, DatumAnnotationReader
@@ -27,10 +28,14 @@ class ProjectService:
     :param client: SCRESTClient instance representing the SC server and workspace in
         which to create the project
     :param vcr: VCR instance used for recording HTTP requests made during the project
-        lifespan
+        lifespan. If left as None, no requests will be recorded or played back from
+        VCR cassettes
     """
-    def __init__(self, client: SCRESTClient, vcr: VCR):
-        self.vcr = vcr
+    def __init__(self, client: SCRESTClient, vcr: Optional[VCR] = None):
+        if vcr is None:
+            self.vcr_context = nullcontext
+        else:
+            self.vcr_context = vcr.use_cassette
         self.session = client.session
         self.workspace_id = client.workspace_id
         self.project_manager = ProjectManager(
@@ -74,7 +79,7 @@ class ProjectService:
         if self._project is None:
             if labels is None:
                 labels = [["cube", "cylinder"]]
-            with self.vcr.use_cassette(f"{project_name}.{CASSETTE_EXTENSION}"):
+            with self.vcr_context(f"{project_name}.{CASSETTE_EXTENSION}"):
                 project = self.project_manager.create_project(
                     project_name=project_name,
                     project_type=project_type,
@@ -135,7 +140,7 @@ class ProjectService:
     def image_manager(self) -> ImageManager:
         """ Returns the ImageManager instance for the project """
         if self._image_manager is None:
-            with self.vcr.use_cassette(
+            with self.vcr_context(
                 f"{self.project.name}_image_manager.{CASSETTE_EXTENSION}"
             ):
                 self._image_manager = ImageManager(
@@ -149,7 +154,7 @@ class ProjectService:
     def video_manager(self) -> VideoManager:
         """ Returns the VideoManager instance for the project """
         if self._video_manager is None:
-            with self.vcr.use_cassette(
+            with self.vcr_context(
                 f"{self.project.name}_video_manager.{CASSETTE_EXTENSION}"
             ):
                 self._video_manager = VideoManager(
@@ -163,7 +168,7 @@ class ProjectService:
     def annotation_manager(self) -> AnnotationManager:
         """ Returns the AnnotationManager instance for the project """
         if self._annotation_manager is None:
-            with self.vcr.use_cassette(
+            with self.vcr_context(
                 f"{self.project.name}_annotation_manager.{CASSETTE_EXTENSION}"
             ):
                 self._annotation_manager = AnnotationManager(
@@ -177,7 +182,7 @@ class ProjectService:
     def configuration_manager(self) -> ConfigurationManager:
         """ Returns the ConfigurationManager instance for the project """
         if self._configuration_manager is None:
-            with self.vcr.use_cassette(
+            with self.vcr_context(
                 f"{self.project.name}_configuration_manager.{CASSETTE_EXTENSION}"
             ):
                 self._configuration_manager = ConfigurationManager(
@@ -191,7 +196,7 @@ class ProjectService:
     def training_manager(self) -> TrainingManager:
         """ Returns the TrainingManager instance for the project """
         if self._training_manager is None:
-            with self.vcr.use_cassette(
+            with self.vcr_context(
                 f"{self.project.name}_training_manager.{CASSETTE_EXTENSION}"
             ):
                 self._training_manager = TrainingManager(
@@ -205,7 +210,7 @@ class ProjectService:
     def prediction_manager(self) -> PredictionManager:
         """ Returns the PredictionManager instance for the project """
         if self._prediction_manager is None:
-            with self.vcr.use_cassette(
+            with self.vcr_context(
                     f"{self.project.name}_prediction_manager.{CASSETTE_EXTENSION}"
             ):
                 self._prediction_manager = PredictionManager(
@@ -219,7 +224,7 @@ class ProjectService:
     def model_manager(self) -> ModelManager:
         """ Returns the ModelManager instance for the project """
         if self._model_manager is None:
-            with self.vcr.use_cassette(
+            with self.vcr_context(
                     f"{self.project.name}_model_manager.{CASSETTE_EXTENSION}"
             ):
                 self._model_manager = ModelManager(
@@ -232,7 +237,7 @@ class ProjectService:
     def delete_project(self):
         """ Deletes the project from the server """
         if self._project is not None:
-            with self.vcr.use_cassette(
+            with self.vcr_context(
                 f"{self.project.name}_deletion.{CASSETTE_EXTENSION}"
             ):
                 force_delete_project(self.project.name, self.project_manager)
@@ -259,7 +264,7 @@ class ProjectService:
             all images for which the annotation reader contains annotations
         """
         data_path = annotation_reader.base_folder
-        with self.vcr.use_cassette(
+        with self.vcr_context(
             f"{self.project.name}_add_annotated_media.{CASSETTE_EXTENSION}"
         ):
             if isinstance(annotation_reader, DatumAnnotationReader):
@@ -295,7 +300,7 @@ class ProjectService:
 
         :param auto_train: True to turn auto_training on, False to turn it off
         """
-        with self.vcr.use_cassette(
+        with self.vcr_context(
             f"{self.project.name}_set_auto_train.{CASSETTE_EXTENSION}"
         ):
             self.configuration_manager.set_project_auto_train(auto_train=auto_train)
@@ -306,7 +311,7 @@ class ProjectService:
         epochs to perform a minimal training round
 
         """
-        with self.vcr.use_cassette(
+        with self.vcr_context(
             f"{self.project.name}_set_minimal_hypers.{CASSETTE_EXTENSION}"
         ):
             self.configuration_manager.set_project_num_iterations(1)
