@@ -8,9 +8,9 @@ on:
 env:
   # Environment variables, login details for the SC instance to run the tests against
   # Secrets are configured on repository level (Settings > Secrets)
-  SC_HOST: {{ secrets.SC_HOST }}
-  SC_USERNAME: {{ secrets.SC_USERNAME }}
-  SC_PASSWORD: {{ secrets.SC_PASSWORD }}
+  SC_HOST: ${{ secrets.SC_HOST }}
+  SC_USERNAME: ${{ secrets.SC_USERNAME }}
+  SC_PASSWORD: ${{ secrets.SC_PASSWORD }}
   TEST_MODE: "ONLINE"
   CLEAR_EXISTING_TEST_PROJECTS: 1
 
