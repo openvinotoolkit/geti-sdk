@@ -15,7 +15,7 @@ env:
   CLEAR_EXISTING_TEST_PROJECTS: 1
   ACTIONS_RUNNER_HOOK_JOB_STARTED: /scripts/nightly_setup.sh
   ACTIONS_RUNNER_HOOK_JOB_COMPLETED: /scripts/nightly_teardown.sh
-  ARTIFACT_DIRECTORY: /artifacts
+  ARTIFACT_DIRECTORY: artifacts
 
 jobs:
   build:
