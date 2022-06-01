@@ -16,12 +16,8 @@ env:
 
 jobs:
   build:
-    # runs-on: ${{ matrix.os }}
     runs-on: self-hosted
-    strategy:
-      matrix:
-        # os: [ubuntu-latest, windows-latest]
-        python-version: ['3.8', '3.9']
+
     steps:
 
       - name: Checkout code with caching for Git LFS
@@ -32,7 +28,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.8'
 
       - name: Install package with deployment and test requirements
         run: |
