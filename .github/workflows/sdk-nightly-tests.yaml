@@ -37,7 +37,7 @@ jobs:
 
       - name: Configure proxy
         run: |
-          export NO_PROXY=$SC_HOST
+          export no_proxy=$SC_HOST
           export SC_HOST="https://$SC_HOST"
 
       - name: Nightly tests
