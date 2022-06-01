@@ -39,7 +39,10 @@ jobs:
         run: |
           export no_proxy=$SC_HOST,$no_proxy
           export NO_PROXY=$SC_HOST,$NO_PROXY
-          export SC_HOST="https://$SC_HOST"
+          export SC_HOST=https://$SC_HOST
+          echo $SC_HOST
+          echo $no_proxy
+          echo $NO_PROXY
 
       - name: Nightly tests
         run: |
