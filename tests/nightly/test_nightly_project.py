@@ -158,8 +158,8 @@ class TestNightlyProject:
         predictions_dir = os.path.join(fxt_artifact_directory, 'predictions')
         if not os.path.isdir(predictions_dir):
             os.makedirs(predictions_dir)
-        local_prediction_path = os.path.join(predictions_dir, project.name + "_local")
-        online_prediction_path = os.path.join(predictions_dir, project.name + "_online")
+        local_prediction_path = os.path.join(predictions_dir, project.name + "_local.jpg")
+        online_prediction_path = os.path.join(predictions_dir, project.name + "_online.jpg")
         show_image_with_annotation_scene(
             image=image,
             annotation_scene=local_prediction,
