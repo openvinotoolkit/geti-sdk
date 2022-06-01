@@ -35,3 +35,6 @@ venv.bak/
 # Test server configurations
 /tests/online.ini
 /tests/record.ini
+
+# Test artifacts
+/tests/artifacts
