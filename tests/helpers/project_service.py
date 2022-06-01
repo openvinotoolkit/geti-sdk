@@ -1,5 +1,5 @@
 from contextlib import nullcontext
-from typing import Optional, List, Union, Dict, Any
+from typing import Optional, List, Union, Dict, Any, Sequence
 
 from sc_api_tools.annotation_readers import AnnotationReader, DatumAnnotationReader
 from vcr import VCR
@@ -137,6 +137,17 @@ class ProjectService:
         return self._project is not None
 
     @property
+    def is_task_chain_project(self) -> bool:
+        """
+        Returns True if the project belonging to this ProjectService instance is a task
+        chain project, False otherwise
+
+        If this method is called while no project is defined yet, a ValueError will be
+        raised
+        """
+        return len(self.project.get_trainable_tasks()) > 1
+
+    @property
     def image_manager(self) -> ImageManager:
         """ Returns the ImageManager instance for the project """
         if self._image_manager is None:
@@ -253,24 +264,32 @@ class ProjectService:
             setattr(self, manager_name, None)
 
     def add_annotated_media(
-            self, annotation_reader: AnnotationReader, n_images: int = 12
+            self, annotation_readers: Sequence[AnnotationReader], n_images: int = 12
     ) -> None:
         """
         Adds annotated media to the project
 
-        :param annotation_reader: AnnotationReader to use to get annotations for the
-            media
+        :param annotation_readers: List of AnnotationReader instances to use to get
+            annotations for the media. The length of this list must match the number
+            of trainable tasks in the project
         :param n_images: Number of annotated images to upload. If set to -1, uploads
             all images for which the annotation reader contains annotations
         """
-        data_path = annotation_reader.base_folder
+        annotation_reader_1 = annotation_readers[0]
+        data_path = annotation_reader_1.base_folder
+
+        if len(annotation_readers) != len(self.project.get_trainable_tasks()):
+            raise ValueError(
+                "Number of annotation readers received does not match the number of "
+                "trainable tasks in the project: Unable to upload annotated media"
+            )
         with self.vcr_context(
             f"{self.project.name}_add_annotated_media.{CASSETTE_EXTENSION}"
         ):
-            if isinstance(annotation_reader, DatumAnnotationReader):
+            if isinstance(annotation_reader_1, DatumAnnotationReader):
                 images = self.image_manager.upload_from_list(
                     path_to_folder=data_path,
-                    image_names=annotation_reader.get_all_image_names(),
+                    image_names=annotation_reader_1.get_all_image_names(),
                     n_images=n_images
                 )
             else:
@@ -283,11 +302,11 @@ class ProjectService:
             # Annotation preparation and upload
             for task_index, task in enumerate(self.project.get_trainable_tasks()):
                 # Set annotation reader task type
-                annotation_reader.task_type = task.type
-                annotation_reader.prepare_and_set_dataset(
+                annotation_readers[task_index].task_type = task.type
+                annotation_readers[task_index].prepare_and_set_dataset(
                     task_type=task.type
                 )
-                self.annotation_manager.annotation_reader = annotation_reader
+                self.annotation_manager.annotation_reader = annotation_readers[task_index]
                 # Upload annotations
                 self.annotation_manager.upload_annotations_for_images(
                     images=images,

@@ -27,7 +27,7 @@ class TestSCRESTClient:
     ) -> Project:
         return get_or_create_annotated_project_for_test_class(
             project_service=project_service,
-            annotation_reader=annotation_reader,
+            annotation_readers=[annotation_reader],
             project_type="detection",
             project_name=f"{PROJECT_PREFIX}_sc_rest_client",
             enable_auto_train=True

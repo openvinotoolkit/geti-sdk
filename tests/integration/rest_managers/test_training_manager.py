@@ -15,7 +15,7 @@ class TestTrainingManager:
     ) -> Project:
         return get_or_create_annotated_project_for_test_class(
             project_service=project_service,
-            annotation_reader=annotation_reader,
+            annotation_readers=[annotation_reader],
             project_type="detection",
             project_name=f"{PROJECT_PREFIX}_training_manager"
         )

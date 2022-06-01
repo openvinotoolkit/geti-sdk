@@ -26,7 +26,8 @@ venv.bak/
 /notebooks/deployments
 /notebooks/projects
 
-./build
+# Documentation builds
+/docs/build
 
 # Test reports
 .coverage

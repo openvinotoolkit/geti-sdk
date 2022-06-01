@@ -24,6 +24,7 @@ class TestNightlyProject:
             self,
             fxt_project_service_no_vcr: ProjectService,
             fxt_annotation_reader: DatumAnnotationReader,
+            fxt_annotation_reader_grouped: DatumAnnotationReader
     ):
         """
         This test sets up an annotated project on the server, that persists for the
@@ -34,9 +35,13 @@ class TestNightlyProject:
                 labels=["cube", "cylinder"], criterion="XOR"
             )
 
+        annotation_readers = [fxt_annotation_reader]
+        if "_to_" in self.PROJECT_TYPE:
+            annotation_readers = [fxt_annotation_reader_grouped, fxt_annotation_reader]
+
         get_or_create_annotated_project_for_test_class(
             project_service=fxt_project_service_no_vcr,
-            annotation_reader=fxt_annotation_reader,
+            annotation_readers=annotation_readers,
             project_type=self.PROJECT_TYPE,
             project_name=f"{PROJECT_PREFIX}_nightly_{self.PROJECT_TYPE}",
             enable_auto_train=True,

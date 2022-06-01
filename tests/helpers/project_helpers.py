@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Sequence
 
 from sc_api_tools import SCRESTClient
 
@@ -12,7 +12,7 @@ from .project_service import ProjectService
 
 def get_or_create_annotated_project_for_test_class(
         project_service: ProjectService,
-        annotation_reader: AnnotationReader,
+        annotation_readers: Sequence[AnnotationReader],
         project_name: str,
         project_type: str = "detection",
         enable_auto_train: bool = False,
@@ -23,7 +23,9 @@ def get_or_create_annotated_project_for_test_class(
     `project_type`.
 
     :param project_service: ProjectService instance to which the project should be added
-    :param annotation_reader: AnnotationReader from which to get the annotations
+    :param annotation_readers: List of AnnotationReader instances from which to get the
+        annotations. The number of annotation readers must match the number of
+        trainable tasks in the project.
     :param project_name: Name of the project
     :param project_type: Type of the project
     :param enable_auto_train: True to turn auto-training on, False to leave it off
@@ -33,16 +35,19 @@ def get_or_create_annotated_project_for_test_class(
     :return: Project instance corresponding to the project on the SC server
     """
     project_exists = project_service.has_project
+    labels = [reader.get_all_label_names() for reader in annotation_readers]
+
     project = project_service.get_or_create_project(
         project_name=project_name,
         project_type=project_type,
+        labels=labels
     )
     if not project_exists:
         project_service.set_auto_train(False)
         if not use_default_hypers:
             project_service.set_minimal_training_hypers()
         project_service.add_annotated_media(
-            annotation_reader=annotation_reader,
+            annotation_readers=annotation_readers,
             n_images=-1
         )
         project_service.set_auto_train(enable_auto_train)
