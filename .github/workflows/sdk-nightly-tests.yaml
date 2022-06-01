@@ -36,6 +36,7 @@ jobs:
         # OTE SDK and openmodelzoo have to be uninstalled first to guarantee that
         # these package use the version specified in the requirements
         run: |
+          eval "$(conda shell.bash hook)"
           conda activate sc_sdk_nightly_tests
           python -m pip install --upgrade pip
           pip install ".[deployment,tests]"
