@@ -52,7 +52,7 @@ def plot_predictions_side_by_side(
     :param filepath: Path to file in which to save the resulting image
     :return: resulting image
     """
-    with tempfile.mkdtemp() as temp_dir:
+    with tempfile.TemporaryDirectory() as temp_dir:
         im_1_pred_path = os.path.join(temp_dir, 'im_1.jpg')
         im_2_pred_path = os.path.join(temp_dir, 'im_2.jpg')
         show_image_with_annotation_scene(
