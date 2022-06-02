@@ -19,6 +19,7 @@ env:
 
   # Conda environment
   CONDA_ENV: sc_sdk_nightly_test_environment
+  PYTHON_VERSION: 3.8
 
 jobs:
   build:
@@ -30,24 +31,35 @@ jobs:
         uses: nschloe/action-cached-lfs-checkout@v1.1.2
 
       - name: Create fresh conda environment
+        # Steps: check if env named $CONDA_ENV exists, if so remove it. Create new env
+        # using python version $PYTHON_VERSION
         run: |
           eval "$(conda shell.bash hook)"
+
           conda info --envs > temp_envs.txt
+
           if grep --quiet $CONDA_ENV temp_envs.txt; then
           echo Conda environment $CONDA_ENV exists, removing for clean start
           conda remove -y --name $CONDA_ENV --all
           fi
-          conda create -y -n $CONDA_ENV python=3.8
+
           rm temp_envs.txt
 
+          conda create -y -n $CONDA_ENV python=$PYTHON_VERSION
+
+
       - name: Install package with deployment and test requirements
+        # Steps: Activate conda env, upgrade pip, install SDK
         run: |
           eval "$(conda shell.bash hook)"
           conda activate $CONDA_ENV
+
           python -m pip install --upgrade pip
+
           pip install ".[deployment,tests]"
 
       - name: Create artifact directory
+        # Creates the temporary directory that is used to store the test artifacts
         run: mkdir $ARTIFACT_DIRECTORY
 
       - name: Nightly tests
@@ -64,6 +76,7 @@ jobs:
           pytest tests/nightly --cov=sc_api_tools
 
       - name: Upload artifacts
+        # Publish the test artifacts in the $ARTIFACT_DIRECTORY to github
         uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
@@ -71,10 +84,15 @@ jobs:
           path: $ARTIFACT_DIRECTORY
 
       - name: Clean up artifact directory
+        # Remove temporary artifact directory
         if: ${{ always() }}
         run: rm -r $ARTIFACT_DIRECTORY
 
       - name: Integration tests
+        # Run all integration tests in online mode
         run: |
-          pytest tests/integration -c tests/offline.ini --cov=sc_api_tools
+          eval "$(conda shell.bash hook)"
+          conda activate $CONDA_ENV
+
+          pytest tests/integration -c tests/online.ini --cov=sc_api_tools
 
