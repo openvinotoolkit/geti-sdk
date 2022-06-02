@@ -18,7 +18,7 @@ env:
   ARTIFACT_DIRECTORY: artifacts
 
   # Conda environment
-  CONDA_ENV=sc_sdk_nightly_test_environment
+  CONDA_ENV: sc_sdk_nightly_test_environment
 
 jobs:
   build:
