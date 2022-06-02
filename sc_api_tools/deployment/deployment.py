@@ -15,7 +15,7 @@ from sc_api_tools.data_models import (
     Prediction,
     Label, Annotation, ScoredLabel,
 )
-from sc_api_tools.data_models.shapes import Rectangle
+from sc_api_tools.data_models.shapes import Rectangle, Polygon, RotatedRectangle
 from sc_api_tools.deployment.data_models import ROI, IntermediateInferenceResult
 from sc_api_tools.deployment.deployed_model import DeployedModel
 from sc_api_tools.rest_converters import ProjectRESTConverter
@@ -280,6 +280,13 @@ class Deployment:
                         ]
                     )
                 )
+
+        if task.type == TaskType.ROTATED_DETECTION:
+            # Rotated detection models produce Polygons, convert them here to
+            # RotatedRectangles
+            for annotation in prediction.annotations:
+                if isinstance(annotation.shape, Polygon):
+                    annotation.shape = RotatedRectangle.from_polygon(annotation.shape)
         return prediction
 
     def _get_model_for_task(self, task: Task) -> DeployedModel:

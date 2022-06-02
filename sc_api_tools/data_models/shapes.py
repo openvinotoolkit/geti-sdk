@@ -383,27 +383,27 @@ class RotatedRectangle(Shape):
         return self.y - 0.5 * self.width * math.cos(alpha) - 0.5 * self.height * math.sin(alpha)
 
     @classmethod
-    def from_ote(cls, ote_shape: OtePolygon) -> 'RotatedRectangle':
+    def from_polygon(cls, polygon: Polygon) -> 'RotatedRectangle':
         """
-        Creates a :py:class`~sc_api_tools.data_models.shapes.Rectangle` from
-        the OTE SDK Polygon entity passed.
+        Creates a :py:class`~sc_api_tools.data_models.shapes.RotatedRectangle` from
+        the Polygon entity passed.
 
         NOTE: The Polygon MUST consist of 4 points, otherwise a ValueError is raised
 
-        :param ote_shape: OTE SDK Rectangle entity to convert from
-        :return: Rectangle instance created according to the ote_shape
+        :param polygon: Polygon entity to convert from
+        :return: Rectangle instance created according to the polygon object
         """
-        if len(ote_shape.points) != 4:
+        if len(polygon.points) != 4:
             raise ValueError(
-                f"Unable to convert polygon {ote_shape} to RotatedRectangle. A rotated "
+                f"Unable to convert polygon {polygon} to RotatedRectangle. A rotated "
                 f"rectangle must have exactly 4 points."
             )
 
-        x_mapping: Dict[float, OtePoint] = {
-            point.x: point for point in ote_shape.points
+        x_mapping: Dict[float, Point] = {
+            point.x: point for point in polygon.points
         }
-        y_mapping: Dict[float, OtePoint] = {
-            point.y: point for point in ote_shape.points
+        y_mapping: Dict[float, Point] = {
+            point.y: point for point in polygon.points
         }
 
         x_min, x_max = min(x_mapping.keys()), max(x_mapping.keys())
@@ -433,6 +433,20 @@ class RotatedRectangle(Shape):
             height=height,
             angle=alpha
         )
+
+    @classmethod
+    def from_ote(cls, ote_shape: OtePolygon) -> 'RotatedRectangle':
+        """
+        Creates a :py:class`~sc_api_tools.data_models.shapes.RotatedRectangle` from
+        the OTE SDK Polygon entity passed.
+
+        NOTE: The Polygon MUST consist of 4 points, otherwise a ValueError is raised
+
+        :param ote_shape: OTE SDK Rectangle entity to convert from
+        :return: Rectangle instance created according to the ote_shape
+        """
+        polygon = Polygon.from_ote(ote_shape)
+        return cls.from_polygon(polygon)
 
     def to_roi(self) -> Rectangle:
         """
