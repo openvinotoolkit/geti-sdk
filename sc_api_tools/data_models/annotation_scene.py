@@ -23,7 +23,7 @@ from sc_api_tools.data_models.shapes import (
     Shape,
     Ellipse,
     Rectangle,
-    Polygon,
+    Polygon, RotatedRectangle,
 )
 from sc_api_tools.data_models.task_annotation_state import TaskAnnotationState
 from sc_api_tools.data_models.utils import (
@@ -252,7 +252,9 @@ class AnnotationScene:
                             label.name, font, font_scale, line_thickness
                         )[0]
                         origin[0] += text_width + 2
-        elif isinstance(shape, Polygon):
+        elif isinstance(shape, RotatedRectangle):
+            shape = shape.to_polygon()
+        if isinstance(shape, Polygon):
             contour = shape.points_as_contour(
                 image_width=image_width, image_height=image_height
             )

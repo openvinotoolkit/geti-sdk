@@ -1,5 +1,6 @@
 import abc
-from typing import List, Tuple, TypeVar, Union
+import math
+from typing import List, Tuple, TypeVar, Union, Dict
 
 import attr
 
@@ -10,7 +11,10 @@ from ote_sdk.entities.shapes.shape import (
 )
 from ote_sdk.entities.shapes.rectangle import Rectangle as OteRectangle
 from ote_sdk.entities.shapes.ellipse import Ellipse as OteEllipse
-from ote_sdk.entities.shapes.polygon import Polygon as OtePolygon
+from ote_sdk.entities.shapes.polygon import (
+    Polygon as OtePolygon,
+    Point as OtePoint
+)
 
 from sc_api_tools.data_models.enums import ShapeType
 from sc_api_tools.data_models.utils import str_to_shape_type
@@ -312,4 +316,177 @@ class Polygon(Shape):
         points = [Point(x=ote_point.x, y=ote_point.y) for ote_point in ote_shape.points]
         return cls(
             points=points
+        )
+
+
+@attr.s(auto_attribs=True)
+class RotatedRectangle(Shape):
+    """
+    Class representing a RotatedRectangle in SC, as used in the /annotations REST
+    endpoints
+
+    NOTE: All coordinates and dimensions are relative to the full image
+
+    :var angle: angle, in degrees, under which the rectangle is defined
+    :var x: X coordinate of the left side of the rectangle
+    :var y: Y coordinate of the top of the rectangle
+    :var width: Width of the rectangle
+    :var height: Height of the rectangle
+    """
+    angle: float
+    x: float
+    y: float
+    width: float
+    height: float
+    type: str = attr.ib(
+        converter=str_to_shape_type, default=ShapeType.ROTATED_RECTANGLE, kw_only=True
+    )
+
+    @property
+    def x_max(self) -> float:
+        """
+        Returns the value of the maximal x-coordinate that the rotated rectangle touches
+
+        :return: Maximum x-coordinate for the rotated rectangle
+        """
+        alpha = (2 * math.pi / 360) * self.angle
+        return self.x + 0.5 * self.width * math.cos(alpha) - 0.5 * self.height * math.sin(alpha)
+
+    @property
+    def x_min(self):
+        """
+        Returns the value of the minimal x-coordinate that the rotated rectangle touches
+
+        :return: Minimum x-coordinate for the rotated rectangle
+        """
+        alpha = (2 * math.pi / 360) * self.angle
+        return self.x - 0.5 * self.width * math.cos(alpha) + 0.5 * self.height * math.sin(alpha)
+
+    @property
+    def y_max(self) -> float:
+        """
+        Returns the value of the maximal y-coordinate that the rotated rectangle touches
+
+        :return: Maximum y-coordinate for the rotated rectangle
+        """
+        alpha = (2 * math.pi / 360) * self.angle
+        return self.y + 0.5 * self.width * math.sin(alpha) + 0.5 * self.height * math.cos(alpha)
+
+    @property
+    def y_min(self):
+        """
+        Returns the value of the minimal y-coordinate that the rotated rectangle touches
+
+        :return: Minimum y-coordinate for the rotated rectangle
+        """
+        alpha = (2 * math.pi / 360) * self.angle
+        return self.y - 0.5 * self.width * math.cos(alpha) - 0.5 * self.height * math.sin(alpha)
+
+    @classmethod
+    def from_ote(cls, ote_shape: OtePolygon) -> 'RotatedRectangle':
+        """
+        Creates a :py:class`~sc_api_tools.data_models.shapes.Rectangle` from
+        the OTE SDK Polygon entity passed.
+
+        NOTE: The Polygon MUST consist of 4 points, otherwise a ValueError is raised
+
+        :param ote_shape: OTE SDK Rectangle entity to convert from
+        :return: Rectangle instance created according to the ote_shape
+        """
+        if len(ote_shape.points) != 4:
+            raise ValueError(
+                f"Unable to convert polygon {ote_shape} to RotatedRectangle. A rotated "
+                f"rectangle must have exactly 4 points."
+            )
+
+        x_mapping: Dict[float, OtePoint] = {
+            point.x: point for point in ote_shape.points
+        }
+        y_mapping: Dict[float, OtePoint] = {
+            point.y: point for point in ote_shape.points
+        }
+
+        x_min, x_max = min(x_mapping.keys()), max(x_mapping.keys())
+        y_min, y_max = min(y_mapping.keys()), max(y_mapping.keys())
+
+        x_min_coord, x_max_coord = x_mapping[x_min], x_mapping[x_max]
+        y_min_coord, y_max_coord = y_mapping[y_min], y_mapping[y_max]
+
+        # Calculate the angle to the x-axis, alpha
+        perpendicular_side = y_max_coord.y - y_min_coord.y
+        base_side = x_max_coord.x - y_min_coord.y
+        hypotenuse = math.sqrt(perpendicular_side ** 2 + base_side ** 2)
+
+        alpha = math.asin(perpendicular_side / hypotenuse)
+        alpha = alpha * 360 / (2 * math.pi)
+
+        height = math.sqrt(x_min_coord.y**2 + y_min_coord.y**2)
+        width = hypotenuse
+
+        x_center = x_max - x_min
+        y_center = y_max - y_min
+
+        return cls(
+            x=x_center,
+            y=y_center,
+            width=width,
+            height=height,
+            angle=alpha
+        )
+
+    def to_roi(self) -> Rectangle:
+        """
+        Returns the bounding box containing the RotatedRectangle, as an instance of
+        the Rectangle class
+
+        :return: Rectangle representing the bounding box for the rotated_rectangle
+        """
+
+        return Rectangle(
+            x=self.x,
+            y=self.y,
+            width=self.x_max - self.x_min,
+            height=self.y_max - self.y_min
+        )
+
+    def to_absolute_coordinates(self, parent_roi: Rectangle) -> 'RotatedRectangle':
+        """
+        Converts the RotatedRectangle to absolute coordinates, given the rectangle
+        representing it's parent region of interest.
+
+        :param parent_roi: Region of interest containing the rotated rectangle
+        :return: RotatedRectangle converted to the coordinate system of it's parent ROI
+        """
+        x = parent_roi.x + self.x * parent_roi.width
+        y = parent_roi.y + self.y * parent_roi.height
+
+        alpha = (2 * math.pi / 360) * self.angle
+
+        width = parent_roi.width * self.width * math.cos(alpha)
+        height = parent_roi.height * self.height * math.sin(alpha)
+        return RotatedRectangle(
+            x=x,
+            y=y,
+            width=width,
+            height=height,
+            angle=self.angle
+        )
+
+    def to_polygon(self) -> Polygon:
+        """
+        Converts the RotatedRectangle instance to a Polygon consisting of 4 points
+
+        :return: Polygon object corresponding to the RotatedRectangle instance
+        """
+        alpha = (2 * math.pi / 360) * self.angle
+        y_0 = self.y - 0.5 * self.width * math.sin(alpha) + 0.5 * self.height * math.cos(alpha)
+        x_1 = self.x - 0.5 * self.width * math.cos(alpha) - 0.5 * self.height * math.sin(alpha)
+        y_2 = self.y + 0.5 * self.width * math.sin(alpha) - 0.5 * self.height * math.cos(alpha)
+        x_3 = self.x + 0.5 * self.width * math.cos(alpha) + 0.5 * self.height * math.sin(alpha)
+        point0 = Point(x=self.x_min, y=y_0)
+        point1 = Point(x=x_1, y=self.y_min)
+        point2 = Point(x=self.x_max, y=y_2)
+        point3 = Point(x=x_3, y=self.y_max)
+        return Polygon(
+            points=[point0, point1, point2, point3]
         )

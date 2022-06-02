@@ -8,7 +8,7 @@ from sc_api_tools.data_models.label import ScoredLabel
 from sc_api_tools.data_models.shapes import (
     Rectangle,
     Ellipse,
-    Polygon, Shape
+    Polygon, Shape, RotatedRectangle
 )
 from sc_api_tools.data_models.utils import (
     deidentify,
@@ -31,7 +31,7 @@ class Annotation:
     _identifier_fields: ClassVar[str] = ["id", "modified"]
 
     labels: List[ScoredLabel]
-    shape: Union[Rectangle, Ellipse, Polygon]
+    shape: Union[Rectangle, Ellipse, Polygon, RotatedRectangle]
     modified: Optional[str] = attr.ib(converter=str_to_datetime, default=None)
     id: Optional[str] = None
     labels_to_revisit: Optional[List[str]] = None

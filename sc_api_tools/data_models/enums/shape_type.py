@@ -8,6 +8,7 @@ class ShapeType(Enum):
     RECTANGLE = 'RECTANGLE'
     ELLIPSE = 'ELLIPSE'
     POLYGON = 'POLYGON'
+    ROTATED_RECTANGLE = 'ROTATED_RECTANGLE'
 
     def __str__(self):
         """

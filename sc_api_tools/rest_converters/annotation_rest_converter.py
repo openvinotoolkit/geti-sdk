@@ -7,7 +7,14 @@ from typing import List, Dict, Any, cast
 
 from sc_api_tools.data_models import Annotation
 from sc_api_tools.data_models.task_annotation_state import TaskAnnotationState
-from sc_api_tools.data_models.shapes import Shape, Rectangle, Ellipse, Polygon, Point
+from sc_api_tools.data_models.shapes import (
+    Shape,
+    Rectangle,
+    Ellipse,
+    Polygon,
+    Point,
+    RotatedRectangle,
+)
 from sc_api_tools.data_models.media_identifiers import (
     MediaIdentifier,
     ImageIdentifier,
@@ -24,7 +31,8 @@ from sc_api_tools.utils.dictionary_helpers import remove_null_fields
 SHAPE_TYPE_MAPPING = {
     ShapeType.ELLIPSE: Ellipse,
     ShapeType.RECTANGLE: Rectangle,
-    ShapeType.POLYGON: Polygon
+    ShapeType.POLYGON: Polygon,
+    ShapeType.ROTATED_RECTANGLE: RotatedRectangle
 }
 MEDIA_IDENTIFIER_MAPPING = {
     MediaType.IMAGE: ImageIdentifier,

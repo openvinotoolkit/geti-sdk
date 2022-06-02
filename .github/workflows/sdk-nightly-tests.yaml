@@ -6,7 +6,7 @@ on:
     - cron: "0 0 * * *"
 
 env:
-  # Environment variables, login details for the SC instance to run the tests against
+  # Login details for the SC instance to run the tests against
   # Secrets are configured on repository level (Settings > Secrets)
   SC_HOST: ${{ secrets.SC_HOST }}
   SC_USERNAME: ${{ secrets.SC_USERNAME }}
