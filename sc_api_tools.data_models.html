@@ -1176,9 +1176,156 @@ the OTE SDK Polygon entity passed.</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.data_models.shapes.</span></span><span class="sig-name descname"><span class="pre">RotatedRectangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.enums.html#sc_api_tools.data_models.enums.ShapeType" title="sc_api_tools.data_models.enums.shape_type.ShapeType"><span class="pre">sc_api_tools.data_models.enums.shape_type.ShapeType</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ShapeType.ROTATED_RECTANGLE</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle" title="Permalink to this definition"></a></dt>
+<dd><p>Class representing a RotatedRectangle in SC, as used in the /annotations REST
+endpoints</p>
+<p>NOTE: All coordinates and dimensions are relative to the full image</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>angle</strong> – angle, in degrees, under which the rectangle is defined</p></li>
+<li><p><strong>x</strong> – X coordinate of the left side of the rectangle</p></li>
+<li><p><strong>y</strong> – Y coordinate of the top of the rectangle</p></li>
+<li><p><strong>width</strong> – Width of the rectangle</p></li>
+<li><p><strong>height</strong> – Height of the rectangle</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.angle">
+<span class="sig-name descname"><span class="pre">angle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.angle" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.x">
+<span class="sig-name descname"><span class="pre">x</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.x" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.y">
+<span class="sig-name descname"><span class="pre">y</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.y" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.width">
+<span class="sig-name descname"><span class="pre">width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.width" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.height">
+<span class="sig-name descname"><span class="pre">height</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.height" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.type">
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.type" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.x_max">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.x_max" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the value of the maximal x-coordinate that the rotated rectangle touches</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Maximum x-coordinate for the rotated rectangle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.x_min">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x_min</span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.x_min" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the value of the minimal x-coordinate that the rotated rectangle touches</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Minimum x-coordinate for the rotated rectangle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.y_max">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">y_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.y_max" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the value of the maximal y-coordinate that the rotated rectangle touches</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Maximum y-coordinate for the rotated rectangle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.y_min">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">y_min</span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.y_min" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the value of the minimal y-coordinate that the rotated rectangle touches</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Minimum y-coordinate for the rotated rectangle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.from_ote">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ote_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ote_sdk.entities.shapes.polygon.Polygon</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.shapes.RotatedRectangle" title="sc_api_tools.data_models.shapes.RotatedRectangle"><span class="pre">sc_api_tools.data_models.shapes.RotatedRectangle</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.from_ote" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a :py:class`~sc_api_tools.data_models.shapes.Rectangle` from
+the OTE SDK Polygon entity passed.</p>
+<p>NOTE: The Polygon MUST consist of 4 points, otherwise a ValueError is raised</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ote_shape</strong> – OTE SDK Rectangle entity to convert from</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Rectangle instance created according to the ote_shape</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.to_roi">
+<span class="sig-name descname"><span class="pre">to_roi</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.shapes.Rectangle" title="sc_api_tools.data_models.shapes.Rectangle"><span class="pre">sc_api_tools.data_models.shapes.Rectangle</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.to_roi" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the bounding box containing the RotatedRectangle, as an instance of
+the Rectangle class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Rectangle representing the bounding box for the rotated_rectangle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.to_absolute_coordinates">
+<span class="sig-name descname"><span class="pre">to_absolute_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_roi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sc_api_tools.data_models.shapes.Rectangle" title="sc_api_tools.data_models.shapes.Rectangle"><span class="pre">sc_api_tools.data_models.shapes.Rectangle</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.shapes.RotatedRectangle" title="sc_api_tools.data_models.shapes.RotatedRectangle"><span class="pre">sc_api_tools.data_models.shapes.RotatedRectangle</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.to_absolute_coordinates" title="Permalink to this definition"></a></dt>
+<dd><p>Converts the RotatedRectangle to absolute coordinates, given the rectangle
+representing it’s parent region of interest.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parent_roi</strong> – Region of interest containing the rotated rectangle</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>RotatedRectangle converted to the coordinate system of it’s parent ROI</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.to_polygon">
+<span class="sig-name descname"><span class="pre">to_polygon</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.shapes.Polygon" title="sc_api_tools.data_models.shapes.Polygon"><span class="pre">sc_api_tools.data_models.shapes.Polygon</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.to_polygon" title="Permalink to this definition"></a></dt>
+<dd><p>Converts the RotatedRectangle instance to a Polygon consisting of 4 points</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Polygon object corresponding to the RotatedRectangle instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <span class="target" id="module-sc_api_tools.data_models.annotations"></span><dl class="py class">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.annotations.Annotation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.data_models.annotations.</span></span><span class="sig-name descname"><span class="pre">Annotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sc_api_tools.data_models.label.ScoredLabel" title="sc_api_tools.data_models.label.ScoredLabel"><span class="pre">sc_api_tools.data_models.label.ScoredLabel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Rectangle" title="sc_api_tools.data_models.shapes.Rectangle"><span class="pre">sc_api_tools.data_models.shapes.Rectangle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Ellipse" title="sc_api_tools.data_models.shapes.Ellipse"><span class="pre">sc_api_tools.data_models.shapes.Ellipse</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Polygon" title="sc_api_tools.data_models.shapes.Polygon"><span class="pre">sc_api_tools.data_models.shapes.Polygon</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modified</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">datetime.datetime</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_to_revisit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.data_models.annotations.Annotation" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.data_models.annotations.</span></span><span class="sig-name descname"><span class="pre">Annotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sc_api_tools.data_models.label.ScoredLabel" title="sc_api_tools.data_models.label.ScoredLabel"><span class="pre">sc_api_tools.data_models.label.ScoredLabel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Rectangle" title="sc_api_tools.data_models.shapes.Rectangle"><span class="pre">sc_api_tools.data_models.shapes.Rectangle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Ellipse" title="sc_api_tools.data_models.shapes.Ellipse"><span class="pre">sc_api_tools.data_models.shapes.Ellipse</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Polygon" title="sc_api_tools.data_models.shapes.Polygon"><span class="pre">sc_api_tools.data_models.shapes.Polygon</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.shapes.RotatedRectangle" title="sc_api_tools.data_models.shapes.RotatedRectangle"><span class="pre">sc_api_tools.data_models.shapes.RotatedRectangle</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modified</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">datetime.datetime</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_to_revisit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.data_models.annotations.Annotation" title="Permalink to this definition"></a></dt>
 <dd><p>Class representing a single annotation in SC.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
@@ -1199,7 +1346,7 @@ be up to date and therefore need to be revisited for this annotation</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.annotations.Annotation.shape">
-<span class="sig-name descname"><span class="pre">shape</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Rectangle" title="sc_api_tools.data_models.shapes.Rectangle"><span class="pre">sc_api_tools.data_models.shapes.Rectangle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Ellipse" title="sc_api_tools.data_models.shapes.Ellipse"><span class="pre">sc_api_tools.data_models.shapes.Ellipse</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Polygon" title="sc_api_tools.data_models.shapes.Polygon"><span class="pre">sc_api_tools.data_models.shapes.Polygon</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sc_api_tools.data_models.annotations.Annotation.shape" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">shape</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Rectangle" title="sc_api_tools.data_models.shapes.Rectangle"><span class="pre">sc_api_tools.data_models.shapes.Rectangle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Ellipse" title="sc_api_tools.data_models.shapes.Ellipse"><span class="pre">sc_api_tools.data_models.shapes.Ellipse</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Polygon" title="sc_api_tools.data_models.shapes.Polygon"><span class="pre">sc_api_tools.data_models.shapes.Polygon</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.shapes.RotatedRectangle" title="sc_api_tools.data_models.shapes.RotatedRectangle"><span class="pre">sc_api_tools.data_models.shapes.RotatedRectangle</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sc_api_tools.data_models.annotations.Annotation.shape" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -4632,6 +4779,11 @@ those TaskTypes, a <cite>Domain.NULL</cite> instance will be returned.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.enums.ShapeType.POLYGON">
 <span class="sig-name descname"><span class="pre">POLYGON</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'POLYGON'</span></em><a class="headerlink" href="#sc_api_tools.data_models.enums.ShapeType.POLYGON" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.enums.ShapeType.ROTATED_RECTANGLE">
+<span class="sig-name descname"><span class="pre">ROTATED_RECTANGLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ROTATED_RECTANGLE'</span></em><a class="headerlink" href="#sc_api_tools.data_models.enums.ShapeType.ROTATED_RECTANGLE" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
