@@ -327,9 +327,9 @@ class RotatedRectangle(Shape):
 
     NOTE: All coordinates and dimensions are relative to the full image
 
-    :var angle: angle, in degrees, under which the rectangle is defined
-    :var x: X coordinate of the left side of the rectangle
-    :var y: Y coordinate of the top of the rectangle
+    :var angle: angle, in degrees, under which the rectangle is defined.
+    :var x: X coordinate of the center of the rectangle
+    :var y: Y coordinate of the center of the rectangle
     :var width: Width of the rectangle
     :var height: Height of the rectangle
     """
@@ -343,14 +343,26 @@ class RotatedRectangle(Shape):
     )
 
     @property
+    def _angle_x_radian(self) -> float:
+        """
+        Returns the angle to the x-axis, in radians
+
+        :return:
+        """
+        return (2 * math.pi / 360) * self.angle
+
+    @property
     def x_max(self) -> float:
         """
         Returns the value of the maximal x-coordinate that the rotated rectangle touches
 
         :return: Maximum x-coordinate for the rotated rectangle
         """
-        alpha = (2 * math.pi / 360) * self.angle
-        return self.x + 0.5 * self.width * math.cos(alpha) - 0.5 * self.height * math.sin(alpha)
+        return (
+                self.x
+                + 0.5 * self.width * math.cos(self._angle_x_radian)
+                + 0.5 * self.height * math.sin(self._angle_x_radian)
+        )
 
     @property
     def x_min(self):
@@ -359,8 +371,11 @@ class RotatedRectangle(Shape):
 
         :return: Minimum x-coordinate for the rotated rectangle
         """
-        alpha = (2 * math.pi / 360) * self.angle
-        return self.x - 0.5 * self.width * math.cos(alpha) + 0.5 * self.height * math.sin(alpha)
+        return (
+                self.x
+                - 0.5 * self.width * math.cos(self._angle_x_radian)
+                - 0.5 * self.height * math.sin(self._angle_x_radian)
+        )
 
     @property
     def y_max(self) -> float:
@@ -369,8 +384,11 @@ class RotatedRectangle(Shape):
 
         :return: Maximum y-coordinate for the rotated rectangle
         """
-        alpha = (2 * math.pi / 360) * self.angle
-        return self.y + 0.5 * self.width * math.sin(alpha) + 0.5 * self.height * math.cos(alpha)
+        return (
+                self.y
+                + 0.5 * self.width * math.sin(self._angle_x_radian)
+                + 0.5 * self.height * math.cos(self._angle_x_radian)
+        )
 
     @property
     def y_min(self):
@@ -379,8 +397,11 @@ class RotatedRectangle(Shape):
 
         :return: Minimum y-coordinate for the rotated rectangle
         """
-        alpha = (2 * math.pi / 360) * self.angle
-        return self.y - 0.5 * self.width * math.cos(alpha) - 0.5 * self.height * math.sin(alpha)
+        return (
+                self.y
+                - 0.5 * self.width * math.sin(self._angle_x_radian)
+                - 0.5 * self.height * math.cos(self._angle_x_radian)
+        )
 
     @classmethod
     def from_polygon(cls, polygon: Polygon) -> 'RotatedRectangle':
@@ -399,32 +420,40 @@ class RotatedRectangle(Shape):
                 f"rectangle must have exactly 4 points."
             )
 
-        x_mapping: Dict[float, Point] = {
-            point.x: point for point in polygon.points
-        }
-        y_mapping: Dict[float, Point] = {
-            point.y: point for point in polygon.points
-        }
+        x_coords = [point.x for point in polygon.points]
+        y_coords = [point.y for point in polygon.points]
 
-        x_min, x_max = min(x_mapping.keys()), max(x_mapping.keys())
-        y_min, y_max = min(y_mapping.keys()), max(y_mapping.keys())
+        x_min, x_max = min(x_coords), max(x_coords)
+        y_min, y_max = min(y_coords), max(y_coords)
 
-        x_min_coord, x_max_coord = x_mapping[x_min], x_mapping[x_max]
-        y_min_coord, y_max_coord = y_mapping[y_min], y_mapping[y_max]
+        x_center = x_min + 0.5 * (x_max - abs(x_min))
+        y_center = y_min + 0.5 * (y_max - abs(y_min))
 
-        # Calculate the angle to the x-axis, alpha
-        perpendicular_side = y_max_coord.y - y_min_coord.y
-        base_side = x_max_coord.x - y_min_coord.y
-        hypotenuse = math.sqrt(perpendicular_side ** 2 + base_side ** 2)
+        if len(x_coords) > len(set(x_coords)) or len(y_coords) > len(set(y_coords)):
+            # In this case there are points sharing the same x or y value, which means
+            # that we have an angle of 0 degrees
+            width = x_max - x_min
+            height = y_max - y_min
+            alpha = 0
+        else:
+            x_min_coord = Point(x=x_min, y=y_coords[x_coords.index(x_min)])
+            x_max_coord = Point(x=x_max, y=y_coords[x_coords.index(x_max)])
+            y_min_coord = Point(x=x_coords[y_coords.index(y_min)], y=y_min)
 
-        alpha = math.asin(perpendicular_side / hypotenuse)
-        alpha = alpha * 360 / (2 * math.pi)
+            # Calculate the angle to the x-axis, alpha
+            perpendicular_side = x_max_coord.y - y_min_coord.y
+            base_side = x_max_coord.x - y_min_coord.x
+            hypotenuse = math.sqrt(perpendicular_side ** 2 + base_side ** 2)
 
-        height = math.sqrt(x_min_coord.y**2 + y_min_coord.y**2)
-        width = hypotenuse
+            alpha = math.asin(perpendicular_side / hypotenuse)
+            alpha = alpha * 360 / (2 * math.pi)
 
-        x_center = x_max - x_min
-        y_center = y_max - y_min
+            width = hypotenuse
+
+            # Calculate height
+            perpendicular_side_2 = x_min_coord.y - y_min_coord.y
+            base_side_2 = x_min_coord.x - y_min_coord.x
+            height = math.sqrt(perpendicular_side_2**2 + base_side_2**2)
 
         return cls(
             x=x_center,
@@ -474,10 +503,8 @@ class RotatedRectangle(Shape):
         x = parent_roi.x + self.x * parent_roi.width
         y = parent_roi.y + self.y * parent_roi.height
 
-        alpha = (2 * math.pi / 360) * self.angle
-
-        width = parent_roi.width * self.width * math.cos(alpha)
-        height = parent_roi.height * self.height * math.sin(alpha)
+        width = parent_roi.width * self.width * math.cos(self._angle_x_radian)
+        height = parent_roi.height * self.height * math.sin(self._angle_x_radian)
         return RotatedRectangle(
             x=x,
             y=y,
@@ -492,11 +519,10 @@ class RotatedRectangle(Shape):
 
         :return: Polygon object corresponding to the RotatedRectangle instance
         """
-        alpha = (2 * math.pi / 360) * self.angle
-        y_0 = self.y - 0.5 * self.width * math.sin(alpha) + 0.5 * self.height * math.cos(alpha)
-        x_1 = self.x - 0.5 * self.width * math.cos(alpha) - 0.5 * self.height * math.sin(alpha)
-        y_2 = self.y + 0.5 * self.width * math.sin(alpha) - 0.5 * self.height * math.cos(alpha)
-        x_3 = self.x + 0.5 * self.width * math.cos(alpha) + 0.5 * self.height * math.sin(alpha)
+        y_0 = self.y - 0.5 * self.width * math.sin(self._angle_x_radian) + 0.5 * self.height * math.cos(self._angle_x_radian)
+        x_1 = self.x - 0.5 * self.width * math.cos(self._angle_x_radian) + 0.5 * self.height * math.sin(self._angle_x_radian)
+        y_2 = self.y + 0.5 * self.width * math.sin(self._angle_x_radian) - 0.5 * self.height * math.cos(self._angle_x_radian)
+        x_3 = self.x + 0.5 * self.width * math.cos(self._angle_x_radian) - 0.5 * self.height * math.sin(self._angle_x_radian)
         point0 = Point(x=self.x_min, y=y_0)
         point1 = Point(x=x_1, y=self.y_min)
         point2 = Point(x=self.x_max, y=y_2)

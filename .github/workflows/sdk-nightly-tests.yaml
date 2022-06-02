@@ -89,7 +89,7 @@ jobs:
         run: rm -r $ARTIFACT_DIRECTORY
 
       - name: Integration tests
-        # Run all integration tests in online mode.
+        # Run all integration tests in online mode (set in TEST_MODE env variable).
         run: |
           eval "$(conda shell.bash hook)"
           conda activate $CONDA_ENV

@@ -10,7 +10,8 @@ from sc_api_tools.annotation_readers import DatumAnnotationReader
 from sc_api_tools.data_models import Prediction, Job
 from sc_api_tools.data_models.enums import JobState
 from sc_api_tools.utils import show_image_with_annotation_scene
-from tests.helpers import ProjectService, get_or_create_annotated_project_for_test_class
+from tests.helpers import ProjectService, \
+    get_or_create_annotated_project_for_test_class, plot_predictions_side_by_side
 from tests.helpers.constants import PROJECT_PREFIX
 
 
@@ -132,7 +133,7 @@ class TestNightlyProject:
         assert isinstance(local_prediction, Prediction)
         image, online_prediction = fxt_client_no_vcr.upload_and_predict_image(
             project.name,
-            image=image_np,
+            image=image_bgr,
             delete_after_prediction=True,
             visualise_output=False
         )
@@ -158,15 +159,11 @@ class TestNightlyProject:
         predictions_dir = os.path.join(fxt_artifact_directory, 'predictions')
         if not os.path.isdir(predictions_dir):
             os.makedirs(predictions_dir)
-        local_prediction_path = os.path.join(predictions_dir, project.name + "_local.jpg")
-        online_prediction_path = os.path.join(predictions_dir, project.name + "_online.jpg")
-        show_image_with_annotation_scene(
-            image=image,
-            annotation_scene=local_prediction,
-            filepath=local_prediction_path
-        )
-        show_image_with_annotation_scene(
-            image=image,
-            annotation_scene=online_prediction,
-            filepath=online_prediction_path
+
+        image_path = os.path.join(predictions_dir, project.name + '.jpg')
+        plot_predictions_side_by_side(
+            image,
+            prediction_1=local_prediction,
+            prediction_2=online_prediction,
+            filepath=image_path
         )
