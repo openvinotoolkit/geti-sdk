@@ -11,11 +11,14 @@ env:
   SC_HOST: ${{ secrets.SC_HOST }}
   SC_USERNAME: ${{ secrets.SC_USERNAME }}
   SC_PASSWORD: ${{ secrets.SC_PASSWORD }}
+
+  # Other environment variables used in the tests
   TEST_MODE: "ONLINE"
   CLEAR_EXISTING_TEST_PROJECTS: 1
-  ACTIONS_RUNNER_HOOK_JOB_STARTED: /scripts/nightly_setup.sh
-  ACTIONS_RUNNER_HOOK_JOB_COMPLETED: /scripts/nightly_teardown.sh
   ARTIFACT_DIRECTORY: artifacts
+
+  # Conda environment
+  CONDA_ENV=sc_sdk_nightly_test_environment
 
 jobs:
   build:
@@ -28,22 +31,30 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v3
+      - uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: '3.8'
+          auto-activate-base: true
+          activate-environment: ""
+
+      - name: Create fresh conda environment
+        run: |
+          conda info --envs > temp_envs.txt
+          if grep --quiet $CONDA_ENV temp_envs.txt; then
+          echo Conda environment $CONDA_ENV exists, removing for clean start
+          conda remove -y --name $CONDA_ENV --all
+          fi
+          conda create -y -n $CONDA_ENV python=3.8
+          rm temp_envs.txt
 
       - name: Install package with deployment and test requirements
-        # OTE SDK and openmodelzoo have to be uninstalled first to guarantee that
-        # these package use the version specified in the requirements
         run: |
-          eval "$(conda shell.bash hook)"
-          conda activate sc_sdk_nightly_tests
+          conda activate $CONDA_ENV
           python -m pip install --upgrade pip
           pip install ".[deployment,tests]"
 
       - name: Create artifact directory
         run: mkdir $ARTIFACT_DIRECTORY
+        post: rm -r $ARTIFACT_DIRECTORY
 
       - name: Nightly tests
         # Proxy settings have to be configured and SC_HOST set to full address before
@@ -53,15 +64,19 @@ jobs:
           export NO_PROXY=$SC_HOST,$NO_PROXY
           export SC_HOST=https://$SC_HOST
 
+          conda activate $CONDA_ENV
+
           pytest tests/nightly --cov=sc_api_tools
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
+        if: ${{ always() }}
         with:
           name: artifacts
           path: $ARTIFACT_DIRECTORY
 
       - name: Clean up artifact directory
+        if: ${{ always() }}
         run: rm -r $ARTIFACT_DIRECTORY
 
       - name: Integration tests
