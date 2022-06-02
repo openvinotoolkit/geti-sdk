@@ -1268,9 +1268,25 @@ endpoints</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.from_polygon">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_polygon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polygon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sc_api_tools.data_models.shapes.Polygon" title="sc_api_tools.data_models.shapes.Polygon"><span class="pre">sc_api_tools.data_models.shapes.Polygon</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.shapes.RotatedRectangle" title="sc_api_tools.data_models.shapes.RotatedRectangle"><span class="pre">sc_api_tools.data_models.shapes.RotatedRectangle</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.from_polygon" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a :py:class`~sc_api_tools.data_models.shapes.RotatedRectangle` from
+the Polygon entity passed.</p>
+<p>NOTE: The Polygon MUST consist of 4 points, otherwise a ValueError is raised</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>polygon</strong> – Polygon entity to convert from</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Rectangle instance created according to the polygon object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.from_ote">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ote_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ote_sdk.entities.shapes.polygon.Polygon</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.shapes.RotatedRectangle" title="sc_api_tools.data_models.shapes.RotatedRectangle"><span class="pre">sc_api_tools.data_models.shapes.RotatedRectangle</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.from_ote" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a :py:class`~sc_api_tools.data_models.shapes.Rectangle` from
+<dd><p>Creates a :py:class`~sc_api_tools.data_models.shapes.RotatedRectangle` from
 the OTE SDK Polygon entity passed.</p>
 <p>NOTE: The Polygon MUST consist of 4 points, otherwise a ValueError is raised</p>
 <dl class="field-list simple">
