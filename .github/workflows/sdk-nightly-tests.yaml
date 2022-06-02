@@ -28,16 +28,10 @@ jobs:
 
       - name: Checkout code with caching for Git LFS
         uses: nschloe/action-cached-lfs-checkout@v1.1.2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-activate-base: true
-          activate-environment: ""
 
       - name: Create fresh conda environment
         run: |
+          eval "$(conda shell.bash hook)"
           conda info --envs > temp_envs.txt
           if grep --quiet $CONDA_ENV temp_envs.txt; then
           echo Conda environment $CONDA_ENV exists, removing for clean start
@@ -48,6 +42,7 @@ jobs:
 
       - name: Install package with deployment and test requirements
         run: |
+          eval "$(conda shell.bash hook)"
           conda activate $CONDA_ENV
           python -m pip install --upgrade pip
           pip install ".[deployment,tests]"
@@ -63,6 +58,7 @@ jobs:
           export NO_PROXY=$SC_HOST,$NO_PROXY
           export SC_HOST=https://$SC_HOST
 
+          eval "$(conda shell.bash hook)"
           conda activate $CONDA_ENV
 
           pytest tests/nightly --cov=sc_api_tools
