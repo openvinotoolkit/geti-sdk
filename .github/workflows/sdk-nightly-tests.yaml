@@ -54,7 +54,6 @@ jobs:
 
       - name: Create artifact directory
         run: mkdir $ARTIFACT_DIRECTORY
-        post: rm -r $ARTIFACT_DIRECTORY
 
       - name: Nightly tests
         # Proxy settings have to be configured and SC_HOST set to full address before
