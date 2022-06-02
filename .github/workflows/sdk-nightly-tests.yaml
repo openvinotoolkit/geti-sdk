@@ -81,7 +81,7 @@ jobs:
         if: ${{ always() }}
         with:
           name: artifacts
-          path: $ARTIFACT_DIRECTORY
+          path: ${{ ARTIFACT_DIRECTORY }}
 
       - name: Clean up artifact directory
         # Remove temporary artifact directory
