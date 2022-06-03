@@ -94,7 +94,7 @@ jobs:
           export no_proxy=$SC_HOST,$no_proxy
           export NO_PROXY=$SC_HOST,$NO_PROXY
           export SC_HOST=https://$SC_HOST
-          export CLEAR_EXISTING_TEST_PROJECTS=1
+          export CLEAR_EXISTING_TEST_PROJECTS=0
 
           eval "$(conda shell.bash hook)"
           conda activate $CONDA_ENV
