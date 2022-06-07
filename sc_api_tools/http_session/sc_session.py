@@ -96,17 +96,16 @@ class SCSession(requests.Session):
         try:
             login_path = self._get_initial_login_url()
         except requests.exceptions.ConnectionError as error:
-            if "0.0.0.0" in self.config.host:
-                raise ValueError(
-                    f"Connection to Sonoma Creek at host '{self.config.host}' failed,"
-                    f" please provide a valid cluster hostname or ip address."
-                )
             if "dummy" in self.config.password or "dummy" in self.config.username:
                 raise ValueError(
                     "Connection to Sonoma Creek failed, please make sure to update "
                     "the user login information for the SC cluster."
-                )
-            raise error
+                ) from error
+            raise ValueError(
+                f"Connection to Sonoma Creek at host '{self.config.host}' failed,"
+                f" please provide a valid cluster hostname or ip address as well as "
+                f"valid login details."
+            ) from error
         self.headers.clear()
         self.headers.update({'Content-Type': 'application/x-www-form-urlencoded'})
         if verbose:
