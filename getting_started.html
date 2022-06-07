@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting started &mdash; SonomaCreek SDK v1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="sc_api_tools.html" />
+    <link rel="prev" title="SonomaCreek SDK documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> SonomaCreek SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-package">Using the package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#downloading-and-uploading-projects">Downloading and uploading projects</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#up-downloading-all-projects">Up/Downloading all projects</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#deploying-a-project">Deploying a project</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#supported-features">Supported features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-reference">API reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sc_api_tools.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SonomaCreek SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Getting started</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/getting_started.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h2>
+<p>This package contains tools to interact with a Sonoma Creek cluster via
+the SC REST API. It provides functionality for:</p>
+<ul class="simple">
+<li><p>Project creation from datasets on disk</p></li>
+<li><p>Project downloading (images, videos, configuration, annotations, predictions and models)</p></li>
+<li><p>Project creation and upload from a previous download</p></li>
+<li><p>Deploying a project for local inference with OpenVINO</p></li>
+</ul>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
+<p>I recommend using an environment manager such as
+<a class="reference external" href="https://www.anaconda.com/products/individual">Anaconda</a> or
+<a class="reference external" href="https://docs.python.org/3/library/venv.html">venv</a> to create a new
+Python environment before installing the package and it’s requirements. The package
+requires Python version 3.8, so make sure to use that version in your environment.</p>
+<p>Once you have created a new environment, follow these steps to install the package:</p>
+<ol class="arabic simple">
+<li><p>Download or clone the repository and navigate to the package directory.</p></li>
+<li><p>From there, install the requirements using</p></li>
+</ol>
+<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code>.</p>
+<ol class="arabic simple">
+<li><p>(Optional) If you plan on using the package to deploy inference models, install the
+requirements for deployment using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements-deployment.txt</span></code>.</p></li>
+<li><p>Then run <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">.</span></code> to install the package.</p></li>
+</ol>
+<p>You can also install it in editable mode using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code> This is handy if
+you want to make changes to the package, or want to keep it up to date with the
+latest code changes in the repository.</p>
+<blockquote>
+<div><p><strong>NOTE</strong>: sc-api-tools needs <code class="docutils literal notranslate"><span class="pre">python==3.8</span></code> to run. Python 3.9 will work on Linux
+systems, but unfortunately not on Windows yet since not all required packages are
+available for that version.</p>
+</div></blockquote>
+</section>
+<section id="using-the-package">
+<h2>Using the package<a class="headerlink" href="#using-the-package" title="Permalink to this headline"></a></h2>
+<p>The package provides a main class <code class="docutils literal notranslate"><span class="pre">SCRESTClient</span></code> that can be used for creating, downloading and
+uploading projects.</p>
+<section id="downloading-and-uploading-projects">
+<h3>Downloading and uploading projects<a class="headerlink" href="#downloading-and-uploading-projects" title="Permalink to this headline"></a></h3>
+<ul>
+<li><p><strong>Project download</strong> The following python snippet is a minimal example of how to
+download a project using the SCRESTClient:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sc_api_tools</span> <span class="kn">import</span> <span class="n">SCRESTClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">SCRESTClient</span><span class="p">(</span>
+  <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://0.0.0.0&quot;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;dummy_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;dummy_password&quot;</span>
+<span class="p">)</span>
+
+<span class="n">client</span><span class="o">.</span><span class="n">download_project</span><span class="p">(</span><span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;dummy_project&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here, it is assumed that the project with name ‘dummy_project’ exists on the cluster.
+The client will create a folder named ‘dummy_project’ in your current working
+directory, and download the project parameters, images, videos, annotations,
+predictions and the active model for the project (including optimized models derived
+from it) to that folder.</p>
+<p>The method takes
+the following optional parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">target_folder</span></code> – Can be specified to change the directory to which the
+project data is saved.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">include_predictions</span></code> – Set to True to download the predictions for all images
+and videos in the project. Set to False to not download any predictions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">include_active_model</span></code> – Set to True to download the active model for the
+project, and any optimized models derived from it. If set to False, no models
+are downloaded. True by default.</p></li>
+</ul>
+</li>
+<li><p><strong>Project upload</strong> The following python snippet is a minimal example of how to
+re-create a project on an SC cluster using the data from a previously downloaded
+project:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sc_api_tools</span> <span class="kn">import</span> <span class="n">SCRESTClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">SCRESTClient</span><span class="p">(</span>
+    <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://0.0.0.0&quot;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;dummy_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;dummy_password&quot;</span>
+<span class="p">)</span>
+
+<span class="n">client</span><span class="o">.</span><span class="n">upload_project</span><span class="p">(</span><span class="n">target_folder</span><span class="o">=</span><span class="s2">&quot;dummy_project&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The parameter <code class="docutils literal notranslate"><span class="pre">target_folder</span></code> must be a valid path to the directory holding the
+project data. If you want to create the project using a different name than the
+original project, you can pass an additional parameter <code class="docutils literal notranslate"><span class="pre">project_name</span></code> to the upload
+method.</p>
+</li>
+</ul>
+<p>The client can be used to either back-up a project (by downloading it and later
+uploading it again to the same cluster), or to migrate a project to a different cluster
+(download it, and upload it to the target cluster).</p>
+<section id="up-downloading-all-projects">
+<h4>Up/Downloading all projects<a class="headerlink" href="#up-downloading-all-projects" title="Permalink to this headline"></a></h4>
+<p>To up- or download all projects from a cluster, simply use the
+<code class="docutils literal notranslate"><span class="pre">client.download_all_projects</span></code> and <code class="docutils literal notranslate"><span class="pre">client.upload_all_projects</span></code> methods instead of
+the single project methods in the code snippets above.</p>
+</section>
+</section>
+<section id="deploying-a-project">
+<h3>Deploying a project<a class="headerlink" href="#deploying-a-project" title="Permalink to this headline"></a></h3>
+<blockquote>
+<div><p><strong>WARNING</strong>: The deployment-related features of this package are in an experimental
+stage, and subject to change.</p>
+</div></blockquote>
+<p><strong>NOTE</strong>: Before running inference locally, please install the
+required packages for deployment using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements-deployment.txt</span></code></p>
+<p>The following code snippet shows how to create a deployment for local inference with
+OpenVINO:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cv2</span>
+
+<span class="kn">from</span> <span class="nn">sc_api_tools</span> <span class="kn">import</span> <span class="n">SCRESTClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">SCRESTClient</span><span class="p">(</span>
+        <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://0.0.0.0&quot;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;dummy_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;dummy_password&quot;</span>
+    <span class="p">)</span>
+
+<span class="c1"># Download the model data and create a `Deployment`</span>
+<span class="n">deployment</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">deploy_project</span><span class="p">(</span><span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;dummy_project&quot;</span><span class="p">)</span>
+
+<span class="c1"># Load the inference models for all tasks in the project, for CPU inference</span>
+<span class="n">deployment</span><span class="o">.</span><span class="n">load_inference_models</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="s1">&#39;CPU&#39;</span><span class="p">)</span>
+
+<span class="c1"># Run inference</span>
+<span class="n">dummy_image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;dummy_image.png&#39;</span><span class="p">)</span>
+<span class="n">prediction</span> <span class="o">=</span> <span class="n">deployment</span><span class="o">.</span><span class="n">infer</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">dummy_image</span><span class="p">)</span>
+
+<span class="c1"># Save the deployment to disk</span>
+<span class="n">deployment</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path_to_folder</span><span class="o">=</span><span class="s2">&quot;dummy_project&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">deployment.infer</span></code> method takes a numpy image as input.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">deployment.save</span></code> method will save the deployment to the folder named
+‘dummy_project’, on the local disk. The deployment can be reloaded again later using
+<code class="docutils literal notranslate"><span class="pre">Deployment.from_folder('dummy_project')</span></code>.</p>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline"></a></h3>
+<p>The <a class="reference external" href="/examples/README.md">examples</a> folder contains example scripts, showing various
+usecases for the package.</p>
+<p>In addition, the <a class="reference external" href="/notebooks/README.md">notebooks</a> folder contains jupyter notebooks
+with more example use cases for the <code class="docutils literal notranslate"><span class="pre">sc-api-tools</span></code> package.</p>
+</section>
+</section>
+<section id="supported-features">
+<h2>Supported features<a class="headerlink" href="#supported-features" title="Permalink to this headline"></a></h2>
+<p>What is supported:</p>
+<ul class="simple">
+<li><p><strong>Creating projects</strong>. You can pass a variable <code class="docutils literal notranslate"><span class="pre">project_type</span></code> to control what kind of
+tasks will be created in the project pipeline. For example, if you want to create a
+single task segmentation project, you’d pass <code class="docutils literal notranslate"><span class="pre">project_type='segmentation'</span></code>. For a
+detection -&gt; segmentation task chain, you can pass
+<code class="docutils literal notranslate"><span class="pre">project_type=detection_to_segmentation</span></code>. Please see the scripts in the <code class="docutils literal notranslate"><span class="pre">examples</span></code>
+folder for examples on how to do this.</p></li>
+<li><p><strong>Uploading</strong> images, videos, annotations for images and video frames and configurations
+to a project</p></li>
+<li><p><strong>Downloading</strong> images, videos, annotations, models and predictions for all images and
+videos/video frames in a project. Also downloading the full project configuration
+is supported.</p></li>
+<li><p><strong>Setting configuration for a project</strong>, like turning auto train on/off and
+setting number of iterations for all tasks</p></li>
+<li><p><strong>Deploying a project</strong> to load OpenVINO inference models for all tasks in the pipeline,
+and running the full pipeline inference on a local machine.</p></li>
+<li><p><strong>Creating and restoring a backup of an existing project</strong>, using the code
+snippets provided <span class="xref std std-ref">above</span>. Only
+annotations, media and configurations are backed up, models are not.</p></li>
+</ul>
+<p>What is not supported:</p>
+<ul class="simple">
+<li><p>Model upload</p></li>
+<li><p>Prediction upload</p></li>
+</ul>
+</section>
+<section id="api-reference">
+<h2>API reference<a class="headerlink" href="#api-reference" title="Permalink to this headline"></a></h2>
+<p>The high level <code class="docutils literal notranslate"><span class="pre">SCRESTClient</span></code> class provides the following methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">download_project</span></code> – Downloads a project by project name.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">upload_project</span></code> – Upload project from a folder.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">download_all_projects</span></code> – Downloads all projects found on the SC cluster.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">upload_all_projects</span></code> – Uploads all projects found in a specified folder to the SC
+cluster.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">upload_and_predict_image</span></code> – Uploads a single image to an existing project on the
+SC cluster, and requests a prediction for that image. Optionally, the prediction can
+be visualized as an overlay on the image.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">upload_and_predict_video</span></code> – Uploads a single video to an existing project on the
+SC cluster, and requests predictions for the frames in the video. As with
+upload_and_predict_image, the predictions can be visualized on the frames. The
+parameter <code class="docutils literal notranslate"><span class="pre">frame_stride</span></code> can be used to control which frames are extracted for
+prediction.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">upload_and_predict_media_folder</span></code> – Upload all media (images and videos) from a
+folder on local disk to an existing project on the SC cluster, and download
+predictions for all uploaded media.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">deploy_project</span></code> – Downloads the active model for all tasks in the project as an
+OpenVINO inference model. The resulting <code class="docutils literal notranslate"><span class="pre">Deployment</span></code> can be used to run inference
+for the project on a local machine. Pipeline inference is also supported.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_project_single_task_from_dataset</span></code> – Creates a single task project on the SC
+cluster, potentially using labels and uploading annotations from an external dataset.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_task_chain_project_from_dataset</span></code> – Creates a task chain project on the SC
+cluster, potentially using labels and uploading annotations from an external dataset.</p></li>
+</ul>
+<p>For further details regarding these methods, please refer to the method documentation
+and the <span class="xref std std-ref">code snippets</span> and
+<span class="xref std std-ref">example scripts</span> provided in this repo.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="SonomaCreek SDK documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sc_api_tools.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Ludo Cornelissen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
