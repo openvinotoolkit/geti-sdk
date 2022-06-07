@@ -30,6 +30,14 @@ def fxt_image_path(fxt_image_folder) -> str:
     yield os.path.join(fxt_image_folder, "WIN_20220406_21_24_24_Pro.jpg")
 
 
+@pytest.fixture(scope="session")
+def fxt_image_path_complex(fxt_image_folder) -> str:
+    """
+    This fixture returns the path to a complex sample image
+    """
+    yield os.path.join(fxt_image_folder, "WIN_20220406_21_26_02_Pro.jpg")
+
+
 @pytest.fixture(scope="function")
 def fxt_annotation_reader(fxt_blocks_dataset) -> DatumAnnotationReader:
     """
