@@ -1,4 +1,3 @@
-# SC REST API tools 
 ## Introduction
 This package contains tools to interact with a Sonoma Creek cluster via 
 the SC REST API. It provides functionality for:
@@ -29,8 +28,9 @@ You can also install it in editable mode using `pip install -e .` This is handy 
 you want to make changes to the package, or want to keep it up to date with the 
 latest code changes in the repository. 
 
-> **NOTE**: sc-api-tools needs `python==3.8` to run. Unfortunately python 3.9 won't 
-> work yet since not all required packages are available for that version.
+> **NOTE**: sc-api-tools needs `python==3.8` to run. Python 3.9 will work on Linux 
+> systems, but unfortunately not on Windows yet since not all required packages are 
+> available for that version.
 
 ## Using the package
 The package provides a main class `SCRESTClient` that can be used for creating, downloading and
@@ -62,7 +62,7 @@ uploading projects.
     - `include_predictions` -- Set to True to download the predictions for all images 
       and videos in the project. Set to False to not download any predictions.
       
-    - 'include_active_model' -- Set to True to download the active model for the 
+    - `include_active_model` -- Set to True to download the active model for the 
       project, and any optimized models derived from it. If set to False, no models 
       are downloaded. True by default. 
 
@@ -132,11 +132,11 @@ The `deployment.save` method will save the deployment to the folder named
 `Deployment.from_folder('dummy_project')`.
 
 ### Examples
-The [examples](examples/README.md) folder contains example scripts, showing various 
+The [examples](/examples/README.md) folder contains example scripts, showing various 
 usecases for the package.
 
 
-In addition, the [notebooks](notebooks/README.md) folder contains jupyter notebooks 
+In addition, the [notebooks](/notebooks/README.md) folder contains jupyter notebooks 
 with more example use cases for the `sc-api-tools` package.
 
 ## Supported features
@@ -170,12 +170,9 @@ What is supported:
   snippets provided [above](#downloading-and-uploading-projects). Only 
   annotations, media and configurations are backed up, models are not.
   
-What is not (fully) supported:
+What is not supported:
 - Model upload
-- Label hierarchies *should* work, I have tested this but please use caution 
-  and test extensively yourself
-- Other stuff that I may have missed... Please please please test carefully before 
-  relying on this tool to back up your projects!!!
+- Prediction upload
   
 ## API reference
 The high level `SCRESTClient` class provides the following methods:
@@ -224,4 +221,4 @@ The high level `SCRESTClient` class provides the following methods:
   
 For further details regarding these methods, please refer to the method documentation 
 and the [code snippets](#downloading-and-uploading-projects) and 
-[example scripts](#project-creation-examples) provided in this repo.
+[example scripts](#examples) provided in this repo.
