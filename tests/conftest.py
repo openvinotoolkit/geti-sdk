@@ -23,7 +23,9 @@ TEST_MODE = SdkTestMode[os.environ.get("TEST_MODE", "OFFLINE")]
 HOST = os.environ.get("SC_HOST", "https://dummy_host").strip("/")
 USERNAME = os.environ.get("SC_USERNAME", "dummy_user")
 PASSWORD = os.environ.get("SC_PASSWORD", "dummy_password")
-CLEAR_EXISTING_TEST_PROJECTS = os.environ.get("CLEAR_EXISTING_TEST_PROJECTS", False)
+CLEAR_EXISTING_TEST_PROJECTS = os.environ.get(
+    "CLEAR_EXISTING_TEST_PROJECTS", '0'
+).lower() in ['true', '1']
 
 
 @pytest.fixture(scope="session")
