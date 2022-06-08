@@ -184,7 +184,7 @@ class ConfigurationRESTConverter:
         if isinstance(input_copy, list):
             input_list = input_copy
         else:
-            input_list = input_copy.pop("components")
+            input_list = input_copy.pop("items")
         component_objects = ConfigurationRESTConverter._rest_components_to_objects(
             input_list
         )

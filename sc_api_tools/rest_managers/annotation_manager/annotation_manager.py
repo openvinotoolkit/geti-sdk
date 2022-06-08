@@ -28,9 +28,15 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
             url=f"{video.base_url}/annotations/latest",
             method="GET"
         )
+        if isinstance(response, list):
+            annotations = response
+        elif isinstance(response, dict):
+            annotations = response["items"]
+        else:
+            raise TypeError(f"Invalid response type {type(response)}.")
         return [
             self.annotation_scene_from_rest_response(annotation_scene)
-            for annotation_scene in response
+            for annotation_scene in annotations
         ]
 
     def upload_annotations_for_video(
