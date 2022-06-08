@@ -18,7 +18,9 @@ Welcome to the documentation for the SonomaCreek SDK! The purpose of this SDK is
    :caption: Contents:
 
    getting_started
-   sc_api_tools
+   Notebooks <notebooks>
+   Testing <testing>
+   api_reference
 
 This SDK includes various example scripts and jupyter notebooks which illustrate a
 range of use cases for the SDK. Make sure to check them out if you're getting
