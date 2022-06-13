@@ -857,12 +857,37 @@ representing it’s parent region of interest.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Shape.to_normalized_coordinates">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_normalized_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Shape.to_normalized_coordinates" title="Permalink to this definition"></a></dt>
+<dd><p>Converts the Shape to a normalized coordinate system, such that all
+coordinates are represented as floats in the interval [0, 1]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_width</strong> – Width (in pixels) of the image or region with respect to
+which the shape coordinates should be normalized.</p></li>
+<li><p><strong>image_height</strong> – Height (in pixels) of the image or region with respect to
+which the shape coordinates should be normalized</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary representing the Shape object with it’s coordinates
+normalized with respect to image_width and image_height</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Shape.from_ote">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ote_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">sc_api_tools.data_models.shapes.OteShapeTypeVar</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Rectangle" title="sc_api_tools.data_models.shapes.Rectangle"><span class="pre">sc_api_tools.data_models.shapes.Rectangle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Ellipse" title="sc_api_tools.data_models.shapes.Ellipse"><span class="pre">sc_api_tools.data_models.shapes.Ellipse</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Polygon" title="sc_api_tools.data_models.shapes.Polygon"><span class="pre">sc_api_tools.data_models.shapes.Polygon</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Shape.from_ote" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ote_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">sc_api_tools.data_models.shapes.OteShapeTypeVar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Rectangle" title="sc_api_tools.data_models.shapes.Rectangle"><span class="pre">sc_api_tools.data_models.shapes.Rectangle</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Ellipse" title="sc_api_tools.data_models.shapes.Ellipse"><span class="pre">sc_api_tools.data_models.shapes.Ellipse</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.shapes.Polygon" title="sc_api_tools.data_models.shapes.Polygon"><span class="pre">sc_api_tools.data_models.shapes.Polygon</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.shapes.RotatedRectangle" title="sc_api_tools.data_models.shapes.RotatedRectangle"><span class="pre">sc_api_tools.data_models.shapes.RotatedRectangle</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Shape.from_ote" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a Shape entity from a corresponding shape in the OTE SDK.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ote_shape</strong> – OTE SDK shape to convert from</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ote_shape</strong> – OTE SDK shape to convert from</p></li>
+<li><p><strong>image_width</strong> – Width of the image to which the shape applies (in pixels)</p></li>
+<li><p><strong>image_height</strong> – Heigth of the image to which the shape applies (in pixels)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Shape entity created from the ote_shape</p>
@@ -874,9 +899,9 @@ representing it’s parent region of interest.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Rectangle">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.data_models.shapes.</span></span><span class="sig-name descname"><span class="pre">Rectangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.enums.ShapeType" title="sc_api_tools.data_models.enums.shape_type.ShapeType"><span class="pre">sc_api_tools.data_models.enums.shape_type.ShapeType</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ShapeType.RECTANGLE</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.data_models.shapes.</span></span><span class="sig-name descname"><span class="pre">Rectangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.enums.ShapeType" title="sc_api_tools.data_models.enums.shape_type.ShapeType"><span class="pre">sc_api_tools.data_models.enums.shape_type.ShapeType</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ShapeType.RECTANGLE</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle" title="Permalink to this definition"></a></dt>
 <dd><p>Class representing a Rectangle in SC, as used in the /annotations REST endpoints</p>
-<p>NOTE: All coordinates and dimensions are relative to the full image</p>
+<p>NOTE: All coordinates and dimensions are given in pixels</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
@@ -889,22 +914,22 @@ representing it’s parent region of interest.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Rectangle.x">
-<span class="sig-name descname"><span class="pre">x</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle.x" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">x</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle.x" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Rectangle.y">
-<span class="sig-name descname"><span class="pre">y</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle.y" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">y</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle.y" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Rectangle.width">
-<span class="sig-name descname"><span class="pre">width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle.width" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle.width" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Rectangle.height">
-<span class="sig-name descname"><span class="pre">height</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle.height" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">height</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle.height" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -913,34 +938,39 @@ representing it’s parent region of interest.</p>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Rectangle.to_pixel_coordinates">
-<span class="sig-name descname"><span class="pre">to_pixel_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle.to_pixel_coordinates" title="Permalink to this definition"></a></dt>
-<dd><p>Gets the x, y coordinates of the edges of the rectangle, in number of pixels,
-if the rectangle would be applied to an image with dimensions <cite>image_heigth x
-image_width</cite> pixels</p>
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Rectangle.to_normalized_coordinates">
+<span class="sig-name descname"><span class="pre">to_normalized_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle.to_normalized_coordinates" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the normalized coordinates of the rectangle, with respect to the image
+with dimensions <cite>image_width</cite> x <cite>image_height</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>image_width</strong> – Width of the image for which to get the pixel coordinates
-of the rectangle</p></li>
-<li><p><strong>image_height</strong> – Height of the image for which to get the pixel coordinates
-of the rectangle</p></li>
+<li><p><strong>image_width</strong> – Width of the image to which the coordinates should be
+normalized</p></li>
+<li><p><strong>image_height</strong> – Height of the image to which the coordinates should be
+normalized</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Tuple containing two pairs of integers representing:
-(x_min, x_max), (y_min, y_max)</p>
+<dd class="field-even"><p>Dictionary containing the rectangle, represented in normalized
+coordinates</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py property">
+<dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Rectangle.is_full_box">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_full_box</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle.is_full_box" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_full_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle.is_full_box" title="Permalink to this definition"></a></dt>
 <dd><p>Returns True if this Rectangle represents a box containing the full image</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>True if the Rectangle encompasses the full image, False otherwise</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_width</strong> – Width of the image to check for</p></li>
+<li><p><strong>image_height</strong> – Height of the image to check for</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the Rectangle encompasses the full image, False otherwise</p>
 </dd>
 </dl>
 </dd></dl>
@@ -974,12 +1004,16 @@ representing it’s parent region of interest.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Rectangle.from_ote">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ote_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ote_sdk.entities.shapes.rectangle.Rectangle</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.shapes.Rectangle" title="sc_api_tools.data_models.shapes.Rectangle"><span class="pre">sc_api_tools.data_models.shapes.Rectangle</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle.from_ote" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ote_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ote_sdk.entities.shapes.rectangle.Rectangle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.shapes.Rectangle" title="sc_api_tools.data_models.shapes.Rectangle"><span class="pre">sc_api_tools.data_models.shapes.Rectangle</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle.from_ote" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a :py:class`~sc_api_tools.data_models.shapes.Rectangle` from
 the OTE SDK Rectangle entity passed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ote_shape</strong> – OTE SDK Rectangle entity to convert from</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ote_shape</strong> – OTE SDK Rectangle entity to convert from</p></li>
+<li><p><strong>image_width</strong> – Width of the image to which the rectangle applies (in pixels)</p></li>
+<li><p><strong>image_height</strong> – Heigth of the image to which the rectangle applies (in pixels)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Rectangle instance created according to the ote_shape</p>
@@ -991,9 +1025,9 @@ the OTE SDK Rectangle entity passed.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Ellipse">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.data_models.shapes.</span></span><span class="sig-name descname"><span class="pre">Ellipse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.enums.ShapeType" title="sc_api_tools.data_models.enums.shape_type.ShapeType"><span class="pre">sc_api_tools.data_models.enums.shape_type.ShapeType</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ShapeType.ELLIPSE</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Ellipse" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.data_models.shapes.</span></span><span class="sig-name descname"><span class="pre">Ellipse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.enums.ShapeType" title="sc_api_tools.data_models.enums.shape_type.ShapeType"><span class="pre">sc_api_tools.data_models.enums.shape_type.ShapeType</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ShapeType.ELLIPSE</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Ellipse" title="Permalink to this definition"></a></dt>
 <dd><p>Class representing an Ellipse in SC, as used in the /annotations REST endpoints</p>
-<p>NOTE: All coordinates and dimensions are relative to the full image</p>
+<p>NOTE: All coordinates and dimensions are given in pixels</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1006,22 +1040,22 @@ the OTE SDK Rectangle entity passed.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Ellipse.x">
-<span class="sig-name descname"><span class="pre">x</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Ellipse.x" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">x</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Ellipse.x" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Ellipse.y">
-<span class="sig-name descname"><span class="pre">y</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Ellipse.y" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">y</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Ellipse.y" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Ellipse.width">
-<span class="sig-name descname"><span class="pre">width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Ellipse.width" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Ellipse.width" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Ellipse.height">
-<span class="sig-name descname"><span class="pre">height</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Ellipse.height" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">height</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Ellipse.height" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1057,13 +1091,38 @@ representing it’s parent region of interest.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Ellipse.to_normalized_coordinates">
+<span class="sig-name descname"><span class="pre">to_normalized_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Ellipse.to_normalized_coordinates" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the normalized coordinates of the ellipse, with respect to the image
+with dimensions <cite>image_width</cite> x <cite>image_height</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_width</strong> – Width of the image to which the coordinates should be
+normalized</p></li>
+<li><p><strong>image_height</strong> – Height of the image to which the coordinates should be
+normalized</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary containing the ellipse, represented in normalized
+coordinates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Ellipse.from_ote">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ote_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ote_sdk.entities.shapes.ellipse.Ellipse</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.shapes.Ellipse" title="sc_api_tools.data_models.shapes.Ellipse"><span class="pre">sc_api_tools.data_models.shapes.Ellipse</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Ellipse.from_ote" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ote_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ote_sdk.entities.shapes.ellipse.Ellipse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.shapes.Ellipse" title="sc_api_tools.data_models.shapes.Ellipse"><span class="pre">sc_api_tools.data_models.shapes.Ellipse</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Ellipse.from_ote" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a :py:class`~sc_api_tools.data_models.shapes.Ellipse` from
 the OTE SDK Ellipse entity passed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ote_shape</strong> – OTE SDK Ellipse entity to convert from</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ote_shape</strong> – OTE SDK Ellipse entity to convert from</p></li>
+<li><p><strong>image_width</strong> – Width of the image to which the ellipse applies (in pixels)</p></li>
+<li><p><strong>image_height</strong> – Heigth of the image to which the ellipse applies (in pixels)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Ellipse instance created according to the ote_shape</p>
@@ -1075,9 +1134,9 @@ the OTE SDK Ellipse entity passed.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Point">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.data_models.shapes.</span></span><span class="sig-name descname"><span class="pre">Point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Point" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.data_models.shapes.</span></span><span class="sig-name descname"><span class="pre">Point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Point" title="Permalink to this definition"></a></dt>
 <dd><p>Class representing a point on a 2D coordinate system. Used to define Polygons in SC</p>
-<p>NOTE: All coordinates are defined relative to the full image size</p>
+<p>NOTE: All coordinates are defined in pixels</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1088,12 +1147,12 @@ the OTE SDK Ellipse entity passed.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Point.x">
-<span class="sig-name descname"><span class="pre">x</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Point.x" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">x</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Point.x" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Point.y">
-<span class="sig-name descname"><span class="pre">y</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Point.y" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">y</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Point.y" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1119,18 +1178,12 @@ the OTE SDK Ellipse entity passed.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Polygon.points_as_contour">
-<span class="sig-name descname"><span class="pre">points_as_contour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Polygon.points_as_contour" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">points_as_contour</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Polygon.points_as_contour" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the list of points for this Polygon as a numpy array representing
 contour points that can be plotted by openCV’s drawContours function</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>image_width</strong> – width of the image to which the shape should be applied</p></li>
-<li><p><strong>image_height</strong> – height of the image to which the shape should be applied</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Numpy array containing the contour</p>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Numpy array containing the contour</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1163,13 +1216,38 @@ representing it’s parent region of interest.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Polygon.to_normalized_coordinates">
+<span class="sig-name descname"><span class="pre">to_normalized_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Polygon.to_normalized_coordinates" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the normalized coordinates of the polygon, with respect to the image
+with dimensions <cite>image_width</cite> x <cite>image_height</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_width</strong> – Width of the image to which the coordinates should be
+normalized</p></li>
+<li><p><strong>image_height</strong> – Height of the image to which the coordinates should be
+normalized</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary containing the polygon, represented in normalized
+coordinates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Polygon.from_ote">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ote_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ote_sdk.entities.shapes.polygon.Polygon</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.shapes.Polygon" title="sc_api_tools.data_models.shapes.Polygon"><span class="pre">sc_api_tools.data_models.shapes.Polygon</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Polygon.from_ote" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ote_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ote_sdk.entities.shapes.polygon.Polygon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.shapes.Polygon" title="sc_api_tools.data_models.shapes.Polygon"><span class="pre">sc_api_tools.data_models.shapes.Polygon</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Polygon.from_ote" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a :py:class`~sc_api_tools.data_models.shapes.Polygon` from
 the OTE SDK Polygon entity passed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ote_shape</strong> – OTE SDK Polygon entity to convert from</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ote_shape</strong> – OTE SDK Polygon entity to convert from</p></li>
+<li><p><strong>image_width</strong> – Width of the image to which the polygon applies (in pixels)</p></li>
+<li><p><strong>image_height</strong> – Heigth of the image to which the polygon applies (in pixels)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Polygon instance created according to the ote_shape</p>
@@ -1181,10 +1259,10 @@ the OTE SDK Polygon entity passed.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.data_models.shapes.</span></span><span class="sig-name descname"><span class="pre">RotatedRectangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.enums.ShapeType" title="sc_api_tools.data_models.enums.shape_type.ShapeType"><span class="pre">sc_api_tools.data_models.enums.shape_type.ShapeType</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ShapeType.ROTATED_RECTANGLE</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.data_models.shapes.</span></span><span class="sig-name descname"><span class="pre">RotatedRectangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.enums.ShapeType" title="sc_api_tools.data_models.enums.shape_type.ShapeType"><span class="pre">sc_api_tools.data_models.enums.shape_type.ShapeType</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ShapeType.ROTATED_RECTANGLE</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle" title="Permalink to this definition"></a></dt>
 <dd><p>Class representing a RotatedRectangle in SC, as used in the /annotations REST
 endpoints</p>
-<p>NOTE: All coordinates and dimensions are relative to the full image</p>
+<p>NOTE: All coordinates and dimensions are specified in pixels</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1203,22 +1281,22 @@ endpoints</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.x">
-<span class="sig-name descname"><span class="pre">x</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.x" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">x</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.x" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.y">
-<span class="sig-name descname"><span class="pre">y</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.y" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">y</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.y" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.width">
-<span class="sig-name descname"><span class="pre">width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.width" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.width" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.height">
-<span class="sig-name descname"><span class="pre">height</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.height" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">height</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.height" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1239,7 +1317,7 @@ endpoints</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.x_min">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x_min</span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.x_min" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.x_min" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the value of the minimal x-coordinate that the rotated rectangle touches</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -1288,16 +1366,20 @@ the Polygon entity passed.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.from_ote">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ote_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ote_sdk.entities.shapes.polygon.Polygon</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.shapes.RotatedRectangle" title="sc_api_tools.data_models.shapes.RotatedRectangle"><span class="pre">sc_api_tools.data_models.shapes.RotatedRectangle</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.from_ote" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ote_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ote_sdk.entities.shapes.polygon.Polygon</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.shapes.RotatedRectangle" title="sc_api_tools.data_models.shapes.RotatedRectangle"><span class="pre">sc_api_tools.data_models.shapes.RotatedRectangle</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.from_ote" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a :py:class`~sc_api_tools.data_models.shapes.RotatedRectangle` from
 the OTE SDK Polygon entity passed.</p>
 <p>NOTE: The Polygon MUST consist of 4 points, otherwise a ValueError is raised</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ote_shape</strong> – OTE SDK Rectangle entity to convert from</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ote_shape</strong> – OTE SDK Rectangle entity to convert from</p></li>
+<li><p><strong>image_width</strong> – Width of the image to which the shape applies (in pixels)</p></li>
+<li><p><strong>image_height</strong> – Heigth of the image to which the shape applies (in pixels)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Rectangle instance created according to the ote_shape</p>
+<dd class="field-even"><p>RotatedRectangle instance created according to the ote_shape</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1336,6 +1418,27 @@ representing it’s parent region of interest.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Polygon object corresponding to the RotatedRectangle instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.to_normalized_coordinates">
+<span class="sig-name descname"><span class="pre">to_normalized_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.to_normalized_coordinates" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the normalized coordinates of the rotated rectangle, with respect to the
+image with dimensions <cite>image_width</cite> x <cite>image_height</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_width</strong> – Width of the image to which the coordinates should be
+normalized</p></li>
+<li><p><strong>image_height</strong> – Height of the image to which the coordinates should be
+normalized</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary containing the rotated rectangle, represented in normalized
+coordinates</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1450,12 +1553,16 @@ contains</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.annotations.Annotation.from_ote">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ote_annotation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ote_sdk.entities.annotation.Annotation</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.annotations.Annotation" title="sc_api_tools.data_models.annotations.Annotation"><span class="pre">sc_api_tools.data_models.annotations.Annotation</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.annotations.Annotation.from_ote" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ote_annotation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ote_sdk.entities.annotation.Annotation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.annotations.Annotation" title="sc_api_tools.data_models.annotations.Annotation"><span class="pre">sc_api_tools.data_models.annotations.Annotation</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.annotations.Annotation.from_ote" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a <a class="reference internal" href="#sc_api_tools.data_models.annotations.Annotation" title="sc_api_tools.data_models.annotations.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a> instance
 from a given OTE SDK Annotation object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ote_annotation</strong> – OTE Annotation object to create the instance from</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ote_annotation</strong> – OTE Annotation object to create the instance from</p></li>
+<li><p><strong>image_width</strong> – Width of the image to which the annotation applies</p></li>
+<li><p><strong>image_height</strong> – Height of the image to which the annotation applies</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Annotation instance</p>
@@ -1658,13 +1765,17 @@ on which this method is called remains unmodified.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.data_models.annotation_scene.AnnotationScene.from_ote">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ote_annotation_scene</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ote_sdk.entities.annotation.AnnotationSceneEntity</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.annotation_scene.AnnotationScene" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.annotation_scene.AnnotationScene.from_ote" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ote_annotation_scene</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ote_sdk.entities.annotation.AnnotationSceneEntity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.annotation_scene.AnnotationScene" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.annotation_scene.AnnotationScene.from_ote" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a <a class="reference internal" href="#sc_api_tools.data_models.annotation_scene.AnnotationScene" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotationScene</span></code></a>
 instance from a given OTE SDK AnnotationSceneEntity object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>ote_annotation_scene</strong> – OTE AnnotationSceneEntity object to create the
-instance from</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ote_annotation_scene</strong> – OTE AnnotationSceneEntity object to create the
+instance from</p></li>
+<li><p><strong>image_width</strong> – Width of the image to which the annotation scene applies</p></li>
+<li><p><strong>image_height</strong> – Height of the image to which the annotation scene applies</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>AnnotationScene instance</p>
