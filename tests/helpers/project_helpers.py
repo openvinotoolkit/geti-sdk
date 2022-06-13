@@ -59,7 +59,7 @@ def get_or_create_annotated_project_for_test_class(
                     TaskType.INSTANCE_SEGMENTATION,
                 ]:
                     task_hypers = project_service.configuration_manager.get_task_configuration(task_id=task.id)
-                    task_hypers.batch_size.value = 2
+                    task_hypers.batch_size.value = 1
                     project_service.configuration_manager.set_configuration(task_hypers)
         elif learning_parameter_settings != 'default':
             print(
