@@ -19,18 +19,42 @@ from .helpers.constants import BASE_TEST_PATH, CASSETTE_PATH, RECORD_CASSETTE_KE
 
 pytest_plugins = get_sdk_fixtures()
 
+# -------------------------------------------------------
 # ---------------- Environment variables ----------------
+# -------------------------------------------------------
+
 TEST_MODE = SdkTestMode[os.environ.get("TEST_MODE", "OFFLINE")]
+# TEST_MODE specifies the mode in which tests are run. Only applies to the integration
+# tests. Possible modes are: "OFFLINE", "ONLINE", "RECORD"
+
 HOST = os.environ.get("SC_HOST", "https://dummy_host").strip("/")
+# HOST should hold the domain name or ip address of the SC instance to run the tests
+# against.
+
 USERNAME = os.environ.get("SC_USERNAME", "dummy_user")
+# USERNAME should hold the username that is used for logging in to the SC instance
+
 PASSWORD = os.environ.get("SC_PASSWORD", "dummy_password")
+# PASSWORD should hold the password that is used for logging in to the SC instance
+
 CLEAR_EXISTING_TEST_PROJECTS = os.environ.get(
     "CLEAR_EXISTING_TEST_PROJECTS", '0'
 ).lower() in ['true', '1']
+# CLEAR_EXISTING_TEST_PROJECTS is a boolean that determines whether existing test
+# projects are deleted before a test run
+
 NIGHTLY_TEST_LEARNING_PARAMETER_SETTINGS = os.environ.get(
     "LEARNING_PARAMETER_SETTINGS", "default"
 )
+# NIGHTLY_TEST_LEARNING_PARAMETER_SETTINGS determines how the learning parameters are
+# set for the nightly tests. Possible values are:
+#   - "default"     : The default settings
+#   - "minimal"     : Single epoch and batch_size of 1
+#   - "reduced_mem" : Default epochs, but batch_size of 1
 
+# ------------------------------------------
+# ---------------- Fixtures ----------------
+# ------------------------------------------
 
 @pytest.fixture(scope="session")
 def fxt_server_config() -> ClusterConfig:
@@ -75,6 +99,9 @@ def fxt_learning_parameter_settings() -> str:
     """
     yield NIGHTLY_TEST_LEARNING_PARAMETER_SETTINGS
 
+# ----------------------------------------------
+# ---------------- Pytest hooks ----------------
+# ----------------------------------------------
 
 def pytest_sessionstart(session: Session) -> None:
     """
