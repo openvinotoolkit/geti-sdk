@@ -248,3 +248,18 @@ def round_dictionary(
             elif isinstance(item, (dict, list)):
                 new_list.append(round_dictionary(item, decimal_places=decimal_places))
         return new_list
+
+
+def round_to_n_digits(n: int) -> Callable[[float], float]:
+    """
+    Returns a function to round an input number to n digits.
+
+    :param n: Number of digits to round to
+    :return: Callable that, when called with a number as input, will round the number
+        to n digits.
+    """
+
+    def _n_digit_rounder(value: float) -> float:
+        return round(value, ndigits=n)
+
+    return _n_digit_rounder

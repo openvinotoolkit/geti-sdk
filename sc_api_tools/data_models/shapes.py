@@ -1,6 +1,6 @@
 import abc
 import math
-from typing import List, Tuple, TypeVar, Union, Dict, Any
+from typing import List, Tuple, TypeVar, Union, Dict, Any, Callable
 
 import attr
 
@@ -17,9 +17,11 @@ from ote_sdk.entities.shapes.polygon import (
 )
 
 from sc_api_tools.data_models.enums import ShapeType
-from sc_api_tools.data_models.utils import str_to_shape_type
+from sc_api_tools.data_models.utils import str_to_shape_type, round_to_n_digits
 
 OteShapeTypeVar = TypeVar('OteShapeTypeVar', OtePolygon, OteEllipse, OtePolygon)
+N_DIGITS_TO_ROUND_TO = 4
+coordinate_converter=round_to_n_digits(N_DIGITS_TO_ROUND_TO)
 
 
 @attr.s(auto_attribs=True)
@@ -87,7 +89,7 @@ class Shape:
         shape_mapping = {
             OteShapeType.RECTANGLE: Rectangle,
             OteShapeType.ELLIPSE: Ellipse,
-            OteShapeType.POLYGON: Polygon
+            OteShapeType.POLYGON: Polygon,
         }
         return shape_mapping[ote_shape.type].from_ote(
             ote_shape,
@@ -108,10 +110,10 @@ class Rectangle(Shape):
     :var width: Width of the rectangle
     :var height: Height of the rectangle
     """
-    x: int
-    y: int
-    width: int
-    height: int
+    x: float = attr.ib(converter=coordinate_converter)
+    y: float = attr.ib(converter=coordinate_converter)
+    width: float = attr.ib(converter=coordinate_converter)
+    height: float = attr.ib(converter=coordinate_converter)
     type: str = attr.ib(
         converter=str_to_shape_type, default=ShapeType.RECTANGLE, kw_only=True
     )
@@ -149,8 +151,8 @@ class Rectangle(Shape):
         return (
             self.x == 0
             and self.y == 0
-            and self.width == image_width
-            and self.height == image_height
+            and int(self.width) == image_width
+            and int(self.height) == image_height
         )
 
     def to_roi(self) -> 'Rectangle':
@@ -190,8 +192,8 @@ class Rectangle(Shape):
         :return: Rectangle instance created according to the ote_shape
         """
         return cls(
-            x=int(ote_shape.x1*image_width),
-            y=int(ote_shape.y1*image_height),
+            x=ote_shape.x1*image_width,
+            y=ote_shape.y1*image_height,
             width=int(ote_shape.width*image_width),
             height=int(ote_shape.height*image_height)
         )
@@ -210,10 +212,10 @@ class Ellipse(Shape):
     :var height: Height of the ellipse
     """
 
-    x: int
-    y: int
-    width: int
-    height: int
+    x: float = attr.ib(converter=coordinate_converter)
+    y: float = attr.ib(converter=coordinate_converter)
+    width: float = attr.ib(converter=coordinate_converter)
+    height: float = attr.ib(converter=coordinate_converter)
     type: str = attr.ib(
         converter=str_to_shape_type, default=ShapeType.ELLIPSE, kw_only=True
     )
@@ -277,8 +279,8 @@ class Ellipse(Shape):
         :return: Ellipse instance created according to the ote_shape
         """
         return cls(
-            x=int(ote_shape.x1*image_width),
-            y=int(ote_shape.y1*image_height),
+            x=ote_shape.x1*image_width,
+            y=ote_shape.y1*image_height,
             width=int(ote_shape.width*image_width),
             height=int(ote_shape.height*image_height),
         )
@@ -294,8 +296,8 @@ class Point:
     :var x: X coordinate of the point
     :var y: Y coordinate of the point
     """
-    x: int
-    y: int
+    x: float = attr.ib(converter=coordinate_converter)
+    y: float = attr.ib(converter=coordinate_converter)
 
 
 @attr.s(auto_attribs=True)
@@ -392,7 +394,7 @@ class Polygon(Shape):
         """
         points = [
             Point(
-                x=int(ote_point.x*image_width), y=int(ote_point.y*image_height)
+                x=ote_point.x*image_width, y=ote_point.y*image_height
             ) for ote_point in ote_shape.points
         ]
         return cls(
@@ -414,11 +416,11 @@ class RotatedRectangle(Shape):
     :var width: Width of the rectangle
     :var height: Height of the rectangle
     """
-    angle: float
-    x: int
-    y: int
-    width: int
-    height: int
+    angle: float = attr.ib(converter=coordinate_converter)
+    x: float = attr.ib(converter=coordinate_converter)
+    y: float = attr.ib(converter=coordinate_converter)
+    width: float = attr.ib(converter=coordinate_converter)
+    height: float = attr.ib(converter=coordinate_converter)
     type: str = attr.ib(
         converter=str_to_shape_type, default=ShapeType.ROTATED_RECTANGLE, kw_only=True
     )
@@ -575,8 +577,8 @@ class RotatedRectangle(Shape):
         return Rectangle(
             x=self.x,
             y=self.y,
-            width=int(self.x_max - self.x_min),
-            height=int(self.y_max - self.y_min)
+            width=self.x_max - self.x_min,
+            height=self.y_max - self.y_min
         )
 
     def to_absolute_coordinates(self, parent_roi: Rectangle) -> 'RotatedRectangle':
@@ -610,10 +612,10 @@ class RotatedRectangle(Shape):
         x_1 = self.x - 0.5 * self.width * math.cos(self._angle_x_radian) + 0.5 * self.height * math.sin(self._angle_x_radian)
         y_2 = self.y + 0.5 * self.width * math.sin(self._angle_x_radian) - 0.5 * self.height * math.cos(self._angle_x_radian)
         x_3 = self.x + 0.5 * self.width * math.cos(self._angle_x_radian) - 0.5 * self.height * math.sin(self._angle_x_radian)
-        point0 = Point(x=int(self.x_min), y=int(y_0))
-        point1 = Point(x=int(x_1), y=int(self.y_min))
-        point2 = Point(x=int(self.x_max), y=int(y_2))
-        point3 = Point(x=int(x_3), y=int(self.y_max))
+        point0 = Point(x=self.x_min, y=y_0)
+        point1 = Point(x=x_1, y=self.y_min)
+        point2 = Point(x=self.x_max, y=y_2)
+        point3 = Point(x=x_3, y=self.y_max)
         return Polygon(
             points=[point0, point1, point2, point3]
         )

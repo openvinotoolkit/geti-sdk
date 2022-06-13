@@ -143,15 +143,15 @@ class DatumAnnotationReader(AnnotationReader):
                     or preserve_shape_for_global_labels
             ):
                 if isinstance(annotation, Bbox):
-                    x1 = int(annotation.points[0])
-                    y1 = int(annotation.points[1])
-                    x2 = int(annotation.points[2])
-                    y2 = int(annotation.points[3])
+                    x1 = float(annotation.points[0])
+                    y1 = float(annotation.points[1])
+                    x2 = float(annotation.points[2])
+                    y2 = float(annotation.points[3])
                     shape = {'type': 'RECTANGLE',
                              'x': x1, 'y': y1, 'width': x2 - x1, 'height': y2 - y1}
                 elif isinstance(annotation, Polygon):
                     points = [
-                        {'x': int(x), 'y': int(y)} for x, y
+                        {'x': float(x), 'y': float(y)} for x, y
                         in zip(*[iter(annotation.points)] * 2)
                     ]
                     shape = {'type': "POLYGON", 'points': points}
@@ -174,10 +174,10 @@ class DatumAnnotationReader(AnnotationReader):
         ):
             shape = {
                 "type": "RECTANGLE",
-                "x": 0,
-                "y": 0,
-                "width": image_size[1],
-                "height": image_size[0]
+                "x": 0.0,
+                "y": 0.0,
+                "width": float(image_size[1]),
+                "height": float(image_size[0])
             }
             sc_annotation = AnnotationRESTConverter.annotation_from_dict(
                 {"labels": labels, "shape": shape}

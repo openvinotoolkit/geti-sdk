@@ -19,6 +19,7 @@ from .helpers.constants import BASE_TEST_PATH, CASSETTE_PATH, RECORD_CASSETTE_KE
 
 pytest_plugins = get_sdk_fixtures()
 
+# ---------------- Environment variables ----------------
 TEST_MODE = SdkTestMode[os.environ.get("TEST_MODE", "OFFLINE")]
 HOST = os.environ.get("SC_HOST", "https://dummy_host").strip("/")
 USERNAME = os.environ.get("SC_USERNAME", "dummy_user")

@@ -191,9 +191,8 @@ class AnnotationScene:
         """
         image_height, image_width = mask.shape[0:-1]
         if isinstance(shape, (Ellipse, Rectangle)):
-            x, y = shape.x, shape.y
-            width = shape.width
-            height = shape.height
+            x, y = int(shape.x), int(shape.y)
+            width, height = int(shape.width), int(shape.height)
             if isinstance(shape, Ellipse):
                 cv2.ellipse(
                     mask,
