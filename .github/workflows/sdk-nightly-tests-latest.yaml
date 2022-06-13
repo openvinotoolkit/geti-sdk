@@ -1,0 +1,15 @@
+name: Nightly tests [latest SC]
+
+on:
+  workflow_dispatch: # run on request (no need for PR)
+
+  schedule: # Execute tests at midnight every day
+    - cron: "0 0 * * *"
+
+jobs:
+  build:
+    uses: ./.github/workflows/sdk-nightly-tests.yaml
+    secrets:
+      SC_HOST: ${{ secrets.SC_HOST_LATEST }}
+      SC_USERNAME: ${{ secrets.SC_USERNAME }}
+      SC_PASSWORD: ${{ secrets.SC_PASSWORD }}

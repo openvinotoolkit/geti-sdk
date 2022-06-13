@@ -2,8 +2,15 @@ name: Nightly tests
 
 on:
   workflow_dispatch: # run on request (no need for PR)
-  schedule:
-    - cron: "0 0 * * *"
+
+  workflow_call: # Make workflow reusable
+    secrets:
+      SC_HOST:
+        required: true
+      SC_USERNAME:
+        required: true
+      SC_PASSWORD:
+        required: true
 
 env:
   # Login details for the SC instance to run the tests against

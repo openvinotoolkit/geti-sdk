@@ -18,7 +18,7 @@ Module contents
 .. autoclass:: MediaRESTConverter
    :members:
 
-.. autoclass:: AnnotationRESTConverter
+.. autoclass:: annotation_rest_converter.AnnotationRESTConverter
    :members:
 
 .. autoclass:: PredictionRESTConverter

@@ -12,8 +12,11 @@ from sc_api_tools.data_models import (
     AnnotationScene, AnnotationKind
 )
 from sc_api_tools.data_models.containers.media_list import MediaList
+from sc_api_tools.data_models.media import MediaInformation
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import AnnotationRESTConverter
+from sc_api_tools.rest_converters.annotation_rest_converter import \
+    NormalizedAnnotationRESTConverter
 
 AnnotationReaderType = TypeVar("AnnotationReaderType", bound=AnnotationReader)
 MediaType = TypeVar("MediaType", Image, Video)
@@ -157,9 +160,17 @@ class BaseAnnotationManager:
                 )
         if scene_to_upload.annotations:
             scene_to_upload.prepare_for_post()
-            rest_data = AnnotationRESTConverter.to_dict(
-                scene_to_upload, deidentify=False
-            )
+            if self.session.version < '1.2':
+                rest_data = NormalizedAnnotationRESTConverter.to_normalized_dict(
+                    scene_to_upload,
+                    deidentify=False,
+                    image_width=media_item.media_information.width,
+                    image_height=media_item.media_information.height
+                )
+            else:
+                rest_data = AnnotationRESTConverter.to_dict(
+                    scene_to_upload, deidentify=False
+                )
             if self.session.version != '1.0':
                 rest_data.pop("kind")
             self.session.get_rest_response(
@@ -169,18 +180,29 @@ class BaseAnnotationManager:
             )
         return scene_to_upload
 
-    @staticmethod
     def annotation_scene_from_rest_response(
-            response_dict: Dict[str, Any]
+         self, response_dict: Dict[str, Any], media_information: MediaInformation
     ) -> AnnotationScene:
         """
         Converts a dictionary with annotation data obtained from the SC /annotations
         rest endpoint into an annotation scene
 
         :param response_dict: Dictionary containing the annotation data
+        :param media_information: MediaInformation about the media item to which the
+            annotation applies
         :return: AnnotationScene object corresponding to the data in the response_dict
         """
-        return AnnotationRESTConverter.from_dict(response_dict)
+        if self.session.version < '1.2':
+            annotation_scene = NormalizedAnnotationRESTConverter.normalized_annotation_scene_from_dict(
+                response_dict,
+                image_width=media_information.width,
+                image_height=media_information.height
+            )
+        else:
+            annotation_scene = AnnotationRESTConverter.from_dict(
+                response_dict
+            )
+        return annotation_scene
 
     def _append_annotation_for_2d_media_item(
             self, media_item: Union[Image, VideoFrame]
@@ -209,9 +231,17 @@ class BaseAnnotationManager:
         annotation_scene.extend(new_annotation_scene.annotations)
 
         if annotation_scene.has_data:
-            rest_data = AnnotationRESTConverter.to_dict(
-                annotation_scene, deidentify=False
-            )
+            if self.session.version <= '1.2':
+                rest_data = NormalizedAnnotationRESTConverter.to_normalized_dict(
+                    annotation_scene,
+                    deidentify=False,
+                    image_width=media_item.media_information.width,
+                    image_height=media_item.media_information.height
+                )
+            else:
+                rest_data = AnnotationRESTConverter.to_dict(
+                    annotation_scene, deidentify=False
+                )
             if self.session.version != '1.0':
                 rest_data.pop("kind", None)
                 rest_data.pop("annotation_state_per_task", None)
@@ -245,7 +275,9 @@ class BaseAnnotationManager:
                 return None
             else:
                 raise error
-        return self.annotation_scene_from_rest_response(response)
+        return self.annotation_scene_from_rest_response(
+            response, media_item.media_information
+        )
 
     def _read_2d_media_annotation_from_source(
             self,

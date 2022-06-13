@@ -16,7 +16,10 @@ from sc_api_tools.data_models.containers import MediaList
 from sc_api_tools.data_models.enums import PredictionMode
 from sc_api_tools.http_session import SCSession
 
-from sc_api_tools.rest_converters import PredictionRESTConverter
+from sc_api_tools.rest_converters.prediction_rest_converter import (
+    NormalizedPredictionRESTConverter,
+    PredictionRESTConverter
+)
 
 
 class PredictionManager:
@@ -142,17 +145,34 @@ class PredictionManager:
                     method="GET"
                 )
                 if isinstance(media_item, (Image, VideoFrame)):
-                    result = PredictionRESTConverter.from_dict(response)
+                    if self.session.version < '1.2':
+                        result = NormalizedPredictionRESTConverter.normalized_prediction_from_dict(
+                            prediction=response,
+                            image_height=media_item.media_information.height,
+                            image_width=media_item.media_information.width
+                        )
+                    else:
+                        result = PredictionRESTConverter.from_dict(response)
                     result.resolve_labels_for_result_media(
                         labels=self._labels
                     )
                 elif isinstance(media_item, Video):
-                    result = [
-                        PredictionRESTConverter.from_dict(
-                            prediction
-                        ).resolve_labels_for_result_media(labels=self._labels)
-                        for prediction in response
-                    ]
+                    if self.session.version < '1.2':
+                        result = [
+                            NormalizedPredictionRESTConverter.normalized_prediction_from_dict(
+                                prediction=prediction,
+                                image_width=media_item.media_information.width,
+                                image_height=media_item.media_information.height
+                            ).resolve_labels_for_result_media(labels=self._labels)
+                            for prediction in response
+                        ]
+                    else:
+                        result = [
+                            PredictionRESTConverter.from_dict(
+                                prediction
+                            ).resolve_labels_for_result_media(labels=self._labels)
+                            for prediction in response
+                        ]
                 else:
                     raise TypeError(
                         f"Getting predictions is not supported for media item of type "

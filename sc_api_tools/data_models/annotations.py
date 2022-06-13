@@ -89,15 +89,24 @@ class Annotation:
             self.labels.pop(index)
 
     @classmethod
-    def from_ote(cls, ote_annotation: OteAnnotation) -> 'Annotation':
+    def from_ote(
+            cls,
+            ote_annotation: OteAnnotation,
+            image_width: int,
+            image_height: int
+    ) -> 'Annotation':
         """
         Creates a :py:class:`~sc_api_tools.data_models.annotations.Annotation` instance
         from a given OTE SDK Annotation object.
 
         :param ote_annotation: OTE Annotation object to create the instance from
+        :param image_width: Width of the image to which the annotation applies
+        :param image_height: Height of the image to which the annotation applies
         :return: Annotation instance
         """
-        shape = Shape.from_ote(ote_annotation.shape)
+        shape = Shape.from_ote(
+            ote_annotation.shape, image_width=image_width, image_height=image_height
+        )
         labels = [
             ScoredLabel.from_ote(ote_label)
             for ote_label in ote_annotation.get_labels(include_empty=True)

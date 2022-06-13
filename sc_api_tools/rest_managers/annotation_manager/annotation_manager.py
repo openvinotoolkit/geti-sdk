@@ -35,7 +35,9 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
         else:
             raise TypeError(f"Invalid response type {type(response)}.")
         return [
-            self.annotation_scene_from_rest_response(annotation_scene)
+            self.annotation_scene_from_rest_response(
+                annotation_scene, media_information=video.media_information
+            )
             for annotation_scene in annotations
         ]
 

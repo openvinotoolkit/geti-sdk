@@ -191,9 +191,9 @@ class AnnotationScene:
         """
         image_height, image_width = mask.shape[0:-1]
         if isinstance(shape, (Ellipse, Rectangle)):
-            x, y = int(shape.x * image_width), int(shape.y * image_height)
-            width = int(shape.width * image_width)
-            height = int(shape.height * image_height)
+            x, y = shape.x, shape.y
+            width = shape.width
+            height = shape.height
             if isinstance(shape, Ellipse):
                 cv2.ellipse(
                     mask,
@@ -216,7 +216,9 @@ class AnnotationScene:
                     thickness=1
                 )
             elif isinstance(shape, Rectangle):
-                if not shape.is_full_box:
+                if not shape.is_full_box(
+                        image_width=image_width, image_height=image_height
+                ):
                     cv2.rectangle(
                         mask,
                         pt1=(x, y),
@@ -255,9 +257,7 @@ class AnnotationScene:
         elif isinstance(shape, RotatedRectangle):
             shape = shape.to_polygon()
         if isinstance(shape, Polygon):
-            contour = shape.points_as_contour(
-                image_width=image_width, image_height=image_height
-            )
+            contour = shape.points_as_contour()
             cv2.drawContours(
                 mask,
                 contours=[contour],
@@ -325,17 +325,26 @@ class AnnotationScene:
         return new_annotation
 
     @classmethod
-    def from_ote(cls, ote_annotation_scene: AnnotationSceneEntity) -> 'AnnotationScene':
+    def from_ote(
+            cls,
+            ote_annotation_scene: AnnotationSceneEntity,
+            image_width: int,
+            image_height: int
+    ) -> 'AnnotationScene':
         """
         Creates a :py:class:`~sc_api_tools.data_models.annotation_scene.AnnotationScene`
         instance from a given OTE SDK AnnotationSceneEntity object.
 
         :param ote_annotation_scene: OTE AnnotationSceneEntity object to create the
             instance from
+        :param image_width: Width of the image to which the annotation scene applies
+        :param image_height: Height of the image to which the annotation scene applies
         :return: AnnotationScene instance
         """
         annotations = [
-            Annotation.from_ote(annotation)
+            Annotation.from_ote(
+                annotation, image_width=image_width, image_height=image_height
+            )
             for annotation in ote_annotation_scene.annotations
         ]
         return cls(
