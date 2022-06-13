@@ -26,6 +26,9 @@ PASSWORD = os.environ.get("SC_PASSWORD", "dummy_password")
 CLEAR_EXISTING_TEST_PROJECTS = os.environ.get(
     "CLEAR_EXISTING_TEST_PROJECTS", '0'
 ).lower() in ['true', '1']
+NIGHTLY_TEST_LEARNING_PARAMETER_SETTINGS = os.environ.get(
+    "LEARNING_PARAMETER_SETTINGS", "default"
+)
 
 
 @pytest.fixture(scope="session")
@@ -56,6 +59,20 @@ def fxt_test_mode() -> SdkTestMode:
     :return:
     """
     yield TEST_MODE
+
+
+@pytest.fixture(scope="session")
+def fxt_learning_parameter_settings() -> str:
+    """
+    This fixture returns the settings to use in the nightly test learning parameters.
+    Can be either:
+      - 'minimal' (single epoch, batch_size = 1),
+      - 'reduced_mem' (normal epochs but reduced batch size for memory hungry algos)
+      - 'default' (default settings)
+
+    :return:
+    """
+    yield NIGHTLY_TEST_LEARNING_PARAMETER_SETTINGS
 
 
 def pytest_sessionstart(session: Session) -> None:

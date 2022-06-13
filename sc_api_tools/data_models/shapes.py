@@ -355,7 +355,7 @@ class Polygon(Shape):
 
     def to_normalized_coordinates(
             self, image_width: int, image_height: int
-    ) -> Dict[str, Dict[str, float]]:
+    ) -> Dict[str, Union[List[Dict[str, float]], str]]:
         """
         Gets the normalized coordinates of the polygon, with respect to the image
         with dimensions `image_width` x `image_height`
@@ -367,9 +367,9 @@ class Polygon(Shape):
         :return: Dictionary containing the polygon, represented in normalized
             coordinates
         """
-        normalized_points: Dict[str, float] = {}
+        normalized_points: List[Dict[str, float]] = []
         for point in self.points:
-            normalized_points.update(
+            normalized_points.append(
                 {"x": point.x/image_width, "y": point.y/image_height}
             )
         return dict(

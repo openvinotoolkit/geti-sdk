@@ -3,6 +3,7 @@ from typing import List, Optional, Sequence
 from sc_api_tools import SCRESTClient
 
 from sc_api_tools.annotation_readers import AnnotationReader
+from sc_api_tools.data_models import TaskType
 from sc_api_tools.rest_managers import ProjectManager
 
 from .finalizers import force_delete_project
@@ -16,7 +17,7 @@ def get_or_create_annotated_project_for_test_class(
         project_name: str,
         project_type: str = "detection",
         enable_auto_train: bool = False,
-        use_default_hypers: bool = False
+        learning_parameter_settings: str = "minimal"
 ):
     """
     This function returns an annotated project with `project_name` of type
@@ -29,9 +30,12 @@ def get_or_create_annotated_project_for_test_class(
     :param project_name: Name of the project
     :param project_type: Type of the project
     :param enable_auto_train: True to turn auto-training on, False to leave it off
-    :param use_default_hypers: True to use the default hyper parameters for training,
-        False to set hyper parameters such that the training time is minimized
-        (i.e. single epoch, low batch size, etc.)
+    :param learning_parameter_settings: Settings to use for the learning parameters
+        during model training. There are three options:
+          'minimal'     - Set hyper parameters such that the training time is minimized
+                          (i.e. single epoch, low batch size, etc.)
+          'default'     - Use default hyper parameter settings
+          'reduced_mem' - Reduce the batch size for memory intensive tasks
     :return: Project instance corresponding to the project on the SC server
     """
     project_exists = project_service.has_project
@@ -44,8 +48,25 @@ def get_or_create_annotated_project_for_test_class(
     )
     if not project_exists:
         project_service.set_auto_train(False)
-        if not use_default_hypers:
+        if learning_parameter_settings == 'minimal':
             project_service.set_minimal_training_hypers()
+        elif learning_parameter_settings == 'reduced_mem':
+            # Reduce batch size in memory intensive tasks to avoid OOM errors in pods
+            for task in project.get_trainable_tasks():
+                if task.type in [
+                    TaskType.DETECTION,
+                    TaskType.ROTATED_DETECTION,
+                    TaskType.INSTANCE_SEGMENTATION,
+                ]:
+                    task_hypers = project_service.configuration_manager.get_task_configuration(task_id=task.id)
+                    task_hypers.batch_size.value = 2
+                    project_service.configuration_manager.set_configuration(task_hypers)
+        elif learning_parameter_settings != 'default':
+            print(
+                f"Invalid learning parameter settings '{learning_parameter_settings}' "
+                f"specified, continuing with default hyper parameters."
+            )
+
         project_service.add_annotated_media(
             annotation_readers=annotation_readers,
             n_images=-1

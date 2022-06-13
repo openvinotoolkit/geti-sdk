@@ -26,7 +26,8 @@ class TestNightlyProject:
             self,
             fxt_project_service_no_vcr: ProjectService,
             fxt_annotation_reader: DatumAnnotationReader,
-            fxt_annotation_reader_grouped: DatumAnnotationReader
+            fxt_annotation_reader_grouped: DatumAnnotationReader,
+            fxt_learning_parameter_settings: str
     ):
         """
         This test sets up an annotated project on the server, that persists for the
@@ -47,7 +48,7 @@ class TestNightlyProject:
             project_type=self.PROJECT_TYPE,
             project_name=f"{PROJECT_PREFIX}_nightly_{self.PROJECT_TYPE}",
             enable_auto_train=True,
-            use_default_hypers=True
+            learning_parameter_settings=fxt_learning_parameter_settings
         )
 
     def test_monitor_jobs(self, fxt_project_service_no_vcr: ProjectService):

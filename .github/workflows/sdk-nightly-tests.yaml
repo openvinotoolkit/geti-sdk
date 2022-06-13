@@ -1,9 +1,11 @@
 name: Nightly tests
 
 on:
-  workflow_dispatch: # run on request (no need for PR)
-
   workflow_call: # Make workflow reusable
+    inputs:
+      learning_parameter_settings:
+        required: false
+        type: string
     secrets:
       SC_HOST:
         required: true
@@ -23,6 +25,7 @@ env:
   TEST_MODE: "ONLINE"
   CLEAR_EXISTING_TEST_PROJECTS: 1
   ARTIFACT_DIRECTORY: artifacts
+  NIGHTLY_TEST_LEARNING_PARAMETER_SETTINGS: ${{ inputs.learning_parameter_settings }}
 
   # Conda environment
   CONDA_ENV: sc_sdk_nightly_test_environment

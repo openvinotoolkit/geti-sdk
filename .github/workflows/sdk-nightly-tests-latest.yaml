@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/sdk-nightly-tests.yaml
+    with:
+      learning_parameter_settings: reduced_mem
     secrets:
       SC_HOST: ${{ secrets.SC_HOST_LATEST }}
       SC_USERNAME: ${{ secrets.SC_USERNAME }}
