@@ -9,9 +9,11 @@ from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers import DatumAnnotationReader
 from sc_api_tools.data_models import Prediction, Job
 from sc_api_tools.data_models.enums import JobState
-from sc_api_tools.utils import show_image_with_annotation_scene
-from tests.helpers import ProjectService, \
-    get_or_create_annotated_project_for_test_class, plot_predictions_side_by_side
+from tests.helpers import (
+    ProjectService,
+    get_or_create_annotated_project_for_test_class,
+    plot_predictions_side_by_side
+)
 from tests.helpers.constants import PROJECT_PREFIX
 
 

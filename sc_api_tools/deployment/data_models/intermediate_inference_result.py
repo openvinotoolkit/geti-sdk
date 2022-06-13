@@ -62,33 +62,26 @@ class IntermediateInferenceResult:
             return [self.image]
 
         if rois is not None:
-            denormalized_rois = [
-                roi.shape.to_pixel_coordinates(
-                    image_width=self.image_width, image_height=self.image_height
-                ) for roi in self.rois if roi in rois
+            rois_to_get = [
+                roi.shape for roi in self.rois if roi in rois
             ]
         else:
-            denormalized_rois = [
-                roi.shape.to_pixel_coordinates(
-                    image_width=self.image_width, image_height=self.image_height
-                ) for roi in self.rois
-            ]
+            rois_to_get = [roi.shape for roi in self.rois]
 
-        if len(self.image.shape) == 3:
-            return [
-                self.image[roi[1][0]:roi[1][1], roi[0][0]:roi[0][1], :]
-                for roi in denormalized_rois
-            ]
-        elif len(self.image.shape) == 2:
-            return [
-                self.image[roi[1][0]:roi[1][1], roi[0][0]:roi[0][1]]
-                for roi in denormalized_rois
-            ]
-        else:
-            raise ValueError(
-                f"Unexpected image shape: {self.image.shape}. Unable to generate image "
-                f"views"
-            )
+        views: List[np.ndarray] = []
+        for roi in rois_to_get:
+            y0, y1 = roi.y, roi.y + roi.height
+            x0, x1 = roi.x, roi.x + roi.width
+            if len(self.image.shape) == 3:
+                views.append(self.image[y0:y1, x0:x1, :])
+            elif len(self.image.shape) == 2:
+                views.append(self.image[y0:y1, x0:x1])
+            else:
+                raise ValueError(
+                    f"Unexpected image shape: {self.image.shape}. Unable to generate "
+                    f"image views"
+                )
+        return views
 
     def append_annotation(self, annotation: Annotation, roi: ROI):
         """

@@ -52,7 +52,7 @@ class NormalizedAnnotationRESTConverter(AnnotationRESTConverter):
         else:
             points_dicts = input_copy.pop("points")
             points = [
-                Point(int(point["x"]*image_width), int(point["y"]*image_height))
+                dict(x=int(point["x"]*image_width), y=int(point["y"]*image_height))
                 for point in points_dicts
             ]
             input_copy.update({"points": points})
