@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/sdk-nightly-tests.yaml
+    with:
+      learning_parameter_settings: default
     secrets:
       SC_HOST: ${{ secrets.SC_HOST }}
       SC_USERNAME: ${{ secrets.SC_USERNAME }}
