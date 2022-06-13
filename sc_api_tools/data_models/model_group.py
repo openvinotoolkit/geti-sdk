@@ -66,7 +66,10 @@ class ModelGroup:
         :return: True if the model group holds at least one trained model, False
             otherwise
         """
-        trained_models = [model for model in self.models if model.score is not None]
+        trained_models = [
+            model for model in self.models
+            if (model.performance is not None or model.score is not None)
+        ]
         return len(trained_models) > 0
 
     def get_latest_model(self) -> Optional[ModelSummary]:
