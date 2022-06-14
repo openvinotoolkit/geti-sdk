@@ -319,7 +319,7 @@ class Polygon(Shape):
 
         :return: Numpy array containing the contour
         """
-        return np.array([np.array([point.x, point.y]) for point in self.points])
+        return np.array([(int(point.x), int(point.y)) for point in self.points])
 
     def to_roi(self) -> 'Rectangle':
         """
