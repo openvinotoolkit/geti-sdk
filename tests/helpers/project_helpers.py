@@ -51,16 +51,7 @@ def get_or_create_annotated_project_for_test_class(
         if learning_parameter_settings == 'minimal':
             project_service.set_minimal_training_hypers()
         elif learning_parameter_settings == 'reduced_mem':
-            # Reduce batch size in memory intensive tasks to avoid OOM errors in pods
-            for task in project.get_trainable_tasks():
-                if task.type in [
-                    TaskType.DETECTION,
-                    TaskType.ROTATED_DETECTION,
-                    TaskType.INSTANCE_SEGMENTATION,
-                ]:
-                    task_hypers = project_service.configuration_manager.get_task_configuration(task_id=task.id)
-                    task_hypers.batch_size.value = 1
-                    project_service.configuration_manager.set_configuration(task_hypers)
+            project_service.set_reduced_memory_hypers()
         elif learning_parameter_settings != 'default':
             print(
                 f"Invalid learning parameter settings '{learning_parameter_settings}' "

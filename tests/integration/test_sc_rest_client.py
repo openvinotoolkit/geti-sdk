@@ -7,6 +7,8 @@ import cv2
 import pytest
 from _pytest.fixtures import FixtureRequest
 
+from vcr import VCR
+
 from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers import DatumAnnotationReader
 from sc_api_tools.data_models import Project, Prediction
@@ -17,10 +19,16 @@ from tests.helpers import (
     get_or_create_annotated_project_for_test_class,
     SdkTestMode
 )
-from tests.helpers.constants import PROJECT_PREFIX
+from tests.helpers.constants import PROJECT_PREFIX, CASSETTE_EXTENSION
 
 
 class TestSCRESTClient:
+    """
+    Integration tests for the methods in the SCRESTClient class.
+
+    NOTE: These tests are meant to be run in one go
+    """
+
     @staticmethod
     def ensure_annotated_project(
             project_service: ProjectService, annotation_reader: DatumAnnotationReader
@@ -30,13 +38,14 @@ class TestSCRESTClient:
             annotation_readers=[annotation_reader],
             project_type="detection",
             project_name=f"{PROJECT_PREFIX}_sc_rest_client",
-            enable_auto_train=True
+            enable_auto_train=False
         )
 
     def test_project_setup(
             self,
             fxt_project_service: ProjectService,
-            fxt_annotation_reader: DatumAnnotationReader
+            fxt_annotation_reader: DatumAnnotationReader,
+            fxt_vcr: VCR
     ):
         """
         This test sets up an annotated project on the server, that persists for the
@@ -44,6 +53,14 @@ class TestSCRESTClient:
         creation tests are running.
         """
         self.ensure_annotated_project(fxt_project_service, fxt_annotation_reader)
+        assert fxt_project_service.has_project
+
+        # For the integration tests we start training manually
+        with fxt_vcr.use_cassette(
+            f"{fxt_project_service.project.name}_setup_training.{CASSETTE_EXTENSION}"
+        ):
+            fxt_project_service.training_manager.train_task(0)
+        assert fxt_project_service.is_training
 
     def test_client_initialization(self, fxt_client: SCRESTClient):
         """
@@ -156,7 +173,6 @@ class TestSCRESTClient:
     def test_download_and_upload_project(
             self,
             fxt_project_service: ProjectService,
-            fxt_annotation_reader: DatumAnnotationReader,
             fxt_client: SCRESTClient,
             fxt_temp_directory: str,
             fxt_project_finalizer,
@@ -168,9 +184,7 @@ class TestSCRESTClient:
         :param fxt_project_service:
         :return:
         """
-        project = self.ensure_annotated_project(
-            fxt_project_service, fxt_annotation_reader
-        )
+        project = fxt_project_service.project
         target_folder = os.path.join(fxt_temp_directory, project.name)
 
         fxt_client.download_project(project.name, target_folder=target_folder)
@@ -216,15 +230,12 @@ class TestSCRESTClient:
             fxt_client: SCRESTClient,
             fxt_image_path: str,
             fxt_project_service: ProjectService,
-            fxt_annotation_reader: DatumAnnotationReader,
             fxt_test_mode: SdkTestMode
     ) -> None:
         """
         Verifies that the upload_and_predict_image method works correctly
         """
-        project = self.ensure_annotated_project(
-            fxt_project_service, fxt_annotation_reader
-        )
+        project = fxt_project_service.project
         # If training is not ready yet, monitor progress until job completes
         if not fxt_project_service.prediction_manager.ready_to_predict:
             timeout = 300 if fxt_test_mode != SdkTestMode.OFFLINE else 1
@@ -257,15 +268,12 @@ class TestSCRESTClient:
             fxt_client: SCRESTClient,
             fxt_image_path: str,
             fxt_project_service: ProjectService,
-            fxt_annotation_reader: DatumAnnotationReader,
             fxt_temp_directory: str
     ) -> None:
         """
         Verifies that deploying a project works
         """
-        project = self.ensure_annotated_project(
-            fxt_project_service, fxt_annotation_reader
-        )
+        project = fxt_project_service.project
         deployment = fxt_client.deploy_project(
             project.name, output_folder=fxt_temp_directory
         )

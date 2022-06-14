@@ -245,6 +245,23 @@ class ProjectService:
                 )
         return self._model_manager
 
+    @property
+    def is_training(self) -> bool:
+        """
+        Returns True if the project service contains a project, and that project is
+        currently running at least one training job for any of its tasks. Returns
+        False otherwise.
+
+        :return: True if the project is training, False otherwise
+        """
+        if not self.has_project:
+            return False
+        with self.vcr_context(
+                f"{self.project.name}_is_training.{CASSETTE_EXTENSION}"
+        ):
+            jobs = self.training_manager.get_jobs(project_only=True)
+            return len(jobs) > 0
+
     def delete_project(self):
         """ Deletes the project from the server """
         if self._project is not None:
@@ -344,3 +361,23 @@ class ProjectService:
                         f"Parameter batch_size was not found in the configuration for "
                         f"task {task.summary}. Unable to configure batch size"
                     )
+
+    def set_reduced_memory_hypers(self) -> None:
+        """
+        Reduce batch size in memory intensive tasks to avoid OOM errors in pods. Use
+        default hypers for other tasks
+        """
+        with self.vcr_context(
+            f"{self.project.name}_set_reduced_memory_hypers.{CASSETTE_EXTENSION}"
+        ):
+            for task in project.get_trainable_tasks():
+                if task.type in [
+                    TaskType.DETECTION,
+                    TaskType.ROTATED_DETECTION,
+                    TaskType.INSTANCE_SEGMENTATION,
+                ]:
+                    task_hypers = project_service.configuration_manager.get_task_configuration(
+                        task_id=task.id
+                    )
+                    task_hypers.batch_size.value = 1
+                    project_service.configuration_manager.set_configuration(task_hypers)
