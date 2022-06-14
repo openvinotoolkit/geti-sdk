@@ -39,12 +39,12 @@ class NormalizedAnnotationRESTConverter(AnnotationRESTConverter):
         input_copy = copy.deepcopy(input_dict)
         type_ = str_to_shape_type(input_copy.get("type"))
         if type_ != ShapeType.POLYGON:
-            denormalized_coordinates: Dict[str, int] = {}
+            denormalized_coordinates: Dict[str, float] = {}
             for key, value in input_copy.items():
                 if key in coordinate_keys_x:
-                    new_value = int(value * image_width)
+                    new_value = value * image_width
                 elif key in coordinate_keys_y:
-                    new_value = int(value * image_height)
+                    new_value = value * image_height
                 else:
                     continue
                 denormalized_coordinates.update({key: new_value})
@@ -52,7 +52,7 @@ class NormalizedAnnotationRESTConverter(AnnotationRESTConverter):
         else:
             points_dicts = input_copy.pop("points")
             points = [
-                dict(x=int(point["x"]*image_width), y=int(point["y"]*image_height))
+                dict(x=point["x"]*image_width, y=point["y"]*image_height)
                 for point in points_dicts
             ]
             input_copy.update({"points": points})
