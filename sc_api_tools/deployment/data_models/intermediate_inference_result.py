@@ -70,8 +70,8 @@ class IntermediateInferenceResult:
 
         views: List[np.ndarray] = []
         for roi in rois_to_get:
-            y0, y1 = roi.y, roi.y + roi.height
-            x0, x1 = roi.x, roi.x + roi.width
+            y0, y1 = int(roi.y), int(roi.y + roi.height)
+            x0, x1 = int(roi.x), int(roi.x + roi.width)
             if len(self.image.shape) == 3:
                 views.append(self.image[y0:y1, x0:x1, :])
             elif len(self.image.shape) == 2:
