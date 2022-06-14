@@ -5,7 +5,7 @@ from sc_api_tools.annotation_readers import AnnotationReader, DatumAnnotationRea
 from vcr import VCR
 
 from sc_api_tools import SCRESTClient
-from sc_api_tools.data_models import Project
+from sc_api_tools.data_models import Project, TaskType
 from sc_api_tools.rest_managers import (
     ProjectManager,
     ConfigurationManager,
@@ -370,14 +370,14 @@ class ProjectService:
         with self.vcr_context(
             f"{self.project.name}_set_reduced_memory_hypers.{CASSETTE_EXTENSION}"
         ):
-            for task in project.get_trainable_tasks():
+            for task in self.project.get_trainable_tasks():
                 if task.type in [
                     TaskType.DETECTION,
                     TaskType.ROTATED_DETECTION,
                     TaskType.INSTANCE_SEGMENTATION,
                 ]:
-                    task_hypers = project_service.configuration_manager.get_task_configuration(
+                    task_hypers = self.configuration_manager.get_task_configuration(
                         task_id=task.id
                     )
                     task_hypers.batch_size.value = 1
-                    project_service.configuration_manager.set_configuration(task_hypers)
+                    self.configuration_manager.set_configuration(task_hypers)
