@@ -1,6 +1,6 @@
 import abc
 import math
-from typing import List, Tuple, TypeVar, Union, Dict, Any, Callable
+from typing import List, TypeVar, Union, Dict, Any
 
 import attr
 
@@ -13,7 +13,6 @@ from ote_sdk.entities.shapes.rectangle import Rectangle as OteRectangle
 from ote_sdk.entities.shapes.ellipse import Ellipse as OteEllipse
 from ote_sdk.entities.shapes.polygon import (
     Polygon as OtePolygon,
-    Point as OtePoint
 )
 
 from sc_api_tools.data_models.enums import ShapeType
@@ -194,8 +193,8 @@ class Rectangle(Shape):
         return cls(
             x=ote_shape.x1*image_width,
             y=ote_shape.y1*image_height,
-            width=int(ote_shape.width*image_width),
-            height=int(ote_shape.height*image_height)
+            width=ote_shape.width*image_width,
+            height=ote_shape.height*image_height
         )
 
 
@@ -281,8 +280,8 @@ class Ellipse(Shape):
         return cls(
             x=ote_shape.x1*image_width,
             y=ote_shape.y1*image_height,
-            width=int(ote_shape.width*image_width),
-            height=int(ote_shape.height*image_height),
+            width=ote_shape.width*image_width,
+            height=ote_shape.height*image_height,
         )
 
 
@@ -509,8 +508,8 @@ class RotatedRectangle(Shape):
         x_min, x_max = min(x_coords), max(x_coords)
         y_min, y_max = min(y_coords), max(y_coords)
 
-        x_center = x_min + int(0.5 * (x_max - abs(x_min)))
-        y_center = y_min + int(0.5 * (y_max - abs(y_min)))
+        x_center = x_min + 0.5 * (x_max - abs(x_min))
+        y_center = y_min + 0.5 * (y_max - abs(y_min))
 
         if len(x_coords) > len(set(x_coords)) or len(y_coords) > len(set(y_coords)):
             # In this case there are points sharing the same x or y value, which means
@@ -612,10 +611,12 @@ class RotatedRectangle(Shape):
         x_1 = self.x - 0.5 * self.width * math.cos(self._angle_x_radian) + 0.5 * self.height * math.sin(self._angle_x_radian)
         y_2 = self.y + 0.5 * self.width * math.sin(self._angle_x_radian) - 0.5 * self.height * math.cos(self._angle_x_radian)
         x_3 = self.x + 0.5 * self.width * math.cos(self._angle_x_radian) - 0.5 * self.height * math.sin(self._angle_x_radian)
+
         point0 = Point(x=self.x_min, y=y_0)
         point1 = Point(x=x_1, y=self.y_min)
         point2 = Point(x=self.x_max, y=y_2)
         point3 = Point(x=x_3, y=self.y_max)
+
         return Polygon(
             points=[point0, point1, point2, point3]
         )
