@@ -1,7 +1,7 @@
 import os
 from abc import abstractmethod
 from glob import glob
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Optional
 
 from sc_api_tools.data_models import TaskType, Annotation
 
@@ -60,9 +60,17 @@ class AnnotationReader:
         """
         raise NotImplementedError
 
-    def prepare_and_set_dataset(self, task_type: Union[TaskType, str]):
+    def prepare_and_set_dataset(
+            self,
+            task_type: Union[TaskType, str],
+            previous_task_type: Optional[TaskType] = None
+    ):
         """
         Prepares a dataset for uploading annotations for a certain task_type
+
+        :param task_type: TaskType to prepare the dataset for
+        :param previous_task_type: Optional type of the (trainable) task preceding
+            the current task in the pipeline. This is only used for global tasks
 
         :return:
         """

@@ -593,11 +593,14 @@ class SCRESTClient:
             images = images[:number_of_images_to_annotate]
 
         append_annotations = False
+        previous_task_type = None
         for task_type, reader in zip(task_types, annotation_readers_per_task):
             if reader is not None:
                 # Set annotation reader task type
                 reader.task_type = task_type
-                reader.prepare_and_set_dataset(task_type=task_type)
+                reader.prepare_and_set_dataset(
+                    task_type=task_type, previous_task_type=previous_task_type
+                )
                 # Upload annotations
                 annotation_manager = AnnotationManager(
                     session=self.session,
@@ -610,6 +613,7 @@ class SCRESTClient:
                     append_annotations=append_annotations
                 )
                 append_annotations = True
+            previous_task_type = task_type
         configuration_manager.set_project_auto_train(auto_train=enable_auto_train)
         return project
 

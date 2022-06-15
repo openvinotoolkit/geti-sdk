@@ -23,7 +23,11 @@ class DatumAnnotationReader(AnnotationReader):
         TaskType.DETECTION,
         TaskType.SEGMENTATION,
         TaskType.CLASSIFICATION,
-        TaskType.ANOMALY_CLASSIFICATION
+        TaskType.INSTANCE_SEGMENTATION,
+        TaskType.ROTATED_DETECTION,
+        TaskType.ANOMALY_CLASSIFICATION,
+        TaskType.ANOMALY_DETECTION,
+        TaskType.ANOMALY_SEGMENTATION
     ]
 
     def __init__(
@@ -43,7 +47,11 @@ class DatumAnnotationReader(AnnotationReader):
         self._override_label_map: Optional[Dict[int, str]] = None
         self._applied_filters: List[Dict[str, Union[List[str], str]]] = []
 
-    def prepare_and_set_dataset(self, task_type: Union[TaskType, str]):
+    def prepare_and_set_dataset(
+            self,
+            task_type: Union[TaskType, str],
+            previous_task_type: Optional[TaskType] = None
+    ):
         if not isinstance(task_type, TaskType):
             task_type = TaskType(task_type)
         if task_type != self.task_type:
@@ -58,7 +66,9 @@ class DatumAnnotationReader(AnnotationReader):
             for filter_parameters in self.applied_filters:
                 self.filter_dataset(**filter_parameters)
 
-        dataset = self.dataset.prepare_dataset(task_type=task_type)
+        dataset = self.dataset.prepare_dataset(
+            task_type=task_type, previous_task_type=previous_task_type
+        )
         self.dataset.set_dataset(dataset)
         print(f"Dataset is prepared for {task_type} task.")
 

@@ -23,13 +23,17 @@ class DatumaroDataset(object):
         self.dataset, self.environment = self.create_datumaro_dataset()
         self._subset_names = self.dataset.subsets().keys()
 
-    def prepare_dataset(self, task_type: TaskType) -> Dataset:
+    def prepare_dataset(
+            self, task_type: TaskType, previous_task_type: Optional[TaskType] = None
+    ) -> Dataset:
         """
         Prepares the dataset for uploading to Sonoma Creek
 
         :param task_type: TaskType to prepare the dataset for
+        :param previous_task_type: Optional type of the (trainable) task preceding
+            the current task in the pipeline. This is only used for global tasks
         """
-        if task_type in [TaskType.DETECTION, TaskType.ROTATED_DETECTION]:
+        if task_type.is_detection:
             new_dataset = self.dataset.transform(
                 self.dataset.env.transforms.get('shapes_to_boxes')
             )
@@ -40,9 +44,14 @@ class DatumaroDataset(object):
             )
             print("Annotations have been converted to polygons")
         elif task_type.is_global:
-            new_dataset = self.dataset.transform(
-                self.dataset.env.transforms.get('shapes_to_boxes')
-            )
+            if previous_task_type is not None and previous_task_type.is_segmentation:
+                new_dataset = self.dataset.transform(
+                    self.dataset.env.transforms.get('masks_to_polygons')
+                )
+            else:
+                new_dataset = self.dataset.transform(
+                    self.dataset.env.transforms.get('shapes_to_boxes')
+                )
             print(f"{str(task_type).capitalize()} dataset prepared.")
         else:
             raise ValueError(f"Unsupported task type {task_type}")

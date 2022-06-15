@@ -66,11 +66,20 @@ class TaskType(Enum):
     @property
     def is_segmentation(self) -> bool:
         """
-        Returns True if a task of this TaskType is an anomaly task, False otherwise
+        Returns True if a task of this TaskType is a segmentation task, False otherwise
 
         :return:
         """
         return self in SEGMENTATION_TASK_TYPES
+
+    @property
+    def is_detection(self) -> bool:
+        """
+        Returns True if a task of this TaskType is a detection task, False otherwise
+
+        :return:
+        """
+        return self in DETECTION_TASK_TYPES
 
     @classmethod
     def from_domain(cls, domain):
@@ -113,4 +122,10 @@ SEGMENTATION_TASK_TYPES = [
     TaskType.SEGMENTATION,
     TaskType.ANOMALY_SEGMENTATION,
     TaskType.INSTANCE_SEGMENTATION
+]
+
+DETECTION_TASK_TYPES = [
+    TaskType.DETECTION,
+    TaskType.ROTATED_DETECTION,
+    TaskType.ANOMALY_DETECTION
 ]
