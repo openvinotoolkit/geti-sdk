@@ -134,11 +134,18 @@ folder belonging to this AnnotationReader instance</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader.prepare_and_set_dataset">
-<span class="sig-name descname"><span class="pre">prepare_and_set_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.enums.TaskType" title="sc_api_tools.data_models.enums.task_type.TaskType"><span class="pre">sc_api_tools.data_models.enums.task_type.TaskType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader.prepare_and_set_dataset" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">prepare_and_set_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.enums.TaskType" title="sc_api_tools.data_models.enums.task_type.TaskType"><span class="pre">sc_api_tools.data_models.enums.task_type.TaskType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous_task_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.enums.TaskType" title="sc_api_tools.data_models.enums.task_type.TaskType"><span class="pre">sc_api_tools.data_models.enums.task_type.TaskType</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.annotation_readers.base_annotation_reader.AnnotationReader.prepare_and_set_dataset" title="Permalink to this definition"></a></dt>
 <dd><p>Prepares a dataset for uploading annotations for a certain task_type</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p></p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>task_type</strong> – TaskType to prepare the dataset for</p></li>
+<li><p><strong>previous_task_type</strong> – Optional type of the (trainable) task preceding
+the current task in the pipeline. This is only used for global tasks</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
 </dd>
 </dl>
 </dd></dl>
@@ -194,11 +201,18 @@ an empty list if no filters have been applied.</p>
 <p>Class to read annotations using datumaro</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.prepare_and_set_dataset">
-<span class="sig-name descname"><span class="pre">prepare_and_set_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.enums.TaskType" title="sc_api_tools.data_models.enums.task_type.TaskType"><span class="pre">sc_api_tools.data_models.enums.task_type.TaskType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.prepare_and_set_dataset" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">prepare_and_set_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.enums.TaskType" title="sc_api_tools.data_models.enums.task_type.TaskType"><span class="pre">sc_api_tools.data_models.enums.task_type.TaskType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous_task_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.enums.TaskType" title="sc_api_tools.data_models.enums.task_type.TaskType"><span class="pre">sc_api_tools.data_models.enums.task_type.TaskType</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.annotation_readers.datumaro_annotation_reader.datumaro_annotation_reader.DatumAnnotationReader.prepare_and_set_dataset" title="Permalink to this definition"></a></dt>
 <dd><p>Prepares a dataset for uploading annotations for a certain task_type</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p></p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>task_type</strong> – TaskType to prepare the dataset for</p></li>
+<li><p><strong>previous_task_type</strong> – Optional type of the (trainable) task preceding
+the current task in the pipeline. This is only used for global tasks</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
 </dd>
 </dl>
 </dd></dl>
