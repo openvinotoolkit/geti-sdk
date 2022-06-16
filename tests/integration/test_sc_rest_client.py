@@ -1,7 +1,6 @@
 import os
 import time
 from typing import List
-import numpy as np
 
 import cv2
 import pytest
@@ -45,7 +44,8 @@ class TestSCRESTClient:
             self,
             fxt_project_service: ProjectService,
             fxt_annotation_reader: DatumAnnotationReader,
-            fxt_vcr: VCR
+            fxt_vcr: VCR,
+            fxt_test_mode: SdkTestMode
     ):
         """
         This test sets up an annotated project on the server, that persists for the
@@ -54,6 +54,11 @@ class TestSCRESTClient:
         """
         self.ensure_annotated_project(fxt_project_service, fxt_annotation_reader)
         assert fxt_project_service.has_project
+
+        # Wait a few sec before starting training, to make sure all annotations are
+        # processed.
+        if fxt_test_mode != SdkTestMode.OFFLINE:
+            time.sleep(5)
 
         # For the integration tests we start training manually
         with fxt_vcr.use_cassette(
