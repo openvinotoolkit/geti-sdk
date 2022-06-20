@@ -99,7 +99,7 @@ class TestNightlyProject:
                     visualise_output=False,
                     delete_after_prediction=False
                 )
-            except ValueError as error:
+            except SCRequestException as error:
                 prediction = None
                 time.sleep(20)
                 print(error)

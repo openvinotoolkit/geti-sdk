@@ -25,7 +25,7 @@ from sc_api_tools.data_models.enums.media_type import (
     SUPPORTED_IMAGE_FORMATS
 )
 from sc_api_tools.data_models.utils import numpy_from_buffer
-from sc_api_tools.http_session import SCSession
+from sc_api_tools.http_session import SCSession, SCRequestException
 from sc_api_tools.rest_converters.media_rest_converter import MediaRESTConverter
 
 
@@ -136,14 +136,14 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         for media_item in media_list:
             try:
                 self.session.get_rest_response(url=media_item.base_url, method='DELETE')
-            except ValueError as error:
-                if error.args[-1] == 409:
+            except SCRequestException as error:
+                if error.status_code == 409:
                     print(
                         f"Project '{self._project_name}' is locked for deletion, "
                         f"unable to delete media. Aborting deletion."
                     )
                     return False
-                if error.args[-1] == 404 or error.args[-1] == 204:
+                if error.status_code == 404 or error.status_code == 204:
                     # Media item has already been deleted, continue with the rest of
                     # the list
                     continue

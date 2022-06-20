@@ -14,7 +14,7 @@ from sc_api_tools.data_models import (
 )
 from sc_api_tools.data_models.containers import MediaList
 from sc_api_tools.data_models.enums import PredictionMode
-from sc_api_tools.http_session import SCSession
+from sc_api_tools.http_session import SCSession, SCRequestException
 
 from sc_api_tools.rest_converters.prediction_rest_converter import (
     NormalizedPredictionRESTConverter,
@@ -179,9 +179,9 @@ class PredictionManager:
                         f"{media_item.type}. Unable to retrieve predictions."
                     )
                 msg = "success"
-            except ValueError as error:
+            except SCRequestException as error:
                 msg = f"Unable to retrieve prediction for {media_item.type}."
-                if error.args[-1] == 204:
+                if error.status_code == 204:
                     msg += f" The prediction for the {media_item.type} with name " \
                            f"'{media_item.name}' is not available in project " \
                            f"'{self.project.name}'."
@@ -447,7 +447,7 @@ class PredictionManager:
             if prediction.has_result_media and include_result_media:
                 try:
                     result_media = prediction.get_result_media_data(self.session)
-                except ValueError:
+                except SCRequestException:
                     if verbose:
                         print(
                             f"Unable to retrieve prediction result map for "

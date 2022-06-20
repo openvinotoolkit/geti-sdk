@@ -1,5 +1,6 @@
 import time
 
+from sc_api_tools.http_session import SCRequestException
 from sc_api_tools.rest_managers import ProjectManager, TrainingManager
 
 
@@ -27,6 +28,7 @@ def force_delete_project(project_name: str, project_manager: ProjectManager) -> 
             f"session that is in progress. "
             f"\n\n Attempting to cancel the job and re-try project deletion."
         )
+
         project = project_manager.get_project_by_name(project_name)
         training_manager = TrainingManager(
             workspace_id=project_manager.workspace_id,

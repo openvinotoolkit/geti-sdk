@@ -4,7 +4,7 @@ import os
 from typing import Optional, List, Dict, Any, Union, Tuple
 
 from sc_api_tools.data_models import Project, TaskType, Task
-from sc_api_tools.http_session import SCSession
+from sc_api_tools.http_session import SCSession, SCRequestException
 from sc_api_tools.rest_converters import ProjectRESTConverter
 from sc_api_tools.utils import remove_null_fields
 from sc_api_tools.utils.project_helpers import get_task_types_by_project_type
@@ -446,8 +446,8 @@ class ProjectManager:
                 url=f"{self.base_url}projects/{project.id}",
                 method="DELETE"
             )
-        except ValueError as error:
-            if error.args[-1] == 409:
+        except SCRequestException as error:
+            if error.status_code == 409:
                 raise ValueError(
                     f"Project {project.name} is locked for deletion/modification. "
                     f"Please wait until all jobs related to this project are finished "

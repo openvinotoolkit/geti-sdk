@@ -4,6 +4,7 @@ from typing import Union, Sequence
 
 import cv2
 import numpy as np
+from sc_api_tools.http_session import SCRequestException
 
 from .media_manager import BaseMediaManager
 from sc_api_tools.data_models import MediaType, Video
@@ -47,7 +48,7 @@ class VideoManager(BaseMediaManager[Video]):
         elif isinstance(video, np.ndarray):
             try:
                 n_frames, frame_height, frame_width, channels = video.shape
-            except ValueError as error:
+            except SCRequestException as error:
                 raise ValueError(
                     f"Invalid video input shape, expected a 4D numpy array with "
                     f"dimensions representing [frames, height, width, channels]. Got "

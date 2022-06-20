@@ -5,7 +5,7 @@ import attr
 from sc_api_tools.data_models.enums import JobState, JobType
 from sc_api_tools.data_models.status import StatusSummary
 from sc_api_tools.data_models.utils import str_to_enum_converter, attr_value_serializer
-from sc_api_tools.http_session import SCSession
+from sc_api_tools.http_session import SCSession, SCRequestException
 
 
 @attr.s(auto_attribs=True)
@@ -159,8 +159,8 @@ class Job:
                 method='DELETE'
             )
             self.status.state = JobState.CANCELLED
-        except ValueError as error:
-            if error.args[-1] == 404:
+        except SCRequestException as error:
+            if error.status_code == 404:
                 print(f"Job '{self.name}' is not active anymore, unable to delete.")
                 self.status.state = JobState.INACTIVE
             else:

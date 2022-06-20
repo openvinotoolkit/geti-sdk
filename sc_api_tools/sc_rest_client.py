@@ -3,6 +3,7 @@ import warnings
 from typing import Optional, List, Union, Tuple, Sequence
 
 import numpy as np
+from sc_api_tools.http_session import SCRequestException
 
 from .annotation_readers import (
     SCAnnotationReader,
@@ -337,7 +338,7 @@ class SCRESTClient:
                 result = configuration_manager.apply_from_file(
                     path_to_folder=target_folder
                 )
-            except ValueError:
+            except SCRequestException:
                 print(
                     f"Attempted to set configuration according to the "
                     f"'configuration.json' file in the project directory, but setting "

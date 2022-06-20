@@ -5,6 +5,7 @@ from typing import List
 import cv2
 import pytest
 from _pytest.fixtures import FixtureRequest
+from sc_api_tools.http_session import SCRequestException
 
 from vcr import VCR
 
@@ -259,7 +260,7 @@ class TestSCRESTClient:
                     visualise_output=False,
                     delete_after_prediction=False
                 )
-            except ValueError as error:
+            except SCRequestException as error:
                 prediction = None
                 time.sleep(sleep_time)
                 print(error)

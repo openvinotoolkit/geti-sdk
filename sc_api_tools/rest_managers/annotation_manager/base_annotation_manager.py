@@ -13,7 +13,7 @@ from sc_api_tools.data_models import (
 )
 from sc_api_tools.data_models.containers.media_list import MediaList
 from sc_api_tools.data_models.media import MediaInformation
-from sc_api_tools.http_session import SCSession
+from sc_api_tools.http_session import SCSession, SCRequestException
 from sc_api_tools.rest_converters import AnnotationRESTConverter
 from sc_api_tools.rest_converters.annotation_rest_converter import \
     NormalizedAnnotationRESTConverter
@@ -270,8 +270,8 @@ class BaseAnnotationManager:
                 url=f"{media_item.base_url}/annotations/latest",
                 method="GET"
             )
-        except ValueError as error:
-            if error.args[-1] in [204, 404]:
+        except SCRequestException as error:
+            if error.status_code in [204, 404]:
                 return None
             else:
                 raise error

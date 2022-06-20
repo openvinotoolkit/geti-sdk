@@ -4,9 +4,10 @@ from typing import Dict, Optional, Union
 import requests
 import urllib3
 
-from requests import Response
+from requests import Response, HTTPError
 
 from .cluster_config import ClusterConfig, API_PATTERN
+from .exception import SCRequestException
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -183,10 +184,16 @@ class SCSession(requests.Session):
 
         if response.status_code not in [200, 201]:
             try:
-                data = response.json()
+                response_data = response.json()
             except JSONDecodeError:
-                data = ""
-            raise ValueError(method, url, data, response.status_code)
+                response_data = None
+            raise SCRequestException(
+                method=method,
+                url=url,
+                status_code=response.status_code,
+                request_data=kw_data_arg,
+                response_data=response_data
+            )
 
         if response.headers.get("Content-Type", None) == "application/json":
             result = response.json()

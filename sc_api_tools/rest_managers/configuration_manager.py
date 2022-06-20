@@ -9,7 +9,7 @@ from sc_api_tools.data_models import (
     GlobalConfiguration, FullConfiguration, Task, Algorithm
 )
 from sc_api_tools.data_models.configurable_parameter_group import PARAMETER_TYPES
-from sc_api_tools.http_session import SCSession
+from sc_api_tools.http_session import SCSession, SCRequestException
 from sc_api_tools.rest_converters import ConfigurationRESTConverter
 from sc_api_tools.utils import get_supported_algorithms
 
@@ -248,7 +248,7 @@ class ConfigurationManager:
                 method="POST",
                 data=data
             )
-        except ValueError:
+        except SCRequestException:
             failed_parameters: List[Dict[str, str]] = []
             global_config = configuration.global_
             task_chain_config = configuration.task_chain
@@ -262,7 +262,7 @@ class ConfigurationManager:
                         method="POST",
                         data=config_data
                     )
-                except ValueError:
+                except SCRequestException:
                     failed_parameters.append({"global": parameter.name})
             for task_config in task_chain_config:
                 for parameter in task_config:
@@ -272,7 +272,7 @@ class ConfigurationManager:
                     try:
                         self._set_task_configuration(task_id=task_config.task_id,
                                                      config=config_data)
-                    except ValueError:
+                    except SCRequestException:
                         failed_parameters.append(
                             {task_config.task_title: parameter.name}
                         )

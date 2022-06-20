@@ -1,8 +1,9 @@
 import abc
 import math
-from typing import List, TypeVar, Union, Dict, Any
+from typing import List, TypeVar, Union, Dict, Any, Optional
 
 import attr
+import cv2
 
 import numpy as np
 
@@ -18,7 +19,13 @@ from ote_sdk.entities.shapes.polygon import (
 from sc_api_tools.data_models.enums import ShapeType
 from sc_api_tools.data_models.utils import str_to_shape_type, round_to_n_digits
 
+# OteShapeTypeVar is a type variable that represents the possible different shapes
+# that can be converted from the OTE SDK
 OteShapeTypeVar = TypeVar('OteShapeTypeVar', OtePolygon, OteEllipse, OtePolygon)
+
+# N_DIGITS_TO_ROUND_TO determines how pixel coordinates will be rounded when they are
+# passed from the SC REST API. SC itself rounds some coordinates to 4 digits, but not
+# all. Here we round all coordinates for internal consistency
 N_DIGITS_TO_ROUND_TO = 4
 coordinate_converter=round_to_n_digits(N_DIGITS_TO_ROUND_TO)
 
@@ -95,6 +102,16 @@ class Shape:
             image_width=image_width,
             image_height=image_height
         )
+
+    @property
+    @abc.abstractmethod
+    def area(self) -> float:
+        """
+        Returns the area of the shape, given in number of pixels.
+
+        :return: Area of the shape, in pixels
+        """
+        raise NotImplementedError
 
 
 @attr.s(auto_attribs=True)
@@ -197,6 +214,15 @@ class Rectangle(Shape):
             height=ote_shape.height*image_height
         )
 
+    @property
+    def area(self) -> float:
+        """
+        Returns the area of the Rectangle, in pixels
+
+        :return:
+        """
+        return self.width * self.height
+
 
 @attr.s(auto_attribs=True)
 class Ellipse(Shape):
@@ -284,6 +310,15 @@ class Ellipse(Shape):
             height=ote_shape.height*image_height,
         )
 
+    @property
+    def area(self) -> float:
+        """
+        Returns the area of the Ellipse, in pixels
+
+        :return:
+        """
+        return self.width * self.height * math.pi
+
 
 @attr.s(auto_attribs=True)
 class Point:
@@ -311,14 +346,25 @@ class Polygon(Shape):
         converter=str_to_shape_type, default=ShapeType.POLYGON, kw_only=True
     )
 
+    def __attrs_post_init__(self):
+        self._contour: Optional[np.ndarray] = None
+
     def points_as_contour(self) -> np.ndarray:
         """
         Returns the list of points for this Polygon as a numpy array representing
         contour points that can be plotted by openCV's drawContours function
 
+        NOTE: the contour is cached, to avoid going over the list of points twice. If
+        the polygon is modified the cache has to be cleared. It is recommended to
+        create a new polygon instead
+
         :return: Numpy array containing the contour
         """
-        return np.array([(int(point.x), int(point.y)) for point in self.points])
+        if self._contour is None:
+            self._contour = np.array(
+                [(int(point.x), int(point.y)) for point in self.points]
+            )
+        return self._contour
 
     def to_roi(self) -> 'Rectangle':
         """
@@ -398,6 +444,27 @@ class Polygon(Shape):
         ]
         return cls(
             points=points
+        )
+
+    @property
+    def area(self) -> float:
+        """
+        Returns the area of the Polygon, in pixels
+
+        :return:
+        """
+        return cv2.contourArea(self.points_as_contour())
+
+    def fit_rotated_rectangle(self) -> 'RotatedRectangle':
+        """
+        Fits a RotatedRectangle object around the Polygon, such that the area spanned
+        by the rectangle is minimal
+
+        :return: RotatedRectangle object with minimal area, which encloses the Polygon
+        """
+        center, (width, height), angle = cv2.minAreaRect(self.points_as_contour())
+        return RotatedRectangle(
+            angle=angle, x=center[0], y=center[1], width=width, height=height
         )
 
 
@@ -643,3 +710,12 @@ class RotatedRectangle(Shape):
             height=self.height/image_height,
             type=str(self.type)
         )
+
+    @property
+    def area(self) -> float:
+        """
+        Returns the area of the RotatedRectangle, in pixels
+
+        :return:
+        """
+        return self.width * self.height

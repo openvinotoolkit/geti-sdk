@@ -34,9 +34,15 @@ Module contents
    :undoc-members:
    :show-inheritance:
 
+.. autoclass:: sc_api_tools.http_session.exception.SCRequestException
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 """
 
 from .sc_session import SCSession
 from .cluster_config import ClusterConfig
+from .exception import SCRequestException
 
-__all__ = ["SCSession", "ClusterConfig"]
+__all__ = ["SCSession", "ClusterConfig", "SCRequestException"]
