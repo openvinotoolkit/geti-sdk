@@ -895,6 +895,17 @@ normalized with respect to image_width and image_height</p>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Shape.area">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Shape.area" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the area of the shape, given in number of pixels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Area of the shape, in pixels</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1021,6 +1032,17 @@ the OTE SDK Rectangle entity passed.</p>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Rectangle.area">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Rectangle.area" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the area of the Rectangle, in pixels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1130,6 +1152,17 @@ the OTE SDK Ellipse entity passed.</p>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Ellipse.area">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Ellipse.area" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the area of the Ellipse, in pixels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1181,6 +1214,9 @@ the OTE SDK Ellipse entity passed.</p>
 <span class="sig-name descname"><span class="pre">points_as_contour</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Polygon.points_as_contour" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the list of points for this Polygon as a numpy array representing
 contour points that can be plotted by openCV’s drawContours function</p>
+<p>NOTE: the contour is cached, to avoid going over the list of points twice. If
+the polygon is modified the cache has to be cleared. It is recommended to
+create a new polygon instead</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>Numpy array containing the contour</p>
@@ -1251,6 +1287,29 @@ the OTE SDK Polygon entity passed.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Polygon instance created according to the ote_shape</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Polygon.area">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.Polygon.area" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the area of the Polygon, in pixels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.Polygon.fit_rotated_rectangle">
+<span class="sig-name descname"><span class="pre">fit_rotated_rectangle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.shapes.RotatedRectangle" title="sc_api_tools.data_models.shapes.RotatedRectangle"><span class="pre">sc_api_tools.data_models.shapes.RotatedRectangle</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.shapes.Polygon.fit_rotated_rectangle" title="Permalink to this definition"></a></dt>
+<dd><p>Fits a RotatedRectangle object around the Polygon, such that the area spanned
+by the rectangle is minimal</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>RotatedRectangle object with minimal area, which encloses the Polygon</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1439,6 +1498,17 @@ normalized</p></li>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Dictionary containing the rotated rectangle, represented in normalized
 coordinates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.shapes.RotatedRectangle.area">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sc_api_tools.data_models.shapes.RotatedRectangle.area" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the area of the RotatedRectangle, in pixels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
 </dd>
 </dl>
 </dd></dl>
