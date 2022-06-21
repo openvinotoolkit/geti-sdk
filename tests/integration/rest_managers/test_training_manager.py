@@ -5,7 +5,8 @@ from sc_api_tools.annotation_readers import DatumAnnotationReader
 from sc_api_tools.data_models import Job, Project, ProjectStatus
 from sc_api_tools.data_models.enums import JobState
 
-from tests.helpers import ProjectService, get_or_create_annotated_project_for_test_class
+from tests.helpers import ProjectService, \
+    get_or_create_annotated_project_for_test_class, SdkTestMode
 from tests.helpers.constants import PROJECT_PREFIX
 
 
@@ -25,7 +26,8 @@ class TestTrainingManager:
     def test_train_task_and_get_jobs(
             self,
             fxt_project_service: ProjectService,
-            fxt_annotation_reader: DatumAnnotationReader
+            fxt_annotation_reader: DatumAnnotationReader,
+            fxt_test_mode: SdkTestMode
     ) -> None:
         """
         Verifies that submitting a training job for a task in a project with
@@ -34,7 +36,8 @@ class TestTrainingManager:
         """
         project = self.ensure_annotated_project(project_service=fxt_project_service,
                                                 annotation_reader=fxt_annotation_reader)
-        time.sleep(1)
+        if fxt_test_mode != SdkTestMode.OFFLINE:
+            time.sleep(5)
 
         task = project.get_trainable_tasks()[0]
         job = fxt_project_service.training_manager.train_task(
