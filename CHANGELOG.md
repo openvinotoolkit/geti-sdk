@@ -1,9 +1,4 @@
-This package contains tools to interact with a Sonoma Creek cluster via the SonomaCreek REST API. It provides functionality for:
-
-- Project creation from datasets on disk
-- Project downloading (images, videos, configuration, annotations, predictions and models)
-- Project creation and upload from a previous download
-- Deploying a project for local inference with OpenVINO
+# [pre-release] SonomaCreek SDK v0.0.1
 
 This initial pre-release is not meant for distribution.
 
