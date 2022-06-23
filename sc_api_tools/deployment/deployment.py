@@ -136,11 +136,7 @@ class Deployment:
 
             inference_converter = create_converter(
                 converter_type=task.type.to_ote_domain(),
-                labels=LabelSchemaEntity.from_labels(
-                    labels=[
-                        label.to_ote(task_type=task.type) for label in task.labels
-                    ]
-                )
+                labels=model.ote_label_schema
             )
             inference_converters.update(
                 {task.title: inference_converter}
@@ -288,9 +284,10 @@ class Deployment:
                     )
                 )
 
+        # Rotated detection models produce Polygons, convert them here to
+        # RotatedRectangles
         if task.type == TaskType.ROTATED_DETECTION:
-            # Rotated detection models produce Polygons, convert them here to
-            # RotatedRectangles
+
             for annotation in prediction.annotations:
                 if isinstance(annotation.shape, Polygon):
                     annotation.shape = RotatedRectangle.from_polygon(annotation.shape)

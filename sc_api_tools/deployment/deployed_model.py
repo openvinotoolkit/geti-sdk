@@ -5,11 +5,17 @@ import shutil
 import sys
 import tempfile
 import zipfile
+import datetime
 from typing import Optional, Union, Dict, Tuple, Any, List
 
 import attr
 
 import numpy as np
+from ote_sdk.entities.color import Color
+from ote_sdk.entities.label import LabelEntity
+from ote_sdk.entities.label import Domain as OTEDomain
+from ote_sdk.entities.label_schema import LabelSchemaEntity, LabelGroup, LabelGroupType, \
+    LabelTree
 
 from sc_api_tools.data_models import (
     OptimizedModel,
@@ -20,6 +26,11 @@ from sc_api_tools.rest_converters import ConfigurationRESTConverter, ModelRESTCo
 
 MODEL_DIR_NAME = 'model'
 WRAPPER_DIR_NAME = 'model_wrappers'
+
+LABELS_CONFIG_KEY = 'labels'
+LABEL_TREE_KEY = 'label_tree'
+LABEL_GROUPS_KEY = 'label_groups'
+ALL_LABELS_KEY = 'all_labels'
 
 
 @attr.s(auto_attribs=True)
@@ -35,6 +46,7 @@ class DeployedModel(OptimizedModel):
         self._model_data_path: Optional[str] = None
         self._needs_tempdir_deletion: bool = False
         self._has_custom_model_wrappers: bool = False
+        self._label_schema: Optional[LabelSchemaEntity] = None
         self.openvino_model_parameters: Optional[Dict[str, Any]] = None
 
     def get_data(self, source: Union[str, os.PathLike, SCSession]):
@@ -162,7 +174,7 @@ class DeployedModel(OptimizedModel):
                 configuration_json = json.load(config_file)
             model_type = configuration_json.get("type_of_model")
             parameters = configuration_json.get("model_parameters")
-            parameters.pop("labels", None)
+            label_dictionary = parameters.pop(LABELS_CONFIG_KEY, None)
             if configuration is not None:
                 configuration.update(parameters)
             else:
@@ -172,6 +184,8 @@ class DeployedModel(OptimizedModel):
                 f"Missing configuration file `config.json` for deployed model `{self}`,"
                 f" unable to load inference model."
             )
+
+        self._parse_label_schema_from_dict(label_dictionary)
 
         # Create model wrapper with the loaded configuration
         # First, add custom wrapper (if any) to path so that we can find it
@@ -330,3 +344,60 @@ class DeployedModel(OptimizedModel):
         :return: Dictionary containing the model outputs
         """
         return self._inference_model.infer_sync(preprocessed_image)
+
+    @property
+    def ote_label_schema(self) -> LabelSchemaEntity:
+        """
+        Returns the OTE LabelSchema for the model
+
+        This requires the inference model to be loaded, getting this property while
+        inference models are not loaded will raise a ValueError
+
+        :return: LabelSchemaEntity containing the OTE SDK label schema for the model
+        """
+        if self._label_schema is None:
+            raise ValueError(
+                "Inference model is not loaded, unable to retrieve label schema. "
+                "Please load inference model first."
+            )
+        return self._label_schema
+
+    def _parse_label_schema_from_dict(
+            self, label_schema_dict: Optional[Dict[str, Union[dict, List[dict]]]] = None
+    ) -> None:
+        """
+        Parses the dictionary contained in the model `config.json` file, and
+        generates an OTE LabelSchemaEntity from it.
+
+        :param label_schema_dict: Dictionary containing the label schema information
+            to parse
+        """
+        label_groups_list = label_schema_dict[LABEL_GROUPS_KEY]
+        labels_dict = label_schema_dict[ALL_LABELS_KEY]
+        for key, value in labels_dict.items():
+            label_entity = LabelEntity(
+                id=value["_id"],
+                name=value["name"],
+                hotkey=value["hotkey"],
+                domain=OTEDomain[value["domain"]],
+                color=Color(**value["color"]),
+                is_empty=value.get("is_empty", False),
+                creation_date=datetime.datetime.fromisoformat(value["creation_date"])
+            )
+            labels_dict[key] = label_entity
+        label_groups: List[LabelGroup] = []
+        for group_dict in label_groups_list:
+            labels: List[LabelEntity] = [
+                labels_dict[label_id] for label_id in group_dict["label_ids"]
+            ]
+            label_groups.append(
+                LabelGroup(
+                    id=group_dict["_id"],
+                    name=group_dict["name"],
+                    group_type=LabelGroupType[group_dict["relation_type"]],
+                    labels=labels
+                )
+            )
+        self._label_schema = LabelSchemaEntity(
+            label_groups=label_groups
+        )
