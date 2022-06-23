@@ -85,13 +85,6 @@ The above examples work with Datumaro for annotation loading, so in principle th
 should work with datasets in formats other than COCO too (as long as they're supported 
 by Datumaro).
 
-#### Vitens examples
-The `create_vitens_aeromonas_project_single_task.py` script creates a detection project
-using the bacteria colony dataset for the company Vitens (a former Cosmonio customer). 
-This is one of the UserStory datasets. The dataset can be downloaded from 
-[this link](https://intel.sharepoint.com/:u:/r/sites/user-story-dataset-sharing/Shared%20Documents/User%20Stories%20Datasets/Detection/Vitens%20Bacteria%20Counting/Vitens%20Aeromonas.zip?csf=1&web=1&e=wFXEle),
-but the data is confidential, so please treat it as such.
-
 ## Uploading and getting predictions for media
 The example scripts `upload_and_predict_from_numpy.py` and 
 `upload_and_predict_media_from_folder.py` show how to upload either a single media 
