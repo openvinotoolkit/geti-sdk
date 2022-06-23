@@ -36,5 +36,7 @@ venv.bak/
 /tests/*.ini
 !/tests/offline.ini
 
-# Test artifacts
+# Test artifacts and reports
 /tests/artifacts
+/tests/htmlcov/
+/tests/report*

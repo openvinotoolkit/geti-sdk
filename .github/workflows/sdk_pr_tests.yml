@@ -11,6 +11,9 @@ on:
     branches:
       - main 
 
+env:
+  INTEGRATION_TEST_REPORT: integration_test_report.html
+
 jobs:
   build:
     # runs-on: ${{ matrix.os }}
@@ -45,4 +48,12 @@ jobs:
 
       - name: Test with pytest
         run: |
-          pytest tests/integration -c tests/offline.ini --cov=sc_api_tools
+          pytest tests/integration -c tests/offline.ini --cov=sc_api_tools --html=$INTEGRATION_TEST_REPORT --self-contained-html
+
+      - name: Upload test report for integration tests
+        # Publish the integration test report to github
+        uses: actions/upload-artifact@v3
+        if: ${{ always() }}
+        with:
+          name: integration-test-report
+          path: ${{ env.INTEGRATION_TEST_REPORT }}
