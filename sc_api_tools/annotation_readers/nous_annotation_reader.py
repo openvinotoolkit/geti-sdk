@@ -27,8 +27,11 @@ class NOUSAnnotationReader(AnnotationReader):
         )
 
         self.label_filter: Optional[List[str]] = None
+        self._all_label_names = self.get_all_label_names(verbose=False)
 
-    def replace_empty_with_no_object(self, label):
+    def replace_empty_with_no_object(
+            self, label: str, all_label_names: List[str]
+    ) -> str:
 
         if self.task_type == TaskType.DETECTION:
             if 'Empty' in label and str(self.task_type) in str.lower(label):
@@ -36,7 +39,10 @@ class NOUSAnnotationReader(AnnotationReader):
 
         if self.task_type == TaskType.CLASSIFICATION:
             if 'Empty' in label and str(self.task_type) in str.lower(label):
-                return 'No Class'
+                if len(all_label_names) > 1:
+                    return 'No Class'
+                else:
+                    return 'Empty Image'
 
         if self.task_type == TaskType.SEGMENTATION:
             if 'Empty' in label and str(self.task_type) in str.lower(label):
@@ -44,12 +50,13 @@ class NOUSAnnotationReader(AnnotationReader):
 
         return label
 
-    def get_all_label_names(self):
+    def get_all_label_names(self, verbose: bool = True):
         """
         Gets all the NOUS labels in a project and removes labels that contain 'Empty'
         and Task (i.e. 'detection')
         """
-        print(f"Reading annotation files in folder {self.base_folder}...")
+        if verbose:
+            print(f"Reading annotation files in folder {self.base_folder}...")
         unique_label_names = []
         for annotation_file in os.listdir(self.base_folder):
             with open(os.path.join(self.base_folder, annotation_file), 'r') as f:
@@ -260,7 +267,11 @@ class NOUSAnnotationReader(AnnotationReader):
                         continue
                 else:
                     labels = [label["name"] for label in entry["labels"]]
-                labels = [self.replace_empty_with_no_object(label) for label in labels]
+                labels = [
+                    self.replace_empty_with_no_object(
+                        label, all_label_names=self._all_label_names
+                    ) for label in labels
+                ]
 
                 new_label_ids = []
                 for label in labels:

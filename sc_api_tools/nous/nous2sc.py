@@ -129,6 +129,8 @@ def migrate_nous_project(
     '''
     if labels is None:
         labels = annotation_reader.get_all_label_names()
+    elif project_type == "classification" and len(labels) == 1:
+        labels.append('Empty Image')
 
     # Create project
     project_manager = ProjectManager(
