@@ -1,6 +1,6 @@
 import copy
 from pprint import pformat
-from typing import ClassVar, List, Optional, Union, Dict, Any, Tuple
+from typing import ClassVar, List, Optional, Union, Dict, Any, Tuple, Sequence
 
 import attr
 import cv2
@@ -13,7 +13,7 @@ from ote_sdk.entities.annotation import (
 
 from sc_api_tools.data_models.annotations import Annotation
 from sc_api_tools.data_models.enums import AnnotationKind
-from sc_api_tools.data_models.label import ScoredLabel
+from sc_api_tools.data_models.label import ScoredLabel, Label
 from sc_api_tools.data_models.media import MediaInformation
 from sc_api_tools.data_models.media_identifiers import (
     ImageIdentifier,
@@ -349,4 +349,25 @@ class AnnotationScene:
         return cls(
             annotations=annotations,
             id=ote_annotation_scene.id,
+        )
+
+    def map_labels(
+            self, labels: Sequence[Union[Label, ScoredLabel]]
+    ) -> 'AnnotationScene':
+        """
+        Attempts to map the labels found in `labels` to those in the AnnotationScene
+        instance. Labels are matched by name. This method will return a new
+        AnnotationScene object.
+
+        :param labels: Labels to which the existing labels should be mapped
+        :return: AnnotationScene with updated labels, corresponding to those found in
+            the `project` (if matching labels were found)
+        """
+        annotations: List[Annotation] = []
+        for annotation in self.annotations:
+            annotations.append(annotation.map_labels(labels=labels))
+        return AnnotationScene(
+            annotations=annotations,
+            media_identifier=self.media_identifier,
+            modified=self.modified
         )

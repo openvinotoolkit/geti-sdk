@@ -1,10 +1,10 @@
-from typing import List, Union, Optional, ClassVar
+from typing import List, Union, Optional, ClassVar, Sequence
 
 import attr
 
 from ote_sdk.entities.annotation import Annotation as OteAnnotation
 
-from sc_api_tools.data_models.label import ScoredLabel
+from sc_api_tools.data_models.label import ScoredLabel, Label
 from sc_api_tools.data_models.shapes import (
     Rectangle,
     Ellipse,
@@ -112,3 +112,41 @@ class Annotation:
             for ote_label in ote_annotation.get_labels(include_empty=True)
         ]
         return Annotation(shape=shape, labels=labels, id=ote_annotation.id)
+
+    def map_labels(self, labels: Sequence[Union[ScoredLabel, Label]]) -> 'Annotation':
+        """
+        Attempts to map the labels found in `labels` to those in the Annotation
+        instance. Labels are matched by name. This method will return a new
+        Annotation object.
+
+        :param labels: Labels to which the existing labels should be mapped
+        :return: Annotation with updated labels, corresponding to those found in
+            the `project` (if matching labels were found)
+        """
+        mapped_label_names = [label.name for label in labels]
+        mapped_label_ids = [label.id for label in labels]
+
+        new_labels: List[ScoredLabel] = []
+        for label in self.labels:
+            if label.name in mapped_label_names:
+                label_index = mapped_label_names.index(label.name)
+                new_labels.append(
+                    ScoredLabel(
+                        probability=label.probability,
+                        name=label.name,
+                        color=label.color,
+                        id=mapped_label_ids[label_index],
+                        source=label.source
+                    )
+                )
+        new_labels_to_revisit = [
+            new_label.id for new_label in new_labels
+            if new_label.id in self.labels_to_revisit
+        ]
+        return Annotation(
+            labels=new_labels,
+            shape=self.shape,
+            modified=self.modified,
+            id=None,
+            labels_to_revisit=new_labels_to_revisit
+        )

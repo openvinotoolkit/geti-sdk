@@ -22,7 +22,7 @@ venv.bak/
 /data/
 
 # Jupyter and ipython checkpoints
-/notebooks/.ipynb_checkpoints
+.ipynb_checkpoints/
 /notebooks/deployments
 /notebooks/projects
 

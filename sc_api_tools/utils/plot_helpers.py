@@ -4,6 +4,9 @@ import numpy as np
 
 import cv2
 
+from PIL import Image as PILImage
+from IPython.display import display
+
 from sc_api_tools.data_models.annotation_scene import AnnotationScene
 from sc_api_tools.data_models.media import Image, VideoFrame
 from sc_api_tools.data_models.media import MediaInformation
@@ -14,7 +17,8 @@ from sc_api_tools.data_models.containers import MediaList
 def show_image_with_annotation_scene(
         image: Union[Image, VideoFrame, np.ndarray],
         annotation_scene: Union[AnnotationScene, Prediction],
-        filepath: Optional[str] = None
+        filepath: Optional[str] = None,
+        show_in_notebook: bool = False
 ):
     """
     Displays an image with an annotation_scene overlayed on top of it.
@@ -23,6 +27,9 @@ def show_image_with_annotation_scene(
     :param annotation_scene: Annotations or Predictions to overlay on the image
     :param filepath: Optional filepath to save the image with annotation overlay to.
         If left as None, the image will be shown in a new opencv window
+    :param show_in_notebook: True if the image needs to be shown in a notebook context.
+        Setting this to True will display the image inline in the notebook. Setting it
+        to False will open a pop up to show the image.
     """
     if type(annotation_scene) == AnnotationScene:
         plot_type = 'Annotation'
@@ -50,9 +57,14 @@ def show_image_with_annotation_scene(
     result += mask[..., ::-1]
 
     if filepath is None:
-        cv2.imshow(f'{plot_type} for {name}', result)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        if not show_in_notebook:
+            cv2.imshow(f'{plot_type} for {name}', result)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+        else:
+            result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
+            image = PILImage.fromarray(result)
+            display(image)
     else:
         cv2.imwrite(filepath, result)
 

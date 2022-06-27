@@ -3,7 +3,8 @@ from abc import abstractmethod
 from glob import glob
 from typing import List, Union, Dict, Optional
 
-from sc_api_tools.data_models import TaskType, Annotation
+from sc_api_tools.data_models.enums import TaskType
+from sc_api_tools.data_models.annotations import Annotation
 
 
 class AnnotationReader:
