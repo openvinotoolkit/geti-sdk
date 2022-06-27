@@ -1640,6 +1640,23 @@ from a given OTE SDK Annotation object.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.annotations.Annotation.map_labels">
+<span class="sig-name descname"><span class="pre">map_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sc_api_tools.data_models.label.ScoredLabel" title="sc_api_tools.data_models.label.ScoredLabel"><span class="pre">sc_api_tools.data_models.label.ScoredLabel</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.label.Label" title="sc_api_tools.data_models.label.Label"><span class="pre">sc_api_tools.data_models.label.Label</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.annotations.Annotation" title="sc_api_tools.data_models.annotations.Annotation"><span class="pre">sc_api_tools.data_models.annotations.Annotation</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.annotations.Annotation.map_labels" title="Permalink to this definition"></a></dt>
+<dd><p>Attempts to map the labels found in <cite>labels</cite> to those in the Annotation
+instance. Labels are matched by name. This method will return a new
+Annotation object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>labels</strong> – Labels to which the existing labels should be mapped</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Annotation with updated labels, corresponding to those found in
+the <cite>project</cite> (if matching labels were found)</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <span class="target" id="module-sc_api_tools.data_models.annotation_scene"></span><dl class="py class">
@@ -1849,6 +1866,23 @@ instance from</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>AnnotationScene instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.data_models.annotation_scene.AnnotationScene.map_labels">
+<span class="sig-name descname"><span class="pre">map_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sc_api_tools.data_models.label.ScoredLabel" title="sc_api_tools.data_models.label.ScoredLabel"><span class="pre">sc_api_tools.data_models.label.ScoredLabel</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.data_models.label.Label" title="sc_api_tools.data_models.label.Label"><span class="pre">sc_api_tools.data_models.label.Label</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.data_models.annotation_scene.AnnotationScene" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a></span></span><a class="headerlink" href="#sc_api_tools.data_models.annotation_scene.AnnotationScene.map_labels" title="Permalink to this definition"></a></dt>
+<dd><p>Attempts to map the labels found in <cite>labels</cite> to those in the AnnotationScene
+instance. Labels are matched by name. This method will return a new
+AnnotationScene object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>labels</strong> – Labels to which the existing labels should be mapped</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>AnnotationScene with updated labels, corresponding to those found in
+the <cite>project</cite> (if matching labels were found)</p>
 </dd>
 </dl>
 </dd></dl>
