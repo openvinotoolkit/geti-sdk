@@ -480,6 +480,8 @@ class PredictionManager:
                             path_to_result_media_folder,
                             media_item.name + '_' + result_medium.friendly_name + '.jpg'
                         )
+
+                        os.makedirs(os.path.dirname(result_media_path), exist_ok=True)
                         with open(result_media_path, 'wb') as f:
                             f.write(result_medium.data)
 
@@ -488,6 +490,8 @@ class PredictionManager:
             prediction_path = os.path.join(
                 path_to_predictions_folder, media_item.name + '.json'
             )
+
+            os.makedirs(os.path.dirname(prediction_path), exist_ok=True)
             with open(prediction_path, 'w') as f:
                 json.dump(export_data, f, indent=4)
             download_count += 1

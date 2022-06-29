@@ -406,6 +406,8 @@ class BaseAnnotationManager:
                 path_to_annotations_folder,
                 filename
             )
+
+            os.makedirs(os.path.dirname(annotation_path), exist_ok=True)
             with open(annotation_path, 'w') as f:
                 json.dump(export_data, f, indent=4)
             download_count += 1
