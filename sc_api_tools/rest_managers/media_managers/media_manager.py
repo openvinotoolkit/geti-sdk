@@ -329,6 +329,8 @@ class BaseMediaManager(Generic[MediaTypeVar]):
                 method="GET",
                 contenttype="jpeg"
             )
+
+            os.makedirs(os.path.dirname(media_filepath), exist_ok=True)
             with open(media_filepath, 'wb') as f:
                 f.write(response.content)
             if isinstance(media_item, (Image, VideoFrame)):

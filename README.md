@@ -222,3 +222,18 @@ The high level `SCRESTClient` class provides the following methods:
 For further details regarding these methods, please refer to the method documentation 
 and the [code snippets](#downloading-and-uploading-projects) and 
 [example scripts](#examples) provided in this repo.
+
+## Using Docker
+
+The Dockerfile can be used to run the package without having to install python on your machine.
+
+First build the docker image
+``` sh
+docker build -t sc-api-tools .
+```
+
+then run it using,
+
+``` sh
+docker run --rm -ti -v $(pwd):/app sc-api-tools:latest /bin/bash
+```
