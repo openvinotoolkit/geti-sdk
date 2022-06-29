@@ -23,7 +23,7 @@ from sc_api_tools.utils.dictionary_helpers import remove_null_fields
 from .performance import Performance
 from .label import Label
 from .task import Task
-from .utils import deidentify, attr_value_serializer
+from .utils import deidentify, attr_value_serializer, str_to_datetime
 
 
 @attr.s(auto_attribs=True)
@@ -149,10 +149,12 @@ class Dataset:
     :var name: name of the dataset
     """
 
-    _identifier_fields: ClassVar[str] = ["id", "thumbnail"]
+    _identifier_fields: ClassVar[str] = ["id", "creation_time"]
 
     name: str
     id: Optional[str] = None
+    creation_time: Optional[str] = attr.ib(default=None, converter=str_to_datetime)
+    use_for_training: Optional[bool] = None
 
     def deidentify(self):
         """
@@ -182,7 +184,7 @@ class Project:
     datasets: List[Dataset]
     score: Optional[float] = None  # 'score' is removed in v1.1
     performance: Optional[Performance] = None
-    creation_time: Optional[str] = None
+    creation_time: Optional[str] = attr.ib(default=None, converter=str_to_datetime)
     id: Optional[str] = None
     thumbnail: Optional[str] = None
 

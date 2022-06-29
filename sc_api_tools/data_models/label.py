@@ -56,6 +56,7 @@ class Label:
     hotkey: str = ""
     id: Optional[str] = None
     parent_id: Optional[str] = None
+    is_anomalous: Optional[bool] = None
 
     def to_ote(self, task_type: TaskType) -> LabelEntity:
         """

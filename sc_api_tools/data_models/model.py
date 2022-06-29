@@ -28,6 +28,7 @@ from sc_api_tools.data_models.utils import (
 )
 from sc_api_tools.utils import deserialize_dictionary
 from sc_api_tools.utils.dictionary_helpers import remove_null_fields
+from . import Label
 
 from .performance import Performance
 
@@ -191,8 +192,10 @@ class Model(BaseModel):
     score_up_to_date: bool = attr.ib(kw_only=True)
     optimization_capabilities: OptimizationCapabilities = attr.ib(kw_only=True)
     optimized_models: List[OptimizedModel] = attr.ib(kw_only=True)
+    labels: Optional[List[Label]] = None
     version: Optional[int] = attr.ib(default=None, kw_only=True)
     # 'version' is deprecated in v1.1
+    training_dataset_info: Optional[Dict[str, str]] = None
 
     @property
     def model_group_id(self) -> Optional[str]:
