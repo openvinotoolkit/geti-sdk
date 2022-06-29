@@ -53,6 +53,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#supported-features">Supported features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#api-reference">API reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-docker">Using Docker</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks.html">Notebooks</a></li>
@@ -292,6 +293,18 @@ cluster, potentially using labels and uploading annotations from an external dat
 <p>For further details regarding these methods, please refer to the method documentation
 and the <span class="xref std std-ref">code snippets</span> and
 <span class="xref std std-ref">example scripts</span> provided in this repo.</p>
+</section>
+<section id="using-docker">
+<h2>Using Docker<a class="headerlink" href="#using-docker" title="Permalink to this headline"></a></h2>
+<p>The Dockerfile can be used to run the package without having to install python on your machine.</p>
+<p>First build the docker image</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>docker build -t sc-api-tools .
+</pre></div>
+</div>
+<p>then run it using,</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>docker run --rm -ti -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/app sc-api-tools:latest /bin/bash
+</pre></div>
+</div>
 </section>
 </section>
 
