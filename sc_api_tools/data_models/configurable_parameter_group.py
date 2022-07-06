@@ -238,7 +238,10 @@ class ParameterGroup:
             parameter = parameters[0]
         else:
             group = self.get_parameter_group_by_name(group_name)
-            parameter = group.get_parameter_by_name(name)
+            if group is not None:
+                parameter = group.get_parameter_by_name(name)
+            else:
+                parameter = None
         return parameter
 
     def get_group_containing(self, parameter_name: str) -> Optional['ParameterGroup']:

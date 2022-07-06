@@ -264,11 +264,13 @@ class Project:
         :return: Dictionary containing the keys `project_name`, `project_type` and
             `labels`
         """
-        return {
+        parameter_dict = {
             "project_name": self.name,
             "project_type": self.project_type,
             "labels": self.get_labels_per_task(include_empty=False)
         }
+        remove_null_fields(parameter_dict)
+        return parameter_dict
 
     def get_all_labels(self) -> List[Label]:
         """
