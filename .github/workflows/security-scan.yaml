@@ -33,7 +33,7 @@ jobs:
           pip install bandit
           bandit -r . --ini tox.ini
 
-      - name: Git AV Scan
-        uses: djdefi/gitavscan@main
-        with:
-          full: '--full'
+#      - name: Git AV Scan
+#        uses: djdefi/gitavscan@main
+#        with:
+#          full: '--full'
