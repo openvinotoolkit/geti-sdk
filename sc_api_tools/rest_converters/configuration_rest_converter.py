@@ -40,10 +40,11 @@ class ConfigurationRESTConverter:
     Class that handles conversion of SC REST output for configurable parameter
     entities to objects and vice versa.
     """
+
     @staticmethod
     def entity_identifier_from_dict(input_dict: Dict[str, Any]) -> EntityIdentifier:
         """
-        Creates an EntityIdentifier object from an input dictionary
+        Create an EntityIdentifier object from an input dictionary.
 
         :param input_dict: Dictionary representing an EntityIdentifier in SC
         :return: EntityIdentifier object corresponding to the data in `input_dict`
@@ -65,9 +66,9 @@ class ConfigurationRESTConverter:
     @staticmethod
     def from_dict(input_dict: Dict[str, Any]) -> ConfigurableParameters:
         """
-        Creates a ConfigurableParameters object holding the configurable parameters
+        Create a ConfigurableParameters object holding the configurable parameters
         for an entity in SC, from a dictionary returned by the SC /configuration REST
-        endpoints
+        endpoints.
 
         :param input_dict: Dictionary containing the configurable parameters
         :return: ConfigurableParameters instance holding the parameter data
@@ -88,8 +89,8 @@ class ConfigurationRESTConverter:
             input_list: List[Dict[str, Any]]
     ) -> List[ConfigurableParameters]:
         """
-        Creates a list of configurable parameters from a list of dictionaries received
-        by the SC /configuration endpoints
+        Create a list of configurable parameters from a list of dictionaries received
+        by the SC /configuration endpoints.
 
         :param input_list: List of dictionaries to convert
         :return: List of ConfigurableParameters instances
@@ -107,8 +108,8 @@ class ConfigurationRESTConverter:
     @staticmethod
     def _remove_non_minimal_fields(configurable_parameters: ParameterGroup):
         """
-        For all parameters in the parameter group, sets the fields that are not part
-        of the minimal representation of the parameter to 'None'
+        For all parameters in the parameter group, set the fields that are not part
+        of the minimal representation of the parameter to 'None'.
 
         NOTE: This method modifies the input in place
 
@@ -135,8 +136,8 @@ class ConfigurationRESTConverter:
     @staticmethod
     def task_configuration_from_dict(input_dict: Dict[str, Any]) -> TaskConfiguration:
         """
-        Creates a TaskConfiguration object holding all configurable parameters for a
-        task in SC, from a dictionary returned by the /configuration REST endpoints
+        Create a TaskConfiguration object holding all configurable parameters for a
+        task in SC, from a dictionary returned by the /configuration REST endpoints.
 
         :param input_dict: Dictionary containing the configurable parameters for the
             task
@@ -158,8 +159,8 @@ class ConfigurationRESTConverter:
             deidentify: bool = True
     ) -> Dict[str, Any]:
         """
-        Converts a TaskConfiguration, GlobalConfiguration or FullConfiguration into a
-        dictionary, removing fields that are None or are only relevant to the SC UI
+        Convert a TaskConfiguration, GlobalConfiguration or FullConfiguration into a
+        dictionary, removing fields that are None or are only relevant to the SC UI.
 
         :param configuration: TaskConfiguration or GlobalConfiguration to convert
         :param deidentify: True to remove all unique database identifiers, False to
@@ -187,9 +188,9 @@ class ConfigurationRESTConverter:
             input_: Union[List[Dict[str, Any]], Dict[str, Any]]
     ) -> GlobalConfiguration:
         """
-        Creates a GlobalConfiguration object holding the configurable parameters
+        Create a GlobalConfiguration object holding the configurable parameters
         for all project-wide components in the SC project, from input from the
-        /configuration/global REST endpoint
+        /configuration/global REST endpoint.
 
         :param input_: REST response holding the serialized configurable parameters
         :return:
@@ -211,8 +212,8 @@ class ConfigurationRESTConverter:
     @staticmethod
     def full_configuration_from_rest(input_dict: Dict[str, Any]) -> FullConfiguration:
         """
-        Converts a dictionary holding the full configuration for an SC project, as
-        returned by the /configuration endpoint, to an object representation
+        Convert a dictionary holding the full configuration for an SC project, as
+        returned by the /configuration endpoint, to an object representation.
 
         :param input_dict: Dictionary representing the full project configuration
         :return: FullConfiguration instance holding the global and task chain
@@ -234,8 +235,8 @@ class ConfigurationRESTConverter:
             configurable_parameter_list: List[ConfigurableParameters]
     ) -> Dict[str, List[Dict[str, Any]]]:
         """
-        Converts a list of model hyper parameters to a dictionary that can be sent to
-        the /configuration POST endpoints
+        Convert a list of model hyper parameters to a dictionary that can be sent to
+        the /configuration POST endpoints.
 
         :param configurable_parameter_list: List of ConfigurableParameter instances
         :return: Dictionary containing:

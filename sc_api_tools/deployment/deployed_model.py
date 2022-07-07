@@ -28,8 +28,11 @@ import numpy as np
 from ote_sdk.entities.color import Color
 from ote_sdk.entities.label import LabelEntity
 from ote_sdk.entities.label import Domain as OTEDomain
-from ote_sdk.entities.label_schema import LabelSchemaEntity, LabelGroup, LabelGroupType, \
-    LabelTree
+from ote_sdk.entities.label_schema import (
+    LabelSchemaEntity,
+    LabelGroup,
+    LabelGroupType
+)
 
 from sc_api_tools.data_models import (
     OptimizedModel,
@@ -50,12 +53,16 @@ ALL_LABELS_KEY = 'all_labels'
 @attr.s(auto_attribs=True)
 class DeployedModel(OptimizedModel):
     """
-    This class represents an SC model that has been deployed for inference. It can be
-    loaded onto a device to generate predictions
+    Representation of an SC model that has been deployed for inference. It can be
+    loaded onto a device to generate predictions.
     """
+
     hyper_parameters: TaskConfiguration = attr.ib(kw_only=True, repr=False)
 
     def __attrs_post_init__(self):
+        """
+        Initialize private attributes
+        """
         super().__attrs_post_init__()
         self._model_data_path: Optional[str] = None
         self._needs_tempdir_deletion: bool = False
@@ -65,7 +72,7 @@ class DeployedModel(OptimizedModel):
 
     def get_data(self, source: Union[str, os.PathLike, SCSession]):
         """
-        Loads the model weights from a data source. The `source` can be one of the
+        Load the model weights from a data source. The `source` can be one of the
         following:
 
           1. The SC cluster (if an SCSession instance is passed). In this case the
@@ -137,9 +144,8 @@ class DeployedModel(OptimizedModel):
 
     def __del__(self):
         """
-        This method is called when the OptimizedModel object is deleted. It cleans up
-        the temporary directory created to store the model data (if any)
-
+        Clean up the temporary directory created to store the model data (if any). This
+        method is called when the OptimizedModel object is deleted.
         """
         if self._needs_tempdir_deletion:
             if os.path.exists(self._model_data_path):
@@ -151,7 +157,7 @@ class DeployedModel(OptimizedModel):
             configuration: Optional[Dict[str, Any]] = None
     ):
         """
-        Loads the actual model weights to a specified device.
+        Load the actual model weights to a specified device.
 
         :param device: Device (CPU or GPU) to load the model to. Defaults to 'CPU'
         :param configuration: Optional dictionary holding additional configuration
@@ -234,8 +240,8 @@ class DeployedModel(OptimizedModel):
             cls, model: OptimizedModel, hyper_parameters: TaskConfiguration
     ) -> 'DeployedModel':
         """
-        Creates a DeployedModel instance out of an OptimizedModel and it's
-        corresponding set of hyper parameters
+        Create a DeployedModel instance out of an OptimizedModel and it's
+        corresponding set of hyper parameters.
 
         :param model: OptimizedModel to convert to a DeployedModel
         :param hyper_parameters: TaskConfiguration instance containing the hyper
@@ -257,7 +263,7 @@ class DeployedModel(OptimizedModel):
     @classmethod
     def from_folder(cls, path_to_folder: Union[str, os.PathLike]) -> 'DeployedModel':
         """
-        Creates a DeployedModel instance from a folder containing the model data
+        Create a DeployedModel instance from a folder containing the model data.
 
         :param path_to_folder: Path to the folder that holds the model data
         :return: DeployedModel instance
@@ -278,7 +284,7 @@ class DeployedModel(OptimizedModel):
 
     def save(self, path_to_folder: Union[str, os.PathLike]):
         """
-        Saves the DeployedModel instance to the designated folder
+        Save the DeployedModel instance to the designated folder.
 
         :param path_to_folder: Path to the folder to save the model to
         """
@@ -314,7 +320,7 @@ class DeployedModel(OptimizedModel):
             self, image: np.ndarray
     ) -> Tuple[Dict[str, np.ndarray], Dict[str, Tuple[int, int, int]]]:
         """
-        Preprocesses an image for inference
+        Preprocess an image for inference.
 
         :param image: Numpy array containing pixel data. The image is expected to have
             dimensions [height x width x channels], with the channels in RGB order
@@ -333,7 +339,7 @@ class DeployedModel(OptimizedModel):
             Any
     ]:
         """
-        Postprocesses model outputs
+        Postprocess the model outputs.
 
         :param inference_results: Dictionary holding the results of inference
         :param metadata: Dictionary holding metadata
@@ -352,6 +358,7 @@ class DeployedModel(OptimizedModel):
             self, preprocessed_image: Dict[str, np.ndarray]
     ) -> Dict[str, np.ndarray]:
         """
+        Run inference on an already preprocessed image.
 
         :param preprocessed_image: Dictionary holding the preprocessing results for an
             image
@@ -362,7 +369,7 @@ class DeployedModel(OptimizedModel):
     @property
     def ote_label_schema(self) -> LabelSchemaEntity:
         """
-        Returns the OTE LabelSchema for the model
+        Return the OTE LabelSchema for the model.
 
         This requires the inference model to be loaded, getting this property while
         inference models are not loaded will raise a ValueError
@@ -380,8 +387,8 @@ class DeployedModel(OptimizedModel):
             self, label_schema_dict: Optional[Dict[str, Union[dict, List[dict]]]] = None
     ) -> None:
         """
-        Parses the dictionary contained in the model `config.json` file, and
-        generates an OTE LabelSchemaEntity from it.
+        Parse the dictionary contained in the model `config.json` file, and
+        generate an OTE LabelSchemaEntity from it.
 
         :param label_schema_dict: Dictionary containing the label schema information
             to parse

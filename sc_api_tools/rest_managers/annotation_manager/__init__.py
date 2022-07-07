@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+# noqa: D104
+
 from .annotation_manager import AnnotationManager
 
 __all__ = ["AnnotationManager"]

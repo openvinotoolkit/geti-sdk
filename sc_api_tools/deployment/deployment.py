@@ -20,8 +20,6 @@ import attr
 
 import numpy as np
 
-from ote_sdk.entities.label_schema import LabelSchemaEntity
-
 from sc_api_tools.data_models import (
     Project,
     Task,
@@ -38,15 +36,15 @@ from sc_api_tools.rest_converters import ProjectRESTConverter
 @attr.s(auto_attribs=True)
 class Deployment:
     """
-    This class represents a deployed SC project that can be used to run inference
-    locally
+    Representation of a deployed SC project that can be used to run inference locally
     """
+
     project: Project
     models: List[DeployedModel]
 
     def __attrs_post_init__(self):
         """
-        Initializes private attributes
+        Initialize private attributes.
         """
         self._is_single_task: bool = len(self.project.get_trainable_tasks()) == 1
         self._are_models_loaded: bool = False
@@ -56,7 +54,7 @@ class Deployment:
     @property
     def is_single_task(self) -> bool:
         """
-        Returns True if the deployment represents a project with only a single task
+        Return True if the deployment represents a project with only a single task.
 
         :return: True if the deployed project contains only one trainable task, False
             if it is a pipeline project
@@ -66,8 +64,8 @@ class Deployment:
     @property
     def are_models_loaded(self) -> bool:
         """
-        Returns True if all inference models for the Deployment are loaded and ready
-        to infer
+        Return True if all inference models for the Deployment are loaded and ready
+        to infer.
 
         :return: True if all inference models for the deployed project are loaded in
             memory and ready for inference
@@ -76,7 +74,7 @@ class Deployment:
 
     def save(self, path_to_folder: Union[str, os.PathLike]):
         """
-        Saves the Deployment instance to a folder on local disk
+        Save the Deployment instance to a folder on local disk.
 
         :param path_to_folder: Folder to save the deployment to
         """
@@ -99,7 +97,7 @@ class Deployment:
     @classmethod
     def from_folder(cls, path_to_folder: Union[str, os.PathLike]) -> 'Deployment':
         """
-        Creates a Deployment instance from a specified `path_to_folder`
+        Create a Deployment instance from a specified `path_to_folder`.
 
         :param path_to_folder: Path to the folder containing the Deployment data
         :return: Deployment instance corresponding to the deployment data in the folder
@@ -127,7 +125,7 @@ class Deployment:
 
     def load_inference_models(self, device: str = 'CPU'):
         """
-        Loads the inference models for the deployment to the specified device
+        Load the inference models for the deployment to the specified device.
 
         :param device: Device to load the inference models to
         """
@@ -164,7 +162,7 @@ class Deployment:
 
     def infer(self, image: np.ndarray) -> Prediction:
         """
-        Runs inference on an image for the full model chain in the deployment
+        Run inference on an image for the full model chain in the deployment.
 
         :param image: Image to run inference on, as a numpy array containing the pixel
             data. The image is expected to have dimensions [height x width x channels],
@@ -255,8 +253,8 @@ class Deployment:
 
     def _infer_task(self, image: np.ndarray, task: Task) -> Prediction:
         """
-        Runs pre-processing, inference, and post-processing on the input `image`, for
-        the model associated with the `task`
+        Run pre-processing, inference, and post-processing on the input `image`, for
+        the model associated with the `task`.
 
         :param image: Image to run inference on
         :param task: Task to run inference for
@@ -309,7 +307,7 @@ class Deployment:
 
     def _get_model_for_task(self, task: Task) -> DeployedModel:
         """
-        Gets the DeployedModel instance corresponding to the input `task`
+        Get the DeployedModel instance corresponding to the input `task`.
 
         :param task: Task to get the model for
         :return: DeployedModel corresponding to the task

@@ -30,7 +30,7 @@ from sc_api_tools.utils import get_supported_algorithms
 
 class ConfigurationManager:
     """
-    Class to manage configuration for a certain project
+    Class to manage configuration for a certain project.
     """
 
     def __init__(self, workspace_id: str, project: Project, session: SCSession):
@@ -57,7 +57,7 @@ class ConfigurationManager:
             self, task_id: str, algorithm_name: Optional[str] = None
     ) -> TaskConfiguration:
         """
-        Gets the configuration for the task with id `task_id`
+        Get the configuration for the task with id `task_id`.
 
         :param task_id: ID of the task to get configurations for
         :param algorithm_name: Optional name of the algorithm to get configuration for.
@@ -78,7 +78,7 @@ class ConfigurationManager:
 
     def get_global_configuration(self) -> GlobalConfiguration:
         """
-        Gets the project-wide configurable parameters
+        Get the project-wide configurable parameters.
 
         :return: GlobalConfiguration instance holding the configurable parameters for
             all project-wide components
@@ -91,7 +91,7 @@ class ConfigurationManager:
 
     def _set_task_configuration(self, task_id: str, config: dict):
         """
-        Update the configuration for a task
+        Update the configuration for a task.
 
         :param task_id: ID of the task to set the configuration for
         :param config: Dictionary containing the updated configuration values
@@ -106,7 +106,7 @@ class ConfigurationManager:
 
     def set_project_auto_train(self, auto_train: bool = False) -> None:
         """
-        Sets the `auto_train` parameter for all tasks in the project
+        Set the `auto_train` parameter for all tasks in the project.
 
         :param auto_train: True to enable auto_training, False to disable
         """
@@ -117,7 +117,7 @@ class ConfigurationManager:
 
     def set_project_num_iterations(self, value: int = 50):
         """
-        Sets the number of iterations to train for each task in the project
+        Set the number of iterations to train for each task in the project.
 
         :param value: Number of iterations to set
         """
@@ -145,7 +145,7 @@ class ConfigurationManager:
             parameter_group_name: Optional[str] = None
     ):
         """
-        Sets the value for a parameter with `parameter_name` that lives in the
+        Set the value for a parameter with `parameter_name` that lives in the
         group `parameter_group_name`. The parameter is set for all tasks in the project
 
         The `parameter_group_name` can be left as None, in that case this method will
@@ -168,7 +168,7 @@ class ConfigurationManager:
 
     def get_full_configuration(self) -> FullConfiguration:
         """
-        Returns the full configuration for a project (for both global and task_chain)
+        Return the full configuration for a project (for both global and task_chain).
 
         :return: FullConfiguration object holding the global and task chain
             configuration
@@ -181,7 +181,7 @@ class ConfigurationManager:
 
     def get_for_task_and_algorithm(self, task: Task, algorithm: Algorithm):
         """
-        Gets the hyper parameters for a specific task and algorithm
+        Get the hyper parameters for a specific task and algorithm.
 
         :param task: Task to get hyper parameters for
         :param algorithm: Algorithm to get hyper parameters for
@@ -200,9 +200,8 @@ class ConfigurationManager:
 
     def download_configuration(self, path_to_folder: str) -> FullConfiguration:
         """
-        This method retrieves the full configuration for a project from the cluster
-        and saves it to a file `configuration.json` in the folder specified at
-        `path_to_folder`
+        Retrieve the full configuration for a project from the cluster and save it to
+        a file `configuration.json` in the folder specified at `path_to_folder`.
 
         :param path_to_folder: Folder to save the configuration to
         :return:
@@ -224,9 +223,8 @@ class ConfigurationManager:
             self, configuration: FullConfiguration
     ) -> Optional[FullConfiguration]:
         """
-        This method attempts to apply the configuration values passed in as
-        `configuration` to the project managed by this instance of the
-        ConfigurationManager
+        Attempt to apply the configuration values passed in as `configuration` to
+        the project managed by this instance of the ConfigurationManager.
 
         :param configuration: FullConfiguration to be applied
         :return:
@@ -304,7 +302,7 @@ class ConfigurationManager:
             self, path_to_folder: str, filename: Optional[str] = None
     ) -> Optional[FullConfiguration]:
         """
-        This method attempts to apply a configuration from a file on disk. The
+        Attempt to apply a configuration from a file on disk. The
         parameter `path_to_folder` is mandatory and should point to the folder in which
         the configuration file to upload lives. The parameter `filename` is optional,
         when left as `None` this method will look for a file `configuration.json` in
@@ -335,7 +333,7 @@ class ConfigurationManager:
             ]
     ):
         """
-        Sets the configuration for the project. This method accepts either a
+        Set the configuration for the project. This method accepts either a
         FullConfiguration, TaskConfiguration or GlobalConfiguration object
 
         :param configuration: Configuration to set

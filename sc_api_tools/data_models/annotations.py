@@ -33,7 +33,7 @@ from sc_api_tools.data_models.utils import (
 @attr.s(auto_attribs=True)
 class Annotation:
     """
-    Class representing a single annotation in SC.
+    Representation of a single annotation in SC.
 
     :var labels: List of labels belonging to the annotation
     :var modified: Date and time of the last modification made to this annotation
@@ -42,6 +42,7 @@ class Annotation:
     :var labels_to_revisit: Optional list of database ID's of the labels that may not
         be up to date and therefore need to be revisited for this annotation
     """
+
     _identifier_fields: ClassVar[str] = ["id", "modified"]
 
     labels: List[ScoredLabel]
@@ -50,12 +51,10 @@ class Annotation:
     id: Optional[str] = None
     labels_to_revisit: Optional[List[str]] = None
 
-    def deidentify(self):
+    def deidentify(self) -> None:
         """
-        Removes all unique database ID's from the annotation and the entities it
+        Remove all unique database ID's from the annotation and the entities it
         contains
-
-        :return:
         """
         deidentify(self)
         for label in self.labels:
@@ -64,33 +63,31 @@ class Annotation:
     @property
     def label_names(self) -> List[str]:
         """
-        Returns a list of label names for this Annotation
-
-        :return:
+        Return a list of label names for this Annotation.
         """
         return [label.name for label in self.labels]
 
-    def append_label(self, label: ScoredLabel):
+    def append_label(self, label: ScoredLabel) -> None:
         """
-        Adds a label to the list of labels belonging to this annotation
+        Add a label to the list of labels belonging to this annotation.
 
         :param label:
         :return:
         """
         self.labels.append(label)
 
-    def extend_labels(self, labels: List[ScoredLabel]):
+    def extend_labels(self, labels: List[ScoredLabel]) -> None:
         """
-        Adds a list of labels to the labels already attached to this annotation
+        Add a list of labels to the labels already attached to this annotation.
 
         :param labels: List of ScoredLabels to add
         :return:
         """
         self.labels.extend(labels)
 
-    def pop_label_by_name(self, label_name: str):
+    def pop_label_by_name(self, label_name: str) -> None:
         """
-        Removes a label from the list of labels belonging to this annotation
+        Remove a label from the list of labels belonging to this annotation.
 
         :param label_name: Name of the label to remove from the list
         :return:
@@ -110,7 +107,7 @@ class Annotation:
             image_height: int
     ) -> 'Annotation':
         """
-        Creates a :py:class:`~sc_api_tools.data_models.annotations.Annotation` instance
+        Create a :py:class:`~sc_api_tools.data_models.annotations.Annotation` instance
         from a given OTE SDK Annotation object.
 
         :param ote_annotation: OTE Annotation object to create the instance from
@@ -129,7 +126,7 @@ class Annotation:
 
     def map_labels(self, labels: Sequence[Union[ScoredLabel, Label]]) -> 'Annotation':
         """
-        Attempts to map the labels found in `labels` to those in the Annotation
+        Attempt to map the labels found in `labels` to those in the Annotation
         instance. Labels are matched by name. This method will return a new
         Annotation object.
 

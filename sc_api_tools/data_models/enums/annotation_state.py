@@ -16,6 +16,10 @@ from enum import Enum
 
 
 class AnnotationState(Enum):
+    """
+    Enum representing the different annotation statuses in SC.
+    """
+
     TO_REVISIT = 'to_revisit'
     ANNOTATED = 'annotated'
     PARTIALLY_ANNOTATED = 'partially_annotated'
@@ -23,7 +27,6 @@ class AnnotationState(Enum):
 
     def __str__(self):
         """
-        Returns the string representation of the AnnotationState instance
-        :return:
+        Return the string representation of the AnnotationState instance.
         """
         return self.value

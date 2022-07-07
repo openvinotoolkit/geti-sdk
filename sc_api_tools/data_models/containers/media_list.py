@@ -27,29 +27,24 @@ class MediaList(UserList, Generic[MediaTypeVar]):
     """
     A list containing SC media entities
     """
+
     @property
     def ids(self) -> List[str]:
         """
-        Returns a list of unique database IDs for all media items in the media list
-
-        :return:
+        Return a list of unique database IDs for all media items in the media list.
         """
         return [item.id for item in self.data]
 
     @property
     def names(self) -> List[str]:
         """
-        Returns a list of filenames for all media items in the media list
-
-        :return:
+        Return a list of filenames for all media items in the media list.
         """
         return [item.name for item in self.data]
 
     def get_by_id(self, id_value: str) -> MediaItem:
         """
-        Returns the item with id `id_value` from the media list
-
-        :return: MediaItem with database ID corresponding to 'id_value'
+        Return the item with id `id_value` from the media list.
         """
         for item in self.data:
             if item.id == id_value:
@@ -60,9 +55,7 @@ class MediaList(UserList, Generic[MediaTypeVar]):
 
     def get_by_filename(self, filename: str) -> MediaItem:
         """
-        Returns the item with name `filename` from the media list
-
-        :return: MediaItem with name corresponding to 'filename'
+        Return the item with name `filename` from the media list.
         """
         for item in self.data:
             if item.name == filename:
@@ -74,9 +67,7 @@ class MediaList(UserList, Generic[MediaTypeVar]):
     @property
     def media_type(self) -> Type[MediaTypeVar]:
         """
-        Returns the type of the media contained in this list.
-
-        :return:
+        Return the type of the media contained in this list.
         """
         if self.data:
             return type(self.data[0])
@@ -89,8 +80,8 @@ class MediaList(UserList, Generic[MediaTypeVar]):
             media_type: Type[MediaTypeVar]
     ) -> MediaList[MediaTypeVar]:
         """
-        Creates a MediaList instance from a list of media entities obtained from the
-        SC /media endpoints
+        Create a MediaList instance from a list of media entities obtained from the
+        SC /media endpoints.
 
         :param rest_input: List of dictionaries representing media entities in SC
         :param media_type: Image or Video, type of the media entities that are to be
@@ -109,10 +100,8 @@ class MediaList(UserList, Generic[MediaTypeVar]):
     @property
     def has_duplicate_filenames(self) -> bool:
         """
-        Returns True if the media list contains at least two items that have the same
-        filename, False otherwise
-
-        :return:
+        Return True if the media list contains at least two items that have the same
+        filename, False otherwise.
         """
         filenames = self.names
         return len(set(filenames)) != len(filenames)

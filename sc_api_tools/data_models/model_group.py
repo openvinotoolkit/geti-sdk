@@ -29,8 +29,8 @@ from .model import Model
 @attr.s(auto_attribs=True)
 class ModelSummary:
     """
-    Class representing a Model in SC, containing only the minimal information about
-    the model
+    Representation of a Model in SC, containing only the minimal information about
+    the model.
 
     :var name: Name of the model
     :var creation_date: Creation date of the model
@@ -42,6 +42,7 @@ class ModelSummary:
     :var model_storage_id: Unique database ID of the model storage (also referred to
         as model group) that this model belongs to
     """
+
     _identifier_fields: ClassVar[List[str]] = ["id", "model_storage_id"]
 
     name: str
@@ -59,8 +60,11 @@ class ModelSummary:
 @attr.s(auto_attribs=True)
 class ModelGroup:
     """
-    Class representing a ModelGroup in SC
+    Representation of a ModelGroup in SC. A model group is a collection of models that
+    all share the same neural network architecture, but may have been trained with
+    different training datasets or hyper parameters.
     """
+
     _identifier_fields: ClassVar[List[str]] = ["id", "task_id"]
 
     name: str
@@ -69,13 +73,16 @@ class ModelGroup:
     task_id: Optional[str] = attr.ib(default=None)
     id: Optional[str] = attr.ib(default=None)
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
+        """
+        Initialize private attributes.
+        """
         self._algorithm: Optional[Algorithm] = None
 
     @property
     def has_trained_models(self) -> bool:
         """
-        Returns True if the ModelGroup contains at least one trained model
+        Return True if the ModelGroup contains at least one trained model.
 
         :return: True if the model group holds at least one trained model, False
             otherwise
@@ -88,9 +95,9 @@ class ModelGroup:
 
     def get_latest_model(self) -> Optional[ModelSummary]:
         """
-        Returns the latest model in the model group
+        Return the latest model in the model group.
 
-        :return:
+        :return: summary information of the most recently model in the model group
         """
         if not self.has_trained_models:
             return None
@@ -99,8 +106,8 @@ class ModelGroup:
 
     def get_model_by_version(self, version: int) -> ModelSummary:
         """
-        Returns the model with version `version` in the model group. If no model with
-        the version is found, this method raises a ValueError
+        Return the model with version `version` in the model group. If no model with
+        the version is found, this method raises a ValueError.
 
         :param version: Number specifying the desired model version
         :return: ModelSummary instance with the specified version, if any
@@ -117,7 +124,7 @@ class ModelGroup:
 
     def get_model_by_creation_date(self, creation_date: datetime) -> ModelSummary:
         """
-        Returns the model created on `creation_date` in the model group. If no model
+        Return the model created on `creation_date` in the model group. If no model
         by that date is found, this method raises a ValueError
 
         :param creation_date: Datetime object representing the desired creation_date
@@ -141,7 +148,7 @@ class ModelGroup:
 
     def get_algorithm_details(self, session: SCSession) -> Algorithm:
         """
-        Get the details for the algorithm corresponding to this ModelGroup
+        Get the details for the algorithm corresponding to this ModelGroup.
 
         :param session: REST session to an SC cluster
         :return: Algorithm object holding the algorithm details for the ModelGroup
@@ -155,7 +162,7 @@ class ModelGroup:
     @property
     def algorithm(self) -> Optional[Algorithm]:
         """
-        Returns the details for the algorithm corresponding to the ModelGroup
+        Return the details for the algorithm corresponding to the ModelGroup
         This property will return None unless the `get_algorithm_details` method is
         called to retrieve the algorithm information from the SC cluster
 
@@ -164,9 +171,9 @@ class ModelGroup:
         return self._algorithm
 
     @algorithm.setter
-    def algorithm(self, algorithm: Algorithm):
+    def algorithm(self, algorithm: Algorithm) -> None:
         """
-        Sets the algorithm details for this ModelGroup instance
+        Set the algorithm details for this ModelGroup instance.
 
         :param algorithm: Algorithm information to set
         """
@@ -174,7 +181,7 @@ class ModelGroup:
 
     def contains_model(self, model: Union[ModelSummary, Model]) -> bool:
         """
-        Returns True if the model group contains the `model`
+        Return True if the model group contains the `model`.
 
         :param model: Model or ModelSummary object
         :return: True if the group contains the model, False otherwise

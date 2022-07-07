@@ -23,7 +23,7 @@ def deserialize_dictionary(
         input_dictionary: Dict[str, Any], output_type: Type[OutputTypeVar]
 ) -> OutputTypeVar:
     """
-    Deserialize an `input_dictionary` to an object of the type passed in `output_type`
+    Deserialize an `input_dictionary` to an object of the type passed in `output_type`.
 
     :param input_dictionary: Dictionary to deserialize
     :param output_type: Type of the object that the dictionary represents, and to

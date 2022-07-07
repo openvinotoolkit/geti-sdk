@@ -26,8 +26,8 @@ class StatusRESTConverter:
     @staticmethod
     def from_dict(project_status_dict: Dict[str, Any]) -> ProjectStatus:
         """
-        Creates a ProjectStatus instance from the input dictionary passed in
-        `project_status_dict`
+        Create a ProjectStatus instance from the input dictionary passed in
+        `project_status_dict`.
 
         :param project_status_dict: Dictionary representing the status of a project on
             the SC cluster

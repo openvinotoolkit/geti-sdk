@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+# noqa: D104
+
 from .annotation_kind import AnnotationKind
 from .annotation_state import AnnotationState
 from .shape_type import ShapeType

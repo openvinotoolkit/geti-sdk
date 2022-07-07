@@ -26,7 +26,8 @@ def get_supported_algorithms(
         task_type: Optional[TaskType] = None
 ) -> AlgorithmList:
     """
-    Returns the id of the default workspace on the cluster
+    Return the list of supported algorithms (including algorithm metadata) for the
+    cluster.
 
     :param rest_session: HTTP session to the cluster
     :param domain: Optional domain for which to get the supported algorithms. If left

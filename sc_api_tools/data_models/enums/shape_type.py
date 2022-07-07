@@ -17,8 +17,9 @@ from enum import Enum
 
 class ShapeType(Enum):
     """
-    This Enum represents the types of shapes avalaible in SC
+    Enum representing the types of shapes available in SC.
     """
+
     RECTANGLE = 'RECTANGLE'
     ELLIPSE = 'ELLIPSE'
     POLYGON = 'POLYGON'
@@ -26,7 +27,6 @@ class ShapeType(Enum):
 
     def __str__(self):
         """
-        Returns the string representation of the ShapeType instance
-        :return:
+        Return the string representation of the ShapeType instance.
         """
         return self.value

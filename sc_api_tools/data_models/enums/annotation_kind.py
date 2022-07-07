@@ -16,12 +16,15 @@ from enum import Enum
 
 
 class AnnotationKind(Enum):
+    """
+    Enum representing the different kind of annotation scenes in SC.
+    """
+
     ANNOTATION = 'annotation'
     PREDICTION = 'prediction'
 
     def __str__(self):
         """
-        Returns the string representation of the AnnotationKind instance
-        :return:
+        Return the string representation of the AnnotationKind instance.
         """
         return self.value

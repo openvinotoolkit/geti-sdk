@@ -25,16 +25,17 @@ from sc_api_tools.http_session import SCSession, SCRequestException
 @attr.s(auto_attribs=True)
 class JobStatus(StatusSummary):
     """
-    This class represents a the current status of a job on the SC cluster
+    Current status of a job on the SC cluster.
 
     :var state: Current state of the job
     """
+
     state: str = attr.ib(converter=str_to_enum_converter(JobState))
 
     @classmethod
     def from_dict(cls, status_dict: Dict[str, Any]) -> 'JobStatus':
         """
-        Creates a JobStatus object from a dictionary
+        Create a JobStatus object from a dictionary.
 
         :param status_dict: Dictionary representing a status, as returned by the SC
             /status and /jobs endpoints
@@ -46,7 +47,7 @@ class JobStatus(StatusSummary):
 @attr.s(auto_attribs=True)
 class TaskMetadata:
     """
-    This class holds metadata related to a task on the SC cluster
+    Metadata related to a task on the SC cluster.
 
     :var name: Name of the task
     :var model_template_id: Identifier of the model template used by the task
@@ -54,6 +55,7 @@ class TaskMetadata:
     :var model_version: Version of the model currently used by the job
     :var dataset_storage_id: Unique database ID of the dataset storage used by the job
     """
+
     model_architecture: Optional[str] = None
     model_template_id: Optional[str] = None
     model_version: Optional[int] = None
@@ -64,7 +66,7 @@ class TaskMetadata:
 @attr.s(auto_attribs=True)
 class JobMetadata:
     """
-    This class holds the metadata for a particular job on the SC cluster
+    Metadata for a particular job on the SC cluster.
 
     :var task: TaskMetadata object holding information regarding the task from which
         the job originates
@@ -77,6 +79,7 @@ class JobMetadata:
     :var optimized_model_id: Optional unique database ID of the optimized model
         produced by the job. Only used for optimization jobs.
     """
+
     task: TaskMetadata
     base_model_id: Optional[str] = None
     model_storage_id: Optional[str] = None
@@ -87,7 +90,7 @@ class JobMetadata:
 @attr.s(auto_attribs=True)
 class Job:
     """
-    This class contains information about a job on the SC cluster
+    Representation of a job running on the SC cluster.
 
     :var name: Name of the job
     :var description: Description of the job
@@ -97,6 +100,7 @@ class Job:
     :var type: Type of the job
     :var metadata: JobMetadata object holding metadata for the job
     """
+
     name: str
     description: str
     id: str
@@ -106,12 +110,15 @@ class Job:
     metadata: JobMetadata
 
     def __attrs_post_init__(self):
+        """
+        Initialize private attributes.
+        """
         self._workspace_id: Optional[str] = None
 
     @property
     def workspace_id(self) -> str:
         """
-        Returns the unique database ID of the workspace to which the job belongs
+        Return the unique database ID of the workspace to which the job belongs.
 
         :return: Unique database ID of the workspace to which the job belongs
         """
@@ -124,7 +131,7 @@ class Job:
     @workspace_id.setter
     def workspace_id(self, workspace_id: str):
         """
-        Sets the workspace id for the job
+        Set the workspace id for the job.
 
         :param workspace_id: Unique database ID of the workspace to which the job
             belongs
@@ -134,8 +141,8 @@ class Job:
     @property
     def relative_url(self) -> str:
         """
-        Returns the url at which the Job can be addressed on the SC cluster, relative
-        to the url of the cluster itself
+        Return the url at which the Job can be addressed on the SC cluster, relative
+        to the url of the cluster itself.
 
         :return: Relative url for the Job instance
         """
@@ -143,8 +150,8 @@ class Job:
 
     def update(self, session: SCSession) -> 'Job':
         """
-        Updates the job status to its current value, by making a request to the SC
-        cluster addressed by `session`
+        Update the job status to its current value, by making a request to the SC
+        cluster addressed by `session`.
 
         :param session: SCSession to the cluster from which the Job originates
         :raises ValueError: If no workspace_id has been set for the job prior to
@@ -161,8 +168,8 @@ class Job:
 
     def cancel(self, session: SCSession) -> 'Job':
         """
-        Cancels and deletes the job, by making a request to the SC cluster addressed
-        by `session`
+        Cancel and delete the job, by making a request to the SC cluster addressed
+        by `session`.
 
         :param session: SCSession to the cluster on which the Job is running
         :return: Job with updated status
@@ -184,15 +191,15 @@ class Job:
     @property
     def overview(self) -> str:
         """
-        Returns a string that shows an overview of the project
+        Return a string that shows an overview of the job.
 
-        :return: String holding an overview of the project
+        :return: String holding an overview of the job
         """
         return pformat(self.to_dict())
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        Returns the dictionary representation of the job
+        Return the dictionary representation of the job.
 
         :return:
         """

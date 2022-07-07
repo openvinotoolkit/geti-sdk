@@ -30,6 +30,6 @@ class ClusterConfig:
     @property
     def base_url(self) -> str:
         """
-        Returns the base UR for accessing the cluster
+        Return the base UR for accessing the cluster.
         """
         return f"{self.host}{API_PATTERN}"

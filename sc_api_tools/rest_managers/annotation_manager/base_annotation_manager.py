@@ -38,7 +38,7 @@ MediaType = TypeVar("MediaType", Image, Video)
 
 class BaseAnnotationManager:
     """
-    Class to up- or download annotations for 2d media to an existing project
+    Class to up- or download annotations for 2d media to an existing project.
     """
 
     def __init__(
@@ -62,7 +62,7 @@ class BaseAnnotationManager:
             self, media_type: Type[MediaType]
     ) -> MediaList[MediaType]:
         """
-        Get a list holding all media entities of type `media_type` in the project
+        Get a list holding all media entities of type `media_type` in the project.
 
         :return: MediaList holding all media of a certain type in the project
         """
@@ -117,7 +117,7 @@ class BaseAnnotationManager:
     @property
     def label_mapping(self) -> Dict[str, str]:
         """
-        Returns dictionary with label names as keys and label ids as values
+        Return a dictionary with label names as keys and label ids as values.
 
         :return:
         """
@@ -137,7 +137,7 @@ class BaseAnnotationManager:
             annotation_scene: Optional[AnnotationScene] = None
     ) -> AnnotationScene:
         """
-        Uploads a new annotation for an image or video frame to the cluster. This will
+        Upload a new annotation for an image or video frame to the cluster. This will
         overwrite any current annotations for the media item.
 
         If an `annotation_scene` is passed, this annotation will be applied to the
@@ -198,8 +198,8 @@ class BaseAnnotationManager:
          self, response_dict: Dict[str, Any], media_information: MediaInformation
     ) -> AnnotationScene:
         """
-        Converts a dictionary with annotation data obtained from the SC /annotations
-        rest endpoint into an annotation scene
+        Convert a dictionary with annotation data obtained from the SC /annotations
+        rest endpoint into an annotation scene.
 
         :param response_dict: Dictionary containing the annotation data
         :param media_information: MediaInformation about the media item to which the
@@ -222,7 +222,7 @@ class BaseAnnotationManager:
             self, media_item: Union[Image, VideoFrame]
     ) -> AnnotationScene:
         """
-        Adds an annotation to the existing annotations for the `media_item`
+        Add an annotation to the existing annotations for the `media_item`.
 
         :param media_item: Image or VideoFrame to append the annotation for
         :return: Returns the response of the REST endpoint to post the updated
@@ -327,7 +327,7 @@ class BaseAnnotationManager:
             verbose: bool = True
     ) -> float:
         """
-        Downloads annotations from the server to a target folder on disk
+        Download annotations from the server to a target folder on disk.
 
         :param media_list: List of images or video frames to download the annotations
             for

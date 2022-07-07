@@ -40,12 +40,13 @@ from .utils import str_to_media_type, str_to_datetime, numpy_from_buffer, \
 @attr.s(auto_attribs=True)
 class MediaInformation:
     """
-    Class holding base information about a media item in SC
+    Basic information about a media item in SC.
 
     :var display_url: URL that can be used to download the full size media entity
     :var height: Height of the media entity, in pixels
     :var width: Width of the media entity, in pixels
     """
+
     display_url: str
     height: int
     width: int
@@ -54,12 +55,13 @@ class MediaInformation:
 @attr.s(auto_attribs=True)
 class VideoInformation(MediaInformation):
     """
-    Class holding information about a video entity in SC
+    Basic information about a video entity in SC.
 
     :var duration: Duration of the video
     :var frame_count: Total number of frames in the video
     :var frame_stride: Frame stride of the video
     """
+
     duration: int
     frame_count: int
     frame_stride: int
@@ -68,16 +70,18 @@ class VideoInformation(MediaInformation):
 @attr.s(auto_attribs=True)
 class ImageInformation(MediaInformation):
     """
-    Class holding information about an image entity in SC
+    Basic information about an image entity in SC
     """
+
     pass
 
 
 @attr.s(auto_attribs=True)
 class VideoFrameInformation(MediaInformation):
     """
-    Class holding information about a video frame in SC
+    Basic information about a video frame in SC.
     """
+
     frame_index: int
     video_id: str
 
@@ -85,7 +89,7 @@ class VideoFrameInformation(MediaInformation):
 @attr.s(auto_attribs=True)
 class MediaItem:
     """
-    Class representing a media entity in SC
+    Representation of a media entity in SC.
 
     :var id: Unique database ID of the media entity
     :var name: Filename of the media entity
@@ -96,6 +100,7 @@ class MediaItem:
     :var media_information: Container holding basic information such as width and
         height about the media entity
     """
+
     id: str
     name: str
     type: str = attr.ib(converter=str_to_media_type)
@@ -109,7 +114,7 @@ class MediaItem:
     @property
     def download_url(self) -> str:
         """
-        Returns the URL that can be used to download the full size media entity from SC
+        Return the URL that can be used to download the full size media entity from SC.
 
         :return: URL at which the media entity can be downloaded
         """
@@ -118,8 +123,8 @@ class MediaItem:
     @property
     def base_url(self) -> str:
         """
-        Returns the base URL for the media item, which is the URL pointing to the
-        media details of the entity
+        Return the base URL for the media item, which is the URL pointing to the
+        media details of the entity.
 
         :return: Base URL of the media entity
         """
@@ -141,9 +146,9 @@ class MediaItem:
     @property
     def identifier(self) -> MediaIdentifier:
         """
-        Returns the media identifier for the media item
+        Return the media identifier for the media item.
 
-        :return:
+        :return: MediaIdentifier which uniquely identifies the media item.
         """
         return MediaIdentifier(type=self.type)
 
@@ -166,7 +171,7 @@ class MediaItem:
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        Converts the MediaItem to a dictionary representation
+        Convert the MediaItem to a dictionary representation.
 
         :return: Dictionary holding the annotation scene data
         """
@@ -176,7 +181,7 @@ class MediaItem:
     @property
     def overview(self) -> str:
         """
-        Returns a string holding an overview of the media item
+        Return a string holding an overview of the media item.
 
         :return: overview string of the media item
         """
@@ -186,20 +191,24 @@ class MediaItem:
 @attr.s(auto_attribs=True)
 class Image(MediaItem):
     """
-    Class representing an image in SC
+    Representation of an image in SC.
 
     :var media_information: Container holding basic information such as width and
             height about the image entity
     """
+
     media_information: ImageInformation = attr.ib(kw_only=True)
 
     def __attrs_post_init__(self):
+        """
+        Initialize private attributes.
+        """
         self._data: Optional[np.ndarray] = None
 
     @property
     def identifier(self) -> ImageIdentifier:
         """
-        Returns the media identifier for the Image instance
+        Return the media identifier for the Image instance
 
         :return: ImageIdentifier object that contains the identifiers of the image
         """
@@ -244,21 +253,25 @@ class Image(MediaItem):
 @attr.s(auto_attribs=True)
 class Video(MediaItem):
     """
-    Class representing a video in SC
+    Representation of a video in SC.
 
     :var media_information: Container holding basic information such as width,
             height and duration about the video entity
     """
+
     media_information: VideoInformation = attr.ib(kw_only=True)
 
     def __attrs_post_init__(self):
+        """
+        Initialize private attributes.
+        """
         self._data: Optional[str] = None
         self._needs_tempfile_deletion: bool = False
 
     @property
     def identifier(self) -> VideoIdentifier:
         """
-        Returns the media identifier for the Video instance
+        Return the media identifier for the Video instance.
 
         :return: VideoIdentifier object that contains the identifiers of the video
         """
@@ -266,11 +279,12 @@ class Video(MediaItem):
 
     def get_data(self, session: SCSession) -> str:
         """
-        Getting pixel data directly is not supported for Video entities, they have to
-        be converted to VideoFrames first
+        Get the video data from the SC instance. Calling this method will download the
+        video data to a temporary file, and returns the path to file.
 
-        :param session:
-        :return:
+        :param session: SCSession object pointing to the instance from which the video
+            should be downloaded.
+        :return: Path to the temporary video file on local disk.
         """
         if self._data is None:
             response = session.get_rest_response(
@@ -321,7 +335,7 @@ class Video(MediaItem):
 
     def get_frame(self, frame_index: int) -> 'VideoFrame':
         """
-        Returns a VideoFrame extracted from the Video, at the specified index.
+        Return a VideoFrame extracted from the Video, at the specified index.
 
         This method loads the numpy data for the frame, if available.
 
@@ -339,9 +353,8 @@ class Video(MediaItem):
 
     def __del__(self):
         """
-        This method is called when the Video object is deleted. It cleans up the
-        temporary file created to store the video data (if any)
-
+        Clean up the temporary file created to store the video data (if any). This
+        method is called when the Video object is deleted.
         """
         if self._needs_tempfile_deletion:
             if os.path.exists(self._data):
@@ -351,23 +364,27 @@ class Video(MediaItem):
 @attr.s(auto_attribs=True)
 class VideoFrame(MediaItem):
     """
-    Class representing a video frame in SC
+    Representation of a video frame in SC.
 
     :var media_information: Container holding basic information such as width and
             height about the VideoFrame entity
     :var data: Pixel data for the VideoFrame. If this is None, the data can be
         downloaded using the 'get_data' method
     """
+
     media_information: VideoFrameInformation = attr.ib(kw_only=True)
     video_name: Optional[str] = attr.ib(kw_only=True, default=None)
 
     def __attrs_post_init__(self):
+        """
+        Initialize private attributes.
+        """
         self._data: Optional[np.ndarray] = None
 
     @classmethod
     def from_video(cls, video: Video, frame_index: int) -> 'VideoFrame':
         """
-        Creates a VideoFrame entity from a `video` and a `frame_index`
+        Create a VideoFrame entity from a `video` and a `frame_index`.
 
         :param video: Video to extract the VideoFrame from
         :param frame_index: index at which the frame lives in the video
@@ -395,7 +412,7 @@ class VideoFrame(MediaItem):
     @property
     def identifier(self) -> VideoFrameIdentifier:
         """
-        Returns the media identifier for the VideoFrame instance
+        Return the media identifier for the VideoFrame instance.
 
         :return: VideoFrameIdentifier object that contains the identifiers of the
             video frame

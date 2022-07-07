@@ -19,7 +19,7 @@ from typing import Dict, Optional, Union
 import requests
 import urllib3
 
-from requests import Response, HTTPError
+from requests import Response
 
 from .cluster_config import ClusterConfig, API_PATTERN
 from .exception import SCRequestException
@@ -31,13 +31,14 @@ PROXY_COOKIE_NAME = "_oauth2_proxy"
 
 
 class SCSession(requests.Session):
-    def __init__(self, cluster_config: ClusterConfig):
-        """
-        Wrapper for requests.session that sets the correct headers and cookies.
+    """
+    Wrapper for requests.session that sets the correct headers and cookies.
 
-        :param cluster_config: ClusterConfig with the parameters for host, username,
-            password
-        """
+    :param cluster_config: ClusterConfig with the parameters for host, username,
+        password
+    """
+
+    def __init__(self, cluster_config: ClusterConfig):
         super().__init__()
         self.headers.update({"Connection": "keep-alive"})
         self.config = cluster_config
@@ -68,7 +69,7 @@ class SCSession(requests.Session):
     @property
     def version(self) -> str:
         """
-        Returns the version of SonomaCreek that is running on the server
+        Return the version of SonomaCreek that is running on the server.
 
         :return: string holding the SC version number
         """
@@ -78,7 +79,7 @@ class SCSession(requests.Session):
     def _follow_login_redirects(self, response: Response) -> str:
         """
         Recursively follow redirects in the initial login request. Updates the
-        session._cookies with the cookie and the login uri
+        session._cookies with the cookie and the login uri.
 
         :param response: REST response to follow redirects for
         :return: url to the redirected location
@@ -95,8 +96,9 @@ class SCSession(requests.Session):
 
     def _get_initial_login_url(self) -> str:
         """
-        Retrieves the initial login url by making a request to the login page, and
+        Retrieve the initial login url by making a request to the login page, and
         following the redirects.
+
         :return: current state dictionary of the session
         """
         response = self.get(f"{self.config.host}/user/login", allow_redirects=False)
@@ -105,7 +107,7 @@ class SCSession(requests.Session):
 
     def authenticate(self, verbose: bool = True):
         """
-        Get a new authentication cookie from the server
+        Get a new authentication cookie from the server.
 
         :param verbose: True to print progress output, False to suppress output
         """
@@ -151,7 +153,7 @@ class SCSession(requests.Session):
             self, url: str, method: str, contenttype: str = "json", data=None
     ) -> Union[Response, dict, list]:
         """
-        Returns the REST response from a request to `url` with `method`
+        Return the REST response from a request to `url` with `method`.
 
         :param url: the REST url without the hostname and api pattern
         :param method: 'GET', 'POST', 'PUT', 'DELETE'

@@ -35,7 +35,7 @@ def show_image_with_annotation_scene(
         show_in_notebook: bool = False
 ):
     """
-    Displays an image with an annotation_scene overlayed on top of it.
+    Display an image with an annotation_scene overlayed on top of it.
 
     :param image: Image to show prediction for
     :param annotation_scene: Annotations or Predictions to overlay on the image
@@ -89,7 +89,7 @@ def show_video_frames_with_annotation_scenes(
     wait_time: float = 3
 ):
     """
-    Displays a list of VideoFrames, with their annotations or predictions overlayed on
+    Display a list of VideoFrames, with their annotations or predictions overlayed on
     top. The parameter `wait_time` specifies the time each frame is shown, in seconds.
 
     :param video_frames: List of VideoFrames to show

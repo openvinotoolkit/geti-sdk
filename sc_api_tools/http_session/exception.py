@@ -16,6 +16,10 @@ from typing import Optional, Union, BinaryIO, Dict
 
 
 class SCRequestException(Exception):
+    """
+    Exception representing an unsuccessful http request to the SC cluster.
+    """
+
     def __init__(
             self,
             method: str,
@@ -25,7 +29,7 @@ class SCRequestException(Exception):
             response_data: Optional[Union[dict, str, list]] = None
     ):
         """
-        SCRequestException is raised upon unsuccessful requests to the SC cluster
+        Raise this exception upon unsuccessful requests to the SC cluster.
 
         :param method: Method that was used for the request, e.g. 'POST' or 'GET', etc.
         :param url: URL to which the request was made
@@ -45,7 +49,7 @@ class SCRequestException(Exception):
 
     def __str__(self) -> str:
         """
-        String representation of the unsuccessful http request to the SC cluster
+        Return string representation of the unsuccessful http request to the SC cluster
         """
         error_str = f"{self.method} request to '{self.url}' failed with status code " \
                     f"{self.status_code}."

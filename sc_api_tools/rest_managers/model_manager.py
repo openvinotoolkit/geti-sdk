@@ -24,7 +24,7 @@ from sc_api_tools.data_models import (
     Task,
     Job, Algorithm
 )
-from sc_api_tools.data_models.enums import Domain, JobState, JobType
+from sc_api_tools.data_models.enums import JobState, JobType
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import ModelRESTConverter
 from sc_api_tools.utils import get_supported_algorithms
@@ -49,7 +49,7 @@ class ModelManager:
 
     def get_all_model_groups(self) -> List[ModelGroup]:
         """
-        Returns a list of all model groups in the project
+        Return a list of all model groups in the project.
 
         :return: List of model groups in the project
         """
@@ -69,7 +69,7 @@ class ModelManager:
 
     def get_model_group_by_algo_name(self, algorithm_name: str) -> Optional[ModelGroup]:
         """
-        Returns the model group for the algorithm named `algorithm_name`, if any. If
+        Return the model group for the algorithm named `algorithm_name`, if any. If
         no model group for this algorithm is found in the project, this method returns
         None
 
@@ -91,7 +91,7 @@ class ModelManager:
             task: Optional[Task] = None
     ) -> Optional[Model]:
         """
-        Retrieves a Model from the SC cluster, corresponding to specific algorithm and
+        Retrieve a Model from the SC cluster, corresponding to specific algorithm and
         model version. If no version is passed, this method will retrieve the latest
         model for the algorithm.
 
@@ -134,8 +134,8 @@ class ModelManager:
 
     def _get_model_detail(self, group_id: str, model_id: str) -> Model:
         """
-        Returns the Model object holding detailed information about the model with
-        `model_id` living in the model group with `group_id`
+        Return the Model object holding detailed information about the model with
+        `model_id` living in the model group with `group_id`.
 
         :param group_id: Unique database ID of the model group to which the model to
             get belongs
@@ -153,7 +153,7 @@ class ModelManager:
 
     def get_active_model_for_task(self, task: Task) -> Optional[Model]:
         """
-        Returns the Model details for the currently active model, for a task if any.
+        Return the Model details for the currently active model, for a task if any.
         If the task does not have any trained models, this method returns None
 
         :param task: Task object containing details of the task to get the model for
@@ -182,7 +182,7 @@ class ModelManager:
             self, model: ModelType, path_to_folder: str
     ) -> ModelType:
         """
-        Downloads a Model or OptimizedModel
+        Download a Model or OptimizedModel.
 
         :param model: Model or OptimizedModel to download
         :return: Model or OptimizedModel object holding the details of the downloaded
@@ -217,7 +217,7 @@ class ModelManager:
             self, path_to_folder: str, task: Task
     ) -> Optional[Model]:
         """
-        Downloads the currently active model for the task
+        Download the currently active model for the task.
         If the task does not have an active model yet, this method returns None
 
         This method will create a directory 'models' in the path specified in
@@ -253,7 +253,7 @@ class ModelManager:
 
     def get_all_active_models(self) -> List[Optional[Model]]:
         """
-        Returns the Model details for the active model for all tasks in the project,
+        Return the Model details for the active model for all tasks in the project,
         if the tasks have any.
 
         This method returns a list of Models, where the index of the Model in the list
@@ -273,7 +273,7 @@ class ModelManager:
 
     def download_all_active_models(self, path_to_folder: str) -> List[Optional[Model]]:
         """
-        Downloads the active models for all tasks in the project.
+        Download the active models for all tasks in the project.
 
         This method will create a directory 'models' in the path specified in
         `path_to_folder`
@@ -295,7 +295,7 @@ class ModelManager:
 
     def get_model_for_job(self, job: Job) -> Model:
         """
-        Returns the model that was created by the `job` from the SC cluster.
+        Return the model that was created by the `job` from the SC cluster.
 
         :param job: Job to retrieve the model for
         :return: Model produced by the job

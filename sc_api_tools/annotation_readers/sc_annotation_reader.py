@@ -24,6 +24,10 @@ from sc_api_tools.data_models import TaskType, Annotation
 
 
 class SCAnnotationReader(AnnotationReader):
+    """
+    AnnotationReader for loading annotation files in SonomaCreek format.
+    """
+
     def __init__(
             self,
             base_data_folder: str,
@@ -45,7 +49,7 @@ class SCAnnotationReader(AnnotationReader):
 
     def _get_label_names(self, all_labels: List[str]) -> List[str]:
         """
-        Returns the labels for the task type the annotation reader is currently set to.
+        Return the labels for the task type the annotation reader is currently set to.
 
         :param all_labels: List of all label names in the project
         """
@@ -65,6 +69,20 @@ class SCAnnotationReader(AnnotationReader):
             label_name_to_id_mapping: dict,
             preserve_shape_for_global_labels: bool = False
     ) -> List[Annotation]:
+        """
+        Return the annotation data for the dataset item corresponding to `filename`.
+
+        :param filename: name of the item to get the annotation data for.
+        :param label_name_to_id_mapping: mapping of label name to label id.
+        :param preserve_shape_for_global_labels: False to convert shapes for global
+            tasks to full rectangles (required for classification like tasks in
+            SonomaCreek), True to preserve such shapes. This parameter should be:
+             - False when uploading annotations to a single task project
+             - True when uploading annotations for a classification like task,
+                following a local task in a task chain project.
+        :return: List of Annotation objects containing all annotations for the given
+            dataset item.
+        """
         filepath = glob.glob(
             os.path.join(
                 self.base_folder, f"{filename}{self.annotation_format}")

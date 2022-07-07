@@ -34,7 +34,7 @@ DEFAULT_ALGORITHMS = {
 
 class AlgorithmList(UserList):
     """
-    A list containing SC supported algorithms
+    A list containing SC supported algorithms.
     """
 
     def __init__(self, data: Optional[Sequence[Algorithm]] = None):
@@ -45,8 +45,8 @@ class AlgorithmList(UserList):
     @staticmethod
     def from_rest(rest_input: Dict[str, Any]) -> 'AlgorithmList':
         """
-        Creates an AlgorithmList from the response of the /supported_algorithms REST
-        endpoint in SC
+        Create an AlgorithmList from the response of the /supported_algorithms REST
+        endpoint in SC.
 
         :param rest_input: Dictionary retrieved from the /supported_algorithms REST
             endpoint
@@ -61,7 +61,7 @@ class AlgorithmList(UserList):
 
     def get_by_model_template(self, model_template_id: str) -> Algorithm:
         """
-        Retrieves an algorithm from the list by its model_template_id
+        Retrieve an algorithm from the list by its model_template_id.
 
         :param model_template_id: Name of the model template to get the Algorithm
             information for
@@ -77,7 +77,7 @@ class AlgorithmList(UserList):
 
     def get_by_task_type(self, task_type: TaskType) -> 'AlgorithmList':
         """
-        Returns a list of supported algorithms for a particular task type
+        Return a list of supported algorithms for a particular task type.
 
         :param task_type: TaskType to get the supported algorithms for
         :return: List of supported algorithms for the task type
@@ -92,7 +92,7 @@ class AlgorithmList(UserList):
     @property
     def summary(self) -> str:
         """
-        Returns a string that gives a very brief summary of the algorithm list.
+        Return a string that gives a very brief summary of the algorithm list.
 
         :return: String holding a brief summary of the list of algorithms
         """
@@ -106,7 +106,7 @@ class AlgorithmList(UserList):
 
     def get_by_name(self, name: str) -> Algorithm:
         """
-        Retrieves an algorithm from the list by its algorithm_name
+        Retrieve an algorithm from the list by its algorithm_name.
 
         :param name: Name of the Algorithm to get
         :return: Algorithm holding the algorithm details
@@ -121,7 +121,7 @@ class AlgorithmList(UserList):
 
     def get_default_for_task_type(self, task_type: TaskType) -> Algorithm:
         """
-        Returns the default algorithm for a given task type. If there is no algorithm
+        Return the default algorithm for a given task type. If there is no algorithm
         for the task type in the AlgorithmList, this method will raise a ValueError.
 
         :param task_type: TaskType of the task to get the default algorithm for

@@ -52,8 +52,9 @@ TASK_TYPE_MAPPING = {
 
 class ProjectManager:
     """
-    Class to get or create a project in a certain workspace
+    Class to manipulate projects on the SC cluster, within a certain workspace.
     """
+
     def __init__(self, session: SCSession, workspace_id: str):
         self.session = session
         self.workspace_id = workspace_id
@@ -61,7 +62,7 @@ class ProjectManager:
 
     def get_all_projects(self) -> List[Project]:
         """
-        Returns a list of projects found on the SC cluster
+        Return a list of projects found on the SC cluster
 
         :return: List of Project objects, containing the project information for each
             project on the SC cluster
@@ -97,7 +98,7 @@ class ProjectManager:
             labels: List[Union[List[str], List[Dict[str, Any]]]]
     ) -> Project:
         """
-        Creates a new project with name `project_name` on the cluster, or retrieves
+        Create a new project with name `project_name` on the cluster, or retrieve
         the data for an existing project with `project_name` if it exists.
 
         :param project_name: Name of the project
@@ -122,7 +123,7 @@ class ProjectManager:
             labels: List[Union[List[str], List[Dict[str, Any]]]]
     ) -> Project:
         """
-        Creates a new project with name `project_name` on the cluster, containing
+        Create a new project with name `project_name` on the cluster, containing
         tasks according to the `project_type` specified. Labels for each task are
         specified in the `labels` parameter, which should be a nested list (each entry
         in the outermost list corresponds to the labels for one of the tasks in the
@@ -158,10 +159,11 @@ class ProjectManager:
             self, project_name: str, path_to_folder: str
     ) -> None:
         """
-        For a project on the SC cluster with name `project_name`, this method gets the
-        project data that can be used to create a project with the
-        `ProjectManager.get_or_create_project` method. The data is retrieved
-        from the cluster and saved in the target folder `path_to_folder`.
+        Get the project data that can be used for project creation for a project on
+        the SC cluster, named `project_name`. From the returned data, the method
+        `ProjectManager.get_or_create_project` can create a project on the SC cluster.
+        The data is retrieved from the cluster and saved in the target folder
+        `path_to_folder`.
 
         :param project_name: Name of the project to retrieve the data for
         :param path_to_folder: Target folder to save the project data to.
@@ -192,7 +194,7 @@ class ProjectManager:
             labels: Union[List[str], List[Dict[str, Any]]],
     ) -> Tuple[dict, dict]:
         """
-        Adds a task to the pipeline in a project template in dictionary form
+        Add a task to the pipeline in a project template in dictionary form.
 
         :param project_template: Dictionary representing the project creation data
         :param task_type: Type of the task to be added
@@ -230,7 +232,7 @@ class ProjectManager:
     @staticmethod
     def _add_crop_task(project_template: dict) -> Tuple[dict, dict]:
         """
-        Adds a `crop` task to the pipeline in the project_template
+        Add a `crop` task to the pipeline in the project_template.
 
         :param project_template:
         :return: Tuple containing:
@@ -247,8 +249,8 @@ class ProjectManager:
     @staticmethod
     def _add_connection(project_template: dict, to_task: str, from_task: str) -> dict:
         """
-        Adds a connection between `from_task` and `to_task` in the project_template
-        dictionary
+        Add a connection between `from_task` and `to_task` in the project_template
+        dictionary.
 
         :param project_template:
         :param to_task:
@@ -264,8 +266,8 @@ class ProjectManager:
             self, path_to_folder: str, project_name: Optional[str] = None
     ) -> Project:
         """
-        Looks for a `project.json` file in the folder at `path_to_folder`, and
-        creates a project using the parameters provided in this file
+        Look for a `project.json` file in the folder at `path_to_folder`, and
+        create a project using the parameters provided in this file.
 
         :param path_to_folder: Folder holding the project data
         :param project_name: Optional name of the project. If not specified, the
@@ -293,8 +295,8 @@ class ProjectManager:
     @staticmethod
     def is_project_dir(path_to_folder: str) -> bool:
         """
-        Returns True if the folder specified in `path_to_folder` is a directory
-        containing valid SC project data that can be used to upload to an SC cluster
+        Check if the folder specified in `path_to_folder` is a directory
+        containing valid SC project data that can be used to upload to an SC cluster.
 
         :param path_to_folder: Directory to check
         :return: True if the directory holds project data, False otherwise
@@ -317,7 +319,7 @@ class ProjectManager:
 
     def list_projects(self) -> List[Project]:
         """
-        This method prints an overview of all projects that currently exists on the
+        Print an overview of all projects that currently exists on the
         cluster, in the workspace managed by the ProjectManager
 
         NOTE: While this method also returns a list of all the projects, it is
@@ -340,7 +342,7 @@ class ProjectManager:
             labels: List[Union[List[str], List[Dict[str, Any]]]]
     ) -> Dict[str, Any]:
         """
-        Creates a template dictionary with data for project creation that is ready to
+        Create a template dictionary with data for project creation that is ready to
         be sent to  the cluster.
 
         :param project_name: Name of the project
@@ -392,7 +394,7 @@ class ProjectManager:
             task_name: str, task_names_in_template: List[str]
     ) -> str:
         """
-        This method checks that the `task_name` passed is not already in the list of
+        Check that the `task_name` passed is not already in the list of
         `task_names_in_template`. If the task_name is already in the list, this method
         will generate a new task_name that is unique
 
@@ -418,7 +420,7 @@ class ProjectManager:
             self, project: Union[str, Project], requires_confirmation: bool = True
     ) -> None:
         """
-        Deletes a project. The `project` to delete can either by a Project object or a
+        Delete a project. The `project` to delete can either by a Project object or a
         string containing the name of the project to delete.
 
         By default, this method will ask for user confirmation before deleting the
@@ -478,7 +480,7 @@ class ProjectManager:
         task: Optional[Task] = None
     ) -> Project:
         """
-        Adds the `labels` to the project labels. For a project with multiple tasks,
+        Add the `labels` to the project labels. For a project with multiple tasks,
         the `task` parameter can be used to specify the task for which the labels
         should be added.
 

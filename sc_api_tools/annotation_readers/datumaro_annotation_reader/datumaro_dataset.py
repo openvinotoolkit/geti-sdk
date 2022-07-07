@@ -26,11 +26,19 @@ from sc_api_tools.utils import get_dict_key_from_value
 
 
 class DatumaroDataset(object):
+    """
+    Wrapper for interacting with the datumaro dataset, contains some example
+    functions for dataset operations that can be carried out prior to importing the
+    dataset into SonomaCreek
+    """
+
     def __init__(self, dataset_format: str, dataset_path: str):
         """
-        Wrapper for interacting with the datumaro dataset, contains some example
-        functions for dataset operations
-        that can be carried out prior to importing the dataset into NOUS
+        Initialize the datumaro dataset.
+
+        :param dataset_format: string containing the format of the dataset, i.e.
+            'voc', 'coco', 'imagenet', etc.
+        :param dataset_path: Path to the dataset on local disk
         """
         self.dataset_format = dataset_format
         self.dataset_path = dataset_path
@@ -41,7 +49,7 @@ class DatumaroDataset(object):
             self, task_type: TaskType, previous_task_type: Optional[TaskType] = None
     ) -> Dataset:
         """
-        Prepares the dataset for uploading to Sonoma Creek
+        Prepare the dataset for uploading to Sonoma Creek.
 
         :param task_type: TaskType to prepare the dataset for
         :param previous_task_type: Optional type of the (trainable) task preceding
@@ -73,7 +81,7 @@ class DatumaroDataset(object):
 
     def set_dataset(self, dataset: Dataset):
         """
-        Sets the dataset for this DatumaroDataset instance
+        Set the dataset for this DatumaroDataset instance.
 
         :param dataset:
         :return:
@@ -84,22 +92,23 @@ class DatumaroDataset(object):
 
     @property
     def categories(self) -> LabelCategories:
+        """
+        Return the LabelCategories in the dataset.
+        """
         categories: LabelCategories = self.dataset.categories()[AnnotationType.label]
         return categories
 
     @property
     def label_names(self) -> List[str]:
         """
-        Returns the labels
-        :return:
+        Return a list of all label names in the dataset.
         """
         return [item.name for item in self.categories]
 
     @property
     def label_mapping(self) -> Dict[int, str]:
         """
-        Returns the mapping of label name to label index
-        :return:
+        Return the mapping of label index to label name.
         """
         return {value: key for key, value in self.categories._indices.items()}
 
@@ -127,7 +136,7 @@ class DatumaroDataset(object):
 
     def remove_unannotated_items(self):
         """
-        Keep only annotated images
+        Keep only annotated images.
         """
         self.dataset = self.dataset.select(lambda item: len(item.annotations) != 0)
 
@@ -197,6 +206,13 @@ class DatumaroDataset(object):
             )
 
     def get_item_by_id(self, datum_id: str) -> DatasetItem:
+        """
+        Return the dataset item by its id.
+
+        :param datum_id: Datumaro id of the item to retrieve
+        :raises: ValueError if no item by that id was found.
+        :return: DatasetItem with the given id
+        """
         ds_item: Optional[DatasetItem] = None
         for subset_name in self._subset_names:
             ds_item = self.dataset.get(id=datum_id, subset=subset_name)

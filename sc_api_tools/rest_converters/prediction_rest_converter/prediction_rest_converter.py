@@ -25,11 +25,15 @@ from sc_api_tools.utils import remove_null_fields
 
 
 class PredictionRESTConverter:
+    """
+    Class to convert REST representations of predictions into Prediction entities.
+    """
+
     @staticmethod
     def from_dict(prediction: Dict[str, Any]) -> Prediction:
         """
-        Creates a Prediction object from a dictionary returned by the
-        /predictions REST endpoint in SC
+        Create a Prediction object from a dictionary returned by the
+        /predictions REST endpoint in SC.
 
         :param prediction: dictionary representing a Prediction, which
             contains all prediction annotations for a certain media entity
@@ -68,7 +72,7 @@ class PredictionRESTConverter:
             prediction: Prediction, deidentify: bool = True
     ) -> Dict[str, Any]:
         """
-        Converts a Prediction to a dictionary. By default, removes any ID
+        Convert a Prediction to a dictionary. By default, removes any ID
         fields in the output dictionary
 
         :param prediction: Prediction object to convert

@@ -21,8 +21,7 @@ import cv2
 import numpy as np
 
 from ote_sdk.entities.annotation import (
-    AnnotationSceneEntity,
-    AnnotationSceneKind
+    AnnotationSceneEntity
 )
 
 from sc_api_tools.data_models.annotations import Annotation
@@ -53,7 +52,8 @@ from sc_api_tools.utils import remove_null_fields
 @attr.s(auto_attribs=True)
 class AnnotationScene:
     """
-    Class representing all annotations for a certain media entity in SC
+    Representation of an annotation scen for a certain media entity in SC. An
+    annotation scene holds all annotations for that specific media entity.
 
     :var annotations: List of
         :py:class:`~sc_api_tools.data_models.annotations.Annotation`s belonging to the
@@ -70,6 +70,7 @@ class AnnotationScene:
     :var annotation_state_per_task: Optional dictionary holding the annotation state
         for this AnnotationScene for each task in the project pipeline.
     """
+
     _identifier_fields: ClassVar[List[str]] = ["id", "modified"]
     _GET_only_fields: ClassVar[List[str]] = ["annotation_state_per_task"]
 
@@ -86,39 +87,35 @@ class AnnotationScene:
     @property
     def has_data(self) -> bool:
         """
-        Returns True if this AnnotationScene has annotation associated with it
-        :return:
+        Return True if this AnnotationScene has annotation associated with it.
         """
         return len(self.annotations) > 0
 
-    def deidentify(self):
+    def deidentify(self) -> None:
         """
-        Removes all unique database ID's from the annotationscene and the entities it
-        contains
-
-        :return:
+        Remove all unique database ID's from the annotationscene and the entities it
+        contains.
         """
         deidentify(self)
         self.media_identifier = None
         for annotation in self.annotations:
             annotation.deidentify()
 
-    def prepare_for_post(self):
+    def prepare_for_post(self) -> None:
         """
-        Removes all fields that are not valid for making a POST request to the
-        /annotations endpoint
+        Remove all fields that are not valid for making a POST request to the
+        /annotations endpoint.
 
         :return:
         """
         for field_name in self._GET_only_fields:
             setattr(self, field_name, None)
 
-    def append(self, annotation: Annotation):
+    def append(self, annotation: Annotation) -> None:
         """
-        Add an annotation to the annotation scene
+        Add an annotation to the annotation scene.
 
         :param annotation: Annotation to add
-        :return:
         """
         self.annotations.append(annotation)
 
@@ -140,7 +137,7 @@ class AnnotationScene:
     def extend(self, annotations: List[Annotation]):
         """
         Extend the list of annotations in the AnnotationScene with additional entries
-        in the `annotations` list
+        in the `annotations` list.
 
         :param annotations: List of Annotations to add to the AnnotationScene
         :return:
@@ -154,7 +151,7 @@ class AnnotationScene:
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        Converts the AnnotationScene to a dictionary representation
+        Convert the AnnotationScene to a dictionary representation.
 
         :return: Dictionary holding the annotation scene data
         """
@@ -164,7 +161,7 @@ class AnnotationScene:
     @property
     def overview(self) -> str:
         """
-        Returns a string that gives an overview of the annotation scene
+        Return a string that gives an overview of the annotation scene.
 
         :return: overview string of the annotation scene
         """
@@ -186,7 +183,7 @@ class AnnotationScene:
             line_thickness: int
     ) -> np.ndarray:
         """
-        Draws an SC shape entity `shape` on the pixel level mask `mask`. The shape
+        Draw an SC shape entity `shape` on the pixel level mask `mask`. The shape
         will be drawn in the color specified as R,G,B tuple in `color`, using a line
         thickness `line_thickness` (in pixels).
 
@@ -289,8 +286,8 @@ class AnnotationScene:
 
     def as_mask(self, media_information: MediaInformation) -> np.ndarray:
         """
-        Converts the shapes in the annotation scene to a mask that can be overlayed on
-        an image
+        Convert the shapes in the annotation scene to a mask that can be overlayed on
+        an image.
 
         :param media_information: MediaInformation object containing the width and
             height of the image for which the mask should be generated.
@@ -317,7 +314,7 @@ class AnnotationScene:
             self, media_identifier: Union[ImageIdentifier, VideoFrameIdentifier]
     ) -> 'AnnotationScene':
         """
-        Applies a `media_identifier` to the current AnnotationScene instance, such
+        Apply a `media_identifier` to the current AnnotationScene instance, such
         that the SC cluster will recognize this AnnotationScene as belonging to the
         media item identified by the media_identifier.
 
@@ -345,7 +342,7 @@ class AnnotationScene:
             image_height: int
     ) -> 'AnnotationScene':
         """
-        Creates a :py:class:`~sc_api_tools.data_models.annotation_scene.AnnotationScene`
+        Create a :py:class:`~sc_api_tools.data_models.annotation_scene.AnnotationScene`
         instance from a given OTE SDK AnnotationSceneEntity object.
 
         :param ote_annotation_scene: OTE AnnotationSceneEntity object to create the
@@ -369,7 +366,7 @@ class AnnotationScene:
             self, labels: Sequence[Union[Label, ScoredLabel]]
     ) -> 'AnnotationScene':
         """
-        Attempts to map the labels found in `labels` to those in the AnnotationScene
+        Attempt to map the labels found in `labels` to those in the AnnotationScene
         instance. Labels are matched by name. This method will return a new
         AnnotationScene object.
 

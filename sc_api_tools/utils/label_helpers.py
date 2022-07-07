@@ -29,7 +29,7 @@ def generate_classification_labels(
         labels: List[str], multilabel: bool = False
 ) -> List[Dict[str, str]]:
     """
-    Generates label creation data from a list of label names. If `multiclass = True`,
+    Generate label creation data from a list of label names. If `multiclass = True`,
     the labels will be generated in such a way that multiple labels can be assigned to
     a single image. If `multiclass = False`, only a single label per image can be
     assigned.

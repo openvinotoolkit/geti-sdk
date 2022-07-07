@@ -52,7 +52,7 @@ class AnnotationReader:
 
     def get_data_filenames(self) -> List[str]:
         """
-        Returns a list of annotation files found in the `base_data_folder`
+        Return a list of annotation files found in the `base_data_folder`.
 
         :return: List of filenames (excluding extension) for all annotation files in
             the data folder
@@ -68,10 +68,8 @@ class AnnotationReader:
     @abstractmethod
     def get_all_label_names(self) -> List[str]:
         """
-        Returns a list of unique label names that were found in the annotation data
-        folder belonging to this AnnotationReader instance
-
-        :return:
+        Return a list of unique label names that were found in the annotation data
+        folder belonging to this AnnotationReader instance.
         """
         raise NotImplementedError
 
@@ -79,15 +77,13 @@ class AnnotationReader:
             self,
             task_type: Union[TaskType, str],
             previous_task_type: Optional[TaskType] = None
-    ):
+    ) -> None:
         """
-        Prepares a dataset for uploading annotations for a certain task_type
+        Prepare a dataset for uploading annotations for a certain task_type.
 
         :param task_type: TaskType to prepare the dataset for
         :param previous_task_type: Optional type of the (trainable) task preceding
             the current task in the pipeline. This is only used for global tasks
-
-        :return:
         """
         if not isinstance(task_type, TaskType):
             task_type = TaskType(task_type)
@@ -101,7 +97,7 @@ class AnnotationReader:
     @property
     def applied_filters(self) -> List[Dict[str, Union[List[str], str]]]:
         """
-        Returns a list of dictionaries representing the filter settings that have
+        Return a list of dictionaries representing the filter settings that have
         been applied to the dataset, if any.
 
         Dictionaries in this list contain two keys:

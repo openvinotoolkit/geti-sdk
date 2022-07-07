@@ -49,8 +49,8 @@ def _parameter_dicts_to_list(
         parameter_dicts: List[Union[Dict[str, Any], PARAMETER_TYPES]]
 ) -> List[PARAMETER_TYPES]:
     """
-    Converts a list of dictionary representations of configurable parameters to a
-    list of ConfigurableParameter objects
+    Convert a list of dictionary representations of configurable parameters to a
+    list of ConfigurableParameter objects.
 
     :param parameter_dicts: List of dictionaries, each entry representing a single
         configurable parameter
@@ -110,8 +110,8 @@ def _parameter_dicts_to_list(
 @attr.s(auto_attribs=True)
 class ParameterGroup:
     """
-    Class representing a group of configurable parameters in SC, as returned by the
-    /configuration endpoints
+    Representation of a group of configurable parameters in SC, as returned by the
+    /configuration endpoints.
 
     :var header: Human readable name for the parameter group
     :var type: Type of the parameter group
@@ -119,6 +119,7 @@ class ParameterGroup:
     :var parameters: List of configurable parameters
     :var groups: List of parameter groups
     """
+
     _non_minimal_fields: ClassVar[List[str]] = ["description"]
 
     header: str
@@ -130,16 +131,14 @@ class ParameterGroup:
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        Returns the dictionary representation of the ParameterGroup
-
-        :return:
+        Return the dictionary representation of the ParameterGroup
         """
         return attr.asdict(self, recurse=True, value_serializer=attr_value_serializer)
 
     @classmethod
     def from_dict(cls, input_dict: Dict[str, Any]) -> 'ParameterGroup':
         """
-        Creates a ParameterGroup object from an input dictionary
+        Create a ParameterGroup object from an input dictionary.
 
         :param input_dict: Dictionary to create the parameter group from
         :return: ParameterGroup instance corresponding to the data received in
@@ -162,10 +161,9 @@ class ParameterGroup:
             groups.append(ParameterGroup.from_dict(group_dict))
         return cls(**input_copy, parameters=parameters, groups=groups)
 
-    def deidentify(self):
+    def deidentify(self) -> None:
         """
-        Removes all identifier fields from the ParameterGroup
-
+        Remove all identifier fields from the ParameterGroup
         """
         for parameter in self.parameters:
             deidentify(parameter)
@@ -174,7 +172,7 @@ class ParameterGroup:
 
     def parameter_names(self, get_nested: bool = True) -> List[str]:
         """
-        Returns a list of names of all parameters in the ParameterGroup
+        Return a list of names of all parameters in the ParameterGroup.
 
         :param get_nested: True to include parameter names in nested ParameterGroups
             belonging to this group as well. False to only consider this groups'
@@ -189,7 +187,7 @@ class ParameterGroup:
 
     def get_parameter_group_by_name(self, name: str) -> Optional['ParameterGroup']:
         """
-        Returns the parameter group named `name`, if it belongs to this
+        Return the parameter group named `name`, if it belongs to this
         ParameterGroup or any of it's nested groups.
 
         If no group by `name` is found, this method returns None
@@ -207,8 +205,8 @@ class ParameterGroup:
             self, name: str, group_name: Optional[str] = None
     ) -> Optional[PARAMETER_TYPES]:
         """
-        Get the data for the configurable parameter named `name` from the ParameterGroup
-        This method returns None if no parameter by that name was found
+        Get the data for the configurable parameter named `name` from the
+        ParameterGroup. This method returns None if no parameter by that name was found
 
         :param name: Name of the parameter to get
         :param group_name: Optional name of the parameter group to which the parameter
@@ -246,12 +244,12 @@ class ParameterGroup:
 
     def get_group_containing(self, parameter_name: str) -> Optional['ParameterGroup']:
         """
-        Returns the parameter group that contains the parameter specified in
+        Return the parameter group that contains the parameter specified in
         `parameter_name`. If no group containing the parameter is found, this method
         returns None
 
         :param parameter_name: Name of the parameter for which to retrieve the group
-        :return:
+        :return: ParameterGroup containing the parameter by name `parameter_name`
         """
         if not self.groups or self.get_parameter_by_name(parameter_name) is None:
             return None
@@ -263,7 +261,7 @@ class ParameterGroup:
     @property
     def summary(self) -> str:
         """
-        Returns a string containing a very brief summary of the ParameterGroup
+        Return a string containing a very brief summary of the ParameterGroup.
 
         :return: string holding a very short summary of the ParameterGroup
         """

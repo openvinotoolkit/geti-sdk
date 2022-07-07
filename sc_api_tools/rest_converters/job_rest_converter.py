@@ -26,7 +26,7 @@ class JobRESTConverter:
     @staticmethod
     def from_dict(job_dict: Dict[str, Any]) -> Job:
         """
-        Creates a Job instance from the input dictionary passed in `job_dict`
+        Create a Job instance from the input dictionary passed in `job_dict`.
 
         :param job_dict: Dictionary representing a job on the SC cluster, as returned
             by the /jobs endpoints

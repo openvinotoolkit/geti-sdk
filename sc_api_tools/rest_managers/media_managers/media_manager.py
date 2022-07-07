@@ -55,7 +55,7 @@ MEDIA_DOWNLOAD_FORMAT_MAPPING = {MediaType.IMAGE: ".jpg", MediaType.VIDEO: ".mp4
 
 class BaseMediaManager(Generic[MediaTypeVar]):
     """
-    Class to manage media up and downloads for a certain project
+    Class to manage media up and downloads for a certain project.
     """
 
     _MEDIA_TYPE: ClassVar[MediaType]
@@ -77,7 +77,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
     @property
     def base_url(self) -> str:
         """
-        Returns the base url for the media endpoint
+        Return the base url for the media endpoint.
 
         :return: string containing the base url
         """
@@ -87,7 +87,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
     def plural_media_name(self) -> str:
         """
         Convert the type of the media entities managed by this media manager to a
-        string in plural form
+        string in plural form.
 
         :return:
         """
@@ -96,7 +96,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
     @staticmethod
     def __get_media_type(media_type: MediaType) -> Type[MediaTypeVar]:
         """
-        Gets the type of the media entities that are managed by this media manager.
+        Get the type of the media entities that are managed by this media manager.
 
         :param media_type: MediaType Enum instance representing the type of media
             entities
@@ -107,7 +107,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
 
     def _get_all(self) -> MediaList[MediaTypeVar]:
         """
-        Get a list holding all media entities of a certain type in the project
+        Get a list holding all media entities of a certain type in the project.
 
         :return: MediaList holding all media of a certain type in the project
         """
@@ -131,7 +131,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
 
     def _delete_media(self, media_list: Sequence[MediaTypeVar]) -> bool:
         """
-        Deletes all media entities in `media_list` from the project
+        Delete all media entities in `media_list` from the project.
 
         :param media_list: List of media entities to delete
         :return: True if all items on the media list were deleted successfully,
@@ -165,7 +165,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
 
     def _upload_bytes(self, buffer: BinaryIO) -> Dict[str, Any]:
         """
-        Upload a buffer representing a media file to the server
+        Upload a buffer representing a media file to the server.
 
         :param buffer: BinaryIO object representing a media file
         :return: Dictionary containing the response of the SC cluster, which holds
@@ -181,7 +181,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
 
     def _upload(self, filepath: str) -> Dict[str, Any]:
         """
-        Upload a media file to the server
+        Upload a media file to the server.
 
         :param filepath: full path to the media file on disk
         :return: Dictionary containing the response of the SC cluster, which holds
@@ -196,7 +196,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
             skip_if_filename_exists: bool = False,
     ) -> MediaList[MediaTypeVar]:
         """
-        Uploads media from a list of filepaths. Also checks if media items with the same
+        Upload media from a list of filepaths. Also checks if media items with the same
         filename exist in the project, to make sure no duplicate items are uploaded.
 
         :param filepaths: List of full filepaths for media that should be
@@ -253,7 +253,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
             skip_if_filename_exists: bool = False
     ) -> MediaList[MediaTypeVar]:
         """
-        Uploads all media in a folder to the project. Returns the mapping of filenames
+        Upload all media in a folder to the project. Returns the mapping of filenames
         to the unique IDs assigned by Sonoma Creek.
 
         :param path_to_folder: Folder with media items to upload

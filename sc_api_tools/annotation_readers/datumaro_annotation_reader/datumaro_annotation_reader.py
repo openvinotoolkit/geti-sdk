@@ -65,7 +65,15 @@ class DatumAnnotationReader(AnnotationReader):
             self,
             task_type: Union[TaskType, str],
             previous_task_type: Optional[TaskType] = None
-    ):
+    ) -> None:
+        """
+        Prepare the dataset for a specific `task_type`. This could involve for
+        example conversion of annotation shapes.
+
+        :param task_type: TaskType for which to prepare the dataset.
+        :param previous_task_type: TaskType preceding the task to prepare the dataset
+            for
+        """
         if not isinstance(task_type, TaskType):
             task_type = TaskType(task_type)
         if task_type != self.task_type:
@@ -88,7 +96,7 @@ class DatumAnnotationReader(AnnotationReader):
 
     def convert_labels_to_segmentation_names(self) -> None:
         """
-        This method converts the label names in a dataset to '*_shape`, where `*` is
+        Convert the label names in a dataset to '*_shape`, where `*` is
         the original label name. It can be used to generate unique label names for the
         segmentation task in a detection_to_segmentation project
         """
@@ -104,7 +112,7 @@ class DatumAnnotationReader(AnnotationReader):
 
     def get_all_label_names(self) -> List[str]:
         """
-        Retrieves the list of labels names from a datumaro dataset
+        Retrieve the list of labels names from a datumaro dataset.
         """
         return list(set(self.datum_label_map.values()))
 
@@ -120,25 +128,19 @@ class DatumAnnotationReader(AnnotationReader):
 
     def override_label_map(self, new_label_map: Dict[int, str]):
         """
-        Overrides the label map defined in the datumaro dataset
-
-        :return:
+        Override the label map defined in the datumaro dataset
         """
         self._override_label_map = new_label_map
 
     def reset_label_map(self):
         """
-        Resets the label map back to the original one from the datumaro dataset
-
-        :return:
+        Reset the label map back to the original one from the datumaro dataset.
         """
         self._override_label_map = None
 
     def get_all_image_names(self) -> List[str]:
         """
-        Returns a list of image names in the dataset
-
-        :return:
+        Return a list of image names in the dataset
         """
         return self.dataset.image_names
 
@@ -148,6 +150,20 @@ class DatumAnnotationReader(AnnotationReader):
             label_name_to_id_mapping: dict,
             preserve_shape_for_global_labels: bool = False
     ) -> List[SCAnnotation]:
+        """
+        Return the annotation data for the dataset item corresponding to `filename`.
+
+        :param filename: name of the item to get the annotation data for.
+        :param label_name_to_id_mapping: mapping of label name to label id.
+        :param preserve_shape_for_global_labels: False to convert shapes for global
+            tasks to full rectangles (required for classification like tasks in
+            SonomaCreek), True to preserve such shapes. This parameter should be:
+             - False when uploading annotations to a single task project
+             - True when uploading annotations for a classification like task,
+                following a local task in a task chain project.
+        :return: List of Annotation objects containing all annotations for the given
+            dataset item.
+        """
         ds_item = self.dataset.get_item_by_id(filename)
         image_size = ds_item.image.size
         annotation_list: List[SCAnnotation] = []
@@ -211,6 +227,10 @@ class DatumAnnotationReader(AnnotationReader):
 
     @property
     def applied_filters(self) -> List[Dict[str, Union[List[str], str]]]:
+        """
+        Return a list of filters and their parameters that have been previously
+        applied to the dataset.
+        """
         return copy.deepcopy(self._applied_filters)
 
     def filter_dataset(self, labels: Sequence[str], criterion='OR') -> None:
@@ -248,7 +268,7 @@ class DatumAnnotationReader(AnnotationReader):
 
     def get_annotation_stats(self) -> Dict[str, Dict[str, int]]:
         """
-        Returns the object and image counts per label in the dataset.
+        Return the object and image counts per label in the dataset.
 
         :return: Dictionary containing label names as keys, and as values:
             - n_images: Number of images containing this label

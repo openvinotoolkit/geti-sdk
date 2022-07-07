@@ -56,8 +56,11 @@ from .utils import (
 
 class SCRESTClient:
     """
-    This class is a client to interact with a Sonoma Creek cluster via the REST
-    API. It provides methods for project creation, downloading and uploading.
+    Interact with a Sonoma Creek cluster via the REST API.
+
+    The SCRESTClient class provides methods for project creation, downloading and
+    uploading, as well as project deployment. Initializing the class will establish a
+    HTTP session to the SC cluster, and requires authentication.
 
     :param host: IP address or URL at which the cluster can be reached, for example
         'https://0.0.0.0' or 'https://sc_example.intel.com'
@@ -66,6 +69,7 @@ class SCRESTClient:
     :param workspace_id: Optional ID of the workspace that should be addressed by this
         SCRESTClient instance. If not specified, the default workspace is used.
     """
+
     def __init__(
             self,
             host: str,
@@ -385,8 +389,8 @@ class SCRESTClient:
             enable_auto_train: bool = True
     ) -> Project:
         """
-        This method creates a single task project named `project_name` on the SC
-        cluster, and uploads data from a dataset on local disk.
+        Create a single task project named `project_name` on the SC cluster, and
+        upload data from a dataset on local disk.
 
         The type of task that will be in the project can be controlled by setting the
         `project_type`, options are:
@@ -506,8 +510,8 @@ class SCRESTClient:
             enable_auto_train: bool = True
     ) -> Project:
         """
-        This method creates a single task project named `project_name` on the SC
-        cluster, and uploads data from a dataset on local disk.
+        Create a single task project named `project_name` on the SC cluster, and
+        upload data from a dataset on local disk.
 
         The type of task that will be in the project can be controlled by setting the
         `project_type`, current options are:
@@ -639,7 +643,7 @@ class SCRESTClient:
             annotation_readers_per_task: List[AnnotationReader]
     ):
         """
-        Checks that the names of all labels passed in `labels_per_task` are unique. If
+        Check that the names of all labels passed in `labels_per_task` are unique. If
         they are not unique and there is a segmentation task in the task chain, this
         method tries to generate segmentation labels in order to guarantee unique label
         names
@@ -677,7 +681,7 @@ class SCRESTClient:
             self, target_folder: str, include_predictions: bool = True
     ) -> List[Project]:
         """
-        Downloads all projects in the default workspace from the SC cluster
+        Download all projects in the workspace from the SC cluster.
 
         :param target_folder: Directory on local disk to download the project data to.
             If not specified, this method will create a directory named 'projects' in
@@ -717,7 +721,7 @@ class SCRESTClient:
 
     def upload_all_projects(self, target_folder: str) -> List[Project]:
         """
-        Uploads all projects found in the directory `target_folder` on local disk to
+        Upload all projects found in the directory `target_folder` on local disk to
         the SC cluster.
 
         This method expects the directory `target_folder` to contain subfolders. Each
@@ -763,7 +767,7 @@ class SCRESTClient:
             skip_if_filename_exists: bool = False
     ) -> bool:
         """
-        Uploads a folder with media (images, videos or both) from local disk at path
+        Upload a folder with media (images, videos or both) from local disk at path
         `target_folder` to the project with name `project_name` on the SC cluster.
         After the media upload is complete, predictions will be downloaded for all
         media in the folder. This method will create a 'predictions' directory in
@@ -863,8 +867,8 @@ class SCRESTClient:
             delete_after_prediction: bool = False
     ) -> Tuple[Image, Prediction]:
         """
-        Uploads a single image to a project named `project_name` on the SC cluster,
-        and returns a prediction for it.
+        Upload a single image to a project named `project_name` on the SC cluster,
+        and return a prediction for it.
 
         :param project_name: Name of the project to upload the image to
         :param image: Image, numpy array representing an image, or filepath to an
@@ -942,8 +946,8 @@ class SCRESTClient:
             delete_after_prediction: bool = False
     ) -> Tuple[Video, MediaList[VideoFrame], List[Prediction]]:
         """
-        Uploads a single video to a project named `project_name` on the SC cluster,
-        and returns a list of predictions for the frames in the video.
+        Upload a single video to a project named `project_name` on the SC cluster,
+        and return a list of predictions for the frames in the video.
 
         The parameter 'frame_stride' is used to control the stride for frame
         extraction. Predictions are only generated for the extracted frames. So to
@@ -1036,7 +1040,7 @@ class SCRESTClient:
             output_folder: Optional[Union[str, os.PathLike]] = None
     ) -> Deployment:
         """
-        Deploys a project by creating a Deployment instance. The Deployment contains
+        Deploy a project by creating a Deployment instance. The Deployment contains
         the optimized active models for each task in the project, and can be loaded
         with OpenVINO to run inference locally.
 

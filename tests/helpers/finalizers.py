@@ -14,7 +14,6 @@
 
 import time
 
-from sc_api_tools.http_session import SCRequestException
 from sc_api_tools.rest_managers import ProjectManager, TrainingManager
 
 

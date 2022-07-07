@@ -35,8 +35,9 @@ DEFAULT_COCO_PATH = os.path.join(
 
 class COCOSubset(Enum):
     """
-    This Enum represents a certain subset of the MS COCO dataset
+    Enum representing a certain subset of the MS COCO dataset.
     """
+
     TRAIN2014 = 'train2014'
     VAL2014 = 'val2014'
     TEST2014 = 'test2014'
@@ -47,9 +48,18 @@ class COCOSubset(Enum):
     UNLABELED2017 = 'unlabeled2017'
 
     def __str__(self):
+        """
+        Return string representation of the COCOSubset instance.
+        """
         return self.value
 
     def get_annotations(self) -> Optional[str]:
+        """
+        Return the name of the annotation folder for the subset, if any.
+
+        :return: String containing the name of the annotation folder for the subset.
+            If subset does not have annotations, returns None.
+        """
         if self == COCOSubset.VAL2017 or self == COCOSubset.TRAIN2017:
             return 'trainval2017'
         elif self == COCOSubset.VAL2014 or self == COCOSubset.TRAIN2014:
@@ -65,7 +75,7 @@ class COCOSubset(Enum):
 
 def get_proxies(url: str = "") -> Dict[str, str]:
     """
-    Determines whether or not to use proxies to attempt to reach a certain url
+    Determine whether or not to use proxies to attempt to reach a certain url.
 
     :param url: URL that should be resolved
     :return:
@@ -97,7 +107,7 @@ def get_proxies(url: str = "") -> Dict[str, str]:
 
 def download_file(url: str, target_folder: Optional[str]) -> str:
     """
-    Downloads a file from `url` to a folder on local disk `target_folder`.
+    Download a file from `url` to a folder on local disk `target_folder`.
 
     NOTE: If a file with the same name as the file to be downloaded already exists in
         `target_folder`, this function will not download anything.
@@ -132,7 +142,7 @@ def download_file(url: str, target_folder: Optional[str]) -> str:
 
 def ensure_directory_exists(directory_path: str):
     """
-    Checks that a directory exists at `directory_path`, and if not will create it
+    Check that a directory exists at `directory_path`, and if not create it.
 
     :param directory_path:
     :return:
@@ -143,7 +153,7 @@ def ensure_directory_exists(directory_path: str):
 
 def directory_has_coco_subset(target_folder: str, coco_subset: COCOSubset) -> bool:
     """
-    Checks if a certain directory contains a particular subset of the coco dataset
+    Check if a certain directory contains a particular subset of the coco dataset.
 
     :param target_folder: Directory to check
     :param coco_subset: Subset to look for
@@ -179,7 +189,7 @@ def get_coco_dataset_from_path(
         verbose: bool = False
 ) -> str:
     """
-    This method checks if a coco dataset exists in the directory at `target_folder`.
+    Check if a coco dataset exists in the directory at `target_folder`.
     If no such directory exists, this method will attempt to download the COCO
     dataset to the designated folder.
 
@@ -279,7 +289,7 @@ def get_coco_dataset_from_path(
 
 def get_coco_dataset(dataset_path: Optional[str] = None, verbose: bool = False) -> str:
     """
-    This method checks if the COCO dataset is present at the specified path. If not,
+    Check if the COCO dataset is present at the specified path. If not,
     this method will attempt to download the dataset to the path specified.
 
     If no path is passed, this method will check or create the default path: the

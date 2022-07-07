@@ -16,6 +16,10 @@ from enum import Enum
 
 
 class ModelStatus(Enum):
+    """
+    Enum representing the different statuses that a model can have in SC.
+    """
+
     NOT_READY = 'NOT_READY'
     WEIGHTS_INITIALIZED = 'WEIGHTS_INITIALIZED'
     SUCCESS = 'SUCCESS'
@@ -24,8 +28,6 @@ class ModelStatus(Enum):
 
     def __str__(self) -> str:
         """
-        Returns the string representation of the ModelStatus instance
-
-        :return: string containing the model status
+        Return the string representation of the ModelStatus instance.
         """
         return self.value

@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+# noqa: D104
+
 from .annotation_rest_converter import AnnotationRESTConverter
 from .normalized_annotation_rest_converter import NormalizedAnnotationRESTConverter
 

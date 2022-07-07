@@ -36,7 +36,7 @@ class VideoManager(BaseMediaManager[Video]):
 
     def get_all_videos(self):
         """
-        Get the ID's and filenames of all videos in the project
+        Get the ID's and filenames of all videos in the project.
 
         :return: Dictionary containing the ID's (as keys) and filenames (as values)
             of the videos in the project
@@ -98,7 +98,7 @@ class VideoManager(BaseMediaManager[Video]):
             skip_if_filename_exists: bool = False
     ) -> MediaList[Video]:
         """
-        Uploads all videos in a folder to the project. Returns the mapping of video
+        Upload all videos in a folder to the project. Returns the mapping of video
         filename to the unique ID assigned by Sonoma Creek.
 
         :param path_to_folder: Folder with videos to upload
@@ -129,7 +129,7 @@ class VideoManager(BaseMediaManager[Video]):
 
     def delete_videos(self, videos: Sequence[Video]) -> bool:
         """
-        Deletes all Video entities in `videos` from the project
+        Delete all Video entities in `videos` from the project.
 
         :param videos: List of Video entities to delete
         :return: True if all videos on the list were deleted successfully,

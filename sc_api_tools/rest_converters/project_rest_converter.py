@@ -29,7 +29,7 @@ class ProjectRESTConverter:
     @classmethod
     def from_dict(cls, project_input: Dict[str, Any]) -> Project:
         """
-        Creates a Project from a dictionary representing a project, as
+        Create a Project from a dictionary representing a project, as
         returned by the /projects endpoint in SC.
 
         :param project_input: Dictionary representing a project, as returned by SC
@@ -45,7 +45,7 @@ class ProjectRESTConverter:
     @classmethod
     def to_dict(cls, project: Project) -> Dict[str, Any]:
         """
-        Converts the `project` to its dictionary representation.
+        Convert the `project` to its dictionary representation.
         This functions removes database UID's and optional fields that are `None`
         from the output dictionary, to make the output more compact and improve
         readability.

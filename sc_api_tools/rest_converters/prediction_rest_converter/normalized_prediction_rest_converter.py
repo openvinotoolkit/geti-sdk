@@ -25,7 +25,7 @@ from sc_api_tools.data_models.predictions import ResultMedium
 
 class NormalizedPredictionRESTConverter(PredictionRESTConverter):
     """
-    This class implements methods for converting predictions in normalized format to
+    Class containing methods for converting predictions in normalized format to
     and from their REST representation
 
     It is a legacy class to support the annotation format in a normalized coordinate
@@ -82,7 +82,7 @@ class NormalizedPredictionRESTConverter(PredictionRESTConverter):
             deidentify: bool = True
     ) -> Dict[str, Any]:
         """
-        Converts a Prediction to a dictionary. By default, removes any ID
+        Convert a Prediction to a dictionary. By default, removes any ID
         fields in the output dictionary
 
         :param prediction: Prediction object to convert

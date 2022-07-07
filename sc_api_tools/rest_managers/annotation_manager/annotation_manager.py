@@ -27,12 +27,12 @@ from .base_annotation_manager import BaseAnnotationManager, AnnotationReaderType
 
 class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
     """
-    Class to up- or download annotations for images or videos to an existing project
+    Class to up- or download annotations for images or videos to an existing project.
     """
 
     def get_latest_annotations_for_video(self, video: Video) -> List[AnnotationScene]:
         """
-        Retrieve all latest annotations for a video from the cluster
+        Retrieve all latest annotations for a video from the cluster.
 
         :param video: Video to get the annotations for
         :return: List of AnnotationScene's, each entry corresponds to an
@@ -59,7 +59,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
             self, video: Video, append_annotations: bool = False
     ):
         """
-        Uploads annotations for a video. If append_annotations is set to True,
+        Upload annotations for a video. If append_annotations is set to True,
         annotations will be appended to the existing annotations for the video in the
         project. If set to False, existing annotations will be overwritten.
 
@@ -93,7 +93,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
             self, videos: MediaList[Video], append_annotations: bool = False
     ):
         """
-        Uploads annotations for a list of videos. If append_annotations is set to True,
+        Upload annotations for a list of videos. If append_annotations is set to True,
         annotations will be appended to the existing annotations for the video in the
         project. If set to False, existing annotations will be overwritten.
 
@@ -120,7 +120,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
             self, images: MediaList[Image], append_annotations: bool = False
     ):
         """
-        Uploads annotations for a list of images. If append_annotations is set to True,
+        Upload annotations for a list of images. If append_annotations is set to True,
         annotations will be appended to the existing annotations for the image in the
         project. If set to False, existing annotations will be overwritten.
 
@@ -148,7 +148,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
             self, video: Video, path_to_folder: str, append_video_uid: bool = False
     ) -> float:
         """
-        Downloads video annotations from the server to a target folder on disk
+        Download video annotations from the server to a target folder on disk.
 
         :param video: Video for which to download the annotations
         :param path_to_folder: Folder to save the annotations to
@@ -183,7 +183,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
             append_image_uid: bool = False
     ) -> float:
         """
-        Downloads image annotations from the server to a target folder on disk
+        Download image annotations from the server to a target folder on disk.
 
         :param images: List of images for which to download the annotations
         :param path_to_folder: Folder to save the annotations to
@@ -207,8 +207,8 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
             append_video_uid: bool = False
     ) -> float:
         """
-        Downloads annotations for a list of videos from the server to a target folder
-        on disk
+        Download annotations for a list of videos from the server to a target folder
+        on disk.
 
         :param videos: List of videos for which to download the annotations
         :param path_to_folder: Folder to save the annotations to
@@ -236,7 +236,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
 
     def download_all_annotations(self, path_to_folder: str) -> None:
         """
-        Donwnloads all annotations for the project to a target folder on disk
+        Download all annotations for the project to a target folder on disk.
 
         :param path_to_folder: Folder to save the annotations to
         """
@@ -253,7 +253,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
 
     def upload_annotations_for_all_media(self, append_annotations: bool = False):
         """
-        Uploads annotations for all media in the project, If append_annotations is set
+        Upload annotations for all media in the project, If append_annotations is set
         to True, annotations will be appended to the existing annotations for the
         media on the server. If set to False, existing annotations will be overwritten.
 
@@ -278,7 +278,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
             annotation_scene: AnnotationScene
     ) -> AnnotationScene:
         """
-        Uploads an annotation for an image or video frame to the SC cluster
+        Upload an annotation for an image or video frame to the SC cluster.
 
         :param media_item: Image or VideoFrame to apply and upload the annotation to
         :param annotation_scene: AnnotationScene to upload
@@ -299,8 +299,8 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
             self, media_item: Union[Image, VideoFrame]
     ) -> Optional[AnnotationScene]:
         """
-        Retrieve the latest annotations for an image or video frame from the SC cluster
-        If no annotation is available, this method returns None
+        Retrieve the latest annotations for an image or video frame from the SC cluster.
+        If no annotation is available, this method returns None.
 
         :param media_item: Image or VideoFrame to retrieve the annotations for
         :return: AnnotationScene instance containing the latest annotation data

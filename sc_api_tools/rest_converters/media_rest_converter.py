@@ -30,8 +30,8 @@ class MediaRESTConverter:
             media_type: Type[MediaTypeVar]
     ) -> MediaTypeVar:
         """
-        Creates an instance of type `media_type` representing a media entity in SC
-        from a dictionary returned by the SC /media REST endpoints
+        Create an instance of type `media_type` representing a media entity in SC
+        from a dictionary returned by the SC /media REST endpoints.
 
         :param input_dict: Dictionary representing the media entity
         :param media_type: Type of the media entity

@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import List, Optional, Sequence
+from typing import List, Sequence
 
 from sc_api_tools import SCRESTClient
 
 from sc_api_tools.annotation_readers import AnnotationReader
-from sc_api_tools.data_models import TaskType
 from sc_api_tools.rest_managers import ProjectManager
 
 from .finalizers import force_delete_project

@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+# noqa: D104
+
 from .prediction_rest_converter import PredictionRESTConverter
 from .normalized_prediction_rest_converter import NormalizedPredictionRESTConverter
 

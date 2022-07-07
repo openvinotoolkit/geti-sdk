@@ -32,13 +32,14 @@ from sc_api_tools.data_models.utils import deidentify, attr_value_serializer
 @attr.s(auto_attribs=True)
 class ConfigurableParameters(ParameterGroup):
     """
-    Class representing configurable parameters in SC, as returned by the
+    Representation of configurable parameters in SC, as returned by the
     /configuration endpoint
 
     :var entity_identifier: Identification information for the entity to which the
         configurable parameters apply
     :var id: Unique database ID of the configurable parameters
     """
+
     _identifier_fields: ClassVar[str] = ["id"]
 
     entity_identifier: Union[
@@ -46,10 +47,9 @@ class ConfigurableParameters(ParameterGroup):
     ] = attr.ib(kw_only=True)
     id: Optional[str] = attr.ib(default=None, kw_only=True)
 
-    def deidentify(self):
+    def deidentify(self) -> None:
         """
-        Removes all unique database ID's from the configurable parameters
-
+        Remove all unique database ID's from the configurable parameters
         """
         super().deidentify()
         deidentify(self)
@@ -59,28 +59,30 @@ class ConfigurableParameters(ParameterGroup):
 @attr.s(auto_attribs=True)
 class Configuration:
     """
-    Base class representing a set of configurable parameters in SC
+    Representation of a set of configurable parameters in SC, that apply to a project
+    or task.
     """
+
     _identifier_fields: ClassVar[List[str]] = []
 
     components: List[ConfigurableParameters]
 
     def __attrs_post_init__(self):
+        """
+        Set configurable parameters as Configuration attributes
+        """
         for parameter_name in self.get_all_parameter_names():
             setattr(self, parameter_name, self.get_parameter_by_name(parameter_name))
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        Returns the dictionary representation of the Configuration
-
-        :return:
+        Return the dictionary representation of the Configuration.
         """
         return attr.asdict(self, recurse=True, value_serializer=attr_value_serializer)
 
-    def deidentify(self):
+    def deidentify(self) -> None:
         """
-        Removes all unique database ID's from the Configuration
-
+        Remove all unique database ID's from the Configuration
         """
         deidentify(self)
         for config in self.components:
@@ -88,9 +90,7 @@ class Configuration:
 
     def __iter__(self):
         """
-        Iterates over all parameters in the configuration
-
-        :return:
+        Iterate over all parameters in the configuration.
         """
         parameter_names = self.get_all_parameter_names()
         for parameter_name in parameter_names:
@@ -98,10 +98,8 @@ class Configuration:
 
     def get_all_parameter_names(self) -> List[str]:
         """
-        Returns a list of names of all configurable parameters within the task
-        configuration
-
-        :return:
+        Return a list of names of all configurable parameters within the task
+        configuration.
         """
         parameters: List[str] = []
         for config in self.components:
@@ -115,8 +113,7 @@ class Configuration:
             group_name: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        This method prepares a dictionary that can be used for setting a parameter
-        value in SC.
+        Prepare a dictionary that can be used for setting a parameter value in SC.
 
         :param parameter_name: Name of the parameter to set
         :param value: Value to set for the parameter
@@ -158,7 +155,7 @@ class Configuration:
 
     def get_parameter_by_name(self, name: str) -> Optional[PARAMETER_TYPES]:
         """
-        Returns the configurable parameter named `name`. If no parameter by that name
+        Return the configurable parameter named `name`. If no parameter by that name
         is found within the Configuration, this method returns None
 
         :param name: Name of the parameter to get
@@ -179,7 +176,7 @@ class Configuration:
     @property
     def component_configurations(self) -> List[ConfigurableParameters]:
         """
-        Returns all configurable parameters that are component-related
+        Return all configurable parameters that are component-related.
 
         :return:
         """
@@ -192,7 +189,7 @@ class Configuration:
             self, component: str
     ) -> Optional[ConfigurableParameters]:
         """
-        Returns the configurable parameters for a certain component. If
+        Return the configurable parameters for a certain component. If
         no configuration is found for the specified component, this method returns None
 
         :param component: Name of the component to get the configuration for
@@ -209,7 +206,7 @@ class Configuration:
 @attr.s(auto_attribs=True)
 class GlobalConfiguration(Configuration):
     """
-    Class representing the project-wide configurable parameters for a project in SC
+    Representation of the project-wide configurable parameters for a project in SC.
     """
 
     def set_parameter_value(
@@ -219,8 +216,7 @@ class GlobalConfiguration(Configuration):
             group_name: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
-        This method prepares a dictionary that can be used for setting a parameter
-        value in SC.
+        Prepare a dictionary that can be used for setting a parameter value in SC.
 
         :param parameter_name: Name of the parameter to set
         :param value: Value to set for the parameter
@@ -236,8 +232,8 @@ class GlobalConfiguration(Configuration):
 
     def apply_identifiers(self, workspace_id: str,  project_id: str):
         """
-        This method applies the unique database identifiers passed in `workspace_id`
-        and `project_id` to all configurable parameters in the GlobalConfiguration
+        Apply the unique database identifiers passed in `workspace_id`
+        and `project_id` to all configurable parameters in the GlobalConfiguration.
 
         :param workspace_id: Workspace ID to assign
         :param project_id: Project ID to assign
@@ -250,7 +246,7 @@ class GlobalConfiguration(Configuration):
     @property
     def summary(self) -> str:
         """
-        Returns a string containing a very brief summary of the GlobalConfiguration
+        Return a string containing a very brief summary of the GlobalConfiguration.
 
         :return: string holding a very short summary of the GlobalConfiguration
         """
@@ -263,8 +259,9 @@ class GlobalConfiguration(Configuration):
 @attr.s(auto_attribs=True)
 class TaskConfiguration(Configuration):
     """
-    Class representing the configurable parameters for a task in SC
+    Representation of the configurable parameters for a task in SC.
     """
+
     _identifier_fields: ClassVar[List[str]] = ["task_id"]
 
     task_id: Optional[str] = attr.ib(default=None, kw_only=True)
@@ -273,7 +270,7 @@ class TaskConfiguration(Configuration):
     @property
     def model_configurations(self) -> List[ConfigurableParameters]:
         """
-        Returns all configurable parameters that are model-related
+        Return all configurable parameters that are model-related.
 
         :return: List of configurable parameters
         """
@@ -289,7 +286,7 @@ class TaskConfiguration(Configuration):
             group_name: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        This method prepares a dictionary that can be used for setting a parameter
+        Prepare a dictionary that can be used for setting a configurable parameter
         value in SC.
 
         :param parameter_name: Name of the parameter to set
@@ -306,8 +303,8 @@ class TaskConfiguration(Configuration):
 
     def resolve_algorithm(self, algorithm: Algorithm):
         """
-        Resolves the algorithm name and id of the model template for all hyper
-        parameter groups in the task configuration
+        Resolve the algorithm name and id of the model template for all hyper
+        parameter groups in the task configuration.
 
         :param algorithm: Algorithm instance to which the hyper parameters belong
         :return:
@@ -323,9 +320,9 @@ class TaskConfiguration(Configuration):
             model_storage_id: str
     ):
         """
-        This method applies the unique database identifiers passed in `workspace_id`,
+        Apply the unique database identifiers passed in `workspace_id`,
         `project_id`, `task_id` and `model_storage_id` to all configurable parameters
-        in the TaskConfiguration
+        in the TaskConfiguration.
 
         :param workspace_id: Workspace ID to assign
         :param project_id: Project ID to assign
@@ -345,7 +342,7 @@ class TaskConfiguration(Configuration):
     @property
     def summary(self) -> str:
         """
-        Returns a string containing a very brief summary of the TaskConfiguration
+        Return a string containing a very brief summary of the TaskConfiguration.
 
         :return: string holding a very short summary of the TaskConfiguration
         """
@@ -358,16 +355,16 @@ class TaskConfiguration(Configuration):
 @attr.s(auto_attribs=True)
 class FullConfiguration:
     """
-    Class representing the full configuration (both global and task-chain) for a
-    project in SC
+    Representation of the full configuration (both global and task-chain) for a
+    project in SC.
     """
+
     global_: GlobalConfiguration
     task_chain: List[TaskConfiguration]
 
-    def deidentify(self):
+    def deidentify(self) -> None:
         """
-        Removes all unique database ID's from the Configuration
-
+        Remove all unique database ID's from the Configuration.
         """
         self.global_.deidentify()
         for task_config in self.task_chain:
@@ -375,9 +372,7 @@ class FullConfiguration:
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        Returns the dictionary representation of the FullConfiguration
-
-        :return:
+        Return the dictionary representation of the FullConfiguration.
         """
         result = attr.asdict(self, recurse=True, value_serializer=attr_value_serializer)
         global_dict = result.pop("global_")
@@ -387,7 +382,7 @@ class FullConfiguration:
     @property
     def summary(self) -> str:
         """
-        Returns a string containing a very brief summary of the FullConfiguration
+        Return a string containing a very brief summary of the FullConfiguration.
 
         :return: string holding a very short summary of the FullConfiguration
         """

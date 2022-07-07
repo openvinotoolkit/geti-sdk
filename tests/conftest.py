@@ -69,6 +69,7 @@ NIGHTLY_TEST_LEARNING_PARAMETER_SETTINGS = os.environ.get(
 # ---------------- Fixtures ----------------
 # ------------------------------------------
 
+
 @pytest.fixture(scope="session")
 def fxt_server_config() -> ClusterConfig:
     """
@@ -115,6 +116,7 @@ def fxt_learning_parameter_settings() -> str:
 # ----------------------------------------------
 # ---------------- Pytest hooks ----------------
 # ----------------------------------------------
+
 
 def pytest_sessionstart(session: Session) -> None:
     """

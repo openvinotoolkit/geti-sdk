@@ -31,7 +31,7 @@ from sc_api_tools.http_session import SCSession
 @attr.s(auto_attribs=True)
 class ResultMedium:
     """
-    Class representing a single result medium in SC.
+    Representation of a single result medium in SC.
 
     :var name: Name of the result medium option
     :var type: Type of the result medium represented by this object
@@ -53,7 +53,7 @@ class ResultMedium:
     def resolve_label_name(self, labels: List[Label]):
         """
         Add the label name to the result medium, by matching the label_id to a list of
-        Labels
+        Labels.
 
         :param labels: List of Labels to get the name from
         """
@@ -67,7 +67,7 @@ class ResultMedium:
 
     def get_data(self, session: SCSession) -> bytes:
         """
-        Download the data belonging to this ResultMedium object
+        Download the data belonging to this ResultMedium object.
 
         :param session: REST session to the SC cluster from which this ResultMedium
             was generated
@@ -90,9 +90,9 @@ class ResultMedium:
     @property
     def friendly_name(self) -> str:
         """
-        Returns a human readable name with which the result medium can be identified
+        Return a human readable name with which the result medium can be identified.
 
-        :return:
+        :return: friendly name for the result medium
         """
         return self.name + '_' + self.label_name
 
@@ -100,7 +100,7 @@ class ResultMedium:
 @attr.s(auto_attribs=True)
 class Prediction(AnnotationScene):
     """
-    Class representing the predictions for a certain media entity in SC
+    Representation of the model predictions for a certain media entity in SC.
 
     :var annotations: List of predictions belonging to the media entity
     :var id: unique database ID of the Prediction in SC
@@ -110,6 +110,7 @@ class Prediction(AnnotationScene):
     :var modified: Date and time at which this Prediction was last modified
     :var maps: List of additional result media belonging to this prediction
     """
+
     kind: str = attr.ib(
         converter=str_to_annotation_kind,
         default=AnnotationKind.PREDICTION,
@@ -117,21 +118,19 @@ class Prediction(AnnotationScene):
     )
     maps: List[ResultMedium] = attr.ib(factory=list, kw_only=True)
 
-    def resolve_labels_for_result_media(self, labels: List[Label]):
+    def resolve_labels_for_result_media(self, labels: List[Label]) -> None:
         """
-        Resolve the label names for all result media available with this Prediction
+        Resolve the label names for all result media available with this Prediction.
 
         :param labels: List of Labels for the project, from which the names are taken
         """
         for map_ in self.maps:
             map_.resolve_label_name(labels=labels)
 
-    def deidentify(self):
+    def deidentify(self) -> None:
         """
-        Removes all unique database ID's from the prediction and the entities it
-        contains
-
-        :return:
+        Remove all unique database ID's from the prediction and the entities it
+        contains.
         """
         deidentify(self)
         self.media_identifier = None
@@ -143,16 +142,16 @@ class Prediction(AnnotationScene):
     @property
     def has_result_media(self) -> bool:
         """
-        Returns True if this Prediction has result media belonging to it, False
-        otherwise
+        Return True if this Prediction has result media belonging to it, False
+        otherwise.
 
-        :return:
+        :return: True if there are result media belonging to the prediction
         """
         return len(self.maps) > 0
 
     def get_result_media_data(self, session: SCSession) -> List[ResultMedium]:
         """
-        Downloads the data for all result media belonging to this prediction
+        Download the data for all result media belonging to this prediction.
 
         :param session: REST session to the SC cluster from which this Prediction
             was generated
@@ -170,8 +169,8 @@ class Prediction(AnnotationScene):
             probability_threshold: Optional[float] = None
     ) -> np.ndarray:
         """
-        Converts the shapes in the prediction to a mask that can be overlayed on an
-        image
+        Convert the shapes in the prediction to a mask that can be overlayed on an
+        image.
 
         :param media_information: MediaInformation object containing the width and
             heigth of the image for which the mask should be generated.
@@ -207,7 +206,7 @@ class Prediction(AnnotationScene):
 
     def filter_by_confidence(self, confidence_threshold: float) -> 'Prediction':
         """
-        Returns a new Prediction instance containing only those predicted annotations
+        Return a new Prediction instance containing only those predicted annotations
         that have a confidence higher than `confidence_threshold`.
 
         :param confidence_threshold: Float between 0 and 1. Annotations that only

@@ -36,8 +36,9 @@ from .performance import Performance
 @attr.s(auto_attribs=True)
 class OptimizationCapabilities:
     """
-    Class representing model optimization capabilities in SC
+    Representation of the various model optimization capabilities in SC.
     """
+
     is_nncf_supported: bool
     is_filter_pruning_enabled: Optional[bool] = None  # deprecated in v1.1
     is_filter_pruning_supported: Optional[bool] = None
@@ -46,8 +47,9 @@ class OptimizationCapabilities:
 @attr.s(auto_attribs=True)
 class BaseModel:
     """
-    Class representing the basic information about a Model or OptimizedModel in SC
+    Representation of the basic information for a Model or OptimizedModel in SC
     """
+
     _identifier_fields: ClassVar[str] = [
         "id", "previous_revision_id", "previous_trained_revision_id"
     ]
@@ -67,14 +69,17 @@ class BaseModel:
     id: Optional[str] = attr.ib(default=None)
 
     def __attrs_post_init__(self):
+        """
+        Initialize private attributes.
+        """
         self._model_group_id: Optional[str] = None
         self._base_url: Optional[str] = None
 
     @property
     def model_group_id(self) -> Optional[str]:
         """
-        Returns the unique database ID of the model group to which the model belongs,
-        if available
+        Return the unique database ID of the model group to which the model belongs,
+        if available.
 
         :return: ID of the model group for the model
         """
@@ -83,7 +88,7 @@ class BaseModel:
     @model_group_id.setter
     def model_group_id(self, id_: str):
         """
-        Set the model group id for this model
+        Set the model group id for this model.
 
         :param id_: ID to set
         """
@@ -92,8 +97,8 @@ class BaseModel:
     @property
     def base_url(self) -> Optional[str]:
         """
-        Returns the base url that can be used to get the model details, download the
-        model, etc., if available
+        Return the base url that can be used to get the model details, download the
+        model, etc., if available.
 
         :return: base url at which the model can be addressed. The url is defined
             relative to the ip address or hostname of the SC cluster
@@ -109,7 +114,7 @@ class BaseModel:
     @base_url.setter
     def base_url(self, base_url: str):
         """
-        Sets the base url that can be used to get the model details, download the
+        Set the base url that can be used to get the model details, download the
         model, etc.
 
         :param base_url: base url at which the model can be addressed
@@ -133,7 +138,7 @@ class BaseModel:
     @model_group_id.setter
     def model_group_id(self, id_: str):
         """
-        Set the model group id for this model
+        Set the model group id for this model.
 
         :param id: ID to set
         """
@@ -141,7 +146,7 @@ class BaseModel:
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        Returns the dictionary representation of the model
+        Return the dictionary representation of the model.
 
         :return:
         """
@@ -150,7 +155,7 @@ class BaseModel:
     @property
     def overview(self) -> str:
         """
-        Returns a string that represents an overview of the model
+        Return a string that represents an overview of the model.
 
         :return:
         """
@@ -160,10 +165,9 @@ class BaseModel:
         remove_null_fields(overview_dict)
         return pformat(overview_dict)
 
-    def deidentify(self):
+    def deidentify(self) -> None:
         """
-        Removes unique database IDs from the BaseModel
-        :return:
+        Remove unique database IDs from the BaseModel.
         """
         deidentify(self)
 
@@ -171,8 +175,12 @@ class BaseModel:
 @attr.s(auto_attribs=True)
 class OptimizedModel(BaseModel):
     """
-    Class representing an OptimizedModel in SC
+    Representation of an OptimizedModel in SC. An optimized model is a trained model
+    that has been converted OpenVINO representation. This conversion may involve weight
+    quantization, filter pruning, or other optimization techniques supported by
+    OpenVINO.
     """
+
     model_status: str = attr.ib(
         kw_only=True, converter=str_to_enum_converter(ModelStatus)
     )
@@ -186,8 +194,9 @@ class OptimizedModel(BaseModel):
 @attr.s(auto_attribs=True)
 class Model(BaseModel):
     """
-    Class representing a Model in SC
+    Representation of a trained Model in SC.
     """
+
     architecture: str = attr.ib(kw_only=True)
     score_up_to_date: bool = attr.ib(kw_only=True)
     optimization_capabilities: OptimizationCapabilities = attr.ib(kw_only=True)
@@ -200,8 +209,8 @@ class Model(BaseModel):
     @property
     def model_group_id(self) -> Optional[str]:
         """
-        Returns the unique database ID of the model group to which the model belongs,
-        if available
+        Return the unique database ID of the model group to which the model belongs,
+        if available.
 
         :return: ID of the model group for the model
         """
@@ -210,7 +219,7 @@ class Model(BaseModel):
     @model_group_id.setter
     def model_group_id(self, id_: str):
         """
-        Set the model group id for this model
+        Set the model group id for this model.
 
         :param id: ID to set
         """
@@ -221,7 +230,7 @@ class Model(BaseModel):
     @classmethod
     def from_dict(cls, model_dict: Dict[str, Any]) -> 'Model':
         """
-        Creates a Model instance from a dictionary holding the model data
+        Create a Model instance from a dictionary holding the model data.
 
         :param model_dict: Dictionary representing a model
         :return: Model instance reflecting the data contained in `model_dict`
@@ -231,7 +240,7 @@ class Model(BaseModel):
     @classmethod
     def from_file(cls, filepath: str) -> 'Model':
         """
-        Creates a Model instance from a .json file holding the model data
+        Create a Model instance from a .json file holding the model data.
 
         :param filepath: Path to a json file holding the model data
         :return:

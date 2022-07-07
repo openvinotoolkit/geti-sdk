@@ -38,7 +38,7 @@ from sc_api_tools.rest_converters.prediction_rest_converter import (
 
 class PredictionManager:
     """
-    Class to download predictions from an existing SC project
+    Class to download predictions from an existing SC project.
     """
 
     def __init__(self, session: SCSession, project: Project, workspace_id: str):
@@ -52,7 +52,7 @@ class PredictionManager:
 
     def __are_models_trained(self) -> bool:
         """
-        Checks that the project to which this PredictionManager belongs has trained
+        Check that the project to which this PredictionManager belongs has trained
         models to generate predictions from. This method will return True if at least
         one model is trained for each task in the project task chain.
 
@@ -84,7 +84,7 @@ class PredictionManager:
     @property
     def ready_to_predict(self):
         """
-        Returns True if the project is ready to yield predictions, False otherwise
+        Return True if the project is ready to yield predictions, False otherwise.
 
         :return:
         """
@@ -97,7 +97,7 @@ class PredictionManager:
     @property
     def mode(self) -> PredictionMode:
         """
-        Returns the current mode used to retrieve predictions. There are three options:
+        Return the current mode used to retrieve predictions. There are three options:
          - auto
          - latest
          - online
@@ -120,7 +120,7 @@ class PredictionManager:
     def mode(self, new_mode: Union[str, PredictionMode]):
         """
         Set the mode for the Prediction manager to retrieve predictions from the SC
-        cluster
+        cluster.
 
         :param new_mode: PredictionMode (or string representing a prediction mode) to
             set
@@ -135,9 +135,9 @@ class PredictionManager:
             prediction_mode: Optional[PredictionMode]
     ) -> Tuple[Optional[Union[Prediction, List[Prediction]]], str]:
         """
-        Gets the prediction for a media item. If a 2D media item (Image or VideoFrame)
-         is passed, this method will return a single Prediction. If a Video is passed,
-         this method will return a list of predictions.
+        Get the prediction for a media item. If a 2D media item (Image or VideoFrame)
+        is passed, this method will return a single Prediction. If a Video is passed,
+        this method will return a list of predictions.
 
         In case of failure to get a prediction, the first element of the tuple
         returned by this method will be None, and the second will be a message
@@ -209,7 +209,7 @@ class PredictionManager:
 
     def get_image_prediction(self, image: Image) -> Prediction:
         """
-        Gets a prediction for an image from the SC cluster, if available
+        Get a prediction for an image from the SC cluster, if available.
 
         :param image: Image to get the prediction for. The image has to be present in
             the project on the cluster already.
@@ -224,7 +224,7 @@ class PredictionManager:
 
     def get_video_frame_prediction(self, video_frame: VideoFrame) -> Prediction:
         """
-        Gets a prediction for a video frame from the SC cluster, if available
+        Get a prediction for a video frame from the SC cluster, if available.
 
         :param video_frame: VideoFrame to get the prediction for. The frame has to be
             present in the project on the cluster already.
@@ -239,7 +239,7 @@ class PredictionManager:
 
     def get_video_predictions(self, video: Video) -> List[Prediction]:
         """
-        Gets a list of predictions for a video from the SC cluster, if available
+        Get a list of predictions for a video from the SC cluster, if available.
 
         :param video: Video to get the predictions for. The video has to be present in
             the project on the cluster already.
@@ -259,7 +259,7 @@ class PredictionManager:
             include_result_media: bool = True,
     ) -> float:
         """
-        Downloads image predictions from the server to a target folder on disk
+        Download image predictions from the server to a target folder on disk.
 
         :param images: List of images for which to download the predictions
         :param path_to_folder: Folder to save the predictions to
@@ -282,8 +282,8 @@ class PredictionManager:
             frame_stride: Optional[int] = None
     ) -> float:
         """
-        Downloads predictions for a list of videos from the server to a target folder
-        on disk
+        Download predictions for a list of videos from the server to a target folder
+        on disk.
 
         :param videos: List of videos for which to download the predictions
         :param path_to_folder: Folder to save the predictions to
@@ -323,7 +323,7 @@ class PredictionManager:
             frame_stride: Optional[int] = None
     ) -> float:
         """
-        Downloads video predictions from the server to a target folder on disk
+        Download video predictions from the server to a target folder on disk.
 
         :param video: Video for which to download the predictions
         :param path_to_folder: Folder to save the predictions to
@@ -373,7 +373,7 @@ class PredictionManager:
 
     def _override_mode(self, mode: PredictionMode):
         """
-        Temporarily override the prediction mode
+        Temporarily override the prediction mode.
 
         :param mode: new prediction mode to use
         :return:
@@ -382,7 +382,7 @@ class PredictionManager:
 
     def _reset_override_mode(self):
         """
-        Remove override of the prediction mode
+        Remove override of the prediction mode.
 
         :return:
         """
@@ -396,7 +396,7 @@ class PredictionManager:
             verbose: bool = True
     ) -> float:
         """
-        Downloads predictions from the server to a target folder on disk
+        Download predictions from the server to a target folder on disk.
 
         :param media_list: List of images or video frames to download the predictions
             for

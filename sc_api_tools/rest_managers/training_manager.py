@@ -28,7 +28,7 @@ from sc_api_tools.utils import get_supported_algorithms
 
 class TrainingManager:
     """
-    Class to manage training jobs for a certain project
+    Class to manage training jobs for a certain project.
     """
 
     def __init__(self, workspace_id: str, project: Project, session: SCSession):
@@ -40,7 +40,7 @@ class TrainingManager:
 
     def get_status(self) -> ProjectStatus:
         """
-        Gets the current status of the project from the SC cluster
+        Get the current status of the project from the SC cluster.
 
         :return: ProjectStatus object reflecting the current project status
         """
@@ -52,7 +52,7 @@ class TrainingManager:
 
     def get_jobs(self, project_only: bool = True) -> List[Job]:
         """
-        Returns a list of all jobs on the SC cluster.
+        Return a list of all jobs on the SC cluster.
 
         If `project_only = True` (the default), only those jobs related to the project
         managed by this TrainingManager will be returned. If set to False, all jobs in
@@ -80,7 +80,7 @@ class TrainingManager:
 
     def get_algorithms_for_task(self, task: Union[Task, int]) -> AlgorithmList:
         """
-        Returns a list of supported algorithms for a specific task
+        Return a list of supported algorithms for a specific task.
 
         The `task` parameter accepts both a Task object and an integer. If an int is
         passed, this will be considered the index of the task in the list of trainable
@@ -107,7 +107,7 @@ class TrainingManager:
             hpo_parameters: Optional[Dict[str, Any]] = None
     ) -> Job:
         """
-        Start training of a specific task in the project
+        Start training of a specific task in the project.
 
         The `task` parameter accepts both a Task object and an integer. If an int is
         passed, this will be considered the index of the task in the list of trainable
@@ -164,7 +164,7 @@ class TrainingManager:
 
     def monitor_jobs(self, jobs: List[Job], timeout: int = 10000) -> List[Job]:
         """
-        Monitors and prints the progress of all jobs in the list `jobs`. Execution is
+        Monitor and print the progress of all jobs in the list `jobs`. Execution is
         halted until all jobs have either finished, failed or were cancelled.
 
         Progress will be reported in 15s intervals

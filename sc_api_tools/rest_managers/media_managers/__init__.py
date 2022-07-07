@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+# noqa: D104
+
 from .video_manager import VideoManager
 from .image_manager import ImageManager
 

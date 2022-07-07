@@ -19,8 +19,8 @@ from sc_api_tools.data_models.enums import TaskType
 
 def get_task_types_by_project_type(project_type: str) -> List[TaskType]:
     """
-    Returns a list of task_type for each task in the project pipeline, for a
-    certain 'project_type'
+    Return a list of task_type for each task in the project pipeline, for a certain
+    'project_type'.
 
     :param project_type:
     :return:

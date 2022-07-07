@@ -21,8 +21,8 @@ def get_dict_key_from_value(
         input_dict: Dict[KeyType, Any], value
 ) -> Optional[KeyType]:
     """
-    Returns the key associated with `value` in a dictionary `input_dict`. If the value
-    is not found in the dictionary, returns None
+    Return the key associated with `value` in a dictionary `input_dict`. If the value
+    is not found in the dictionary, returns None.
 
     :param input_dict: Dictionary to search in
     :param value: value to search for
@@ -40,7 +40,7 @@ def get_dict_key_from_value(
 def remove_null_fields(input: Any):
     """
     Remove fields that have 'None' or an emtpy string '' as their value from a
-    dictionary
+    dictionary.
 
     NOTE: This function modifies the input dictionary in place
 

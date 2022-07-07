@@ -20,7 +20,7 @@ import attr
 from .annotation_rest_converter import AnnotationRESTConverter
 
 from sc_api_tools.data_models.enums import ShapeType
-from sc_api_tools.data_models.shapes import Shape, Point
+from sc_api_tools.data_models.shapes import Shape
 from sc_api_tools.data_models.utils import str_to_shape_type, attr_value_serializer
 from sc_api_tools.data_models import Annotation, ScoredLabel, AnnotationScene
 from sc_api_tools.utils import remove_null_fields
@@ -28,7 +28,7 @@ from sc_api_tools.utils import remove_null_fields
 
 class NormalizedAnnotationRESTConverter(AnnotationRESTConverter):
     """
-    This class implements methods for converting annotations in normalized format to
+    Class containing methods for converting annotations in normalized format to
     and from their REST representation
 
     It is a legacy class to support the annotation format in a normalized coordinate
@@ -130,7 +130,7 @@ class NormalizedAnnotationRESTConverter(AnnotationRESTConverter):
             deidentify: bool = True
     ) -> Dict[str, Any]:
         """
-        Converts an AnnotationScene to a dictionary. By default, removes any ID
+        Convert an AnnotationScene to a dictionary. By default, removes any ID
         fields in the output dictionary
 
         :param annotation_scene: AnnotationScene object to convert

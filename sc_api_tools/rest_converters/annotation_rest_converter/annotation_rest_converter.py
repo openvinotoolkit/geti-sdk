@@ -55,12 +55,16 @@ MEDIA_IDENTIFIER_MAPPING = {
 
 
 class AnnotationRESTConverter:
+    """
+    Class to convert REST representations of annotations into AnnotationScene entities.
+    """
+
     @staticmethod
     def to_dict(
             annotation_scene: AnnotationScene, deidentify: bool = True
     ) -> Dict[str, Any]:
         """
-        Converts an AnnotationScene to a dictionary. By default, removes any ID
+        Convert an AnnotationScene to a dictionary. By default, removes any ID
         fields in the output dictionary
 
         :param annotation_scene: AnnotationScene object to convert
@@ -79,7 +83,7 @@ class AnnotationRESTConverter:
     @staticmethod
     def _shape_from_dict(input_dict: Dict[str, Any]) -> Shape:
         """
-        Convert a dictionary representing a shape to a Shape object
+        Convert a dictionary representing a shape to a Shape object.
 
         :param input_dict:
         :return: Shape corresponding to the input dict
@@ -96,7 +100,7 @@ class AnnotationRESTConverter:
     @staticmethod
     def _scored_label_from_dict(input_dict: Dict[str, Any]) -> ScoredLabel:
         """
-        Creates a ScoredLabel object from an input dictionary
+        Create a ScoredLabel object from an input dictionary.
 
         :param input_dict:
         :return:
@@ -109,7 +113,7 @@ class AnnotationRESTConverter:
     @staticmethod
     def annotation_from_dict(input_dict: Dict[str, Any]) -> Annotation:
         """
-        Converts a dictionary representing an annotation to an Annotation object
+        Convert a dictionary representing an annotation to an Annotation object.
 
         :param input_dict:
         :return:
@@ -125,8 +129,8 @@ class AnnotationRESTConverter:
     @staticmethod
     def _media_identifier_from_dict(input_dict: Dict[str, Any]) -> MediaIdentifier:
         """
-        Converts a dictionary representing a media identifier to a MediaIdentifier
-        object
+        Convert a dictionary representing a media identifier to a MediaIdentifier
+        object.
 
         :param input_dict:
         :return:
@@ -140,8 +144,8 @@ class AnnotationRESTConverter:
     @staticmethod
     def from_dict(annotation_scene: Dict[str, Any]) -> AnnotationScene:
         """
-        Creates an AnnotationScene object from a dictionary returned by the
-        /annotations REST endpoint in SC
+        Create an AnnotationScene object from a dictionary returned by the
+        /annotations REST endpoint in SC.
 
         :param annotation_scene: dictionary representing an AnnotationScene, which
             contains all annotations for a certain media entity

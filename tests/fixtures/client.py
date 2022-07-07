@@ -27,7 +27,7 @@ DUMMY_PASSWORD = 'dummy_password'
 @pytest.fixture(scope="module")
 def fxt_sc_session(fxt_vcr, fxt_server_config: ClusterConfig) -> SCSession:
     """
-    This fixtures returns an SCSession instance which has already performed
+    This fixture returns an SCSession instance which has already performed
     authentication
     """
     with fxt_vcr.use_cassette(
@@ -43,7 +43,7 @@ def fxt_sc_session(fxt_vcr, fxt_server_config: ClusterConfig) -> SCSession:
 @pytest.fixture(scope="module")
 def fxt_client(fxt_vcr, fxt_server_config: ClusterConfig) -> SCRESTClient:
     """
-    This fixtures returns an SCRESTClient instance which has already performed
+    This fixture returns an SCRESTClient instance which has already performed
     authentication and retrieved a default workspace id
     """
     with fxt_vcr.use_cassette(

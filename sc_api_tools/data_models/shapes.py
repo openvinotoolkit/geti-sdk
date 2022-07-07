@@ -41,23 +41,24 @@ OteShapeTypeVar = TypeVar('OteShapeTypeVar', OtePolygon, OteEllipse, OtePolygon)
 # passed from the SC REST API. SC itself rounds some coordinates to 4 digits, but not
 # all. Here we round all coordinates for internal consistency
 N_DIGITS_TO_ROUND_TO = 4
-coordinate_converter=round_to_n_digits(N_DIGITS_TO_ROUND_TO)
+coordinate_converter = round_to_n_digits(N_DIGITS_TO_ROUND_TO)
 
 
 @attr.s(auto_attribs=True)
 class Shape:
     """
-    Class representing a shape in SC
+    Representation of a shape in SC.
 
     :var type: Type of the shape
     """
+
     type: str = attr.ib(converter=str_to_shape_type)
 
     @abc.abstractmethod
     def to_roi(self) -> 'Rectangle':
         """
-        Returns the bounding box containing the shape, as an instance of the Rectangle
-        class
+        Return the bounding box containing the shape, as an instance of the Rectangle
+        class.
 
         :return: Rectangle representing the bounding box for the shape
         """
@@ -66,7 +67,7 @@ class Shape:
     @abc.abstractmethod
     def to_absolute_coordinates(self, parent_roi: 'Rectangle') -> 'Shape':
         """
-        Converts the Shape to absolute coordinates, given the rectangle
+        Convert the Shape to absolute coordinates, given the rectangle
         representing it's parent region of interest.
 
         :param parent_roi: Region of interest containing the shape
@@ -79,8 +80,8 @@ class Shape:
             self, image_width: int, image_height: int
     ) -> Dict[str, Any]:
         """
-        Converts the Shape to a normalized coordinate system, such that all
-        coordinates are represented as floats in the interval [0, 1]
+        Convert the Shape to a normalized coordinate system, such that all
+        coordinates are represented as floats in the interval [0, 1].
 
         :param image_width: Width (in pixels) of the image or region with respect to
             which the shape coordinates should be normalized.
@@ -99,7 +100,7 @@ class Shape:
             image_height: int
     ) -> Union['Rectangle', 'Ellipse', 'Polygon', 'RotatedRectangle']:
         """
-        Creates a Shape entity from a corresponding shape in the OTE SDK.
+        Create a Shape entity from a corresponding shape in the OTE SDK.
 
         :param ote_shape: OTE SDK shape to convert from
         :param image_width: Width of the image to which the shape applies (in pixels)
@@ -121,7 +122,7 @@ class Shape:
     @abc.abstractmethod
     def area(self) -> float:
         """
-        Returns the area of the shape, given in number of pixels.
+        Return the area of the shape, given in number of pixels.
 
         :return: Area of the shape, in pixels
         """
@@ -131,7 +132,7 @@ class Shape:
 @attr.s(auto_attribs=True)
 class Rectangle(Shape):
     """
-    Class representing a Rectangle in SC, as used in the /annotations REST endpoints
+    Representation of a Rectangle in SC, as used in the /annotations REST endpoints.
 
     NOTE: All coordinates and dimensions are given in pixels
 
@@ -140,6 +141,7 @@ class Rectangle(Shape):
     :var width: Width of the rectangle
     :var height: Height of the rectangle
     """
+
     x: float = attr.ib(converter=coordinate_converter)
     y: float = attr.ib(converter=coordinate_converter)
     width: float = attr.ib(converter=coordinate_converter)
@@ -152,8 +154,8 @@ class Rectangle(Shape):
             self, image_width: int, image_height: int
     ) -> Dict[str, float]:
         """
-        Gets the normalized coordinates of the rectangle, with respect to the image
-        with dimensions `image_width` x `image_height`
+        Get the normalized coordinates of the rectangle, with respect to the image
+        with dimensions `image_width` x `image_height`.
 
         :param image_width: Width of the image to which the coordinates should be
             normalized
@@ -163,32 +165,32 @@ class Rectangle(Shape):
             coordinates
         """
         return dict(
-            x=self.x/image_width,
-            y=self.y/image_height,
-            width=self.width/image_width,
-            height=self.height/image_height,
+            x=self.x / image_width,
+            y=self.y / image_height,
+            width=self.width / image_width,
+            height=self.height / image_height,
             type=str(self.type)
         )
 
     def is_full_box(self, image_width: int, image_height: int) -> bool:
         """
-        Returns True if this Rectangle represents a box containing the full image
+        Return True if this Rectangle represents a box containing the full image.
 
         :param image_width: Width of the image to check for
         :param image_height: Height of the image to check for
         :return: True if the Rectangle encompasses the full image, False otherwise
         """
         return (
-            self.x == 0
-            and self.y == 0
-            and int(self.width) == image_width
-            and int(self.height) == image_height
+                self.x == 0
+                and self.y == 0
+                and int(self.width) == image_width
+                and int(self.height) == image_height
         )
 
     def to_roi(self) -> 'Rectangle':
         """
-        Returns the bounding box containing the shape, as an instance of the Rectangle
-        class
+        Return the bounding box containing the shape, as an instance of the Rectangle
+        class.
 
         :return: Rectangle representing the bounding box for the shape
         """
@@ -196,7 +198,7 @@ class Rectangle(Shape):
 
     def to_absolute_coordinates(self, parent_roi: 'Rectangle') -> 'Rectangle':
         """
-        Converts the Rectangle to absolute coordinates, given the rectangle
+        Convert the Rectangle to absolute coordinates, given the rectangle
         representing it's parent region of interest.
 
         :param parent_roi: Region of interest containing the rectangle
@@ -205,15 +207,15 @@ class Rectangle(Shape):
         x_min = parent_roi.x + self.x
         y_min = parent_roi.y + self.y
         return Rectangle(
-                x=x_min, y=y_min, width=self.width, height=self.height
-            )
+            x=x_min, y=y_min, width=self.width, height=self.height
+        )
 
     @classmethod
     def from_ote(
             cls, ote_shape: OteRectangle, image_width: int, image_height: int
     ) -> 'Rectangle':
         """
-        Creates a :py:class`~sc_api_tools.data_models.shapes.Rectangle` from
+        Create a :py:class`~sc_api_tools.data_models.shapes.Rectangle` from
         the OTE SDK Rectangle entity passed.
 
         :param ote_shape: OTE SDK Rectangle entity to convert from
@@ -222,16 +224,16 @@ class Rectangle(Shape):
         :return: Rectangle instance created according to the ote_shape
         """
         return cls(
-            x=ote_shape.x1*image_width,
-            y=ote_shape.y1*image_height,
-            width=ote_shape.width*image_width,
-            height=ote_shape.height*image_height
+            x=ote_shape.x1 * image_width,
+            y=ote_shape.y1 * image_height,
+            width=ote_shape.width * image_width,
+            height=ote_shape.height * image_height
         )
 
     @property
     def area(self) -> float:
         """
-        Returns the area of the Rectangle, in pixels
+        Return the area of the Rectangle, in pixels.
 
         :return:
         """
@@ -241,7 +243,7 @@ class Rectangle(Shape):
 @attr.s(auto_attribs=True)
 class Ellipse(Shape):
     """
-    Class representing an Ellipse in SC, as used in the /annotations REST endpoints
+    Representation of an Ellipse in SC, as used in the /annotations REST endpoints.
 
     NOTE: All coordinates and dimensions are given in pixels
 
@@ -261,8 +263,8 @@ class Ellipse(Shape):
 
     def to_roi(self) -> 'Rectangle':
         """
-        Returns the bounding box containing the Ellipse, as an instance of the Rectangle
-        class
+        Return the bounding box containing the Ellipse, as an instance of the Rectangle
+        class.
 
         :return: Rectangle representing the bounding box for the ellipse
         """
@@ -270,7 +272,7 @@ class Ellipse(Shape):
 
     def to_absolute_coordinates(self, parent_roi: Rectangle) -> 'Ellipse':
         """
-        Converts the Ellipse to absolute coordinates, given the rectangle
+        Convert the Ellipse to absolute coordinates, given the rectangle
         representing it's parent region of interest.
 
         :param parent_roi: Region of interest containing the ellipse
@@ -279,15 +281,15 @@ class Ellipse(Shape):
         x_min = parent_roi.x + self.x
         y_min = parent_roi.y + self.y
         return Ellipse(
-                x=x_min, y=y_min, width=self.width, height=self.height
-            )
+            x=x_min, y=y_min, width=self.width, height=self.height
+        )
 
     def to_normalized_coordinates(
             self, image_width: int, image_height: int
     ) -> Dict[str, float]:
         """
-        Gets the normalized coordinates of the ellipse, with respect to the image
-        with dimensions `image_width` x `image_height`
+        Get the normalized coordinates of the ellipse, with respect to the image
+        with dimensions `image_width` x `image_height`.
 
         :param image_width: Width of the image to which the coordinates should be
             normalized
@@ -297,10 +299,10 @@ class Ellipse(Shape):
             coordinates
         """
         return dict(
-            x=self.x/image_width,
-            y=self.y/image_height,
-            width=self.width/image_width,
-            heigth=self.height/image_height,
+            x=self.x / image_width,
+            y=self.y / image_height,
+            width=self.width / image_width,
+            heigth=self.height / image_height,
             type=str(self.type)
         )
 
@@ -309,7 +311,7 @@ class Ellipse(Shape):
             cls, ote_shape: OteEllipse, image_width: int, image_height: int
     ) -> 'Ellipse':
         """
-        Creates a :py:class`~sc_api_tools.data_models.shapes.Ellipse` from
+        Create a :py:class`~sc_api_tools.data_models.shapes.Ellipse` from
         the OTE SDK Ellipse entity passed.
 
         :param ote_shape: OTE SDK Ellipse entity to convert from
@@ -318,16 +320,16 @@ class Ellipse(Shape):
         :return: Ellipse instance created according to the ote_shape
         """
         return cls(
-            x=ote_shape.x1*image_width,
-            y=ote_shape.y1*image_height,
-            width=ote_shape.width*image_width,
-            height=ote_shape.height*image_height,
+            x=ote_shape.x1 * image_width,
+            y=ote_shape.y1 * image_height,
+            width=ote_shape.width * image_width,
+            height=ote_shape.height * image_height,
         )
 
     @property
     def area(self) -> float:
         """
-        Returns the area of the Ellipse, in pixels
+        Return the area of the Ellipse, in pixels.
 
         :return:
         """
@@ -337,13 +339,14 @@ class Ellipse(Shape):
 @attr.s(auto_attribs=True)
 class Point:
     """
-    Class representing a point on a 2D coordinate system. Used to define Polygons in SC
+    Representation of a point on a 2D coordinate system. Used to define Polygons in SC.
 
     NOTE: All coordinates are defined in pixels
 
     :var x: X coordinate of the point
     :var y: Y coordinate of the point
     """
+
     x: float = attr.ib(converter=coordinate_converter)
     y: float = attr.ib(converter=coordinate_converter)
 
@@ -351,22 +354,26 @@ class Point:
 @attr.s(auto_attribs=True)
 class Polygon(Shape):
     """
-    Class representing a polygon in SC, as used in the /annotations REST endpoints
+    Representation of a polygon in SC, as used in the /annotations REST endpoints.
 
     :var points: List of Points that make up the polygon
     """
+
     points: List[Point]
     type: str = attr.ib(
         converter=str_to_shape_type, default=ShapeType.POLYGON, kw_only=True
     )
 
     def __attrs_post_init__(self):
+        """
+        Initialize private attributes.
+        """
         self._contour: Optional[np.ndarray] = None
 
     def points_as_contour(self) -> np.ndarray:
         """
-        Returns the list of points for this Polygon as a numpy array representing
-        contour points that can be plotted by openCV's drawContours function
+        Return the list of points for this Polygon as a numpy array representing
+        contour points that can be plotted by openCV's drawContours function.
 
         NOTE: the contour is cached, to avoid going over the list of points twice. If
         the polygon is modified the cache has to be cleared. It is recommended to
@@ -382,8 +389,8 @@ class Polygon(Shape):
 
     def to_roi(self) -> 'Rectangle':
         """
-        Returns the bounding box containing the Polygon, as an instance of the Rectangle
-        class
+        Return the bounding box containing the Polygon, as an instance of the Rectangle
+        class.
 
         :return: Rectangle representing the bounding box for the polygon
         """
@@ -400,7 +407,7 @@ class Polygon(Shape):
 
     def to_absolute_coordinates(self, parent_roi: Rectangle) -> 'Polygon':
         """
-        Converts the Polygon to absolute coordinates, given the rectangle
+        Convert the Polygon to absolute coordinates, given the rectangle
         representing it's parent region of interest.
 
         :param parent_roi: Region of interest containing the polygon
@@ -418,8 +425,8 @@ class Polygon(Shape):
             self, image_width: int, image_height: int
     ) -> Dict[str, Union[List[Dict[str, float]], str]]:
         """
-        Gets the normalized coordinates of the polygon, with respect to the image
-        with dimensions `image_width` x `image_height`
+        Get the normalized coordinates of the polygon, with respect to the image
+        with dimensions `image_width` x `image_height`.
 
         :param image_width: Width of the image to which the coordinates should be
             normalized
@@ -431,7 +438,7 @@ class Polygon(Shape):
         normalized_points: List[Dict[str, float]] = []
         for point in self.points:
             normalized_points.append(
-                {"x": point.x/image_width, "y": point.y/image_height}
+                {"x": point.x / image_width, "y": point.y / image_height}
             )
         return dict(
             points=normalized_points,
@@ -443,7 +450,7 @@ class Polygon(Shape):
             cls, ote_shape: OtePolygon, image_width: int, image_height: int
     ) -> 'Polygon':
         """
-        Creates a :py:class`~sc_api_tools.data_models.shapes.Polygon` from
+        Create a :py:class`~sc_api_tools.data_models.shapes.Polygon` from
         the OTE SDK Polygon entity passed.
 
         :param ote_shape: OTE SDK Polygon entity to convert from
@@ -453,7 +460,7 @@ class Polygon(Shape):
         """
         points = [
             Point(
-                x=ote_point.x*image_width, y=ote_point.y*image_height
+                x=ote_point.x * image_width, y=ote_point.y * image_height
             ) for ote_point in ote_shape.points
         ]
         return cls(
@@ -463,16 +470,16 @@ class Polygon(Shape):
     @property
     def area(self) -> float:
         """
-        Returns the area of the Polygon, in pixels
+        Return the area of the Polygon, in pixels.
 
-        :return:
+        :return: area of the polygon
         """
         return cv2.contourArea(self.points_as_contour())
 
     def fit_rotated_rectangle(self) -> 'RotatedRectangle':
         """
-        Fits a RotatedRectangle object around the Polygon, such that the area spanned
-        by the rectangle is minimal
+        Fit a RotatedRectangle object around the Polygon, such that the area spanned
+        by the rectangle is minimal.
 
         :return: RotatedRectangle object with minimal area, which encloses the Polygon
         """
@@ -485,8 +492,8 @@ class Polygon(Shape):
 @attr.s(auto_attribs=True)
 class RotatedRectangle(Shape):
     """
-    Class representing a RotatedRectangle in SC, as used in the /annotations REST
-    endpoints
+    Representation of a RotatedRectangle in SC, as used in the /annotations REST
+    endpoints.
 
     NOTE: All coordinates and dimensions are specified in pixels
 
@@ -496,6 +503,7 @@ class RotatedRectangle(Shape):
     :var width: Width of the rectangle
     :var height: Height of the rectangle
     """
+
     angle: float = attr.ib(converter=coordinate_converter)
     x: float = attr.ib(converter=coordinate_converter)
     y: float = attr.ib(converter=coordinate_converter)
@@ -508,16 +516,16 @@ class RotatedRectangle(Shape):
     @property
     def _angle_x_radian(self) -> float:
         """
-        Returns the angle to the x-axis, in radians
+        Return the angle to the x-axis, in radians.
 
-        :return:
+        :return: angle to the x-axis in radians
         """
         return (2 * math.pi / 360) * self.angle
 
     @property
     def x_max(self) -> float:
         """
-        Returns the value of the maximal x-coordinate that the rotated rectangle touches
+        Return the value of the maximal x-coordinate that the rotated rectangle touches.
 
         :return: Maximum x-coordinate for the rotated rectangle
         """
@@ -530,7 +538,7 @@ class RotatedRectangle(Shape):
     @property
     def x_min(self) -> float:
         """
-        Returns the value of the minimal x-coordinate that the rotated rectangle touches
+        Return the value of the minimal x-coordinate that the rotated rectangle touches.
 
         :return: Minimum x-coordinate for the rotated rectangle
         """
@@ -543,7 +551,7 @@ class RotatedRectangle(Shape):
     @property
     def y_max(self) -> float:
         """
-        Returns the value of the maximal y-coordinate that the rotated rectangle touches
+        Return the value of the maximal y-coordinate that the rotated rectangle touches.
 
         :return: Maximum y-coordinate for the rotated rectangle
         """
@@ -556,7 +564,7 @@ class RotatedRectangle(Shape):
     @property
     def y_min(self):
         """
-        Returns the value of the minimal y-coordinate that the rotated rectangle touches
+        Return the value of the minimal y-coordinate that the rotated rectangle touches.
 
         :return: Minimum y-coordinate for the rotated rectangle
         """
@@ -569,7 +577,7 @@ class RotatedRectangle(Shape):
     @classmethod
     def from_polygon(cls, polygon: Polygon) -> 'RotatedRectangle':
         """
-        Creates a :py:class`~sc_api_tools.data_models.shapes.RotatedRectangle` from
+        Create a :py:class`~sc_api_tools.data_models.shapes.RotatedRectangle` from
         the Polygon entity passed.
 
         NOTE: The Polygon MUST consist of 4 points, otherwise a ValueError is raised
@@ -616,7 +624,7 @@ class RotatedRectangle(Shape):
             # Calculate height
             perpendicular_side_2 = x_min_coord.y - y_min_coord.y
             base_side_2 = x_min_coord.x - y_min_coord.x
-            height = math.sqrt(perpendicular_side_2**2 + base_side_2**2)
+            height = math.sqrt(perpendicular_side_2 ** 2 + base_side_2 ** 2)
 
         return cls(
             x=x_center,
@@ -631,7 +639,7 @@ class RotatedRectangle(Shape):
             cls, ote_shape: OtePolygon, image_width: int, image_height: int
     ) -> 'RotatedRectangle':
         """
-        Creates a :py:class`~sc_api_tools.data_models.shapes.RotatedRectangle` from
+        Create a :py:class`~sc_api_tools.data_models.shapes.RotatedRectangle` from
         the OTE SDK Polygon entity passed.
 
         NOTE: The Polygon MUST consist of 4 points, otherwise a ValueError is raised
@@ -648,12 +656,11 @@ class RotatedRectangle(Shape):
 
     def to_roi(self) -> Rectangle:
         """
-        Returns the bounding box containing the RotatedRectangle, as an instance of
-        the Rectangle class
+        Return the bounding box containing the RotatedRectangle, as an instance of
+        the Rectangle class.
 
         :return: Rectangle representing the bounding box for the rotated_rectangle
         """
-
         return Rectangle(
             x=self.x,
             y=self.y,
@@ -663,7 +670,7 @@ class RotatedRectangle(Shape):
 
     def to_absolute_coordinates(self, parent_roi: Rectangle) -> 'RotatedRectangle':
         """
-        Converts the RotatedRectangle to absolute coordinates, given the rectangle
+        Convert the RotatedRectangle to absolute coordinates, given the rectangle
         representing it's parent region of interest.
 
         :param parent_roi: Region of interest containing the rotated rectangle
@@ -684,14 +691,21 @@ class RotatedRectangle(Shape):
 
     def to_polygon(self) -> Polygon:
         """
-        Converts the RotatedRectangle instance to a Polygon consisting of 4 points
+        Convert the RotatedRectangle instance to a Polygon consisting of 4 points.
 
         :return: Polygon object corresponding to the RotatedRectangle instance
         """
-        y_0 = self.y - 0.5 * self.width * math.sin(self._angle_x_radian) + 0.5 * self.height * math.cos(self._angle_x_radian)
-        x_1 = self.x - 0.5 * self.width * math.cos(self._angle_x_radian) + 0.5 * self.height * math.sin(self._angle_x_radian)
-        y_2 = self.y + 0.5 * self.width * math.sin(self._angle_x_radian) - 0.5 * self.height * math.cos(self._angle_x_radian)
-        x_3 = self.x + 0.5 * self.width * math.cos(self._angle_x_radian) - 0.5 * self.height * math.sin(self._angle_x_radian)
+        y_0 = self.y - 0.5 * self.width * math.sin(
+            self._angle_x_radian) + 0.5 * self.height * math.cos(self._angle_x_radian)
+
+        x_1 = self.x - 0.5 * self.width * math.cos(
+            self._angle_x_radian) + 0.5 * self.height * math.sin(self._angle_x_radian)
+
+        y_2 = self.y + 0.5 * self.width * math.sin(
+            self._angle_x_radian) - 0.5 * self.height * math.cos(self._angle_x_radian)
+
+        x_3 = self.x + 0.5 * self.width * math.cos(
+            self._angle_x_radian) - 0.5 * self.height * math.sin(self._angle_x_radian)
 
         point0 = Point(x=self.x_min, y=y_0)
         point1 = Point(x=x_1, y=self.y_min)
@@ -706,8 +720,8 @@ class RotatedRectangle(Shape):
             self, image_width: int, image_height: int
     ) -> Dict[str, Union[float, str]]:
         """
-        Gets the normalized coordinates of the rotated rectangle, with respect to the
-        image with dimensions `image_width` x `image_height`
+        Get the normalized coordinates of the rotated rectangle, with respect to the
+        image with dimensions `image_width` x `image_height`.
 
         :param image_width: Width of the image to which the coordinates should be
             normalized
@@ -718,18 +732,18 @@ class RotatedRectangle(Shape):
         """
         return dict(
             angle=self.angle,
-            x=self.x/image_width,
-            y=self.y/image_height,
-            width=self.width/image_width,
-            height=self.height/image_height,
+            x=self.x / image_width,
+            y=self.y / image_height,
+            width=self.width / image_width,
+            height=self.height / image_height,
             type=str(self.type)
         )
 
     @property
     def area(self) -> float:
         """
-        Returns the area of the RotatedRectangle, in pixels
+        Return the area of the RotatedRectangle, in pixels
 
-        :return:
+        :return: area enclosed by the rotated rectangle in pixels
         """
         return self.width * self.height

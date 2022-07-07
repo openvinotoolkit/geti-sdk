@@ -28,8 +28,9 @@ from sc_api_tools.data_models import TaskType
 @attr.s(auto_attribs=True)
 class LabelSource:
     """
-    Class representing a source for a ScoredLabel in SC
+    Representation of a source for a ScoredLabel in SC
     """
+
     id: str
     type: str
 
@@ -37,7 +38,7 @@ class LabelSource:
 @attr.s(auto_attribs=True)
 class Label:
     """
-    Class representing a Label in SC
+    Representation of a Label in SC.
 
     :var name: Name of the label
     :var id: Unique database ID of the label
@@ -77,7 +78,7 @@ class Label:
 @attr.s(auto_attribs=True)
 class ScoredLabel:
     """
-    Class representing a Label with a probability in SC
+    Representation of a Label with an assigned probability in SC.
 
     :var name: Name of the label
     :var id: Unique database ID of the label
@@ -85,6 +86,7 @@ class ScoredLabel:
     :var probability:
     :var source:
     """
+
     _identifier_fields: ClassVar[List[str]] = ["id"]
 
     probability: float
@@ -96,7 +98,7 @@ class ScoredLabel:
     @property
     def color_tuple(self) -> Tuple[int, int, int]:
         """
-        Returns the color of the label as an RGB tuple
+        Return the color of the label as an RGB tuple.
 
         :return:
         """
@@ -106,7 +108,7 @@ class ScoredLabel:
     @classmethod
     def from_label(cls, label: Label, probability: float) -> 'ScoredLabel':
         """
-        Creates a ScoredLabel instance from an input Label and probability score
+        Create a ScoredLabel instance from an input Label and probability score.
 
         :param label: Label to convert to ScoredLabel
         :param probability: probability score for the label
@@ -122,7 +124,7 @@ class ScoredLabel:
     @classmethod
     def from_ote(cls, ote_label: OteScoredLabel) -> 'ScoredLabel':
         """
-        Creates a :py:class`~sc_api_tools.data_models.label.ScoredLabel` from
+        Create a :py:class`~sc_api_tools.data_models.label.ScoredLabel` from
         the OTE SDK ScoredLabel entity passed.
 
         :param ote_label: OTE SDK ScoredLabel entity to convert from

@@ -27,7 +27,7 @@ class ModelRESTConverter:
     @staticmethod
     def model_group_from_dict(input_dict: Dict[str, Any]) -> ModelGroup:
         """
-        Converts a dictionary representing a model group to a ModelGroup object
+        Convert a dictionary representing a model group to a ModelGroup object.
 
         :param input_dict: Dictionary representing a model group, as returned by the
             SC /model_groups REST endpoint
@@ -38,7 +38,7 @@ class ModelRESTConverter:
     @staticmethod
     def model_from_dict(input_dict: Dict[str, Any]) -> Model:
         """
-        Converts a dictionary representing a model to a Model object
+        Convert a dictionary representing a model to a Model object.
 
         :param input_dict: Dictionary representing a model, as returned by the
             SC /model_groups/models REST endpoint
@@ -49,7 +49,7 @@ class ModelRESTConverter:
     @staticmethod
     def optimized_model_from_dict(input_dict: Dict[str, Any]) -> OptimizedModel:
         """
-        Converts a dictionary representing an optimized model to a OptimizedModel object
+        Convert a dictionary representing an optimized model to a OptimizedModel object.
 
         :param input_dict: Dictionary representing an optimized model, as returned by
             the SC /model_groups/models REST endpoint

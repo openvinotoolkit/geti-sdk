@@ -18,8 +18,9 @@ from typing import List
 
 class JobState(Enum):
     """
-    This Enum represents the state of a job on the SC cluster
+    Enum representing the state of a job on the SC cluster.
     """
+
     IDLE = 'idle'
     RUNNING = 'running'
     PAUSED = 'paused'
@@ -31,16 +32,14 @@ class JobState(Enum):
 
     def __str__(self) -> str:
         """
-        Returns the string representation of the JobState instance
-
-        :return: string containing the job state
+        Return the string representation of the JobState instance.
         """
         return self.value
 
     @classmethod
     def active_states(cls) -> List['JobState']:
         """
-        Returns a list of JobState instance which represent jobs that are still active
+        Return a list of JobState instance which represent jobs that are still active.
 
         :return: List of JobState instances
         """
@@ -49,8 +48,8 @@ class JobState(Enum):
     @classmethod
     def inactive_states(cls) -> List['JobState']:
         """
-        Returns a list of JobState instance which represent jobs that are inactive,
-        i.e. cancelled, errored or finished succesfully
+        Return a list of JobState instance which represent jobs that are inactive,
+        i.e. cancelled, errored or finished successfully.
 
         :return: List of JobState instances
         """
