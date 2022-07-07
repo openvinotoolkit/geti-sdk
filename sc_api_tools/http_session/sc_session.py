@@ -13,6 +13,7 @@
 # and limitations under the License.
 
 from json import JSONDecodeError
+import simplejson
 from typing import Dict, Optional, Union
 
 import requests
@@ -199,7 +200,7 @@ class SCSession(requests.Session):
         if response.status_code not in [200, 201]:
             try:
                 response_data = response.json()
-            except JSONDecodeError:
+            except (JSONDecodeError, simplejson.errors.JSONDecodeError):
                 response_data = None
             raise SCRequestException(
                 method=method,
