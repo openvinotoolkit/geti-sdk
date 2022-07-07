@@ -30,7 +30,7 @@ jobs:
 
       - name: Snyk scan
         run: |
-          snyk auth $SNYK_TOKEN
+          snyk auth $SNYK_TOKEN -d
           snyk test
 
       - name: Bandit scan
