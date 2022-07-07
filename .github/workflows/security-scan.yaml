@@ -10,6 +10,12 @@ env:
 jobs:
   security:
     runs-on: self-hosted
+    permissions:
+      # required for all workflows
+      security-events: write
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
     steps:
       - name: Checkout repo
         uses: actions/checkout@master
@@ -32,12 +38,25 @@ jobs:
         run: |
           export no_proxy=snyk.devtools.intel.com
           snyk auth $SNYK_TOKEN -d
-          snyk test --severity-threshold=medium
+          snyk test --severity-threshold=medium --sarif-file-output=snyk.sarif
+
+      - name: Upload SNYK SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: snyk.sarif
+          category: snyk
 
       - name: Bandit scan
         run: |
           pip install bandit
-          bandit -r . --ini tox.ini
+          pip install bandit_sarif_formatter
+          bandit --format sarif -r . --ini tox.ini --output bandit.sarif
+
+      - name: Upload Bandit SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: bandit.sarif
+          category: bandit
 
 #      - name: Git AV Scan
 #        uses: djdefi/gitavscan@main
