@@ -47,6 +47,8 @@
 <li class="toctree-l2"><a class="reference internal" href="sc_api_tools.annotation_readers.html">Annotation readers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sc_api_tools.data_models.html">Data models</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="sc_api_tools.deployment.html">Deployment</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sc_api_tools.deployment.html#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sc_api_tools.deployment.html#module-sc_api_tools.deployment.deployed_model">Module contents</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="sc_api_tools.deployment.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">sc_api_tools.deployment.data_models package</a></li>
 </ul>
@@ -100,8 +102,165 @@
 </ul>
 </div>
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
+<section id="module-sc_api_tools.deployment.data_models">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sc_api_tools.deployment.data_models" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.deployment.data_models.ROI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.deployment.data_models.</span></span><span class="sig-name descname"><span class="pre">ROI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.label.ScoredLabel" title="sc_api_tools.data_models.label.ScoredLabel"><span class="pre">sc_api_tools.data_models.label.ScoredLabel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modified</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">datetime.datetime</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_to_revisit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.shapes.Rectangle" title="sc_api_tools.data_models.shapes.Rectangle"><span class="pre">sc_api_tools.data_models.shapes.Rectangle</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.shapes.Shape" title="sc_api_tools.data_models.shapes.Shape"><span class="pre">sc_api_tools.data_models.shapes.Shape</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.deployment.data_models.ROI" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.annotations.Annotation" title="sc_api_tools.data_models.annotations.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">sc_api_tools.data_models.annotations.Annotation</span></code></a></p>
+<p>This class represents a region of interest for a given image. ROIs are generated for
+intermediate tasks in the pipeline of a project, if those tasks produce local
+labels (for instance a detection or segmentation task).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sc_api_tools.deployment.data_models.ROI.shape">
+<span class="sig-name descname"><span class="pre">shape</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.shapes.Rectangle" title="sc_api_tools.data_models.shapes.Rectangle"><span class="pre">sc_api_tools.data_models.shapes.Rectangle</span></a></em><a class="headerlink" href="#sc_api_tools.deployment.data_models.ROI.shape" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sc_api_tools.deployment.data_models.ROI.original_shape">
+<span class="sig-name descname"><span class="pre">original_shape</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.shapes.Shape" title="sc_api_tools.data_models.shapes.Shape"><span class="pre">sc_api_tools.data_models.shapes.Shape</span></a></em><a class="headerlink" href="#sc_api_tools.deployment.data_models.ROI.original_shape" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.deployment.data_models.ROI.from_annotation">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_annotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.annotations.Annotation" title="sc_api_tools.data_models.annotations.Annotation"><span class="pre">sc_api_tools.data_models.annotations.Annotation</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.deployment.data_models.ROI" title="sc_api_tools.deployment.data_models.region_of_interest.ROI"><span class="pre">sc_api_tools.deployment.data_models.region_of_interest.ROI</span></a></span></span><a class="headerlink" href="#sc_api_tools.deployment.data_models.ROI.from_annotation" title="Permalink to this definition"></a></dt>
+<dd><p>Converts an Annotation instance into an ROI</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>annotation</strong> – Annotation to convert to region of interest</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ROI containing the annotation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.deployment.data_models.ROI.to_absolute_coordinates">
+<span class="sig-name descname"><span class="pre">to_absolute_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_roi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sc_api_tools.deployment.data_models.ROI" title="sc_api_tools.deployment.data_models.region_of_interest.ROI"><span class="pre">sc_api_tools.deployment.data_models.region_of_interest.ROI</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sc_api_tools.deployment.data_models.ROI" title="sc_api_tools.deployment.data_models.region_of_interest.ROI"><span class="pre">sc_api_tools.deployment.data_models.region_of_interest.ROI</span></a></span></span><a class="headerlink" href="#sc_api_tools.deployment.data_models.ROI.to_absolute_coordinates" title="Permalink to this definition"></a></dt>
+<dd><p>Converts the ROI to an ROI in absolute coordinates, given it’s parent ROI.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parent_roi</strong> – Parent ROI containing the roi instance</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ROI converted to the coordinate system of the parent ROI</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.deployment.data_models.IntermediateInferenceResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.deployment.data_models.</span></span><span class="sig-name descname"><span class="pre">IntermediateInferenceResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prediction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.predictions.Prediction" title="sc_api_tools.data_models.predictions.Prediction"><span class="pre">sc_api_tools.data_models.predictions.Prediction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rois</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sc_api_tools.deployment.data_models.ROI" title="sc_api_tools.deployment.data_models.region_of_interest.ROI"><span class="pre">sc_api_tools.deployment.data_models.region_of_interest.ROI</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.deployment.data_models.IntermediateInferenceResult" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class represents the inference results for intermediate tasks in the pipeline</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sc_api_tools.deployment.data_models.IntermediateInferenceResult.prediction">
+<span class="sig-name descname"><span class="pre">prediction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.predictions.Prediction" title="sc_api_tools.data_models.predictions.Prediction"><span class="pre">sc_api_tools.data_models.predictions.Prediction</span></a></em><a class="headerlink" href="#sc_api_tools.deployment.data_models.IntermediateInferenceResult.prediction" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sc_api_tools.deployment.data_models.IntermediateInferenceResult.image">
+<span class="sig-name descname"><span class="pre">image</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#sc_api_tools.deployment.data_models.IntermediateInferenceResult.image" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sc_api_tools.deployment.data_models.IntermediateInferenceResult.rois">
+<span class="sig-name descname"><span class="pre">rois</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sc_api_tools.deployment.data_models.ROI" title="sc_api_tools.deployment.data_models.region_of_interest.ROI"><span class="pre">sc_api_tools.deployment.data_models.region_of_interest.ROI</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#sc_api_tools.deployment.data_models.IntermediateInferenceResult.rois" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.deployment.data_models.IntermediateInferenceResult.image_width">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">image_width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#sc_api_tools.deployment.data_models.IntermediateInferenceResult.image_width" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the width of the image to which the InferenceResult applies</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Integer representing the width of the image, in pixels</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sc_api_tools.deployment.data_models.IntermediateInferenceResult.image_height">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">image_height</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#sc_api_tools.deployment.data_models.IntermediateInferenceResult.image_height" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the height of the image to which the InferenceResult applies</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Integer representing the height of the image, in pixels</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.deployment.data_models.IntermediateInferenceResult.filter_rois">
+<span class="sig-name descname"><span class="pre">filter_rois</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.label.Label" title="sc_api_tools.data_models.label.Label"><span class="pre">sc_api_tools.data_models.label.Label</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sc_api_tools.deployment.data_models.ROI" title="sc_api_tools.deployment.data_models.region_of_interest.ROI"><span class="pre">sc_api_tools.deployment.data_models.region_of_interest.ROI</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.deployment.data_models.IntermediateInferenceResult.filter_rois" title="Permalink to this definition"></a></dt>
+<dd><p>Filters the ROIs for the inference results based on an input label</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>label</strong> – Label to retrieve the ROIs for. If left as None, all the ROIs
+belonging to the inference result are returned</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of ROIs containing an object with the specified label</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.deployment.data_models.IntermediateInferenceResult.generate_views">
+<span class="sig-name descname"><span class="pre">generate_views</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rois</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sc_api_tools.deployment.data_models.ROI" title="sc_api_tools.deployment.data_models.region_of_interest.ROI"><span class="pre">sc_api_tools.deployment.data_models.region_of_interest.ROI</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.deployment.data_models.IntermediateInferenceResult.generate_views" title="Permalink to this definition"></a></dt>
+<dd><p>Generates a list of image views holding the pixel data for the ROIs produced
+by the last local-label task in the pipeline</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rois</strong> – Optional list of ROIs to return the views for. If left as None,
+views for all ROIs are returned.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of numpy arrays containing the pixel data for the ROI’s in the
+list of ROI’s associated with this inference result</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.deployment.data_models.IntermediateInferenceResult.append_annotation">
+<span class="sig-name descname"><span class="pre">append_annotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.annotations.Annotation" title="sc_api_tools.data_models.annotations.Annotation"><span class="pre">sc_api_tools.data_models.annotations.Annotation</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">roi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sc_api_tools.deployment.data_models.ROI" title="sc_api_tools.deployment.data_models.region_of_interest.ROI"><span class="pre">sc_api_tools.deployment.data_models.region_of_interest.ROI</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.deployment.data_models.IntermediateInferenceResult.append_annotation" title="Permalink to this definition"></a></dt>
+<dd><p>Appends an Annotation instance to the prediction results, taking into account
+the ROI for which the annotation was predicted</p>
+<p>This method can be used to add annotations produced by a downstream local task
+to the prediction results</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>annotation</strong> – Annotation to append to the inference results</p></li>
+<li><p><strong>roi</strong> – ROI in which the prediction was made</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sc_api_tools.deployment.data_models.IntermediateInferenceResult.extend_annotations">
+<span class="sig-name descname"><span class="pre">extend_annotations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.annotations.Annotation" title="sc_api_tools.data_models.annotations.Annotation"><span class="pre">sc_api_tools.data_models.annotations.Annotation</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sc_api_tools.deployment.data_models.ROI" title="sc_api_tools.deployment.data_models.region_of_interest.ROI"><span class="pre">sc_api_tools.deployment.data_models.region_of_interest.ROI</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.deployment.data_models.IntermediateInferenceResult.extend_annotations" title="Permalink to this definition"></a></dt>
+<dd><p>Extends the list of annotations for the current prediction results, taking
+into account the ROI for which the annotation was predicted</p>
+<p>This method can be used to add labels produced by a global downstream task to
+the ROI output of it’s upstream local task</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>annotations</strong> – List of annotations holding the labels to append</p></li>
+<li><p><strong>roi</strong> – ROI for which the annotations are predicted</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 

@@ -49,7 +49,11 @@
 <li class="toctree-l2"><a class="reference internal" href="sc_api_tools.http_session.html">HTTP session</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sc_api_tools.rest_converters.html">REST converters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sc_api_tools.rest_managers.html">REST managers</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Utils</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Utils</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-contents">Module contents</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -79,8 +83,206 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="sc-api-tools-utils">
-<h1>sc_api_tools.utils<a class="headerlink" href="#sc-api-tools-utils" title="Permalink to this headline"></a></h1>
+  <section id="module-sc_api_tools.utils">
+<span id="sc-api-tools-utils"></span><h1>sc_api_tools.utils<a class="headerlink" href="#module-sc_api_tools.utils" title="Permalink to this headline"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h2>
+<p>The <cite>utils</cite> package contains utility functions used throughout the SDK.</p>
+</section>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="sc_api_tools.utils.get_default_workspace_id">
+<span class="sig-prename descclassname"><span class="pre">sc_api_tools.utils.</span></span><span class="sig-name descname"><span class="pre">get_default_workspace_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rest_session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#sc_api_tools.utils.get_default_workspace_id" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the id of the default workspace on the cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rest_session</strong> – HTTP session to the cluser</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>string containing the id of the default workspace</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sc_api_tools.utils.generate_classification_labels">
+<span class="sig-prename descclassname"><span class="pre">sc_api_tools.utils.</span></span><span class="sig-name descname"><span class="pre">generate_classification_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multilabel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.utils.generate_classification_labels" title="Permalink to this definition"></a></dt>
+<dd><p>Generates label creation data from a list of label names. If <cite>multiclass = True</cite>,
+the labels will be generated in such a way that multiple labels can be assigned to
+a single image. If <cite>multiclass = False</cite>, only a single label per image can be
+assigned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> – Label names to be used</p></li>
+<li><p><strong>multilabel</strong> – True to be able to assign multiple labels to one image, False
+otherwise. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of dictionaries containing the label data that can be sent to the SC
+project creation endpoint</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sc_api_tools.utils.generate_segmentation_labels">
+<span class="sig-prename descclassname"><span class="pre">sc_api_tools.utils.</span></span><span class="sig-name descname"><span class="pre">generate_segmentation_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">detection_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.utils.generate_segmentation_labels" title="Permalink to this definition"></a></dt>
+<dd><p>Generate segmentation label names from a list of detection label names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>detection_labels</strong> – label names to generate segmentation label names for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of label names</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sc_api_tools.utils.get_dict_key_from_value">
+<span class="sig-prename descclassname"><span class="pre">sc_api_tools.utils.</span></span><span class="sig-name descname"><span class="pre">get_dict_key_from_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">sc_api_tools.utils.dictionary_helpers.KeyType</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">sc_api_tools.utils.dictionary_helpers.KeyType</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.utils.get_dict_key_from_value" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the key associated with <cite>value</cite> in a dictionary <cite>input_dict</cite>. If the value
+is not found in the dictionary, returns None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_dict</strong> – Dictionary to search in</p></li>
+<li><p><strong>value</strong> – value to search for</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>key associated with value if value is in the input_dict, None otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sc_api_tools.utils.remove_null_fields">
+<span class="sig-prename descclassname"><span class="pre">sc_api_tools.utils.</span></span><span class="sig-name descname"><span class="pre">remove_null_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.utils.remove_null_fields" title="Permalink to this definition"></a></dt>
+<dd><p>Remove fields that have ‘None’ or an emtpy string ‘’ as their value from a
+dictionary</p>
+<p>NOTE: This function modifies the input dictionary in place</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>input</strong> – Dictionary to remove the null fields from</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sc_api_tools.utils.get_task_types_by_project_type">
+<span class="sig-prename descclassname"><span class="pre">sc_api_tools.utils.</span></span><span class="sig-name descname"><span class="pre">get_task_types_by_project_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.enums.TaskType" title="sc_api_tools.data_models.enums.task_type.TaskType"><span class="pre">sc_api_tools.data_models.enums.task_type.TaskType</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.utils.get_task_types_by_project_type" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of task_type for each task in the project pipeline, for a
+certain ‘project_type’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>project_type</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sc_api_tools.utils.get_coco_dataset">
+<span class="sig-prename descclassname"><span class="pre">sc_api_tools.utils.</span></span><span class="sig-name descname"><span class="pre">get_coco_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#sc_api_tools.utils.get_coco_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>This method checks if the COCO dataset is present at the specified path. If not,
+this method will attempt to download the dataset to the path specified.</p>
+<p>If no path is passed, this method will check or create the default path: the
+folder ‘data’ in the top level of the sc-api-tools package.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset_path</strong> – Path to check against.</p></li>
+<li><p><strong>verbose</strong> – True to print detailed output, False to check silently</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Path to the COCO dataset</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sc_api_tools.utils.show_image_with_annotation_scene">
+<span class="sig-prename descclassname"><span class="pre">sc_api_tools.utils.</span></span><span class="sig-name descname"><span class="pre">show_image_with_annotation_scene</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.media.Image" title="sc_api_tools.data_models.media.Image"><span class="pre">sc_api_tools.data_models.media.Image</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.media.VideoFrame" title="sc_api_tools.data_models.media.VideoFrame"><span class="pre">sc_api_tools.data_models.media.VideoFrame</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_scene</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.annotation_scene.AnnotationScene" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.predictions.Prediction" title="sc_api_tools.data_models.predictions.Prediction"><span class="pre">sc_api_tools.data_models.predictions.Prediction</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_in_notebook</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.utils.show_image_with_annotation_scene" title="Permalink to this definition"></a></dt>
+<dd><p>Displays an image with an annotation_scene overlayed on top of it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image</strong> – Image to show prediction for</p></li>
+<li><p><strong>annotation_scene</strong> – Annotations or Predictions to overlay on the image</p></li>
+<li><p><strong>filepath</strong> – Optional filepath to save the image with annotation overlay to.
+If left as None, the image will be shown in a new opencv window</p></li>
+<li><p><strong>show_in_notebook</strong> – True if the image needs to be shown in a notebook context.
+Setting this to True will display the image inline in the notebook. Setting it
+to False will open a pop up to show the image.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sc_api_tools.utils.show_video_frames_with_annotation_scenes">
+<span class="sig-prename descclassname"><span class="pre">sc_api_tools.utils.</span></span><span class="sig-name descname"><span class="pre">show_video_frames_with_annotation_scenes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_frames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.containers.MediaList" title="sc_api_tools.data_models.containers.media_list.MediaList"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.media.VideoFrame" title="sc_api_tools.data_models.media.VideoFrame"><span class="pre">sc_api_tools.data_models.media.VideoFrame</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_scenes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.annotation_scene.AnnotationScene" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.predictions.Prediction" title="sc_api_tools.data_models.predictions.Prediction"><span class="pre">sc_api_tools.data_models.predictions.Prediction</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wait_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.utils.show_video_frames_with_annotation_scenes" title="Permalink to this definition"></a></dt>
+<dd><p>Displays a list of VideoFrames, with their annotations or predictions overlayed on
+top. The parameter <cite>wait_time</cite> specifies the time each frame is shown, in seconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>video_frames</strong> – List of VideoFrames to show</p></li>
+<li><p><strong>annotation_scenes</strong> – List of AnnotationsScenes or Predictions to overlay on
+the frames</p></li>
+<li><p><strong>wait_time</strong> – Time to show each frame, in seconds</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sc_api_tools.utils.get_supported_algorithms">
+<span class="sig-prename descclassname"><span class="pre">sc_api_tools.utils.</span></span><span class="sig-name descname"><span class="pre">get_supported_algorithms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rest_session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.http_session.html#sc_api_tools.http_session.sc_session.SCSession" title="sc_api_tools.http_session.sc_session.SCSession"><span class="pre">sc_api_tools.http_session.sc_session.SCSession</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.enums.Domain" title="sc_api_tools.data_models.enums.domain.Domain"><span class="pre">sc_api_tools.data_models.enums.domain.Domain</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.enums.TaskType" title="sc_api_tools.data_models.enums.task_type.TaskType"><span class="pre">sc_api_tools.data_models.enums.task_type.TaskType</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.containers.AlgorithmList" title="sc_api_tools.data_models.containers.algorithm_list.AlgorithmList"><span class="pre">sc_api_tools.data_models.containers.algorithm_list.AlgorithmList</span></a></span></span><a class="headerlink" href="#sc_api_tools.utils.get_supported_algorithms" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the id of the default workspace on the cluster</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rest_session</strong> – HTTP session to the cluster</p></li>
+<li><p><strong>domain</strong> – Optional domain for which to get the supported algorithms. If left
+as None (the default), the supported algorithms for all domains are returned.
+NOTE: domain is deprecated in SC1.1, please use <cite>task_type</cite> instead.</p></li>
+<li><p><strong>task_type</strong> – Optional TaskType for which to get the supported algorithms.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>AlgorithmList holding the supported algorithms</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sc_api_tools.utils.deserialize_dictionary">
+<span class="sig-prename descclassname"><span class="pre">sc_api_tools.utils.</span></span><span class="sig-name descname"><span class="pre">deserialize_dictionary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dictionary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">sc_api_tools.utils.serialization_helpers.OutputTypeVar</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">sc_api_tools.utils.serialization_helpers.OutputTypeVar</span></span></span><a class="headerlink" href="#sc_api_tools.utils.deserialize_dictionary" title="Permalink to this definition"></a></dt>
+<dd><p>Deserialize an <cite>input_dictionary</cite> to an object of the type passed in <cite>output_type</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_dictionary</strong> – Dictionary to deserialize</p></li>
+<li><p><strong>output_type</strong> – Type of the object that the dictionary represents, and to
+which the data will be deserialized</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Object of type <cite>output_type</cite>, holding the data passed in
+<cite>input_dictionary</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 </section>
 
 
