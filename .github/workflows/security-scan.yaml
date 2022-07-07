@@ -32,7 +32,7 @@ jobs:
         run: |
           export no_proxy=snyk.devtools.intel.com
           snyk auth $SNYK_TOKEN -d
-          snyk test
+          snyk test --severity-threshold=medium
 
       - name: Bandit scan
         run: |
