@@ -2,8 +2,10 @@ name: Security static code scans
 
 on:
   workflow_dispatch:
+
 env:
-  SNYK_URL: https://api.github.com/repos/snyk/snyk/releases/latest
+  SNYK_API: https://snyk.devtools.intel.com/api/v1
+  SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
 jobs:
   security:
@@ -27,9 +29,9 @@ jobs:
       #   uses: snyk/actions/setup@master
 
       - name: Snyk scan
-        run: snyk test
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk auth $SNYK_TOKEN
+          snyk test
 
       - name: Bandit scan
         run: |
