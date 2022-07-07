@@ -1,0 +1,39 @@
+name: Security static code scans
+
+on:
+  workflow_dispatch:
+
+jobs:
+  security:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@master
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+
+      - name: Install package with deployment and test requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install ".[deployment,tests]"
+
+      - name: Set up Snyk
+        uses: snyk/actions/setup@master
+
+      - name: Snyk scan
+        run: snyk test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Bandit scan
+        run: |
+          pip install bandit
+          bandit -r . --ini tox.ini
+
+      - name: Git AV Scan
+        uses: djdefi/gitavscan@main
+        with:
+          full: '--full'
