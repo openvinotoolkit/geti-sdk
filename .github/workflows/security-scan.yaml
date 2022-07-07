@@ -3,6 +3,9 @@ name: Security static code scans
 on:
   workflow_dispatch:
 
+  schedule: # Execute tests at midnight every day
+    - cron: "0 0 * * *"
+
 env:
   SNYK_API: https://snyk.devtools.intel.com/api/v1
   SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
