@@ -2,6 +2,8 @@ name: Security static code scans
 
 on:
   workflow_dispatch:
+env:
+  SNYK_URL: https://api.github.com/repos/snyk/snyk/releases/latest
 
 jobs:
   security:
@@ -20,8 +22,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install ".[deployment,tests]"
 
-      - name: Set up Snyk
-        uses: snyk/actions/setup@master
+      # Snyk setup has been done manually on the self-hosted runner
+      # - name: Set up Snyk
+      #   uses: snyk/actions/setup@master
 
       - name: Snyk scan
         run: snyk test
