@@ -103,7 +103,7 @@ vice versa.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.ProjectRESTConverter.from_dict">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.ProjectRESTConverter.from_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a Project from a dictionary representing a project, as
+<dd><p>Create a Project from a dictionary representing a project, as
 returned by the /projects endpoint in SC.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -118,7 +118,7 @@ returned by the /projects endpoint in SC.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.ProjectRESTConverter.to_dict">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.ProjectRESTConverter.to_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Converts the <cite>project</cite> to its dictionary representation.
+<dd><p>Convert the <cite>project</cite> to its dictionary representation.
 This functions removes database UID’s and optional fields that are <cite>None</cite>
 from the output dictionary, to make the output more compact and improve
 readability.</p>
@@ -142,8 +142,8 @@ vice versa.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.MediaRESTConverter.from_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">media_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">sc_api_tools.data_models.containers.media_list.MediaTypeVar</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaTypeVar</span></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.MediaRESTConverter.from_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Creates an instance of type <cite>media_type</cite> representing a media entity in SC
-from a dictionary returned by the SC /media REST endpoints</p>
+<dd><p>Create an instance of type <cite>media_type</cite> representing a media entity in SC
+from a dictionary returned by the SC /media REST endpoints.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -163,11 +163,12 @@ the REST input in <cite>input_dict</cite>.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.PredictionRESTConverter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_converters.</span></span><span class="sig-name descname"><span class="pre">PredictionRESTConverter</span></span><a class="headerlink" href="#sc_api_tools.rest_converters.PredictionRESTConverter" title="Permalink to this definition"></a></dt>
-<dd><dl class="py method">
+<dd><p>Class to convert REST representations of predictions into Prediction entities.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.PredictionRESTConverter.from_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prediction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.predictions.Prediction" title="sc_api_tools.data_models.predictions.Prediction"><span class="pre">sc_api_tools.data_models.predictions.Prediction</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.PredictionRESTConverter.from_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a Prediction object from a dictionary returned by the
-/predictions REST endpoint in SC</p>
+<dd><p>Create a Prediction object from a dictionary returned by the
+/predictions REST endpoint in SC.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>prediction</strong> – dictionary representing a Prediction, which
@@ -182,7 +183,7 @@ contains all prediction annotations for a certain media entity</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.PredictionRESTConverter.to_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prediction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.predictions.Prediction" title="sc_api_tools.data_models.predictions.Prediction"><span class="pre">sc_api_tools.data_models.predictions.Prediction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">deidentify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.PredictionRESTConverter.to_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a Prediction to a dictionary. By default, removes any ID
+<dd><p>Convert a Prediction to a dictionary. By default, removes any ID
 fields in the output dictionary</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -208,7 +209,7 @@ entities to objects and vice versa.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.ConfigurationRESTConverter.entity_identifier_from_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">entity_identifier_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration_identifiers.EntityIdentifier" title="sc_api_tools.data_models.configuration_identifiers.EntityIdentifier"><span class="pre">sc_api_tools.data_models.configuration_identifiers.EntityIdentifier</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.ConfigurationRESTConverter.entity_identifier_from_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Creates an EntityIdentifier object from an input dictionary</p>
+<dd><p>Create an EntityIdentifier object from an input dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> – Dictionary representing an EntityIdentifier in SC</p>
@@ -222,9 +223,9 @@ entities to objects and vice versa.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.ConfigurationRESTConverter.from_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration.ConfigurableParameters" title="sc_api_tools.data_models.configuration.ConfigurableParameters"><span class="pre">sc_api_tools.data_models.configuration.ConfigurableParameters</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.ConfigurationRESTConverter.from_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a ConfigurableParameters object holding the configurable parameters
+<dd><p>Create a ConfigurableParameters object holding the configurable parameters
 for an entity in SC, from a dictionary returned by the SC /configuration REST
-endpoints</p>
+endpoints.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> – Dictionary containing the configurable parameters</p>
@@ -238,8 +239,8 @@ endpoints</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.ConfigurationRESTConverter.task_configuration_from_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">task_configuration_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration.TaskConfiguration" title="sc_api_tools.data_models.configuration.TaskConfiguration"><span class="pre">sc_api_tools.data_models.configuration.TaskConfiguration</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.ConfigurationRESTConverter.task_configuration_from_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a TaskConfiguration object holding all configurable parameters for a
-task in SC, from a dictionary returned by the /configuration REST endpoints</p>
+<dd><p>Create a TaskConfiguration object holding all configurable parameters for a
+task in SC, from a dictionary returned by the /configuration REST endpoints.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> – Dictionary containing the configurable parameters for the
@@ -254,8 +255,8 @@ task</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.ConfigurationRESTConverter.configuration_to_minimal_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">configuration_to_minimal_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration.TaskConfiguration" title="sc_api_tools.data_models.configuration.TaskConfiguration"><span class="pre">sc_api_tools.data_models.configuration.TaskConfiguration</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration.GlobalConfiguration" title="sc_api_tools.data_models.configuration.GlobalConfiguration"><span class="pre">sc_api_tools.data_models.configuration.GlobalConfiguration</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration.FullConfiguration" title="sc_api_tools.data_models.configuration.FullConfiguration"><span class="pre">sc_api_tools.data_models.configuration.FullConfiguration</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deidentify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.ConfigurationRESTConverter.configuration_to_minimal_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a TaskConfiguration, GlobalConfiguration or FullConfiguration into a
-dictionary, removing fields that are None or are only relevant to the SC UI</p>
+<dd><p>Convert a TaskConfiguration, GlobalConfiguration or FullConfiguration into a
+dictionary, removing fields that are None or are only relevant to the SC UI.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -273,9 +274,9 @@ preserve identifiers. Defaults to True</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.ConfigurationRESTConverter.global_configuration_from_rest">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">global_configuration_from_rest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration.GlobalConfiguration" title="sc_api_tools.data_models.configuration.GlobalConfiguration"><span class="pre">sc_api_tools.data_models.configuration.GlobalConfiguration</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.ConfigurationRESTConverter.global_configuration_from_rest" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a GlobalConfiguration object holding the configurable parameters
+<dd><p>Create a GlobalConfiguration object holding the configurable parameters
 for all project-wide components in the SC project, from input from the
-/configuration/global REST endpoint</p>
+/configuration/global REST endpoint.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input</strong> – REST response holding the serialized configurable parameters</p>
@@ -289,8 +290,8 @@ for all project-wide components in the SC project, from input from the
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.ConfigurationRESTConverter.full_configuration_from_rest">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">full_configuration_from_rest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration.FullConfiguration" title="sc_api_tools.data_models.configuration.FullConfiguration"><span class="pre">sc_api_tools.data_models.configuration.FullConfiguration</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.ConfigurationRESTConverter.full_configuration_from_rest" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a dictionary holding the full configuration for an SC project, as
-returned by the /configuration endpoint, to an object representation</p>
+<dd><p>Convert a dictionary holding the full configuration for an SC project, as
+returned by the /configuration endpoint, to an object representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> – Dictionary representing the full project configuration</p>
@@ -305,8 +306,8 @@ configuration</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.ConfigurationRESTConverter.configurable_parameter_list_to_rest">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">configurable_parameter_list_to_rest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configurable_parameter_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration.ConfigurableParameters" title="sc_api_tools.data_models.configuration.ConfigurableParameters"><span class="pre">sc_api_tools.data_models.configuration.ConfigurableParameters</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.ConfigurationRESTConverter.configurable_parameter_list_to_rest" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a list of model hyper parameters to a dictionary that can be sent to
-the /configuration POST endpoints</p>
+<dd><p>Convert a list of model hyper parameters to a dictionary that can be sent to
+the /configuration POST endpoints.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>configurable_parameter_list</strong> – List of ConfigurableParameter instances</p>
@@ -332,7 +333,7 @@ vice versa.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.ModelRESTConverter.model_group_from_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_group_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.model_group.ModelGroup" title="sc_api_tools.data_models.model_group.ModelGroup"><span class="pre">sc_api_tools.data_models.model_group.ModelGroup</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.ModelRESTConverter.model_group_from_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a dictionary representing a model group to a ModelGroup object</p>
+<dd><p>Convert a dictionary representing a model group to a ModelGroup object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> – Dictionary representing a model group, as returned by the
@@ -347,7 +348,7 @@ SC /model_groups REST endpoint</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.ModelRESTConverter.model_from_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.model.Model" title="sc_api_tools.data_models.model.Model"><span class="pre">sc_api_tools.data_models.model.Model</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.ModelRESTConverter.model_from_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a dictionary representing a model to a Model object</p>
+<dd><p>Convert a dictionary representing a model to a Model object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> – Dictionary representing a model, as returned by the
@@ -362,7 +363,7 @@ SC /model_groups/models REST endpoint</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.ModelRESTConverter.optimized_model_from_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimized_model_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.model.OptimizedModel" title="sc_api_tools.data_models.model.OptimizedModel"><span class="pre">sc_api_tools.data_models.model.OptimizedModel</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.ModelRESTConverter.optimized_model_from_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a dictionary representing an optimized model to a OptimizedModel object</p>
+<dd><p>Convert a dictionary representing an optimized model to a OptimizedModel object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> – Dictionary representing an optimized model, as returned by
@@ -383,8 +384,8 @@ the SC /model_groups/models REST endpoint</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.StatusRESTConverter.from_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_status_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.status.ProjectStatus" title="sc_api_tools.data_models.status.ProjectStatus"><span class="pre">sc_api_tools.data_models.status.ProjectStatus</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.StatusRESTConverter.from_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a ProjectStatus instance from the input dictionary passed in
-<cite>project_status_dict</cite></p>
+<dd><p>Create a ProjectStatus instance from the input dictionary passed in
+<cite>project_status_dict</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>project_status_dict</strong> – Dictionary representing the status of a project on
@@ -406,7 +407,7 @@ project_status_dict</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.JobRESTConverter.from_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.job.Job" title="sc_api_tools.data_models.job.Job"><span class="pre">sc_api_tools.data_models.job.Job</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.JobRESTConverter.from_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a Job instance from the input dictionary passed in <cite>job_dict</cite></p>
+<dd><p>Create a Job instance from the input dictionary passed in <cite>job_dict</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>job_dict</strong> – Dictionary representing a job on the SC cluster, as returned
@@ -429,7 +430,7 @@ vice versa.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="id1">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></span><a class="headerlink" href="#id1" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a Project from a dictionary representing a project, as
+<dd><p>Create a Project from a dictionary representing a project, as
 returned by the /projects endpoint in SC.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -444,7 +445,7 @@ returned by the /projects endpoint in SC.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="id2">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.project.Project" title="sc_api_tools.data_models.project.Project"><span class="pre">sc_api_tools.data_models.project.Project</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#id2" title="Permalink to this definition"></a></dt>
-<dd><p>Converts the <cite>project</cite> to its dictionary representation.
+<dd><p>Convert the <cite>project</cite> to its dictionary representation.
 This functions removes database UID’s and optional fields that are <cite>None</cite>
 from the output dictionary, to make the output more compact and improve
 readability.</p>
@@ -469,8 +470,8 @@ vice versa.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="id4">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">media_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">sc_api_tools.data_models.containers.media_list.MediaTypeVar</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">sc_api_tools.data_models.containers.media_list.MediaTypeVar</span></span></span><a class="headerlink" href="#id4" title="Permalink to this definition"></a></dt>
-<dd><p>Creates an instance of type <cite>media_type</cite> representing a media entity in SC
-from a dictionary returned by the SC /media REST endpoints</p>
+<dd><p>Create an instance of type <cite>media_type</cite> representing a media entity in SC
+from a dictionary returned by the SC /media REST endpoints.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -491,10 +492,11 @@ the REST input in <cite>input_dict</cite>.</p>
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.AnnotationRESTConverter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_converters.</span></span><span class="sig-name descname"><span class="pre">AnnotationRESTConverter</span></span><a class="headerlink" href="#sc_api_tools.rest_converters.AnnotationRESTConverter" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to convert REST representations of annotations into AnnotationScene entities.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.AnnotationRESTConverter.to_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotation_scene</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.annotation_scene.AnnotationScene" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">deidentify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.AnnotationRESTConverter.to_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Converts an AnnotationScene to a dictionary. By default, removes any ID
+<dd><p>Convert an AnnotationScene to a dictionary. By default, removes any ID
 fields in the output dictionary</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -513,7 +515,7 @@ False to keep these fields. Defaults to True</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.AnnotationRESTConverter.annotation_from_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">annotation_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.annotations.Annotation" title="sc_api_tools.data_models.annotations.Annotation"><span class="pre">sc_api_tools.data_models.annotations.Annotation</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.AnnotationRESTConverter.annotation_from_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a dictionary representing an annotation to an Annotation object</p>
+<dd><p>Convert a dictionary representing an annotation to an Annotation object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> – </p>
@@ -527,8 +529,8 @@ False to keep these fields. Defaults to True</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.rest_converters.AnnotationRESTConverter.from_dict">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotation_scene</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.annotation_scene.AnnotationScene" title="sc_api_tools.data_models.annotation_scene.AnnotationScene"><span class="pre">sc_api_tools.data_models.annotation_scene.AnnotationScene</span></a></span></span><a class="headerlink" href="#sc_api_tools.rest_converters.AnnotationRESTConverter.from_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Creates an AnnotationScene object from a dictionary returned by the
-/annotations REST endpoint in SC</p>
+<dd><p>Create an AnnotationScene object from a dictionary returned by the
+/annotations REST endpoint in SC.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>annotation_scene</strong> – dictionary representing an AnnotationScene, which
@@ -546,11 +548,12 @@ contains all annotations for a certain media entity</p>
 <dt class="sig sig-object py" id="id5">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.rest_converters.</span></span><span class="sig-name descname"><span class="pre">PredictionRESTConverter</span></span><a class="headerlink" href="#id5" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to convert REST representations of predictions into Prediction entities.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="id6">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prediction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.predictions.Prediction" title="sc_api_tools.data_models.predictions.Prediction"><span class="pre">sc_api_tools.data_models.predictions.Prediction</span></a></span></span><a class="headerlink" href="#id6" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a Prediction object from a dictionary returned by the
-/predictions REST endpoint in SC</p>
+<dd><p>Create a Prediction object from a dictionary returned by the
+/predictions REST endpoint in SC.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>prediction</strong> – dictionary representing a Prediction, which
@@ -565,7 +568,7 @@ contains all prediction annotations for a certain media entity</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="id7">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prediction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.predictions.Prediction" title="sc_api_tools.data_models.predictions.Prediction"><span class="pre">sc_api_tools.data_models.predictions.Prediction</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">deidentify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#id7" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a Prediction to a dictionary. By default, removes any ID
+<dd><p>Convert a Prediction to a dictionary. By default, removes any ID
 fields in the output dictionary</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -592,7 +595,7 @@ entities to objects and vice versa.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="id9">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">entity_identifier_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration_identifiers.EntityIdentifier" title="sc_api_tools.data_models.configuration_identifiers.EntityIdentifier"><span class="pre">sc_api_tools.data_models.configuration_identifiers.EntityIdentifier</span></a></span></span><a class="headerlink" href="#id9" title="Permalink to this definition"></a></dt>
-<dd><p>Creates an EntityIdentifier object from an input dictionary</p>
+<dd><p>Create an EntityIdentifier object from an input dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> – Dictionary representing an EntityIdentifier in SC</p>
@@ -606,9 +609,9 @@ entities to objects and vice versa.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="id10">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration.ConfigurableParameters" title="sc_api_tools.data_models.configuration.ConfigurableParameters"><span class="pre">sc_api_tools.data_models.configuration.ConfigurableParameters</span></a></span></span><a class="headerlink" href="#id10" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a ConfigurableParameters object holding the configurable parameters
+<dd><p>Create a ConfigurableParameters object holding the configurable parameters
 for an entity in SC, from a dictionary returned by the SC /configuration REST
-endpoints</p>
+endpoints.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> – Dictionary containing the configurable parameters</p>
@@ -622,8 +625,8 @@ endpoints</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="id11">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">task_configuration_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration.TaskConfiguration" title="sc_api_tools.data_models.configuration.TaskConfiguration"><span class="pre">sc_api_tools.data_models.configuration.TaskConfiguration</span></a></span></span><a class="headerlink" href="#id11" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a TaskConfiguration object holding all configurable parameters for a
-task in SC, from a dictionary returned by the /configuration REST endpoints</p>
+<dd><p>Create a TaskConfiguration object holding all configurable parameters for a
+task in SC, from a dictionary returned by the /configuration REST endpoints.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> – Dictionary containing the configurable parameters for the
@@ -638,8 +641,8 @@ task</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="id12">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">configuration_to_minimal_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configuration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration.TaskConfiguration" title="sc_api_tools.data_models.configuration.TaskConfiguration"><span class="pre">sc_api_tools.data_models.configuration.TaskConfiguration</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration.GlobalConfiguration" title="sc_api_tools.data_models.configuration.GlobalConfiguration"><span class="pre">sc_api_tools.data_models.configuration.GlobalConfiguration</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration.FullConfiguration" title="sc_api_tools.data_models.configuration.FullConfiguration"><span class="pre">sc_api_tools.data_models.configuration.FullConfiguration</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deidentify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#id12" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a TaskConfiguration, GlobalConfiguration or FullConfiguration into a
-dictionary, removing fields that are None or are only relevant to the SC UI</p>
+<dd><p>Convert a TaskConfiguration, GlobalConfiguration or FullConfiguration into a
+dictionary, removing fields that are None or are only relevant to the SC UI.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -657,9 +660,9 @@ preserve identifiers. Defaults to True</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="id13">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">global_configuration_from_rest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration.GlobalConfiguration" title="sc_api_tools.data_models.configuration.GlobalConfiguration"><span class="pre">sc_api_tools.data_models.configuration.GlobalConfiguration</span></a></span></span><a class="headerlink" href="#id13" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a GlobalConfiguration object holding the configurable parameters
+<dd><p>Create a GlobalConfiguration object holding the configurable parameters
 for all project-wide components in the SC project, from input from the
-/configuration/global REST endpoint</p>
+/configuration/global REST endpoint.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input</strong> – REST response holding the serialized configurable parameters</p>
@@ -673,8 +676,8 @@ for all project-wide components in the SC project, from input from the
 <dl class="py method">
 <dt class="sig sig-object py" id="id14">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">full_configuration_from_rest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration.FullConfiguration" title="sc_api_tools.data_models.configuration.FullConfiguration"><span class="pre">sc_api_tools.data_models.configuration.FullConfiguration</span></a></span></span><a class="headerlink" href="#id14" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a dictionary holding the full configuration for an SC project, as
-returned by the /configuration endpoint, to an object representation</p>
+<dd><p>Convert a dictionary holding the full configuration for an SC project, as
+returned by the /configuration endpoint, to an object representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> – Dictionary representing the full project configuration</p>
@@ -689,8 +692,8 @@ configuration</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="id15">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">configurable_parameter_list_to_rest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configurable_parameter_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.configuration.ConfigurableParameters" title="sc_api_tools.data_models.configuration.ConfigurableParameters"><span class="pre">sc_api_tools.data_models.configuration.ConfigurableParameters</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#id15" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a list of model hyper parameters to a dictionary that can be sent to
-the /configuration POST endpoints</p>
+<dd><p>Convert a list of model hyper parameters to a dictionary that can be sent to
+the /configuration POST endpoints.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>configurable_parameter_list</strong> – List of ConfigurableParameter instances</p>
@@ -717,7 +720,7 @@ vice versa.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="id17">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_group_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.model_group.ModelGroup" title="sc_api_tools.data_models.model_group.ModelGroup"><span class="pre">sc_api_tools.data_models.model_group.ModelGroup</span></a></span></span><a class="headerlink" href="#id17" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a dictionary representing a model group to a ModelGroup object</p>
+<dd><p>Convert a dictionary representing a model group to a ModelGroup object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> – Dictionary representing a model group, as returned by the
@@ -732,7 +735,7 @@ SC /model_groups REST endpoint</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="id18">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.model.Model" title="sc_api_tools.data_models.model.Model"><span class="pre">sc_api_tools.data_models.model.Model</span></a></span></span><a class="headerlink" href="#id18" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a dictionary representing a model to a Model object</p>
+<dd><p>Convert a dictionary representing a model to a Model object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> – Dictionary representing a model, as returned by the
@@ -747,7 +750,7 @@ SC /model_groups/models REST endpoint</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="id19">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">optimized_model_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.model.OptimizedModel" title="sc_api_tools.data_models.model.OptimizedModel"><span class="pre">sc_api_tools.data_models.model.OptimizedModel</span></a></span></span><a class="headerlink" href="#id19" title="Permalink to this definition"></a></dt>
-<dd><p>Converts a dictionary representing an optimized model to a OptimizedModel object</p>
+<dd><p>Convert a dictionary representing an optimized model to a OptimizedModel object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>input_dict</strong> – Dictionary representing an optimized model, as returned by
@@ -769,8 +772,8 @@ the SC /model_groups/models REST endpoint</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="id21">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_status_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.status.ProjectStatus" title="sc_api_tools.data_models.status.ProjectStatus"><span class="pre">sc_api_tools.data_models.status.ProjectStatus</span></a></span></span><a class="headerlink" href="#id21" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a ProjectStatus instance from the input dictionary passed in
-<cite>project_status_dict</cite></p>
+<dd><p>Create a ProjectStatus instance from the input dictionary passed in
+<cite>project_status_dict</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>project_status_dict</strong> – Dictionary representing the status of a project on
@@ -793,7 +796,7 @@ project_status_dict</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="id23">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.job.Job" title="sc_api_tools.data_models.job.Job"><span class="pre">sc_api_tools.data_models.job.Job</span></a></span></span><a class="headerlink" href="#id23" title="Permalink to this definition"></a></dt>
-<dd><p>Creates a Job instance from the input dictionary passed in <cite>job_dict</cite></p>
+<dd><p>Create a Job instance from the input dictionary passed in <cite>job_dict</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>job_dict</strong> – Dictionary representing a job on the SC cluster, as returned

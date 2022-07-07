@@ -109,10 +109,17 @@ they are instantiated through the main <code class="xref py py-class docutils li
 <dt class="sig sig-object py" id="sc_api_tools.http_session.sc_session.SCSession">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.http_session.sc_session.</span></span><span class="sig-name descname"><span class="pre">SCSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sc_api_tools.http_session.cluster_config.ClusterConfig" title="sc_api_tools.http_session.cluster_config.ClusterConfig"><span class="pre">sc_api_tools.http_session.cluster_config.ClusterConfig</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.http_session.sc_session.SCSession" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">requests.sessions.Session</span></code></p>
+<p>Wrapper for requests.session that sets the correct headers and cookies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cluster_config</strong> – ClusterConfig with the parameters for host, username,
+password</p>
+</dd>
+</dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="sc_api_tools.http_session.sc_session.SCSession.version">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sc_api_tools.http_session.sc_session.SCSession.version" title="Permalink to this definition"></a></dt>
-<dd><p>Returns the version of SonomaCreek that is running on the server</p>
+<dd><p>Return the version of SonomaCreek that is running on the server.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>string holding the SC version number</p>
@@ -123,7 +130,7 @@ they are instantiated through the main <code class="xref py py-class docutils li
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.http_session.sc_session.SCSession.authenticate">
 <span class="sig-name descname"><span class="pre">authenticate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.http_session.sc_session.SCSession.authenticate" title="Permalink to this definition"></a></dt>
-<dd><p>Get a new authentication cookie from the server</p>
+<dd><p>Get a new authentication cookie from the server.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>verbose</strong> – True to print progress output, False to suppress output</p>
@@ -134,7 +141,7 @@ they are instantiated through the main <code class="xref py py-class docutils li
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.http_session.sc_session.SCSession.get_rest_response">
 <span class="sig-name descname"><span class="pre">get_rest_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contenttype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">requests.models.Response</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.http_session.sc_session.SCSession.get_rest_response" title="Permalink to this definition"></a></dt>
-<dd><p>Returns the REST response from a request to <cite>url</cite> with <cite>method</cite></p>
+<dd><p>Return the REST response from a request to <cite>url</cite> with <cite>method</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -172,7 +179,7 @@ they are instantiated through the main <code class="xref py py-class docutils li
 <dl class="py property">
 <dt class="sig sig-object py" id="sc_api_tools.http_session.cluster_config.ClusterConfig.base_url">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">base_url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sc_api_tools.http_session.cluster_config.ClusterConfig.base_url" title="Permalink to this definition"></a></dt>
-<dd><p>Returns the base UR for accessing the cluster</p>
+<dd><p>Return the base UR for accessing the cluster.</p>
 </dd></dl>
 
 </dd></dl>
@@ -181,6 +188,7 @@ they are instantiated through the main <code class="xref py py-class docutils li
 <dt class="sig sig-object py" id="sc_api_tools.http_session.exception.SCRequestException">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.http_session.exception.</span></span><span class="sig-name descname"><span class="pre">SCRequestException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">BinaryIO</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.http_session.exception.SCRequestException" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception representing an unsuccessful http request to the SC cluster.</p>
 </dd></dl>
 
 </section>
