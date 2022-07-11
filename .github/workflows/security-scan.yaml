@@ -53,13 +53,13 @@ jobs:
         run: |
           export no_proxy=snyk.devtools.intel.com
           snyk auth $SNYK_TOKEN -d
-          snyk test --severity-threshold=medium --json | snyk-to-html -o $REPORT_DIRECTORY/snyk.html
+          snyk test --severity-threshold=medium --json | snyk-to-html -o $REPORT_DIRECTORY/snyk.html -a
 
       - name: Bandit scan
         # Run Bandit scan
         run: |
           pip install bandit
-          bandit -r . --ini tox.ini -f html -o $REPORT_DIRECTORY/bandit.html -v
+          bandit -r . --ini tox.ini -f 'txt' -o $REPORT_DIRECTORY/bandit.txt -v
 
 #      - name: Git AV Scan
 #        uses: djdefi/gitavscan@main
