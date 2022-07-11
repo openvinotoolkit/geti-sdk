@@ -68,6 +68,9 @@ class SCRESTClient:
     :param password: Password to log in to the cluster
     :param workspace_id: Optional ID of the workspace that should be addressed by this
         SCRESTClient instance. If not specified, the default workspace is used.
+    :param verify_certificate: True to verify the certificate used for making HTTPS
+        requests encrypted using TLS protocol. If set to False, an
+        InsecureRequestWarning will be issued
     """
 
     def __init__(
@@ -75,15 +78,23 @@ class SCRESTClient:
             host: str,
             username: str,
             password: str,
-            workspace_id: Optional[str] = None
+            workspace_id: Optional[str] = None,
+            verify_certificate: bool = False
     ):
         self.session = SCSession(
             cluster_config=ClusterConfig(
-                host=host, username=username, password=password)
+                host=host, username=username, password=password),
+            verify_certificate=verify_certificate
         )
         if workspace_id is None:
             workspace_id = get_default_workspace_id(self.session)
         self.workspace_id = workspace_id
+
+    def logout(self) -> None:
+        """
+        Log out of SonomaCreek and end the HTTP session.
+        """
+        self.session.logout()
 
     def download_project(
             self,

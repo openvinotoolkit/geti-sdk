@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import warnings
 from json import JSONDecodeError
 import simplejson
 from typing import Dict, Optional, Union
@@ -20,11 +20,12 @@ import requests
 import urllib3
 
 from requests import Response
+from requests.structures import CaseInsensitiveDict
+from urllib3.exceptions import InsecureRequestWarning
 
 from .cluster_config import ClusterConfig, API_PATTERN
 from .exception import SCRequestException
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 CSRF_COOKIE_NAME = "_oauth2_proxy_csrf"
 PROXY_COOKIE_NAME = "_oauth2_proxy"
@@ -36,34 +37,44 @@ class SCSession(requests.Session):
 
     :param cluster_config: ClusterConfig with the parameters for host, username,
         password
+    :param verify_certificate: True to verify the certificate used for making HTTPS
+        requests encrypted using TLS protocol. If set to False, an
+        InsecureRequestWarning will be issued
     """
 
-    def __init__(self, cluster_config: ClusterConfig):
+    def __init__(
+            self, cluster_config: ClusterConfig, verify_certificate: bool = False
+    ):
         super().__init__()
         self.headers.update({"Connection": "keep-alive"})
-        self.config = cluster_config
-        self.verify = False
         self.allow_redirects = False
         self.token = None
         self._cookies: Dict[str, Optional[str]] = {
             CSRF_COOKIE_NAME: None, PROXY_COOKIE_NAME: None
         }
 
-        # Authentication is only used for https servers.
-        if "https" in cluster_config.host:
-            self.authenticate()
-        elif "http:" in cluster_config.host:
-            # http hosts should include port number in REST request
-            if cluster_config.host.count(":") != 2:
+        # Sanitize hostname
+        if not cluster_config.host.startswith("https://"):
+            if cluster_config.host.startswith("http://"):
                 raise ValueError(
-                    "Please add a port number to the hostname, for "
-                    "example: http://10.0.0.1:5001"
+                    "HTTP connections are not supported, please use HTTPS instead."
                 )
-        else:
-            raise ValueError(
-                "Please use a full hostname, including the protocol for http "
-                "servers. For example: https://10.0.0.1"
+            else:
+                cluster_config.host = "https://" + cluster_config.host
+
+        # Configure certificate verification
+        if not verify_certificate:
+            warnings.warn(
+                "You have disabled TLS certificate validation, HTTPS requests made to "
+                "the SonomaCreek server may be compromised. For optimal security, "
+                "please enable certificate validation.",
+                InsecureRequestWarning
             )
+            urllib3.disable_warnings(InsecureRequestWarning)
+        self.verify = verify_certificate
+
+        self.config = cluster_config
+        self.authenticate()
         self._product_info = self.get_rest_response('/product_info', 'GET')
 
     @property
@@ -99,7 +110,7 @@ class SCSession(requests.Session):
         Retrieve the initial login url by making a request to the login page, and
         following the redirects.
 
-        :return: current state dictionary of the session
+        :return: string containing the URL to the login page
         """
         response = self.get(f"{self.config.host}/user/login", allow_redirects=False)
         login_page_url = self._follow_login_redirects(response)
@@ -157,7 +168,8 @@ class SCSession(requests.Session):
 
         :param url: the REST url without the hostname and api pattern
         :param method: 'GET', 'POST', 'PUT', 'DELETE'
-        :param contenttype: currently either 'json', 'jpeg' or '', defaults to "json"
+        :param contenttype: currently either 'json', 'jpeg', 'multipart', 'zip', or '',
+            defaults to "json"
         :param data: the data to send in a post request, as json
         """
         if url.startswith(API_PATTERN):
@@ -218,3 +230,27 @@ class SCSession(requests.Session):
             result = response
 
         return result
+
+    def logout(self) -> None:
+        """
+        Log out of the server and end the session. All HTTPAdapters are closed and
+        cookies and headers are cleared.
+        """
+        sign_out_url = self.config.base_url[:-len(API_PATTERN)] + "/oauth2/sign_out"
+        response = self.request(
+            url=sign_out_url,
+            method="GET"
+        )
+        if response.status_code == 200:
+            print("Logout successful.")
+        else:
+            raise SCRequestException(
+                method="GET",
+                url=sign_out_url,
+                status_code=response.status_code,
+                request_data={}
+            )
+        super().close()
+        self._cookies = {CSRF_COOKIE_NAME: None, PROXY_COOKIE_NAME: None}
+        self.cookies.clear()
+        self.headers = CaseInsensitiveDict({"Connection": "keep-alive"})
