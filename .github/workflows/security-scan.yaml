@@ -59,7 +59,7 @@ jobs:
         # Run Bandit scan
         run: |
           pip install bandit
-          bandit -r . --ini tox.ini -f html -o $REPORT_DIRECTORY/bandit.html
+          bandit -r . --ini tox.ini -f html -o $REPORT_DIRECTORY/bandit.html -v
 
 #      - name: Git AV Scan
 #        uses: djdefi/gitavscan@main
