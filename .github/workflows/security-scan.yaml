@@ -9,6 +9,7 @@ on:
 env:
   SNYK_API: https://snyk.devtools.intel.com/api/v1
   SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  REPORT_DIRECTORY: reports
 
 jobs:
   security:
@@ -29,26 +30,48 @@ jobs:
           python-version: 3.8
 
       - name: Install package with deployment and test requirements
+        # Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install ".[deployment,tests]"
+          npm install snyk-to-html -g
+
+      - name: Create report directory
+        # Creates the temporary directory used to store the test reports
+        run: mkdir $REPORT_DIRECTORY
 
       # Snyk setup has been done manually on the self-hosted runner
       # - name: Set up Snyk
       #   uses: snyk/actions/setup@master
 
       - name: Snyk scan
+        # Run Snyk scan
         run: |
           export no_proxy=snyk.devtools.intel.com
           snyk auth $SNYK_TOKEN -d
-          snyk test --severity-threshold=medium
+          snyk test --severity-threshold=medium --json | snyk-to-html -o $REPORT_DIRECTORY/snyk.html
 
       - name: Bandit scan
+        # Run Bandit scan
         run: |
           pip install bandit
-          bandit -r . --ini tox.ini
+          bandit -r . --ini tox.ini -f html -o $REPORT_DIRECTORY/bandit.html
 
 #      - name: Git AV Scan
 #        uses: djdefi/gitavscan@main
 #        with:
 #          full: '--full'
+
+      - name: Upload test reports
+        # Publish the test reports to github
+        uses: actions/upload-artifact@v3
+        if: ${{ always() }}
+        with:
+          name: test-reports
+          path: ${{ env.REPORT_DIRECTORY }}
+
+      - name: Clean up artifact directories
+        # Remove temporary report directory
+        if: ${{ always() }}
+        run: |
+          rm -r $REPORT_DIRECTORY
