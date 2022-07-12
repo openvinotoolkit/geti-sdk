@@ -13,14 +13,15 @@
 # and limitations under the License.
 
 import copy
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
-from .prediction_rest_converter import PredictionRESTConverter
-from sc_api_tools.data_models import Prediction, Annotation
+from sc_api_tools.data_models import Annotation, Prediction
+from sc_api_tools.data_models.predictions import ResultMedium
 from sc_api_tools.rest_converters.annotation_rest_converter import (
     NormalizedAnnotationRESTConverter,
 )
-from sc_api_tools.data_models.predictions import ResultMedium
+
+from .prediction_rest_converter import PredictionRESTConverter
 
 
 class NormalizedPredictionRESTConverter(PredictionRESTConverter):
@@ -34,7 +35,7 @@ class NormalizedPredictionRESTConverter(PredictionRESTConverter):
 
     @staticmethod
     def normalized_prediction_from_dict(
-            prediction: Dict[str, Any], image_width: int, image_height: int
+        prediction: Dict[str, Any], image_width: int, image_height: int
     ) -> Prediction:
         """
         Legacy method that creates an AnnotationScene object from a dictionary
@@ -47,8 +48,10 @@ class NormalizedPredictionRESTConverter(PredictionRESTConverter):
         :return: Prediction object
         """
         input_copy = copy.deepcopy(prediction)
-        media_identifier = NormalizedAnnotationRESTConverter._media_identifier_from_dict(
-            prediction["media_identifier"]
+        media_identifier = (
+            NormalizedAnnotationRESTConverter._media_identifier_from_dict(
+                prediction["media_identifier"]
+            )
         )
         annotations: List[Annotation] = []
         for annotation in prediction["annotations"]:
@@ -56,7 +59,7 @@ class NormalizedPredictionRESTConverter(PredictionRESTConverter):
                 NormalizedAnnotationRESTConverter.normalized_annotation_from_dict(
                     input_dict=annotation,
                     image_width=image_width,
-                    image_height=image_height
+                    image_height=image_height,
                 )
             )
         result_media: List[ResultMedium] = []
@@ -69,17 +72,17 @@ class NormalizedPredictionRESTConverter(PredictionRESTConverter):
             {
                 "annotations": annotations,
                 "media_identifier": media_identifier,
-                "maps": result_media
+                "maps": result_media,
             }
         )
         return Prediction(**input_copy)
 
     @staticmethod
     def to_normalized_dict(
-            prediction: Prediction,
-            image_width: int,
-            image_height: int,
-            deidentify: bool = True
+        prediction: Prediction,
+        image_width: int,
+        image_height: int,
+        deidentify: bool = True,
     ) -> Dict[str, Any]:
         """
         Convert a Prediction to a dictionary. By default, removes any ID
@@ -96,5 +99,5 @@ class NormalizedPredictionRESTConverter(PredictionRESTConverter):
             annotation_scene=prediction,
             image_height=image_height,
             image_width=image_width,
-            deidentify=deidentify
+            deidentify=deidentify,
         )

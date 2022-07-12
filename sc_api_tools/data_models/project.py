@@ -13,17 +13,20 @@
 # and limitations under the License.
 
 import copy
-from typing import List, Dict, Optional, ClassVar, Any, Union
 from pprint import pformat
+from typing import Any, ClassVar, Dict, List, Optional, Union
 
 import attr
 
-from sc_api_tools.utils.dictionary_helpers import remove_null_fields
-
-from .performance import Performance
 from .label import Label
+from .performance import Performance
 from .task import Task
-from .utils import deidentify, attr_value_serializer, str_to_datetime
+from .utils import (
+    attr_value_serializer,
+    deidentify,
+    remove_null_fields,
+    str_to_datetime,
+)
 
 
 @attr.s(auto_attribs=True)
@@ -239,7 +242,7 @@ class Project:
         return output_dict
 
     def get_labels_per_task(
-            self, include_empty: bool = True
+        self, include_empty: bool = True
     ) -> List[List[Dict[str, Any]]]:
         """
         Return a nested list containing the labels for each task in the project.
@@ -266,7 +269,7 @@ class Project:
         parameter_dict = {
             "project_name": self.name,
             "project_type": self.project_type,
-            "labels": self.get_labels_per_task(include_empty=False)
+            "labels": self.get_labels_per_task(include_empty=False),
         }
         remove_null_fields(parameter_dict)
         return parameter_dict
@@ -305,8 +308,10 @@ class Project:
         """
         summary_str = f"Project: {self.name}\n"
         for task_index, (task, labels) in enumerate(
-                zip(self.get_trainable_tasks(), self.pipeline.get_labels_per_task())
+            zip(self.get_trainable_tasks(), self.pipeline.get_labels_per_task())
         ):
-            summary_str += f"  Task {task_index+1}: {task.title}\n    Labels: " \
-                            f"{[label.name for label in labels]}\n"
+            summary_str += (
+                f"  Task {task_index+1}: {task.title}\n    Labels: "
+                f"{[label.name for label in labels]}\n"
+            )
         return summary_str

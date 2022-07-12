@@ -12,51 +12,53 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-import pytest
 import time
+
+import pytest
 
 from sc_api_tools.annotation_readers import DatumAnnotationReader
 from sc_api_tools.data_models import Job, Project, ProjectStatus
 from sc_api_tools.data_models.enums import JobState
-
-from tests.helpers import ProjectService, \
-    get_or_create_annotated_project_for_test_class, SdkTestMode
+from tests.helpers import (
+    ProjectService,
+    SdkTestMode,
+    get_or_create_annotated_project_for_test_class,
+)
 from tests.helpers.constants import PROJECT_PREFIX
 
 
 class TestTrainingManager:
     @staticmethod
     def ensure_annotated_project(
-            project_service: ProjectService, annotation_reader: DatumAnnotationReader
+        project_service: ProjectService, annotation_reader: DatumAnnotationReader
     ) -> Project:
         return get_or_create_annotated_project_for_test_class(
             project_service=project_service,
             annotation_readers=[annotation_reader],
             project_type="detection",
-            project_name=f"{PROJECT_PREFIX}_training_manager"
+            project_name=f"{PROJECT_PREFIX}_training_manager",
         )
 
     @pytest.mark.vcr()
     def test_train_task_and_get_jobs(
-            self,
-            fxt_project_service: ProjectService,
-            fxt_annotation_reader: DatumAnnotationReader,
-            fxt_test_mode: SdkTestMode
+        self,
+        fxt_project_service: ProjectService,
+        fxt_annotation_reader: DatumAnnotationReader,
+        fxt_test_mode: SdkTestMode,
     ) -> None:
         """
         Verifies that submitting a training job for a task in a project with
         sufficient annotations works
 
         """
-        project = self.ensure_annotated_project(project_service=fxt_project_service,
-                                                annotation_reader=fxt_annotation_reader)
+        project = self.ensure_annotated_project(
+            project_service=fxt_project_service, annotation_reader=fxt_annotation_reader
+        )
         if fxt_test_mode != SdkTestMode.OFFLINE:
             time.sleep(5)
 
         task = project.get_trainable_tasks()[0]
-        job = fxt_project_service.training_manager.train_task(
-            task=task
-        )
+        job = fxt_project_service.training_manager.train_task(task=task)
         assert isinstance(job, Job)
 
         jobs = fxt_project_service.training_manager.get_jobs(project_only=True)
@@ -75,15 +77,16 @@ class TestTrainingManager:
 
     @pytest.mark.vcr()
     def test_get_status(
-            self,
-            fxt_project_service: ProjectService,
-            fxt_annotation_reader: DatumAnnotationReader
+        self,
+        fxt_project_service: ProjectService,
+        fxt_annotation_reader: DatumAnnotationReader,
     ) -> None:
         """
         Test that fetching project status works
 
         """
-        self.ensure_annotated_project(project_service=fxt_project_service,
-                                      annotation_reader=fxt_annotation_reader)
+        self.ensure_annotated_project(
+            project_service=fxt_project_service, annotation_reader=fxt_annotation_reader
+        )
         status = fxt_project_service.training_manager.get_status()
         assert isinstance(status, ProjectStatus)

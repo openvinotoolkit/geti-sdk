@@ -14,8 +14,7 @@
 
 # noqa: D104
 
-from .prediction_rest_converter import PredictionRESTConverter
 from .normalized_prediction_rest_converter import NormalizedPredictionRESTConverter
-
+from .prediction_rest_converter import PredictionRESTConverter
 
 __all__ = ["PredictionRESTConverter", "NormalizedPredictionRESTConverter"]

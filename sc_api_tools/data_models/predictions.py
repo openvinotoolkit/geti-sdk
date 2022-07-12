@@ -13,18 +13,17 @@
 # and limitations under the License.
 
 from datetime import datetime
-from typing import List, Optional, ClassVar
-
-import numpy as np
+from typing import ClassVar, List, Optional
 
 import attr
+import numpy as np
 
+from sc_api_tools.data_models.annotation_scene import AnnotationScene
 from sc_api_tools.data_models.annotations import Annotation
 from sc_api_tools.data_models.enums import AnnotationKind
-from sc_api_tools.data_models.annotation_scene import AnnotationScene
 from sc_api_tools.data_models.label import Label
 from sc_api_tools.data_models.media import MediaInformation
-from sc_api_tools.data_models.utils import str_to_annotation_kind, deidentify
+from sc_api_tools.data_models.utils import deidentify, str_to_annotation_kind
 from sc_api_tools.http_session import SCSession
 
 
@@ -62,8 +61,8 @@ class ResultMedium:
         )
         # Label id is not defined for anomaly classification, it will always return
         # the saliency map for the 'Anomalous' label
-        if self.name.lower() == 'anomaly map' and self.label_name is None:
-            self.label_name = 'Anomalous'
+        if self.name.lower() == "anomaly map" and self.label_name is None:
+            self.label_name = "Anomalous"
 
     def get_data(self, session: SCSession) -> bytes:
         """
@@ -94,7 +93,7 @@ class ResultMedium:
 
         :return: friendly name for the result medium
         """
-        return self.name + '_' + self.label_name
+        return self.name + "_" + self.label_name
 
 
 @attr.s(auto_attribs=True)
@@ -114,7 +113,7 @@ class Prediction(AnnotationScene):
     kind: str = attr.ib(
         converter=str_to_annotation_kind,
         default=AnnotationKind.PREDICTION,
-        kw_only=True
+        kw_only=True,
     )
     maps: List[ResultMedium] = attr.ib(factory=list, kw_only=True)
 
@@ -164,9 +163,9 @@ class Prediction(AnnotationScene):
         return result
 
     def as_mask(
-            self,
-            media_information: MediaInformation,
-            probability_threshold: Optional[float] = None
+        self,
+        media_information: MediaInformation,
+        probability_threshold: Optional[float] = None,
     ) -> np.ndarray:
         """
         Convert the shapes in the prediction to a mask that can be overlayed on an
@@ -185,9 +184,9 @@ class Prediction(AnnotationScene):
         mask = np.zeros((image_height, image_width, 3), dtype=np.uint8)
 
         for annotation in self.annotations:
-            max_prob_label_index = int(np.argmax(
-                [label.probability for label in annotation.labels]
-            ))
+            max_prob_label_index = int(
+                np.argmax([label.probability for label in annotation.labels])
+            )
             max_prob_label = annotation.labels[max_prob_label_index]
             if probability_threshold is not None:
                 if max_prob_label.probability < probability_threshold:
@@ -200,11 +199,11 @@ class Prediction(AnnotationScene):
                 mask=mask,
                 labels=annotation.labels,
                 color=color,
-                line_thickness=line_thickness
+                line_thickness=line_thickness,
             )
         return mask
 
-    def filter_by_confidence(self, confidence_threshold: float) -> 'Prediction':
+    def filter_by_confidence(self, confidence_threshold: float) -> "Prediction":
         """
         Return a new Prediction instance containing only those predicted annotations
         that have a confidence higher than `confidence_threshold`.
@@ -224,5 +223,5 @@ class Prediction(AnnotationScene):
         return Prediction(
             annotations=annotations,
             media_identifier=self.media_identifier,
-            modified=datetime.now().isoformat()
+            modified=datetime.now().isoformat(),
         )

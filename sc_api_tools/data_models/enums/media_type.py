@@ -20,9 +20,9 @@ class MediaType(Enum):
     Enum representing the different media types in SC.
     """
 
-    IMAGE = 'image'
-    VIDEO = 'video'
-    VIDEO_FRAME = 'video_frame'
+    IMAGE = "image"
+    VIDEO = "video"
+    VIDEO_FRAME = "video_frame"
 
     def __str__(self) -> str:
         """

@@ -15,10 +15,9 @@
 from typing import List, Optional
 
 import attr
-
 import numpy as np
 
-from sc_api_tools.data_models import Prediction, Label, Annotation
+from sc_api_tools.data_models import Annotation, Label, Prediction
 
 from .region_of_interest import ROI
 
@@ -77,9 +76,7 @@ class IntermediateInferenceResult:
             return [self.image]
 
         if rois is not None:
-            rois_to_get = [
-                roi.shape for roi in self.rois if roi in rois
-            ]
+            rois_to_get = [roi.shape for roi in self.rois if roi in rois]
         else:
             rois_to_get = [roi.shape for roi in self.rois]
 

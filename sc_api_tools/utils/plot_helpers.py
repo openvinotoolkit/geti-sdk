@@ -12,27 +12,24 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import Union, List, Optional
-
-import numpy as np
+from typing import List, Optional, Union
 
 import cv2
-
-from PIL import Image as PILImage
+import numpy as np
 from IPython.display import display
+from PIL import Image as PILImage
 
 from sc_api_tools.data_models.annotation_scene import AnnotationScene
-from sc_api_tools.data_models.media import Image, VideoFrame
-from sc_api_tools.data_models.media import MediaInformation
-from sc_api_tools.data_models.predictions import Prediction
 from sc_api_tools.data_models.containers import MediaList
+from sc_api_tools.data_models.media import Image, MediaInformation, VideoFrame
+from sc_api_tools.data_models.predictions import Prediction
 
 
 def show_image_with_annotation_scene(
-        image: Union[Image, VideoFrame, np.ndarray],
-        annotation_scene: Union[AnnotationScene, Prediction],
-        filepath: Optional[str] = None,
-        show_in_notebook: bool = False
+    image: Union[Image, VideoFrame, np.ndarray],
+    annotation_scene: Union[AnnotationScene, Prediction],
+    filepath: Optional[str] = None,
+    show_in_notebook: bool = False,
 ):
     """
     Display an image with an annotation_scene overlayed on top of it.
@@ -46,9 +43,9 @@ def show_image_with_annotation_scene(
         to False will open a pop up to show the image.
     """
     if type(annotation_scene) == AnnotationScene:
-        plot_type = 'Annotation'
+        plot_type = "Annotation"
     elif type(annotation_scene) == Prediction:
-        plot_type = 'Prediction'
+        plot_type = "Prediction"
     else:
         raise ValueError(
             f"Invalid input: Unable to plot object of type {type(annotation_scene)}."
@@ -57,7 +54,7 @@ def show_image_with_annotation_scene(
         media_information = MediaInformation(
             "", height=image.shape[0], width=image.shape[1]
         )
-        name = 'Numpy image'
+        name = "Numpy image"
     else:
         media_information = image.media_information
         name = image.name
@@ -72,7 +69,7 @@ def show_image_with_annotation_scene(
 
     if filepath is None:
         if not show_in_notebook:
-            cv2.imshow(f'{plot_type} for {name}', result)
+            cv2.imshow(f"{plot_type} for {name}", result)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
         else:
@@ -86,7 +83,7 @@ def show_image_with_annotation_scene(
 def show_video_frames_with_annotation_scenes(
     video_frames: MediaList[VideoFrame],
     annotation_scenes: List[Union[AnnotationScene, Prediction]],
-    wait_time: float = 3
+    wait_time: float = 3,
 ):
     """
     Display a list of VideoFrames, with their annotations or predictions overlayed on
@@ -100,9 +97,9 @@ def show_video_frames_with_annotation_scenes(
     image_name = video_frames[0].name.split("_frame_")[0]
     for frame, annotation_scene in zip(video_frames, annotation_scenes):
         if type(annotation_scene) == AnnotationScene:
-            name = 'Annotation'
+            name = "Annotation"
         elif type(annotation_scene) == Prediction:
-            name = 'Prediction'
+            name = "Prediction"
         else:
             raise ValueError(
                 f"Invalid input: Unable to plot object of type "
@@ -114,6 +111,6 @@ def show_video_frames_with_annotation_scenes(
         result[np.sum(mask, axis=-1) > 0] = 0
         result += mask[..., ::-1]
 
-        cv2.imshow(f'{name} for {image_name}', result)
-        cv2.waitKey(int(wait_time*1000))
+        cv2.imshow(f"{name} for {image_name}", result)
+        cv2.waitKey(int(wait_time * 1000))
         cv2.destroyAllWindows()

@@ -13,19 +13,17 @@
 # and limitations under the License.
 import warnings
 from json import JSONDecodeError
-import simplejson
 from typing import Dict, Optional, Union
 
 import requests
+import simplejson
 import urllib3
-
 from requests import Response
 from requests.structures import CaseInsensitiveDict
 from urllib3.exceptions import InsecureRequestWarning
 
-from .cluster_config import ClusterConfig, API_PATTERN
+from .cluster_config import API_PATTERN, ClusterConfig
 from .exception import SCRequestException
-
 
 CSRF_COOKIE_NAME = "_oauth2_proxy_csrf"
 PROXY_COOKIE_NAME = "_oauth2_proxy"
@@ -42,15 +40,14 @@ class SCSession(requests.Session):
         InsecureRequestWarning will be issued
     """
 
-    def __init__(
-            self, cluster_config: ClusterConfig, verify_certificate: bool = False
-    ):
+    def __init__(self, cluster_config: ClusterConfig, verify_certificate: bool = False):
         super().__init__()
         self.headers.update({"Connection": "keep-alive"})
         self.allow_redirects = False
         self.token = None
         self._cookies: Dict[str, Optional[str]] = {
-            CSRF_COOKIE_NAME: None, PROXY_COOKIE_NAME: None
+            CSRF_COOKIE_NAME: None,
+            PROXY_COOKIE_NAME: None,
         }
 
         # Sanitize hostname
@@ -68,14 +65,14 @@ class SCSession(requests.Session):
                 "You have disabled TLS certificate validation, HTTPS requests made to "
                 "the SonomaCreek server may be compromised. For optimal security, "
                 "please enable certificate validation.",
-                InsecureRequestWarning
+                InsecureRequestWarning,
             )
             urllib3.disable_warnings(InsecureRequestWarning)
         self.verify = verify_certificate
 
         self.config = cluster_config
         self.authenticate()
-        self._product_info = self.get_rest_response('/product_info', 'GET')
+        self._product_info = self.get_rest_response("/product_info", "GET")
 
     @property
     def version(self) -> str:
@@ -84,8 +81,8 @@ class SCSession(requests.Session):
 
         :return: string holding the SC version number
         """
-        version_string = self._product_info.get('product-version', '1.0.0-')
-        return version_string.split('-')[0]
+        version_string = self._product_info.get("product-version", "1.0.0-")
+        return version_string.split("-")[0]
 
     def _follow_login_redirects(self, response: Response) -> str:
         """
@@ -136,7 +133,7 @@ class SCSession(requests.Session):
                 f"valid login details."
             ) from error
         self.headers.clear()
-        self.headers.update({'Content-Type': 'application/x-www-form-urlencoded'})
+        self.headers.update({"Content-Type": "application/x-www-form-urlencoded"})
         if verbose:
             print(f"Authenticating on host {self.config.host}...")
         response = self.post(
@@ -145,7 +142,7 @@ class SCSession(requests.Session):
             cookies={CSRF_COOKIE_NAME: self._cookies[CSRF_COOKIE_NAME]},
             headers={"Cookie": self._cookies[CSRF_COOKIE_NAME]},
             allow_redirects=True,
-            )
+        )
         try:
             previous_response = response.history[-1]
         except IndexError:
@@ -153,15 +150,13 @@ class SCSession(requests.Session):
                 "The cluster responded to the request, but authentication failed. "
                 "Please verify that you have provided correct credentials."
             )
-        cookie = {
-            PROXY_COOKIE_NAME: previous_response.cookies.get(PROXY_COOKIE_NAME)
-        }
+        cookie = {PROXY_COOKIE_NAME: previous_response.cookies.get(PROXY_COOKIE_NAME)}
         self._cookies.update(cookie)
         if verbose:
             print("Authentication successful. Cookie received.")
 
     def get_rest_response(
-            self, url: str, method: str, contenttype: str = "json", data=None
+        self, url: str, method: str, contenttype: str = "json", data=None
     ) -> Union[Response, dict, list]:
         """
         Return the REST response from a request to `url` with `method`.
@@ -173,7 +168,7 @@ class SCSession(requests.Session):
         :param data: the data to send in a post request, as json
         """
         if url.startswith(API_PATTERN):
-            url = url[len(API_PATTERN):]
+            url = url[len(API_PATTERN) :]
 
         if contenttype == "json":
             self.headers.update({"Content-Type": "application/json"})
@@ -197,13 +192,12 @@ class SCSession(requests.Session):
             "url": requesturl,
             **kw_data_arg,
             "stream": True,
-            "cookies": self._cookies
+            "cookies": self._cookies,
         }
         response = self.request(**request_params)
 
-        if (
-                response.status_code in [401, 403]
-                or "text/html" in response.headers.get("Content-Type", [])
+        if response.status_code in [401, 403] or "text/html" in response.headers.get(
+            "Content-Type", []
         ):
             # Authentication has likely expired, re-authenticate
             print("Authorization expired, re-authenticating...", end=" ")
@@ -221,7 +215,7 @@ class SCSession(requests.Session):
                 url=url,
                 status_code=response.status_code,
                 request_data=kw_data_arg,
-                response_data=response_data
+                response_data=response_data,
             )
 
         if response.headers.get("Content-Type", None) == "application/json":
@@ -236,11 +230,8 @@ class SCSession(requests.Session):
         Log out of the server and end the session. All HTTPAdapters are closed and
         cookies and headers are cleared.
         """
-        sign_out_url = self.config.base_url[:-len(API_PATTERN)] + "/oauth2/sign_out"
-        response = self.request(
-            url=sign_out_url,
-            method="GET"
-        )
+        sign_out_url = self.config.base_url[: -len(API_PATTERN)] + "/oauth2/sign_out"
+        response = self.request(url=sign_out_url, method="GET")
         if response.status_code == 200:
             print("Logout successful.")
         else:
@@ -248,7 +239,7 @@ class SCSession(requests.Session):
                 method="GET",
                 url=sign_out_url,
                 status_code=response.status_code,
-                request_data={}
+                request_data={},
             )
         super().close()
         self._cookies = {CSRF_COOKIE_NAME: None, PROXY_COOKIE_NAME: None}

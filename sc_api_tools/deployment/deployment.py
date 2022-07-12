@@ -14,20 +14,21 @@
 
 import json
 import os
-from typing import List, Union, Optional, Dict, Any
+from typing import Any, Dict, List, Optional, Union
 
 import attr
-
 import numpy as np
 
 from sc_api_tools.data_models import (
+    Annotation,
+    Label,
+    Prediction,
     Project,
+    ScoredLabel,
     Task,
     TaskType,
-    Prediction,
-    Label, Annotation, ScoredLabel,
 )
-from sc_api_tools.data_models.shapes import Rectangle, Polygon, RotatedRectangle
+from sc_api_tools.data_models.shapes import Polygon, Rectangle, RotatedRectangle
 from sc_api_tools.deployment.data_models import ROI, IntermediateInferenceResult
 from sc_api_tools.deployment.deployed_model import DeployedModel
 from sc_api_tools.rest_converters import ProjectRESTConverter
@@ -79,13 +80,13 @@ class Deployment:
         :param path_to_folder: Folder to save the deployment to
         """
         project_dict = ProjectRESTConverter.to_dict(self.project)
-        deployment_folder = os.path.join(path_to_folder, 'deployment')
+        deployment_folder = os.path.join(path_to_folder, "deployment")
 
         if not os.path.exists(deployment_folder):
             os.makedirs(deployment_folder)
         # Save project data
-        project_filepath = os.path.join(deployment_folder, 'project.json')
-        with open(project_filepath, 'w') as project_file:
+        project_filepath = os.path.join(deployment_folder, "project.json")
+        with open(project_filepath, "w") as project_file:
             json.dump(project_dict, project_file, indent=4)
         # Save model for each task
         for task, model in zip(self.project.get_trainable_tasks(), self.models):
@@ -95,7 +96,7 @@ class Deployment:
             model.save(model_dir)
 
     @classmethod
-    def from_folder(cls, path_to_folder: Union[str, os.PathLike]) -> 'Deployment':
+    def from_folder(cls, path_to_folder: Union[str, os.PathLike]) -> "Deployment":
         """
         Create a Deployment instance from a specified `path_to_folder`.
 
@@ -104,15 +105,15 @@ class Deployment:
         """
         deployment_folder = path_to_folder
         if not path_to_folder.endswith("deployment"):
-            if 'deployment' in os.listdir(path_to_folder):
-                deployment_folder = os.path.join(path_to_folder, 'deployment')
+            if "deployment" in os.listdir(path_to_folder):
+                deployment_folder = os.path.join(path_to_folder, "deployment")
             else:
                 raise ValueError(
                     f"No `deployment` folder found in the directory at "
                     f"`{path_to_folder}`. Unable to load Deployment."
                 )
-        project_filepath = os.path.join(deployment_folder, 'project.json')
-        with open(project_filepath, 'r') as project_file:
+        project_filepath = os.path.join(deployment_folder, "project.json")
+        with open(project_filepath, "r") as project_file:
             project_dict = json.load(project_file)
         project = ProjectRESTConverter.from_dict(project_dict)
         task_folder_names = [task.title for task in project.get_trainable_tasks()]
@@ -123,7 +124,7 @@ class Deployment:
             )
         return cls(models=models, project=project)
 
-    def load_inference_models(self, device: str = 'CPU'):
+    def load_inference_models(self, device: str = "CPU"):
         """
         Load the inference models for the deployment to the specified device.
 
@@ -131,8 +132,8 @@ class Deployment:
         """
         try:
             from ote_sdk.usecases.exportable_code.prediction_to_annotation_converter import (
+                IPredictionToAnnotationConverter,
                 create_converter,
-                IPredictionToAnnotationConverter
             )
         except ImportError as error:
             raise ValueError(
@@ -147,12 +148,9 @@ class Deployment:
             model.load_inference_model(device=device)
 
             inference_converter = create_converter(
-                converter_type=task.type.to_ote_domain(),
-                labels=model.ote_label_schema
+                converter_type=task.type.to_ote_domain(), labels=model.ote_label_schema
             )
-            inference_converters.update(
-                {task.title: inference_converter}
-            )
+            inference_converters.update({task.title: inference_converter})
             empty_label = next((label for label in task.labels if label.is_empty), None)
             empty_labels.update({task.title: empty_label})
 
@@ -197,9 +195,7 @@ class Deployment:
                         for annotation in task_prediction.annotations
                     ]
                 intermediate_result = IntermediateInferenceResult(
-                    image=image,
-                    prediction=task_prediction,
-                    rois=rois
+                    image=image, prediction=task_prediction, rois=rois
                 )
                 previous_labels = [label for label in task.labels if not label.is_empty]
 
@@ -263,22 +259,17 @@ class Deployment:
         model = self._get_model_for_task(task)
         preprocessed_image, metadata = model.preprocess(image)
         inference_results = model.infer(preprocessed_image)
-        postprocessing_results = model.postprocess(
-            inference_results, metadata=metadata
-        )
+        postprocessing_results = model.postprocess(inference_results, metadata=metadata)
         converter = self._inference_converters[task.title]
 
         width: int = image.shape[1]
         height: int = image.shape[0]
 
         annotation_scene_entity = converter.convert_to_annotation(
-            predictions=postprocessing_results,
-            metadata=metadata
+            predictions=postprocessing_results, metadata=metadata
         )
         prediction = Prediction.from_ote(
-            annotation_scene_entity,
-            image_width=width,
-            image_height=height
+            annotation_scene_entity, image_width=width, image_height=height
         )
 
         # Empty label is not generated by OTE correctly, append it here if there are
@@ -292,7 +283,7 @@ class Deployment:
                             ScoredLabel.from_label(
                                 self._empty_labels[task.title], probability=1
                             )
-                        ]
+                        ],
                     )
                 )
 

@@ -12,20 +12,20 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-import glob
-import os
-import io
-from typing import List, Union, Sequence
 import datetime
+import glob
+import io
+import os
+from typing import List, Sequence, Union
 
 import cv2
-
 import numpy as np
 
-from .media_manager import BaseMediaManager, MEDIA_SUPPORTED_FORMAT_MAPPING
-from sc_api_tools.data_models import MediaType, Image
+from sc_api_tools.data_models import Image, MediaType
 from sc_api_tools.data_models.containers import MediaList
 from sc_api_tools.rest_converters import MediaRESTConverter
+
+from .media_manager import MEDIA_SUPPORTED_FORMAT_MAPPING, BaseMediaManager
 
 
 class ImageManager(BaseMediaManager[Image]):
@@ -54,21 +54,19 @@ class ImageManager(BaseMediaManager[Image]):
         if isinstance(image, (str, os.PathLike)):
             image_dict = self._upload(image)
         elif isinstance(image, np.ndarray):
-            image_io = io.BytesIO(cv2.imencode('.jpg', image)[1].tobytes())
+            image_io = io.BytesIO(cv2.imencode(".jpg", image)[1].tobytes())
             time_now = datetime.datetime.now()
             image_io.name = f"numpy_{time_now.strftime('%Y-%m-%dT%H-%M-%S.%f')}.jpg"
             image_dict = self._upload_bytes(image_io)
         else:
             raise TypeError(f"Invalid image type: {type(image)}.")
-        return MediaRESTConverter.from_dict(
-            input_dict=image_dict, media_type=Image
-        )
+        return MediaRESTConverter.from_dict(input_dict=image_dict, media_type=Image)
 
     def upload_folder(
-            self,
-            path_to_folder: str,
-            n_images: int = -1,
-            skip_if_filename_exists: bool = False
+        self,
+        path_to_folder: str,
+        n_images: int = -1,
+        skip_if_filename_exists: bool = False,
     ) -> MediaList[Image]:
         """
         Upload all images in a folder to the project. Returns a MediaList containing
@@ -84,7 +82,7 @@ class ImageManager(BaseMediaManager[Image]):
         return self._upload_folder(
             path_to_folder=path_to_folder,
             n_media=n_images,
-            skip_if_filename_exists=skip_if_filename_exists
+            skip_if_filename_exists=skip_if_filename_exists,
         )
 
     def download_all(self, path_to_folder: str, append_image_uid: bool = False) -> None:
@@ -106,7 +104,7 @@ class ImageManager(BaseMediaManager[Image]):
         image_names: List[str],
         extension_included: bool = False,
         n_images: int = -1,
-        skip_if_filename_exists: bool = False
+        skip_if_filename_exists: bool = False,
     ):
         """
         From a folder containing images `path_to_folder`, this method uploads only
@@ -137,13 +135,13 @@ class ImageManager(BaseMediaManager[Image]):
                 for media_extension in media_formats:
                     matches += glob.glob(
                         os.path.join(
-                            path_to_folder, '**', f'{image_name}{media_extension}'
+                            path_to_folder, "**", f"{image_name}{media_extension}"
                         ),
-                        recursive=True
+                        recursive=True,
                     )
             else:
                 matches = glob.glob(
-                    os.path.join(path_to_folder, '**', image_name), recursive=True
+                    os.path.join(path_to_folder, "**", image_name), recursive=True
                 )
             if not matches:
                 raise ValueError(

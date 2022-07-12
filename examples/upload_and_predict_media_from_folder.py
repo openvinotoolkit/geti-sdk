@@ -4,7 +4,7 @@ from dotenv import dotenv_values
 
 from sc_api_tools import SCRESTClient
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Get credentials from .env file
     env_variables = dotenv_values(dotenv_path=".env")
 
@@ -21,18 +21,18 @@ if __name__ == '__main__':
     client = SCRESTClient(
         host=env_variables.get("HOST"),
         username=env_variables.get("USERNAME"),
-        password=env_variables.get("PASSWORD")
+        password=env_variables.get("PASSWORD"),
     )
 
     # `FOLDER_WITH_MEDIA` is the path to the directory with images and videos that
     # should be uploaded to the SC cluster
-    FOLDER_WITH_MEDIA = os.path.join('..', 'dummy_folder')
+    FOLDER_WITH_MEDIA = os.path.join("..", "dummy_folder")
 
     # `PROJECT_NAME` is the name of the project to which the media should be uploaded,
     # and from which predictions can be requested. A project with this name should
     # exist on the cluster. If the project exists but doesn't have any trained models,
     # the media will be uploaded but no predictions will be generated.
-    PROJECT_NAME = 'dummy_project'
+    PROJECT_NAME = "dummy_project"
 
     # `DELETE_AFTER_PREDICTION` can be set to True to delete the media from the
     # project once all predictions are downloaded. This can be useful to save disk
@@ -46,5 +46,5 @@ if __name__ == '__main__':
     client.upload_and_predict_media_folder(
         project_name=PROJECT_NAME,
         media_folder=FOLDER_WITH_MEDIA,
-        delete_after_prediction=DELETE_AFTER_PREDICTION
+        delete_after_prediction=DELETE_AFTER_PREDICTION,
     )

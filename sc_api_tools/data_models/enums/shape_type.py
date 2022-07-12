@@ -20,10 +20,10 @@ class ShapeType(Enum):
     Enum representing the types of shapes available in SC.
     """
 
-    RECTANGLE = 'RECTANGLE'
-    ELLIPSE = 'ELLIPSE'
-    POLYGON = 'POLYGON'
-    ROTATED_RECTANGLE = 'ROTATED_RECTANGLE'
+    RECTANGLE = "RECTANGLE"
+    ELLIPSE = "ELLIPSE"
+    POLYGON = "POLYGON"
+    ROTATED_RECTANGLE = "ROTATED_RECTANGLE"
 
     def __str__(self):
         """

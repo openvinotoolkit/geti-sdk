@@ -16,16 +16,14 @@ from typing import List
 
 import pytest
 
-from tests.helpers.project_service import ProjectService
 from tests.helpers.constants import PROJECT_PREFIX
+from tests.helpers.project_service import ProjectService
 
 
 class TestConfigurationManager:
     @pytest.mark.vcr()
     def test_get_and_set_configuration(
-            self,
-            fxt_project_service: ProjectService,
-            fxt_default_labels: List[str]
+        self, fxt_project_service: ProjectService, fxt_default_labels: List[str]
     ):
         """
         Verifies that getting and setting the configuration for a single task project
@@ -43,7 +41,7 @@ class TestConfigurationManager:
         project = fxt_project_service.create_project(
             project_name=f"{PROJECT_PREFIX}_configuration_manager",
             project_type="detection",
-            labels=[fxt_default_labels]
+            labels=[fxt_default_labels],
         )
         task = project.get_trainable_tasks()[0]
 

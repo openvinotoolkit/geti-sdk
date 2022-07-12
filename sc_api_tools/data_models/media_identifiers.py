@@ -16,7 +16,7 @@ from typing import ClassVar, Dict
 
 import attr
 
-from sc_api_tools.data_models.utils import str_to_media_type, attr_value_serializer
+from sc_api_tools.data_models.utils import attr_value_serializer, str_to_media_type
 
 
 @attr.s(auto_attribs=True)

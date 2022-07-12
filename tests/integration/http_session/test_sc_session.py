@@ -28,7 +28,7 @@ class TestSCSession:
         Test that the 'version' attribute of the session is assigned a valid product
         version
         """
-        possible_versions = ['1.0', '1.1', '1.2']
+        possible_versions = ["1.0", "1.1", "1.2"]
         version_matches = [
             fxt_sc_session.version.startswith(version) for version in possible_versions
         ]

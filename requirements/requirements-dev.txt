@@ -5,4 +5,6 @@ pytest-cov==3.0.*
 pytest-env==0.6.*
 pytest-html==3.1.*
 flake8
-pydocstyle==6.1.*
+pydocstyle
+black[jupyter]
+isort

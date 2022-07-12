@@ -20,9 +20,9 @@ class PredictionMode(Enum):
     Enum representing the mode used to generate predictions in SC.
     """
 
-    LATEST = 'latest'
-    AUTO = 'auto'
-    ONLINE = 'online'
+    LATEST = "latest"
+    AUTO = "auto"
+    ONLINE = "online"
 
     def __str__(self):
         """

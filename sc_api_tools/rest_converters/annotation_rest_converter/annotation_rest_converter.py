@@ -13,44 +13,43 @@
 # and limitations under the License.
 
 import copy
+from typing import Any, Dict, List, cast
 
 import attr
 from omegaconf import OmegaConf
-from sc_api_tools.data_models import MediaType, ScoredLabel, AnnotationScene
-from typing import List, Dict, Any, cast
 
-from sc_api_tools.data_models import Annotation
-from sc_api_tools.data_models.task_annotation_state import TaskAnnotationState
-from sc_api_tools.data_models.shapes import (
-    Shape,
-    Rectangle,
-    Ellipse,
-    Polygon,
-    Point,
-    RotatedRectangle,
-)
-from sc_api_tools.data_models.media_identifiers import (
-    MediaIdentifier,
-    ImageIdentifier,
-    VideoFrameIdentifier
-)
+from sc_api_tools.data_models import Annotation, AnnotationScene, MediaType, ScoredLabel
 from sc_api_tools.data_models.enums import ShapeType
-from sc_api_tools.data_models.utils import (
-    str_to_shape_type,
-    str_to_media_type,
-    attr_value_serializer
+from sc_api_tools.data_models.media_identifiers import (
+    ImageIdentifier,
+    MediaIdentifier,
+    VideoFrameIdentifier,
 )
-from sc_api_tools.utils.dictionary_helpers import remove_null_fields
+from sc_api_tools.data_models.shapes import (
+    Ellipse,
+    Point,
+    Polygon,
+    Rectangle,
+    RotatedRectangle,
+    Shape,
+)
+from sc_api_tools.data_models.task_annotation_state import TaskAnnotationState
+from sc_api_tools.data_models.utils import (
+    attr_value_serializer,
+    remove_null_fields,
+    str_to_media_type,
+    str_to_shape_type,
+)
 
 SHAPE_TYPE_MAPPING = {
     ShapeType.ELLIPSE: Ellipse,
     ShapeType.RECTANGLE: Rectangle,
     ShapeType.POLYGON: Polygon,
-    ShapeType.ROTATED_RECTANGLE: RotatedRectangle
+    ShapeType.ROTATED_RECTANGLE: RotatedRectangle,
 }
 MEDIA_IDENTIFIER_MAPPING = {
     MediaType.IMAGE: ImageIdentifier,
-    MediaType.VIDEO_FRAME: VideoFrameIdentifier
+    MediaType.VIDEO_FRAME: VideoFrameIdentifier,
 }
 
 
@@ -61,7 +60,7 @@ class AnnotationRESTConverter:
 
     @staticmethod
     def to_dict(
-            annotation_scene: AnnotationScene, deidentify: bool = True
+        annotation_scene: AnnotationScene, deidentify: bool = True
     ) -> Dict[str, Any]:
         """
         Convert an AnnotationScene to a dictionary. By default, removes any ID

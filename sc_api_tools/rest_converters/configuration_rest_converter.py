@@ -13,26 +13,24 @@
 # and limitations under the License.
 
 import copy
-from typing import Dict, Any, List, Union
+from typing import Any, Dict, List, Union
 
 import attr
 
 from sc_api_tools.data_models.configurable_parameter_group import ParameterGroup
 from sc_api_tools.data_models.configuration import (
     ConfigurableParameters,
-    TaskConfiguration,
+    FullConfiguration,
     GlobalConfiguration,
-    FullConfiguration
+    TaskConfiguration,
 )
 from sc_api_tools.data_models.configuration_identifiers import (
+    ComponentEntityIdentifier,
     EntityIdentifier,
     HyperParameterGroupIdentifier,
-    ComponentEntityIdentifier
 )
-from sc_api_tools.data_models.enums.configuration_enums import (
-    ConfigurationEntityType
-)
-from sc_api_tools.utils import remove_null_fields
+from sc_api_tools.data_models.enums.configuration_enums import ConfigurationEntityType
+from sc_api_tools.data_models.utils import remove_null_fields
 
 
 class ConfigurationRESTConverter:
@@ -81,12 +79,12 @@ class ConfigurationRESTConverter:
                 input_dict=entity_identifier
             )
 
-        input_copy['entity_identifier'] = entity_identifier
+        input_copy["entity_identifier"] = entity_identifier
         return ConfigurableParameters.from_dict(input_dict=input_copy)
 
     @staticmethod
     def _rest_components_to_objects(
-            input_list: List[Dict[str, Any]]
+        input_list: List[Dict[str, Any]]
     ) -> List[ConfigurableParameters]:
         """
         Create a list of configurable parameters from a list of dictionaries received
@@ -148,15 +146,13 @@ class ConfigurationRESTConverter:
         component_objects = ConfigurationRESTConverter._rest_components_to_objects(
             components
         )
-        input_copy.update({'components': component_objects})
+        input_copy.update({"components": component_objects})
         return TaskConfiguration(**input_copy)
 
     @staticmethod
     def configuration_to_minimal_dict(
-            configuration: Union[
-                TaskConfiguration, GlobalConfiguration, FullConfiguration
-            ],
-            deidentify: bool = True
+        configuration: Union[TaskConfiguration, GlobalConfiguration, FullConfiguration],
+        deidentify: bool = True,
     ) -> Dict[str, Any]:
         """
         Convert a TaskConfiguration, GlobalConfiguration or FullConfiguration into a
@@ -185,7 +181,7 @@ class ConfigurationRESTConverter:
 
     @staticmethod
     def global_configuration_from_rest(
-            input_: Union[List[Dict[str, Any]], Dict[str, Any]]
+        input_: Union[List[Dict[str, Any]], Dict[str, Any]]
     ) -> GlobalConfiguration:
         """
         Create a GlobalConfiguration object holding the configurable parameters
@@ -206,7 +202,7 @@ class ConfigurationRESTConverter:
         if isinstance(input_copy, list):
             return GlobalConfiguration(components=component_objects)
         else:
-            input_copy.update({'components': component_objects})
+            input_copy.update({"components": component_objects})
             return GlobalConfiguration(**input_copy)
 
     @staticmethod
@@ -232,7 +228,7 @@ class ConfigurationRESTConverter:
 
     @staticmethod
     def configurable_parameter_list_to_rest(
-            configurable_parameter_list: List[ConfigurableParameters]
+        configurable_parameter_list: List[ConfigurableParameters],
     ) -> Dict[str, List[Dict[str, Any]]]:
         """
         Convert a list of model hyper parameters to a dictionary that can be sent to
@@ -246,10 +242,8 @@ class ConfigurationRESTConverter:
         rest_parameters: List[Dict[str, Any]] = []
         for parameter_set in configurable_parameter_list:
             parameter_copy = copy.deepcopy(parameter_set)
-            ConfigurationRESTConverter._remove_non_minimal_fields(
-                parameter_copy
-            )
+            ConfigurationRESTConverter._remove_non_minimal_fields(parameter_copy)
             parameter_dict = parameter_copy.to_dict()
             remove_null_fields(parameter_dict)
             rest_parameters.append(parameter_dict)
-        return {'components': rest_parameters}
+        return {"components": rest_parameters}

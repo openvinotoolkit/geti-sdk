@@ -2,7 +2,7 @@ from dotenv import dotenv_values
 
 from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers import DatumAnnotationReader
-from sc_api_tools.utils import get_task_types_by_project_type, get_coco_dataset
+from sc_api_tools.utils import get_coco_dataset, get_task_types_by_project_type
 
 if __name__ == "__main__":
     # Get credentials from .env file
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     client = SCRESTClient(
         host=env_variables.get("HOST"),
         username=env_variables.get("USERNAME"),
-        password=env_variables.get("PASSWORD")
+        password=env_variables.get("PASSWORD"),
     )
 
     # Dataset configuration
@@ -58,11 +58,9 @@ if __name__ == "__main__":
     label_source_per_task = []
     for task_type in get_task_types_by_project_type(PROJECT_TYPE):
         annotation_reader = DatumAnnotationReader(
-            base_data_folder=coco_path,
-            annotation_format='coco',
-            task_type=task_type
+            base_data_folder=coco_path, annotation_format="coco", task_type=task_type
         )
-        annotation_reader.filter_dataset(labels=LABELS_OF_INTEREST, criterion='OR')
+        annotation_reader.filter_dataset(labels=LABELS_OF_INTEREST, criterion="OR")
         label_source_per_task.append(annotation_reader)
 
     # Create project and upload data
@@ -73,5 +71,5 @@ if __name__ == "__main__":
         label_source_per_task=label_source_per_task,
         number_of_images_to_upload=NUMBER_OF_IMAGES_TO_UPLOAD,
         number_of_images_to_annotate=NUMBER_OF_IMAGES_TO_ANNOTATE,
-        enable_auto_train=AUTO_TRAIN_AFTER_UPLOAD
+        enable_auto_train=AUTO_TRAIN_AFTER_UPLOAD,
     )

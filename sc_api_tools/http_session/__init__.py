@@ -55,8 +55,8 @@ Module contents
 
 """
 
-from .sc_session import SCSession
 from .cluster_config import ClusterConfig
 from .exception import SCRequestException
+from .sc_session import SCSession
 
 __all__ = ["SCSession", "ClusterConfig", "SCRequestException"]

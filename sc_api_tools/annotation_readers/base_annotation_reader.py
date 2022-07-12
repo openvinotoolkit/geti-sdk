@@ -15,10 +15,10 @@
 import os
 from abc import abstractmethod
 from glob import glob
-from typing import List, Union, Dict, Optional
+from typing import Dict, List, Optional, Union
 
-from sc_api_tools.data_models.enums import TaskType
 from sc_api_tools.data_models.annotations import Annotation
+from sc_api_tools.data_models.enums import TaskType
 
 
 class AnnotationReader:
@@ -28,10 +28,10 @@ class AnnotationReader:
     """
 
     def __init__(
-            self,
-            base_data_folder: str,
-            annotation_format: str = ".json",
-            task_type: Union[TaskType, str] = TaskType.DETECTION
+        self,
+        base_data_folder: str,
+        annotation_format: str = ".json",
+        task_type: Union[TaskType, str] = TaskType.DETECTION,
     ):
         if task_type is not None and not isinstance(task_type, TaskType):
             task_type = TaskType(task_type)
@@ -41,9 +41,10 @@ class AnnotationReader:
 
     @abstractmethod
     def get_data(
-            self, filename: str,
-            label_name_to_id_mapping: dict,
-            preserve_shape_for_global_labels: bool = False
+        self,
+        filename: str,
+        label_name_to_id_mapping: dict,
+        preserve_shape_for_global_labels: bool = False,
     ) -> List[Annotation]:
         """
         Get annotation data for a certain filename
@@ -57,12 +58,9 @@ class AnnotationReader:
         :return: List of filenames (excluding extension) for all annotation files in
             the data folder
         """
-        filepaths = glob(
-            os.path.join(self.base_folder, f'*{self.annotation_format}')
-        )
+        filepaths = glob(os.path.join(self.base_folder, f"*{self.annotation_format}"))
         return [
-            os.path.splitext(os.path.basename(filepath))[0]
-            for filepath in filepaths
+            os.path.splitext(os.path.basename(filepath))[0] for filepath in filepaths
         ]
 
     @abstractmethod
@@ -74,9 +72,9 @@ class AnnotationReader:
         raise NotImplementedError
 
     def prepare_and_set_dataset(
-            self,
-            task_type: Union[TaskType, str],
-            previous_task_type: Optional[TaskType] = None
+        self,
+        task_type: Union[TaskType, str],
+        previous_task_type: Optional[TaskType] = None,
     ) -> None:
         """
         Prepare a dataset for uploading annotations for a certain task_type.
@@ -88,7 +86,9 @@ class AnnotationReader:
         if not isinstance(task_type, TaskType):
             task_type = TaskType(task_type)
         if task_type in [
-            TaskType.DETECTION, TaskType.SEGMENTATION, TaskType.CLASSIFICATION
+            TaskType.DETECTION,
+            TaskType.SEGMENTATION,
+            TaskType.CLASSIFICATION,
         ]:
             self.task_type = task_type
         else:

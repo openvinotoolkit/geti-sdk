@@ -21,13 +21,13 @@ import numpy as np
 
 from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers import DatumAnnotationReader
-from sc_api_tools.data_models import Prediction, Job
+from sc_api_tools.data_models import Job, Prediction
 from sc_api_tools.data_models.enums import JobState
 from sc_api_tools.http_session import SCRequestException
 from tests.helpers import (
     ProjectService,
     get_or_create_annotated_project_for_test_class,
-    plot_predictions_side_by_side
+    plot_predictions_side_by_side,
 )
 from tests.helpers.constants import PROJECT_PREFIX
 
@@ -40,11 +40,11 @@ class TestNightlyProject:
     __test__: ClassVar[bool] = False
 
     def test_project_setup(
-            self,
-            fxt_project_service_no_vcr: ProjectService,
-            fxt_annotation_reader: DatumAnnotationReader,
-            fxt_annotation_reader_grouped: DatumAnnotationReader,
-            fxt_learning_parameter_settings: str
+        self,
+        fxt_project_service_no_vcr: ProjectService,
+        fxt_annotation_reader: DatumAnnotationReader,
+        fxt_annotation_reader_grouped: DatumAnnotationReader,
+        fxt_learning_parameter_settings: str,
     ):
         """
         This test sets up an annotated project on the server, that persists for the
@@ -65,7 +65,7 @@ class TestNightlyProject:
             project_type=self.PROJECT_TYPE,
             project_name=f"{PROJECT_PREFIX}_nightly_{self.PROJECT_TYPE}",
             enable_auto_train=True,
-            learning_parameter_settings=fxt_learning_parameter_settings
+            learning_parameter_settings=fxt_learning_parameter_settings,
         )
 
     def test_monitor_jobs(self, fxt_project_service_no_vcr: ProjectService):
@@ -94,10 +94,10 @@ class TestNightlyProject:
             assert job.status.state == JobState.FINISHED
 
     def test_upload_and_predict_image(
-            self,
-            fxt_project_service_no_vcr: ProjectService,
-            fxt_image_path: str,
-            fxt_client_no_vcr: SCRESTClient
+        self,
+        fxt_project_service_no_vcr: ProjectService,
+        fxt_image_path: str,
+        fxt_client_no_vcr: SCRESTClient,
     ):
         """
         Tests uploading and predicting an image to the project. Waits for the
@@ -112,7 +112,7 @@ class TestNightlyProject:
                     project_name=project.name,
                     image=fxt_image_path,
                     visualise_output=False,
-                    delete_after_prediction=False
+                    delete_after_prediction=False,
                 )
             except SCRequestException as error:
                 prediction = None
@@ -123,13 +123,13 @@ class TestNightlyProject:
                 break
 
     def test_deployment(
-            self,
-            fxt_project_service_no_vcr: ProjectService,
-            fxt_client_no_vcr: SCRESTClient,
-            fxt_temp_directory: str,
-            fxt_image_path: str,
-            fxt_image_path_complex: str,
-            fxt_artifact_directory: str
+        self,
+        fxt_project_service_no_vcr: ProjectService,
+        fxt_client_no_vcr: SCRESTClient,
+        fxt_temp_directory: str,
+        fxt_image_path: str,
+        fxt_image_path_complex: str,
+        fxt_artifact_directory: str,
     ):
         """
         Tests local deployment for the project. Compares the local prediction to the
@@ -142,10 +142,10 @@ class TestNightlyProject:
             project.name, output_folder=deployment_folder
         )
 
-        assert os.path.isdir(os.path.join(deployment_folder, 'deployment'))
+        assert os.path.isdir(os.path.join(deployment_folder, "deployment"))
         deployment.load_inference_models(device="CPU")
 
-        images = {'simple': fxt_image_path, 'complex': fxt_image_path_complex}
+        images = {"simple": fxt_image_path, "complex": fxt_image_path_complex}
 
         for image_name, image_path in images.items():
             image_bgr = cv2.imread(image_path)
@@ -157,7 +157,7 @@ class TestNightlyProject:
                 project.name,
                 image=image_bgr,
                 delete_after_prediction=True,
-                visualise_output=False
+                visualise_output=False,
             )
 
             online_mask = online_prediction.as_mask(image.media_information)
@@ -178,16 +178,16 @@ class TestNightlyProject:
             print(online_prediction.overview)
 
             # Save the predictions as test artifacts
-            predictions_dir = os.path.join(fxt_artifact_directory, 'predictions')
+            predictions_dir = os.path.join(fxt_artifact_directory, "predictions")
             if not os.path.isdir(predictions_dir):
                 os.makedirs(predictions_dir)
 
             image_path = os.path.join(
-                predictions_dir, project.name + '_' + image_name + '.jpg'
+                predictions_dir, project.name + "_" + image_name + ".jpg"
             )
             plot_predictions_side_by_side(
                 image,
                 prediction_1=local_prediction,
                 prediction_2=online_prediction,
-                filepath=image_path
+                filepath=image_path,
             )

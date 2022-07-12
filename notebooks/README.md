@@ -8,7 +8,7 @@ is installed, you can follow the steps below to set up the notebooks.
    
 2. Activate the python environment in which you installed the sc-api-tools package 
    
-3. Run `pip install -r requirements-notebooks.txt` to install the packages required to 
+3. Run `pip install -r ../requirements/requirements-notebooks.txt` to install the packages required to 
    run the notebooks
 
 4. Create a `.env` file containing the login details for your Sonoma Creek instance, 

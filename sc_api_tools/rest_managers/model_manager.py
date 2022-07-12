@@ -17,12 +17,13 @@ import os
 from typing import List, Optional, TypeVar
 
 from sc_api_tools.data_models import (
-    Project,
-    ModelGroup,
+    Algorithm,
+    Job,
     Model,
+    ModelGroup,
     OptimizedModel,
+    Project,
     Task,
-    Job, Algorithm
 )
 from sc_api_tools.data_models.enums import JobState, JobType
 from sc_api_tools.http_session import SCSession
@@ -43,8 +44,9 @@ class ModelManager:
         self.project = project
         self.workspace_id = workspace_id
         self.task_ids = [task.id for task in project.get_trainable_tasks()]
-        self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/" \
-                        f"model_groups"
+        self.base_url = (
+            f"workspaces/{workspace_id}/projects/{project_id}/" f"model_groups"
+        )
         self.supported_algos = get_supported_algorithms(self.session)
 
     def get_all_model_groups(self) -> List[ModelGroup]:
@@ -53,10 +55,7 @@ class ModelManager:
 
         :return: List of model groups in the project
         """
-        response = self.session.get_rest_response(
-            url=self.base_url,
-            method="GET"
-        )
+        response = self.session.get_rest_response(url=self.base_url, method="GET")
         model_groups = [
             ModelRESTConverter.model_group_from_dict(group) for group in response
         ]
@@ -79,16 +78,18 @@ class ModelManager:
         model_groups = self.get_all_model_groups()
         return next(
             (
-                group for group in model_groups
+                group
+                for group in model_groups
                 if group.algorithm.algorithm_name == algorithm_name
-            ), None
+            ),
+            None,
         )
 
     def get_model_by_algorithm_task_and_version(
-            self,
-            algorithm: Algorithm,
-            version: Optional[int] = None,
-            task: Optional[Task] = None
+        self,
+        algorithm: Algorithm,
+        version: Optional[int] = None,
+        task: Optional[Task] = None,
     ) -> Optional[Model]:
         """
         Retrieve a Model from the SC cluster, corresponding to specific algorithm and
@@ -110,8 +111,8 @@ class ModelManager:
         if task is not None:
             if algorithm.task_type != task.type:
                 raise ValueError(
-                    f'Unable to retrieve model. The algorithm {algorithm} is not '
-                    f'available for the task {task}'
+                    f"Unable to retrieve model. The algorithm {algorithm} is not "
+                    f"available for the task {task}"
                 )
         model_groups = self.get_all_model_groups()
         model_group: Optional[ModelGroup] = None
@@ -143,8 +144,7 @@ class ModelManager:
         :return: Model instance holding detailed information about the model
         """
         model_detail = self.session.get_rest_response(
-            url=f"{self.base_url}/{group_id}/models/{model_id}",
-            method="GET"
+            url=f"{self.base_url}/{group_id}/models/{model_id}", method="GET"
         )
         model = ModelRESTConverter.model_from_dict(model_detail)
         model.model_group_id = group_id
@@ -178,9 +178,7 @@ class ModelManager:
             return self._get_model_detail(group_id=group_id, model_id=model_id)
         return None
 
-    def _download_model(
-            self, model: ModelType, path_to_folder: str
-    ) -> ModelType:
+    def _download_model(self, model: ModelType, path_to_folder: str) -> ModelType:
         """
         Download a Model or OptimizedModel.
 
@@ -192,29 +190,29 @@ class ModelManager:
             url = f"{self.base_url}/{model.model_group_id}/models/{model.id}/export"
             filename = f"{model.name}_base.zip"
         elif isinstance(model, OptimizedModel):
-            url = f"{self.base_url}/{model.model_group_id}/models/" \
-                  f"{model.previous_trained_revision_id}/optimized_models/" \
-                  f"{model.id}/export"
+            url = (
+                f"{self.base_url}/{model.model_group_id}/models/"
+                f"{model.previous_trained_revision_id}/optimized_models/"
+                f"{model.id}/export"
+            )
             filename = f"{model.name}_{model.optimization_type}_optimized.zip"
         else:
             raise ValueError(
                 f"Invalid model type: `{type(model)}. Unable to download model data."
             )
         response = self.session.get_rest_response(
-            url=url,
-            method="GET",
-            contenttype="zip"
+            url=url, method="GET", contenttype="zip"
         )
-        model_folder = os.path.join(path_to_folder, 'models')
+        model_folder = os.path.join(path_to_folder, "models")
         if not os.path.exists(model_folder):
             os.makedirs(model_folder)
         model_filepath = os.path.join(model_folder, filename)
-        with open(model_filepath, 'wb') as f:
+        with open(model_filepath, "wb") as f:
             f.write(response.content)
         return model
 
     def download_active_model_for_task(
-            self, path_to_folder: str, task: Task
+        self, path_to_folder: str, task: Task
     ) -> Optional[Model]:
         """
         Download the currently active model for the task.
@@ -236,7 +234,7 @@ class ModelManager:
                 f"unable to download active model."
             )
             return None
-        model_filepath = os.path.join(path_to_folder, 'models')
+        model_filepath = os.path.join(path_to_folder, "models")
         print(
             f"Downloading active model for task {task.title} in project "
             f"{self.project.name} to folder {model_filepath}..."
@@ -247,7 +245,7 @@ class ModelManager:
         model_info_filepath = os.path.join(
             model_filepath, f"{task.type}_model_details.json"
         )
-        with open(model_info_filepath, 'w') as f:
+        with open(model_info_filepath, "w") as f:
             json.dump(model.to_dict(), f, indent=4)
         return model
 
@@ -267,8 +265,7 @@ class ModelManager:
         """
         return [
             self.get_active_model_for_task(task=task)
-            for task
-            in self.project.get_trainable_tasks()
+            for task in self.project.get_trainable_tasks()
         ]
 
     def download_all_active_models(self, path_to_folder: str) -> List[Optional[Model]]:
@@ -289,8 +286,7 @@ class ModelManager:
             self.download_active_model_for_task(
                 path_to_folder=path_to_folder, task=task
             )
-            for task
-            in self.project.get_trainable_tasks()
+            for task in self.project.get_trainable_tasks()
         ]
 
     def get_model_for_job(self, job: Job) -> Model:
@@ -315,29 +311,30 @@ class ModelManager:
         task_data = metadata.task
         version = task_data.model_version
         algorithm = self.supported_algos.get_by_model_template(
-            task_data.model_template_id)
-        if (
-                hasattr(task_data, 'name')
-                and job.type in (JobType.TRAIN, JobType.INFERENCE, JobType.EVALUATE)
+            task_data.model_template_id
+        )
+        if hasattr(task_data, "name") and job.type in (
+            JobType.TRAIN,
+            JobType.INFERENCE,
+            JobType.EVALUATE,
         ):
             task_name = task_data.name
             task = next(
                 (
-                    task for task in self.project.get_trainable_tasks()
+                    task
+                    for task in self.project.get_trainable_tasks()
                     if task.title == task_name
                 )
             )
             model = self.get_model_by_algorithm_task_and_version(
-                algorithm=algorithm,
-                version=version,
-                task=task
+                algorithm=algorithm, version=version, task=task
             )
             return model
         if job.type == JobType.OPTIMIZATION:
             model_group_id, optimized_model_id = None, None
-            if hasattr(metadata, 'model_group_id'):
+            if hasattr(metadata, "model_group_id"):
                 model_group_id = metadata.model_group_id
-            if hasattr(metadata, 'optimized_model_id'):
+            if hasattr(metadata, "optimized_model_id"):
                 optimized_model_id = metadata.optimized_model_id
             if model_group_id is not None and optimized_model_id is not None:
                 return self._get_model_detail(model_group_id, optimized_model_id)

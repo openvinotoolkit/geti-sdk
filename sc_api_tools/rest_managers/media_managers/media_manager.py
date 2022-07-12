@@ -14,41 +14,23 @@
 
 import os
 import time
-from typing import (
-    Dict,
-    List,
-    Type,
-    Any,
-    Generic,
-    ClassVar,
-    BinaryIO,
-    Sequence
-)
 from glob import glob
+from typing import Any, BinaryIO, ClassVar, Dict, Generic, List, Sequence, Type
 
-from sc_api_tools.data_models import (
-    Project,
-    MediaType,
-    Video,
-    Image,
-    VideoFrame,
-)
-from sc_api_tools.data_models.containers.media_list import MediaTypeVar, MediaList
+from sc_api_tools.data_models import Image, MediaType, Project, Video, VideoFrame
+from sc_api_tools.data_models.containers.media_list import MediaList, MediaTypeVar
 from sc_api_tools.data_models.enums.media_type import (
+    SUPPORTED_IMAGE_FORMATS,
     SUPPORTED_VIDEO_FORMATS,
-    SUPPORTED_IMAGE_FORMATS
 )
 from sc_api_tools.data_models.utils import numpy_from_buffer
-from sc_api_tools.http_session import SCSession, SCRequestException
+from sc_api_tools.http_session import SCRequestException, SCSession
 from sc_api_tools.rest_converters.media_rest_converter import MediaRESTConverter
 
-
-MEDIA_TYPE_MAPPING = {
-    MediaType.IMAGE: Image, MediaType.VIDEO: Video
-}
+MEDIA_TYPE_MAPPING = {MediaType.IMAGE: Image, MediaType.VIDEO: Video}
 MEDIA_SUPPORTED_FORMAT_MAPPING = {
     MediaType.IMAGE: SUPPORTED_IMAGE_FORMATS,
-    MediaType.VIDEO: SUPPORTED_VIDEO_FORMATS
+    MediaType.VIDEO: SUPPORTED_VIDEO_FORMATS,
 }
 MEDIA_DOWNLOAD_FORMAT_MAPPING = {MediaType.IMAGE: ".jpg", MediaType.VIDEO: ".mp4"}
 
@@ -60,17 +42,14 @@ class BaseMediaManager(Generic[MediaTypeVar]):
 
     _MEDIA_TYPE: ClassVar[MediaType]
 
-    def __init__(
-            self,
-            session: SCSession,
-            workspace_id: str,
-            project: Project
-    ):
+    def __init__(self, session: SCSession, workspace_id: str, project: Project):
         self.session = session
         project_id = project.id
         dataset_id = project.datasets[0].id
-        self._base_url = f"workspaces/{workspace_id}/projects/{project_id}/datasets/" \
-                         f"{dataset_id}/media"
+        self._base_url = (
+            f"workspaces/{workspace_id}/projects/{project_id}/datasets/"
+            f"{dataset_id}/media"
+        )
         self._project_name = project.name
         self.__media_type: Type[MediaTypeVar] = self.__get_media_type(self._MEDIA_TYPE)
 
@@ -112,8 +91,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         :return: MediaList holding all media of a certain type in the project
         """
         response = self.session.get_rest_response(
-            url=f"{self.base_url}?top=100000",
-            method="GET"
+            url=f"{self.base_url}?top=100000", method="GET"
         )
         total_number_of_media: int = response["media_count"][self.plural_media_name]
         raw_media_list: List[Dict[str, Any]] = []
@@ -122,8 +100,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
                 raw_media_list.append(media_item_dict)
             if "next_page" in response.keys():
                 response = self.session.get_rest_response(
-                    url=response["next_page"],
-                    method="GET"
+                    url=response["next_page"], method="GET"
                 )
         return MediaList.from_rest_list(
             rest_input=raw_media_list, media_type=self.__media_type
@@ -140,16 +117,14 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         if not isinstance(media_list, MediaList) and isinstance(media_list, Sequence):
             media_list = MediaList(media_list)
         if media_list.media_type == VideoFrame:
-            raise ValueError(
-                "Unable to delete individual video frames."
-            )
+            raise ValueError("Unable to delete individual video frames.")
         print(
             f"Deleting {len(media_list)} {self.plural_media_name} from project "
             f"'{self._project_name}'..."
         )
         for media_item in media_list:
             try:
-                self.session.get_rest_response(url=media_item.base_url, method='DELETE')
+                self.session.get_rest_response(url=media_item.base_url, method="DELETE")
             except SCRequestException as error:
                 if error.status_code == 409:
                     print(
@@ -175,7 +150,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
             url=f"{self.base_url}",
             method="POST",
             contenttype="multipart",
-            data={"file": buffer}
+            data={"file": buffer},
         )
         return response
 
@@ -187,13 +162,13 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         :return: Dictionary containing the response of the SC cluster, which holds
             the details of the uploaded entity
         """
-        media_bytes = open(filepath, 'rb')
+        media_bytes = open(filepath, "rb")
         return self._upload_bytes(media_bytes)
 
     def _upload_loop(
-            self,
-            filepaths: List[str],
-            skip_if_filename_exists: bool = False,
+        self,
+        filepaths: List[str],
+        skip_if_filename_exists: bool = False,
     ) -> MediaList[MediaTypeVar]:
         """
         Upload media from a list of filepaths. Also checks if media items with the same
@@ -235,22 +210,26 @@ class BaseMediaManager(Generic[MediaTypeVar]):
 
         t_elapsed = time.time() - t_start
         if upload_count > 0:
-            msg = f"Upload complete. Uploaded {upload_count} new " \
-                  f"{self.plural_media_name} in {t_elapsed:.1f} seconds."
+            msg = (
+                f"Upload complete. Uploaded {upload_count} new "
+                f"{self.plural_media_name} in {t_elapsed:.1f} seconds."
+            )
         else:
             msg = f"No new {self.plural_media_name} were uploaded."
         if skip_count > 0:
-            msg = msg + f" Found {skip_count} {self.plural_media_name} that already " \
-                        f"existed in project, these {self.plural_media_name} were" \
-                        f" skipped."
+            msg = (
+                msg + f" Found {skip_count} {self.plural_media_name} that already "
+                f"existed in project, these {self.plural_media_name} were"
+                f" skipped."
+            )
         print(msg)
         return uploaded_media
 
     def _upload_folder(
-            self,
-            path_to_folder: str,
-            n_media: int = -1,
-            skip_if_filename_exists: bool = False
+        self,
+        path_to_folder: str,
+        n_media: int = -1,
+        skip_if_filename_exists: bool = False,
     ) -> MediaList[MediaTypeVar]:
         """
         Upload all media in a folder to the project. Returns the mapping of filenames
@@ -268,8 +247,8 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         filepaths: List[str] = []
         for media_extension in media_formats:
             filepaths += glob(
-                os.path.join(path_to_folder, '**', f'*{media_extension}'),
-                recursive=True
+                os.path.join(path_to_folder, "**", f"*{media_extension}"),
+                recursive=True,
             )
         n_files = len(filepaths)
         if n_media == -1:
@@ -283,11 +262,11 @@ class BaseMediaManager(Generic[MediaTypeVar]):
             n_to_upload = n_files if n_files < n_media else n_media
         return self._upload_loop(
             filepaths=filepaths[0:n_to_upload],
-            skip_if_filename_exists=skip_if_filename_exists
+            skip_if_filename_exists=skip_if_filename_exists,
         )
 
     def _download_all(
-            self, path_to_folder: str, append_media_uid: bool = False
+        self, path_to_folder: str, append_media_uid: bool = False
     ) -> None:
         """
         Download all media entities in a project to a folder on the local disk.
@@ -299,9 +278,7 @@ class BaseMediaManager(Generic[MediaTypeVar]):
         :return:
         """
         media_list = self._get_all()
-        path_to_media_folder = os.path.join(
-            path_to_folder, self.plural_media_name
-        )
+        path_to_media_folder = os.path.join(path_to_folder, self.plural_media_name)
         if not os.path.exists(path_to_media_folder):
             os.makedirs(path_to_media_folder)
         print(
@@ -319,19 +296,17 @@ class BaseMediaManager(Generic[MediaTypeVar]):
                 path_to_media_folder,
                 media_item.name
                 + uid_string
-                + MEDIA_DOWNLOAD_FORMAT_MAPPING[self._MEDIA_TYPE]
+                + MEDIA_DOWNLOAD_FORMAT_MAPPING[self._MEDIA_TYPE],
             )
             if os.path.exists(media_filepath) and os.path.isfile(media_filepath):
                 existing_count += 1
                 continue
             response = self.session.get_rest_response(
-                url=media_item.download_url,
-                method="GET",
-                contenttype="jpeg"
+                url=media_item.download_url, method="GET", contenttype="jpeg"
             )
 
             os.makedirs(os.path.dirname(media_filepath), exist_ok=True)
-            with open(media_filepath, 'wb') as f:
+            with open(media_filepath, "wb") as f:
                 f.write(response.content)
             if isinstance(media_item, (Image, VideoFrame)):
                 # Set the numpy data attribute if the media item supports it
@@ -341,12 +316,16 @@ class BaseMediaManager(Generic[MediaTypeVar]):
             download_count += 1
         t_elapsed = time.time() - t_start
         if download_count > 0:
-            msg = f"Downloaded {download_count} {self.plural_media_name} in " \
-                  f"{t_elapsed:.1f} seconds."
+            msg = (
+                f"Downloaded {download_count} {self.plural_media_name} in "
+                f"{t_elapsed:.1f} seconds."
+            )
         else:
             msg = f"No {self.plural_media_name} were downloaded."
         if existing_count > 0:
-            msg += f" {existing_count} existing {self.plural_media_name} were found " \
-                   f"in the target folder, download was skipped for these " \
-                   f"{self.plural_media_name}."
+            msg += (
+                f" {existing_count} existing {self.plural_media_name} were found "
+                f"in the target folder, download was skipped for these "
+                f"{self.plural_media_name}."
+            )
         print(msg)

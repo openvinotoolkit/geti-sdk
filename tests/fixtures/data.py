@@ -59,8 +59,7 @@ def fxt_annotation_reader(fxt_blocks_dataset) -> DatumAnnotationReader:
     the 'blocks' dataset
     """
     yield DatumAnnotationReader(
-        base_data_folder=fxt_blocks_dataset,
-        annotation_format='coco'
+        base_data_folder=fxt_blocks_dataset, annotation_format="coco"
     )
 
 
@@ -72,8 +71,7 @@ def fxt_annotation_reader_grouped(fxt_blocks_dataset) -> DatumAnnotationReader:
     'blocks' label.
     """
     reader = DatumAnnotationReader(
-        base_data_folder=fxt_blocks_dataset,
-        annotation_format='coco'
+        base_data_folder=fxt_blocks_dataset, annotation_format="coco"
     )
     reader.group_labels(labels_to_group=["cube", "cylinder"], group_name="block")
     yield reader
@@ -81,16 +79,17 @@ def fxt_annotation_reader_grouped(fxt_blocks_dataset) -> DatumAnnotationReader:
 
 @pytest.fixture(scope="function")
 def fxt_annotation_reader_factory(
-    fxt_blocks_dataset
+    fxt_blocks_dataset,
 ) -> Callable[[None], DatumAnnotationReader]:
     """
     This fixutre returns Datumaro Annotation Readers which can read annotations for
     the 'blocks' dataset. The fixture can be called multiple times to yield different
     instances of the annotation reader
     """
+
     def _create_annotation_reader() -> DatumAnnotationReader:
         return DatumAnnotationReader(
-            base_data_folder=fxt_blocks_dataset,
-            annotation_format='coco'
+            base_data_folder=fxt_blocks_dataset, annotation_format="coco"
         )
+
     yield _create_annotation_reader

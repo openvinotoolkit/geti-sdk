@@ -15,22 +15,24 @@
 import json
 import os
 import time
-from typing import List, Union, Optional, Dict, Any, TypeVar, Type
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
 from sc_api_tools.annotation_readers import AnnotationReader
 from sc_api_tools.data_models import (
-    Project,
+    AnnotationKind,
+    AnnotationScene,
     Image,
+    Project,
     Video,
     VideoFrame,
-    AnnotationScene, AnnotationKind
 )
 from sc_api_tools.data_models.containers.media_list import MediaList
 from sc_api_tools.data_models.media import MediaInformation
-from sc_api_tools.http_session import SCSession, SCRequestException
+from sc_api_tools.http_session import SCRequestException, SCSession
 from sc_api_tools.rest_converters import AnnotationRESTConverter
-from sc_api_tools.rest_converters.annotation_rest_converter import \
-    NormalizedAnnotationRESTConverter
+from sc_api_tools.rest_converters.annotation_rest_converter import (
+    NormalizedAnnotationRESTConverter,
+)
 
 AnnotationReaderType = TypeVar("AnnotationReaderType", bound=AnnotationReader)
 MediaType = TypeVar("MediaType", Image, Video)
@@ -42,11 +44,11 @@ class BaseAnnotationManager:
     """
 
     def __init__(
-            self,
-            session: SCSession,
-            workspace_id: str,
-            project: Project,
-            annotation_reader: Optional[AnnotationReaderType] = None
+        self,
+        session: SCSession,
+        workspace_id: str,
+        project: Project,
+        annotation_reader: Optional[AnnotationReaderType] = None,
     ):
         self.session = session
         self.workspace_id = workspace_id
@@ -59,7 +61,7 @@ class BaseAnnotationManager:
         self._label_mapping = label_mapping
 
     def _get_all_media_by_type(
-            self, media_type: Type[MediaType]
+        self, media_type: Type[MediaType]
     ) -> MediaList[MediaType]:
         """
         Get a list holding all media entities of type `media_type` in the project.
@@ -67,18 +69,17 @@ class BaseAnnotationManager:
         :return: MediaList holding all media of a certain type in the project
         """
         if media_type == Image:
-            media_name = 'images'
+            media_name = "images"
         elif media_type == Video:
-            media_name = 'videos'
+            media_name = "videos"
         else:
             raise ValueError(f"Invalid media type specified: {media_type}.")
-        get_media_url = f"workspaces/{self.workspace_id}/projects/{self._project.id}" \
-                        f"/datasets/{self._project.datasets[0].id}/media/" \
-                        f"{media_name}?top=100000"
-        response = self.session.get_rest_response(
-            url=get_media_url,
-            method="GET"
+        get_media_url = (
+            f"workspaces/{self.workspace_id}/projects/{self._project.id}"
+            f"/datasets/{self._project.datasets[0].id}/media/"
+            f"{media_name}?top=100000"
         )
+        response = self.session.get_rest_response(url=get_media_url, method="GET")
         total_number_of_media: int = response["media_count"][media_name]
         raw_media_list: List[Dict[str, Any]] = []
         while len(raw_media_list) < total_number_of_media:
@@ -86,8 +87,7 @@ class BaseAnnotationManager:
                 raw_media_list.append(media_item_dict)
             if "next_page" in response.keys():
                 response = self.session.get_rest_response(
-                    url=response["next_page"],
-                    method="GET"
+                    url=response["next_page"], method="GET"
                 )
         return MediaList.from_rest_list(
             rest_input=raw_media_list, media_type=media_type
@@ -132,9 +132,9 @@ class BaseAnnotationManager:
             )
 
     def _upload_annotation_for_2d_media_item(
-            self,
-            media_item: Union[Image, VideoFrame],
-            annotation_scene: Optional[AnnotationScene] = None
+        self,
+        media_item: Union[Image, VideoFrame],
+        annotation_scene: Optional[AnnotationScene] = None,
     ) -> AnnotationScene:
         """
         Upload a new annotation for an image or video frame to the cluster. This will
@@ -174,28 +174,26 @@ class BaseAnnotationManager:
                 )
         if scene_to_upload.annotations:
             scene_to_upload.prepare_for_post()
-            if self.session.version < '1.2':
+            if self.session.version < "1.2":
                 rest_data = NormalizedAnnotationRESTConverter.to_normalized_dict(
                     scene_to_upload,
                     deidentify=False,
                     image_width=media_item.media_information.width,
-                    image_height=media_item.media_information.height
+                    image_height=media_item.media_information.height,
                 )
             else:
                 rest_data = AnnotationRESTConverter.to_dict(
                     scene_to_upload, deidentify=False
                 )
-            if self.session.version != '1.0':
+            if self.session.version != "1.0":
                 rest_data.pop("kind")
             self.session.get_rest_response(
-                url=f"{media_item.base_url}/annotations",
-                method="POST",
-                data=rest_data
+                url=f"{media_item.base_url}/annotations", method="POST", data=rest_data
             )
         return scene_to_upload
 
     def annotation_scene_from_rest_response(
-         self, response_dict: Dict[str, Any], media_information: MediaInformation
+        self, response_dict: Dict[str, Any], media_information: MediaInformation
     ) -> AnnotationScene:
         """
         Convert a dictionary with annotation data obtained from the SC /annotations
@@ -206,20 +204,20 @@ class BaseAnnotationManager:
             annotation applies
         :return: AnnotationScene object corresponding to the data in the response_dict
         """
-        if self.session.version < '1.2':
-            annotation_scene = NormalizedAnnotationRESTConverter.normalized_annotation_scene_from_dict(
-                response_dict,
-                image_width=media_information.width,
-                image_height=media_information.height
+        if self.session.version < "1.2":
+            annotation_scene = (
+                NormalizedAnnotationRESTConverter.normalized_annotation_scene_from_dict(
+                    response_dict,
+                    image_width=media_information.width,
+                    image_height=media_information.height,
+                )
             )
         else:
-            annotation_scene = AnnotationRESTConverter.from_dict(
-                response_dict
-            )
+            annotation_scene = AnnotationRESTConverter.from_dict(response_dict)
         return annotation_scene
 
     def _append_annotation_for_2d_media_item(
-            self, media_item: Union[Image, VideoFrame]
+        self, media_item: Union[Image, VideoFrame]
     ) -> AnnotationScene:
         """
         Add an annotation to the existing annotations for the `media_item`.
@@ -240,37 +238,35 @@ class BaseAnnotationManager:
             annotation_scene = AnnotationScene(
                 media_identifier=media_item.identifier,
                 annotations=[],
-                kind=AnnotationKind.ANNOTATION.value
+                kind=AnnotationKind.ANNOTATION.value,
             )
         annotation_scene.extend(new_annotation_scene.annotations)
 
         if annotation_scene.has_data:
-            if self.session.version <= '1.2':
+            if self.session.version <= "1.2":
                 rest_data = NormalizedAnnotationRESTConverter.to_normalized_dict(
                     annotation_scene,
                     deidentify=False,
                     image_width=media_item.media_information.width,
-                    image_height=media_item.media_information.height
+                    image_height=media_item.media_information.height,
                 )
             else:
                 rest_data = AnnotationRESTConverter.to_dict(
                     annotation_scene, deidentify=False
                 )
-            if self.session.version != '1.0':
+            if self.session.version != "1.0":
                 rest_data.pop("kind", None)
                 rest_data.pop("annotation_state_per_task", None)
                 rest_data.pop("id", None)
             response = self.session.get_rest_response(
-                url=f"{media_item.base_url}/annotations",
-                method="POST",
-                data=rest_data
+                url=f"{media_item.base_url}/annotations", method="POST", data=rest_data
             )
             return AnnotationRESTConverter.from_dict(response)
         else:
             return annotation_scene
 
     def _get_latest_annotation_for_2d_media_item(
-            self, media_item: Union[Image, VideoFrame]
+        self, media_item: Union[Image, VideoFrame]
     ) -> Optional[AnnotationScene]:
         """
         Retrieve the latest annotation for an image or video frame from the cluster.
@@ -281,8 +277,7 @@ class BaseAnnotationManager:
         """
         try:
             response = self.session.get_rest_response(
-                url=f"{media_item.base_url}/annotations/latest",
-                method="GET"
+                url=f"{media_item.base_url}/annotations/latest", method="GET"
             )
         except SCRequestException as error:
             if error.status_code in [204, 404]:
@@ -294,9 +289,9 @@ class BaseAnnotationManager:
         )
 
     def _read_2d_media_annotation_from_source(
-            self,
-            media_item: Union[Image, VideoFrame],
-            preserve_shape_for_global_labels: bool = False
+        self,
+        media_item: Union[Image, VideoFrame],
+        preserve_shape_for_global_labels: bool = False,
     ) -> AnnotationScene:
         """
         Retrieve the annotation for the media_item, and return it in the
@@ -309,22 +304,22 @@ class BaseAnnotationManager:
         annotation_list = self.annotation_reader.get_data(
             filename=media_item.name,
             label_name_to_id_mapping=self.label_mapping,
-            preserve_shape_for_global_labels=preserve_shape_for_global_labels
+            preserve_shape_for_global_labels=preserve_shape_for_global_labels,
         )
         return AnnotationRESTConverter.from_dict(
             {
                 "media_identifier": media_item.identifier,
                 "annotations": annotation_list,
-                "kind": AnnotationKind.ANNOTATION
+                "kind": AnnotationKind.ANNOTATION,
             }
         )
 
     def _download_annotations_for_2d_media_list(
-            self,
-            media_list: Union[MediaList[Image], MediaList[VideoFrame]],
-            path_to_folder: str,
-            append_media_uid: bool = False,
-            verbose: bool = True
+        self,
+        media_list: Union[MediaList[Image], MediaList[VideoFrame]],
+        path_to_folder: str,
+        append_media_uid: bool = False,
+        verbose: bool = True,
     ) -> float:
         """
         Download annotations from the server to a target folder on disk.
@@ -341,11 +336,11 @@ class BaseAnnotationManager:
         if not os.path.exists(path_to_annotations_folder):
             os.makedirs(path_to_annotations_folder)
         if media_list.media_type == Image:
-            media_name = 'image'
-            media_name_plural = 'images'
+            media_name = "image"
+            media_name_plural = "images"
         elif media_list.media_type == VideoFrame:
-            media_name = 'video frame'
-            media_name_plural = 'video frames'
+            media_name = "video frame"
+            media_name_plural = "video frames"
         else:
             raise ValueError(
                 "Invalid media type found in media_list, unable to download "
@@ -361,9 +356,7 @@ class BaseAnnotationManager:
         download_count = 0
         skip_count = 0
         for media_item in media_list:
-            annotation_scene = self._get_latest_annotation_for_2d_media_item(
-                    media_item
-            )
+            annotation_scene = self._get_latest_annotation_for_2d_media_item(media_item)
             if annotation_scene is None:
                 if verbose:
                     print(
@@ -383,43 +376,48 @@ class BaseAnnotationManager:
                 continue
             export_data = AnnotationRESTConverter.to_dict(annotation_scene)
 
-            filename = media_item.name + '.json'
+            filename = media_item.name + ".json"
             if append_media_uid:
                 if isinstance(media_item, Image):
                     filename = f"{media_item.name}_{media_item.id}.json"
                 elif isinstance(media_item, VideoFrame):
                     if media_item.video_name is not None:
-                        filename = f"{media_item.video_name}_" \
-                                   f"{media_item.media_information.video_id}_frame_" \
-                                   f"{media_item.media_information.frame_index}.json"
+                        filename = (
+                            f"{media_item.video_name}_"
+                            f"{media_item.media_information.video_id}_frame_"
+                            f"{media_item.media_information.frame_index}.json"
+                        )
                     else:
                         video_name = media_item.name.split("_frame_")[0]
-                        filename = f"{video_name}_" \
-                                   f"{media_item.media_information.video_id}_frame_" \
-                                   f"{media_item.media_information.frame_index}.json"
+                        filename = (
+                            f"{video_name}_"
+                            f"{media_item.media_information.video_id}_frame_"
+                            f"{media_item.media_information.frame_index}.json"
+                        )
                 else:
                     raise TypeError(
                         f"Received invalid media item of type {type(media_item)}."
                     )
 
-            annotation_path = os.path.join(
-                path_to_annotations_folder,
-                filename
-            )
+            annotation_path = os.path.join(path_to_annotations_folder, filename)
 
             os.makedirs(os.path.dirname(annotation_path), exist_ok=True)
-            with open(annotation_path, 'w') as f:
+            with open(annotation_path, "w") as f:
                 json.dump(export_data, f, indent=4)
             download_count += 1
         t_elapsed = time.time() - t_start
         if download_count > 0:
-            msg = f"Downloaded {download_count} annotations to folder " \
-                  f"{path_to_annotations_folder} in {t_elapsed:.1f} seconds."
+            msg = (
+                f"Downloaded {download_count} annotations to folder "
+                f"{path_to_annotations_folder} in {t_elapsed:.1f} seconds."
+            )
         else:
             msg = "No annotations were downloaded."
         if skip_count > 0:
-            msg = msg + f" Was unable to retrieve annotations for {skip_count} " \
-                        f"{media_name_plural}, these {media_name_plural} were skipped."
+            msg = (
+                msg + f" Was unable to retrieve annotations for {skip_count} "
+                f"{media_name_plural}, these {media_name_plural} were skipped."
+            )
         if verbose:
             print(msg)
         return t_elapsed

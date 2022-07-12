@@ -13,16 +13,19 @@
 # and limitations under the License.
 
 from pprint import pformat
-from typing import Union, Optional, Dict, Any, List, ClassVar
+from typing import Any, ClassVar, Dict, List, Optional, Union
 
 import attr
 
 from sc_api_tools.data_models.enums.configuration_enums import (
     ParameterDataType,
-    ParameterInputType
+    ParameterInputType,
 )
-from sc_api_tools.data_models.utils import str_to_enum_converter, attr_value_serializer
-from sc_api_tools.utils import remove_null_fields
+from sc_api_tools.data_models.utils import (
+    attr_value_serializer,
+    remove_null_fields,
+    str_to_enum_converter,
+)
 
 
 @attr.s(auto_attribs=True)
@@ -49,8 +52,12 @@ class ConfigurableParameter:
 
     _identifier_fields: ClassVar[List[str]] = []
     _non_minimal_fields: ClassVar[List[str]] = [
-        "default_value", "description", "editable", "header",
-        "warning", "ui_rules"
+        "default_value",
+        "description",
+        "editable",
+        "header",
+        "warning",
+        "ui_rules",
     ]
 
     name: str
@@ -98,7 +105,7 @@ class ConfigurableParameter:
         """
         overview_dict = self.to_dict()
         remove_null_fields(overview_dict)
-        overview_dict.pop('ui_rules')
+        overview_dict.pop("ui_rules")
         return pformat(overview_dict)
 
 

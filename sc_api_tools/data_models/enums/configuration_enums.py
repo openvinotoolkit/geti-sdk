@@ -20,8 +20,8 @@ class ConfigurationEntityType(Enum):
     Enum representing the different configuration types in SC.
     """
 
-    HYPER_PARAMETER_GROUP = 'HYPER_PARAMETER_GROUP'
-    COMPONENT_PARAMETERS = 'COMPONENT_PARAMETERS'
+    HYPER_PARAMETER_GROUP = "HYPER_PARAMETER_GROUP"
+    COMPONENT_PARAMETERS = "COMPONENT_PARAMETERS"
 
     def __str__(self):
         """
@@ -35,10 +35,10 @@ class ParameterDataType(Enum):
     Enum representing the different data types for configurable parameters in SC.
     """
 
-    BOOLEAN = 'boolean'
-    FLOAT = 'float'
-    STRING = 'string'
-    INTEGER = 'integer'
+    BOOLEAN = "boolean"
+    FLOAT = "float"
+    STRING = "string"
+    INTEGER = "integer"
 
     def __str__(self):
         """
@@ -52,8 +52,8 @@ class ParameterInputType(Enum):
     Enum representing the different input types for configurable parameters in SC.
     """
 
-    INPUT = 'input'
-    SELECTABLE = 'selectable'
+    INPUT = "input"
+    SELECTABLE = "selectable"
 
     def __str__(self):
         """
@@ -67,8 +67,8 @@ class ConfigurableParameterType(Enum):
     Enum representing the different types of configurable parameters in SC.
     """
 
-    CONFIGURABLE_PARAMETERS = 'CONFIGURABLE_PARAMETERS'
-    PARAMETER_GROUP = 'PARAMETER_GROUP'
+    CONFIGURABLE_PARAMETERS = "CONFIGURABLE_PARAMETERS"
+    PARAMETER_GROUP = "PARAMETER_GROUP"
 
     def __str__(self):
         """

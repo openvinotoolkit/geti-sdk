@@ -14,15 +14,18 @@
 
 from datetime import datetime
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union
 
 import attr
-from typing import Any, Union, Optional, TypeVar, Type, Callable, Dict, List
-
 import cv2
 import numpy as np
 
-from sc_api_tools.data_models import TaskType
-from sc_api_tools.data_models.enums import ShapeType, MediaType, AnnotationKind
+from sc_api_tools.data_models.enums import (
+    AnnotationKind,
+    MediaType,
+    ShapeType,
+    TaskType,
+)
 
 EnumType = TypeVar("EnumType", bound=Enum)
 
@@ -40,7 +43,7 @@ def deidentify(instance: Any):
 
 
 def str_to_enum_converter(
-        enum: Type[EnumType]
+    enum: Type[EnumType],
 ) -> Callable[[Union[str, EnumType]], EnumType]:
     """
     Construct a converter function to convert an input value into an instance of the
@@ -50,6 +53,7 @@ def str_to_enum_converter(
     :return: Converter function that takes an input value and attempts to convert it
         into an instance of `enum`
     """
+
     def _converter(input_value: Union[str, EnumType]) -> EnumType:
         """
         Convert an input value to an instance of an Enum.
@@ -66,11 +70,12 @@ def str_to_enum_converter(
                 f"Invalid argument! Cannot convert value {input_value} to Enum "
                 f"{enum.__name__}"
             )
+
     return _converter
 
 
 def str_to_optional_enum_converter(
-        enum: Type[EnumType]
+    enum: Type[EnumType],
 ) -> Callable[[Union[str, EnumType]], EnumType]:
     """
     Construct a converter function to convert an input value into an instance of the
@@ -80,6 +85,7 @@ def str_to_optional_enum_converter(
     :return: Converter function that takes an input value and attempts to convert it
         into an instance of `enum`
     """
+
     def _converter(input_value: Optional[Union[str, EnumType]]) -> Optional[EnumType]:
         """
         Convert an input value to an instance of an Enum.
@@ -98,11 +104,12 @@ def str_to_optional_enum_converter(
                 f"Invalid argument! Cannot convert value {input_value} to Enum "
                 f"{enum.__name__}"
             )
+
     return _converter
 
 
 def str_to_enum_converter_by_name_or_value(
-        enum: Type[EnumType]
+    enum: Type[EnumType],
 ) -> Callable[[Union[str, EnumType]], EnumType]:
     """
     Construct a converter function to convert an input value into an instance of the
@@ -114,6 +121,7 @@ def str_to_enum_converter_by_name_or_value(
     :return: Converter function that takes an input value and attempts to convert it
         into an instance of `enum`
     """
+
     def _converter(input_value: Union[str, EnumType]) -> EnumType:
         """
         Convert an input value to an instance of an Enum.
@@ -133,6 +141,7 @@ def str_to_enum_converter_by_name_or_value(
                 f"Invalid argument! Cannot convert value {input_value} to Enum "
                 f"{enum.__name__}"
             )
+
     return _converter
 
 
@@ -176,7 +185,7 @@ def str_to_shape_type(shape_type: Union[str, ShapeType]) -> ShapeType:
 
 
 def str_to_annotation_kind(
-        annotation_kind: Union[str, AnnotationKind]
+    annotation_kind: Union[str, AnnotationKind]
 ) -> AnnotationKind:
     """
     Convert an input string to an annotation kind.
@@ -237,7 +246,7 @@ def numpy_from_buffer(buffer: bytes) -> np.ndarray:
 
 
 def round_dictionary(
-        input_data: Union[Dict[str, Any], List[Any]], decimal_places: int = 3
+    input_data: Union[Dict[str, Any], List[Any]], decimal_places: int = 3
 ) -> Union[Dict[str, Any], List[Any]]:
     """
     Convert all floats in a dictionary to string representation, rounded to
@@ -277,3 +286,26 @@ def round_to_n_digits(n: int) -> Callable[[float], float]:
         return round(value, ndigits=n)
 
     return _n_digit_rounder
+
+
+def remove_null_fields(input: Any):
+    """
+    Remove fields that have 'None' or an emtpy string '' as their value from a
+    dictionary.
+
+    NOTE: This function modifies the input dictionary in place
+
+    :param input: Dictionary to remove the null fields from
+    """
+    if isinstance(input, dict):
+        for key, value in list(input.items()):
+            if isinstance(value, dict):
+                remove_null_fields(value)
+            elif value is None or value == "":
+                input.pop(key)
+            elif isinstance(value, list):
+                for item in value:
+                    remove_null_fields(item)
+    elif isinstance(input, list):
+        for item in input:
+            remove_null_fields(item)

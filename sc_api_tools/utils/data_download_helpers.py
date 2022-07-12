@@ -16,20 +16,13 @@ import os
 import shutil
 import zipfile
 from enum import Enum
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 import requests
 from tqdm import tqdm
 
-
 DEFAULT_COCO_PATH = os.path.join(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(
-                os.path.abspath(__file__)
-            )
-        )
-    ), 'data'
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data"
 )
 
 
@@ -38,14 +31,14 @@ class COCOSubset(Enum):
     Enum representing a certain subset of the MS COCO dataset.
     """
 
-    TRAIN2014 = 'train2014'
-    VAL2014 = 'val2014'
-    TEST2014 = 'test2014'
-    TEST2015 = 'test2015'
-    TRAIN2017 = 'train2017'
-    VAL2017 = 'val2017'
-    TEST2017 = 'test2017'
-    UNLABELED2017 = 'unlabeled2017'
+    TRAIN2014 = "train2014"
+    VAL2014 = "val2014"
+    TEST2014 = "test2014"
+    TEST2015 = "test2015"
+    TRAIN2017 = "train2017"
+    VAL2017 = "val2017"
+    TEST2017 = "test2017"
+    UNLABELED2017 = "unlabeled2017"
 
     def __str__(self):
         """
@@ -61,14 +54,14 @@ class COCOSubset(Enum):
             If subset does not have annotations, returns None.
         """
         if self == COCOSubset.VAL2017 or self == COCOSubset.TRAIN2017:
-            return 'trainval2017'
+            return "trainval2017"
         elif self == COCOSubset.VAL2014 or self == COCOSubset.TRAIN2014:
-            return 'trainval2014'
+            return "trainval2014"
         elif (
-                self == COCOSubset.TEST2017 or
-                self == COCOSubset.TEST2015 or
-                self == COCOSubset.TEST2014 or
-                self == COCOSubset.UNLABELED2017
+            self == COCOSubset.TEST2017
+            or self == COCOSubset.TEST2015
+            or self == COCOSubset.TEST2014
+            or self == COCOSubset.UNLABELED2017
         ):
             return None
 
@@ -92,7 +85,7 @@ def get_proxies(url: str = "") -> Dict[str, str]:
         )
     proxies = {
         "http": "http://proxy-mu.intel.com:911",
-        "https": "http://proxy-mu.intel.com:912"
+        "https": "http://proxy-mu.intel.com:912",
     }
     try:
         requests.head(url=url, proxies=proxies)
@@ -116,9 +109,9 @@ def download_file(url: str, target_folder: Optional[str]) -> str:
     :param target_folder:
     :return: path to the downloaded file
     """
-    filename = url.split('/')[-1]
+    filename = url.split("/")[-1]
     if target_folder is None:
-        target_folder = 'data'
+        target_folder = "data"
     path_to_file = os.path.join(target_folder, filename)
     if os.path.exists(path_to_file) and os.path.isfile(path_to_file):
         print(f"File {filename} exists at {path_to_file}. No new data was downloaded.")
@@ -132,9 +125,9 @@ def download_file(url: str, target_folder: Optional[str]) -> str:
             raise RuntimeError(
                 f"Request to {url} failed, returned status code {r.status_code}"
             )
-        file_size = int(r.headers.get('Content-Length', 0))
+        file_size = int(r.headers.get("Content-Length", 0))
         with tqdm.wrapattr(r.raw, "read", total=file_size, desc="") as r_raw:
-            with open(path_to_file, 'wb') as f:
+            with open(path_to_file, "wb") as f:
                 shutil.copyfileobj(r_raw, f)
     print("Download complete.")
     return path_to_file
@@ -161,11 +154,11 @@ def directory_has_coco_subset(target_folder: str, coco_subset: COCOSubset) -> bo
     """
     if not os.path.exists(target_folder):
         return False
-    required_dirs = ['images', 'annotations']
+    required_dirs = ["images", "annotations"]
     for directory in required_dirs:
         if directory not in os.listdir(target_folder):
             return False
-    image_dir = os.path.join(target_folder, 'images')
+    image_dir = os.path.join(target_folder, "images")
     subset_image_dir = os.path.join(image_dir, str(coco_subset))
     if not os.path.exists(subset_image_dir):
         return False
@@ -173,20 +166,20 @@ def directory_has_coco_subset(target_folder: str, coco_subset: COCOSubset) -> bo
         return False
     annotations = coco_subset.get_annotations()
     if annotations is not None:
-        annotations_dir_content = os.listdir(os.path.join(target_folder, 'annotations'))
+        annotations_dir_content = os.listdir(os.path.join(target_folder, "annotations"))
         if len(annotations_dir_content) == 0:
             return False
         for filename in annotations_dir_content:
-            if f'instances_{str(coco_subset)}' in filename:
+            if f"instances_{str(coco_subset)}" in filename:
                 return True
         return False
     return True
 
 
 def get_coco_dataset_from_path(
-        target_folder: str = 'data',
-        coco_subset: Optional[COCOSubset] = None,
-        verbose: bool = False
+    target_folder: str = "data",
+    coco_subset: Optional[COCOSubset] = None,
+    verbose: bool = False,
 ) -> str:
     """
     Check if a coco dataset exists in the directory at `target_folder`.
@@ -206,9 +199,8 @@ def get_coco_dataset_from_path(
 
     if coco_subset is None:
         for subset in COCOSubset:
-            if (
-                    subset.get_annotations() is not None
-                    and directory_has_coco_subset(target_folder, subset)
+            if subset.get_annotations() is not None and directory_has_coco_subset(
+                target_folder, subset
             ):
                 found_subset = subset
                 break
@@ -231,11 +223,13 @@ def get_coco_dataset_from_path(
                 f"attempt to download the data."
             )
 
-    image_url = f'http://images.cocodataset.org/zips/{str(found_subset)}.zip'
+    image_url = f"http://images.cocodataset.org/zips/{str(found_subset)}.zip"
     annotations_name = found_subset.get_annotations()
     if annotations_name is not None:
-        annotations_url = f'http://images.cocodataset.org/annotations/' \
-                          f'annotations_{annotations_name}.zip'
+        annotations_url = (
+            f"http://images.cocodataset.org/annotations/"
+            f"annotations_{annotations_name}.zip"
+        )
     else:
         if verbose:
             print(
@@ -252,12 +246,12 @@ def get_coco_dataset_from_path(
         annotations_zip = None
 
     # Create directories for images and annotations
-    image_dir = os.path.join(target_folder, 'images')
+    image_dir = os.path.join(target_folder, "images")
     ensure_directory_exists(image_dir)
     zip_to_extraction_mapping = {image_zip: image_dir}
 
     if annotations_zip is not None:
-        annotations_dir = os.path.join(target_folder, 'annotations')
+        annotations_dir = os.path.join(target_folder, "annotations")
         ensure_directory_exists(annotations_dir)
         zip_to_extraction_mapping.update({annotations_zip: target_folder})
     else:
@@ -266,8 +260,8 @@ def get_coco_dataset_from_path(
     # Extract images and annotations
     for zipfile_path, target_dir in zip_to_extraction_mapping.items():
         if verbose:
-            print(f'Extracting {zipfile_path}...')
-        with zipfile.ZipFile(zipfile_path, 'r') as zip_ref:
+            print(f"Extracting {zipfile_path}...")
+        with zipfile.ZipFile(zipfile_path, "r") as zip_ref:
             zip_ref.extractall(target_dir)
 
     image_subset_names = os.listdir(image_dir)
@@ -275,10 +269,10 @@ def get_coco_dataset_from_path(
         # Remove unused annotations
         for filename in os.listdir(annotations_dir):
             filepath = os.path.join(annotations_dir, filename)
-            if 'instances' not in filename:
+            if "instances" not in filename:
                 os.remove(filepath)
                 continue
-            annotation_subset = os.path.splitext(filename.split('_')[1])[0]
+            annotation_subset = os.path.splitext(filename.split("_")[1])[0]
             if annotation_subset not in image_subset_names:
                 os.remove(filepath)
 

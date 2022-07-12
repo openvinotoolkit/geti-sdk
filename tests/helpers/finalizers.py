@@ -46,7 +46,7 @@ def force_delete_project(project_name: str, project_manager: ProjectManager) -> 
         training_manager = TrainingManager(
             workspace_id=project_manager.workspace_id,
             session=project_manager.session,
-            project=project
+            project=project,
         )
         jobs = training_manager.get_jobs(project_only=True)
         for job in jobs:

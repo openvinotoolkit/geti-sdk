@@ -32,6 +32,7 @@ class SdkTestMode(Enum):
                      set of cassettes for the SDK test suite. The old cassettes for the
                      tests are deleted.
     """
-    ONLINE = 'online'
-    OFFLINE = 'offline'
-    RECORD = 'record'
+
+    ONLINE = "online"
+    OFFLINE = "offline"
+    RECORD = "record"

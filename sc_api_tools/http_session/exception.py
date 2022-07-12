@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import Optional, Union, BinaryIO, Dict
+from typing import BinaryIO, Dict, Optional, Union
 
 
 class SCRequestException(Exception):
@@ -21,12 +21,12 @@ class SCRequestException(Exception):
     """
 
     def __init__(
-            self,
-            method: str,
-            url: str,
-            status_code: int,
-            request_data: Dict[str, Union[dict, str, list, BinaryIO]],
-            response_data: Optional[Union[dict, str, list]] = None
+        self,
+        method: str,
+        url: str,
+        status_code: int,
+        request_data: Dict[str, Union[dict, str, list, BinaryIO]],
+        response_data: Optional[Union[dict, str, list]] = None,
     ):
         """
         Raise this exception upon unsuccessful requests to the SC cluster.
@@ -51,9 +51,13 @@ class SCRequestException(Exception):
         """
         Return string representation of the unsuccessful http request to the SC cluster
         """
-        error_str = f"{self.method} request to '{self.url}' failed with status code " \
-                    f"{self.status_code}."
+        error_str = (
+            f"{self.method} request to '{self.url}' failed with status code "
+            f"{self.status_code}."
+        )
         if self.response_error_code and self.response_message:
-            error_str += f" Server returned error code '{self.response_error_code}' " \
-                         f"with message '{self.response_message}'"
+            error_str += (
+                f" Server returned error code '{self.response_error_code}' "
+                f"with message '{self.response_message}'"
+            )
         return error_str

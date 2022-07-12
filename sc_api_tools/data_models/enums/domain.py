@@ -38,7 +38,7 @@ class Domain(Enum):
         return self.value
 
     @classmethod
-    def from_task_type(cls, task_type: TaskType) -> 'Domain':
+    def from_task_type(cls, task_type: TaskType) -> "Domain":
         """
         Return the Domain corresponding to a certain task type.
 

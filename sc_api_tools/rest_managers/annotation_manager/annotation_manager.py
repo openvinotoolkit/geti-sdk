@@ -12,17 +12,12 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import List, Generic, Optional, Union
+from typing import Generic, List, Optional, Union
 
-from sc_api_tools.data_models import (
-    Video,
-    AnnotationScene,
-    VideoFrame,
-    Image
-)
+from sc_api_tools.data_models import AnnotationScene, Image, Video, VideoFrame
 from sc_api_tools.data_models.containers import MediaList
 
-from .base_annotation_manager import BaseAnnotationManager, AnnotationReaderType
+from .base_annotation_manager import AnnotationReaderType, BaseAnnotationManager
 
 
 class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
@@ -39,8 +34,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
             AnnotationScene for a single frame in the video
         """
         response = self.session.get_rest_response(
-            url=f"{video.base_url}/annotations/latest",
-            method="GET"
+            url=f"{video.base_url}/annotations/latest", method="GET"
         )
         if isinstance(response, list):
             annotations = response
@@ -56,7 +50,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
         ]
 
     def upload_annotations_for_video(
-            self, video: Video, append_annotations: bool = False
+        self, video: Video, append_annotations: bool = False
     ):
         """
         Upload annotations for a video. If append_annotations is set to True,
@@ -69,10 +63,11 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
         """
         annotation_filenames = self.annotation_reader.get_data_filenames()
         video_annotation_names = [
-            filename for filename in annotation_filenames
+            filename
+            for filename in annotation_filenames
             if filename.startswith(f"{video.name}_frame_")
         ]
-        frame_indices = [int(name.split('_')[-1]) for name in video_annotation_names]
+        frame_indices = [int(name.split("_")[-1]) for name in video_annotation_names]
         video_frames = MediaList(
             [
                 VideoFrame.from_video(video=video, frame_index=frame_index)
@@ -90,7 +85,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
         return upload_count
 
     def upload_annotations_for_videos(
-            self, videos: MediaList[Video], append_annotations: bool = False
+        self, videos: MediaList[Video], append_annotations: bool = False
     ):
         """
         Upload annotations for a list of videos. If append_annotations is set to True,
@@ -112,12 +107,10 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
                 f"Upload complete. Uploaded {upload_count} new video frame annotations"
             )
         else:
-            print(
-                "No new video frame annotations were found."
-            )
+            print("No new video frame annotations were found.")
 
     def upload_annotations_for_images(
-            self, images: MediaList[Image], append_annotations: bool = False
+        self, images: MediaList[Image], append_annotations: bool = False
     ):
         """
         Upload annotations for a list of images. If append_annotations is set to True,
@@ -140,12 +133,10 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
         if upload_count > 0:
             print(f"Upload complete. Uploaded {upload_count} new image annotations")
         else:
-            print(
-                "No new image annotations were found."
-            )
+            print("No new image annotations were found.")
 
     def download_annotations_for_video(
-            self, video: Video, path_to_folder: str, append_video_uid: bool = False
+        self, video: Video, path_to_folder: str, append_video_uid: bool = False
     ) -> float:
         """
         Download video annotations from the server to a target folder on disk.
@@ -162,25 +153,28 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
         """
         annotations = self.get_latest_annotations_for_video(video=video)
         frame_list = MediaList[VideoFrame](
-            [VideoFrame.from_video(
-                video=video, frame_index=annotation.media_identifier.frame_index
-            ) for annotation in annotations]
+            [
+                VideoFrame.from_video(
+                    video=video, frame_index=annotation.media_identifier.frame_index
+                )
+                for annotation in annotations
+            ]
         )
         if len(frame_list) > 0:
             return self._download_annotations_for_2d_media_list(
                 media_list=frame_list,
                 path_to_folder=path_to_folder,
                 verbose=False,
-                append_media_uid=append_video_uid
+                append_media_uid=append_video_uid,
             )
         else:
             return 0
 
     def download_annotations_for_images(
-            self,
-            images: MediaList[Image],
-            path_to_folder: str,
-            append_image_uid: bool = False
+        self,
+        images: MediaList[Image],
+        path_to_folder: str,
+        append_image_uid: bool = False,
     ) -> float:
         """
         Download image annotations from the server to a target folder on disk.
@@ -197,14 +191,14 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
         return self._download_annotations_for_2d_media_list(
             media_list=images,
             path_to_folder=path_to_folder,
-            append_media_uid=append_image_uid
+            append_media_uid=append_image_uid,
         )
 
     def download_annotations_for_videos(
-            self,
-            videos: MediaList[Video],
-            path_to_folder: str,
-            append_video_uid: bool = False
+        self,
+        videos: MediaList[Video],
+        path_to_folder: str,
+        append_video_uid: bool = False,
     ) -> float:
         """
         Download annotations for a list of videos from the server to a target folder
@@ -229,7 +223,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
             t_total += self.download_annotations_for_video(
                 video=video,
                 path_to_folder=path_to_folder,
-                append_video_uid=append_video_uid
+                append_video_uid=append_video_uid,
             )
         print(f"Video annotation download finished in {t_total:.1f} seconds.")
         return t_total
@@ -273,9 +267,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
             )
 
     def upload_annotation(
-            self,
-            media_item: Union[Image, VideoFrame],
-            annotation_scene: AnnotationScene
+        self, media_item: Union[Image, VideoFrame], annotation_scene: AnnotationScene
     ) -> AnnotationScene:
         """
         Upload an annotation for an image or video frame to the SC cluster.
@@ -296,7 +288,7 @@ class AnnotationManager(BaseAnnotationManager, Generic[AnnotationReaderType]):
         )
 
     def get_annotation(
-            self, media_item: Union[Image, VideoFrame]
+        self, media_item: Union[Image, VideoFrame]
     ) -> Optional[AnnotationScene]:
         """
         Retrieve the latest annotations for an image or video frame from the SC cluster.

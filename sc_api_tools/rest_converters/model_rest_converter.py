@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import Dict, Any
+from typing import Any, Dict
 
-from sc_api_tools.data_models import ModelGroup, Model, OptimizedModel
+from sc_api_tools.data_models import Model, ModelGroup, OptimizedModel
 from sc_api_tools.utils import deserialize_dictionary
 
 

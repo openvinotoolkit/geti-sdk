@@ -15,24 +15,23 @@
 import json
 import os
 import time
-from typing import Union, Optional, List, Tuple, Dict, Any
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from sc_api_tools.data_models import (
-    Project,
+    AnnotationKind,
     Image,
-    VideoFrame,
     MediaItem,
-    Video,
     Prediction,
-    AnnotationKind
+    Project,
+    Video,
+    VideoFrame,
 )
 from sc_api_tools.data_models.containers import MediaList
 from sc_api_tools.data_models.enums import PredictionMode
-from sc_api_tools.http_session import SCSession, SCRequestException
-
+from sc_api_tools.http_session import SCRequestException, SCSession
 from sc_api_tools.rest_converters.prediction_rest_converter import (
     NormalizedPredictionRESTConverter,
-    PredictionRESTConverter
+    PredictionRESTConverter,
 )
 
 
@@ -60,8 +59,7 @@ class PredictionManager:
             predictions, False otherwise
         """
         response = self.session.get_rest_response(
-            url=f"{self._base_url}model_groups",
-            method="GET"
+            url=f"{self._base_url}model_groups", method="GET"
         )
         model_info_array: List[Dict[str, Any]]
         if isinstance(response, dict):
@@ -130,9 +128,7 @@ class PredictionManager:
         self._mode = new_mode
 
     def _get_prediction_for_media_item(
-            self,
-            media_item: MediaItem,
-            prediction_mode: Optional[PredictionMode]
+        self, media_item: MediaItem, prediction_mode: Optional[PredictionMode]
     ) -> Tuple[Optional[Union[Prediction, List[Prediction]]], str]:
         """
         Get the prediction for a media item. If a 2D media item (Image or VideoFrame)
@@ -149,35 +145,37 @@ class PredictionManager:
          - string containing a message
         """
         if not self.ready_to_predict:
-            msg = f"Not all tasks in project '{self.project.name}' have a trained " \
-                  f"model available. Unable to get predictions from the project."
+            msg = (
+                f"Not all tasks in project '{self.project.name}' have a trained "
+                f"model available. Unable to get predictions from the project."
+            )
             result = None
         else:
             try:
                 response = self.session.get_rest_response(
                     url=f"{media_item.base_url}/predictions/{prediction_mode}",
-                    method="GET"
+                    method="GET",
                 )
                 if isinstance(media_item, (Image, VideoFrame)):
-                    if self.session.version < '1.2':
+                    if self.session.version < "1.2":
                         result = NormalizedPredictionRESTConverter.normalized_prediction_from_dict(
                             prediction=response,
                             image_height=media_item.media_information.height,
-                            image_width=media_item.media_information.width
+                            image_width=media_item.media_information.width,
                         )
                     else:
                         result = PredictionRESTConverter.from_dict(response)
-                    result.resolve_labels_for_result_media(
-                        labels=self._labels
-                    )
+                    result.resolve_labels_for_result_media(labels=self._labels)
                 elif isinstance(media_item, Video):
-                    if self.session.version < '1.2':
+                    if self.session.version < "1.2":
                         result = [
                             NormalizedPredictionRESTConverter.normalized_prediction_from_dict(
                                 prediction=prediction,
                                 image_width=media_item.media_information.width,
-                                image_height=media_item.media_information.height
-                            ).resolve_labels_for_result_media(labels=self._labels)
+                                image_height=media_item.media_information.height,
+                            ).resolve_labels_for_result_media(
+                                labels=self._labels
+                            )
                             for prediction in response
                         ]
                     else:
@@ -196,12 +194,16 @@ class PredictionManager:
             except SCRequestException as error:
                 msg = f"Unable to retrieve prediction for {media_item.type}."
                 if error.status_code == 204:
-                    msg += f" The prediction for the {media_item.type} with name " \
-                           f"'{media_item.name}' is not available in project " \
-                           f"'{self.project.name}'."
+                    msg += (
+                        f" The prediction for the {media_item.type} with name "
+                        f"'{media_item.name}' is not available in project "
+                        f"'{self.project.name}'."
+                    )
                     if prediction_mode == PredictionMode.LATEST:
-                        msg += "Try setting the mode of the prediction manager to " \
-                               "'auto' or 'online' to trigger inference upon request."
+                        msg += (
+                            "Try setting the mode of the prediction manager to "
+                            "'auto' or 'online' to trigger inference upon request."
+                        )
                 else:
                     msg += f" Server responded with error message: {str(error)}"
                 result = None
@@ -253,10 +255,10 @@ class PredictionManager:
         return result
 
     def download_predictions_for_images(
-            self,
-            images: MediaList[Image],
-            path_to_folder: str,
-            include_result_media: bool = True,
+        self,
+        images: MediaList[Image],
+        path_to_folder: str,
+        include_result_media: bool = True,
     ) -> float:
         """
         Download image predictions from the server to a target folder on disk.
@@ -270,16 +272,16 @@ class PredictionManager:
         return self._download_predictions_for_2d_media_list(
             media_list=images,
             path_to_folder=path_to_folder,
-            include_result_media=include_result_media
+            include_result_media=include_result_media,
         )
 
     def download_predictions_for_videos(
-            self,
-            videos: MediaList[Video],
-            path_to_folder: str,
-            include_result_media: bool = True,
-            inferred_frames_only: bool = True,
-            frame_stride: Optional[int] = None
+        self,
+        videos: MediaList[Video],
+        path_to_folder: str,
+        include_result_media: bool = True,
+        inferred_frames_only: bool = True,
+        frame_stride: Optional[int] = None,
     ) -> float:
         """
         Download predictions for a list of videos from the server to a target folder
@@ -309,18 +311,18 @@ class PredictionManager:
                 path_to_folder=path_to_folder,
                 include_result_media=include_result_media,
                 inferred_frames_only=inferred_frames_only,
-                frame_stride=frame_stride
+                frame_stride=frame_stride,
             )
         print(f"Video prediction download finished in {t_total:.1f} seconds.")
         return t_total
 
     def download_predictions_for_video(
-            self,
-            video: Video,
-            path_to_folder: str,
-            include_result_media: bool = True,
-            inferred_frames_only: bool = True,
-            frame_stride: Optional[int] = None
+        self,
+        video: Video,
+        path_to_folder: str,
+        include_result_media: bool = True,
+        inferred_frames_only: bool = True,
+        frame_stride: Optional[int] = None,
     ) -> float:
         """
         Download video predictions from the server to a target folder on disk.
@@ -340,13 +342,17 @@ class PredictionManager:
         if inferred_frames_only:
             predictions = self.get_video_predictions(video=video)
             frame_list = MediaList[VideoFrame](
-                [VideoFrame.from_video(
-                    video=video, frame_index=prediction.media_identifier.frame_index
-                ) for prediction in predictions]
+                [
+                    VideoFrame.from_video(
+                        video=video, frame_index=prediction.media_identifier.frame_index
+                    )
+                    for prediction in predictions
+                ]
             )
         else:
             stride = (
-                frame_stride if frame_stride is not None and frame_stride > 0
+                frame_stride
+                if frame_stride is not None and frame_stride > 0
                 else video.media_information.frame_stride
             )
             frame_indices = range(0, video.media_information.frame_count, stride)
@@ -364,7 +370,7 @@ class PredictionManager:
                 media_list=frame_list,
                 path_to_folder=path_to_folder,
                 verbose=False,
-                include_result_media=include_result_media
+                include_result_media=include_result_media,
             )
         else:
             result = 0
@@ -389,11 +395,11 @@ class PredictionManager:
         self.__override_mode = None
 
     def _download_predictions_for_2d_media_list(
-            self,
-            media_list: Union[MediaList[Image], MediaList[VideoFrame]],
-            path_to_folder: str,
-            include_result_media: bool = True,
-            verbose: bool = True
+        self,
+        media_list: Union[MediaList[Image], MediaList[VideoFrame]],
+        path_to_folder: str,
+        include_result_media: bool = True,
+        verbose: bool = True,
     ) -> float:
         """
         Download predictions from the server to a target folder on disk.
@@ -407,11 +413,11 @@ class PredictionManager:
         :return: Returns the time elapsed to download the predictions, in seconds
         """
         if media_list.media_type == Image:
-            media_name = 'image'
-            media_name_plural = 'images'
+            media_name = "image"
+            media_name_plural = "images"
         elif media_list.media_type == VideoFrame:
-            media_name = 'video frame'
-            media_name_plural = 'video frames'
+            media_name = "video frame"
+            media_name_plural = "video frames"
         else:
             raise ValueError(
                 "Invalid media type found in media_list, unable to download "
@@ -419,7 +425,7 @@ class PredictionManager:
             )
 
         if not path_to_folder.endswith("predictions"):
-            path_to_predictions_folder = os.path.join(path_to_folder, 'predictions')
+            path_to_predictions_folder = os.path.join(path_to_folder, "predictions")
         else:
             path_to_predictions_folder = path_to_folder
 
@@ -470,40 +476,46 @@ class PredictionManager:
                     result_media = None
                 if result_media is not None:
                     path_to_result_media_folder = os.path.join(
-                        path_to_predictions_folder,
-                        "saliency_maps"
+                        path_to_predictions_folder, "saliency_maps"
                     )
                     if not os.path.exists(path_to_result_media_folder):
                         os.makedirs(path_to_result_media_folder)
                     for result_medium in result_media:
                         result_media_path = os.path.join(
                             path_to_result_media_folder,
-                            media_item.name + '_' + result_medium.friendly_name + '.jpg'
+                            media_item.name
+                            + "_"
+                            + result_medium.friendly_name
+                            + ".jpg",
                         )
 
                         os.makedirs(os.path.dirname(result_media_path), exist_ok=True)
-                        with open(result_media_path, 'wb') as f:
+                        with open(result_media_path, "wb") as f:
                             f.write(result_medium.data)
 
             # Convert prediction to json and save to file
             export_data = PredictionRESTConverter.to_dict(prediction)
             prediction_path = os.path.join(
-                path_to_predictions_folder, media_item.name + '.json'
+                path_to_predictions_folder, media_item.name + ".json"
             )
 
             os.makedirs(os.path.dirname(prediction_path), exist_ok=True)
-            with open(prediction_path, 'w') as f:
+            with open(prediction_path, "w") as f:
                 json.dump(export_data, f, indent=4)
             download_count += 1
         t_elapsed = time.time() - t_start
         if download_count > 0:
-            msg = f"Downloaded {download_count} predictions to folder " \
-                  f"{path_to_predictions_folder} in {t_elapsed:.1f} seconds."
+            msg = (
+                f"Downloaded {download_count} predictions to folder "
+                f"{path_to_predictions_folder} in {t_elapsed:.1f} seconds."
+            )
         else:
             msg = "No predictions were downloaded."
         if skip_count > 0:
-            msg = msg + f" Was unable to retrieve predictions for {skip_count} " \
-                        f"{media_name_plural}, these {media_name_plural} were skipped."
+            msg = (
+                msg + f" Was unable to retrieve predictions for {skip_count} "
+                f"{media_name_plural}, these {media_name_plural} were skipped."
+            )
         if verbose:
             print(msg)
         return t_elapsed

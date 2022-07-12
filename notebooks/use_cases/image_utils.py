@@ -2,8 +2,8 @@ from typing import Union
 
 import cv2
 import numpy as np
-from PIL import Image as PILImage
 from IPython.display import display
+from PIL import Image as PILImage
 
 from sc_api_tools.data_models import Image
 
@@ -33,8 +33,10 @@ def simulate_low_light_image(
     new_image = cv2.convertScaleAbs(new_image, alpha=reduction_factor, beta=0)
 
     # Add some shot noise to simulate reduced exposure time
-    PEAK = 255*reduction_factor
-    new_image_with_noise = np.clip(np.random.poisson(new_image / 255.0 * PEAK) / PEAK * 255, 0, 255).astype('uint8')
+    PEAK = 255 * reduction_factor
+    new_image_with_noise = np.clip(
+        np.random.poisson(new_image / 255.0 * PEAK) / PEAK * 255, 0, 255
+    ).astype("uint8")
     return new_image_with_noise
 
 

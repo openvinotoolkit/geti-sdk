@@ -15,16 +15,17 @@
 
 import os
 import tempfile
-from typing import Union, Sequence
+from typing import Sequence, Union
 
 import cv2
 import numpy as np
-from sc_api_tools.http_session import SCRequestException
 
-from .media_manager import BaseMediaManager
 from sc_api_tools.data_models import MediaType, Video
 from sc_api_tools.data_models.containers import MediaList
+from sc_api_tools.http_session import SCRequestException
 from sc_api_tools.rest_converters import MediaRESTConverter
+
+from .media_manager import BaseMediaManager
 
 
 class VideoManager(BaseMediaManager[Video]):
@@ -69,11 +70,12 @@ class VideoManager(BaseMediaManager[Video]):
                     f"dimensions representing [frames, height, width, channels]. Got "
                     f"shape {video.shape}"
                 ) from error
-            file_out = tempfile.NamedTemporaryFile(suffix='.avi', delete=False)
+            file_out = tempfile.NamedTemporaryFile(suffix=".avi", delete=False)
             out = cv2.VideoWriter(
                 file_out.name,
-                cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 1,
-                (frame_width, frame_height)
+                cv2.VideoWriter_fourcc("M", "J", "P", "G"),
+                1,
+                (frame_width, frame_height),
             )
             for frame in video[:, ...]:
                 out.write(frame)
@@ -92,10 +94,10 @@ class VideoManager(BaseMediaManager[Video]):
         return uploaded_video
 
     def upload_folder(
-            self,
-            path_to_folder: str,
-            n_videos: int = -1,
-            skip_if_filename_exists: bool = False
+        self,
+        path_to_folder: str,
+        n_videos: int = -1,
+        skip_if_filename_exists: bool = False,
     ) -> MediaList[Video]:
         """
         Upload all videos in a folder to the project. Returns the mapping of video
@@ -111,7 +113,7 @@ class VideoManager(BaseMediaManager[Video]):
         return self._upload_folder(
             path_to_folder=path_to_folder,
             n_media=n_videos,
-            skip_if_filename_exists=skip_if_filename_exists
+            skip_if_filename_exists=skip_if_filename_exists,
         )
 
     def download_all(self, path_to_folder: str, append_video_uid: bool = False) -> None:

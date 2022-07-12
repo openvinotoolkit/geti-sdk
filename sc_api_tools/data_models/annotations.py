@@ -12,22 +12,20 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import List, Union, Optional, ClassVar, Sequence
+from typing import ClassVar, List, Optional, Sequence, Union
 
 import attr
-
 from ote_sdk.entities.annotation import Annotation as OteAnnotation
 
-from sc_api_tools.data_models.label import ScoredLabel, Label
+from sc_api_tools.data_models.label import Label, ScoredLabel
 from sc_api_tools.data_models.shapes import (
-    Rectangle,
     Ellipse,
-    Polygon, Shape, RotatedRectangle
+    Polygon,
+    Rectangle,
+    RotatedRectangle,
+    Shape,
 )
-from sc_api_tools.data_models.utils import (
-    deidentify,
-    str_to_datetime
-)
+from sc_api_tools.data_models.utils import deidentify, str_to_datetime
 
 
 @attr.s(auto_attribs=True)
@@ -101,11 +99,8 @@ class Annotation:
 
     @classmethod
     def from_ote(
-            cls,
-            ote_annotation: OteAnnotation,
-            image_width: int,
-            image_height: int
-    ) -> 'Annotation':
+        cls, ote_annotation: OteAnnotation, image_width: int, image_height: int
+    ) -> "Annotation":
         """
         Create a :py:class:`~sc_api_tools.data_models.annotations.Annotation` instance
         from a given OTE SDK Annotation object.
@@ -124,7 +119,7 @@ class Annotation:
         ]
         return Annotation(shape=shape, labels=labels, id=ote_annotation.id)
 
-    def map_labels(self, labels: Sequence[Union[ScoredLabel, Label]]) -> 'Annotation':
+    def map_labels(self, labels: Sequence[Union[ScoredLabel, Label]]) -> "Annotation":
         """
         Attempt to map the labels found in `labels` to those in the Annotation
         instance. Labels are matched by name. This method will return a new
@@ -147,11 +142,12 @@ class Annotation:
                         name=label.name,
                         color=label.color,
                         id=mapped_label_ids[label_index],
-                        source=label.source
+                        source=label.source,
                     )
                 )
         new_labels_to_revisit = [
-            new_label.id for new_label in new_labels
+            new_label.id
+            for new_label in new_labels
             if new_label.id in self.labels_to_revisit
         ]
         return Annotation(
@@ -159,5 +155,5 @@ class Annotation:
             shape=self.shape,
             modified=self.modified,
             id=None,
-            labels_to_revisit=new_labels_to_revisit
+            labels_to_revisit=new_labels_to_revisit,
         )

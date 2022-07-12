@@ -17,13 +17,12 @@ from typing import ClassVar, List, Optional, Union
 
 import attr
 
+from sc_api_tools.data_models.algorithms import Algorithm
+from sc_api_tools.data_models.model import Model
+from sc_api_tools.data_models.performance import Performance
 from sc_api_tools.data_models.utils import str_to_datetime
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.utils.algorithm_helpers import get_supported_algorithms
-from . import Performance
-
-from .algorithms import Algorithm
-from .model import Model
 
 
 @attr.s(auto_attribs=True)
@@ -88,7 +87,8 @@ class ModelGroup:
             otherwise
         """
         trained_models = [
-            model for model in self.models
+            model
+            for model in self.models
             if (model.performance is not None or model.score is not None)
         ]
         return len(trained_models) > 0
@@ -134,10 +134,7 @@ class ModelGroup:
             return None
         try:
             model = next(
-                (
-                    model for model in self.models
-                    if model.creation_date == creation_date
-                )
+                (model for model in self.models if model.creation_date == creation_date)
             )
         except StopIteration:
             raise ValueError(

@@ -20,11 +20,11 @@ class ModelStatus(Enum):
     Enum representing the different statuses that a model can have in SC.
     """
 
-    NOT_READY = 'NOT_READY'
-    WEIGHTS_INITIALIZED = 'WEIGHTS_INITIALIZED'
-    SUCCESS = 'SUCCESS'
-    FAILED = 'FAILED'
-    NOT_IMPROVED = 'NOT_IMPROVED'
+    NOT_READY = "NOT_READY"
+    WEIGHTS_INITIALIZED = "WEIGHTS_INITIALIZED"
+    SUCCESS = "SUCCESS"
+    FAILED = "FAILED"
+    NOT_IMPROVED = "NOT_IMPROVED"
 
     def __str__(self) -> str:
         """

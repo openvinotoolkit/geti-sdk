@@ -20,12 +20,12 @@ class JobType(Enum):
     Enum representing the type of a job on the SC cluster.
     """
 
-    UNDEFINED = 'undefined'
-    TRAIN = 'train'
-    INFERENCE = 'inference'
-    RECONSTRUCT_VIDEO = 'reconstruct_video'
-    EVALUATE = 'evaluate'
-    OPTIMIZATION = 'optimization'
+    UNDEFINED = "undefined"
+    TRAIN = "train"
+    INFERENCE = "inference"
+    RECONSTRUCT_VIDEO = "reconstruct_video"
+    EVALUATE = "evaluate"
+    OPTIMIZATION = "optimization"
 
     def __str__(self) -> str:
         """

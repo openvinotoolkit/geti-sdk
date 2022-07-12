@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import ClassVar, Dict, Any, Optional
+from typing import Any, ClassVar, Dict, Optional
 
 import attr
 
 from sc_api_tools.data_models import Algorithm
 from sc_api_tools.data_models.enums import ConfigurationEntityType
-from sc_api_tools.data_models.utils import str_to_enum_converter, attr_value_serializer
+from sc_api_tools.data_models.utils import attr_value_serializer, str_to_enum_converter
 
 
 @attr.s(auto_attribs=True)

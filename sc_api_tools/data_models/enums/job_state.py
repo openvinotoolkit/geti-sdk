@@ -21,14 +21,14 @@ class JobState(Enum):
     Enum representing the state of a job on the SC cluster.
     """
 
-    IDLE = 'idle'
-    RUNNING = 'running'
-    PAUSED = 'paused'
-    FINISHED = 'finished'
-    ERROR = 'error'
-    FAILED = 'failed'
-    CANCELLED = 'cancelled'
-    INACTIVE = 'inactive'
+    IDLE = "idle"
+    RUNNING = "running"
+    PAUSED = "paused"
+    FINISHED = "finished"
+    ERROR = "error"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+    INACTIVE = "inactive"
 
     def __str__(self) -> str:
         """
@@ -37,7 +37,7 @@ class JobState(Enum):
         return self.value
 
     @classmethod
-    def active_states(cls) -> List['JobState']:
+    def active_states(cls) -> List["JobState"]:
         """
         Return a list of JobState instance which represent jobs that are still active.
 
@@ -46,7 +46,7 @@ class JobState(Enum):
         return [cls.IDLE, cls.PAUSED, cls.RUNNING]
 
     @classmethod
-    def inactive_states(cls) -> List['JobState']:
+    def inactive_states(cls) -> List["JobState"]:
         """
         Return a list of JobState instance which represent jobs that are inactive,
         i.e. cancelled, errored or finished successfully.

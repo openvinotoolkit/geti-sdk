@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
 import attr
 
-from sc_api_tools.data_models import Performance
+from sc_api_tools.data_models.performance import Performance
 
 
 @attr.s(auto_attribs=True)
@@ -35,7 +35,7 @@ class StatusSummary:
     time_remaining: float
 
     @classmethod
-    def from_dict(cls, status_dict: Dict[str, Any]) -> 'StatusSummary':
+    def from_dict(cls, status_dict: Dict[str, Any]) -> "StatusSummary":
         """
         Create a StatusSummary object from a dictionary.
 
@@ -135,8 +135,9 @@ class ProjectStatus:
         """
         summary_str = f"Project status:\n  {self.status.message}\n"
         for task in self.tasks:
-            summary_str += f"    Task: {task.title}\n" \
-                           f"      State: {task.status.message}\n"
+            summary_str += (
+                f"    Task: {task.title}\n" f"      State: {task.status.message}\n"
+            )
             if task.is_training or task.status.progress != -1.0:
                 summary_str += f"      Progress: {task.status.progress:.1f}%\n"
         summary_str += f"  Latest score: {self.project_score*100:.1f}%\n"

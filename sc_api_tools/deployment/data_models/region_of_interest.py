@@ -30,7 +30,7 @@ class ROI(Annotation):
     original_shape: Shape = attr.ib(kw_only=True)
 
     @classmethod
-    def from_annotation(cls, annotation: Annotation) -> 'ROI':
+    def from_annotation(cls, annotation: Annotation) -> "ROI":
         """
         Convert an Annotation instance into an ROI.
 
@@ -40,10 +40,10 @@ class ROI(Annotation):
         return cls(
             labels=annotation.labels,
             shape=annotation.shape.to_roi(),
-            original_shape=annotation.shape
+            original_shape=annotation.shape,
         )
 
-    def to_absolute_coordinates(self, parent_roi: 'ROI') -> 'ROI':
+    def to_absolute_coordinates(self, parent_roi: "ROI") -> "ROI":
         """
         Convert the ROI to an ROI in absolute coordinates, given it's parent ROI.
 
@@ -53,5 +53,7 @@ class ROI(Annotation):
         return ROI(
             labels=self.labels,
             shape=self.shape.to_absolute_coordinates(parent_roi.shape),
-            original_shape=self.original_shape.to_absolute_coordinates(parent_roi.shape)
+            original_shape=self.original_shape.to_absolute_coordinates(
+                parent_roi.shape
+            ),
         )

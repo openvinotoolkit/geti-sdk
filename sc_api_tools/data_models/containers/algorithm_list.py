@@ -13,9 +13,8 @@
 # and limitations under the License.
 
 import copy
-
 from collections import UserList
-from typing import Dict, Any, Sequence, Optional, List
+from typing import Any, Dict, List, Optional, Sequence
 
 from sc_api_tools.data_models.algorithms import Algorithm
 from sc_api_tools.data_models.enums import TaskType
@@ -43,7 +42,7 @@ class AlgorithmList(UserList):
             super().__init__(list(data))
 
     @staticmethod
-    def from_rest(rest_input: Dict[str, Any]) -> 'AlgorithmList':
+    def from_rest(rest_input: Dict[str, Any]) -> "AlgorithmList":
         """
         Create an AlgorithmList from the response of the /supported_algorithms REST
         endpoint in SC.
@@ -75,7 +74,7 @@ class AlgorithmList(UserList):
             f"list of supported algorithms."
         )
 
-    def get_by_task_type(self, task_type: TaskType) -> 'AlgorithmList':
+    def get_by_task_type(self, task_type: TaskType) -> "AlgorithmList":
         """
         Return a list of supported algorithms for a particular task type.
 
@@ -83,10 +82,7 @@ class AlgorithmList(UserList):
         :return: List of supported algorithms for the task type
         """
         return AlgorithmList(
-            [
-                algo for algo in self.data
-                if algo.task_type == task_type
-            ]
+            [algo for algo in self.data if algo.task_type == task_type]
         )
 
     @property
@@ -98,10 +94,12 @@ class AlgorithmList(UserList):
         """
         summary_str = "Algorithms:\n"
         for algorithm in self.data:
-            summary_str += f"  Name: {algorithm.algorithm_name}\n" \
-                           f"    Task type: {algorithm.task_type}\n" \
-                           f"    Model size: {algorithm.model_size}\n" \
-                           f"    Gigaflops: {algorithm.gigaflops}\n\n"
+            summary_str += (
+                f"  Name: {algorithm.algorithm_name}\n"
+                f"    Task type: {algorithm.task_type}\n"
+                f"    Model size: {algorithm.model_size}\n"
+                f"    Gigaflops: {algorithm.gigaflops}\n\n"
+            )
         return summary_str
 
     def get_by_name(self, name: str) -> Algorithm:

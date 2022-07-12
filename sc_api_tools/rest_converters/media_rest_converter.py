@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import Dict, Any, Type
+from typing import Any, Dict, Type
 
 from sc_api_tools.data_models.containers.media_list import MediaTypeVar
 from sc_api_tools.utils import deserialize_dictionary
@@ -26,8 +26,7 @@ class MediaRESTConverter:
 
     @staticmethod
     def from_dict(
-            input_dict: Dict[str, Any],
-            media_type: Type[MediaTypeVar]
+        input_dict: Dict[str, Any], media_type: Type[MediaTypeVar]
     ) -> MediaTypeVar:
         """
         Create an instance of type `media_type` representing a media entity in SC

@@ -18,16 +18,12 @@ import tempfile
 
 import pytest
 from _pytest.main import Session
-from sc_api_tools import SCRESTClient
 
+from sc_api_tools import SCRESTClient
 from sc_api_tools.http_session import ClusterConfig
 from tests.helpers.project_helpers import remove_all_test_projects
 
-from .helpers import (
-    SdkTestMode,
-    get_sdk_fixtures,
-    replace_host_name_in_cassettes,
-)
+from .helpers import SdkTestMode, get_sdk_fixtures, replace_host_name_in_cassettes
 from .helpers.constants import BASE_TEST_PATH, CASSETTE_PATH, RECORD_CASSETTE_KEY
 
 pytest_plugins = get_sdk_fixtures()
@@ -51,8 +47,8 @@ PASSWORD = os.environ.get("SC_PASSWORD", "dummy_password")
 # PASSWORD should hold the password that is used for logging in to the SC instance
 
 CLEAR_EXISTING_TEST_PROJECTS = os.environ.get(
-    "CLEAR_EXISTING_TEST_PROJECTS", '0'
-).lower() in ['true', '1']
+    "CLEAR_EXISTING_TEST_PROJECTS", "0"
+).lower() in ["true", "1"]
 # CLEAR_EXISTING_TEST_PROJECTS is a boolean that determines whether existing test
 # projects are deleted before a test run
 
@@ -75,11 +71,7 @@ def fxt_server_config() -> ClusterConfig:
     """
     This fixture holds the login configuration to access the SC server
     """
-    test_config = ClusterConfig(
-        host=HOST,
-        username=USERNAME,
-        password=PASSWORD
-    )
+    test_config = ClusterConfig(host=HOST, username=USERNAME, password=PASSWORD)
     yield test_config
 
 
@@ -112,6 +104,7 @@ def fxt_learning_parameter_settings() -> str:
     :return:
     """
     yield NIGHTLY_TEST_LEARNING_PARAMETER_SETTINGS
+
 
 # ----------------------------------------------
 # ---------------- Pytest hooks ----------------

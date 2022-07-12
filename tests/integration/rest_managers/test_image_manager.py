@@ -18,33 +18,32 @@ import tempfile
 from typing import List
 
 import cv2
-import pytest
 import numpy as np
+import pytest
 from _pytest.fixtures import FixtureRequest
 
 from sc_api_tools.data_models import Project
-
-from tests.helpers.project_service import ProjectService
 from tests.helpers.constants import PROJECT_PREFIX
+from tests.helpers.project_service import ProjectService
 
 
 class TestImageManager:
     @staticmethod
     def ensure_test_project(
-            project_service: ProjectService, labels: List[str]
+        project_service: ProjectService, labels: List[str]
     ) -> Project:
         return project_service.get_or_create_project(
             project_name=f"{PROJECT_PREFIX}_image_manager",
             project_type="detection",
-            labels=[labels]
+            labels=[labels],
         )
 
     @pytest.mark.vcr()
     def test_upload_and_delete_image(
-            self,
-            fxt_project_service: ProjectService,
-            fxt_default_labels: List[str],
-            fxt_image_path: str
+        self,
+        fxt_project_service: ProjectService,
+        fxt_default_labels: List[str],
+        fxt_image_path: str,
     ):
         """
         Verifies that uploading an image works as expected
@@ -64,8 +63,7 @@ class TestImageManager:
             in the project reduces by one upon deletion of the image
         """
         self.ensure_test_project(
-            project_service=fxt_project_service,
-            labels=fxt_default_labels
+            project_service=fxt_project_service, labels=fxt_default_labels
         )
         image_manager = fxt_project_service.image_manager
         image = image_manager.upload_image(fxt_image_path)
@@ -88,11 +86,11 @@ class TestImageManager:
 
     @pytest.mark.vcr()
     def test_upload_image_folder_and_download(
-            self,
-            fxt_project_service: ProjectService,
-            fxt_default_labels: List[str],
-            fxt_image_folder: str,
-            request: FixtureRequest
+        self,
+        fxt_project_service: ProjectService,
+        fxt_default_labels: List[str],
+        fxt_image_folder: str,
+        request: FixtureRequest,
     ):
         """
         Verifies that uploading a folder of images works as expected
@@ -108,8 +106,7 @@ class TestImageManager:
         7. Assert that all images were downloaded
         """
         self.ensure_test_project(
-            project_service=fxt_project_service,
-            labels=fxt_default_labels
+            project_service=fxt_project_service, labels=fxt_default_labels
         )
         image_manager = fxt_project_service.image_manager
 
@@ -131,4 +128,4 @@ class TestImageManager:
         downloaded_filenames = os.listdir(os.path.join(target_dir, "images"))
         assert len(downloaded_filenames) == n_images + len(images)
         for image in images + old_images:
-            assert image.name + '.jpg' in downloaded_filenames
+            assert image.name + ".jpg" in downloaded_filenames

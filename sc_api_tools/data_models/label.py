@@ -13,16 +13,14 @@
 # and limitations under the License.
 
 import copy
-
-from typing import Optional, ClassVar, List, Tuple
+from typing import ClassVar, List, Optional, Tuple
 
 import attr
-
 from ote_sdk.entities.color import Color
-from ote_sdk.entities.scored_label import ScoredLabel as OteScoredLabel
 from ote_sdk.entities.label import LabelEntity
+from ote_sdk.entities.scored_label import ScoredLabel as OteScoredLabel
 
-from sc_api_tools.data_models import TaskType
+from sc_api_tools.data_models.enums import TaskType
 
 
 @attr.s(auto_attribs=True)
@@ -71,7 +69,7 @@ class Label:
             id=self.id,
             hotkey=self.hotkey,
             is_empty=self.is_empty,
-            color=Color.from_hex_str(self.color)
+            color=Color.from_hex_str(self.color),
         )
 
 
@@ -102,11 +100,11 @@ class ScoredLabel:
 
         :return:
         """
-        hex_color_str = copy.deepcopy(self.color).strip('#')
-        return tuple(int(hex_color_str[i:i+2], 16) for i in (0, 2, 4))
+        hex_color_str = copy.deepcopy(self.color).strip("#")
+        return tuple(int(hex_color_str[i : i + 2], 16) for i in (0, 2, 4))
 
     @classmethod
-    def from_label(cls, label: Label, probability: float) -> 'ScoredLabel':
+    def from_label(cls, label: Label, probability: float) -> "ScoredLabel":
         """
         Create a ScoredLabel instance from an input Label and probability score.
 
@@ -115,14 +113,11 @@ class ScoredLabel:
         :return: ScoredLabel instance corresponding to `label` and `probability`
         """
         return ScoredLabel(
-            name=label.name,
-            probability=probability,
-            color=label.color,
-            id=label.id
+            name=label.name, probability=probability, color=label.color, id=label.id
         )
 
     @classmethod
-    def from_ote(cls, ote_label: OteScoredLabel) -> 'ScoredLabel':
+    def from_ote(cls, ote_label: OteScoredLabel) -> "ScoredLabel":
         """
         Create a :py:class`~sc_api_tools.data_models.label.ScoredLabel` from
         the OTE SDK ScoredLabel entity passed.

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import Dict, Any, cast, TypeVar, Type
+from typing import Any, Dict, Type, TypeVar, cast
 
 from omegaconf import OmegaConf
 
@@ -20,7 +20,7 @@ OutputTypeVar = TypeVar("OutputTypeVar")
 
 
 def deserialize_dictionary(
-        input_dictionary: Dict[str, Any], output_type: Type[OutputTypeVar]
+    input_dictionary: Dict[str, Any], output_type: Type[OutputTypeVar]
 ) -> OutputTypeVar:
     """
     Deserialize an `input_dictionary` to an object of the type passed in `output_type`.

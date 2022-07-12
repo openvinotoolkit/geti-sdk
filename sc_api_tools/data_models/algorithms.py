@@ -16,8 +16,8 @@ from typing import Optional
 
 import attr
 
-from sc_api_tools.data_models.utils import str_to_optional_enum_converter
 from sc_api_tools.data_models.enums import Domain, TaskType
+from sc_api_tools.data_models.utils import str_to_optional_enum_converter
 
 
 @attr.s(auto_attribs=True)

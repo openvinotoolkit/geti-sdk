@@ -15,13 +15,13 @@ requires Python version 3.8, so make sure to use that version in your environmen
 
 Once you have created a new environment, follow these steps to install the package:
 
-1. Download or clone the repository and navigate to the package directory. 
+1. Download or clone the repository and navigate to the `sc_api_tools` directory. 
 
 2. From there, install the requirements using 
-`pip install -r requirements.txt`. 
+`pip install -r requirements/requirements.txt`. 
 
 3. (Optional) If you plan on using the package to deploy inference models, install the 
-   requirements for deployment using `pip install -r requirements-deployment.txt`.
+   requirements for deployment using `pip install -r requirements/requirements-deployment.txt`.
    
 4. Then run `pip install .` to install the package. 
 You can also install it in editable mode using `pip install -e .` This is handy if
@@ -95,11 +95,8 @@ the single project methods in the code snippets above.
 
 ### Deploying a project
 
-> **WARNING**: The deployment-related features of this package are in an experimental 
-> stage, and subject to change.
-
 **NOTE**: Before running inference locally, please install the 
-required packages for deployment using `pip install -r requirements-deployment.txt`
+required packages for deployment using `pip install -r requirements/requirements-deployment.txt`
 
 The following code snippet shows how to create a deployment for local inference with 
 OpenVINO:

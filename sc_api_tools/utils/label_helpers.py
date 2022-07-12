@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import List, Dict
+from typing import Dict, List
 
 
 def generate_segmentation_labels(detection_labels: List[str]) -> List[str]:
@@ -26,7 +26,7 @@ def generate_segmentation_labels(detection_labels: List[str]) -> List[str]:
 
 
 def generate_classification_labels(
-        labels: List[str], multilabel: bool = False
+    labels: List[str], multilabel: bool = False
 ) -> List[Dict[str, str]]:
     """
     Generate label creation data from a list of label names. If `multiclass = True`,

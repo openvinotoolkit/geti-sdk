@@ -13,15 +13,14 @@
 # and limitations under the License.
 
 import copy
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 import attr
 
-from sc_api_tools.data_models import Prediction, Annotation
+from sc_api_tools.data_models import Annotation, Prediction
 from sc_api_tools.data_models.predictions import ResultMedium
-from sc_api_tools.data_models.utils import attr_value_serializer
+from sc_api_tools.data_models.utils import attr_value_serializer, remove_null_fields
 from sc_api_tools.rest_converters import AnnotationRESTConverter
-from sc_api_tools.utils import remove_null_fields
 
 
 class PredictionRESTConverter:
@@ -62,15 +61,13 @@ class PredictionRESTConverter:
             {
                 "annotations": annotations,
                 "media_identifier": media_identifier,
-                "maps": result_media
+                "maps": result_media,
             }
         )
         return Prediction(**input_copy)
 
     @staticmethod
-    def to_dict(
-            prediction: Prediction, deidentify: bool = True
-    ) -> Dict[str, Any]:
+    def to_dict(prediction: Prediction, deidentify: bool = True) -> Dict[str, Any]:
         """
         Convert a Prediction to a dictionary. By default, removes any ID
         fields in the output dictionary

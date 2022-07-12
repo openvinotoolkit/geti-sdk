@@ -13,17 +13,16 @@
 # and limitations under the License.
 
 import copy
-from typing import List, Sequence, Dict, Optional, Union
+from typing import Dict, List, Optional, Sequence, Union
 
 from datumaro.components.annotation import Bbox, Polygon
 
-from sc_api_tools.rest_converters import AnnotationRESTConverter
-
 from sc_api_tools.annotation_readers.base_annotation_reader import AnnotationReader
-from sc_api_tools.data_models import TaskType
 from sc_api_tools.data_models import Annotation as SCAnnotation
+from sc_api_tools.data_models import TaskType
 from sc_api_tools.data_models.enums.task_type import GLOBAL_TASK_TYPES
-from sc_api_tools.utils import get_dict_key_from_value, generate_segmentation_labels
+from sc_api_tools.rest_converters import AnnotationRESTConverter
+from sc_api_tools.utils import generate_segmentation_labels, get_dict_key_from_value
 
 from .datumaro_dataset import DatumaroDataset
 
@@ -41,19 +40,19 @@ class DatumAnnotationReader(AnnotationReader):
         TaskType.ROTATED_DETECTION,
         TaskType.ANOMALY_CLASSIFICATION,
         TaskType.ANOMALY_DETECTION,
-        TaskType.ANOMALY_SEGMENTATION
+        TaskType.ANOMALY_SEGMENTATION,
     ]
 
     def __init__(
-            self,
-            base_data_folder: str,
-            annotation_format: str,
-            task_type: Union[TaskType, str] = TaskType.DETECTION
+        self,
+        base_data_folder: str,
+        annotation_format: str,
+        task_type: Union[TaskType, str] = TaskType.DETECTION,
     ):
         super().__init__(
             base_data_folder=base_data_folder,
             annotation_format=annotation_format,
-            task_type=task_type
+            task_type=task_type,
         )
         self.dataset = DatumaroDataset(
             dataset_format=annotation_format, dataset_path=base_data_folder
@@ -62,9 +61,9 @@ class DatumAnnotationReader(AnnotationReader):
         self._applied_filters: List[Dict[str, Union[List[str], str]]] = []
 
     def prepare_and_set_dataset(
-            self,
-            task_type: Union[TaskType, str],
-            previous_task_type: Optional[TaskType] = None
+        self,
+        task_type: Union[TaskType, str],
+        previous_task_type: Optional[TaskType] = None,
     ) -> None:
         """
         Prepare the dataset for a specific `task_type`. This could involve for
@@ -145,10 +144,10 @@ class DatumAnnotationReader(AnnotationReader):
         return self.dataset.image_names
 
     def get_data(
-            self,
-            filename: str,
-            label_name_to_id_mapping: dict,
-            preserve_shape_for_global_labels: bool = False
+        self,
+        filename: str,
+        label_name_to_id_mapping: dict,
+        preserve_shape_for_global_labels: bool = False,
     ) -> List[SCAnnotation]:
         """
         Return the annotation data for the dataset item corresponding to `filename`.
@@ -177,24 +176,29 @@ class DatumAnnotationReader(AnnotationReader):
                 continue
 
             label_id = label_name_to_id_mapping.get(label_name)
-            label = {'id': label_id, 'probability': 1.0}
+            label = {"id": label_id, "probability": 1.0}
             if (
-                    self.task_type not in GLOBAL_TASK_TYPES
-                    or preserve_shape_for_global_labels
+                self.task_type not in GLOBAL_TASK_TYPES
+                or preserve_shape_for_global_labels
             ):
                 if isinstance(annotation, Bbox):
                     x1 = float(annotation.points[0])
                     y1 = float(annotation.points[1])
                     x2 = float(annotation.points[2])
                     y2 = float(annotation.points[3])
-                    shape = {'type': 'RECTANGLE',
-                             'x': x1, 'y': y1, 'width': x2 - x1, 'height': y2 - y1}
+                    shape = {
+                        "type": "RECTANGLE",
+                        "x": x1,
+                        "y": y1,
+                        "width": x2 - x1,
+                        "height": y2 - y1,
+                    }
                 elif isinstance(annotation, Polygon):
                     points = [
-                        {'x': float(x), 'y': float(y)} for x, y
-                        in zip(*[iter(annotation.points)] * 2)
+                        {"x": float(x), "y": float(y)}
+                        for x, y in zip(*[iter(annotation.points)] * 2)
                     ]
-                    shape = {'type': "POLYGON", 'points': points}
+                    shape = {"type": "POLYGON", "points": points}
                 else:
                     print(
                         f"WARNING: Unsupported annotation type found: "
@@ -208,16 +212,13 @@ class DatumAnnotationReader(AnnotationReader):
             else:
                 labels.append(label)
 
-        if (
-                not preserve_shape_for_global_labels
-                and self.task_type in GLOBAL_TASK_TYPES
-        ):
+        if not preserve_shape_for_global_labels and self.task_type in GLOBAL_TASK_TYPES:
             shape = {
                 "type": "RECTANGLE",
                 "x": 0.0,
                 "y": 0.0,
                 "width": float(image_size[1]),
-                "height": float(image_size[0])
+                "height": float(image_size[0]),
             }
             sc_annotation = AnnotationRESTConverter.annotation_from_dict(
                 {"labels": labels, "shape": shape}
@@ -233,16 +234,14 @@ class DatumAnnotationReader(AnnotationReader):
         """
         return copy.deepcopy(self._applied_filters)
 
-    def filter_dataset(self, labels: Sequence[str], criterion='OR') -> None:
+    def filter_dataset(self, labels: Sequence[str], criterion="OR") -> None:
         """
         Retain only those items with annotations in the list of labels passed.
 
         :param: labels     List of labels to filter on
         :param: criterion  Filter criterion, currently "OR" or "AND" are implemented
         """
-        self.dataset.filter_items_by_labels(
-            labels=labels, criterion=criterion
-        )
+        self.dataset.filter_items_by_labels(labels=labels, criterion=criterion)
         self._applied_filters.append({"labels": labels, "criterion": criterion})
 
     def group_labels(self, labels_to_group: List[str], group_name: str) -> None:
@@ -277,8 +276,10 @@ class DatumAnnotationReader(AnnotationReader):
         label_statistics: Dict[str, Dict[str, int]] = {}
         for item in self.dataset.dataset:
             label_names = set(
-                [self.datum_label_map[annotation.label] for
-                 annotation in item.annotations]
+                [
+                    self.datum_label_map[annotation.label]
+                    for annotation in item.annotations
+                ]
             )
             object_counts: Dict[str, int] = {}
             for label in label_names:
@@ -291,7 +292,8 @@ class DatumAnnotationReader(AnnotationReader):
                 label_stats = label_statistics.get(label, {})
                 if not label_stats:
                     label_statistics[label] = {
-                        "n_images": 1, "n_objects": object_counts[label]
+                        "n_images": 1,
+                        "n_objects": object_counts[label],
                     }
                 else:
                     label_statistics[label]["n_images"] += 1

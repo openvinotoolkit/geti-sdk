@@ -20,8 +20,8 @@ class AnnotationKind(Enum):
     Enum representing the different kind of annotation scenes in SC.
     """
 
-    ANNOTATION = 'annotation'
-    PREDICTION = 'prediction'
+    ANNOTATION = "annotation"
+    PREDICTION = "prediction"
 
     def __str__(self):
         """

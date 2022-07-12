@@ -20,9 +20,9 @@ class OptimizationType(Enum):
     Enum representing the optimization type for an OptimizedModel in SC.
     """
 
-    NNCF = 'NNCF'
-    POT = 'POT'
-    MO = 'MO'
+    NNCF = "NNCF"
+    POT = "POT"
+    MO = "MO"
 
     def __str__(self) -> str:
         """

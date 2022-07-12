@@ -14,7 +14,7 @@
 
 # noqa: D104
 
-from .video_manager import VideoManager
 from .image_manager import ImageManager
+from .video_manager import VideoManager
 
 __all__ = ["ImageManager", "VideoManager"]

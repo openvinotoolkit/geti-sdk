@@ -13,13 +13,14 @@
 # and limitations under the License.
 
 from pprint import pformat
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
 import attr
+
 from sc_api_tools.data_models.enums import JobState, JobType
 from sc_api_tools.data_models.status import StatusSummary
-from sc_api_tools.data_models.utils import str_to_enum_converter, attr_value_serializer
-from sc_api_tools.http_session import SCSession, SCRequestException
+from sc_api_tools.data_models.utils import attr_value_serializer, str_to_enum_converter
+from sc_api_tools.http_session import SCRequestException, SCSession
 
 
 @attr.s(auto_attribs=True)
@@ -33,7 +34,7 @@ class JobStatus(StatusSummary):
     state: str = attr.ib(converter=str_to_enum_converter(JobState))
 
     @classmethod
-    def from_dict(cls, status_dict: Dict[str, Any]) -> 'JobStatus':
+    def from_dict(cls, status_dict: Dict[str, Any]) -> "JobStatus":
         """
         Create a JobStatus object from a dictionary.
 
@@ -148,7 +149,7 @@ class Job:
         """
         return f"workspaces/{self.workspace_id}/jobs/{self.id}"
 
-    def update(self, session: SCSession) -> 'Job':
+    def update(self, session: SCSession) -> "Job":
         """
         Update the job status to its current value, by making a request to the SC
         cluster addressed by `session`.
@@ -158,15 +159,12 @@ class Job:
             calling this method
         :return: Job with its status updated
         """
-        response = session.get_rest_response(
-            url=self.relative_url,
-            method='GET'
-        )
+        response = session.get_rest_response(url=self.relative_url, method="GET")
         updated_status = JobStatus.from_dict(response["status"])
         self.status = updated_status
         return self
 
-    def cancel(self, session: SCSession) -> 'Job':
+    def cancel(self, session: SCSession) -> "Job":
         """
         Cancel and delete the job, by making a request to the SC cluster addressed
         by `session`.
@@ -175,10 +173,7 @@ class Job:
         :return: Job with updated status
         """
         try:
-            session.get_rest_response(
-                url=self.relative_url,
-                method='DELETE'
-            )
+            session.get_rest_response(url=self.relative_url, method="DELETE")
             self.status.state = JobState.CANCELLED
         except SCRequestException as error:
             if error.status_code == 404:

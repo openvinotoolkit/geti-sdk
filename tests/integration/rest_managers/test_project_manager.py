@@ -17,19 +17,16 @@ from typing import Dict, List
 import pytest
 
 from sc_api_tools import SCRESTClient
-from sc_api_tools.rest_managers import ProjectManager
 from sc_api_tools.data_models import Project, TaskType
-
-from tests.helpers.project_service import ProjectService
+from sc_api_tools.rest_managers import ProjectManager
 from tests.helpers.constants import PROJECT_PREFIX
+from tests.helpers.project_service import ProjectService
 
 
 class TestProjectManager:
     @pytest.mark.vcr()
     def test_create_and_delete_project(
-            self,
-            fxt_default_labels: List[str],
-            fxt_project_service: ProjectService
+        self, fxt_default_labels: List[str], fxt_project_service: ProjectService
     ):
         """
         Verifies that creating and deleting a project through the project manager
@@ -57,13 +54,11 @@ class TestProjectManager:
         project_manager = fxt_project_service.project_manager
         with pytest.raises(ValueError):
             project_manager.create_project(
-                project_name=project.name, project_type='detection', labels=[['none']]
+                project_name=project.name, project_type="detection", labels=[["none"]]
             )
 
         project_get_or_create = project_manager.get_or_create_project(
-            project_name=project.name,
-            project_type='detection',
-            labels=[['none']]
+            project_name=project.name, project_type="detection", labels=[["none"]]
         )
         assert project_get_or_create.name == project.name
         project_task = project_get_or_create.get_trainable_tasks()[0]
@@ -93,9 +88,9 @@ class TestProjectManager:
 
     @pytest.mark.vcr()
     def test_hierarchical_classification_project(
-            self,
-            fxt_project_service: ProjectService,
-            fxt_hierarchical_classification_labels: List[Dict[str, str]]
+        self,
+        fxt_project_service: ProjectService,
+        fxt_hierarchical_classification_labels: List[Dict[str, str]],
     ):
         """
         Verifies that creating a classification project with hierarchical labels works
@@ -104,20 +99,21 @@ class TestProjectManager:
         project = fxt_project_service.create_project(
             project_name=f"{PROJECT_PREFIX}_project_hierarchical",
             project_type="classification",
-            labels=[fxt_hierarchical_classification_labels])
+            labels=[fxt_hierarchical_classification_labels],
+        )
         assert isinstance(project, Project)
 
         label_names = [label.name for label in project.get_all_labels()]
         for label_rest_data in fxt_hierarchical_classification_labels:
             assert label_rest_data["name"] in label_names
             label = next(
-                lab for lab in project.get_all_labels()
+                lab
+                for lab in project.get_all_labels()
                 if lab.name == label_rest_data["name"]
             )
             if label_rest_data.get("parent_id", None):
                 parent_label = next(
-                    lab for lab in project.get_all_labels()
-                    if lab.id == label.parent_id
+                    lab for lab in project.get_all_labels() if lab.id == label.parent_id
                 )
                 assert parent_label.name == label_rest_data["parent_id"]
             if label_rest_data.get("group", None):

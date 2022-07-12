@@ -14,43 +14,37 @@
 
 import os
 import warnings
-from typing import Optional, List, Union, Tuple, Sequence
+from typing import List, Optional, Sequence, Tuple, Union
 
 import numpy as np
+
 from sc_api_tools.http_session import SCRequestException
 
 from .annotation_readers import (
-    SCAnnotationReader,
     AnnotationReader,
-    DatumAnnotationReader
+    DatumAnnotationReader,
+    SCAnnotationReader,
 )
+from .data_models import Image, Prediction, Project, TaskType, Video, VideoFrame
+from .data_models.containers import MediaList
 from .data_models.enums import OptimizationType
-from .deployment import Deployment, DeployedModel
+from .deployment import DeployedModel, Deployment
+from .http_session import ClusterConfig, SCSession
 from .rest_managers import (
-    ProjectManager,
     AnnotationManager,
     ConfigurationManager,
     ImageManager,
-    VideoManager,
+    ModelManager,
     PredictionManager,
-    ModelManager
+    ProjectManager,
+    VideoManager,
 )
-from .data_models import (
-    Project,
-    TaskType,
-    Image,
-    Video,
-    VideoFrame,
-    Prediction
-)
-from .data_models.containers import MediaList
-from .http_session import SCSession, ClusterConfig
 from .utils import (
-    get_default_workspace_id,
     generate_classification_labels,
+    get_default_workspace_id,
     get_task_types_by_project_type,
     show_image_with_annotation_scene,
-    show_video_frames_with_annotation_scenes
+    show_video_frames_with_annotation_scenes,
 )
 
 
@@ -74,17 +68,18 @@ class SCRESTClient:
     """
 
     def __init__(
-            self,
-            host: str,
-            username: str,
-            password: str,
-            workspace_id: Optional[str] = None,
-            verify_certificate: bool = False
+        self,
+        host: str,
+        username: str,
+        password: str,
+        workspace_id: Optional[str] = None,
+        verify_certificate: bool = False,
     ):
         self.session = SCSession(
             cluster_config=ClusterConfig(
-                host=host, username=username, password=password),
-            verify_certificate=verify_certificate
+                host=host, username=username, password=password
+            ),
+            verify_certificate=verify_certificate,
         )
         if workspace_id is None:
             workspace_id = get_default_workspace_id(self.session)
@@ -97,12 +92,12 @@ class SCRESTClient:
         self.session.logout()
 
     def download_project(
-            self,
-            project_name: str,
-            target_folder: Optional[str] = None,
-            include_predictions: bool = False,
-            include_active_models: bool = False,
-            include_deployment: bool = False
+        self,
+        project_name: str,
+        target_folder: Optional[str] = None,
+        include_predictions: bool = False,
+        include_active_models: bool = False,
+        include_deployment: bool = False,
     ) -> Project:
         """
         Download a project with name `project_name` to the local disk. All images,
@@ -178,7 +173,7 @@ class SCRESTClient:
 
         # Validate or create target_folder
         if target_folder is None:
-            target_folder = os.path.join('.', project_name)
+            target_folder = os.path.join(".", project_name)
         if not os.path.exists(target_folder):
             os.makedirs(target_folder)
 
@@ -195,7 +190,7 @@ class SCRESTClient:
         if len(images) > 0:
             image_manager.download_all(
                 path_to_folder=target_folder,
-                append_image_uid=images.has_duplicate_filenames
+                append_image_uid=images.has_duplicate_filenames,
             )
 
         # Download videos
@@ -206,7 +201,7 @@ class SCRESTClient:
         if len(videos) > 0:
             video_manager.download_all(
                 path_to_folder=target_folder,
-                append_video_uid=videos.has_duplicate_filenames
+                append_video_uid=videos.has_duplicate_filenames,
             )
 
         # Download annotations
@@ -217,13 +212,13 @@ class SCRESTClient:
             annotation_manager.download_annotations_for_images(
                 images=images,
                 path_to_folder=target_folder,
-                append_image_uid=images.has_duplicate_filenames
+                append_image_uid=images.has_duplicate_filenames,
             )
         if len(videos) > 0:
             annotation_manager.download_annotations_for_videos(
                 videos=videos,
                 path_to_folder=target_folder,
-                append_video_uid=videos.has_duplicate_filenames
+                append_video_uid=videos.has_duplicate_filenames,
             )
 
         # Download predictions
@@ -235,14 +230,14 @@ class SCRESTClient:
                 prediction_manager.download_predictions_for_images(
                     images=images,
                     path_to_folder=target_folder,
-                    include_result_media=True
+                    include_result_media=True,
                 )
             if len(videos) > 0:
                 prediction_manager.download_predictions_for_videos(
                     videos=videos,
                     path_to_folder=target_folder,
                     include_result_media=True,
-                    inferred_frames_only=False
+                    inferred_frames_only=False,
                 )
 
         # Download configuration
@@ -267,10 +262,10 @@ class SCRESTClient:
         return project
 
     def upload_project(
-            self,
-            target_folder: str,
-            project_name: Optional[str] = None,
-            enable_auto_train: bool = True
+        self,
+        target_folder: str,
+        project_name: Optional[str] = None,
+        enable_auto_train: bool = True,
     ) -> Project:
         """
         Upload a previously downloaded SC project to the cluster. This method expects
@@ -349,7 +344,7 @@ class SCRESTClient:
             session=self.session,
             project=project,
             workspace_id=self.workspace_id,
-            annotation_reader=annotation_reader
+            annotation_reader=annotation_reader,
         )
         if len(images) > 0:
             annotation_manager.upload_annotations_for_images(
@@ -360,7 +355,7 @@ class SCRESTClient:
                 videos=videos,
             )
 
-        configuration_file = os.path.join(target_folder, 'configuration.json')
+        configuration_file = os.path.join(target_folder, "configuration.json")
         if os.path.isfile(configuration_file):
             result = None
             try:
@@ -382,22 +377,20 @@ class SCRESTClient:
                     f"configuration in {configuration_file}. Please make sure to "
                     f"verify model configuration manually."
                 )
-        configuration_manager.set_project_auto_train(
-            auto_train=enable_auto_train
-        )
+        configuration_manager.set_project_auto_train(auto_train=enable_auto_train)
         print(f"Project '{project.name}' was uploaded successfully.")
         return project
 
     def create_single_task_project_from_dataset(
-            self,
-            project_name: str,
-            project_type: str,
-            path_to_images: str,
-            annotation_reader: AnnotationReader,
-            labels: Optional[List[str]] = None,
-            number_of_images_to_upload: int = -1,
-            number_of_images_to_annotate: int = -1,
-            enable_auto_train: bool = True
+        self,
+        project_name: str,
+        project_type: str,
+        path_to_images: str,
+        annotation_reader: AnnotationReader,
+        labels: Optional[List[str]] = None,
+        number_of_images_to_upload: int = -1,
+        number_of_images_to_annotate: int = -1,
+        enable_auto_train: bool = True,
     ) -> Project:
         """
         Create a single task project named `project_name` on the SC cluster, and
@@ -444,15 +437,15 @@ class SCRESTClient:
         if labels is None:
             labels = annotation_reader.get_all_label_names()
         else:
-            if project_type == 'classification':
+            if project_type == "classification":
                 # Handle label generation for classification case
                 filter_settings = annotation_reader.applied_filters
-                criterion = filter_settings[0]['criterion']
+                criterion = filter_settings[0]["criterion"]
                 multilabel = True
-                if criterion == 'XOR':
+                if criterion == "XOR":
                     multilabel = False
                 labels = generate_classification_labels(labels, multilabel=multilabel)
-            elif project_type == 'anomaly_classification':
+            elif project_type == "anomaly_classification":
                 labels = ["Normal", "Anomalous"]
 
         # Create project
@@ -460,9 +453,7 @@ class SCRESTClient:
             session=self.session, workspace_id=self.workspace_id
         )
         project = project_manager.create_project(
-            project_name=project_name,
-            project_type=project_type,
-            labels=[labels]
+            project_name=project_name, project_type=project_type, labels=[labels]
         )
         # Disable auto training
         configuration_manager = ConfigurationManager(
@@ -478,7 +469,7 @@ class SCRESTClient:
             images = image_manager.upload_from_list(
                 path_to_folder=path_to_images,
                 image_names=annotation_reader.get_all_image_names(),
-                n_images=number_of_images_to_upload
+                n_images=number_of_images_to_upload,
             )
         else:
             images = image_manager.upload_folder(
@@ -486,8 +477,8 @@ class SCRESTClient:
             )
 
         if (
-                number_of_images_to_annotate < len(images)
-                and number_of_images_to_annotate != -1
+            number_of_images_to_annotate < len(images)
+            and number_of_images_to_annotate != -1
         ):
             images = images[:number_of_images_to_annotate]
 
@@ -501,24 +492,22 @@ class SCRESTClient:
             session=self.session,
             project=project,
             workspace_id=self.workspace_id,
-            annotation_reader=annotation_reader
+            annotation_reader=annotation_reader,
         )
-        annotation_manager.upload_annotations_for_images(
-            images
-        )
+        annotation_manager.upload_annotations_for_images(images)
 
         configuration_manager.set_project_auto_train(auto_train=enable_auto_train)
         return project
 
     def create_task_chain_project_from_dataset(
-            self,
-            project_name: str,
-            project_type: str,
-            path_to_images: str,
-            label_source_per_task: List[Union[AnnotationReader, List[str]]],
-            number_of_images_to_upload: int = -1,
-            number_of_images_to_annotate: int = -1,
-            enable_auto_train: bool = True
+        self,
+        project_name: str,
+        project_type: str,
+        path_to_images: str,
+        label_source_per_task: List[Union[AnnotationReader, List[str]]],
+        number_of_images_to_upload: int = -1,
+        number_of_images_to_annotate: int = -1,
+        enable_auto_train: bool = True,
     ) -> Project:
         """
         Create a single task project named `project_name` on the SC cluster, and
@@ -569,7 +558,8 @@ class SCRESTClient:
         """
         labels_per_task = [
             entry.get_all_label_names()
-            if isinstance(entry, AnnotationReader) else entry
+            if isinstance(entry, AnnotationReader)
+            else entry
             for entry in label_source_per_task
         ]
         annotation_readers_per_task = [
@@ -589,9 +579,7 @@ class SCRESTClient:
             session=self.session, workspace_id=self.workspace_id
         )
         project = project_manager.create_project(
-            project_name=project_name,
-            project_type=project_type,
-            labels=labels_per_task
+            project_name=project_name, project_type=project_type, labels=labels_per_task
         )
         # Disable auto training
         configuration_manager = ConfigurationManager(
@@ -609,7 +597,7 @@ class SCRESTClient:
             images = image_manager.upload_from_list(
                 path_to_folder=path_to_images,
                 image_names=first_task_reader.get_all_image_names(),
-                n_images=number_of_images_to_upload
+                n_images=number_of_images_to_upload,
             )
         else:
             images = image_manager.upload_folder(
@@ -617,8 +605,8 @@ class SCRESTClient:
             )
 
         if (
-                number_of_images_to_annotate < len(images)
-                and number_of_images_to_annotate != -1
+            number_of_images_to_annotate < len(images)
+            and number_of_images_to_annotate != -1
         ):
             images = images[:number_of_images_to_annotate]
 
@@ -639,8 +627,7 @@ class SCRESTClient:
                     annotation_reader=reader,
                 )
                 annotation_manager.upload_annotations_for_images(
-                    images=images,
-                    append_annotations=append_annotations
+                    images=images, append_annotations=append_annotations
                 )
                 append_annotations = True
             previous_task_type = task_type
@@ -649,9 +636,9 @@ class SCRESTClient:
 
     @staticmethod
     def _check_unique_label_names(
-            labels_per_task: List[List[str]],
-            task_types: List[TaskType],
-            annotation_readers_per_task: List[AnnotationReader]
+        labels_per_task: List[List[str]],
+        task_types: List[TaskType],
+        annotation_readers_per_task: List[AnnotationReader],
     ):
         """
         Check that the names of all labels passed in `labels_per_task` are unique. If
@@ -689,7 +676,7 @@ class SCRESTClient:
             return labels_per_task
 
     def download_all_projects(
-            self, target_folder: str, include_predictions: bool = True
+        self, target_folder: str, include_predictions: bool = True
     ) -> List[Project]:
         """
         Download all projects in the workspace from the SC cluster.
@@ -712,7 +699,7 @@ class SCRESTClient:
 
         # Validate or create target_folder
         if target_folder is None:
-            target_folder = os.path.join('.', 'projects')
+            target_folder = os.path.join(".", "projects")
         if not os.path.exists(target_folder):
             os.makedirs(target_folder)
         print(
@@ -726,7 +713,7 @@ class SCRESTClient:
             self.download_project(
                 project_name=project.name,
                 target_folder=os.path.join(target_folder, project.name),
-                include_predictions=include_predictions
+                include_predictions=include_predictions,
             )
         return projects
 
@@ -750,7 +737,8 @@ class SCRESTClient:
             for subfolder in os.listdir(target_folder)
         ]
         project_folders = [
-            folder for folder in candidate_project_folders
+            folder
+            for folder in candidate_project_folders
             if ProjectManager.is_project_dir(folder)
         ]
         print(
@@ -770,12 +758,12 @@ class SCRESTClient:
         return projects
 
     def upload_and_predict_media_folder(
-            self,
-            project_name: str,
-            media_folder: str,
-            output_folder: Optional[str] = None,
-            delete_after_prediction: bool = False,
-            skip_if_filename_exists: bool = False
+        self,
+        project_name: str,
+        media_folder: str,
+        output_folder: Optional[str] = None,
+        delete_after_prediction: bool = False,
+        skip_if_filename_exists: bool = False,
     ) -> bool:
         """
         Upload a folder with media (images, videos or both) from local disk at path
@@ -826,8 +814,7 @@ class SCRESTClient:
             session=self.session, workspace_id=self.workspace_id, project=project
         )
         videos = video_manager.upload_folder(
-            path_to_folder=media_folder,
-            skip_if_filename_exists=skip_if_filename_exists
+            path_to_folder=media_folder, skip_if_filename_exists=skip_if_filename_exists
         )
 
         prediction_manager = PredictionManager(
@@ -842,7 +829,7 @@ class SCRESTClient:
 
         # Set and create output folder if necessary
         if output_folder is None:
-            output_folder = media_folder + '_predictions'
+            output_folder = media_folder + "_predictions"
         if not os.path.exists(output_folder) and os.path.isdir(output_folder):
             os.makedirs(output_folder)
 
@@ -871,11 +858,11 @@ class SCRESTClient:
         return result
 
     def upload_and_predict_image(
-            self,
-            project_name: str,
-            image: Union[np.ndarray, Image, VideoFrame, str, os.PathLike],
-            visualise_output: bool = True,
-            delete_after_prediction: bool = False
+        self,
+        project_name: str,
+        image: Union[np.ndarray, Image, VideoFrame, str, os.PathLike],
+        visualise_output: bool = True,
+        delete_after_prediction: bool = False,
     ) -> Tuple[Image, Prediction]:
         """
         Upload a single image to a project named `project_name` on the SC cluster,
@@ -947,14 +934,12 @@ class SCRESTClient:
         return uploaded_image, prediction
 
     def upload_and_predict_video(
-            self,
-            project_name: str,
-            video: Union[
-                Video, str, os.PathLike, Union[Sequence[np.ndarray], np.ndarray]
-            ],
-            frame_stride: Optional[int] = None,
-            visualise_output: bool = True,
-            delete_after_prediction: bool = False
+        self,
+        project_name: str,
+        video: Union[Video, str, os.PathLike, Union[Sequence[np.ndarray], np.ndarray]],
+        frame_stride: Optional[int] = None,
+        visualise_output: bool = True,
+        delete_after_prediction: bool = False,
     ) -> Tuple[Video, MediaList[VideoFrame], List[Prediction]]:
         """
         Upload a single video to a project named `project_name` on the SC cluster,
@@ -1026,9 +1011,8 @@ class SCRESTClient:
             )
         if frame_stride is None:
             frame_stride = uploaded_video.media_information.frame_stride
-        frames = MediaList(uploaded_video.to_frames(
-                frame_stride=frame_stride, include_data=True
-            )
+        frames = MediaList(
+            uploaded_video.to_frames(frame_stride=frame_stride, include_data=True)
         )
         print(
             f"Getting predictions for video '{uploaded_video.name}', using stride "
@@ -1046,9 +1030,7 @@ class SCRESTClient:
         return uploaded_video, frames, predictions
 
     def deploy_project(
-            self,
-            project_name: str,
-            output_folder: Optional[Union[str, os.PathLike]] = None
+        self, project_name: str, output_folder: Optional[Union[str, os.PathLike]] = None
     ) -> Deployment:
         """
         Deploy a project by creating a Deployment instance. The Deployment contains
@@ -1072,7 +1054,8 @@ class SCRESTClient:
             session=self.session, workspace_id=self.workspace_id, project=project
         )
         active_models = [
-            model for model in model_manager.get_all_active_models()
+            model
+            for model in model_manager.get_all_active_models()
             if model is not None
         ]
         configuration_manager = ConfigurationManager(
@@ -1100,8 +1083,7 @@ class SCRESTClient:
                     ]
                     break
             deployed_model = DeployedModel.from_model_and_hypers(
-                model=preferred_model,
-                hyper_parameters=model_config
+                model=preferred_model, hyper_parameters=model_config
             )
             print(
                 f"Retrieving {preferred_model.optimization_type} model data for "

@@ -16,17 +16,16 @@
 
 from .annotation_kind import AnnotationKind
 from .annotation_state import AnnotationState
-from .shape_type import ShapeType
-from .media_type import MediaType
-from .task_type import TaskType
-from .prediction_mode import PredictionMode
 from .configuration_enums import ConfigurationEntityType
 from .domain import Domain
+from .job_state import JobState
+from .job_type import JobType
+from .media_type import MediaType
 from .model_status import ModelStatus
 from .optimization_type import OptimizationType
-from .job_type import JobType
-from .job_state import JobState
-
+from .prediction_mode import PredictionMode
+from .shape_type import ShapeType
+from .task_type import TaskType
 
 __all__ = [
     "TaskType",

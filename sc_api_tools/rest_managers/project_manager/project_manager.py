@@ -15,27 +15,26 @@
 import copy
 import json
 import os
-from typing import Optional, List, Dict, Any, Union, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from sc_api_tools.data_models import Project, TaskType, Task
-from sc_api_tools.http_session import SCSession, SCRequestException
+from sc_api_tools.data_models import Project, Task, TaskType
+from sc_api_tools.http_session import SCRequestException, SCSession
 from sc_api_tools.rest_converters import ProjectRESTConverter
-from sc_api_tools.utils import remove_null_fields
 from sc_api_tools.utils.project_helpers import get_task_types_by_project_type
 
+from ...data_models.utils import remove_null_fields
 from .task_templates import (
-    BASE_TEMPLATE,
-    CROP_TASK,
-    DETECTION_TASK,
-    SEGMENTATION_TASK,
-    CLASSIFICATION_TASK,
     ANOMALY_CLASSIFICATION_TASK,
     ANOMALY_DETECTION_TASK,
     ANOMALY_SEGMENTATION_TASK,
+    BASE_TEMPLATE,
+    CLASSIFICATION_TASK,
+    CROP_TASK,
+    DETECTION_TASK,
     INSTANCE_SEGMENTATION_TASK,
-    ROTATED_DETECTION_TASK
+    ROTATED_DETECTION_TASK,
+    SEGMENTATION_TASK,
 )
-
 
 TASK_TYPE_MAPPING = {
     TaskType.CROP: CROP_TASK,
@@ -46,7 +45,7 @@ TASK_TYPE_MAPPING = {
     TaskType.ANOMALY_DETECTION: ANOMALY_DETECTION_TASK,
     TaskType.ANOMALY_SEGMENTATION: ANOMALY_SEGMENTATION_TASK,
     TaskType.INSTANCE_SEGMENTATION: INSTANCE_SEGMENTATION_TASK,
-    TaskType.ROTATED_DETECTION: ROTATED_DETECTION_TASK
+    TaskType.ROTATED_DETECTION: ROTATED_DETECTION_TASK,
 }
 
 
@@ -86,16 +85,15 @@ class ProjectManager:
         """
         project_list = self.get_all_projects()
         project = next(
-            (project for project in project_list
-             if project.name == project_name), None
+            (project for project in project_list if project.name == project_name), None
         )
         return project
 
     def get_or_create_project(
-            self,
-            project_name: str,
-            project_type: str,
-            labels: List[Union[List[str], List[Dict[str, Any]]]]
+        self,
+        project_name: str,
+        project_type: str,
+        labels: List[Union[List[str], List[Dict[str, Any]]]],
     ) -> Project:
         """
         Create a new project with name `project_name` on the cluster, or retrieve
@@ -108,8 +106,10 @@ class ProjectManager:
         """
         project = self.get_project_by_name(project_name)
         if project is not None:
-            print(f"Project with name {project_name} already exists, continuing with "
-                  f"exiting project. No new project has been created.")
+            print(
+                f"Project with name {project_name} already exists, continuing with "
+                f"exiting project. No new project has been created."
+            )
         else:
             project = self.create_project(
                 project_name=project_name, project_type=project_type, labels=labels
@@ -117,10 +117,10 @@ class ProjectManager:
         return project
 
     def create_project(
-            self,
-            project_name: str,
-            project_type: str,
-            labels: List[Union[List[str], List[Dict[str, Any]]]]
+        self,
+        project_name: str,
+        project_type: str,
+        labels: List[Union[List[str], List[Dict[str, Any]]]],
     ) -> Project:
         """
         Create a new project with name `project_name` on the cluster, containing
@@ -147,17 +147,13 @@ class ProjectManager:
                 project_name=project_name, project_type=project_type, labels=labels
             )
             project = self.session.get_rest_response(
-                url=f"{self.base_url}projects",
-                method="POST",
-                data=project_template
+                url=f"{self.base_url}projects", method="POST", data=project_template
             )
             print("Project created successfully.")
             project = ProjectRESTConverter.from_dict(project)
         return project
 
-    def download_project_info(
-            self, project_name: str, path_to_folder: str
-    ) -> None:
+    def download_project_info(self, project_name: str, path_to_folder: str) -> None:
         """
         Get the project data that can be used for project creation for a project on
         the SC cluster, named `project_name`. From the returned data, the method
@@ -180,7 +176,7 @@ class ProjectManager:
         if not os.path.exists(path_to_folder):
             os.makedirs(path_to_folder)
         project_config_path = os.path.join(path_to_folder, "project.json")
-        with open(project_config_path, 'w') as file:
+        with open(project_config_path, "w") as file:
             json.dump(project_data, file, indent=4)
         print(
             f"Project parameters for project '{project_name}' were saved to file "
@@ -189,9 +185,9 @@ class ProjectManager:
 
     @staticmethod
     def _add_task(
-            project_template: dict,
-            task_type: TaskType,
-            labels: Union[List[str], List[Dict[str, Any]]],
+        project_template: dict,
+        task_type: TaskType,
+        labels: Union[List[str], List[Dict[str, Any]]],
     ) -> Tuple[dict, dict]:
         """
         Add a task to the pipeline in a project template in dictionary form.
@@ -263,7 +259,7 @@ class ProjectManager:
         return new_template
 
     def create_project_from_folder(
-            self, path_to_folder: str, project_name: Optional[str] = None
+        self, path_to_folder: str, project_name: Optional[str] = None
     ) -> Project:
         """
         Look for a `project.json` file in the folder at `path_to_folder`, and
@@ -281,7 +277,7 @@ class ProjectManager:
                 f"Unable to find project configuration file at {path_to_project}. "
                 f"Please provide a valid path to the folder holding the project data."
             )
-        with open(path_to_project, 'r') as file:
+        with open(path_to_project, "r") as file:
             project_data = json.load(file)
         project = ProjectRESTConverter.from_dict(project_data)
         if project_name is not None:
@@ -307,7 +303,7 @@ class ProjectManager:
         if not os.path.isfile(path_to_project):
             return False
         try:
-            with open(path_to_project, 'r') as file:
+            with open(path_to_project, "r") as file:
                 project_data = json.load(file)
         except json.decoder.JSONDecodeError:
             return False
@@ -336,10 +332,10 @@ class ProjectManager:
         return projects
 
     def _create_project_template(
-            self,
-            project_name: str,
-            project_type: str,
-            labels: List[Union[List[str], List[Dict[str, Any]]]]
+        self,
+        project_name: str,
+        project_type: str,
+        labels: List[Union[List[str], List[Dict[str, Any]]]],
     ) -> Dict[str, Any]:
         """
         Create a template dictionary with data for project creation that is ready to
@@ -357,7 +353,7 @@ class ProjectManager:
         task_names_in_template: List[str] = [previous_task_name]
         is_first_task = True
         for task_type, task_labels in zip(
-                get_task_types_by_project_type(project_type), labels
+            get_task_types_by_project_type(project_type), labels
         ):
             if not is_first_task and not previous_task_type.is_global:
                 # Add crop task and connections, only for tasks that are not
@@ -371,17 +367,17 @@ class ProjectManager:
                 project_template = self._add_connection(
                     project_template,
                     to_task=unique_task_name,
-                    from_task=previous_task_name
+                    from_task=previous_task_name,
                 )
                 previous_task_name = unique_task_name
-            project_template, added_task = self._add_task(project_template,
-                                                          task_type=task_type,
-                                                          labels=task_labels)
+            project_template, added_task = self._add_task(
+                project_template, task_type=task_type, labels=task_labels
+            )
             task_name = added_task["title"]
 
-            project_template = self._add_connection(project_template,
-                                                    to_task=task_name,
-                                                    from_task=previous_task_name)
+            project_template = self._add_connection(
+                project_template, to_task=task_name, from_task=previous_task_name
+            )
             previous_task_name = task_name
             previous_task_type = task_type
             is_first_task = False
@@ -391,7 +387,7 @@ class ProjectManager:
 
     @staticmethod
     def _ensure_unique_task_name(
-            task_name: str, task_names_in_template: List[str]
+        task_name: str, task_names_in_template: List[str]
     ) -> str:
         """
         Check that the `task_name` passed is not already in the list of
@@ -411,13 +407,13 @@ class ProjectManager:
             new_task_name = f"{task_name} {ii}"
             while new_task_name in task_names_in_template:
                 ii += 1
-                new_task_name = f'{task_name} {ii}'
+                new_task_name = f"{task_name} {ii}"
             task_name = new_task_name
         task_names_in_template.append(task_name)
         return task_name
 
     def delete_project(
-            self, project: Union[str, Project], requires_confirmation: bool = True
+        self, project: Union[str, Project], requires_confirmation: bool = True
     ) -> None:
         """
         Delete a project. The `project` to delete can either by a Project object or a
@@ -440,8 +436,8 @@ class ProjectManager:
         if requires_confirmation:
             media_response = self.session.get_rest_response(
                 url=f"{self.base_url}projects/{project.id}/datasets/"
-                    f"{project.datasets[0].id}/media",
-                method="GET"
+                f"{project.datasets[0].id}/media",
+                method="GET",
             )
 
             media_count = media_response.get("media_count", {"images": 0, "videos": 0})
@@ -452,15 +448,13 @@ class ProjectManager:
                 f"Y or YES to continue, any other key to cancel."
             )
             if not (
-                    user_confirmation.lower() == "yes"
-                    or user_confirmation.lower() == "y"
+                user_confirmation.lower() == "yes" or user_confirmation.lower() == "y"
             ):
                 print("Aborting project deletion.")
                 return
         try:
             self.session.get_rest_response(
-                url=f"{self.base_url}projects/{project.id}",
-                method="DELETE"
+                url=f"{self.base_url}projects/{project.id}", method="DELETE"
             )
         except SCRequestException as error:
             if error.status_code == 409:
@@ -477,7 +471,7 @@ class ProjectManager:
         self,
         labels: Union[List[str], List[Dict[str, Any]]],
         project: Project,
-        task: Optional[Task] = None
+        task: Optional[Task] = None,
     ) -> Project:
         """
         Add the `labels` to the project labels. For a project with multiple tasks,
@@ -493,7 +487,7 @@ class ProjectManager:
         :return: Updated Project instance with the new labels added to it
         """
         # Validate inputs and server version
-        if self.session.version < '1.1':
+        if self.session.version < "1.1":
             raise ValueError(
                 f"Your server is running SonomaCreek version {self.session.version}. "
                 f"Unfortunately this version does not support adding labels, please "
@@ -518,7 +512,7 @@ class ProjectManager:
                 label_dict = {
                     "name": label_data,
                     "color": "#000000",
-                    "group": label_data
+                    "group": label_data,
                 }
             elif isinstance(label_data, dict):
                 label_name = label_data.get("name", None)
@@ -545,7 +539,8 @@ class ProjectManager:
         task_id = project.get_trainable_tasks()[task_index].id
         task_data = next(
             (
-                task for task in project_data["pipeline"]["tasks"]
+                task
+                for task in project_data["pipeline"]["tasks"]
                 if task["id"] == task_id
             )
         )
@@ -553,8 +548,6 @@ class ProjectManager:
         remove_null_fields(project_data)
         print(project_data)
         response = self.session.get_rest_response(
-                url=f"{self.base_url}projects/{project.id}",
-                method="PUT",
-                data=project_data
-            )
+            url=f"{self.base_url}projects/{project.id}", method="PUT", data=project_data
+        )
         return ProjectRESTConverter.from_dict(response)

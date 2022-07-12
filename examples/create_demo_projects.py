@@ -1,15 +1,14 @@
+from demos import (
+    create_anomaly_classification_demo_project,
+    create_classification_demo_project,
+    create_detection_demo_project,
+    create_detection_to_classification_demo_project,
+    create_detection_to_segmentation_demo_project,
+    create_segmentation_demo_project,
+)
 from dotenv import dotenv_values
 
 from sc_api_tools import SCRESTClient
-
-from demos import (
-    create_segmentation_demo_project,
-    create_detection_demo_project,
-    create_classification_demo_project,
-    create_anomaly_classification_demo_project,
-    create_detection_to_segmentation_demo_project,
-    create_detection_to_classification_demo_project
-)
 from sc_api_tools.utils import get_coco_dataset
 
 if __name__ == "__main__":
@@ -29,7 +28,7 @@ if __name__ == "__main__":
     client = SCRESTClient(
         host=env_variables.get("HOST"),
         username=env_variables.get("USERNAME"),
-        password=env_variables.get("PASSWORD")
+        password=env_variables.get("PASSWORD"),
     )
 
     # Dataset configuration
@@ -60,40 +59,40 @@ if __name__ == "__main__":
         n_images=NUMBER_OF_IMAGES_TO_UPLOAD,
         n_annotations=NUMBER_OF_IMAGES_TO_ANNOTATE,
         auto_train=AUTO_TRAIN_AFTER_UPLOAD,
-        dataset_path=COCO_PATH
+        dataset_path=COCO_PATH,
     )
     create_detection_demo_project(
         client=client,
         n_images=NUMBER_OF_IMAGES_TO_UPLOAD,
         n_annotations=NUMBER_OF_IMAGES_TO_ANNOTATE,
         auto_train=AUTO_TRAIN_AFTER_UPLOAD,
-        dataset_path=COCO_PATH
+        dataset_path=COCO_PATH,
     )
     create_classification_demo_project(
         client=client,
         n_images=NUMBER_OF_IMAGES_TO_UPLOAD,
         n_annotations=NUMBER_OF_IMAGES_TO_ANNOTATE,
         auto_train=AUTO_TRAIN_AFTER_UPLOAD,
-        dataset_path=COCO_PATH
+        dataset_path=COCO_PATH,
     )
     create_anomaly_classification_demo_project(
         client=client,
         n_images=NUMBER_OF_IMAGES_TO_UPLOAD,
         n_annotations=NUMBER_OF_IMAGES_TO_ANNOTATE,
         auto_train=AUTO_TRAIN_AFTER_UPLOAD,
-        dataset_path=COCO_PATH
+        dataset_path=COCO_PATH,
     )
     create_detection_to_segmentation_demo_project(
         client=client,
         n_images=NUMBER_OF_IMAGES_TO_UPLOAD,
         n_annotations=NUMBER_OF_IMAGES_TO_ANNOTATE,
         auto_train=AUTO_TRAIN_AFTER_UPLOAD,
-        dataset_path=COCO_PATH
+        dataset_path=COCO_PATH,
     )
     create_detection_to_classification_demo_project(
         client=client,
         n_images=NUMBER_OF_IMAGES_TO_UPLOAD,
         n_annotations=NUMBER_OF_IMAGES_TO_ANNOTATE,
         auto_train=AUTO_TRAIN_AFTER_UPLOAD,
-        dataset_path=COCO_PATH
+        dataset_path=COCO_PATH,
     )

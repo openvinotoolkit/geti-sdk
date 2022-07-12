@@ -14,27 +14,30 @@
 
 import abc
 import os
-from typing import Optional, List, Union, Dict, Any
 import tempfile
 from pprint import pformat
-
-import cv2
-import numpy as np
+from typing import Any, Dict, List, Optional, Union
 
 import attr
+import cv2
+import numpy as np
 
 from sc_api_tools.http_session import SCSession
 
 from .enums import MediaType
 from .media_identifiers import (
-    MediaIdentifier,
     ImageIdentifier,
+    MediaIdentifier,
+    VideoFrameIdentifier,
     VideoIdentifier,
-    VideoFrameIdentifier
 )
 from .task_annotation_state import TaskAnnotationState
-from .utils import str_to_media_type, str_to_datetime, numpy_from_buffer, \
-    attr_value_serializer
+from .utils import (
+    attr_value_serializer,
+    numpy_from_buffer,
+    str_to_datetime,
+    str_to_media_type,
+)
 
 
 @attr.s(auto_attribs=True)
@@ -128,12 +131,12 @@ class MediaItem:
 
         :return: Base URL of the media entity
         """
-        display_url_image = '/display/full'
-        display_url_video = '/display/stream'
+        display_url_image = "/display/full"
+        display_url_video = "/display/stream"
         if self.download_url.endswith(display_url_image):
-            url = self.download_url[:-len(display_url_image)]
+            url = self.download_url[: -len(display_url_image)]
         elif self.download_url.endswith(display_url_video):
-            url = self.download_url[:-len(display_url_video)]
+            url = self.download_url[: -len(display_url_video)]
         elif self.download_url.endswith(self.id):
             url = self.download_url
         else:
@@ -291,7 +294,7 @@ class Video(MediaItem):
                 url=self.download_url, method="GET", contenttype="jpeg"
             )
             if response.status_code == 200:
-                file = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
+                file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
                 file.write(response.content)
                 file.close()
                 self._data = file.name
@@ -304,8 +307,8 @@ class Video(MediaItem):
         return self._data
 
     def to_frames(
-            self, frame_stride: Optional[int] = None, include_data: bool = False
-    ) -> List['VideoFrame']:
+        self, frame_stride: Optional[int] = None, include_data: bool = False
+    ) -> List["VideoFrame"]:
         """
         Extract VideoFrames from the Video. Returns a list of VideoFrame objects.
 
@@ -326,14 +329,13 @@ class Video(MediaItem):
         frames_range = range(0, self.media_information.frame_count, frame_stride)
         if not include_data:
             frames = [
-                VideoFrame.from_video(self, frame_index=index)
-                for index in frames_range
+                VideoFrame.from_video(self, frame_index=index) for index in frames_range
             ]
         else:
             frames = [self.get_frame(frame_index=index) for index in frames_range]
         return frames
 
-    def get_frame(self, frame_index: int) -> 'VideoFrame':
+    def get_frame(self, frame_index: int) -> "VideoFrame":
         """
         Return a VideoFrame extracted from the Video, at the specified index.
 
@@ -382,7 +384,7 @@ class VideoFrame(MediaItem):
         self._data: Optional[np.ndarray] = None
 
     @classmethod
-    def from_video(cls, video: Video, frame_index: int) -> 'VideoFrame':
+    def from_video(cls, video: Video, frame_index: int) -> "VideoFrame":
         """
         Create a VideoFrame entity from a `video` and a `frame_index`.
 
@@ -396,7 +398,7 @@ class VideoFrame(MediaItem):
             width=video.media_information.width,
             height=video.media_information.height,
             video_id=video.id,
-            display_url=f"{base_url}/display/full"
+            display_url=f"{base_url}/display/full",
         )
         return VideoFrame(
             name=f"{video.name}_frame_{frame_index}",
@@ -406,7 +408,7 @@ class VideoFrame(MediaItem):
             media_information=frame_information,
             state=video.state,
             id=video.id,
-            video_name=video.name
+            video_name=video.name,
         )
 
     @property
@@ -420,7 +422,7 @@ class VideoFrame(MediaItem):
         return VideoFrameIdentifier(
             video_id=self.id,
             type=self.type,
-            frame_index=self.media_information.frame_index
+            frame_index=self.media_information.frame_index,
         )
 
     @property

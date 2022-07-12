@@ -13,16 +13,25 @@
 # and limitations under the License.
 
 import time
-from typing import Union, Optional, List, Any, Dict
+from typing import Any, Dict, List, Optional, Union
 
-from sc_api_tools.data_models import ProjectStatus, Project, Task, Algorithm, Job, \
-    TaskConfiguration
+from sc_api_tools.data_models import (
+    Algorithm,
+    Job,
+    Project,
+    ProjectStatus,
+    Task,
+    TaskConfiguration,
+)
 from sc_api_tools.data_models.containers import AlgorithmList
 from sc_api_tools.data_models.enums import JobState
 from sc_api_tools.data_models.project import Dataset
 from sc_api_tools.http_session import SCSession
-from sc_api_tools.rest_converters import StatusRESTConverter, JobRESTConverter, \
-    ConfigurationRESTConverter
+from sc_api_tools.rest_converters import (
+    ConfigurationRESTConverter,
+    JobRESTConverter,
+    StatusRESTConverter,
+)
 from sc_api_tools.utils import get_supported_algorithms
 
 
@@ -45,8 +54,7 @@ class TrainingManager:
         :return: ProjectStatus object reflecting the current project status
         """
         response = self.session.get_rest_response(
-            url=f"{self.base_url}/status",
-            method="GET"
+            url=f"{self.base_url}/status", method="GET"
         )
         return StatusRESTConverter.from_dict(response)
 
@@ -64,8 +72,7 @@ class TrainingManager:
         :return: List of Jobs
         """
         response = self.session.get_rest_response(
-            url=f"workspaces/{self.workspace_id}/jobs",
-            method="GET"
+            url=f"workspaces/{self.workspace_id}/jobs", method="GET"
         )
         job_list: List[Job] = []
         for job_dict in response["items"]:
@@ -97,14 +104,14 @@ class TrainingManager:
         return self.supported_algos.get_by_task_type(task.type)
 
     def train_task(
-            self,
-            task: Union[Task, int],
-            dataset: Optional[Dataset] = None,
-            algorithm: Optional[Algorithm] = None,
-            train_from_scratch: bool = False,
-            enable_pot_optimization: bool = False,
-            hyper_parameters: Optional[TaskConfiguration] = None,
-            hpo_parameters: Optional[Dict[str, Any]] = None
+        self,
+        task: Union[Task, int],
+        dataset: Optional[Dataset] = None,
+        algorithm: Optional[Algorithm] = None,
+        train_from_scratch: bool = False,
+        enable_pot_optimization: bool = False,
+        hyper_parameters: Optional[TaskConfiguration] = None,
+        hpo_parameters: Optional[Dict[str, Any]] = None,
     ) -> Job:
         """
         Start training of a specific task in the project.
@@ -133,12 +140,12 @@ class TrainingManager:
         if algorithm is None:
             algorithm = self.supported_algos.get_default_for_task_type(task.type)
         request_data: Dict[str, Any] = {
-                "dataset_id": dataset.id,
-                "task_id": task.id,
-                "train_from_scratch": train_from_scratch,
-                "enable_pot_optimization": enable_pot_optimization,
-                "model_template_id": algorithm.model_template_id,
-            }
+            "dataset_id": dataset.id,
+            "task_id": task.id,
+            "train_from_scratch": train_from_scratch,
+            "enable_pot_optimization": enable_pot_optimization,
+            "model_template_id": algorithm.model_template_id,
+        }
         if hyper_parameters is not None:
             hypers = hyper_parameters.model_configurations
             hypers_rest = (
@@ -149,14 +156,12 @@ class TrainingManager:
             request_data.update(
                 {
                     "enable_hyper_parameter_optimization": True,
-                    "hpo_parameters": hpo_parameters
+                    "hpo_parameters": hpo_parameters,
                 }
             )
 
         response = self.session.get_rest_response(
-            url=f"{self.base_url}/train",
-            method="POST",
-            data=[request_data]
+            url=f"{self.base_url}/train", method="POST", data=[request_data]
         )
         job = JobRESTConverter.from_dict(response)
         job.workspace_id = self.workspace_id
@@ -178,9 +183,9 @@ class TrainingManager:
             JobState.FINISHED,
             JobState.CANCELLED,
             JobState.FAILED,
-            JobState.ERROR
+            JobState.ERROR,
         ]
-        print('---------------- Monitoring progress -------------------')
+        print("---------------- Monitoring progress -------------------")
         jobs_to_monitor = [
             job for job in jobs if job.status.state not in completed_states
         ]
@@ -188,7 +193,7 @@ class TrainingManager:
             t_start = time.time()
             t_elapsed = 0
             while monitoring and t_elapsed < timeout:
-                msg = ''
+                msg = ""
                 complete_count = 0
                 for job in jobs_to_monitor:
                     job.update(self.session)
@@ -202,7 +207,7 @@ class TrainingManager:
                         complete_count += 1
                 if complete_count == len(jobs_to_monitor):
                     monitoring = False
-                print(msg + '\n')
+                print(msg + "\n")
                 time.sleep(15)
                 t_elapsed = time.time() - t_start
         except KeyboardInterrupt:

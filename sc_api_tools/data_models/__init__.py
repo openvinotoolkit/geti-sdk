@@ -152,27 +152,26 @@ Enumerations
 
 """
 
-from .enums import TaskType, AnnotationKind, MediaType
-from .project import Project, Pipeline
-from .label import Label, ScoredLabel
-from .task import Task
-from .media import Image, Video, MediaItem, VideoFrame
-from .annotations import Annotation
-from .annotation_scene import AnnotationScene
 from .algorithms import Algorithm
-from .predictions import Prediction
-from .performance import Performance
+from .annotation_scene import AnnotationScene
+from .annotations import Annotation
 from .configuration import (
-    TaskConfiguration,
     ConfigurableParameters,
+    FullConfiguration,
     GlobalConfiguration,
-    FullConfiguration
+    TaskConfiguration,
 )
-from .model_group import ModelGroup, ModelSummary
-from .model import Model, OptimizedModel
-from .status import ProjectStatus
+from .enums import AnnotationKind, MediaType, TaskType
 from .job import Job
-
+from .label import Label, ScoredLabel
+from .media import Image, MediaItem, Video, VideoFrame
+from .model import Model, OptimizedModel
+from .model_group import ModelGroup, ModelSummary
+from .performance import Performance
+from .predictions import Prediction
+from .project import Pipeline, Project
+from .status import ProjectStatus
+from .task import Task
 
 __all__ = [
     "TaskType",
@@ -201,5 +200,5 @@ __all__ = [
     "OptimizedModel",
     "ModelSummary",
     "ProjectStatus",
-    "Job"
+    "Job",
 ]

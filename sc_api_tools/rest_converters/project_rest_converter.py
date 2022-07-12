@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import Dict, Any
-
 import copy
+from typing import Any, Dict
 
 from sc_api_tools.data_models import Project
-from sc_api_tools.utils import deserialize_dictionary, remove_null_fields
+from sc_api_tools.data_models.utils import remove_null_fields
+from sc_api_tools.utils import deserialize_dictionary
 
 
 class ProjectRESTConverter:

@@ -13,27 +13,27 @@
 # and limitations under the License.
 
 import copy
-from typing import Optional, Sequence, Union, List, Dict, Any, Type, get_args, ClassVar
+from typing import Any, ClassVar, Dict, List, Optional, Sequence, Type, Union, get_args
 
 import attr
 
 from sc_api_tools.data_models.configurable_parameter import (
+    ConfigurableBoolean,
     ConfigurableFloat,
     ConfigurableInteger,
-    ConfigurableBoolean,
+    ConfigurableParameter,
     SelectableFloat,
     SelectableString,
-    ConfigurableParameter
 )
 from sc_api_tools.data_models.enums.configuration_enums import (
     ConfigurableParameterType,
     ParameterDataType,
-    ParameterInputType
+    ParameterInputType,
 )
 from sc_api_tools.data_models.utils import (
-    str_to_enum_converter,
     attr_value_serializer,
     deidentify,
+    str_to_enum_converter,
 )
 
 PARAMETER_TYPES = Union[
@@ -41,12 +41,12 @@ PARAMETER_TYPES = Union[
     SelectableString,
     ConfigurableFloat,
     ConfigurableInteger,
-    ConfigurableBoolean
+    ConfigurableBoolean,
 ]
 
 
 def _parameter_dicts_to_list(
-        parameter_dicts: List[Union[Dict[str, Any], PARAMETER_TYPES]]
+    parameter_dicts: List[Union[Dict[str, Any], PARAMETER_TYPES]]
 ) -> List[PARAMETER_TYPES]:
     """
     Convert a list of dictionary representations of configurable parameters to a
@@ -61,8 +61,8 @@ def _parameter_dicts_to_list(
         if isinstance(parameter, get_args(PARAMETER_TYPES)):
             parameters.append(parameter)
             continue
-        data_type = parameter.get('data_type', None)
-        template_type = parameter.get('template_type', None)
+        data_type = parameter.get("data_type", None)
+        template_type = parameter.get("template_type", None)
         if data_type is None or template_type is None:
             raise ValueError(
                 f"Unable to reconstruct ParameterGroup object from input: "
@@ -73,28 +73,28 @@ def _parameter_dicts_to_list(
         template_type = ParameterInputType(template_type)
         parameter_type: Type[ConfigurableParameter]
         if (
-                data_type == ParameterDataType.STRING
-                and template_type == ParameterInputType.SELECTABLE
+            data_type == ParameterDataType.STRING
+            and template_type == ParameterInputType.SELECTABLE
         ):
             parameter_type = SelectableString
         elif (
-                data_type == ParameterDataType.INTEGER
-                and template_type == ParameterInputType.INPUT
+            data_type == ParameterDataType.INTEGER
+            and template_type == ParameterInputType.INPUT
         ):
             parameter_type = ConfigurableInteger
         elif (
-                data_type == ParameterDataType.BOOLEAN
-                and template_type == ParameterInputType.INPUT
+            data_type == ParameterDataType.BOOLEAN
+            and template_type == ParameterInputType.INPUT
         ):
             parameter_type = ConfigurableBoolean
         elif (
-                data_type == ParameterDataType.FLOAT
-                and template_type == ParameterInputType.INPUT
+            data_type == ParameterDataType.FLOAT
+            and template_type == ParameterInputType.INPUT
         ):
             parameter_type = ConfigurableFloat
         elif (
-                data_type == ParameterDataType.FLOAT
-                and template_type == ParameterInputType.SELECTABLE
+            data_type == ParameterDataType.FLOAT
+            and template_type == ParameterInputType.SELECTABLE
         ):
             parameter_type = SelectableFloat
         else:
@@ -127,7 +127,7 @@ class ParameterGroup:
     description: Optional[str] = None
     parameters: Optional[Sequence[PARAMETER_TYPES]] = None
     name: Optional[str] = None
-    groups: Optional[List['ParameterGroup']] = None
+    groups: Optional[List["ParameterGroup"]] = None
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -136,7 +136,7 @@ class ParameterGroup:
         return attr.asdict(self, recurse=True, value_serializer=attr_value_serializer)
 
     @classmethod
-    def from_dict(cls, input_dict: Dict[str, Any]) -> 'ParameterGroup':
+    def from_dict(cls, input_dict: Dict[str, Any]) -> "ParameterGroup":
         """
         Create a ParameterGroup object from an input dictionary.
 
@@ -147,10 +147,10 @@ class ParameterGroup:
         input_copy = copy.deepcopy(input_dict)
         parameter_dicts: List[
             Union[Dict[str, Any], ConfigurableParameter]
-        ] = input_copy.pop('parameters', [])
-        group_dicts: List[
-            Union[Dict[str, Any], ParameterGroup]
-        ] = input_copy.pop('groups', [])
+        ] = input_copy.pop("parameters", [])
+        group_dicts: List[Union[Dict[str, Any], ParameterGroup]] = input_copy.pop(
+            "groups", []
+        )
 
         parameters = _parameter_dicts_to_list(parameter_dicts=parameter_dicts)
         groups: List[ParameterGroup] = []
@@ -185,7 +185,7 @@ class ParameterGroup:
                 parameter_names.extend(group.parameter_names(get_nested=True))
         return parameter_names
 
-    def get_parameter_group_by_name(self, name: str) -> Optional['ParameterGroup']:
+    def get_parameter_group_by_name(self, name: str) -> Optional["ParameterGroup"]:
         """
         Return the parameter group named `name`, if it belongs to this
         ParameterGroup or any of it's nested groups.
@@ -202,7 +202,7 @@ class ParameterGroup:
         return next((group for group in all_groups if group.name == name), None)
 
     def get_parameter_by_name(
-            self, name: str, group_name: Optional[str] = None
+        self, name: str, group_name: Optional[str] = None
     ) -> Optional[PARAMETER_TYPES]:
         """
         Get the data for the configurable parameter named `name` from the
@@ -224,7 +224,8 @@ class ParameterGroup:
             for group in self.groups:
                 parameters.extend(
                     [
-                        parameter for parameter in group.parameters
+                        parameter
+                        for parameter in group.parameters
                         if parameter.name == name
                     ]
                 )
@@ -242,7 +243,7 @@ class ParameterGroup:
                 parameter = None
         return parameter
 
-    def get_group_containing(self, parameter_name: str) -> Optional['ParameterGroup']:
+    def get_group_containing(self, parameter_name: str) -> Optional["ParameterGroup"]:
         """
         Return the parameter group that contains the parameter specified in
         `parameter_name`. If no group containing the parameter is found, this method

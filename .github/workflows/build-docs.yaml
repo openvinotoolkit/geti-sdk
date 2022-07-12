@@ -21,9 +21,9 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Install package with deployment, docs and test requirements
+      - name: Install package with dev, notebooks and docs requirements
         run: |
-          pip install ".[deployment,docs,tests]"
+          pip install ".[dev,docs,notebooks]"
 
       - name: Build sphinx documentation
         run: |

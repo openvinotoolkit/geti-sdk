@@ -16,77 +16,64 @@ BASE_TEMPLATE = {
     "name": "dummy project name",
     "pipeline": {
         "connections": [],
-        "tasks": [
-            {
-                "title": "Dataset",
-                "task_type": "dataset"
-            }
-        ]
-    }
-
+        "tasks": [{"title": "Dataset", "task_type": "dataset"}],
+    },
 }
 
-DETECTION_TASK = {
-    "title": "Detection task",
-    "task_type": "detection",
-    "labels": []
-}
+DETECTION_TASK = {"title": "Detection task", "task_type": "detection", "labels": []}
 
 ROTATED_DETECTION_TASK = {
     "title": "Rotated detection task",
     "task_type": "rotated_detection",
-    "labels": []
+    "labels": [],
 }
 
 SEGMENTATION_TASK = {
     "title": "Segmentation task",
     "task_type": "segmentation",
-    "labels": []
+    "labels": [],
 }
 
 INSTANCE_SEGMENTATION_TASK = {
     "title": "Instance segmentation task",
     "task_type": "instance_segmentation",
-    "labels": []
+    "labels": [],
 }
 
 CLASSIFICATION_TASK = {
     "title": "Classification task",
     "task_type": "classification",
-    "labels": []
+    "labels": [],
 }
 
 ANOMALY_CLASSIFICATION_TASK = {
     "title": "Anomaly classification task",
     "task_type": "anomaly_classification",
-    "labels": []
+    "labels": [],
 }
 
 ANOMALY_DETECTION_TASK = {
     "title": "Anomaly detection task",
     "task_type": "anomaly_detection",
-    "labels": []
+    "labels": [],
 }
 
 ANOMALY_SEGMENTATION_TASK = {
     "title": "Anomaly segmentation task",
     "task_type": "anomaly_segmentation",
-    "labels": []
+    "labels": [],
 }
 
 INSTANCE_SEGMENTATION_TASK = {
     "title": "Instance segmentation task",
     "task_type": "instance_segmentation",
-    "labels": []
+    "labels": [],
 }
 
 ROTATED_DETECTION_TASK = {
     "title": "Rotated detection task",
     "task_type": "rotated_detection",
-    "labels": []
+    "labels": [],
 }
 
-CROP_TASK = {
-    "title": "Crop task",
-    "task_type": "crop"
-}
+CROP_TASK = {"title": "Crop task", "task_type": "crop"}

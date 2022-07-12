@@ -20,10 +20,10 @@ class AnnotationState(Enum):
     Enum representing the different annotation statuses in SC.
     """
 
-    TO_REVISIT = 'to_revisit'
-    ANNOTATED = 'annotated'
-    PARTIALLY_ANNOTATED = 'partially_annotated'
-    NONE = 'none'
+    TO_REVISIT = "to_revisit"
+    ANNOTATED = "annotated"
+    PARTIALLY_ANNOTATED = "partially_annotated"
+    NONE = "none"
 
     def __str__(self):
         """

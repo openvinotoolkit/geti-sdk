@@ -84,10 +84,10 @@ Module contents
 
 from .annotation_manager import AnnotationManager
 from .configuration_manager import ConfigurationManager
-from .project_manager import ProjectManager
-from .media_managers import VideoManager, ImageManager
-from .prediction_manager import PredictionManager
+from .media_managers import ImageManager, VideoManager
 from .model_manager import ModelManager
+from .prediction_manager import PredictionManager
+from .project_manager import ProjectManager
 from .training_manager import TrainingManager
 
 __all__ = [
@@ -98,5 +98,5 @@ __all__ = [
     "ImageManager",
     "PredictionManager",
     "ModelManager",
-    "TrainingManager"
+    "TrainingManager",
 ]

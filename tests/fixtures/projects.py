@@ -52,9 +52,7 @@ def fxt_project_service(
 
 @pytest.fixture(scope="class")
 def fxt_project_service_no_vcr(fxt_client_no_vcr: SCRESTClient) -> ProjectService:
-    project_service = ProjectService(
-        client=fxt_client_no_vcr, vcr=None
-    )
+    project_service = ProjectService(client=fxt_client_no_vcr, vcr=None)
     yield project_service
     # project_service.delete_project()
 
@@ -66,6 +64,8 @@ def fxt_project_finalizer(fxt_project_manager: ProjectManager) -> Callable[[str]
 
     :var project_name: Name of the project for which to add the finalizer
     """
+
     def _project_finalizer(project_name: str) -> None:
         force_delete_project(project_name, fxt_project_manager)
+
     return _project_finalizer

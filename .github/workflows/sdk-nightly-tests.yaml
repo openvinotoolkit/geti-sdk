@@ -60,7 +60,7 @@ jobs:
           conda create -y -n $CONDA_ENV python=$PYTHON_VERSION
 
 
-      - name: Install package with deployment and test requirements
+      - name: Install package with dev requirements
         # Steps: Activate conda env, upgrade pip, install SDK
         run: |
           eval "$(conda shell.bash hook)"
@@ -68,7 +68,7 @@ jobs:
 
           python -m pip install --upgrade pip
 
-          pip install ".[deployment,tests]"
+          pip install ".[dev]"
 
       - name: Create artifact directories
         # Creates the temporary directories that are used to store the test

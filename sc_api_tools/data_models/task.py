@@ -14,20 +14,23 @@
 
 import copy
 from pprint import pformat
-from typing import List, Optional, ClassVar, Dict, Any
+from typing import Any, ClassVar, Dict, List, Optional
 
 import attr
 
 from sc_api_tools.data_models import TaskType
 from sc_api_tools.data_models.enums.task_type import (
-    NON_TRAINABLE_TASK_TYPES,
     ANOMALY_TASK_TYPES,
-    GLOBAL_TASK_TYPES
+    GLOBAL_TASK_TYPES,
+    NON_TRAINABLE_TASK_TYPES,
 )
 from sc_api_tools.data_models.label import Label
-from sc_api_tools.data_models.utils import deidentify, str_to_task_type, \
-    attr_value_serializer
-from sc_api_tools.utils import remove_null_fields
+from sc_api_tools.data_models.utils import (
+    attr_value_serializer,
+    deidentify,
+    remove_null_fields,
+    str_to_task_type,
+)
 
 
 @attr.s(auto_attribs=True)
@@ -151,6 +154,8 @@ class Task:
         """
         summary_str = f"Task: {self.title}\n  Type: {self.type} \n  Labels:\n"
         for label in self.labels:
-            summary_str += f"    Name: {label.name},  Group: {label.group},  " \
-                           f"Parent: {label.parent_id}\n"
+            summary_str += (
+                f"    Name: {label.name},  Group: {label.group},  "
+                f"Parent: {label.parent_id}\n"
+            )
         return summary_str

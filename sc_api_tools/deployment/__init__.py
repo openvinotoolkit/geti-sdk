@@ -84,7 +84,7 @@ Module contents
    :show-inheritance:
 """
 
-from .deployment import Deployment
 from .deployed_model import DeployedModel
+from .deployment import Deployment
 
 __all__ = ["Deployment", "DeployedModel"]

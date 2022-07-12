@@ -15,21 +15,21 @@
 import copy
 import json
 from pprint import pformat
-from typing import Optional, List, Dict, Any, ClassVar
+from typing import Any, ClassVar, Dict, List, Optional
 
 import attr
 
 from sc_api_tools.data_models.enums import ModelStatus, OptimizationType
 from sc_api_tools.data_models.utils import (
+    attr_value_serializer,
+    deidentify,
+    remove_null_fields,
     str_to_datetime,
     str_to_enum_converter,
-    attr_value_serializer,
-    deidentify
 )
 from sc_api_tools.utils import deserialize_dictionary
-from sc_api_tools.utils.dictionary_helpers import remove_null_fields
-from . import Label
 
+from . import Label
 from .performance import Performance
 
 
@@ -51,7 +51,9 @@ class BaseModel:
     """
 
     _identifier_fields: ClassVar[str] = [
-        "id", "previous_revision_id", "previous_trained_revision_id"
+        "id",
+        "previous_revision_id",
+        "previous_trained_revision_id",
     ]
 
     name: str
@@ -122,17 +124,17 @@ class BaseModel:
         """
         if self.model_group_id is not None:
             if self.model_group_id in base_url:
-                if base_url.endswith(f'models/{self.id}'):
+                if base_url.endswith(f"models/{self.id}"):
                     base_url = base_url
                 else:
-                    base_url += f'/models/{self.id}'
+                    base_url += f"/models/{self.id}"
             else:
-                base_url += f'/{self.model_group_id}/models/{self.id}'
+                base_url += f"/{self.model_group_id}/models/{self.id}"
         else:
             base_url = base_url
-        if hasattr(self, 'optimized_models'):
+        if hasattr(self, "optimized_models"):
             for model in self.optimized_models:
-                model._base_url = base_url + f'/optimized_models/{model.id}'
+                model._base_url = base_url + f"/optimized_models/{model.id}"
         self._base_url = base_url
 
     @model_group_id.setter
@@ -228,7 +230,7 @@ class Model(BaseModel):
             model.model_group_id = id_
 
     @classmethod
-    def from_dict(cls, model_dict: Dict[str, Any]) -> 'Model':
+    def from_dict(cls, model_dict: Dict[str, Any]) -> "Model":
         """
         Create a Model instance from a dictionary holding the model data.
 
@@ -238,13 +240,13 @@ class Model(BaseModel):
         return deserialize_dictionary(model_dict, cls)
 
     @classmethod
-    def from_file(cls, filepath: str) -> 'Model':
+    def from_file(cls, filepath: str) -> "Model":
         """
         Create a Model instance from a .json file holding the model data.
 
         :param filepath: Path to a json file holding the model data
         :return:
         """
-        with open(filepath, 'r') as file:
+        with open(filepath, "r") as file:
             model_dict = json.load(file)
         return cls.from_dict(model_dict=model_dict)

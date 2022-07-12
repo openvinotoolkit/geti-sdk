@@ -25,4 +25,4 @@ def get_task_types_by_project_type(project_type: str) -> List[TaskType]:
     :param project_type:
     :return:
     """
-    return [TaskType(task) for task in project_type.split('_to_')]
+    return [TaskType(task) for task in project_type.split("_to_")]

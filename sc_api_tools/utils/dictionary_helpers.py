@@ -12,14 +12,12 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import TypeVar, Dict, Any, Optional
+from typing import Any, Dict, Optional, TypeVar
 
 KeyType = TypeVar("KeyType")
 
 
-def get_dict_key_from_value(
-        input_dict: Dict[KeyType, Any], value
-) -> Optional[KeyType]:
+def get_dict_key_from_value(input_dict: Dict[KeyType, Any], value) -> Optional[KeyType]:
     """
     Return the key associated with `value` in a dictionary `input_dict`. If the value
     is not found in the dictionary, returns None.
@@ -35,26 +33,3 @@ def get_dict_key_from_value(
     except ValueError:
         return None
     return keys[index]
-
-
-def remove_null_fields(input: Any):
-    """
-    Remove fields that have 'None' or an emtpy string '' as their value from a
-    dictionary.
-
-    NOTE: This function modifies the input dictionary in place
-
-    :param input: Dictionary to remove the null fields from
-    """
-    if isinstance(input, dict):
-        for key, value in list(input.items()):
-            if isinstance(value, dict):
-                remove_null_fields(value)
-            elif value is None or value == "":
-                input.pop(key)
-            elif isinstance(value, list):
-                for item in value:
-                    remove_null_fields(item)
-    elif isinstance(input, list):
-        for item in input:
-            remove_null_fields(item)

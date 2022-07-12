@@ -14,16 +14,19 @@
 
 import json
 import os
-from typing import Union, Optional, List, Dict
 import time
+from typing import Dict, List, Optional, Union
 
 from sc_api_tools.data_models import (
+    Algorithm,
+    FullConfiguration,
+    GlobalConfiguration,
     Project,
+    Task,
     TaskConfiguration,
-    GlobalConfiguration, FullConfiguration, Task, Algorithm
 )
 from sc_api_tools.data_models.configurable_parameter_group import PARAMETER_TYPES
-from sc_api_tools.http_session import SCSession, SCRequestException
+from sc_api_tools.http_session import SCRequestException, SCSession
 from sc_api_tools.rest_converters import ConfigurationRESTConverter
 from sc_api_tools.utils import get_supported_algorithms
 
@@ -39,22 +42,22 @@ class ConfigurationManager:
         self.project = project
         self.workspace_id = workspace_id
         self.task_ids = [task.id for task in project.get_trainable_tasks()]
-        self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/" \
-                        f"configuration"
+        self.base_url = (
+            f"workspaces/{workspace_id}/projects/{project_id}/" f"configuration"
+        )
         self.supported_algos = get_supported_algorithms(session)
 
         # Query the project status to make sure that the project is loaded. Then we
         # can safely fetch the configuration later on, even for newly created projects
         self.session.get_rest_response(
-            url=f"workspaces/{workspace_id}/projects/{project_id}/status",
-            method="GET"
+            url=f"workspaces/{workspace_id}/projects/{project_id}/status", method="GET"
         )
         # Hack: Wait for some time to make sure that the configurations are
         # initialized properly
         time.sleep(1)
 
     def get_task_configuration(
-            self, task_id: str, algorithm_name: Optional[str] = None
+        self, task_id: str, algorithm_name: Optional[str] = None
     ) -> TaskConfiguration:
         """
         Get the configuration for the task with id `task_id`.
@@ -69,11 +72,8 @@ class ConfigurationManager:
         """
         url = f"{self.base_url}/task_chain/{task_id}"
         if algorithm_name is not None:
-            url += f'?algorithm_name={algorithm_name}'
-        config_data = self.session.get_rest_response(
-            url=url,
-            method="GET"
-        )
+            url += f"?algorithm_name={algorithm_name}"
+        config_data = self.session.get_rest_response(url=url, method="GET")
         return ConfigurationRESTConverter.task_configuration_from_dict(config_data)
 
     def get_global_configuration(self) -> GlobalConfiguration:
@@ -84,8 +84,7 @@ class ConfigurationManager:
             all project-wide components
         """
         config_data = self.session.get_rest_response(
-            url=f"{self.base_url}/global",
-            method="GET"
+            url=f"{self.base_url}/global", method="GET"
         )
         return ConfigurationRESTConverter.global_configuration_from_rest(config_data)
 
@@ -98,9 +97,7 @@ class ConfigurationManager:
         :return: Response of the configuration POST endpoint.
         """
         response = self.session.get_rest_response(
-            url=f"{self.base_url}/task_chain/{task_id}",
-            method="POST",
-            data=config
+            url=f"{self.base_url}/task_chain/{task_id}", method="POST", data=config
         )
         return response
 
@@ -112,7 +109,7 @@ class ConfigurationManager:
         """
         for task_id in self.task_ids:
             config = self.get_task_configuration(task_id=task_id)
-            config_data = config.set_parameter_value('auto_training', value=auto_train)
+            config_data = config.set_parameter_value("auto_training", value=auto_train)
             self._set_task_configuration(task_id=task_id, config=config_data)
 
     def set_project_num_iterations(self, value: int = 50):
@@ -128,9 +125,10 @@ class ConfigurationManager:
             for parameter_name in iteration_names:
                 parameter = config.get_parameter_by_name(parameter_name)
                 if parameter is not None:
-                    self._set_task_configuration(task_id=task_id,
-                                                 config=config.set_parameter_value(
-                                                     parameter_name, value=value))
+                    self._set_task_configuration(
+                        task_id=task_id,
+                        config=config.set_parameter_value(parameter_name, value=value),
+                    )
                     break
             if parameter is None:
                 raise ValueError(
@@ -139,10 +137,10 @@ class ConfigurationManager:
                 )
 
     def set_project_parameter(
-            self,
-            parameter_name: str,
-            value: Union[bool, str, float, int],
-            parameter_group_name: Optional[str] = None
+        self,
+        parameter_name: str,
+        value: Union[bool, str, float, int],
+        parameter_group_name: Optional[str] = None,
     ):
         """
         Set the value for a parameter with `parameter_name` that lives in the
@@ -162,7 +160,7 @@ class ConfigurationManager:
             config_data = config.set_parameter_value(
                 parameter_name=parameter_name,
                 value=value,
-                group_name=parameter_group_name
+                group_name=parameter_group_name,
             )
             self._set_task_configuration(task_id=task_id, config=config_data)
 
@@ -173,10 +171,7 @@ class ConfigurationManager:
         :return: FullConfiguration object holding the global and task chain
             configuration
         """
-        data = self.session.get_rest_response(
-            url=self.base_url,
-            method="GET"
-        )
+        data = self.session.get_rest_response(url=self.base_url, method="GET")
         return ConfigurationRESTConverter.full_configuration_from_rest(data)
 
     def get_for_task_and_algorithm(self, task: Task, algorithm: Algorithm):
@@ -211,7 +206,7 @@ class ConfigurationManager:
         if not os.path.exists(path_to_folder):
             os.makedirs(path_to_folder)
         configuration_path = os.path.join(path_to_folder, "configuration.json")
-        with open(configuration_path, 'w') as file:
+        with open(configuration_path, "w") as file:
             json.dump(config_data, file, indent=4)
         print(
             f"Project parameters for project '{self.project.name}' were saved to file "
@@ -220,7 +215,7 @@ class ConfigurationManager:
         return config
 
     def apply_from_object(
-            self, configuration: FullConfiguration
+        self, configuration: FullConfiguration
     ) -> Optional[FullConfiguration]:
         """
         Attempt to apply the configuration values passed in as `configuration` to
@@ -249,16 +244,14 @@ class ConfigurationManager:
                 workspace_id=self.workspace_id,
                 project_id=self.project.id,
                 task_id=task.id,
-                model_storage_id=model_storage_ids[0]
+                model_storage_id=model_storage_ids[0],
             )
         data = ConfigurationRESTConverter.configuration_to_minimal_dict(
             configuration=configuration, deidentify=False
         )
         try:
             result = self.session.get_rest_response(
-                url=self.base_url,
-                method="POST",
-                data=data
+                url=self.base_url, method="POST", data=data
             )
         except SCRequestException:
             failed_parameters: List[Dict[str, str]] = []
@@ -270,9 +263,7 @@ class ConfigurationManager:
                 )
                 try:
                     self.session.get_rest_response(
-                        url=f"{self.base_url}/global",
-                        method="POST",
-                        data=config_data
+                        url=f"{self.base_url}/global", method="POST", data=config_data
                     )
                 except SCRequestException:
                     failed_parameters.append({"global": parameter.name})
@@ -282,8 +273,9 @@ class ConfigurationManager:
                         parameter.name, parameter.value
                     )
                     try:
-                        self._set_task_configuration(task_id=task_config.task_id,
-                                                     config=config_data)
+                        self._set_task_configuration(
+                            task_id=task_config.task_id, config=config_data
+                        )
                     except SCRequestException:
                         failed_parameters.append(
                             {task_config.task_title: parameter.name}
@@ -299,7 +291,7 @@ class ConfigurationManager:
             return None
 
     def apply_from_file(
-            self, path_to_folder: str, filename: Optional[str] = None
+        self, path_to_folder: str, filename: Optional[str] = None
     ) -> Optional[FullConfiguration]:
         """
         Attempt to apply a configuration from a file on disk. The
@@ -314,23 +306,21 @@ class ConfigurationManager:
         :return:
         """
         if filename is None:
-            filename = 'configuration.json'
+            filename = "configuration.json"
         path_to_config = os.path.join(path_to_folder, filename)
         if not os.path.isfile(path_to_config):
             raise ValueError(
                 f"Unable to find configuration file at {path_to_config}. Please "
                 f"provide a valid path to the folder holding the configuration data."
             )
-        with open(path_to_config, 'r') as file:
+        with open(path_to_config, "r") as file:
             data = json.load(file)
         config = ConfigurationRESTConverter.full_configuration_from_rest(data)
         return self.apply_from_object(config)
 
     def set_configuration(
-            self,
-            configuration: Union[
-                FullConfiguration, GlobalConfiguration, TaskConfiguration
-            ]
+        self,
+        configuration: Union[FullConfiguration, GlobalConfiguration, TaskConfiguration],
     ):
         """
         Set the configuration for the project. This method accepts either a

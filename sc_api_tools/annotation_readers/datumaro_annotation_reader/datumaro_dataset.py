@@ -13,10 +13,10 @@
 # and limitations under the License.
 
 import time
-from typing import List, Dict, Tuple, Sequence, Optional
+from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
-from datumaro.components.annotation import LabelCategories, AnnotationType
+from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
@@ -46,7 +46,7 @@ class DatumaroDataset(object):
         self._subset_names = self.dataset.subsets().keys()
 
     def prepare_dataset(
-            self, task_type: TaskType, previous_task_type: Optional[TaskType] = None
+        self, task_type: TaskType, previous_task_type: Optional[TaskType] = None
     ) -> Dataset:
         """
         Prepare the dataset for uploading to Sonoma Creek.
@@ -57,22 +57,22 @@ class DatumaroDataset(object):
         """
         if task_type.is_detection:
             new_dataset = self.dataset.transform(
-                self.dataset.env.transforms.get('shapes_to_boxes')
+                self.dataset.env.transforms.get("shapes_to_boxes")
             )
             print("Annotations have been converted to boxes")
         elif task_type.is_segmentation:
             new_dataset = self.dataset.transform(
-                self.dataset.env.transforms.get('masks_to_polygons')
+                self.dataset.env.transforms.get("masks_to_polygons")
             )
             print("Annotations have been converted to polygons")
         elif task_type.is_global:
             if previous_task_type is not None and previous_task_type.is_segmentation:
                 new_dataset = self.dataset.transform(
-                    self.dataset.env.transforms.get('masks_to_polygons')
+                    self.dataset.env.transforms.get("masks_to_polygons")
                 )
             else:
                 new_dataset = self.dataset.transform(
-                    self.dataset.env.transforms.get('shapes_to_boxes')
+                    self.dataset.env.transforms.get("shapes_to_boxes")
                 )
             print(f"{str(task_type).capitalize()} dataset prepared.")
         else:
@@ -128,10 +128,10 @@ class DatumaroDataset(object):
             path=self.dataset_path, format=self.dataset_format
         )
         print(
-            f'Datumaro dataset consisting of {len(dataset)} items in '
-            f'{self.dataset_format} format was loaded from {self.dataset_path}'
+            f"Datumaro dataset consisting of {len(dataset)} items in "
+            f"{self.dataset_format} format was loaded from {self.dataset_path}"
         )
-        print(f'Datumaro dataset was created in {time.time() - t_start:.1f} seconds')
+        print(f"Datumaro dataset was created in {time.time() - t_start:.1f} seconds")
         return dataset, dataset.env
 
     def remove_unannotated_items(self):
@@ -140,7 +140,7 @@ class DatumaroDataset(object):
         """
         self.dataset = self.dataset.select(lambda item: len(item.annotations) != 0)
 
-    def filter_items_by_labels(self, labels: Sequence[str], criterion='OR') -> None:
+    def filter_items_by_labels(self, labels: Sequence[str], criterion="OR") -> None:
         """
         Retain only those items with annotations in the list of labels passed.
 
@@ -153,23 +153,21 @@ class DatumaroDataset(object):
         for label in labels:
             if label not in list(label_map.values()):
                 raise ValueError(
-                    f'Cannot filter on label {label} because this is not in the '
-                    f'dataset.'
+                    f"Cannot filter on label {label} because this is not in the "
+                    f"dataset."
                 )
 
         if labels:
+
             def select_function(dataset_item: DatasetItem, labels: List[str]):
                 # Filter function to apply to each item in the dataset
-                item_labels = [
-                    label_map[x.label] for x
-                    in dataset_item.annotations
-                ]
+                item_labels = [label_map[x.label] for x in dataset_item.annotations]
                 matches = []
                 for label in labels:
                     if label in item_labels:
-                        if criterion == 'OR':
+                        if criterion == "OR":
                             return True
-                        elif criterion in ['AND', 'NOT', 'XOR']:
+                        elif criterion in ["AND", "NOT", "XOR"]:
                             matches.append(True)
                         else:
                             raise ValueError(
@@ -178,11 +176,11 @@ class DatumaroDataset(object):
                             )
                     else:
                         matches.append(False)
-                if criterion == 'AND':
+                if criterion == "AND":
                     return all(matches)
-                elif criterion == 'NOT':
+                elif criterion == "NOT":
                     return not any(matches)
-                elif criterion == 'XOR':
+                elif criterion == "XOR":
                     return np.sum(matches) == 1
 
             # Messy way to manually keep track of labels and indices, must be a
@@ -198,11 +196,11 @@ class DatumaroDataset(object):
             self.dataset = Dataset.from_iterable(
                 self.dataset.select(lambda item: select_function(item, labels)),
                 categories=new_categories,
-                env=self.dataset.env
+                env=self.dataset.env,
             )
             print(
-                f'After filtering, dataset with labels {labels} contains '
-                f'{len(self.dataset)} items.'
+                f"After filtering, dataset with labels {labels} contains "
+                f"{len(self.dataset)} items."
             )
 
     def get_item_by_id(self, datum_id: str) -> DatasetItem:

@@ -15,9 +15,9 @@
 from __future__ import annotations
 
 from collections import UserList
-from typing import List, Dict, Any, Type, TypeVar, Generic
+from typing import Any, Dict, Generic, List, Type, TypeVar
 
-from sc_api_tools.data_models.media import MediaItem, Video, Image, VideoFrame
+from sc_api_tools.data_models.media import Image, MediaItem, Video, VideoFrame
 from sc_api_tools.utils.serialization_helpers import deserialize_dictionary
 
 MediaTypeVar = TypeVar("MediaTypeVar", Image, Video, VideoFrame)
@@ -49,9 +49,7 @@ class MediaList(UserList, Generic[MediaTypeVar]):
         for item in self.data:
             if item.id == id_value:
                 return item
-        raise ValueError(
-            f"Media list {self} does not contain item with ID {id_value}."
-        )
+        raise ValueError(f"Media list {self} does not contain item with ID {id_value}.")
 
     def get_by_filename(self, filename: str) -> MediaItem:
         """
@@ -76,8 +74,7 @@ class MediaList(UserList, Generic[MediaTypeVar]):
 
     @staticmethod
     def from_rest_list(
-            rest_input: List[Dict[str, Any]],
-            media_type: Type[MediaTypeVar]
+        rest_input: List[Dict[str, Any]], media_type: Type[MediaTypeVar]
     ) -> MediaList[MediaTypeVar]:
         """
         Create a MediaList instance from a list of media entities obtained from the

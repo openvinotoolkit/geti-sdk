@@ -21,7 +21,7 @@ if __name__ == "__main__":
     client = SCRESTClient(
         host=env_variables.get("HOST"),
         username=env_variables.get("USERNAME"),
-        password=env_variables.get("PASSWORD")
+        password=env_variables.get("PASSWORD"),
     )
 
     # Dataset configuration
@@ -57,12 +57,9 @@ if __name__ == "__main__":
 
     # Create annotation reader
     annotation_reader = DatumAnnotationReader(
-        base_data_folder=coco_path,
-        annotation_format='coco'
+        base_data_folder=coco_path, annotation_format="coco"
     )
-    annotation_reader.filter_dataset(
-        labels=LABELS_OF_INTEREST, criterion='OR'
-    )
+    annotation_reader.filter_dataset(labels=LABELS_OF_INTEREST, criterion="OR")
     # Create project and upload data
     client.create_single_task_project_from_dataset(
         project_name=PROJECT_NAME,
@@ -72,5 +69,5 @@ if __name__ == "__main__":
         labels=LABELS_OF_INTEREST,
         number_of_images_to_upload=NUMBER_OF_IMAGES_TO_UPLOAD,
         number_of_images_to_annotate=NUMBER_OF_IMAGES_TO_ANNOTATE,
-        enable_auto_train=AUTO_TRAIN_AFTER_UPLOAD
+        enable_auto_train=AUTO_TRAIN_AFTER_UPLOAD,
     )

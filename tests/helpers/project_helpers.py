@@ -15,22 +15,21 @@
 from typing import List, Sequence
 
 from sc_api_tools import SCRESTClient
-
 from sc_api_tools.annotation_readers import AnnotationReader
 from sc_api_tools.rest_managers import ProjectManager
 
-from .finalizers import force_delete_project
 from .constants import PROJECT_PREFIX
+from .finalizers import force_delete_project
 from .project_service import ProjectService
 
 
 def get_or_create_annotated_project_for_test_class(
-        project_service: ProjectService,
-        annotation_readers: Sequence[AnnotationReader],
-        project_name: str,
-        project_type: str = "detection",
-        enable_auto_train: bool = False,
-        learning_parameter_settings: str = "minimal"
+    project_service: ProjectService,
+    annotation_readers: Sequence[AnnotationReader],
+    project_name: str,
+    project_type: str = "detection",
+    enable_auto_train: bool = False,
+    learning_parameter_settings: str = "minimal",
 ):
     """
     This function returns an annotated project with `project_name` of type
@@ -55,25 +54,22 @@ def get_or_create_annotated_project_for_test_class(
     labels = [reader.get_all_label_names() for reader in annotation_readers]
 
     project = project_service.get_or_create_project(
-        project_name=project_name,
-        project_type=project_type,
-        labels=labels
+        project_name=project_name, project_type=project_type, labels=labels
     )
     if not project_exists:
         project_service.set_auto_train(False)
-        if learning_parameter_settings == 'minimal':
+        if learning_parameter_settings == "minimal":
             project_service.set_minimal_training_hypers()
-        elif learning_parameter_settings == 'reduced_mem':
+        elif learning_parameter_settings == "reduced_mem":
             project_service.set_reduced_memory_hypers()
-        elif learning_parameter_settings != 'default':
+        elif learning_parameter_settings != "default":
             print(
                 f"Invalid learning parameter settings '{learning_parameter_settings}' "
                 f"specified, continuing with default hyper parameters."
             )
 
         project_service.add_annotated_media(
-            annotation_readers=annotation_readers,
-            n_images=-1
+            annotation_readers=annotation_readers, n_images=-1
         )
         project_service.set_auto_train(enable_auto_train)
     return project
