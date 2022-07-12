@@ -23,7 +23,8 @@ jobs:
 
       - name: Install package with dev, notebooks and docs requirements
         run: |
-          pip install ".[dev,docs,notebooks]"
+          pip install ".[dev,notebooks]"
+          pip install -r requirements/requirements-docs.txt
 
       - name: Build sphinx documentation
         run: |
