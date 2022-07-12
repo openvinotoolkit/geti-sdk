@@ -160,19 +160,6 @@ is not found in the dictionary, returns None.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="sc_api_tools.utils.remove_null_fields">
-<span class="sig-prename descclassname"><span class="pre">sc_api_tools.utils.</span></span><span class="sig-name descname"><span class="pre">remove_null_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.utils.remove_null_fields" title="Permalink to this definition"></a></dt>
-<dd><p>Remove fields that have ‘None’ or an emtpy string ‘’ as their value from a
-dictionary.</p>
-<p>NOTE: This function modifies the input dictionary in place</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>input</strong> – Dictionary to remove the null fields from</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="sc_api_tools.utils.get_task_types_by_project_type">
 <span class="sig-prename descclassname"><span class="pre">sc_api_tools.utils.</span></span><span class="sig-name descname"><span class="pre">get_task_types_by_project_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="sc_api_tools.data_models.html#sc_api_tools.data_models.enums.TaskType" title="sc_api_tools.data_models.enums.task_type.TaskType"><span class="pre">sc_api_tools.data_models.enums.task_type.TaskType</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.utils.get_task_types_by_project_type" title="Permalink to this definition"></a></dt>
 <dd><p>Return a list of task_type for each task in the project pipeline, for a certain

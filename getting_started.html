@@ -107,13 +107,13 @@ Python environment before installing the package and it’s requirements. The pa
 requires Python version 3.8, so make sure to use that version in your environment.</p>
 <p>Once you have created a new environment, follow these steps to install the package:</p>
 <ol class="arabic simple">
-<li><p>Download or clone the repository and navigate to the package directory.</p></li>
+<li><p>Download or clone the repository and navigate to the <code class="docutils literal notranslate"><span class="pre">sc_api_tools</span></code> directory.</p></li>
 <li><p>From there, install the requirements using</p></li>
 </ol>
-<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements/requirements.txt</span></code>.</p>
 <ol class="arabic simple">
 <li><p>(Optional) If you plan on using the package to deploy inference models, install the
-requirements for deployment using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements-deployment.txt</span></code>.</p></li>
+requirements for deployment using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements/requirements-deployment.txt</span></code>.</p></li>
 <li><p>Then run <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">.</span></code> to install the package.</p></li>
 </ol>
 <p>You can also install it in editable mode using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code> This is handy if
@@ -190,12 +190,8 @@ the single project methods in the code snippets above.</p>
 </section>
 <section id="deploying-a-project">
 <h3>Deploying a project<a class="headerlink" href="#deploying-a-project" title="Permalink to this headline"></a></h3>
-<blockquote>
-<div><p><strong>WARNING</strong>: The deployment-related features of this package are in an experimental
-stage, and subject to change.</p>
-</div></blockquote>
 <p><strong>NOTE</strong>: Before running inference locally, please install the
-required packages for deployment using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements-deployment.txt</span></code></p>
+required packages for deployment using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements/requirements-deployment.txt</span></code></p>
 <p>The following code snippet shows how to create a deployment for local inference with
 OpenVINO:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cv2</span>
