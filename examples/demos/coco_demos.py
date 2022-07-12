@@ -14,11 +14,10 @@ def create_segmentation_demo_project(
     dataset_path: Optional[str] = None,
 ) -> Project:
     """
-    This method creates a demo project of type 'segmentation', based off the MS COCO
-    dataset.
+    Create a demo project of type 'segmentation', based off the MS COCO dataset.
 
-    It creates a project with a single 'Segmentation' task, with segmentation mask for
-    labels: 'backpack' and 'suitcase'.
+    This method creates a project with a single 'Segmentation' task, with segmentation
+    mask for labels: 'backpack' and 'suitcase'.
 
     :param client: SCRESTClient, representing the client for the SC cluster on which
         the project should be created.
@@ -69,11 +68,10 @@ def create_detection_demo_project(
     dataset_path: Optional[str] = None,
 ) -> Project:
     """
-    This method creates a demo project of type 'detection', based off the MS COCO
-    dataset.
+    Create a demo project of type 'detection', based off the MS COCO dataset.
 
-    It creates a project with a single 'Detection' task, with labels and annotations
-    for 'cell phone' and 'person' objects
+    This method creates a project with a single 'Detection' task, with labels and
+    annotations for 'cell phone' and 'person' objects
 
     :param client: SCRESTClient, representing the client for the SC cluster on which
         the project should be created.
@@ -124,12 +122,11 @@ def create_classification_demo_project(
     dataset_path: Optional[str] = None,
 ) -> Project:
     """
-    This method creates a demo project of type 'classification', based off the MS COCO
-    dataset
+    Create a demo project of type 'classification', based off the MS COCO dataset.
 
-    It creates a project with a single 'Classification' task, with labels to classify
-    images with different types of animals. The following animals are considered:
-    "horse", "cat", "zebra", "bear"
+    This method creates a project with a single 'Classification' task, with labels to
+    classify images with different types of animals. The following animals are
+    considered: "horse", "cat", "zebra", "bear"
 
     :param client: SCRESTClient, representing the client for the SC cluster on which
         the project should be created.
@@ -180,11 +177,11 @@ def create_anomaly_classification_demo_project(
     dataset_path: Optional[str] = None,
 ) -> Project:
     """
-    This method creates a demo project of type 'anomaly_classification', based off the
-    MS COCO dataset.
+    Create a demo project of type 'anomaly_classification', based off the MS COCO
+    dataset.
 
-    It creates a project with a single 'Anomaly classification' task. Images with
-    animals in them are considered 'Normal', whereas images with traffic lights or
+    This method creates a project with a single 'Anomaly classification' task. Images
+    with animals in them are considered 'Normal', whereas images with traffic lights or
     stop signs in them are considered 'Anomalous'
 
     :param client: SCRESTClient, representing the client for the SC cluster on which
@@ -249,11 +246,11 @@ def create_detection_to_segmentation_demo_project(
     dataset_path: Optional[str] = None,
 ) -> Project:
     """
-    This method creates a demo project of type 'detection_to_segmentation', based
-    off the MS COCO dataset.
+    Create a demo project of type 'detection_to_segmentation', based off the MS COCO
+    dataset.
 
-    It creates a project with a 'Detection' task, followed by a 'Segmentation' task.
-    The detection task has the label 'animal', and the segmentation task has
+    This method creates a project with a 'Detection' task, followed by a 'Segmentation'
+    task. The detection task has the label 'animal', and the segmentation task has
     annotations for the following species:
         "dog", "cat", "horse", "elephant", "cow", "sheep", "giraffe", "zebra", "bear"
 
@@ -314,12 +311,12 @@ def create_detection_to_classification_demo_project(
     dataset_path: Optional[str] = None,
 ) -> Project:
     """
-    This method creates a demo project of type 'detection_to_classification', based
-    off the MS COCO dataset.
+    Create a demo project of type 'detection_to_classification', based off the MS COCO
+    dataset.
 
-    It creates a project with a 'Detection' task, followed by a 'Classification' task.
-    The detection task has the label 'animal', and the detection task discriminates
-    between 'domestic' and 'wild' animals
+    This method creates a project with a 'Detection' task, followed by a
+    'Classification' task. The detection task has the label 'animal', and the
+    classification task discriminates between 'domestic' and 'wild' animals.
 
     :param client: SCRESTClient, representing the client for the SC cluster on which
         the project should be created.

@@ -8,3 +8,5 @@ flake8>=4.0
 pydocstyle>=6.1
 black>=22.6
 isort>=5.10
+pre-commit
+nbqa

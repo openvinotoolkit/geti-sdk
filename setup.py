@@ -23,7 +23,7 @@ with open("README.md", "r", encoding="utf-8") as readme_file:
 
 def get_requirements(filename: str) -> List[str]:
     """
-    Gets the required packages from the `filename` specified
+    Get the required packages from the `filename` specified.
     """
     filepath = os.path.join("requirements", filename)
     required_packages: List[str] = []
@@ -39,7 +39,7 @@ with open("sc_api_tools/__init__.py", "r", encoding="utf-8") as init_file:
     for line in init_file:
         line = line.strip()
         if line.startswith("__version__"):
-            VERSION = line.split("=")[1].strip().strip("'")
+            VERSION = line.split("=")[1].strip().strip('"')
 
 setuptools.setup(
     name="sc-api-tools",

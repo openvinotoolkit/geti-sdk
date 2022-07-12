@@ -1,3 +1,5 @@
+# noqa: D104
+
 from .coco_demos import (
     create_anomaly_classification_demo_project,
     create_classification_demo_project,

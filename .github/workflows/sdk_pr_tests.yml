@@ -6,10 +6,10 @@ name: SDK PR tests
 # (workflow_dispatch trigger), and it will be run automatically when a PR to main is made.
 on:
   workflow_dispatch:
-  
+
   pull_request:
     branches:
-      - main 
+      - main
 
 env:
   INTEGRATION_TEST_REPORT: integration_test_report.html
