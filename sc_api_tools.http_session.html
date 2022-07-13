@@ -107,18 +107,13 @@ they are instantiated through the main <code class="xref py py-class docutils li
 <h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="sc_api_tools.http_session.sc_session.SCSession">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.http_session.sc_session.</span></span><span class="sig-name descname"><span class="pre">SCSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sc_api_tools.http_session.cluster_config.ClusterConfig" title="sc_api_tools.http_session.cluster_config.ClusterConfig"><span class="pre">sc_api_tools.http_session.cluster_config.ClusterConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify_certificate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.http_session.sc_session.SCSession" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.http_session.sc_session.</span></span><span class="sig-name descname"><span class="pre">SCSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sc_api_tools.http_session.cluster_config.ClusterConfig" title="sc_api_tools.http_session.cluster_config.ClusterConfig"><span class="pre">sc_api_tools.http_session.cluster_config.ClusterConfig</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.http_session.sc_session.SCSession" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">requests.sessions.Session</span></code></p>
 <p>Wrapper for requests.session that sets the correct headers and cookies.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>cluster_config</strong> – ClusterConfig with the parameters for host, username,
-password</p></li>
-<li><p><strong>verify_certificate</strong> – True to verify the certificate used for making HTTPS
-requests encrypted using TLS protocol. If set to False, an
-InsecureRequestWarning will be issued</p></li>
-</ul>
+<dd class="field-odd"><p><strong>cluster_config</strong> – ClusterConfig with the parameters for host, username,
+password</p>
 </dd>
 </dl>
 <dl class="py property">
@@ -171,9 +166,31 @@ cookies and headers are cleared.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sc_api_tools.http_session.cluster_config.ClusterConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.http_session.cluster_config.</span></span><span class="sig-name descname"><span class="pre">ClusterConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.http_session.cluster_config.ClusterConfig" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.http_session.cluster_config.</span></span><span class="sig-name descname"><span class="pre">ClusterConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_valid_certificate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.http_session.cluster_config.ClusterConfig" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Configuration for requests sessions, with host, username and password.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> – full hostname or ip address of the SC instance.
+Note: this should include the protocol (i.e. <a class="reference external" href="https://your_sc_hostname.com">https://your_sc_hostname.com</a>)</p></li>
+<li><p><strong>username</strong> – Username to log in to the instance.</p></li>
+<li><p><strong>password</strong> – Password required to log in to the instance</p></li>
+<li><p><strong>has_valid_certificate</strong> – Set to True if the server has a valid SSL certificate
+that should be validated and used to establish an encrypted HTTPS connection</p></li>
+<li><p><strong>proxies</strong> – <p>Optional dictionary containing proxy information, if this is
+required to connect to the SC server. For example:</p>
+<dl class="simple">
+<dt>proxies = {</dt><dd><p>‘http’: <a class="reference external" href="http://proxy-server.com">http://proxy-server.com</a>:&lt;http_port_number&gt;,
+‘https’: <a class="reference external" href="http://proxy-server.com">http://proxy-server.com</a>:&lt;https_port_number&gt;</p>
+</dd>
+</dl>
+<p>},</p>
+<p>if set to None (the default), no proxy settings will be used.</p>
+</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.http_session.cluster_config.ClusterConfig.host">
 <span class="sig-name descname"><span class="pre">host</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sc_api_tools.http_session.cluster_config.ClusterConfig.host" title="Permalink to this definition"></a></dt>
@@ -187,6 +204,16 @@ cookies and headers are cleared.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sc_api_tools.http_session.cluster_config.ClusterConfig.password">
 <span class="sig-name descname"><span class="pre">password</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sc_api_tools.http_session.cluster_config.ClusterConfig.password" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sc_api_tools.http_session.cluster_config.ClusterConfig.has_valid_certificate">
+<span class="sig-name descname"><span class="pre">has_valid_certificate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#sc_api_tools.http_session.cluster_config.ClusterConfig.has_valid_certificate" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sc_api_tools.http_session.cluster_config.ClusterConfig.proxies">
+<span class="sig-name descname"><span class="pre">proxies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#sc_api_tools.http_session.cluster_config.ClusterConfig.proxies" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
