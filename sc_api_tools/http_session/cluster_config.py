@@ -13,6 +13,7 @@
 # and limitations under the License.
 
 from dataclasses import dataclass
+from typing import Dict, Optional
 
 API_PATTERN = "/api/v1.0/"
 
@@ -21,11 +22,29 @@ API_PATTERN = "/api/v1.0/"
 class ClusterConfig:
     """
     Configuration for requests sessions, with host, username and password.
+
+    :var host: full hostname or ip address of the SC instance.
+        Note: this should include the protocol (i.e. https://your_sc_hostname.com)
+    :var username: Username to log in to the instance.
+    :var password: Password required to log in to the instance
+    :var has_valid_certificate: Set to True if the server has a valid SSL certificate
+        that should be validated and used to establish an encrypted HTTPS connection
+    :var proxies: Optional dictionary containing proxy information, if this is
+        required to connect to the SC server. For example:
+
+        proxies = {
+            'http': http://proxy-server.com:<http_port_number>,
+            'https': http://proxy-server.com:<https_port_number>
+        },
+
+        if set to None (the default), no proxy settings will be used.
     """
 
     host: str
     username: str
     password: str
+    has_valid_certificate: bool = False
+    proxies: Optional[Dict[str, str]] = None
 
     @property
     def base_url(self) -> str:

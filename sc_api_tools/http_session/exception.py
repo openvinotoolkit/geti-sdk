@@ -43,6 +43,9 @@ class SCRequestException(Exception):
         self.status_code = status_code
         self.request_data = request_data
 
+        self.response_message: Optional[str] = None
+        self.response_error_code: Optional[str] = None
+
         if response_data:
             self.response_message = response_data.get("message", None)
             self.response_error_code = response_data.get("error_code", None)

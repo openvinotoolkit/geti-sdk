@@ -56,6 +56,8 @@ def fxt_client(fxt_vcr, fxt_server_config: ClusterConfig) -> SCRESTClient:
             host=fxt_server_config.host,
             username=fxt_server_config.username,
             password=fxt_server_config.password,
+            verify_certificate=fxt_server_config.has_valid_certificate,
+            proxies=fxt_server_config.proxies,
         )
 
 

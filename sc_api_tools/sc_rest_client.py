@@ -14,7 +14,7 @@
 
 import os
 import warnings
-from typing import List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -65,6 +65,12 @@ class SCRESTClient:
     :param verify_certificate: True to verify the certificate used for making HTTPS
         requests encrypted using TLS protocol. If set to False, an
         InsecureRequestWarning will be issued
+    :param proxies: Optional dictionary containing proxy information. For example
+        {
+            'http': http://proxy-server.com:<http_port_number>,
+            'https': http://proxy-server.com:<https_port_number>
+        },
+        if set to None (the default), no proxy settings will be used.
     """
 
     def __init__(
@@ -74,12 +80,16 @@ class SCRESTClient:
         password: str,
         workspace_id: Optional[str] = None,
         verify_certificate: bool = False,
+        proxies: Optional[Dict[str, str]] = None,
     ):
         self.session = SCSession(
             cluster_config=ClusterConfig(
-                host=host, username=username, password=password
+                host=host,
+                username=username,
+                password=password,
+                proxies=proxies,
+                has_valid_certificate=verify_certificate,
             ),
-            verify_certificate=verify_certificate,
         )
         if workspace_id is None:
             workspace_id = get_default_workspace_id(self.session)

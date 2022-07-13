@@ -71,7 +71,11 @@ def fxt_server_config() -> ClusterConfig:
     """
     This fixture holds the login configuration to access the SC server
     """
-    test_config = ClusterConfig(host=HOST, username=USERNAME, password=PASSWORD)
+    test_config = ClusterConfig(
+        host=HOST,
+        username=USERNAME,
+        password=PASSWORD,
+    )
     yield test_config
 
 
