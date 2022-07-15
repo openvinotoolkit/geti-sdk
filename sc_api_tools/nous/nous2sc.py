@@ -197,7 +197,8 @@ def migrate_nous_chain(
     export_path: Union[str, os.PathLike],
     task_types: List[str],
     labels_per_task: List[Union[List[str], List[Dict[str, Any]]]],
-    project_name: Optional[str] = None
+    project_name: Optional[str] = None,
+        temp_dir: Optional[str] = None
 ):
     """
     NOTE:
@@ -235,7 +236,8 @@ def migrate_nous_chain(
     """
 
     project_type = '_to_'.join(task_types)
-    temp_dir = unzip_to_temp(export_path)
+    if temp_dir is None:
+        temp_dir = unzip_to_temp(export_path)
 
     label_source_per_task = []
     for task_type in get_task_types_by_project_type(project_type):
@@ -275,7 +277,7 @@ def migrate_nous_chain(
         project=project
     )
     images = image_manager.upload_folder(
-        path_to_folder=os.path.join(temp_dir, "images")
+        path_to_folder=os.path.join(temp_dir, "images"), skip_if_filename_exists=True
     )
 
     # Upload videos

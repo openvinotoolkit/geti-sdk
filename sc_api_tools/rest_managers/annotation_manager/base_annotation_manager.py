@@ -94,7 +94,7 @@ class BaseAnnotationManager:
         }
         for source_label_name in source_label_names:
             if source_label_name not in project_label_name_to_id_mapping:
-                raise ValueError(
+                print(
                     f"Found label {source_label_name} in source labels, but this "
                     f"label is not in the project labels."
                 )
