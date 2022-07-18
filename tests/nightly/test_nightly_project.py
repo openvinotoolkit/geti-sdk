@@ -73,12 +73,12 @@ class TestNightlyProject:
         This test monitors training jobs for the project, and completes when the jobs
         are finished
         """
-        training_manager = fxt_project_service_no_vcr.training_manager
+        training_client = fxt_project_service_no_vcr.training_client
         max_attempts = 3
         jobs: List[Job] = []
         n = 0
         while len(jobs) == 0 and n < max_attempts:
-            jobs = training_manager.get_jobs(project_only=True)
+            jobs = training_client.get_jobs(project_only=True)
             n += 1
             # If no jobs are found yet, wait for a while and retry
             time.sleep(10)
@@ -89,7 +89,7 @@ class TestNightlyProject:
                 f"'{fxt_project_service_no_vcr.project.name}'. Test failed."
             )
 
-        jobs = training_manager.monitor_jobs(jobs=jobs, timeout=10000)
+        jobs = training_client.monitor_jobs(jobs=jobs, timeout=10000)
         for job in jobs:
             assert job.status.state == JobState.FINISHED
 

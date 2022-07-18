@@ -17,16 +17,16 @@ from typing import Callable
 import pytest
 
 from sc_api_tools import SCRESTClient
-from sc_api_tools.rest_managers import ProjectManager
+from sc_api_tools.rest_clients import ProjectClient
 from tests.helpers import ProjectService, force_delete_project
 
 
 @pytest.fixture(scope="class")
-def fxt_project_manager(fxt_client: SCRESTClient) -> ProjectManager:
+def fxt_project_client(fxt_client: SCRESTClient) -> ProjectClient:
     """
-    This fixture returns a ProjectManager instance corresponding to the client
+    This fixture returns a ProjectClient instance corresponding to the client
     """
-    yield ProjectManager(
+    yield ProjectClient(
         session=fxt_client.session, workspace_id=fxt_client.workspace_id
     )
 
@@ -38,7 +38,7 @@ def fxt_project_service(
 ) -> ProjectService:
     """
     This fixture provides a service for creating a project and the corresponding
-    managers to interact with it.
+    clients to interact with it.
 
     A project can be created by using `fxt_project_service.create_project()`, which
     takes various parameters
@@ -58,7 +58,7 @@ def fxt_project_service_no_vcr(fxt_client_no_vcr: SCRESTClient) -> ProjectServic
 
 
 @pytest.fixture(scope="class")
-def fxt_project_finalizer(fxt_project_manager: ProjectManager) -> Callable[[str], None]:
+def fxt_project_finalizer(fxt_project_client: ProjectClient) -> Callable[[str], None]:
     """
     This fixture returns a finalizer to ensure project deletion
 
@@ -66,6 +66,6 @@ def fxt_project_finalizer(fxt_project_manager: ProjectManager) -> Callable[[str]
     """
 
     def _project_finalizer(project_name: str) -> None:
-        force_delete_project(project_name, fxt_project_manager)
+        force_delete_project(project_name, fxt_project_client)
 
     return _project_finalizer

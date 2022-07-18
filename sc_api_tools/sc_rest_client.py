@@ -30,14 +30,14 @@ from .data_models.containers import MediaList
 from .data_models.enums import OptimizationType
 from .deployment import DeployedModel, Deployment
 from .http_session import ClusterConfig, SCSession
-from .rest_managers import (
-    AnnotationManager,
-    ConfigurationManager,
-    ImageManager,
-    ModelManager,
-    PredictionManager,
-    ProjectManager,
-    VideoManager,
+from .rest_clients import (
+    AnnotationClient,
+    ConfigurationClient,
+    ImageClient,
+    ModelClient,
+    PredictionClient,
+    ProjectClient,
+    VideoClient,
 )
 from .utils import (
     generate_classification_labels,
@@ -176,10 +176,10 @@ class SCRESTClient:
             regarding the downloaded project
         """
         # Obtain project details from cluster
-        project_manager = ProjectManager(
+        project_client = ProjectClient(
             session=self.session, workspace_id=self.workspace_id
         )
-        project = project_manager.get_project_by_name(project_name)
+        project = project_client.get_project_by_name(project_name)
 
         # Validate or create target_folder
         if target_folder is None:
@@ -188,62 +188,62 @@ class SCRESTClient:
             os.makedirs(target_folder)
 
         # Download project creation parameters:
-        project_manager.download_project_info(
+        project_client.download_project_info(
             project_name=project_name, path_to_folder=target_folder
         )
 
         # Download images
-        image_manager = ImageManager(
+        image_client = ImageClient(
             workspace_id=self.workspace_id, session=self.session, project=project
         )
-        images = image_manager.get_all_images()
+        images = image_client.get_all_images()
         if len(images) > 0:
-            image_manager.download_all(
+            image_client.download_all(
                 path_to_folder=target_folder,
                 append_image_uid=images.has_duplicate_filenames,
             )
 
         # Download videos
-        video_manager = VideoManager(
+        video_client = VideoClient(
             workspace_id=self.workspace_id, session=self.session, project=project
         )
-        videos = video_manager.get_all_videos()
+        videos = video_client.get_all_videos()
         if len(videos) > 0:
-            video_manager.download_all(
+            video_client.download_all(
                 path_to_folder=target_folder,
                 append_video_uid=videos.has_duplicate_filenames,
             )
 
         # Download annotations
-        annotation_manager = AnnotationManager(
+        annotation_client = AnnotationClient(
             session=self.session, project=project, workspace_id=self.workspace_id
         )
         if len(images) > 0:
-            annotation_manager.download_annotations_for_images(
+            annotation_client.download_annotations_for_images(
                 images=images,
                 path_to_folder=target_folder,
                 append_image_uid=images.has_duplicate_filenames,
             )
         if len(videos) > 0:
-            annotation_manager.download_annotations_for_videos(
+            annotation_client.download_annotations_for_videos(
                 videos=videos,
                 path_to_folder=target_folder,
                 append_video_uid=videos.has_duplicate_filenames,
             )
 
         # Download predictions
-        prediction_manager = PredictionManager(
+        prediction_client = PredictionClient(
             workspace_id=self.workspace_id, session=self.session, project=project
         )
-        if prediction_manager.ready_to_predict and include_predictions:
+        if prediction_client.ready_to_predict and include_predictions:
             if len(images) > 0:
-                prediction_manager.download_predictions_for_images(
+                prediction_client.download_predictions_for_images(
                     images=images,
                     path_to_folder=target_folder,
                     include_result_media=True,
                 )
             if len(videos) > 0:
-                prediction_manager.download_predictions_for_videos(
+                prediction_client.download_predictions_for_videos(
                     videos=videos,
                     path_to_folder=target_folder,
                     include_result_media=True,
@@ -251,17 +251,17 @@ class SCRESTClient:
                 )
 
         # Download configuration
-        configuration_manager = ConfigurationManager(
+        configuration_client = ConfigurationClient(
             workspace_id=self.workspace_id, session=self.session, project=project
         )
-        configuration_manager.download_configuration(path_to_folder=target_folder)
+        configuration_client.download_configuration(path_to_folder=target_folder)
 
         # Download active models
         if include_active_models:
-            model_manager = ModelManager(
+            model_client = ModelClient(
                 workspace_id=self.workspace_id, session=self.session, project=project
             )
-            model_manager.download_all_active_models(path_to_folder=target_folder)
+            model_client.download_all_active_models(path_to_folder=target_folder)
 
         # Download deployment
         if include_deployment:
@@ -310,32 +310,32 @@ class SCRESTClient:
         :return: Project object, holding information obtained from the cluster
             regarding the uploaded project
         """
-        project_manager = ProjectManager(
+        project_client = ProjectClient(
             session=self.session, workspace_id=self.workspace_id
         )
-        project = project_manager.create_project_from_folder(
+        project = project_client.create_project_from_folder(
             path_to_folder=target_folder, project_name=project_name
         )
 
         # Disable auto-train to prevent the project from training right away
-        configuration_manager = ConfigurationManager(
+        configuration_client = ConfigurationClient(
             workspace_id=self.workspace_id, session=self.session, project=project
         )
-        configuration_manager.set_project_auto_train(auto_train=False)
+        configuration_client.set_project_auto_train(auto_train=False)
 
         # Upload images
-        image_manager = ImageManager(
+        image_client = ImageClient(
             workspace_id=self.workspace_id, session=self.session, project=project
         )
-        images = image_manager.upload_folder(
+        images = image_client.upload_folder(
             path_to_folder=os.path.join(target_folder, "images")
         )
 
         # Upload videos
-        video_manager = VideoManager(
+        video_client = VideoClient(
             workspace_id=self.workspace_id, session=self.session, project=project
         )
-        videos = video_manager.upload_folder(
+        videos = video_client.upload_folder(
             path_to_folder=os.path.join(target_folder, "videos")
         )
 
@@ -350,18 +350,18 @@ class SCRESTClient:
             base_data_folder=os.path.join(target_folder, "annotations"),
             task_type=None,
         )
-        annotation_manager = AnnotationManager[SCAnnotationReader](
+        annotation_client = AnnotationClient[SCAnnotationReader](
             session=self.session,
             project=project,
             workspace_id=self.workspace_id,
             annotation_reader=annotation_reader,
         )
         if len(images) > 0:
-            annotation_manager.upload_annotations_for_images(
+            annotation_client.upload_annotations_for_images(
                 images=images,
             )
         if len(videos) > 0:
-            annotation_manager.upload_annotations_for_videos(
+            annotation_client.upload_annotations_for_videos(
                 videos=videos,
             )
 
@@ -369,7 +369,7 @@ class SCRESTClient:
         if os.path.isfile(configuration_file):
             result = None
             try:
-                result = configuration_manager.apply_from_file(
+                result = configuration_client.apply_from_file(
                     path_to_folder=target_folder
                 )
             except SCRequestException:
@@ -387,7 +387,7 @@ class SCRESTClient:
                     f"configuration in {configuration_file}. Please make sure to "
                     f"verify model configuration manually."
                 )
-        configuration_manager.set_project_auto_train(auto_train=enable_auto_train)
+        configuration_client.set_project_auto_train(auto_train=enable_auto_train)
         print(f"Project '{project.name}' was uploaded successfully.")
         return project
 
@@ -459,30 +459,30 @@ class SCRESTClient:
                 labels = ["Normal", "Anomalous"]
 
         # Create project
-        project_manager = ProjectManager(
+        project_client = ProjectClient(
             session=self.session, workspace_id=self.workspace_id
         )
-        project = project_manager.create_project(
+        project = project_client.create_project(
             project_name=project_name, project_type=project_type, labels=[labels]
         )
         # Disable auto training
-        configuration_manager = ConfigurationManager(
+        configuration_client = ConfigurationClient(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
-        configuration_manager.set_project_auto_train(auto_train=False)
+        configuration_client.set_project_auto_train(auto_train=False)
 
         # Upload images
-        image_manager = ImageManager(
+        image_client = ImageClient(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
         if isinstance(annotation_reader, DatumAnnotationReader):
-            images = image_manager.upload_from_list(
+            images = image_client.upload_from_list(
                 path_to_folder=path_to_images,
                 image_names=annotation_reader.get_all_image_names(),
                 n_images=number_of_images_to_upload,
             )
         else:
-            images = image_manager.upload_folder(
+            images = image_client.upload_folder(
                 path_to_images, n_images=number_of_images_to_upload
             )
 
@@ -498,15 +498,15 @@ class SCRESTClient:
             task_type=project.get_trainable_tasks()[0].type
         )
         # Upload annotations
-        annotation_manager = AnnotationManager(
+        annotation_client = AnnotationClient(
             session=self.session,
             project=project,
             workspace_id=self.workspace_id,
             annotation_reader=annotation_reader,
         )
-        annotation_manager.upload_annotations_for_images(images)
+        annotation_client.upload_annotations_for_images(images)
 
-        configuration_manager.set_project_auto_train(auto_train=enable_auto_train)
+        configuration_client.set_project_auto_train(auto_train=enable_auto_train)
         return project
 
     def create_task_chain_project_from_dataset(
@@ -585,32 +585,32 @@ class SCRESTClient:
         )
 
         # Create project
-        project_manager = ProjectManager(
+        project_client = ProjectClient(
             session=self.session, workspace_id=self.workspace_id
         )
-        project = project_manager.create_project(
+        project = project_client.create_project(
             project_name=project_name, project_type=project_type, labels=labels_per_task
         )
         # Disable auto training
-        configuration_manager = ConfigurationManager(
+        configuration_client = ConfigurationClient(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
-        configuration_manager.set_project_auto_train(auto_train=False)
+        configuration_client.set_project_auto_train(auto_train=False)
 
         # Upload images
-        image_manager = ImageManager(
+        image_client = ImageClient(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
         # Assume that the first task determines the media that will be uploaded
         first_task_reader = annotation_readers_per_task[0]
         if isinstance(first_task_reader, DatumAnnotationReader):
-            images = image_manager.upload_from_list(
+            images = image_client.upload_from_list(
                 path_to_folder=path_to_images,
                 image_names=first_task_reader.get_all_image_names(),
                 n_images=number_of_images_to_upload,
             )
         else:
-            images = image_manager.upload_folder(
+            images = image_client.upload_folder(
                 path_to_images, n_images=number_of_images_to_upload
             )
 
@@ -630,18 +630,18 @@ class SCRESTClient:
                     task_type=task_type, previous_task_type=previous_task_type
                 )
                 # Upload annotations
-                annotation_manager = AnnotationManager(
+                annotation_client = AnnotationClient(
                     session=self.session,
                     project=project,
                     workspace_id=self.workspace_id,
                     annotation_reader=reader,
                 )
-                annotation_manager.upload_annotations_for_images(
+                annotation_client.upload_annotations_for_images(
                     images=images, append_annotations=append_annotations
                 )
                 append_annotations = True
             previous_task_type = task_type
-        configuration_manager.set_project_auto_train(auto_train=enable_auto_train)
+        configuration_client.set_project_auto_train(auto_train=enable_auto_train)
         return project
 
     @staticmethod
@@ -702,10 +702,10 @@ class SCRESTClient:
             projects found on the SC cluster
         """
         # Obtain project details from cluster
-        project_manager = ProjectManager(
+        project_client = ProjectClient(
             session=self.session, workspace_id=self.workspace_id
         )
-        projects = project_manager.get_all_projects()
+        projects = project_client.get_all_projects()
 
         # Validate or create target_folder
         if target_folder is None:
@@ -749,7 +749,7 @@ class SCRESTClient:
         project_folders = [
             folder
             for folder in candidate_project_folders
-            if ProjectManager.is_project_dir(folder)
+            if ProjectClient.is_project_dir(folder)
         ]
         print(
             f"Found {len(project_folders)} project data folders in the target "
@@ -800,10 +800,10 @@ class SCRESTClient:
             successfully downloaded. False otherwise
         """
         # Obtain project details from cluster
-        project_manager = ProjectManager(
+        project_client = ProjectClient(
             session=self.session, workspace_id=self.workspace_id
         )
-        project = project_manager.get_project_by_name(project_name=project_name)
+        project = project_client.get_project_by_name(project_name=project_name)
         if project is None:
             print(
                 f"Project '{project_name}' was not found on the cluster. Aborting "
@@ -812,25 +812,25 @@ class SCRESTClient:
             return False
 
         # Upload images
-        image_manager = ImageManager(
+        image_client = ImageClient(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
-        images = image_manager.upload_folder(
+        images = image_client.upload_folder(
             path_to_folder=media_folder, skip_if_filename_exists=skip_if_filename_exists
         )
 
         # Upload videos
-        video_manager = VideoManager(
+        video_client = VideoClient(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
-        videos = video_manager.upload_folder(
+        videos = video_client.upload_folder(
             path_to_folder=media_folder, skip_if_filename_exists=skip_if_filename_exists
         )
 
-        prediction_manager = PredictionManager(
+        prediction_client = PredictionClient(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
-        if not prediction_manager.ready_to_predict:
+        if not prediction_client.ready_to_predict:
             print(
                 f"Project '{project_name}' is not ready to make predictions, likely "
                 f"because one of the tasks in the task chain does not have a "
@@ -845,13 +845,13 @@ class SCRESTClient:
 
         # Request image predictions
         if len(images) > 0:
-            prediction_manager.download_predictions_for_images(
+            prediction_client.download_predictions_for_images(
                 images=images, path_to_folder=output_folder
             )
 
         # Request video predictions
         if len(videos) > 0:
-            prediction_manager.download_predictions_for_videos(
+            prediction_client.download_predictions_for_videos(
                 videos=videos, path_to_folder=output_folder, inferred_frames_only=False
             )
 
@@ -861,9 +861,9 @@ class SCRESTClient:
             images_deleted = True
             videos_deleted = True
             if len(images) > 0:
-                images_deleted = image_manager.delete_images(images=images)
+                images_deleted = image_client.delete_images(images=images)
             if len(videos) > 0:
-                videos_deleted = video_manager.delete_videos(videos=videos)
+                videos_deleted = video_client.delete_videos(videos=videos)
             result = images_deleted and videos_deleted
         return result
 
@@ -890,8 +890,8 @@ class SCRESTClient:
             - Image object representing the image that was uploaded
             - Prediction for the image
         """
-        project_manager = ProjectManager(self.session, workspace_id=self.workspace_id)
-        project = project_manager.get_project_by_name(project_name)
+        project_client = ProjectClient(self.session, workspace_id=self.workspace_id)
+        project = project_client.get_project_by_name(project_name)
         if project is None:
             raise ValueError(
                 f"Project '{project_name}' was not found on the cluster. Aborting "
@@ -899,12 +899,12 @@ class SCRESTClient:
             )
 
         # Upload the image
-        image_manager = ImageManager(
+        image_client = ImageClient(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
         needs_upload = True
         if isinstance(image, Image):
-            if image.id in image_manager.get_all_images().ids:
+            if image.id in image_client.get_all_images().ids:
                 # Image is already in the project, make sure not to delete it
                 needs_upload = False
                 image_data = None
@@ -917,24 +917,24 @@ class SCRESTClient:
                 raise ValueError(
                     f"Cannot upload entity {image}. No data available for upload."
                 )
-            uploaded_image = image_manager.upload_image(image=image_data)
+            uploaded_image = image_client.upload_image(image=image_data)
         else:
             uploaded_image = image
 
         # Get prediction
-        prediction_manager = PredictionManager(
+        prediction_client = PredictionClient(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
-        if not prediction_manager.ready_to_predict:
+        if not prediction_client.ready_to_predict:
             raise ValueError(
                 f"Project '{project_name}' is not ready to make predictions. At least "
                 f"one of the tasks in the task chain does not have any models trained."
             )
-        prediction = prediction_manager.get_image_prediction(uploaded_image)
+        prediction = prediction_client.get_image_prediction(uploaded_image)
         uploaded_image.get_data(self.session)
 
         if delete_after_prediction and needs_upload:
-            image_manager.delete_images(images=MediaList([uploaded_image]))
+            image_client.delete_images(images=MediaList([uploaded_image]))
 
         if visualise_output:
             show_image_with_annotation_scene(
@@ -978,20 +978,20 @@ class SCRESTClient:
               have been generated
             - List of Predictions for the Video
         """
-        project_manager = ProjectManager(self.session, workspace_id=self.workspace_id)
-        project = project_manager.get_project_by_name(project_name)
+        project_client = ProjectClient(self.session, workspace_id=self.workspace_id)
+        project = project_client.get_project_by_name(project_name)
         if project is None:
             raise ValueError(
                 f"Project '{project_name}' was not found on the cluster. Aborting "
                 f"image upload."
             )
         # Upload the video
-        video_manager = VideoManager(
+        video_client = VideoClient(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
         needs_upload = True
         if isinstance(video, Video):
-            if video.id in video_manager.get_all_videos().ids:
+            if video.id in video_client.get_all_videos().ids:
                 # Video is already in the project, make sure not to delete it
                 needs_upload = False
                 video_data = None
@@ -1006,15 +1006,15 @@ class SCRESTClient:
             video_data = video
         if needs_upload:
             print(f"Uploading video to project '{project_name}'...")
-            uploaded_video = video_manager.upload_video(video=video_data)
+            uploaded_video = video_client.upload_video(video=video_data)
         else:
             uploaded_video = video
 
         # Get prediction for frames
-        prediction_manager = PredictionManager(
+        prediction_client = PredictionClient(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
-        if not prediction_manager.ready_to_predict:
+        if not prediction_client.ready_to_predict:
             raise ValueError(
                 f"Project '{project_name}' is not ready to make predictions. At least "
                 f"one of the tasks in the task chain does not have any models trained."
@@ -1029,10 +1029,10 @@ class SCRESTClient:
             f"{frame_stride}"
         )
         predictions = [
-            prediction_manager.get_video_frame_prediction(frame) for frame in frames
+            prediction_client.get_video_frame_prediction(frame) for frame in frames
         ]
         if delete_after_prediction and needs_upload:
-            video_manager.delete_videos(videos=MediaList([uploaded_video]))
+            video_client.delete_videos(videos=MediaList([uploaded_video]))
         if visualise_output:
             show_video_frames_with_annotation_scenes(
                 video_frames=frames, annotation_scenes=predictions
@@ -1053,25 +1053,23 @@ class SCRESTClient:
             saved.
         :return: Deployment for the project
         """
-        project_manager = ProjectManager(self.session, workspace_id=self.workspace_id)
-        project = project_manager.get_project_by_name(project_name)
+        project_client = ProjectClient(self.session, workspace_id=self.workspace_id)
+        project = project_client.get_project_by_name(project_name)
         if project is None:
             raise ValueError(
                 f"Project '{project_name}' was not found on the cluster. Aborting "
                 f"project deployment."
             )
-        model_manager = ModelManager(
+        model_client = ModelClient(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
         active_models = [
-            model
-            for model in model_manager.get_all_active_models()
-            if model is not None
+            model for model in model_client.get_all_active_models() if model is not None
         ]
-        configuration_manager = ConfigurationManager(
+        configuration_client = ConfigurationClient(
             session=self.session, workspace_id=self.workspace_id, project=project
         )
-        configuration = configuration_manager.get_full_configuration()
+        configuration = configuration_client.get_full_configuration()
         if len(active_models) != len(project.get_trainable_tasks()):
             raise ValueError(
                 f"Project `{project.name}` does not have a trained model for each "

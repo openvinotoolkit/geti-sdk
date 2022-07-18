@@ -25,7 +25,7 @@ from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers import DatumAnnotationReader
 from sc_api_tools.data_models import Prediction, Project
 from sc_api_tools.http_session import SCRequestException
-from sc_api_tools.rest_managers import AnnotationManager, ImageManager
+from sc_api_tools.rest_clients import AnnotationClient, ImageClient
 from tests.helpers import (
     ProjectService,
     SdkTestMode,
@@ -77,7 +77,7 @@ class TestSCRESTClient:
         with fxt_vcr.use_cassette(
             f"{fxt_project_service.project.name}_setup_training.{CASSETTE_EXTENSION}"
         ):
-            fxt_project_service.training_manager.train_task(0)
+            fxt_project_service.training_client.train_task(0)
         assert fxt_project_service.is_training
 
     def test_client_initialization(self, fxt_client: SCRESTClient):
@@ -219,15 +219,15 @@ class TestSCRESTClient:
             enable_auto_train=False,
         )
         request.addfinalizer(lambda: fxt_project_finalizer(uploaded_project.name))
-        image_manager = ImageManager(
+        image_client = ImageClient(
             session=fxt_client.session,
             workspace_id=fxt_client.workspace_id,
             project=uploaded_project,
         )
-        images = image_manager.get_all_images()
+        images = image_client.get_all_images()
         assert len(images) == n_images
 
-        annotation_manager = AnnotationManager(
+        annotation_client = AnnotationClient(
             session=fxt_client.session,
             workspace_id=fxt_client.workspace_id,
             project=uploaded_project,
@@ -235,7 +235,7 @@ class TestSCRESTClient:
         annotation_target_folder = os.path.join(
             fxt_temp_directory, "uploaded_annotations"
         )
-        annotation_manager.download_annotations_for_images(
+        annotation_client.download_annotations_for_images(
             images, annotation_target_folder
         )
         assert (
@@ -256,10 +256,10 @@ class TestSCRESTClient:
         """
         project = fxt_project_service.project
         # If training is not ready yet, monitor progress until job completes
-        if not fxt_project_service.prediction_manager.ready_to_predict:
+        if not fxt_project_service.prediction_client.ready_to_predict:
             timeout = 300 if fxt_test_mode != SdkTestMode.OFFLINE else 1
-            jobs = fxt_project_service.training_manager.get_jobs(project_only=True)
-            fxt_project_service.training_manager.monitor_jobs(jobs, timeout=timeout)
+            jobs = fxt_project_service.training_client.get_jobs(project_only=True)
+            fxt_project_service.training_client.monitor_jobs(jobs, timeout=timeout)
 
         # Make several attempts to get the prediction, first attempts trigger the
         # inference server to start up but the requests may time out

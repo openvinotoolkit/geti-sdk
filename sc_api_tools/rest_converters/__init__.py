@@ -20,7 +20,7 @@ The `rest_converters` package contains methods for serializing and deserializing
 entities, using the data models defined in the :py:mod:`~sc_api_tools.data_models`
 module.
 
-The rest converters are used in the :py:mod:`~sc_api_tools.rest_managers`.
+The rest converters are used in the :py:mod:`~sc_api_tools.rest_clients`.
 
 Module contents
 ---------------

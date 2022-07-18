@@ -38,7 +38,7 @@ For example, to download a project, simply do:
    client.download_project(project_name="dummy_project")
 
 For custom operations or more fine-grained control over the behavior, the
-:py:mod:`~sc_api_tools.rest_managers` subpackage should be used.
+:py:mod:`~sc_api_tools.rest_clients` subpackage should be used.
 
 Module contents
 ---------------

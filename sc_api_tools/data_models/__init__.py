@@ -24,7 +24,7 @@ as :py:class:`~sc_api_tools.data_models.annotation_scene.AnnotationScene`,
 
 When interacting with the SC cluster through the
 :py:class:`sc_api_tools.sc_rest_client.SCRESTClient` or the
-:py:mod:`~sc_api_tools.rest_managers`, all entities retrieved from the cluster will be
+:py:mod:`~sc_api_tools.rest_clients`, all entities retrieved from the cluster will be
 deserialized into the data models defined in this package.
 
 Module contents

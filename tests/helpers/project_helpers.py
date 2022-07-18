@@ -16,7 +16,7 @@ from typing import List, Sequence
 
 from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers import AnnotationReader
-from sc_api_tools.rest_managers import ProjectManager
+from sc_api_tools.rest_clients import ProjectClient
 
 from .constants import PROJECT_PREFIX
 from .finalizers import force_delete_project
@@ -85,13 +85,13 @@ def remove_all_test_projects(client: SCRESTClient) -> List[str]:
     :param client: Client to the server from which to remove all projects created by
         the SDK test suite
     """
-    project_manager = ProjectManager(
+    project_client = ProjectClient(
         session=client.session, workspace_id=client.workspace_id
     )
     projects_removed: List[str] = []
-    for project in project_manager.get_all_projects():
+    for project in project_client.get_all_projects():
         if project.name.startswith(PROJECT_PREFIX):
-            force_delete_project(project.name, project_manager)
+            force_delete_project(project.name, project_client)
             projects_removed.append(project.name)
     print(f"{len(projects_removed)} test projects were removed from the server.")
     return projects_removed
