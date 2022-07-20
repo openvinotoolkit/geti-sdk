@@ -43,16 +43,10 @@ import sys
 from argparse import ArgumentParser, SUPPRESS
 
 from sc_api_tools import SCRESTClient
-from sc_api_tools.annotation_readers import NOUSAnnotationReader
-from sc_api_tools.rest_managers.annotation_manager import NOUSAnnotationManager
+from sc_api_tools.annotation_readers.nous_annotation_reader import NOUSAnnotationReader
+from sc_api_tools.rest_clients import ProjectClient, ConfigurationClient, ImageClient, VideoClient
 from sc_api_tools.utils import get_task_types_by_project_type
 
-from sc_api_tools.rest_managers import (
-    ProjectManager,
-    ConfigurationManager,
-    ImageManager,
-    VideoManager,
-)
 from sc_api_tools.data_models import (
     TaskType,
 )
@@ -133,7 +127,7 @@ def migrate_nous_project(
         labels.append('Empty Image')
 
     # Create project
-    project_manager = ProjectManager(
+    project_manager = ProjectClient(
         session=rest_client.session, workspace_id=rest_client.workspace_id
     )
     project = project_manager.get_or_create_project(
@@ -143,7 +137,7 @@ def migrate_nous_project(
     )
 
     # Disable auto training
-    configuration_manager = ConfigurationManager(
+    configuration_manager = ConfigurationClient(
         session=rest_client.session,
         workspace_id=rest_client.workspace_id,
         project=project
@@ -151,7 +145,7 @@ def migrate_nous_project(
     configuration_manager.set_project_auto_train(auto_train=False)
 
     # Upload images
-    image_manager = ImageManager(
+    image_manager = ImageClient(
         session=rest_client.session,
         workspace_id=rest_client.workspace_id,
         project=project
@@ -161,7 +155,7 @@ def migrate_nous_project(
     )
 
     # Upload videos
-    video_manager = VideoManager(
+    video_manager = VideoClient(
         workspace_id=rest_client.workspace_id,
         session=rest_client.session,
         project=project
@@ -253,7 +247,7 @@ def migrate_nous_chain(
     ]
 
     # Create project
-    project_manager = ProjectManager(
+    project_manager = ProjectClient(
         session=rest_client.session, workspace_id=rest_client.workspace_id
     )
     project = project_manager.get_or_create_project(
@@ -263,7 +257,7 @@ def migrate_nous_chain(
     )
 
     # Disable auto training
-    configuration_manager = ConfigurationManager(
+    configuration_manager = ConfigurationClient(
         session=rest_client.session,
         workspace_id=rest_client.workspace_id,
         project=project
@@ -271,7 +265,7 @@ def migrate_nous_chain(
     configuration_manager.set_project_auto_train(auto_train=False)
 
     # Upload images
-    image_manager = ImageManager(
+    image_manager = ImageClient(
         session=rest_client.session,
         workspace_id=rest_client.workspace_id,
         project=project
@@ -281,7 +275,7 @@ def migrate_nous_chain(
     )
 
     # Upload videos
-    video_manager = VideoManager(
+    video_manager = VideoClient(
         workspace_id=rest_client.workspace_id,
         session=rest_client.session,
         project=project
@@ -302,7 +296,7 @@ def migrate_nous_chain(
     annotation_readers_per_task[0].set_labels_filter(labels_per_task[0])
 
     # Upload annotations
-    annotation_manager = NOUSAnnotationManager(
+    annotation_manager = NOUSAnnotationClient(
         session=rest_client.session,
         project=project,
         workspace_id=rest_client.workspace_id,
@@ -325,7 +319,7 @@ def migrate_nous_chain(
     annotation_readers_per_task[1].set_labels_filter(labels_per_task[1])
 
     # Upload annotations
-    annotation_manager = NOUSAnnotationManager(
+    annotation_manager = NOUSAnnotationClient(
         session=rest_client.session,
         project=project,
         workspace_id=rest_client.workspace_id,
