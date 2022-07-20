@@ -29,6 +29,14 @@ def fxt_blocks_dataset(fxt_base_test_path) -> str:
 
 
 @pytest.fixture(scope="session")
+def fxt_light_bulbs_dataset(fxt_base_test_path) -> str:
+    """
+    This fixture returns the path to the 'light-bulbs' dataset
+    """
+    yield os.path.join(fxt_base_test_path, "data", "../data/light-bulbs")
+
+
+@pytest.fixture(scope="session")
 def fxt_image_folder(fxt_blocks_dataset) -> str:
     """
     This fixture returns the path to a sample image
@@ -37,11 +45,67 @@ def fxt_image_folder(fxt_blocks_dataset) -> str:
 
 
 @pytest.fixture(scope="session")
+def fxt_video_folder_light_bulbs(fxt_light_bulbs_dataset) -> str:
+    """
+    This fixture returns the path to the videos folder in the light bulbs dataset
+    """
+    yield os.path.join(fxt_light_bulbs_dataset, "videos")
+
+
+@pytest.fixture(scope="session")
+def fxt_image_folder_light_bulbs(fxt_light_bulbs_dataset) -> str:
+    """
+    This fixture returns the path to the images folder in the light bulbs dataset
+    """
+    yield os.path.join(fxt_light_bulbs_dataset, "images")
+
+
+@pytest.fixture(scope="session")
 def fxt_image_path(fxt_image_folder) -> str:
     """
     This fixture returns the path to a sample image
     """
     yield os.path.join(fxt_image_folder, "WIN_20220406_21_24_24_Pro.jpg")
+
+
+@pytest.fixture(scope="session")
+def fxt_video_path_1_light_bulbs(fxt_video_folder_light_bulbs) -> str:
+    """
+    This fixture returns the path to a sample video from the light bulbs dataset
+    """
+    yield os.path.join(fxt_video_folder_light_bulbs, "Light-Bulb1.mp4")
+
+
+@pytest.fixture(scope="session")
+def fxt_video_path_2_light_bulbs(fxt_video_folder_light_bulbs) -> str:
+    """
+    This fixture returns the path to a sample video from the light bulbs dataset
+    """
+    yield os.path.join(fxt_video_folder_light_bulbs, "Light-Bulb2.mp4")
+
+
+@pytest.fixture(scope="session")
+def fxt_image_path_1_light_bulbs(fxt_image_folder_light_bulbs) -> str:
+    """
+    This fixture returns the path to a sample image from the light bulbs dataset
+    """
+    yield os.path.join(fxt_image_folder_light_bulbs, "lamp-1523123.jpg")
+
+
+@pytest.fixture(scope="session")
+def fxt_image_path_2_light_bulbs(fxt_image_folder_light_bulbs) -> str:
+    """
+    This fixture returns the path to a sample image from the light bulbs dataset
+    """
+    yield os.path.join(fxt_image_folder_light_bulbs, "light-bulb-on-yellow-1426164.jpg")
+
+
+@pytest.fixture(scope="session")
+def fxt_light_bulbs_annotation_path(fxt_light_bulbs_dataset) -> str:
+    """
+    This fixture returns the path to annotations from the light bulbs project
+    """
+    yield os.path.join(fxt_light_bulbs_dataset, "annotations")
 
 
 @pytest.fixture(scope="session")

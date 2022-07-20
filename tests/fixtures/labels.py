@@ -37,3 +37,8 @@ def fxt_hierarchical_classification_labels() -> List[Dict[str, str]]:
 @pytest.fixture()
 def fxt_default_labels() -> List[str]:
     yield ["cube", "cylinder"]
+
+
+@pytest.fixture()
+def fxt_light_bulbs_labels() -> List[str]:
+    yield ["On", "Off"]
