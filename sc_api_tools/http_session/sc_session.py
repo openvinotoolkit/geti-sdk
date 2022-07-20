@@ -1,76 +1,108 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+import warnings
 from json import JSONDecodeError
 from typing import Dict, Optional, Union
 
 import requests
+import simplejson
 import urllib3
+from requests import Response
+from requests.structures import CaseInsensitiveDict
+from urllib3.exceptions import InsecureRequestWarning
 
-from requests import Response, HTTPError
-
-from .cluster_config import ClusterConfig, API_PATTERN
+from .cluster_config import LEGACY_API_VERSION, ClusterConfig
 from .exception import SCRequestException
-
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 CSRF_COOKIE_NAME = "_oauth2_proxy_csrf"
 PROXY_COOKIE_NAME = "_oauth2_proxy"
 
 
 class SCSession(requests.Session):
-    def __init__(self, cluster_config: ClusterConfig):
-        """
-        Wrapper for requests.session that sets the correct headers and cookies.
+    """
+    Wrapper for requests.session that sets the correct headers and cookies.
 
-        :param cluster_config: ClusterConfig with the parameters for host, username,
-            password
-        """
+    :param cluster_config: ClusterConfig with the parameters for host, username,
+        password
+    """
+
+    def __init__(
+        self,
+        cluster_config: ClusterConfig,
+    ):
         super().__init__()
-        self.headers.update({"Connection": "keep-alive"})
-        self.config = cluster_config
-        self.verify = False
+        self.headers.update(
+            {"Connection": "keep-alive", "Upgrade-Insecure-Requests": "1"}
+        )
         self.allow_redirects = False
         self.token = None
         self._cookies: Dict[str, Optional[str]] = {
-            CSRF_COOKIE_NAME: None, PROXY_COOKIE_NAME: None
+            CSRF_COOKIE_NAME: None,
+            PROXY_COOKIE_NAME: None,
         }
 
-        # Authentication is only used for https servers.
-        if "https" in cluster_config.host:
-            self.authenticate()
-        elif "http:" in cluster_config.host:
-            # http hosts should include port number in REST request
-            if cluster_config.host.count(":") != 2:
-                raise ValueError(
-                    "Please add a port number to the hostname, for "
-                    "example: http://10.0.0.1:5001"
-                )
+        # Configure proxies
+        if cluster_config.proxies is None:
+            self._proxies: Dict[str, str] = {}
         else:
-            raise ValueError(
-                "Please use a full hostname, including the protocol for http "
-                "servers. For example: https://10.0.0.1"
+            self._proxies = {"proxies": cluster_config.proxies}
+
+        # Sanitize hostname
+        if not cluster_config.host.startswith("https://"):
+            if cluster_config.host.startswith("http://"):
+                raise ValueError(
+                    "HTTP connections are not supported, please use HTTPS instead."
+                )
+            else:
+                cluster_config.host = "https://" + cluster_config.host
+
+        # Configure certificate verification
+        if not cluster_config.has_valid_certificate:
+            warnings.warn(
+                "You have disabled TLS certificate validation, HTTPS requests made to "
+                "the SonomaCreek server may be compromised. For optimal security, "
+                "please enable certificate validation.",
+                InsecureRequestWarning,
             )
-        self._product_info = self.get_rest_response('/product_info', 'GET')
+            urllib3.disable_warnings(InsecureRequestWarning)
+        self.verify = cluster_config.has_valid_certificate
+
+        self.config = cluster_config
+        self.authenticate()
+        self._product_info = self._get_product_info_and_set_api_version()
 
     @property
     def version(self) -> str:
         """
-        Returns the version of SonomaCreek that is running on the server
+        Return the version of SonomaCreek that is running on the server.
 
         :return: string holding the SC version number
         """
-        version_string = self._product_info.get('product-version', '1.0.0-')
-        return version_string.split('-')[0]
+        version_string = self._product_info.get("product-version", "1.0.0-")
+        return version_string.split("-")[0]
 
     def _follow_login_redirects(self, response: Response) -> str:
         """
         Recursively follow redirects in the initial login request. Updates the
-        session._cookies with the cookie and the login uri
+        session._cookies with the cookie and the login uri.
 
         :param response: REST response to follow redirects for
         :return: url to the redirected location
         """
         if response.status_code in [302, 303]:
             redirect_url = response.next.url
-            redirected = self.get(redirect_url, allow_redirects=False)
+            redirected = self.get(redirect_url, allow_redirects=False, **self._proxies)
             proxy_csrf = redirected.cookies.get(CSRF_COOKIE_NAME, None)
             if proxy_csrf:
                 self._cookies[CSRF_COOKIE_NAME] = proxy_csrf
@@ -80,17 +112,20 @@ class SCSession(requests.Session):
 
     def _get_initial_login_url(self) -> str:
         """
-        Retrieves the initial login url by making a request to the login page, and
+        Retrieve the initial login url by making a request to the login page, and
         following the redirects.
-        :return: current state dictionary of the session
+
+        :return: string containing the URL to the login page
         """
-        response = self.get(f"{self.config.host}/user/login", allow_redirects=False)
+        response = self.get(
+            f"{self.config.host}/user/login", allow_redirects=False, **self._proxies
+        )
         login_page_url = self._follow_login_redirects(response)
         return login_page_url
 
     def authenticate(self, verbose: bool = True):
         """
-        Get a new authentication cookie from the server
+        Get a new authentication cookie from the server.
 
         :param verbose: True to print progress output, False to suppress output
         """
@@ -108,7 +143,7 @@ class SCSession(requests.Session):
                 f"valid login details."
             ) from error
         self.headers.clear()
-        self.headers.update({'Content-Type': 'application/x-www-form-urlencoded'})
+        self.headers.update({"Content-Type": "application/x-www-form-urlencoded"})
         if verbose:
             print(f"Authenticating on host {self.config.host}...")
         response = self.post(
@@ -117,7 +152,8 @@ class SCSession(requests.Session):
             cookies={CSRF_COOKIE_NAME: self._cookies[CSRF_COOKIE_NAME]},
             headers={"Cookie": self._cookies[CSRF_COOKIE_NAME]},
             allow_redirects=True,
-            )
+            **self._proxies,
+        )
         try:
             previous_response = response.history[-1]
         except IndexError:
@@ -125,26 +161,25 @@ class SCSession(requests.Session):
                 "The cluster responded to the request, but authentication failed. "
                 "Please verify that you have provided correct credentials."
             )
-        cookie = {
-            PROXY_COOKIE_NAME: previous_response.cookies.get(PROXY_COOKIE_NAME)
-        }
+        cookie = {PROXY_COOKIE_NAME: previous_response.cookies.get(PROXY_COOKIE_NAME)}
         self._cookies.update(cookie)
         if verbose:
             print("Authentication successful. Cookie received.")
 
     def get_rest_response(
-            self, url: str, method: str, contenttype: str = "json", data=None
+        self, url: str, method: str, contenttype: str = "json", data=None
     ) -> Union[Response, dict, list]:
         """
-        Returns the REST response from a request to `url` with `method`
+        Return the REST response from a request to `url` with `method`.
 
         :param url: the REST url without the hostname and api pattern
         :param method: 'GET', 'POST', 'PUT', 'DELETE'
-        :param contenttype: currently either 'json', 'jpeg' or '', defaults to "json"
+        :param contenttype: currently either 'json', 'jpeg', 'multipart', 'zip', or '',
+            defaults to "json"
         :param data: the data to send in a post request, as json
         """
-        if url.startswith(API_PATTERN):
-            url = url[len(API_PATTERN):]
+        if url.startswith(self.config.api_pattern):
+            url = url[len(self.config.api_pattern) :]
 
         if contenttype == "json":
             self.headers.update({"Content-Type": "application/json"})
@@ -168,31 +203,30 @@ class SCSession(requests.Session):
             "url": requesturl,
             **kw_data_arg,
             "stream": True,
-            "cookies": self._cookies
+            "cookies": self._cookies,
         }
-        response = self.request(**request_params)
+        response = self.request(**request_params, **self._proxies)
 
-        if (
-                response.status_code in [401, 403]
-                or "text/html" in response.headers.get("Content-Type", [])
+        if response.status_code in [401, 403] or "text/html" in response.headers.get(
+            "Content-Type", []
         ):
             # Authentication has likely expired, re-authenticate
             print("Authorization expired, re-authenticating...", end=" ")
             self.authenticate(verbose=False)
             print("Done!")
-            response = self.request(**request_params)
+            response = self.request(**request_params, **self._proxies)
 
         if response.status_code not in [200, 201]:
             try:
                 response_data = response.json()
-            except JSONDecodeError:
+            except (JSONDecodeError, simplejson.errors.JSONDecodeError):
                 response_data = None
             raise SCRequestException(
                 method=method,
                 url=url,
                 status_code=response.status_code,
                 request_data=kw_data_arg,
-                response_data=response_data
+                response_data=response_data,
             )
 
         if response.headers.get("Content-Type", None) == "application/json":
@@ -201,3 +235,44 @@ class SCSession(requests.Session):
             result = response
 
         return result
+
+    def logout(self) -> None:
+        """
+        Log out of the server and end the session. All HTTPAdapters are closed and
+        cookies and headers are cleared.
+        """
+        sign_out_url = (
+            self.config.base_url[: -len(self.config.api_pattern)] + "/oauth2/sign_out"
+        )
+        response = self.request(url=sign_out_url, method="GET", **self._proxies)
+
+        if response.status_code == 200:
+            print("Logout successful.")
+        else:
+            raise SCRequestException(
+                method="GET",
+                url=sign_out_url,
+                status_code=response.status_code,
+                request_data={},
+            )
+
+        super().close()
+        self._cookies = {CSRF_COOKIE_NAME: None, PROXY_COOKIE_NAME: None}
+        self.cookies.clear()
+        self.headers = CaseInsensitiveDict({"Connection": "keep-alive"})
+
+    def _get_product_info_and_set_api_version(self) -> Dict[str, str]:
+        """
+        Return the product info as retrieved from the SC server.
+
+        This method will also attempt to set the API version correctly, based on the
+        retrieved product info.
+
+        :return: Dictionary containing the product info.
+        """
+        try:
+            product_info = self.get_rest_response("product_info", "GET")
+        except SCRequestException:
+            self.config.api_version = LEGACY_API_VERSION
+            product_info = self.get_rest_response("product_info", "GET")
+        return product_info

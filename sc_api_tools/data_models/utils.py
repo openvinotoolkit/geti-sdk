@@ -1,22 +1,39 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
 from datetime import datetime
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union
 
 import attr
-from typing import Any, Union, Optional, TypeVar, Type, Callable, Dict, List
-
 import cv2
 import numpy as np
 
-from sc_api_tools.data_models import TaskType
-from sc_api_tools.data_models.enums import ShapeType, MediaType, AnnotationKind
+from sc_api_tools.data_models.enums import (
+    AnnotationKind,
+    MediaType,
+    ShapeType,
+    TaskType,
+)
 
 EnumType = TypeVar("EnumType", bound=Enum)
 
 
 def deidentify(instance: Any):
     """
-    Sets all identifier fields of an instance of an attr.s decorated class within the
-    SC REST DataModels to None
+    Set all identifier fields of an instance of an attr.s decorated class within the
+    SC REST DataModels to None.
 
     :param instance: Object to deidentify
     """
@@ -26,19 +43,20 @@ def deidentify(instance: Any):
 
 
 def str_to_enum_converter(
-        enum: Type[EnumType]
+    enum: Type[EnumType],
 ) -> Callable[[Union[str, EnumType]], EnumType]:
     """
-    Constructs a converter function to convert an input value into an instance of the
-    Enum subclass passed in `enum`
+    Construct a converter function to convert an input value into an instance of the
+    Enum subclass passed in `enum`.
 
     :param enum: type of the Enum to which the converter should convert
     :return: Converter function that takes an input value and attempts to convert it
         into an instance of `enum`
     """
+
     def _converter(input_value: Union[str, EnumType]) -> EnumType:
         """
-        Converts an input value to an instance of an Enum
+        Convert an input value to an instance of an Enum.
 
         :param input_value: Value to convert
         :return: Instance of the Enum
@@ -52,23 +70,25 @@ def str_to_enum_converter(
                 f"Invalid argument! Cannot convert value {input_value} to Enum "
                 f"{enum.__name__}"
             )
+
     return _converter
 
 
 def str_to_optional_enum_converter(
-        enum: Type[EnumType]
+    enum: Type[EnumType],
 ) -> Callable[[Union[str, EnumType]], EnumType]:
     """
-    Constructs a converter function to convert an input value into an instance of the
-    Enum subclass passed in `enum`
+    Construct a converter function to convert an input value into an instance of the
+    Enum subclass passed in `enum`.
 
     :param enum: type of the Enum to which the converter should convert
     :return: Converter function that takes an input value and attempts to convert it
         into an instance of `enum`
     """
+
     def _converter(input_value: Optional[Union[str, EnumType]]) -> Optional[EnumType]:
         """
-        Converts an input value to an instance of an Enum
+        Convert an input value to an instance of an Enum.
 
         :param input_value: Value to convert
         :return: Instance of the Enum
@@ -84,14 +104,15 @@ def str_to_optional_enum_converter(
                 f"Invalid argument! Cannot convert value {input_value} to Enum "
                 f"{enum.__name__}"
             )
+
     return _converter
 
 
 def str_to_enum_converter_by_name_or_value(
-        enum: Type[EnumType]
+    enum: Type[EnumType],
 ) -> Callable[[Union[str, EnumType]], EnumType]:
     """
-    Constructs a converter function to convert an input value into an instance of the
+    Construct a converter function to convert an input value into an instance of the
     Enum subclass passed in `enum`.
 
     This method attempts to convert both from the Enum value as well as it's name
@@ -100,9 +121,10 @@ def str_to_enum_converter_by_name_or_value(
     :return: Converter function that takes an input value and attempts to convert it
         into an instance of `enum`
     """
+
     def _converter(input_value: Union[str, EnumType]) -> EnumType:
         """
-        Converts an input value to an instance of an Enum
+        Convert an input value to an instance of an Enum.
 
         :param input_value: Value to convert
         :return: Instance of the Enum
@@ -119,12 +141,13 @@ def str_to_enum_converter_by_name_or_value(
                 f"Invalid argument! Cannot convert value {input_value} to Enum "
                 f"{enum.__name__}"
             )
+
     return _converter
 
 
 def str_to_task_type(task_type: Union[str, TaskType]) -> TaskType:
     """
-    Converts an input string to a task type
+    Convert an input string to a task type.
 
     :param task_type:
     :return: TaskType instance corresponding to `task_type`
@@ -137,7 +160,7 @@ def str_to_task_type(task_type: Union[str, TaskType]) -> TaskType:
 
 def str_to_media_type(media_type: Union[str, MediaType]) -> MediaType:
     """
-    Converts an input string to a media type
+    Convert an input string to a media type.
 
     :param media_type:
     :return: MediaType instance corresponding to `media_type`
@@ -150,7 +173,7 @@ def str_to_media_type(media_type: Union[str, MediaType]) -> MediaType:
 
 def str_to_shape_type(shape_type: Union[str, ShapeType]) -> ShapeType:
     """
-    Converts an input string to a shape type
+    Convert an input string to a shape type.
 
     :param shape_type:
     :return: ShapeType instance corresponding to `shape_type`
@@ -162,10 +185,10 @@ def str_to_shape_type(shape_type: Union[str, ShapeType]) -> ShapeType:
 
 
 def str_to_annotation_kind(
-        annotation_kind: Union[str, AnnotationKind]
+    annotation_kind: Union[str, AnnotationKind]
 ) -> AnnotationKind:
     """
-    Converts an input string to an annotation kind
+    Convert an input string to an annotation kind.
 
     :param annotation_kind:
     :return: AnnotationKind instance corresponding to `annotation_kind`
@@ -178,9 +201,9 @@ def str_to_annotation_kind(
 
 def str_to_datetime(datetime_str: Optional[Union[str, datetime]]) -> Optional[datetime]:
     """
-    Converts a string to a datetime
+    Convert a string to a datetime.
 
-    :param datetime_str:
+    :param datetime_str: string containing the datetime, in isoformat.
     :return: datetime instance
     """
     if isinstance(datetime_str, str):
@@ -193,7 +216,7 @@ def str_to_datetime(datetime_str: Optional[Union[str, datetime]]) -> Optional[da
 
 def attr_value_serializer(instance, field, value):
     """
-    Converts a value in an attr.s decorated class to string representation, used
+    Convert a value in an attr.s decorated class to string representation, used
     while converting the attrs object to a dictionary.
 
     Converts Enums and datetime objects to string representation
@@ -213,7 +236,7 @@ def attr_value_serializer(instance, field, value):
 
 def numpy_from_buffer(buffer: bytes) -> np.ndarray:
     """
-    Converts a bytes string representing an image into a numpy array
+    Convert a bytes string representing an image into a numpy array.
 
     :param buffer: Bytes object to convert
     :return: Numpy.ndarray containing the numpy data from the image
@@ -223,11 +246,11 @@ def numpy_from_buffer(buffer: bytes) -> np.ndarray:
 
 
 def round_dictionary(
-        input_data: Union[Dict[str, Any], List[Any]], decimal_places: int = 3
+    input_data: Union[Dict[str, Any], List[Any]], decimal_places: int = 3
 ) -> Union[Dict[str, Any], List[Any]]:
     """
-    Converts all floats in a dictionary to string representation, rounded to
-    `decimal_places`
+    Convert all floats in a dictionary to string representation, rounded to
+    `decimal_places`.
 
     :param input_data: Input dictionary to convert and round
     :param decimal_places: Number of decimal places to round to. Defaults to 3
@@ -252,7 +275,7 @@ def round_dictionary(
 
 def round_to_n_digits(n: int) -> Callable[[float], float]:
     """
-    Returns a function to round an input number to n digits.
+    Return a function to round an input number to n digits.
 
     :param n: Number of digits to round to
     :return: Callable that, when called with a number as input, will round the number
@@ -263,3 +286,26 @@ def round_to_n_digits(n: int) -> Callable[[float], float]:
         return round(value, ndigits=n)
 
     return _n_digit_rounder
+
+
+def remove_null_fields(input: Any):
+    """
+    Remove fields that have 'None' or an emtpy string '' as their value from a
+    dictionary.
+
+    NOTE: This function modifies the input dictionary in place
+
+    :param input: Dictionary to remove the null fields from
+    """
+    if isinstance(input, dict):
+        for key, value in list(input.items()):
+            if isinstance(value, dict):
+                remove_null_fields(value)
+            elif value is None or value == "":
+                input.pop(key)
+            elif isinstance(value, list):
+                for item in value:
+                    remove_null_fields(item)
+    elif isinstance(input, list):
+        for item in input:
+            remove_null_fields(item)

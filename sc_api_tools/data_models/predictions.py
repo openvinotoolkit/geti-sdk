@@ -1,23 +1,36 @@
-from datetime import datetime
-from typing import List, Optional, ClassVar
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
 
-import numpy as np
+from datetime import datetime
+from typing import ClassVar, List, Optional
 
 import attr
+import numpy as np
 
+from sc_api_tools.data_models.annotation_scene import AnnotationScene
 from sc_api_tools.data_models.annotations import Annotation
 from sc_api_tools.data_models.enums import AnnotationKind
-from sc_api_tools.data_models.annotation_scene import AnnotationScene
 from sc_api_tools.data_models.label import Label
 from sc_api_tools.data_models.media import MediaInformation
-from sc_api_tools.data_models.utils import str_to_annotation_kind, deidentify
+from sc_api_tools.data_models.utils import deidentify, str_to_annotation_kind
 from sc_api_tools.http_session import SCSession
 
 
 @attr.s(auto_attribs=True)
 class ResultMedium:
     """
-    Class representing a single result medium in SC.
+    Representation of a single result medium in SC.
 
     :var name: Name of the result medium option
     :var type: Type of the result medium represented by this object
@@ -39,7 +52,7 @@ class ResultMedium:
     def resolve_label_name(self, labels: List[Label]):
         """
         Add the label name to the result medium, by matching the label_id to a list of
-        Labels
+        Labels.
 
         :param labels: List of Labels to get the name from
         """
@@ -48,12 +61,12 @@ class ResultMedium:
         )
         # Label id is not defined for anomaly classification, it will always return
         # the saliency map for the 'Anomalous' label
-        if self.name.lower() == 'anomaly map' and self.label_name is None:
-            self.label_name = 'Anomalous'
+        if self.name.lower() == "anomaly map" and self.label_name is None:
+            self.label_name = "Anomalous"
 
     def get_data(self, session: SCSession) -> bytes:
         """
-        Download the data belonging to this ResultMedium object
+        Download the data belonging to this ResultMedium object.
 
         :param session: REST session to the SC cluster from which this ResultMedium
             was generated
@@ -76,17 +89,17 @@ class ResultMedium:
     @property
     def friendly_name(self) -> str:
         """
-        Returns a human readable name with which the result medium can be identified
+        Return a human readable name with which the result medium can be identified.
 
-        :return:
+        :return: friendly name for the result medium
         """
-        return self.name + '_' + self.label_name
+        return self.name + "_" + self.label_name
 
 
 @attr.s(auto_attribs=True)
 class Prediction(AnnotationScene):
     """
-    Class representing the predictions for a certain media entity in SC
+    Representation of the model predictions for a certain media entity in SC.
 
     :var annotations: List of predictions belonging to the media entity
     :var id: unique database ID of the Prediction in SC
@@ -96,28 +109,27 @@ class Prediction(AnnotationScene):
     :var modified: Date and time at which this Prediction was last modified
     :var maps: List of additional result media belonging to this prediction
     """
+
     kind: str = attr.ib(
         converter=str_to_annotation_kind,
         default=AnnotationKind.PREDICTION,
-        kw_only=True
+        kw_only=True,
     )
     maps: List[ResultMedium] = attr.ib(factory=list, kw_only=True)
 
-    def resolve_labels_for_result_media(self, labels: List[Label]):
+    def resolve_labels_for_result_media(self, labels: List[Label]) -> None:
         """
-        Resolve the label names for all result media available with this Prediction
+        Resolve the label names for all result media available with this Prediction.
 
         :param labels: List of Labels for the project, from which the names are taken
         """
         for map_ in self.maps:
             map_.resolve_label_name(labels=labels)
 
-    def deidentify(self):
+    def deidentify(self) -> None:
         """
-        Removes all unique database ID's from the prediction and the entities it
-        contains
-
-        :return:
+        Remove all unique database ID's from the prediction and the entities it
+        contains.
         """
         deidentify(self)
         self.media_identifier = None
@@ -129,16 +141,16 @@ class Prediction(AnnotationScene):
     @property
     def has_result_media(self) -> bool:
         """
-        Returns True if this Prediction has result media belonging to it, False
-        otherwise
+        Return True if this Prediction has result media belonging to it, False
+        otherwise.
 
-        :return:
+        :return: True if there are result media belonging to the prediction
         """
         return len(self.maps) > 0
 
     def get_result_media_data(self, session: SCSession) -> List[ResultMedium]:
         """
-        Downloads the data for all result media belonging to this prediction
+        Download the data for all result media belonging to this prediction.
 
         :param session: REST session to the SC cluster from which this Prediction
             was generated
@@ -151,13 +163,13 @@ class Prediction(AnnotationScene):
         return result
 
     def as_mask(
-            self,
-            media_information: MediaInformation,
-            probability_threshold: Optional[float] = None
+        self,
+        media_information: MediaInformation,
+        probability_threshold: Optional[float] = None,
     ) -> np.ndarray:
         """
-        Converts the shapes in the prediction to a mask that can be overlayed on an
-        image
+        Convert the shapes in the prediction to a mask that can be overlayed on an
+        image.
 
         :param media_information: MediaInformation object containing the width and
             heigth of the image for which the mask should be generated.
@@ -172,9 +184,9 @@ class Prediction(AnnotationScene):
         mask = np.zeros((image_height, image_width, 3), dtype=np.uint8)
 
         for annotation in self.annotations:
-            max_prob_label_index = int(np.argmax(
-                [label.probability for label in annotation.labels]
-            ))
+            max_prob_label_index = int(
+                np.argmax([label.probability for label in annotation.labels])
+            )
             max_prob_label = annotation.labels[max_prob_label_index]
             if probability_threshold is not None:
                 if max_prob_label.probability < probability_threshold:
@@ -187,13 +199,13 @@ class Prediction(AnnotationScene):
                 mask=mask,
                 labels=annotation.labels,
                 color=color,
-                line_thickness=line_thickness
+                line_thickness=line_thickness,
             )
         return mask
 
-    def filter_by_confidence(self, confidence_threshold: float) -> 'Prediction':
+    def filter_by_confidence(self, confidence_threshold: float) -> "Prediction":
         """
-        Returns a new Prediction instance containing only those predicted annotations
+        Return a new Prediction instance containing only those predicted annotations
         that have a confidence higher than `confidence_threshold`.
 
         :param confidence_threshold: Float between 0 and 1. Annotations that only
@@ -211,5 +223,5 @@ class Prediction(AnnotationScene):
         return Prediction(
             annotations=annotations,
             media_identifier=self.media_identifier,
-            modified=datetime.now().isoformat()
+            modified=datetime.now().isoformat(),
         )

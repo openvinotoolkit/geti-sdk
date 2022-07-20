@@ -1,29 +1,47 @@
-import copy
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
 
-from typing import Optional, ClassVar, List, Tuple
+import copy
+from typing import ClassVar, List, Optional, Tuple
 
 import attr
-
 from ote_sdk.entities.color import Color
-from ote_sdk.entities.scored_label import ScoredLabel as OteScoredLabel
 from ote_sdk.entities.label import LabelEntity
+from ote_sdk.entities.scored_label import ScoredLabel as OteScoredLabel
 
-from sc_api_tools.data_models import TaskType
+from sc_api_tools.data_models.enums import TaskType
 
 
 @attr.s(auto_attribs=True)
 class LabelSource:
     """
-    Class representing a source for a ScoredLabel in SC
+    Representation of a source for a ScoredLabel in SC
+
+    :var user_id: ID of the user who assigned the label, if any
+    :var model_id: ID of the model which generated the label, if any
+    :var model_storage_id: ID of the model storage to which the model belongs
     """
-    id: str
-    type: str
+
+    user_id: Optional[str] = None
+    model_id: Optional[str] = None
+    model_storage_id: Optional[str] = None
 
 
 @attr.s(auto_attribs=True)
 class Label:
     """
-    Class representing a Label in SC
+    Representation of a Label in SC.
 
     :var name: Name of the label
     :var id: Unique database ID of the label
@@ -42,6 +60,7 @@ class Label:
     hotkey: str = ""
     id: Optional[str] = None
     parent_id: Optional[str] = None
+    is_anomalous: Optional[bool] = None
 
     def to_ote(self, task_type: TaskType) -> LabelEntity:
         """
@@ -55,14 +74,14 @@ class Label:
             id=self.id,
             hotkey=self.hotkey,
             is_empty=self.is_empty,
-            color=Color.from_hex_str(self.color)
+            color=Color.from_hex_str(self.color),
         )
 
 
 @attr.s(auto_attribs=True)
 class ScoredLabel:
     """
-    Class representing a Label with a probability in SC
+    Representation of a Label with an assigned probability in SC.
 
     :var name: Name of the label
     :var id: Unique database ID of the label
@@ -70,6 +89,7 @@ class ScoredLabel:
     :var probability:
     :var source:
     """
+
     _identifier_fields: ClassVar[List[str]] = ["id"]
 
     probability: float
@@ -81,33 +101,30 @@ class ScoredLabel:
     @property
     def color_tuple(self) -> Tuple[int, int, int]:
         """
-        Returns the color of the label as an RGB tuple
+        Return the color of the label as an RGB tuple.
 
         :return:
         """
-        hex_color_str = copy.deepcopy(self.color).strip('#')
-        return tuple(int(hex_color_str[i:i+2], 16) for i in (0, 2, 4))
+        hex_color_str = copy.deepcopy(self.color).strip("#")
+        return tuple(int(hex_color_str[i : i + 2], 16) for i in (0, 2, 4))
 
     @classmethod
-    def from_label(cls, label: Label, probability: float) -> 'ScoredLabel':
+    def from_label(cls, label: Label, probability: float) -> "ScoredLabel":
         """
-        Creates a ScoredLabel instance from an input Label and probability score
+        Create a ScoredLabel instance from an input Label and probability score.
 
         :param label: Label to convert to ScoredLabel
         :param probability: probability score for the label
         :return: ScoredLabel instance corresponding to `label` and `probability`
         """
         return ScoredLabel(
-            name=label.name,
-            probability=probability,
-            color=label.color,
-            id=label.id
+            name=label.name, probability=probability, color=label.color, id=label.id
         )
 
     @classmethod
-    def from_ote(cls, ote_label: OteScoredLabel) -> 'ScoredLabel':
+    def from_ote(cls, ote_label: OteScoredLabel) -> "ScoredLabel":
         """
-        Creates a :py:class`~sc_api_tools.data_models.label.ScoredLabel` from
+        Create a :py:class`~sc_api_tools.data_models.label.ScoredLabel` from
         the OTE SDK ScoredLabel entity passed.
 
         :param ote_label: OTE SDK ScoredLabel entity to convert from

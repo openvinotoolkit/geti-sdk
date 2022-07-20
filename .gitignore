@@ -14,6 +14,7 @@ venv.bak/
 
 # Local install files
 *.egg-info
+build
 
 # PyCharm configuration
 .idea
@@ -22,7 +23,7 @@ venv.bak/
 /data/
 
 # Jupyter and ipython checkpoints
-/notebooks/.ipynb_checkpoints
+.ipynb_checkpoints/
 /notebooks/deployments
 /notebooks/projects
 
@@ -36,5 +37,7 @@ venv.bak/
 /tests/*.ini
 !/tests/offline.ini
 
-# Test artifacts
+# Test artifacts and reports
 /tests/artifacts
+/tests/htmlcov/
+/tests/report*

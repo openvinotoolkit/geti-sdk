@@ -1,9 +1,23 @@
-from typing import Dict, Any
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
 
 import copy
+from typing import Any, Dict
 
 from sc_api_tools.data_models import Project
-from sc_api_tools.utils import deserialize_dictionary, remove_null_fields
+from sc_api_tools.data_models.utils import remove_null_fields
+from sc_api_tools.utils import deserialize_dictionary
 
 
 class ProjectRESTConverter:
@@ -15,7 +29,7 @@ class ProjectRESTConverter:
     @classmethod
     def from_dict(cls, project_input: Dict[str, Any]) -> Project:
         """
-        Creates a Project from a dictionary representing a project, as
+        Create a Project from a dictionary representing a project, as
         returned by the /projects endpoint in SC.
 
         :param project_input: Dictionary representing a project, as returned by SC
@@ -31,7 +45,7 @@ class ProjectRESTConverter:
     @classmethod
     def to_dict(cls, project: Project) -> Dict[str, Any]:
         """
-        Converts the `project` to its dictionary representation.
+        Convert the `project` to its dictionary representation.
         This functions removes database UID's and optional fields that are `None`
         from the output dictionary, to make the output more compact and improve
         readability.

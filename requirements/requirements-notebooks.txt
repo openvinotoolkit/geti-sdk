@@ -1,0 +1,2 @@
+# Jupyter requirements
+jupyterlab>=3.2

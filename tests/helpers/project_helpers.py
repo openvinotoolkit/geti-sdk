@@ -1,23 +1,35 @@
-from typing import List, Optional, Sequence
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
+from typing import List, Sequence
 
 from sc_api_tools import SCRESTClient
-
 from sc_api_tools.annotation_readers import AnnotationReader
-from sc_api_tools.data_models import TaskType
-from sc_api_tools.rest_managers import ProjectManager
+from sc_api_tools.rest_clients import ProjectClient
 
-from .finalizers import force_delete_project
 from .constants import PROJECT_PREFIX
+from .finalizers import force_delete_project
 from .project_service import ProjectService
 
 
 def get_or_create_annotated_project_for_test_class(
-        project_service: ProjectService,
-        annotation_readers: Sequence[AnnotationReader],
-        project_name: str,
-        project_type: str = "detection",
-        enable_auto_train: bool = False,
-        learning_parameter_settings: str = "minimal"
+    project_service: ProjectService,
+    annotation_readers: Sequence[AnnotationReader],
+    project_name: str,
+    project_type: str = "detection",
+    enable_auto_train: bool = False,
+    learning_parameter_settings: str = "minimal",
 ):
     """
     This function returns an annotated project with `project_name` of type
@@ -42,25 +54,22 @@ def get_or_create_annotated_project_for_test_class(
     labels = [reader.get_all_label_names() for reader in annotation_readers]
 
     project = project_service.get_or_create_project(
-        project_name=project_name,
-        project_type=project_type,
-        labels=labels
+        project_name=project_name, project_type=project_type, labels=labels
     )
     if not project_exists:
         project_service.set_auto_train(False)
-        if learning_parameter_settings == 'minimal':
+        if learning_parameter_settings == "minimal":
             project_service.set_minimal_training_hypers()
-        elif learning_parameter_settings == 'reduced_mem':
+        elif learning_parameter_settings == "reduced_mem":
             project_service.set_reduced_memory_hypers()
-        elif learning_parameter_settings != 'default':
+        elif learning_parameter_settings != "default":
             print(
                 f"Invalid learning parameter settings '{learning_parameter_settings}' "
                 f"specified, continuing with default hyper parameters."
             )
 
         project_service.add_annotated_media(
-            annotation_readers=annotation_readers,
-            n_images=-1
+            annotation_readers=annotation_readers, n_images=-1
         )
         project_service.set_auto_train(enable_auto_train)
     return project
@@ -76,13 +85,13 @@ def remove_all_test_projects(client: SCRESTClient) -> List[str]:
     :param client: Client to the server from which to remove all projects created by
         the SDK test suite
     """
-    project_manager = ProjectManager(
+    project_client = ProjectClient(
         session=client.session, workspace_id=client.workspace_id
     )
     projects_removed: List[str] = []
-    for project in project_manager.get_all_projects():
+    for project in project_client.get_all_projects():
         if project.name.startswith(PROJECT_PREFIX):
-            force_delete_project(project.name, project_manager)
+            force_delete_project(project.name, project_client)
             projects_removed.append(project.name)
     print(f"{len(projects_removed)} test projects were removed from the server.")
     return projects_removed

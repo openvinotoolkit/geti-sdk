@@ -1,20 +1,37 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
 import copy
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 import attr
 
-from .annotation_rest_converter import AnnotationRESTConverter
-
+from sc_api_tools.data_models import Annotation, AnnotationScene, ScoredLabel
 from sc_api_tools.data_models.enums import ShapeType
-from sc_api_tools.data_models.shapes import Shape, Point
-from sc_api_tools.data_models.utils import str_to_shape_type, attr_value_serializer
-from sc_api_tools.data_models import Annotation, ScoredLabel, AnnotationScene
-from sc_api_tools.utils import remove_null_fields
+from sc_api_tools.data_models.shapes import Shape
+from sc_api_tools.data_models.utils import (
+    attr_value_serializer,
+    remove_null_fields,
+    str_to_shape_type,
+)
+
+from .annotation_rest_converter import AnnotationRESTConverter
 
 
 class NormalizedAnnotationRESTConverter(AnnotationRESTConverter):
     """
-    This class implements methods for converting annotations in normalized format to
+    Class containing methods for converting annotations in normalized format to
     and from their REST representation
 
     It is a legacy class to support the annotation format in a normalized coordinate
@@ -23,7 +40,7 @@ class NormalizedAnnotationRESTConverter(AnnotationRESTConverter):
 
     @staticmethod
     def _normalized_shape_from_dict(
-            input_dict: Dict[str, Any], image_width: int, image_height: int
+        input_dict: Dict[str, Any], image_width: int, image_height: int
     ) -> Shape:
         """
         Legacy method to convert shapes represented in normalized coordinates to Shape
@@ -34,8 +51,8 @@ class NormalizedAnnotationRESTConverter(AnnotationRESTConverter):
         :param image_height: Height of the image to which the shape applies
         :return: Shape object corresponding to the input_dict
         """
-        coordinate_keys_x = ['x', 'width']
-        coordinate_keys_y = ['y', 'height']
+        coordinate_keys_x = ["x", "width"]
+        coordinate_keys_y = ["y", "height"]
         input_copy = copy.deepcopy(input_dict)
         type_ = str_to_shape_type(input_copy.get("type"))
         if type_ != ShapeType.POLYGON:
@@ -52,7 +69,7 @@ class NormalizedAnnotationRESTConverter(AnnotationRESTConverter):
         else:
             points_dicts = input_copy.pop("points")
             points = [
-                dict(x=point["x"]*image_width, y=point["y"]*image_height)
+                dict(x=point["x"] * image_width, y=point["y"] * image_height)
                 for point in points_dicts
             ]
             input_copy.update({"points": points})
@@ -60,7 +77,7 @@ class NormalizedAnnotationRESTConverter(AnnotationRESTConverter):
 
     @staticmethod
     def normalized_annotation_from_dict(
-            input_dict: Dict[str, Any], image_width: int, image_height: int
+        input_dict: Dict[str, Any], image_width: int, image_height: int
     ) -> Annotation:
         """
         Legacy method that converts a dictionary representing an annotation (in
@@ -83,7 +100,7 @@ class NormalizedAnnotationRESTConverter(AnnotationRESTConverter):
 
     @staticmethod
     def normalized_annotation_scene_from_dict(
-            annotation_scene: Dict[str, Any], image_width: int, image_height: int
+        annotation_scene: Dict[str, Any], image_width: int, image_height: int
     ) -> AnnotationScene:
         """
         Legacy method that creates an AnnotationScene object from a dictionary
@@ -102,7 +119,7 @@ class NormalizedAnnotationRESTConverter(AnnotationRESTConverter):
                 NormalizedAnnotationRESTConverter.normalized_annotation_from_dict(
                     input_dict=annotation,
                     image_width=image_width,
-                    image_height=image_height
+                    image_height=image_height,
                 )
             )
         input_copy.update({"annotations": annotations})
@@ -110,13 +127,13 @@ class NormalizedAnnotationRESTConverter(AnnotationRESTConverter):
 
     @staticmethod
     def to_normalized_dict(
-            annotation_scene: AnnotationScene,
-            image_width: int,
-            image_height: int,
-            deidentify: bool = True
+        annotation_scene: AnnotationScene,
+        image_width: int,
+        image_height: int,
+        deidentify: bool = True,
     ) -> Dict[str, Any]:
         """
-        Converts an AnnotationScene to a dictionary. By default, removes any ID
+        Convert an AnnotationScene to a dictionary. By default, removes any ID
         fields in the output dictionary
 
         :param annotation_scene: AnnotationScene object to convert

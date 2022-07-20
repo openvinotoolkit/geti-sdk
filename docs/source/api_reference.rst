@@ -10,5 +10,5 @@ API Reference
    Deployment <sc_api_tools.deployment>
    HTTP session <sc_api_tools.http_session>
    REST converters <sc_api_tools.rest_converters>
-   REST managers <sc_api_tools.rest_managers>
+   REST clients <sc_api_tools.rest_clients>
    Utils <sc_api_tools.utils>

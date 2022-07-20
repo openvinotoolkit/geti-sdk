@@ -1,20 +1,37 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
 from pprint import pformat
-from typing import Union, Optional, Dict, Any, List, ClassVar
+from typing import Any, ClassVar, Dict, List, Optional, Union
 
 import attr
 
 from sc_api_tools.data_models.enums.configuration_enums import (
     ParameterDataType,
-    ParameterInputType
+    ParameterInputType,
 )
-from sc_api_tools.data_models.utils import str_to_enum_converter, attr_value_serializer
-from sc_api_tools.utils import remove_null_fields
+from sc_api_tools.data_models.utils import (
+    attr_value_serializer,
+    remove_null_fields,
+    str_to_enum_converter,
+)
 
 
 @attr.s(auto_attribs=True)
 class ConfigurableParameter:
     """
-    Class representing a single configurable parameter in SC
+    Representation of a generic configurable parameter in SC.
 
     :var data_type: Data type for the parameter. Can be integer, float, string or
         boolean
@@ -32,10 +49,15 @@ class ConfigurableParameter:
     :var warning: Optional warning message pointing out possible risks of changing the
         parameter
     """
+
     _identifier_fields: ClassVar[List[str]] = []
     _non_minimal_fields: ClassVar[List[str]] = [
-        "default_value", "description", "editable", "header",
-        "warning", "ui_rules"
+        "default_value",
+        "description",
+        "editable",
+        "header",
+        "warning",
+        "ui_rules",
     ]
 
     name: str
@@ -57,17 +79,15 @@ class ConfigurableParameter:
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        Returns the dictionary representation of the ConfigurableParameter object
-
-        :return:
+        Return the dictionary representation of the ConfigurableParameter object.
         """
         return attr.asdict(self, recurse=True, value_serializer=attr_value_serializer)
 
     @property
     def summary(self) -> str:
         """
-        Returns a string containing a very brief summary of the ConfigurableParameter
-        object
+        Return a string containing a very brief summary of the ConfigurableParameter
+        object.
 
         :return: string holding a very short summary of the ConfigurableParameter
         """
@@ -77,7 +97,7 @@ class ConfigurableParameter:
     @property
     def overview(self) -> str:
         """
-        Returns a string that shows an overview of the configurable parameter. This
+        Return a string that shows an overview of the configurable parameter. This
         still shows all the metadata of the parameter. If less details are required,
         please use the `summary` property
 
@@ -85,15 +105,16 @@ class ConfigurableParameter:
         """
         overview_dict = self.to_dict()
         remove_null_fields(overview_dict)
-        overview_dict.pop('ui_rules')
+        overview_dict.pop("ui_rules")
         return pformat(overview_dict)
 
 
 @attr.s(auto_attribs=True)
 class ConfigurableBoolean(ConfigurableParameter):
     """
-    Class representing a configurable boolean in SC
+    Representation of a configurable boolean in SC.
     """
+
     default_value: Optional[bool] = attr.ib(default=None, kw_only=True)
     value: bool = attr.ib(kw_only=True)
 
@@ -101,11 +122,12 @@ class ConfigurableBoolean(ConfigurableParameter):
 @attr.s(auto_attribs=True)
 class ConfigurableInteger(ConfigurableParameter):
     """
-    Class representing a configurable integer in SC
+    Representation of a configurable integer in SC.
 
     :var min_value: Minimum value allowed to be set for the configurable integer
     :var max_value: Maximum value allowed to be set for the configurable integer
     """
+
     default_value: Optional[int] = attr.ib(default=None, kw_only=True)
     value: int = attr.ib(kw_only=True)
     min_value: Optional[int] = attr.ib(default=None, kw_only=True)
@@ -115,11 +137,12 @@ class ConfigurableInteger(ConfigurableParameter):
 @attr.s(auto_attribs=True)
 class ConfigurableFloat(ConfigurableParameter):
     """
-    Class representing a configurable float in SC
+    Representation of a configurable float in SC.
 
     :var min_value: Minimum value allowed to be set for the configurable float
     :var max_value: Maximum value allowed to be set for the configurable float
     """
+
     default_value: Optional[float] = attr.ib(kw_only=True, default=None)
     value: float = attr.ib(kw_only=True)
     min_value: float = attr.ib(kw_only=True)
@@ -129,10 +152,11 @@ class ConfigurableFloat(ConfigurableParameter):
 @attr.s(auto_attribs=True)
 class SelectableFloat(ConfigurableParameter):
     """
-    Class representing a float selectable in SC
+    Representation of a float selectable configurable parameter in SC.
 
     :var options: List of options that the selectable float is allowed to take
     """
+
     default_value: Optional[float] = attr.ib(kw_only=True, default=None)
     value: float = attr.ib(kw_only=True)
     options: List[float] = attr.ib(kw_only=True)
@@ -141,10 +165,11 @@ class SelectableFloat(ConfigurableParameter):
 @attr.s(auto_attribs=True)
 class SelectableString(ConfigurableParameter):
     """
-    Class representing a string selectable in SC
+    Representation of a string selectable configurable parameter in SC.
 
     :var options: List of options that the selectable string is allowed to take
     """
+
     default_value: Optional[str] = attr.ib(kw_only=True, default=None)
     enum_name: str = attr.ib(kw_only=True)
     value: str = attr.ib(kw_only=True)

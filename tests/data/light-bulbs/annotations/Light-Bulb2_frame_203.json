@@ -1,0 +1,23 @@
+{
+    "annotations": [
+        {
+            "labels": [
+                {
+                    "probability": 1.0,
+                    "name": "Off",
+                    "color": "#000000ff"
+                }
+            ],
+            "shape": {
+                "x": 0.0,
+                "y": 0.0,
+                "width": 504.0,
+                "height": 336.0,
+                "type": "RECTANGLE"
+            },
+            "labels_to_revisit": []
+        }
+    ],
+    "kind": "annotation",
+    "labels_to_revisit_full_scene": []
+}

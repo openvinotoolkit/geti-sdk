@@ -1,3 +1,18 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
+import datetime
 import importlib.util
 import json
 import os
@@ -5,41 +20,51 @@ import shutil
 import sys
 import tempfile
 import zipfile
-from typing import Optional, Union, Dict, Tuple, Any, List
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import attr
-
 import numpy as np
+from ote_sdk.entities.color import Color
+from ote_sdk.entities.label import Domain as OTEDomain
+from ote_sdk.entities.label import LabelEntity
+from ote_sdk.entities.label_schema import LabelGroup, LabelGroupType, LabelSchemaEntity
 
-from sc_api_tools.data_models import (
-    OptimizedModel,
-    TaskConfiguration
-)
+from sc_api_tools.data_models import OptimizedModel, TaskConfiguration
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import ConfigurationRESTConverter, ModelRESTConverter
 
-MODEL_DIR_NAME = 'model'
-WRAPPER_DIR_NAME = 'model_wrappers'
+MODEL_DIR_NAME = "model"
+WRAPPER_DIR_NAME = "model_wrappers"
+
+LABELS_CONFIG_KEY = "labels"
+LABEL_TREE_KEY = "label_tree"
+LABEL_GROUPS_KEY = "label_groups"
+ALL_LABELS_KEY = "all_labels"
 
 
 @attr.s(auto_attribs=True)
 class DeployedModel(OptimizedModel):
     """
-    This class represents an SC model that has been deployed for inference. It can be
-    loaded onto a device to generate predictions
+    Representation of an SC model that has been deployed for inference. It can be
+    loaded onto a device to generate predictions.
     """
+
     hyper_parameters: TaskConfiguration = attr.ib(kw_only=True, repr=False)
 
     def __attrs_post_init__(self):
+        """
+        Initialize private attributes
+        """
         super().__attrs_post_init__()
         self._model_data_path: Optional[str] = None
         self._needs_tempdir_deletion: bool = False
         self._has_custom_model_wrappers: bool = False
+        self._label_schema: Optional[LabelSchemaEntity] = None
         self.openvino_model_parameters: Optional[Dict[str, Any]] = None
 
     def get_data(self, source: Union[str, os.PathLike, SCSession]):
         """
-        Loads the model weights from a data source. The `source` can be one of the
+        Load the model weights from a data source. The `source` can be one of the
         following:
 
           1. The SC cluster (if an SCSession instance is passed). In this case the
@@ -51,20 +76,20 @@ class DeployedModel(OptimizedModel):
         :param source: Data source to load the weights from
         """
         if isinstance(source, (os.PathLike, str)):
-            if os.path.isfile(source) and os.path.splitext(source)[1] == '.zip':
+            if os.path.isfile(source) and os.path.splitext(source)[1] == ".zip":
                 if self._model_data_path is None:
                     model_dir = tempfile.mkdtemp()
                     self._needs_tempdir_deletion = True
                 else:
                     model_dir = self._model_data_path
-                with zipfile.ZipFile(source, 'r') as zipped_source_model:
+                with zipfile.ZipFile(source, "r") as zipped_source_model:
                     zipped_source_model.extractall(model_dir)
 
                 self._model_data_path = os.path.join(model_dir, MODEL_DIR_NAME)
 
                 # Check if the model includes custom model wrappers, if so include them
                 # in the data dir
-                python_path = os.path.join(model_dir, 'python')
+                python_path = os.path.join(model_dir, "python")
                 if WRAPPER_DIR_NAME in os.listdir(python_path):
                     wrappers_path = os.path.join(python_path, WRAPPER_DIR_NAME)
                     wrappers_destination_path = os.path.join(
@@ -78,7 +103,7 @@ class DeployedModel(OptimizedModel):
                 if MODEL_DIR_NAME in os.listdir(source):
                     source = os.path.join(source, MODEL_DIR_NAME)
                 source_contents = os.listdir(source)
-                if 'model.bin' in source_contents and 'model.xml' in source_contents:
+                if "model.bin" in source_contents and "model.xml" in source_contents:
                     self._model_data_path = source
                 else:
                     raise ValueError(
@@ -96,14 +121,12 @@ class DeployedModel(OptimizedModel):
                     f"a base_url for the model first."
                 )
             response = source.get_rest_response(
-                url=self.base_url+'/export',
-                method="GET",
-                contenttype="zip"
+                url=self.base_url + "/export", method="GET", contenttype="zip"
             )
             filename = f"{self.name}_{self.optimization_type}_optimized.zip"
             model_dir = tempfile.mkdtemp()
             model_filepath = os.path.join(model_dir, filename)
-            with open(model_filepath, 'wb') as f:
+            with open(model_filepath, "wb") as f:
                 f.write(response.content)
             self._model_data_path = model_dir
             self._needs_tempdir_deletion = True
@@ -111,21 +134,18 @@ class DeployedModel(OptimizedModel):
 
     def __del__(self):
         """
-        This method is called when the OptimizedModel object is deleted. It cleans up
-        the temporary directory created to store the model data (if any)
-
+        Clean up the temporary directory created to store the model data (if any). This
+        method is called when the OptimizedModel object is deleted.
         """
         if self._needs_tempdir_deletion:
             if os.path.exists(self._model_data_path):
                 shutil.rmtree(os.path.dirname(self._model_data_path))
 
     def load_inference_model(
-            self,
-            device: str = 'CPU',
-            configuration: Optional[Dict[str, Any]] = None
+        self, device: str = "CPU", configuration: Optional[Dict[str, Any]] = None
     ):
         """
-        Loads the actual model weights to a specified device.
+        Load the actual model weights to a specified device.
 
         :param device: Device (CPU or GPU) to load the model to. Defaults to 'CPU'
         :param configuration: Optional dictionary holding additional configuration
@@ -135,8 +155,8 @@ class DeployedModel(OptimizedModel):
         """
         try:
             from openvino.model_zoo.model_api.adapters import (
+                OpenvinoAdapter,
                 create_core,
-                OpenvinoAdapter
             )
             from openvino.model_zoo.model_api.models import Model as OMZModel
         except ImportError as error:
@@ -148,21 +168,21 @@ class DeployedModel(OptimizedModel):
 
         model_adapter = OpenvinoAdapter(
             create_core(),
-            model_path=os.path.join(self._model_data_path, 'model.xml'),
-            weights_path=os.path.join(self._model_data_path, 'model.bin'),
+            model_path=os.path.join(self._model_data_path, "model.xml"),
+            weights_path=os.path.join(self._model_data_path, "model.bin"),
             device=device,
             plugin_config=None,
-            max_num_requests=1
+            max_num_requests=1,
         )
 
         # Load model configuration
-        config_path = os.path.join(self._model_data_path, 'config.json')
+        config_path = os.path.join(self._model_data_path, "config.json")
         if os.path.isfile(config_path):
-            with open(config_path, 'r') as config_file:
+            with open(config_path, "r") as config_file:
                 configuration_json = json.load(config_file)
             model_type = configuration_json.get("type_of_model")
             parameters = configuration_json.get("model_parameters")
-            parameters.pop("labels", None)
+            label_dictionary = parameters.pop(LABELS_CONFIG_KEY, None)
             if configuration is not None:
                 configuration.update(parameters)
             else:
@@ -173,6 +193,8 @@ class DeployedModel(OptimizedModel):
                 f" unable to load inference model."
             )
 
+        self._parse_label_schema_from_dict(label_dictionary)
+
         # Create model wrapper with the loaded configuration
         # First, add custom wrapper (if any) to path so that we can find it
         if self._has_custom_model_wrappers:
@@ -180,7 +202,7 @@ class DeployedModel(OptimizedModel):
             module_name = WRAPPER_DIR_NAME
             try:
                 spec = importlib.util.spec_from_file_location(
-                    module_name, os.path.join(wrapper_module_path, '__init__.py')
+                    module_name, os.path.join(wrapper_module_path, "__init__.py")
                 )
                 module = importlib.util.module_from_spec(spec)
                 sys.modules[module_name] = module
@@ -196,18 +218,18 @@ class DeployedModel(OptimizedModel):
             name=model_type,
             model_adapter=model_adapter,
             configuration=configuration,
-            preload=True
+            preload=True,
         )
         self.openvino_model_parameters = configuration
         self._inference_model = model
 
     @classmethod
     def from_model_and_hypers(
-            cls, model: OptimizedModel, hyper_parameters: TaskConfiguration
-    ) -> 'DeployedModel':
+        cls, model: OptimizedModel, hyper_parameters: TaskConfiguration
+    ) -> "DeployedModel":
         """
-        Creates a DeployedModel instance out of an OptimizedModel and it's
-        corresponding set of hyper parameters
+        Create a DeployedModel instance out of an OptimizedModel and it's
+        corresponding set of hyper parameters.
 
         :param model: OptimizedModel to convert to a DeployedModel
         :param hyper_parameters: TaskConfiguration instance containing the hyper
@@ -215,7 +237,7 @@ class DeployedModel(OptimizedModel):
         :return: DeployedModel instance
         """
         model_dict = model.to_dict()
-        model_dict.update({'hyper_parameters': hyper_parameters})
+        model_dict.update({"hyper_parameters": hyper_parameters})
         deployed_model = cls(**model_dict)
         try:
             model_group_id = model.model_group_id
@@ -227,19 +249,19 @@ class DeployedModel(OptimizedModel):
         return deployed_model
 
     @classmethod
-    def from_folder(cls, path_to_folder: Union[str, os.PathLike]) -> 'DeployedModel':
+    def from_folder(cls, path_to_folder: Union[str, os.PathLike]) -> "DeployedModel":
         """
-        Creates a DeployedModel instance from a folder containing the model data
+        Create a DeployedModel instance from a folder containing the model data.
 
         :param path_to_folder: Path to the folder that holds the model data
         :return: DeployedModel instance
         """
-        config_filepath = os.path.join(path_to_folder, 'hyper_parameters.json')
-        with open(config_filepath, 'r') as config_file:
+        config_filepath = os.path.join(path_to_folder, "hyper_parameters.json")
+        with open(config_filepath, "r") as config_file:
             config_dict = json.load(config_file)
         hparams = ConfigurationRESTConverter.task_configuration_from_dict(config_dict)
-        model_detail_path = os.path.join(path_to_folder, 'model.json')
-        with open(model_detail_path, 'r') as model_detail_file:
+        model_detail_path = os.path.join(path_to_folder, "model.json")
+        with open(model_detail_path, "r") as model_detail_file:
             model_detail_dict = json.load(model_detail_file)
         model = ModelRESTConverter.optimized_model_from_dict(model_detail_dict)
         deployed_model = cls.from_model_and_hypers(
@@ -250,7 +272,7 @@ class DeployedModel(OptimizedModel):
 
     def save(self, path_to_folder: Union[str, os.PathLike]):
         """
-        Saves the DeployedModel instance to the designated folder
+        Save the DeployedModel instance to the designated folder.
 
         :param path_to_folder: Path to the folder to save the model to
         """
@@ -263,30 +285,28 @@ class DeployedModel(OptimizedModel):
             os.makedirs(path_to_folder)
 
         shutil.copytree(
-            src=self._model_data_path,
-            dst=path_to_folder,
-            dirs_exist_ok=True
+            src=self._model_data_path, dst=path_to_folder, dirs_exist_ok=True
         )
 
         config_dict = ConfigurationRESTConverter.configuration_to_minimal_dict(
             self.hyper_parameters
         )
-        config_filepath = os.path.join(path_to_folder, 'hyper_parameters.json')
-        with open(config_filepath, 'w') as config_file:
+        config_filepath = os.path.join(path_to_folder, "hyper_parameters.json")
+        with open(config_filepath, "w") as config_file:
             json.dump(config_dict, config_file, indent=4)
 
         model_detail_dict = self.to_dict()
-        model_detail_dict.pop('hyper_parameters')
-        model_detail_path = os.path.join(path_to_folder, 'model.json')
-        with open(model_detail_path, 'w') as model_detail_file:
+        model_detail_dict.pop("hyper_parameters")
+        model_detail_path = os.path.join(path_to_folder, "model.json")
+        with open(model_detail_path, "w") as model_detail_file:
             json.dump(model_detail_dict, model_detail_file, indent=4)
         return True
 
     def preprocess(
-            self, image: np.ndarray
+        self, image: np.ndarray
     ) -> Tuple[Dict[str, np.ndarray], Dict[str, Tuple[int, int, int]]]:
         """
-        Preprocesses an image for inference
+        Preprocess an image for inference.
 
         :param image: Numpy array containing pixel data. The image is expected to have
             dimensions [height x width x channels], with the channels in RGB order
@@ -296,16 +316,12 @@ class DeployedModel(OptimizedModel):
         return self._inference_model.preprocess(image)
 
     def postprocess(
-            self,
-            inference_results: Dict[str, np.ndarray],
-            metadata: Optional[Dict[str, Any]] = None
-    ) -> Union[
-            np.ndarray,
-            List[Tuple[int, float]],
-            Any
-    ]:
+        self,
+        inference_results: Dict[str, np.ndarray],
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Union[np.ndarray, List[Tuple[int, float]], Any]:
         """
-        Postprocesses model outputs
+        Postprocess the model outputs.
 
         :param inference_results: Dictionary holding the results of inference
         :param metadata: Dictionary holding metadata
@@ -320,13 +336,67 @@ class DeployedModel(OptimizedModel):
         """
         return self._inference_model.postprocess(inference_results, metadata)
 
-    def infer(
-            self, preprocessed_image: Dict[str, np.ndarray]
-    ) -> Dict[str, np.ndarray]:
+    def infer(self, preprocessed_image: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
         """
+        Run inference on an already preprocessed image.
 
         :param preprocessed_image: Dictionary holding the preprocessing results for an
             image
         :return: Dictionary containing the model outputs
         """
         return self._inference_model.infer_sync(preprocessed_image)
+
+    @property
+    def ote_label_schema(self) -> LabelSchemaEntity:
+        """
+        Return the OTE LabelSchema for the model.
+
+        This requires the inference model to be loaded, getting this property while
+        inference models are not loaded will raise a ValueError
+
+        :return: LabelSchemaEntity containing the OTE SDK label schema for the model
+        """
+        if self._label_schema is None:
+            raise ValueError(
+                "Inference model is not loaded, unable to retrieve label schema. "
+                "Please load inference model first."
+            )
+        return self._label_schema
+
+    def _parse_label_schema_from_dict(
+        self, label_schema_dict: Optional[Dict[str, Union[dict, List[dict]]]] = None
+    ) -> None:
+        """
+        Parse the dictionary contained in the model `config.json` file, and
+        generate an OTE LabelSchemaEntity from it.
+
+        :param label_schema_dict: Dictionary containing the label schema information
+            to parse
+        """
+        label_groups_list = label_schema_dict[LABEL_GROUPS_KEY]
+        labels_dict = label_schema_dict[ALL_LABELS_KEY]
+        for key, value in labels_dict.items():
+            label_entity = LabelEntity(
+                id=value["_id"],
+                name=value["name"],
+                hotkey=value["hotkey"],
+                domain=OTEDomain[value["domain"]],
+                color=Color(**value["color"]),
+                is_empty=value.get("is_empty", False),
+                creation_date=datetime.datetime.fromisoformat(value["creation_date"]),
+            )
+            labels_dict[key] = label_entity
+        label_groups: List[LabelGroup] = []
+        for group_dict in label_groups_list:
+            labels: List[LabelEntity] = [
+                labels_dict[label_id] for label_id in group_dict["label_ids"]
+            ]
+            label_groups.append(
+                LabelGroup(
+                    id=group_dict["_id"],
+                    name=group_dict["name"],
+                    group_type=LabelGroupType[group_dict["relation_type"]],
+                    labels=labels,
+                )
+            )
+        self._label_schema = LabelSchemaEntity(label_groups=label_groups)

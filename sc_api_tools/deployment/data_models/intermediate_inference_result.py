@@ -1,10 +1,23 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
 from typing import List, Optional
 
 import attr
-
 import numpy as np
 
-from sc_api_tools.data_models import Prediction, Label, Annotation
+from sc_api_tools.data_models import Annotation, Label, Prediction
 
 from .region_of_interest import ROI
 
@@ -12,8 +25,9 @@ from .region_of_interest import ROI
 @attr.s(auto_attribs=True)
 class IntermediateInferenceResult:
     """
-    This class represents the inference results for intermediate tasks in the pipeline
+    Inference results for intermediate tasks in the pipeline
     """
+
     prediction: Prediction
     image: np.ndarray
     rois: Optional[List[ROI]] = None
@@ -21,7 +35,7 @@ class IntermediateInferenceResult:
     @property
     def image_width(self) -> int:
         """
-        Returns the width of the image to which the InferenceResult applies
+        Return the width of the image to which the InferenceResult applies.
 
         :return: Integer representing the width of the image, in pixels
         """
@@ -30,7 +44,7 @@ class IntermediateInferenceResult:
     @property
     def image_height(self) -> int:
         """
-        Returns the height of the image to which the InferenceResult applies
+        Return the height of the image to which the InferenceResult applies.
 
         :return: Integer representing the height of the image, in pixels
         """
@@ -38,7 +52,7 @@ class IntermediateInferenceResult:
 
     def filter_rois(self, label: Optional[Label] = None) -> List[ROI]:
         """
-        Filters the ROIs for the inference results based on an input label
+        Filter the ROIs for the inference results based on an input label.
 
         :param label: Label to retrieve the ROIs for. If left as None, all the ROIs
             belonging to the inference result are returned
@@ -50,8 +64,8 @@ class IntermediateInferenceResult:
 
     def generate_views(self, rois: Optional[List[ROI]] = None) -> List[np.ndarray]:
         """
-        Generates a list of image views holding the pixel data for the ROIs produced
-        by the last local-label task in the pipeline
+        Generate a list of image views holding the pixel data for the ROIs produced
+        by the last local-label task in the pipeline.
 
         :param rois: Optional list of ROIs to return the views for. If left as None,
             views for all ROIs are returned.
@@ -62,9 +76,7 @@ class IntermediateInferenceResult:
             return [self.image]
 
         if rois is not None:
-            rois_to_get = [
-                roi.shape for roi in self.rois if roi in rois
-            ]
+            rois_to_get = [roi.shape for roi in self.rois if roi in rois]
         else:
             rois_to_get = [roi.shape for roi in self.rois]
 
@@ -85,8 +97,8 @@ class IntermediateInferenceResult:
 
     def append_annotation(self, annotation: Annotation, roi: ROI):
         """
-        Appends an Annotation instance to the prediction results, taking into account
-        the ROI for which the annotation was predicted
+        Append an Annotation instance to the prediction results, taking into account
+        the ROI for which the annotation was predicted.
 
         This method can be used to add annotations produced by a downstream local task
         to the prediction results
@@ -101,8 +113,8 @@ class IntermediateInferenceResult:
 
     def extend_annotations(self, annotations: List[Annotation], roi: ROI):
         """
-        Extends the list of annotations for the current prediction results, taking
-        into account the ROI for which the annotation was predicted
+        Extend the list of annotations for the current prediction results, taking
+        into account the ROI for which the annotation was predicted.
 
         This method can be used to add labels produced by a global downstream task to
         the ROI output of it's upstream local task

@@ -1,15 +1,28 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
 import copy
-from typing import List, Sequence, Dict, Optional, Union
+from typing import Dict, List, Optional, Sequence, Union
 
 from datumaro.components.annotation import Bbox, Polygon
 
-from sc_api_tools.rest_converters import AnnotationRESTConverter
-
 from sc_api_tools.annotation_readers.base_annotation_reader import AnnotationReader
-from sc_api_tools.data_models import TaskType
 from sc_api_tools.data_models import Annotation as SCAnnotation
+from sc_api_tools.data_models import TaskType
 from sc_api_tools.data_models.enums.task_type import GLOBAL_TASK_TYPES
-from sc_api_tools.utils import get_dict_key_from_value, generate_segmentation_labels
+from sc_api_tools.rest_converters import AnnotationRESTConverter
+from sc_api_tools.utils import generate_segmentation_labels, get_dict_key_from_value
 
 from .datumaro_dataset import DatumaroDataset
 
@@ -27,19 +40,19 @@ class DatumAnnotationReader(AnnotationReader):
         TaskType.ROTATED_DETECTION,
         TaskType.ANOMALY_CLASSIFICATION,
         TaskType.ANOMALY_DETECTION,
-        TaskType.ANOMALY_SEGMENTATION
+        TaskType.ANOMALY_SEGMENTATION,
     ]
 
     def __init__(
-            self,
-            base_data_folder: str,
-            annotation_format: str,
-            task_type: Union[TaskType, str] = TaskType.DETECTION
+        self,
+        base_data_folder: str,
+        annotation_format: str,
+        task_type: Union[TaskType, str] = TaskType.DETECTION,
     ):
         super().__init__(
             base_data_folder=base_data_folder,
             annotation_format=annotation_format,
-            task_type=task_type
+            task_type=task_type,
         )
         self.dataset = DatumaroDataset(
             dataset_format=annotation_format, dataset_path=base_data_folder
@@ -48,10 +61,18 @@ class DatumAnnotationReader(AnnotationReader):
         self._applied_filters: List[Dict[str, Union[List[str], str]]] = []
 
     def prepare_and_set_dataset(
-            self,
-            task_type: Union[TaskType, str],
-            previous_task_type: Optional[TaskType] = None
-    ):
+        self,
+        task_type: Union[TaskType, str],
+        previous_task_type: Optional[TaskType] = None,
+    ) -> None:
+        """
+        Prepare the dataset for a specific `task_type`. This could involve for
+        example conversion of annotation shapes.
+
+        :param task_type: TaskType for which to prepare the dataset.
+        :param previous_task_type: TaskType preceding the task to prepare the dataset
+            for
+        """
         if not isinstance(task_type, TaskType):
             task_type = TaskType(task_type)
         if task_type != self.task_type:
@@ -74,7 +95,7 @@ class DatumAnnotationReader(AnnotationReader):
 
     def convert_labels_to_segmentation_names(self) -> None:
         """
-        This method converts the label names in a dataset to '*_shape`, where `*` is
+        Convert the label names in a dataset to '*_shape`, where `*` is
         the original label name. It can be used to generate unique label names for the
         segmentation task in a detection_to_segmentation project
         """
@@ -90,7 +111,7 @@ class DatumAnnotationReader(AnnotationReader):
 
     def get_all_label_names(self) -> List[str]:
         """
-        Retrieves the list of labels names from a datumaro dataset
+        Retrieve the list of labels names from a datumaro dataset.
         """
         return list(set(self.datum_label_map.values()))
 
@@ -106,34 +127,42 @@ class DatumAnnotationReader(AnnotationReader):
 
     def override_label_map(self, new_label_map: Dict[int, str]):
         """
-        Overrides the label map defined in the datumaro dataset
-
-        :return:
+        Override the label map defined in the datumaro dataset
         """
         self._override_label_map = new_label_map
 
     def reset_label_map(self):
         """
-        Resets the label map back to the original one from the datumaro dataset
-
-        :return:
+        Reset the label map back to the original one from the datumaro dataset.
         """
         self._override_label_map = None
 
     def get_all_image_names(self) -> List[str]:
         """
-        Returns a list of image names in the dataset
-
-        :return:
+        Return a list of image names in the dataset
         """
         return self.dataset.image_names
 
     def get_data(
-            self,
-            filename: str,
-            label_name_to_id_mapping: dict,
-            preserve_shape_for_global_labels: bool = False
+        self,
+        filename: str,
+        label_name_to_id_mapping: dict,
+        preserve_shape_for_global_labels: bool = False,
     ) -> List[SCAnnotation]:
+        """
+        Return the annotation data for the dataset item corresponding to `filename`.
+
+        :param filename: name of the item to get the annotation data for.
+        :param label_name_to_id_mapping: mapping of label name to label id.
+        :param preserve_shape_for_global_labels: False to convert shapes for global
+            tasks to full rectangles (required for classification like tasks in
+            SonomaCreek), True to preserve such shapes. This parameter should be:
+             - False when uploading annotations to a single task project
+             - True when uploading annotations for a classification like task,
+                following a local task in a task chain project.
+        :return: List of Annotation objects containing all annotations for the given
+            dataset item.
+        """
         ds_item = self.dataset.get_item_by_id(filename)
         image_size = ds_item.image.size
         annotation_list: List[SCAnnotation] = []
@@ -147,24 +176,29 @@ class DatumAnnotationReader(AnnotationReader):
                 continue
 
             label_id = label_name_to_id_mapping.get(label_name)
-            label = {'id': label_id, 'probability': 1.0}
+            label = {"id": label_id, "probability": 1.0}
             if (
-                    self.task_type not in GLOBAL_TASK_TYPES
-                    or preserve_shape_for_global_labels
+                self.task_type not in GLOBAL_TASK_TYPES
+                or preserve_shape_for_global_labels
             ):
                 if isinstance(annotation, Bbox):
                     x1 = float(annotation.points[0])
                     y1 = float(annotation.points[1])
                     x2 = float(annotation.points[2])
                     y2 = float(annotation.points[3])
-                    shape = {'type': 'RECTANGLE',
-                             'x': x1, 'y': y1, 'width': x2 - x1, 'height': y2 - y1}
+                    shape = {
+                        "type": "RECTANGLE",
+                        "x": x1,
+                        "y": y1,
+                        "width": x2 - x1,
+                        "height": y2 - y1,
+                    }
                 elif isinstance(annotation, Polygon):
                     points = [
-                        {'x': float(x), 'y': float(y)} for x, y
-                        in zip(*[iter(annotation.points)] * 2)
+                        {"x": float(x), "y": float(y)}
+                        for x, y in zip(*[iter(annotation.points)] * 2)
                     ]
-                    shape = {'type': "POLYGON", 'points': points}
+                    shape = {"type": "POLYGON", "points": points}
                 else:
                     print(
                         f"WARNING: Unsupported annotation type found: "
@@ -178,16 +212,13 @@ class DatumAnnotationReader(AnnotationReader):
             else:
                 labels.append(label)
 
-        if (
-                not preserve_shape_for_global_labels
-                and self.task_type in GLOBAL_TASK_TYPES
-        ):
+        if not preserve_shape_for_global_labels and self.task_type in GLOBAL_TASK_TYPES:
             shape = {
                 "type": "RECTANGLE",
                 "x": 0.0,
                 "y": 0.0,
                 "width": float(image_size[1]),
-                "height": float(image_size[0])
+                "height": float(image_size[0]),
             }
             sc_annotation = AnnotationRESTConverter.annotation_from_dict(
                 {"labels": labels, "shape": shape}
@@ -197,18 +228,20 @@ class DatumAnnotationReader(AnnotationReader):
 
     @property
     def applied_filters(self) -> List[Dict[str, Union[List[str], str]]]:
+        """
+        Return a list of filters and their parameters that have been previously
+        applied to the dataset.
+        """
         return copy.deepcopy(self._applied_filters)
 
-    def filter_dataset(self, labels: Sequence[str], criterion='OR') -> None:
+    def filter_dataset(self, labels: Sequence[str], criterion="OR") -> None:
         """
         Retain only those items with annotations in the list of labels passed.
 
         :param: labels     List of labels to filter on
         :param: criterion  Filter criterion, currently "OR" or "AND" are implemented
         """
-        self.dataset.filter_items_by_labels(
-            labels=labels, criterion=criterion
-        )
+        self.dataset.filter_items_by_labels(labels=labels, criterion=criterion)
         self._applied_filters.append({"labels": labels, "criterion": criterion})
 
     def group_labels(self, labels_to_group: List[str], group_name: str) -> None:
@@ -234,7 +267,7 @@ class DatumAnnotationReader(AnnotationReader):
 
     def get_annotation_stats(self) -> Dict[str, Dict[str, int]]:
         """
-        Returns the object and image counts per label in the dataset.
+        Return the object and image counts per label in the dataset.
 
         :return: Dictionary containing label names as keys, and as values:
             - n_images: Number of images containing this label
@@ -243,8 +276,10 @@ class DatumAnnotationReader(AnnotationReader):
         label_statistics: Dict[str, Dict[str, int]] = {}
         for item in self.dataset.dataset:
             label_names = set(
-                [self.datum_label_map[annotation.label] for
-                 annotation in item.annotations]
+                [
+                    self.datum_label_map[annotation.label]
+                    for annotation in item.annotations
+                ]
             )
             object_counts: Dict[str, int] = {}
             for label in label_names:
@@ -257,7 +292,8 @@ class DatumAnnotationReader(AnnotationReader):
                 label_stats = label_statistics.get(label, {})
                 if not label_stats:
                     label_statistics[label] = {
-                        "n_images": 1, "n_objects": object_counts[label]
+                        "n_images": 1,
+                        "n_objects": object_counts[label],
                     }
                 else:
                     label_statistics[label]["n_images"] += 1

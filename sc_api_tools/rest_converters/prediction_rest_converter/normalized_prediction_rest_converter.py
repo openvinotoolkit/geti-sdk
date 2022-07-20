@@ -1,17 +1,32 @@
-import copy
-from typing import Dict, Any, List
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
 
-from .prediction_rest_converter import PredictionRESTConverter
-from sc_api_tools.data_models import Prediction, Annotation
+import copy
+from typing import Any, Dict, List
+
+from sc_api_tools.data_models import Annotation, Prediction
+from sc_api_tools.data_models.predictions import ResultMedium
 from sc_api_tools.rest_converters.annotation_rest_converter import (
     NormalizedAnnotationRESTConverter,
 )
-from sc_api_tools.data_models.predictions import ResultMedium
+
+from .prediction_rest_converter import PredictionRESTConverter
 
 
 class NormalizedPredictionRESTConverter(PredictionRESTConverter):
     """
-    This class implements methods for converting predictions in normalized format to
+    Class containing methods for converting predictions in normalized format to
     and from their REST representation
 
     It is a legacy class to support the annotation format in a normalized coordinate
@@ -20,7 +35,7 @@ class NormalizedPredictionRESTConverter(PredictionRESTConverter):
 
     @staticmethod
     def normalized_prediction_from_dict(
-            prediction: Dict[str, Any], image_width: int, image_height: int
+        prediction: Dict[str, Any], image_width: int, image_height: int
     ) -> Prediction:
         """
         Legacy method that creates an AnnotationScene object from a dictionary
@@ -33,8 +48,10 @@ class NormalizedPredictionRESTConverter(PredictionRESTConverter):
         :return: Prediction object
         """
         input_copy = copy.deepcopy(prediction)
-        media_identifier = NormalizedAnnotationRESTConverter._media_identifier_from_dict(
-            prediction["media_identifier"]
+        media_identifier = (
+            NormalizedAnnotationRESTConverter._media_identifier_from_dict(
+                prediction["media_identifier"]
+            )
         )
         annotations: List[Annotation] = []
         for annotation in prediction["annotations"]:
@@ -42,7 +59,7 @@ class NormalizedPredictionRESTConverter(PredictionRESTConverter):
                 NormalizedAnnotationRESTConverter.normalized_annotation_from_dict(
                     input_dict=annotation,
                     image_width=image_width,
-                    image_height=image_height
+                    image_height=image_height,
                 )
             )
         result_media: List[ResultMedium] = []
@@ -55,20 +72,20 @@ class NormalizedPredictionRESTConverter(PredictionRESTConverter):
             {
                 "annotations": annotations,
                 "media_identifier": media_identifier,
-                "maps": result_media
+                "maps": result_media,
             }
         )
         return Prediction(**input_copy)
 
     @staticmethod
     def to_normalized_dict(
-            prediction: Prediction,
-            image_width: int,
-            image_height: int,
-            deidentify: bool = True
+        prediction: Prediction,
+        image_width: int,
+        image_height: int,
+        deidentify: bool = True,
     ) -> Dict[str, Any]:
         """
-        Converts a Prediction to a dictionary. By default, removes any ID
+        Convert a Prediction to a dictionary. By default, removes any ID
         fields in the output dictionary
 
         :param prediction: Prediction object to convert
@@ -82,5 +99,5 @@ class NormalizedPredictionRESTConverter(PredictionRESTConverter):
             annotation_scene=prediction,
             image_height=image_height,
             image_width=image_width,
-            deidentify=deidentify
+            deidentify=deidentify,
         )

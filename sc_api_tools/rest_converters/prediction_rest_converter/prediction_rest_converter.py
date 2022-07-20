@@ -1,21 +1,38 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
 import copy
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 import attr
 
-from sc_api_tools.data_models import Prediction, Annotation
+from sc_api_tools.data_models import Annotation, Prediction
 from sc_api_tools.data_models.predictions import ResultMedium
-from sc_api_tools.data_models.utils import attr_value_serializer
+from sc_api_tools.data_models.utils import attr_value_serializer, remove_null_fields
 from sc_api_tools.rest_converters import AnnotationRESTConverter
-from sc_api_tools.utils import remove_null_fields
 
 
 class PredictionRESTConverter:
+    """
+    Class to convert REST representations of predictions into Prediction entities.
+    """
+
     @staticmethod
     def from_dict(prediction: Dict[str, Any]) -> Prediction:
         """
-        Creates a Prediction object from a dictionary returned by the
-        /predictions REST endpoint in SC
+        Create a Prediction object from a dictionary returned by the
+        /predictions REST endpoint in SC.
 
         :param prediction: dictionary representing a Prediction, which
             contains all prediction annotations for a certain media entity
@@ -44,17 +61,15 @@ class PredictionRESTConverter:
             {
                 "annotations": annotations,
                 "media_identifier": media_identifier,
-                "maps": result_media
+                "maps": result_media,
             }
         )
         return Prediction(**input_copy)
 
     @staticmethod
-    def to_dict(
-            prediction: Prediction, deidentify: bool = True
-    ) -> Dict[str, Any]:
+    def to_dict(prediction: Prediction, deidentify: bool = True) -> Dict[str, Any]:
         """
-        Converts a Prediction to a dictionary. By default, removes any ID
+        Convert a Prediction to a dictionary. By default, removes any ID
         fields in the output dictionary
 
         :param prediction: Prediction object to convert

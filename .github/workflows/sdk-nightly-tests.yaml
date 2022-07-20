@@ -24,8 +24,10 @@ env:
   # Other environment variables used in the tests
   TEST_MODE: "ONLINE"
   CLEAR_EXISTING_TEST_PROJECTS: 1
-  ARTIFACT_DIRECTORY: artifacts
   LEARNING_PARAMETER_SETTINGS: ${{ inputs.learning_parameter_settings }}
+  # Artifacts and test reports
+  ARTIFACT_DIRECTORY: artifacts
+  REPORT_DIRECTORY: reports
 
   # Conda environment
   CONDA_ENV: sc_sdk_nightly_test_environment
@@ -58,7 +60,7 @@ jobs:
           conda create -y -n $CONDA_ENV python=$PYTHON_VERSION
 
 
-      - name: Install package with deployment and test requirements
+      - name: Install package with dev requirements
         # Steps: Activate conda env, upgrade pip, install SDK
         run: |
           eval "$(conda shell.bash hook)"
@@ -66,11 +68,14 @@ jobs:
 
           python -m pip install --upgrade pip
 
-          pip install ".[deployment,tests]"
+          pip install ".[dev]"
 
-      - name: Create artifact directory
-        # Creates the temporary directory that is used to store the test artifacts
-        run: mkdir $ARTIFACT_DIRECTORY
+      - name: Create artifact directories
+        # Creates the temporary directories that are used to store the test
+        # artifacts and reports
+        run: |
+          mkdir $ARTIFACT_DIRECTORY
+          mkdir $REPORT_DIRECTORY
 
       - name: Nightly tests
         # Proxy settings have to be configured and SC_HOST set to full address before
@@ -83,20 +88,15 @@ jobs:
           eval "$(conda shell.bash hook)"
           conda activate $CONDA_ENV
 
-          pytest tests/nightly --cov=sc_api_tools
+          pytest tests/nightly --cov=sc_api_tools --html=$REPORT_DIRECTORY/nightly_test_report.html --self-contained-html
 
-      - name: Upload artifacts
+      - name: Upload artifacts for nightly tests
         # Publish the test artifacts in the $ARTIFACT_DIRECTORY to github
         uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
           name: artifacts
           path: ${{ env.ARTIFACT_DIRECTORY }}
-
-      - name: Clean up artifact directory
-        # Remove temporary artifact directory
-        if: ${{ always() }}
-        run: rm -r $ARTIFACT_DIRECTORY
 
       - name: Integration tests
         # Run all integration tests in online mode (set in TEST_MODE env variable).
@@ -109,5 +109,19 @@ jobs:
           eval "$(conda shell.bash hook)"
           conda activate $CONDA_ENV
 
-          pytest tests/integration --cov=sc_api_tools
+          pytest tests/integration --cov=sc_api_tools --html=$REPORT_DIRECTORY/integration_test_report.html --self-contained-html
 
+      - name: Upload test reports
+        # Publish the test reports to github
+        uses: actions/upload-artifact@v3
+        if: ${{ always() }}
+        with:
+          name: test-reports
+          path: ${{ env.REPORT_DIRECTORY }}
+
+      - name: Clean up artifact directories
+        # Remove temporary artifact and report directories
+        if: ${{ always() }}
+        run: |
+          rm -r $ARTIFACT_DIRECTORY
+          rm -r $REPORT_DIRECTORY

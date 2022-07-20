@@ -1,8 +1,0 @@
-datumaro==0.3
-requests==2.26.*
-numpy>=1.19.5
-omegaconf==2.1.*
-opencv-python==4.5.*
-python-dotenv>=0.20.0
-tqdm>=4.62.3
-ote-sdk @ git+https://github.com/openvinotoolkit/training_extensions/@releases/v0.2.0-sc1.1#egg=ote-sdk&subdirectory=ote_sdk

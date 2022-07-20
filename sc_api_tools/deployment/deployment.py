@@ -1,21 +1,34 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
 import json
 import os
-from typing import List, Union, Optional, Dict, Any
+from typing import Any, Dict, List, Optional, Union
 
 import attr
-
 import numpy as np
 
-from ote_sdk.entities.label_schema import LabelSchemaEntity
-
 from sc_api_tools.data_models import (
+    Annotation,
+    Label,
+    Prediction,
     Project,
+    ScoredLabel,
     Task,
     TaskType,
-    Prediction,
-    Label, Annotation, ScoredLabel,
 )
-from sc_api_tools.data_models.shapes import Rectangle, Polygon, RotatedRectangle
+from sc_api_tools.data_models.shapes import Polygon, Rectangle, RotatedRectangle
 from sc_api_tools.deployment.data_models import ROI, IntermediateInferenceResult
 from sc_api_tools.deployment.deployed_model import DeployedModel
 from sc_api_tools.rest_converters import ProjectRESTConverter
@@ -24,15 +37,15 @@ from sc_api_tools.rest_converters import ProjectRESTConverter
 @attr.s(auto_attribs=True)
 class Deployment:
     """
-    This class represents a deployed SC project that can be used to run inference
-    locally
+    Representation of a deployed SC project that can be used to run inference locally
     """
+
     project: Project
     models: List[DeployedModel]
 
     def __attrs_post_init__(self):
         """
-        Initializes private attributes
+        Initialize private attributes.
         """
         self._is_single_task: bool = len(self.project.get_trainable_tasks()) == 1
         self._are_models_loaded: bool = False
@@ -42,7 +55,7 @@ class Deployment:
     @property
     def is_single_task(self) -> bool:
         """
-        Returns True if the deployment represents a project with only a single task
+        Return True if the deployment represents a project with only a single task.
 
         :return: True if the deployed project contains only one trainable task, False
             if it is a pipeline project
@@ -52,8 +65,8 @@ class Deployment:
     @property
     def are_models_loaded(self) -> bool:
         """
-        Returns True if all inference models for the Deployment are loaded and ready
-        to infer
+        Return True if all inference models for the Deployment are loaded and ready
+        to infer.
 
         :return: True if all inference models for the deployed project are loaded in
             memory and ready for inference
@@ -62,18 +75,18 @@ class Deployment:
 
     def save(self, path_to_folder: Union[str, os.PathLike]):
         """
-        Saves the Deployment instance to a folder on local disk
+        Save the Deployment instance to a folder on local disk.
 
         :param path_to_folder: Folder to save the deployment to
         """
         project_dict = ProjectRESTConverter.to_dict(self.project)
-        deployment_folder = os.path.join(path_to_folder, 'deployment')
+        deployment_folder = os.path.join(path_to_folder, "deployment")
 
         if not os.path.exists(deployment_folder):
             os.makedirs(deployment_folder)
         # Save project data
-        project_filepath = os.path.join(deployment_folder, 'project.json')
-        with open(project_filepath, 'w') as project_file:
+        project_filepath = os.path.join(deployment_folder, "project.json")
+        with open(project_filepath, "w") as project_file:
             json.dump(project_dict, project_file, indent=4)
         # Save model for each task
         for task, model in zip(self.project.get_trainable_tasks(), self.models):
@@ -83,24 +96,24 @@ class Deployment:
             model.save(model_dir)
 
     @classmethod
-    def from_folder(cls, path_to_folder: Union[str, os.PathLike]) -> 'Deployment':
+    def from_folder(cls, path_to_folder: Union[str, os.PathLike]) -> "Deployment":
         """
-        Creates a Deployment instance from a specified `path_to_folder`
+        Create a Deployment instance from a specified `path_to_folder`.
 
         :param path_to_folder: Path to the folder containing the Deployment data
         :return: Deployment instance corresponding to the deployment data in the folder
         """
         deployment_folder = path_to_folder
         if not path_to_folder.endswith("deployment"):
-            if 'deployment' in os.listdir(path_to_folder):
-                deployment_folder = os.path.join(path_to_folder, 'deployment')
+            if "deployment" in os.listdir(path_to_folder):
+                deployment_folder = os.path.join(path_to_folder, "deployment")
             else:
                 raise ValueError(
                     f"No `deployment` folder found in the directory at "
                     f"`{path_to_folder}`. Unable to load Deployment."
                 )
-        project_filepath = os.path.join(deployment_folder, 'project.json')
-        with open(project_filepath, 'r') as project_file:
+        project_filepath = os.path.join(deployment_folder, "project.json")
+        with open(project_filepath, "r") as project_file:
             project_dict = json.load(project_file)
         project = ProjectRESTConverter.from_dict(project_dict)
         task_folder_names = [task.title for task in project.get_trainable_tasks()]
@@ -111,16 +124,16 @@ class Deployment:
             )
         return cls(models=models, project=project)
 
-    def load_inference_models(self, device: str = 'CPU'):
+    def load_inference_models(self, device: str = "CPU"):
         """
-        Loads the inference models for the deployment to the specified device
+        Load the inference models for the deployment to the specified device.
 
         :param device: Device to load the inference models to
         """
         try:
             from ote_sdk.usecases.exportable_code.prediction_to_annotation_converter import (
+                IPredictionToAnnotationConverter,
                 create_converter,
-                IPredictionToAnnotationConverter
             )
         except ImportError as error:
             raise ValueError(
@@ -135,16 +148,9 @@ class Deployment:
             model.load_inference_model(device=device)
 
             inference_converter = create_converter(
-                converter_type=task.type.to_ote_domain(),
-                labels=LabelSchemaEntity.from_labels(
-                    labels=[
-                        label.to_ote(task_type=task.type) for label in task.labels
-                    ]
-                )
+                converter_type=task.type.to_ote_domain(), labels=model.ote_label_schema
             )
-            inference_converters.update(
-                {task.title: inference_converter}
-            )
+            inference_converters.update({task.title: inference_converter})
             empty_label = next((label for label in task.labels if label.is_empty), None)
             empty_labels.update({task.title: empty_label})
 
@@ -154,7 +160,7 @@ class Deployment:
 
     def infer(self, image: np.ndarray) -> Prediction:
         """
-        Runs inference on an image for the full model chain in the deployment
+        Run inference on an image for the full model chain in the deployment.
 
         :param image: Image to run inference on, as a numpy array containing the pixel
             data. The image is expected to have dimensions [height x width x channels],
@@ -189,9 +195,7 @@ class Deployment:
                         for annotation in task_prediction.annotations
                     ]
                 intermediate_result = IntermediateInferenceResult(
-                    image=image,
-                    prediction=task_prediction,
-                    rois=rois
+                    image=image, prediction=task_prediction, rois=rois
                 )
                 previous_labels = [label for label in task.labels if not label.is_empty]
 
@@ -245,8 +249,8 @@ class Deployment:
 
     def _infer_task(self, image: np.ndarray, task: Task) -> Prediction:
         """
-        Runs pre-processing, inference, and post-processing on the input `image`, for
-        the model associated with the `task`
+        Run pre-processing, inference, and post-processing on the input `image`, for
+        the model associated with the `task`.
 
         :param image: Image to run inference on
         :param task: Task to run inference for
@@ -255,22 +259,17 @@ class Deployment:
         model = self._get_model_for_task(task)
         preprocessed_image, metadata = model.preprocess(image)
         inference_results = model.infer(preprocessed_image)
-        postprocessing_results = model.postprocess(
-            inference_results, metadata=metadata
-        )
+        postprocessing_results = model.postprocess(inference_results, metadata=metadata)
         converter = self._inference_converters[task.title]
 
         width: int = image.shape[1]
         height: int = image.shape[0]
 
         annotation_scene_entity = converter.convert_to_annotation(
-            predictions=postprocessing_results,
-            metadata=metadata
+            predictions=postprocessing_results, metadata=metadata
         )
         prediction = Prediction.from_ote(
-            annotation_scene_entity,
-            image_width=width,
-            image_height=height
+            annotation_scene_entity, image_width=width, image_height=height
         )
 
         # Empty label is not generated by OTE correctly, append it here if there are
@@ -284,13 +283,14 @@ class Deployment:
                             ScoredLabel.from_label(
                                 self._empty_labels[task.title], probability=1
                             )
-                        ]
+                        ],
                     )
                 )
 
+        # Rotated detection models produce Polygons, convert them here to
+        # RotatedRectangles
         if task.type == TaskType.ROTATED_DETECTION:
-            # Rotated detection models produce Polygons, convert them here to
-            # RotatedRectangles
+
             for annotation in prediction.annotations:
                 if isinstance(annotation.shape, Polygon):
                     annotation.shape = RotatedRectangle.from_polygon(annotation.shape)
@@ -298,7 +298,7 @@ class Deployment:
 
     def _get_model_for_task(self, task: Task) -> DeployedModel:
         """
-        Gets the DeployedModel instance corresponding to the input `task`
+        Get the DeployedModel instance corresponding to the input `task`.
 
         :param task: Task to get the model for
         :return: DeployedModel corresponding to the task

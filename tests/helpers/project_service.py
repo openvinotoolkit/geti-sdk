@@ -1,21 +1,36 @@
-from contextlib import nullcontext
-from typing import Optional, List, Union, Dict, Any, Sequence
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
 
-from sc_api_tools.annotation_readers import AnnotationReader, DatumAnnotationReader
+from contextlib import nullcontext
+from typing import Any, Dict, List, Optional, Sequence, Union
+
 from vcr import VCR
 
 from sc_api_tools import SCRESTClient
+from sc_api_tools.annotation_readers import AnnotationReader, DatumAnnotationReader
 from sc_api_tools.data_models import Project, TaskType
-from sc_api_tools.rest_managers import (
-    ProjectManager,
-    ConfigurationManager,
-    ImageManager,
-    AnnotationManager,
-    TrainingManager,
-    VideoManager,
-    ModelManager,
-    PredictionManager,
+from sc_api_tools.rest_clients import (
+    AnnotationClient,
+    ConfigurationClient,
+    ImageClient,
+    ModelClient,
+    PredictionClient,
+    ProjectClient,
+    TrainingClient,
+    VideoClient,
 )
+
 from .constants import CASSETTE_EXTENSION, PROJECT_PREFIX
 from .finalizers import force_delete_project
 
@@ -23,7 +38,7 @@ from .finalizers import force_delete_project
 class ProjectService:
     """
     This class contains functionality to quickly create projects and interact with
-    them through the respective manager clients
+    them through the respective client clients
 
     :param client: SCRESTClient instance representing the SC server and workspace in
         which to create the project
@@ -31,6 +46,7 @@ class ProjectService:
         lifespan. If left as None, no requests will be recorded or played back from
         VCR cassettes
     """
+
     def __init__(self, client: SCRESTClient, vcr: Optional[VCR] = None):
         if vcr is None:
             self.vcr_context = nullcontext
@@ -38,33 +54,33 @@ class ProjectService:
             self.vcr_context = vcr.use_cassette
         self.session = client.session
         self.workspace_id = client.workspace_id
-        self.project_manager = ProjectManager(
+        self.project_client = ProjectClient(
             session=client.session, workspace_id=client.workspace_id
         )
 
         self._project: Optional[Project] = None
-        self._configuration_manager: Optional[ConfigurationManager] = None
-        self._image_manager: Optional[ImageManager] = None
-        self._annotation_manager: Optional[AnnotationManager] = None
-        self._training_manager: Optional[TrainingManager] = None
-        self._video_manager: Optional[VideoManager] = None
-        self._model_manager: Optional[ModelManager] = None
-        self._prediction_manager: Optional[PredictionManager] = None
-        self._manager_names = [
-            "_configuration_manager",
-            "_image_manager",
-            "_annotation_manager",
-            "_training_manager",
-            "_video_manager",
-            "_model_manager",
-            "_prediction_manager"
+        self._configuration_client: Optional[ConfigurationClient] = None
+        self._image_client: Optional[ImageClient] = None
+        self._annotation_client: Optional[AnnotationClient] = None
+        self._training_client: Optional[TrainingClient] = None
+        self._video_client: Optional[VideoClient] = None
+        self._model_client: Optional[ModelClient] = None
+        self._prediction_client: Optional[PredictionClient] = None
+        self._client_names = [
+            "_configuration_client",
+            "_image_client",
+            "_annotation_client",
+            "_training_client",
+            "_video_client",
+            "_model_client",
+            "_prediction_client",
         ]
 
     def create_project(
-            self,
-            project_name: Optional[str] = None,
-            project_type: str = "classification",
-            labels: Optional[List[Union[List[str], List[Dict[str, Any]]]]] = None
+        self,
+        project_name: Optional[str] = None,
+        project_type: str = "classification",
+        labels: Optional[List[Union[List[str], List[Dict[str, Any]]]]] = None,
     ) -> Project:
         """
         Create a project according to the `name`, `project_type` and `labels` specified.
@@ -80,10 +96,8 @@ class ProjectService:
             if labels is None:
                 labels = [["cube", "cylinder"]]
             with self.vcr_context(f"{project_name}.{CASSETTE_EXTENSION}"):
-                project = self.project_manager.create_project(
-                    project_name=project_name,
-                    project_type=project_type,
-                    labels=labels
+                project = self.project_client.create_project(
+                    project_name=project_name, project_type=project_type, labels=labels
                 )
                 self._project = project
                 return project
@@ -95,10 +109,10 @@ class ProjectService:
             )
 
     def get_or_create_project(
-            self,
-            project_name: str = "sdk_test_project_simple",
-            project_type: str = "classification",
-            labels: Optional[List[Union[List[str], List[Dict[str, Any]]]]] = None
+        self,
+        project_name: str = "sdk_test_project_simple",
+        project_type: str = "classification",
+        labels: Optional[List[Union[List[str], List[Dict[str, Any]]]]] = None,
     ) -> Project:
         """
         This method will always return a project. It will either create a new one, or
@@ -148,102 +162,102 @@ class ProjectService:
         return len(self.project.get_trainable_tasks()) > 1
 
     @property
-    def image_manager(self) -> ImageManager:
-        """ Returns the ImageManager instance for the project """
-        if self._image_manager is None:
+    def image_client(self) -> ImageClient:
+        """Returns the ImageClient instance for the project"""
+        if self._image_client is None:
             with self.vcr_context(
-                f"{self.project.name}_image_manager.{CASSETTE_EXTENSION}"
+                f"{self.project.name}_image_client.{CASSETTE_EXTENSION}"
             ):
-                self._image_manager = ImageManager(
+                self._image_client = ImageClient(
                     session=self.session,
                     workspace_id=self.workspace_id,
-                    project=self.project
+                    project=self.project,
                 )
-        return self._image_manager
+        return self._image_client
 
     @property
-    def video_manager(self) -> VideoManager:
-        """ Returns the VideoManager instance for the project """
-        if self._video_manager is None:
+    def video_client(self) -> VideoClient:
+        """Returns the VideoClient instance for the project"""
+        if self._video_client is None:
             with self.vcr_context(
-                f"{self.project.name}_video_manager.{CASSETTE_EXTENSION}"
+                f"{self.project.name}_video_client.{CASSETTE_EXTENSION}"
             ):
-                self._video_manager = VideoManager(
+                self._video_client = VideoClient(
                     session=self.session,
                     workspace_id=self.workspace_id,
-                    project=self.project
+                    project=self.project,
                 )
-        return self._video_manager
+        return self._video_client
 
     @property
-    def annotation_manager(self) -> AnnotationManager:
-        """ Returns the AnnotationManager instance for the project """
-        if self._annotation_manager is None:
+    def annotation_client(self) -> AnnotationClient:
+        """Returns the AnnotationClient instance for the project"""
+        if self._annotation_client is None:
             with self.vcr_context(
-                f"{self.project.name}_annotation_manager.{CASSETTE_EXTENSION}"
+                f"{self.project.name}_annotation_client.{CASSETTE_EXTENSION}"
             ):
-                self._annotation_manager = AnnotationManager(
+                self._annotation_client = AnnotationClient(
                     session=self.session,
                     workspace_id=self.workspace_id,
-                    project=self.project
+                    project=self.project,
                 )
-        return self._annotation_manager
+        return self._annotation_client
 
     @property
-    def configuration_manager(self) -> ConfigurationManager:
-        """ Returns the ConfigurationManager instance for the project """
-        if self._configuration_manager is None:
+    def configuration_client(self) -> ConfigurationClient:
+        """Returns the ConfigurationClient instance for the project"""
+        if self._configuration_client is None:
             with self.vcr_context(
-                f"{self.project.name}_configuration_manager.{CASSETTE_EXTENSION}"
+                f"{self.project.name}_configuration_client.{CASSETTE_EXTENSION}"
             ):
-                self._configuration_manager = ConfigurationManager(
+                self._configuration_client = ConfigurationClient(
                     session=self.session,
                     workspace_id=self.workspace_id,
-                    project=self.project
+                    project=self.project,
                 )
-        return self._configuration_manager
+        return self._configuration_client
 
     @property
-    def training_manager(self) -> TrainingManager:
-        """ Returns the TrainingManager instance for the project """
-        if self._training_manager is None:
+    def training_client(self) -> TrainingClient:
+        """Returns the TrainingClient instance for the project"""
+        if self._training_client is None:
             with self.vcr_context(
-                f"{self.project.name}_training_manager.{CASSETTE_EXTENSION}"
+                f"{self.project.name}_training_client.{CASSETTE_EXTENSION}"
             ):
-                self._training_manager = TrainingManager(
+                self._training_client = TrainingClient(
                     session=self.session,
                     workspace_id=self.workspace_id,
-                    project=self.project
+                    project=self.project,
                 )
-        return self._training_manager
+        return self._training_client
 
     @property
-    def prediction_manager(self) -> PredictionManager:
-        """ Returns the PredictionManager instance for the project """
-        if self._prediction_manager is None:
+    def prediction_client(self) -> PredictionClient:
+        """Returns the PredictionClient instance for the project"""
+        if self._prediction_client is None:
             with self.vcr_context(
-                    f"{self.project.name}_prediction_manager.{CASSETTE_EXTENSION}"
+                f"{self.project.name}_prediction_client.{CASSETTE_EXTENSION}"
             ):
-                self._prediction_manager = PredictionManager(
+                self._prediction_client = PredictionClient(
                     session=self.session,
                     workspace_id=self.workspace_id,
-                    project=self.project
+                    project=self.project,
                 )
-        return self._prediction_manager
+        return self._prediction_client
 
     @property
-    def model_manager(self) -> ModelManager:
-        """ Returns the ModelManager instance for the project """
-        if self._model_manager is None:
+    def model_client(self) -> ModelClient:
+        """Returns the ModelClient instance for the project"""
+        if self._model_client is None:
             with self.vcr_context(
-                    f"{self.project.name}_model_manager.{CASSETTE_EXTENSION}"
+                f"{self.project.name}_model_client.{CASSETTE_EXTENSION}"
             ):
-                self._model_manager = ModelManager(
+                self._model_client = ModelClient(
                     session=self.session,
                     workspace_id=self.workspace_id,
-                    project=self.project
+                    project=self.project,
                 )
-        return self._model_manager
+        return self._model_client
 
     @property
     def is_training(self) -> bool:
@@ -256,19 +270,15 @@ class ProjectService:
         """
         if not self.has_project:
             return False
-        with self.vcr_context(
-                f"{self.project.name}_is_training.{CASSETTE_EXTENSION}"
-        ):
-            jobs = self.training_manager.get_jobs(project_only=True)
+        with self.vcr_context(f"{self.project.name}_is_training.{CASSETTE_EXTENSION}"):
+            jobs = self.training_client.get_jobs(project_only=True)
             return len(jobs) > 0
 
     def delete_project(self):
-        """ Deletes the project from the server """
+        """Deletes the project from the server"""
         if self._project is not None:
-            with self.vcr_context(
-                f"{self.project.name}_deletion.{CASSETTE_EXTENSION}"
-            ):
-                force_delete_project(self.project.name, self.project_manager)
+            with self.vcr_context(f"{self.project.name}_deletion.{CASSETTE_EXTENSION}"):
+                force_delete_project(self.project.name, self.project_client)
                 self.reset_state()
 
     def reset_state(self) -> None:
@@ -277,11 +287,11 @@ class ProjectService:
         once the project belonging to the project service is deleted from the server
         """
         self._project = None
-        for manager_name in self._manager_names:
-            setattr(self, manager_name, None)
+        for client_name in self._client_names:
+            setattr(self, client_name, None)
 
     def add_annotated_media(
-            self, annotation_readers: Sequence[AnnotationReader], n_images: int = 12
+        self, annotation_readers: Sequence[AnnotationReader], n_images: int = 12
     ) -> None:
         """
         Adds annotated media to the project
@@ -304,15 +314,13 @@ class ProjectService:
             f"{self.project.name}_add_annotated_media.{CASSETTE_EXTENSION}"
         ):
             if isinstance(annotation_reader_1, DatumAnnotationReader):
-                images = self.image_manager.upload_from_list(
+                images = self.image_client.upload_from_list(
                     path_to_folder=data_path,
                     image_names=annotation_reader_1.get_all_image_names(),
-                    n_images=n_images
+                    n_images=n_images,
                 )
             else:
-                images = self.image_manager.upload_folder(
-                    data_path, n_images=n_images
-                )
+                images = self.image_client.upload_folder(data_path, n_images=n_images)
 
             if n_images < len(images) and n_images != -1:
                 images = images[:n_images]
@@ -323,11 +331,12 @@ class ProjectService:
                 annotation_readers[task_index].prepare_and_set_dataset(
                     task_type=task.type
                 )
-                self.annotation_manager.annotation_reader = annotation_readers[task_index]
+                self.annotation_client.annotation_reader = annotation_readers[
+                    task_index
+                ]
                 # Upload annotations
-                self.annotation_manager.upload_annotations_for_images(
-                    images=images,
-                    append_annotations=task_index > 0
+                self.annotation_client.upload_annotations_for_images(
+                    images=images, append_annotations=task_index > 0
                 )
 
     def set_auto_train(self, auto_train: bool = True) -> None:
@@ -339,7 +348,7 @@ class ProjectService:
         with self.vcr_context(
             f"{self.project.name}_set_auto_train.{CASSETTE_EXTENSION}"
         ):
-            self.configuration_manager.set_project_auto_train(auto_train=auto_train)
+            self.configuration_client.set_project_auto_train(auto_train=auto_train)
 
     def set_minimal_training_hypers(self) -> None:
         """
@@ -350,12 +359,12 @@ class ProjectService:
         with self.vcr_context(
             f"{self.project.name}_set_minimal_hypers.{CASSETTE_EXTENSION}"
         ):
-            self.configuration_manager.set_project_num_iterations(1)
+            self.configuration_client.set_project_num_iterations(1)
             for task in self.project.get_trainable_tasks():
-                task_config = self.configuration_manager.get_task_configuration(task.id)
+                task_config = self.configuration_client.get_task_configuration(task.id)
                 try:
-                    task_config.set_parameter_value('batch_size', 1)
-                    self.configuration_manager.set_configuration(task_config)
+                    task_config.set_parameter_value("batch_size", 1)
+                    self.configuration_client.set_configuration(task_config)
                 except ValueError:
                     print(
                         f"Parameter batch_size was not found in the configuration for "
@@ -376,8 +385,8 @@ class ProjectService:
                     TaskType.ROTATED_DETECTION,
                     TaskType.INSTANCE_SEGMENTATION,
                 ]:
-                    task_hypers = self.configuration_manager.get_task_configuration(
+                    task_hypers = self.configuration_client.get_task_configuration(
                         task_id=task.id
                     )
                     task_hypers.batch_size.value = 1
-                    self.configuration_manager.set_configuration(task_hypers)
+                    self.configuration_client.set_configuration(task_hypers)

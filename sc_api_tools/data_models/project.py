@@ -1,21 +1,38 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
 import copy
-from typing import List, Dict, Optional, ClassVar, Any, Union
 from pprint import pformat
+from typing import Any, ClassVar, Dict, List, Optional, Union
 
 import attr
 
-from sc_api_tools.utils.dictionary_helpers import remove_null_fields
-
-from .performance import Performance
 from .label import Label
+from .performance import Performance
 from .task import Task
-from .utils import deidentify, attr_value_serializer
+from .utils import (
+    attr_value_serializer,
+    deidentify,
+    remove_null_fields,
+    str_to_datetime,
+)
 
 
 @attr.s(auto_attribs=True)
 class Connection:
     """
-    Class representing a connection between two tasks in SC
+    Representation of a connection between two tasks in SC.
 
     :var to: Name of the task to which the connection is leading
     :var from_: Name of the task from which the connection originates
@@ -28,7 +45,7 @@ class Connection:
 @attr.s(auto_attribs=True)
 class Pipeline:
     """
-    Class representing a project pipeline in SC
+    Representation of a pipeline for a project in SC.
 
     :var tasks: List of tasks in the pipeline
     :var connections: List of connections between the tasks in the pipeline
@@ -40,7 +57,7 @@ class Pipeline:
     @property
     def trainable_tasks(self) -> List[Task]:
         """
-        Returns an ordered list of trainable tasks
+        Return an ordered list of trainable tasks.
 
         :return: List of trainable tasks in the pipeline
         """
@@ -48,8 +65,8 @@ class Pipeline:
 
     def resolve_connections(self):
         """
-        Replaces the task id's in the connections attribute of the pipeline with the
-        actual task titles
+        Replace the task id's in the connections attribute of the pipeline with the
+        actual task titles.
 
         :return:
         """
@@ -62,7 +79,7 @@ class Pipeline:
 
     def resolve_parent_labels(self):
         """
-        Replaces the parent_id's in the pipeline labels by the actual label names
+        Replace the parent_id's in the pipeline labels by the actual label names.
 
         :return:
         """
@@ -74,7 +91,7 @@ class Pipeline:
     @property
     def label_id_to_name_mapping(self) -> Dict[str, str]:
         """
-        Returns a mapping of label ID's to label names for all labels in the pipeline
+        Return a mapping of label ID's to label names for all labels in the pipeline.
 
         :return: dictionary containing the label ID's as keys and the label names as
             values
@@ -86,7 +103,7 @@ class Pipeline:
 
     def get_labels_per_task(self, include_empty: bool = True) -> List[List[Label]]:
         """
-        Returns a nested list of labels for each task in the pipeline.
+        Return a nested list of labels for each task in the pipeline.
 
         Each entry in the outermost list corresponds to a task in the pipeline. The
         innermost list holds the labels for that specific task
@@ -105,7 +122,7 @@ class Pipeline:
 
     def get_all_labels(self) -> List[Label]:
         """
-        Returns a list of all labels in the pipeline
+        Return a list of all labels in the pipeline.
 
         :return: List of all labels for every task in the pipeline
         """
@@ -114,11 +131,9 @@ class Pipeline:
             label_list.extend(task.labels)
         return label_list
 
-    def deidentify(self):
+    def deidentify(self) -> None:
         """
-        Removes all unique database ID's from the tasks and labels in the pipeline.
-
-        :return:
+        Remove all unique database ID's from the tasks and labels in the pipeline.
         """
         self.resolve_connections()
         self.resolve_parent_labels()
@@ -129,21 +144,22 @@ class Pipeline:
 @attr.s(auto_attribs=True)
 class Dataset:
     """
-    Class representing a dataset for a project in SC
+    Representation of a dataset for a project in SC.
 
     :var id: Unique database ID of the dataset
     :var name: name of the dataset
     """
 
-    _identifier_fields: ClassVar[str] = ["id", "thumbnail"]
+    _identifier_fields: ClassVar[str] = ["id", "creation_time"]
 
     name: str
     id: Optional[str] = None
+    creation_time: Optional[str] = attr.ib(default=None, converter=str_to_datetime)
+    use_for_training: Optional[bool] = None
 
-    def deidentify(self):
+    def deidentify(self) -> None:
         """
-        Removes unique database ID from the Dataset
-        :return:
+        Remove unique database ID from the Dataset.
         """
         deidentify(self)
 
@@ -151,7 +167,7 @@ class Dataset:
 @attr.s(auto_attribs=True)
 class Project:
     """
-    Class representing a project in SC
+    Representation of a project in SC.
 
     :var id: Unique database ID of the project
     :var name: Name of the project
@@ -161,20 +177,27 @@ class Project:
     :var score: Score achieved by the AI assistant for the project
     :var thumbnail: URL at which a thumbnail for the project can be obtained
     """
-    _identifier_fields: ClassVar[str] = ["id", "thumbnail", "creation_time"]
+
+    _identifier_fields: ClassVar[List[str]] = [
+        "id",
+        "thumbnail",
+        "creation_time",
+        "creator_id",
+    ]
 
     name: str
     pipeline: Pipeline
     datasets: List[Dataset]
     score: Optional[float] = None  # 'score' is removed in v1.1
     performance: Optional[Performance] = None
-    creation_time: Optional[str] = None
+    creation_time: Optional[str] = attr.ib(default=None, converter=str_to_datetime)
     id: Optional[str] = None
     thumbnail: Optional[str] = None
+    creator_id: Optional[str] = None
 
     def get_trainable_tasks(self) -> List[Task]:
         """
-        Returns an ordered list of trainable tasks
+        Return an ordered list of trainable tasks.
 
         :return: List of trainable tasks in the project
         """
@@ -183,8 +206,9 @@ class Project:
     @property
     def project_type(self) -> str:
         """
-        String containing the project type. The type is constructed by stringing the
-        types of tasks in the task chain together, separated by a '_to_' sequence.
+        Return a string containing the project type. The type is constructed by
+        concatenating the types of tasks in the task chain together, separated by a
+        '_to_' sequence.
 
         For example, a project with a detection task followed by a segmentation task
         will have it's project type set as: 'detection_to_segmentation'
@@ -200,9 +224,9 @@ class Project:
                 project_type += f"{task.task_type}"
         return project_type
 
-    def deidentify(self):
+    def deidentify(self) -> None:
         """
-        Removes all unique database ID's from the project, pipeline and datasets
+        Remove all unique database ID's from the project, pipeline and datasets.
 
         :return:
         """
@@ -213,7 +237,7 @@ class Project:
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        Converts the project to a dictionary representation
+        Convert the project to a dictionary representation.
 
         :return: Dictionary holding the project data
         """
@@ -224,10 +248,10 @@ class Project:
         return output_dict
 
     def get_labels_per_task(
-            self, include_empty: bool = True
+        self, include_empty: bool = True
     ) -> List[List[Dict[str, Any]]]:
         """
-        Returns a nested list containing the labels for each task in the project.
+        Return a nested list containing the labels for each task in the project.
         Each entry in the outermost list corresponds to a trainable task in the project.
 
         :param include_empty: True to include empty labels in the output, False to
@@ -243,20 +267,22 @@ class Project:
 
     def get_parameters(self) -> Dict[str, Union[str, List[str]]]:
         """
-        Returns the parameters used to create the project
+        Return the parameters used to create the project.
 
         :return: Dictionary containing the keys `project_name`, `project_type` and
             `labels`
         """
-        return {
+        parameter_dict = {
             "project_name": self.name,
             "project_type": self.project_type,
-            "labels": self.get_labels_per_task(include_empty=False)
+            "labels": self.get_labels_per_task(include_empty=False),
         }
+        remove_null_fields(parameter_dict)
+        return parameter_dict
 
     def get_all_labels(self) -> List[Label]:
         """
-        Returns a list of all labels in the project
+        Return a list of all labels in the project.
 
         :return: List of all labels in the project
         """
@@ -265,7 +291,7 @@ class Project:
     @property
     def overview(self) -> str:
         """
-        Returns a string that shows an overview of the project. This still shows all
+        Return a string that shows an overview of the project. This still shows all
         the detailed information of the project. If less details are required, please
         use the `summary` property
 
@@ -280,7 +306,7 @@ class Project:
     @property
     def summary(self) -> str:
         """
-        Returns a string that gives a very brief summary of the project. This is the
+        Return a string that gives a very brief summary of the project. This is the
         least detailed representation of the project, if more details are required
         please use the `overview` property
 
@@ -288,8 +314,10 @@ class Project:
         """
         summary_str = f"Project: {self.name}\n"
         for task_index, (task, labels) in enumerate(
-                zip(self.get_trainable_tasks(), self.pipeline.get_labels_per_task())
+            zip(self.get_trainable_tasks(), self.pipeline.get_labels_per_task())
         ):
-            summary_str += f"  Task {task_index+1}: {task.title}\n    Labels: " \
-                            f"{[label.name for label in labels]}\n"
+            summary_str += (
+                f"  Task {task_index+1}: {task.title}\n    Labels: "
+                f"{[label.name for label in labels]}\n"
+            )
         return summary_str

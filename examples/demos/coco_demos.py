@@ -3,22 +3,21 @@ from typing import Optional
 from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers import DatumAnnotationReader
 from sc_api_tools.data_models import Project
-from sc_api_tools.utils import get_task_types_by_project_type, get_coco_dataset
+from sc_api_tools.utils import get_coco_dataset, get_task_types_by_project_type
 
 
 def create_segmentation_demo_project(
-        client: SCRESTClient,
-        n_images: int,
-        n_annotations: int = -1,
-        auto_train: bool = False,
-        dataset_path: Optional[str] = None
+    client: SCRESTClient,
+    n_images: int,
+    n_annotations: int = -1,
+    auto_train: bool = False,
+    dataset_path: Optional[str] = None,
 ) -> Project:
     """
-    This method creates a demo project of type 'segmentation', based off the MS COCO
-    dataset.
+    Create a demo project of type 'segmentation', based off the MS COCO dataset.
 
-    It creates a project with a single 'Segmentation' task, with segmentation mask for
-    labels: 'backpack' and 'suitcase'.
+    This method creates a project with a single 'Segmentation' task, with segmentation
+    mask for labels: 'backpack' and 'suitcase'.
 
     :param client: SCRESTClient, representing the client for the SC cluster on which
         the project should be created.
@@ -45,12 +44,9 @@ def create_segmentation_demo_project(
 
     # Create annotation reader
     annotation_reader = DatumAnnotationReader(
-        base_data_folder=coco_path,
-        annotation_format='coco'
+        base_data_folder=coco_path, annotation_format="coco"
     )
-    annotation_reader.filter_dataset(
-        labels=labels_of_interest, criterion='OR'
-    )
+    annotation_reader.filter_dataset(labels=labels_of_interest, criterion="OR")
     # Create project and upload data
     return client.create_single_task_project_from_dataset(
         project_name=project_name,
@@ -60,23 +56,22 @@ def create_segmentation_demo_project(
         labels=labels_of_interest,
         number_of_images_to_upload=n_images,
         number_of_images_to_annotate=n_annotations,
-        enable_auto_train=auto_train
+        enable_auto_train=auto_train,
     )
 
 
 def create_detection_demo_project(
-        client: SCRESTClient,
-        n_images: int,
-        n_annotations: int = -1,
-        auto_train: bool = False,
-        dataset_path: Optional[str] = None
+    client: SCRESTClient,
+    n_images: int,
+    n_annotations: int = -1,
+    auto_train: bool = False,
+    dataset_path: Optional[str] = None,
 ) -> Project:
     """
-    This method creates a demo project of type 'detection', based off the MS COCO
-    dataset.
+    Create a demo project of type 'detection', based off the MS COCO dataset.
 
-    It creates a project with a single 'Detection' task, with labels and annotations
-    for 'cell phone' and 'person' objects
+    This method creates a project with a single 'Detection' task, with labels and
+    annotations for 'cell phone' and 'person' objects
 
     :param client: SCRESTClient, representing the client for the SC cluster on which
         the project should be created.
@@ -103,12 +98,9 @@ def create_detection_demo_project(
 
     # Create annotation reader
     annotation_reader = DatumAnnotationReader(
-        base_data_folder=coco_path,
-        annotation_format='coco'
+        base_data_folder=coco_path, annotation_format="coco"
     )
-    annotation_reader.filter_dataset(
-        labels=labels_of_interest, criterion='AND'
-    )
+    annotation_reader.filter_dataset(labels=labels_of_interest, criterion="AND")
     # Create project and upload data
     return client.create_single_task_project_from_dataset(
         project_name=project_name,
@@ -118,24 +110,23 @@ def create_detection_demo_project(
         labels=labels_of_interest,
         number_of_images_to_upload=n_images,
         number_of_images_to_annotate=n_annotations,
-        enable_auto_train=auto_train
+        enable_auto_train=auto_train,
     )
 
 
 def create_classification_demo_project(
-        client: SCRESTClient,
-        n_images: int,
-        n_annotations: int = -1,
-        auto_train: bool = False,
-        dataset_path: Optional[str] = None
+    client: SCRESTClient,
+    n_images: int,
+    n_annotations: int = -1,
+    auto_train: bool = False,
+    dataset_path: Optional[str] = None,
 ) -> Project:
     """
-    This method creates a demo project of type 'classification', based off the MS COCO
-    dataset
+    Create a demo project of type 'classification', based off the MS COCO dataset.
 
-    It creates a project with a single 'Classification' task, with labels to classify
-    images with different types of animals. The following animals are considered:
-    "horse", "cat", "zebra", "bear"
+    This method creates a project with a single 'Classification' task, with labels to
+    classify images with different types of animals. The following animals are
+    considered: "horse", "cat", "zebra", "bear"
 
     :param client: SCRESTClient, representing the client for the SC cluster on which
         the project should be created.
@@ -162,12 +153,9 @@ def create_classification_demo_project(
 
     # Create annotation reader
     annotation_reader = DatumAnnotationReader(
-        base_data_folder=coco_path,
-        annotation_format='coco'
+        base_data_folder=coco_path, annotation_format="coco"
     )
-    annotation_reader.filter_dataset(
-        labels=labels_of_interest, criterion='XOR'
-    )
+    annotation_reader.filter_dataset(labels=labels_of_interest, criterion="XOR")
     # Create project and upload data
     return client.create_single_task_project_from_dataset(
         project_name=project_name,
@@ -177,23 +165,23 @@ def create_classification_demo_project(
         labels=labels_of_interest,
         number_of_images_to_upload=n_images,
         number_of_images_to_annotate=n_annotations,
-        enable_auto_train=auto_train
+        enable_auto_train=auto_train,
     )
 
 
 def create_anomaly_classification_demo_project(
-        client: SCRESTClient,
-        n_images: int,
-        n_annotations: int = -1,
-        auto_train: bool = False,
-        dataset_path: Optional[str] = None
+    client: SCRESTClient,
+    n_images: int,
+    n_annotations: int = -1,
+    auto_train: bool = False,
+    dataset_path: Optional[str] = None,
 ) -> Project:
     """
-    This method creates a demo project of type 'anomaly_classification', based off the
-    MS COCO dataset.
+    Create a demo project of type 'anomaly_classification', based off the MS COCO
+    dataset.
 
-    It creates a project with a single 'Anomaly classification' task. Images with
-    animals in them are considered 'Normal', whereas images with traffic lights or
+    This method creates a project with a single 'Anomaly classification' task. Images
+    with animals in them are considered 'Normal', whereas images with traffic lights or
     stop signs in them are considered 'Anomalous'
 
     :param client: SCRESTClient, representing the client for the SC cluster on which
@@ -224,19 +212,14 @@ def create_anomaly_classification_demo_project(
 
     # Create annotation reader
     annotation_reader = DatumAnnotationReader(
-        base_data_folder=coco_path,
-        annotation_format='coco'
+        base_data_folder=coco_path, annotation_format="coco"
     )
-    annotation_reader.filter_dataset(
-        labels=labels_of_interest, criterion='XOR'
-    )
+    annotation_reader.filter_dataset(labels=labels_of_interest, criterion="XOR")
 
     # Create groups of "Normal" and "Anomalous" images, since those are the only
     # label names allowed for anomaly classification
     # All animals will be considered "Normal"
-    annotation_reader.group_labels(
-        labels_to_group=animal_labels, group_name="Normal"
-    )
+    annotation_reader.group_labels(labels_to_group=animal_labels, group_name="Normal")
     # Cars and bicycles will go in the "Anomalous" group
     annotation_reader.group_labels(
         labels_to_group=traffic_labels, group_name="Anomalous"
@@ -251,23 +234,23 @@ def create_anomaly_classification_demo_project(
         labels=labels_of_interest,
         number_of_images_to_upload=n_images,
         number_of_images_to_annotate=n_annotations,
-        enable_auto_train=auto_train
+        enable_auto_train=auto_train,
     )
 
 
 def create_detection_to_segmentation_demo_project(
-        client: SCRESTClient,
-        n_images: int,
-        n_annotations: int = -1,
-        auto_train: bool = False,
-        dataset_path: Optional[str] = None
+    client: SCRESTClient,
+    n_images: int,
+    n_annotations: int = -1,
+    auto_train: bool = False,
+    dataset_path: Optional[str] = None,
 ) -> Project:
     """
-    This method creates a demo project of type 'detection_to_segmentation', based
-    off the MS COCO dataset.
+    Create a demo project of type 'detection_to_segmentation', based off the MS COCO
+    dataset.
 
-    It creates a project with a 'Detection' task, followed by a 'Segmentation' task.
-    The detection task has the label 'animal', and the segmentation task has
+    This method creates a project with a 'Detection' task, followed by a 'Segmentation'
+    task. The detection task has the label 'animal', and the segmentation task has
     annotations for the following species:
         "dog", "cat", "horse", "elephant", "cow", "sheep", "giraffe", "zebra", "bear"
 
@@ -289,23 +272,17 @@ def create_detection_to_segmentation_demo_project(
         created on the SC cluster.
     """
     coco_path = get_coco_dataset(dataset_path)
-    print(
-        "\n ------- Creating detection -> segmentation project --------------- \n"
-    )
-    animal_labels = [
-        "dog", "cat", "horse", "cow", "sheep"
-    ]
+    print("\n ------- Creating detection -> segmentation project --------------- \n")
+    animal_labels = ["dog", "cat", "horse", "cow", "sheep"]
     project_type = "detection_to_segmentation"
     project_name = "Animal detection to segmentation demo"
 
     label_source_per_task = []
     for task_type in get_task_types_by_project_type(project_type):
         annotation_reader = DatumAnnotationReader(
-            base_data_folder=coco_path,
-            annotation_format='coco',
-            task_type=task_type
+            base_data_folder=coco_path, annotation_format="coco", task_type=task_type
         )
-        annotation_reader.filter_dataset(labels=animal_labels, criterion='OR')
+        annotation_reader.filter_dataset(labels=animal_labels, criterion="OR")
         label_source_per_task.append(annotation_reader)
 
     # Group the labels for the first annotation reader, so that the detection task
@@ -322,24 +299,24 @@ def create_detection_to_segmentation_demo_project(
         label_source_per_task=label_source_per_task,
         number_of_images_to_upload=n_images,
         number_of_images_to_annotate=n_annotations,
-        enable_auto_train=auto_train
+        enable_auto_train=auto_train,
     )
 
 
 def create_detection_to_classification_demo_project(
-        client: SCRESTClient,
-        n_images: int,
-        n_annotations: int = -1,
-        auto_train: bool = False,
-        dataset_path: Optional[str] = None
+    client: SCRESTClient,
+    n_images: int,
+    n_annotations: int = -1,
+    auto_train: bool = False,
+    dataset_path: Optional[str] = None,
 ) -> Project:
     """
-    This method creates a demo project of type 'detection_to_classification', based
-    off the MS COCO dataset.
+    Create a demo project of type 'detection_to_classification', based off the MS COCO
+    dataset.
 
-    It creates a project with a 'Detection' task, followed by a 'Classification' task.
-    The detection task has the label 'animal', and the detection task discriminates
-    between 'domestic' and 'wild' animals
+    This method creates a project with a 'Detection' task, followed by a
+    'Classification' task. The detection task has the label 'animal', and the
+    classification task discriminates between 'domestic' and 'wild' animals.
 
     :param client: SCRESTClient, representing the client for the SC cluster on which
         the project should be created.
@@ -358,9 +335,7 @@ def create_detection_to_classification_demo_project(
         created on the SC cluster.
     """
     coco_path = get_coco_dataset(dataset_path)
-    print(
-        "\n ------- Creating detection -> classification project --------------- \n"
-    )
+    print("\n ------- Creating detection -> classification project --------------- \n")
     domestic_labels = ["dog", "cat", "horse", "cow", "sheep"]
     wild_labels = ["elephant", "giraffe", "zebra", "bear"]
     animal_labels = domestic_labels + wild_labels
@@ -371,11 +346,9 @@ def create_detection_to_classification_demo_project(
     label_source_per_task = []
     for task_type in get_task_types_by_project_type(project_type):
         annotation_reader = DatumAnnotationReader(
-            base_data_folder=coco_path,
-            annotation_format='coco',
-            task_type=task_type
+            base_data_folder=coco_path, annotation_format="coco", task_type=task_type
         )
-        annotation_reader.filter_dataset(labels=animal_labels, criterion='OR')
+        annotation_reader.filter_dataset(labels=animal_labels, criterion="OR")
         label_source_per_task.append(annotation_reader)
 
     # Group the labels for the first annotation reader, so that the detection task
@@ -385,7 +358,7 @@ def create_detection_to_classification_demo_project(
     )
     # Group the labels for the second annotation reader
     label_source_per_task[1].group_labels(
-        labels_to_group=domestic_labels, group_name='domestic'
+        labels_to_group=domestic_labels, group_name="domestic"
     )
     label_source_per_task[1].group_labels(
         labels_to_group=wild_labels, group_name="wild"
@@ -398,5 +371,5 @@ def create_detection_to_classification_demo_project(
         label_source_per_task=label_source_per_task,
         number_of_images_to_upload=n_images,
         number_of_images_to_annotate=n_annotations,
-        enable_auto_train=auto_train
+        enable_auto_train=auto_train,
     )

@@ -1,3 +1,17 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
 import os
 import time
 from typing import List
@@ -5,21 +19,20 @@ from typing import List
 import cv2
 import pytest
 from _pytest.fixtures import FixtureRequest
-from sc_api_tools.http_session import SCRequestException
-
 from vcr import VCR
 
 from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers import DatumAnnotationReader
-from sc_api_tools.data_models import Project, Prediction
-from sc_api_tools.rest_managers import ImageManager, AnnotationManager
-
+from sc_api_tools.data_models import Prediction, Project
+from sc_api_tools.http_session import SCRequestException
+from sc_api_tools.rest_clients import AnnotationClient, ImageClient
 from tests.helpers import (
     ProjectService,
+    SdkTestMode,
+    attempt_to_train_task,
     get_or_create_annotated_project_for_test_class,
-    SdkTestMode
 )
-from tests.helpers.constants import PROJECT_PREFIX, CASSETTE_EXTENSION
+from tests.helpers.constants import CASSETTE_EXTENSION, PROJECT_PREFIX
 
 
 class TestSCRESTClient:
@@ -31,22 +44,22 @@ class TestSCRESTClient:
 
     @staticmethod
     def ensure_annotated_project(
-            project_service: ProjectService, annotation_reader: DatumAnnotationReader
+        project_service: ProjectService, annotation_reader: DatumAnnotationReader
     ) -> Project:
         return get_or_create_annotated_project_for_test_class(
             project_service=project_service,
             annotation_readers=[annotation_reader],
             project_type="detection",
             project_name=f"{PROJECT_PREFIX}_sc_rest_client",
-            enable_auto_train=False
+            enable_auto_train=False,
         )
 
     def test_project_setup(
-            self,
-            fxt_project_service: ProjectService,
-            fxt_annotation_reader: DatumAnnotationReader,
-            fxt_vcr: VCR,
-            fxt_test_mode: SdkTestMode
+        self,
+        fxt_project_service: ProjectService,
+        fxt_annotation_reader: DatumAnnotationReader,
+        fxt_vcr: VCR,
+        fxt_test_mode: SdkTestMode,
     ):
         """
         This test sets up an annotated project on the server, that persists for the
@@ -56,16 +69,20 @@ class TestSCRESTClient:
         self.ensure_annotated_project(fxt_project_service, fxt_annotation_reader)
         assert fxt_project_service.has_project
 
-        # Wait a few sec before starting training, to make sure all annotations are
-        # processed.
-        if fxt_test_mode != SdkTestMode.OFFLINE:
-            time.sleep(5)
-
         # For the integration tests we start training manually
         with fxt_vcr.use_cassette(
             f"{fxt_project_service.project.name}_setup_training.{CASSETTE_EXTENSION}"
         ):
-            fxt_project_service.training_manager.train_task(0)
+            attempt_to_train_task(
+                training_client=fxt_project_service.training_client,
+                task=0,
+                test_mode=fxt_test_mode,
+            )
+
+        # Wait a few secs to check whether the project is training
+        if fxt_test_mode != SdkTestMode.OFFLINE:
+            time.sleep(5)
+
         assert fxt_project_service.is_training
 
     def test_client_initialization(self, fxt_client: SCRESTClient):
@@ -83,15 +100,15 @@ class TestSCRESTClient:
             ("detection", "OR"),
             ("segmentation", "OR"),
             ("instance_segmentation", "OR"),
-            ("rotated_detection", "OR")
+            ("rotated_detection", "OR"),
         ],
         ids=[
             "Classification project",
             "Detection project",
             "Segmentation project",
             "Instance segmentation project",
-            "Rotated detection project"
-        ]
+            "Rotated detection project",
+        ],
     )
     def test_create_single_task_project_from_dataset(
         self,
@@ -102,7 +119,7 @@ class TestSCRESTClient:
         fxt_default_labels: List[str],
         fxt_image_folder: str,
         fxt_project_finalizer,
-        request: FixtureRequest
+        request: FixtureRequest,
     ):
         """
         Test that creating a single task project from a datumaro dataset works
@@ -119,7 +136,7 @@ class TestSCRESTClient:
             project_type=project_type,
             path_to_images=fxt_image_folder,
             annotation_reader=fxt_annotation_reader,
-            enable_auto_train=False
+            enable_auto_train=False,
         )
 
         request.addfinalizer(lambda: fxt_project_finalizer(project_name))
@@ -130,8 +147,8 @@ class TestSCRESTClient:
         ["detection_to_classification", "detection_to_segmentation"],
         ids=[
             "Detection to classification project",
-            "Detection to segmentation project"
-        ]
+            "Detection to segmentation project",
+        ],
     )
     def test_create_task_chain_project_from_dataset(
         self,
@@ -141,7 +158,7 @@ class TestSCRESTClient:
         fxt_default_labels: List[str],
         fxt_image_folder: str,
         fxt_project_finalizer,
-        request: FixtureRequest
+        request: FixtureRequest,
     ):
         """
         Test that creating a task chain project from a datumaro dataset works
@@ -167,7 +184,7 @@ class TestSCRESTClient:
             project_type=project_type,
             path_to_images=fxt_image_folder,
             label_source_per_task=[annotation_reader_task_1, annotation_reader_task_2],
-            enable_auto_train=False
+            enable_auto_train=False,
         )
         request.addfinalizer(lambda: fxt_project_finalizer(project_name))
 
@@ -177,12 +194,12 @@ class TestSCRESTClient:
 
     @pytest.mark.vcr()
     def test_download_and_upload_project(
-            self,
-            fxt_project_service: ProjectService,
-            fxt_client: SCRESTClient,
-            fxt_temp_directory: str,
-            fxt_project_finalizer,
-            request: FixtureRequest
+        self,
+        fxt_project_service: ProjectService,
+        fxt_client: SCRESTClient,
+        fxt_temp_directory: str,
+        fxt_project_finalizer,
+        request: FixtureRequest,
     ):
         """
         Test that downloading a project works as expected.
@@ -204,49 +221,50 @@ class TestSCRESTClient:
         uploaded_project = fxt_client.upload_project(
             target_folder=target_folder,
             project_name=f"{PROJECT_PREFIX}_upload",
-            enable_auto_train=False
+            enable_auto_train=False,
         )
         request.addfinalizer(lambda: fxt_project_finalizer(uploaded_project.name))
-        image_manager = ImageManager(
+        image_client = ImageClient(
             session=fxt_client.session,
             workspace_id=fxt_client.workspace_id,
-            project=uploaded_project
+            project=uploaded_project,
         )
-        images = image_manager.get_all_images()
+        images = image_client.get_all_images()
         assert len(images) == n_images
 
-        annotation_manager = AnnotationManager(
+        annotation_client = AnnotationClient(
             session=fxt_client.session,
             workspace_id=fxt_client.workspace_id,
-            project=uploaded_project
+            project=uploaded_project,
         )
         annotation_target_folder = os.path.join(
             fxt_temp_directory, "uploaded_annotations"
         )
-        annotation_manager.download_annotations_for_images(
+        annotation_client.download_annotations_for_images(
             images, annotation_target_folder
         )
-        assert len(
-            os.listdir(os.path.join(annotation_target_folder, "annotations"))
-        ) == n_annotations
+        assert (
+            len(os.listdir(os.path.join(annotation_target_folder, "annotations")))
+            == n_annotations
+        )
 
     @pytest.mark.vcr()
     def test_upload_and_predict_image(
-            self,
-            fxt_client: SCRESTClient,
-            fxt_image_path: str,
-            fxt_project_service: ProjectService,
-            fxt_test_mode: SdkTestMode
+        self,
+        fxt_client: SCRESTClient,
+        fxt_image_path: str,
+        fxt_project_service: ProjectService,
+        fxt_test_mode: SdkTestMode,
     ) -> None:
         """
         Verifies that the upload_and_predict_image method works correctly
         """
         project = fxt_project_service.project
         # If training is not ready yet, monitor progress until job completes
-        if not fxt_project_service.prediction_manager.ready_to_predict:
+        if not fxt_project_service.prediction_client.ready_to_predict:
             timeout = 300 if fxt_test_mode != SdkTestMode.OFFLINE else 1
-            jobs = fxt_project_service.training_manager.get_jobs(project_only=True)
-            fxt_project_service.training_manager.monitor_jobs(jobs, timeout=timeout)
+            jobs = fxt_project_service.training_client.get_jobs(project_only=True)
+            fxt_project_service.training_client.monitor_jobs(jobs, timeout=timeout)
 
         # Make several attempts to get the prediction, first attempts trigger the
         # inference server to start up but the requests may time out
@@ -258,7 +276,7 @@ class TestSCRESTClient:
                     project_name=project.name,
                     image=fxt_image_path,
                     visualise_output=False,
-                    delete_after_prediction=False
+                    delete_after_prediction=False,
                 )
             except SCRequestException as error:
                 prediction = None
@@ -270,11 +288,11 @@ class TestSCRESTClient:
 
     @pytest.mark.vcr()
     def test_deployment(
-            self,
-            fxt_client: SCRESTClient,
-            fxt_image_path: str,
-            fxt_project_service: ProjectService,
-            fxt_temp_directory: str
+        self,
+        fxt_client: SCRESTClient,
+        fxt_image_path: str,
+        fxt_project_service: ProjectService,
+        fxt_temp_directory: str,
     ) -> None:
         """
         Verifies that deploying a project works
@@ -296,7 +314,7 @@ class TestSCRESTClient:
             project.name,
             image=image_np,
             delete_after_prediction=True,
-            visualise_output=False
+            visualise_output=False,
         )
 
         online_mask = online_prediction.as_mask(image.media_information)

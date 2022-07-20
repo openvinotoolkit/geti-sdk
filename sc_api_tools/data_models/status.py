@@ -1,29 +1,43 @@
-from typing import List, Dict, Any, Optional
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
+from typing import Any, Dict, List, Optional
 
 import attr
 
-from sc_api_tools.data_models import Performance
+from sc_api_tools.data_models.performance import Performance
 
 
 @attr.s(auto_attribs=True)
 class StatusSummary:
     """
-    This class represents a summary of the status of a project or task on the SC
-    cluster
+    Summary of the status of a project or task on the SC cluster.
 
     :var message: Human readable message describing the status
     :var progress: Training progress, if a model is being trained
     :var time_remaining: Estimated time remaining on the training process, if a model
         is being trained.
     """
+
     message: str
     progress: float
     time_remaining: float
 
     @classmethod
-    def from_dict(cls, status_dict: Dict[str, Any]) -> 'StatusSummary':
+    def from_dict(cls, status_dict: Dict[str, Any]) -> "StatusSummary":
         """
-        Creates a StatusSummary object from a dictionary
+        Create a StatusSummary object from a dictionary.
 
         :param status_dict: Dictionary representing a status, as returned by the SC
             /status and /jobs endpoints
@@ -35,14 +49,15 @@ class StatusSummary:
 @attr.s(auto_attribs=True)
 class LabelAnnotationRequirements:
     """
-    This class holds information regarding the required number of annotations for a
-    specific label
+    Detailed information regarding the required number of annotations for a
+    specific label.
 
     :var id: Unique database ID of the label
     :var label_name: Name of the label
     :var label_color: Color of the label
     :var value: Required number of annotations for this label
     """
+
     id: str
     label_name: str
     label_color: str
@@ -52,12 +67,13 @@ class LabelAnnotationRequirements:
 @attr.s(auto_attribs=True)
 class AnnotationRequirements:
     """
-    This class holds information regarding the required number of annotations before
-    auto-training can be triggered for a task in SC
+    Container holding the required number of annotations before auto-training can be
+    triggered for a task in SC.
 
     :var value: Total number of required annotations for the task
     :var details: Required annotations per label
     """
+
     details: List[LabelAnnotationRequirements]
     value: int
 
@@ -65,7 +81,7 @@ class AnnotationRequirements:
 @attr.s(auto_attribs=True)
 class TaskStatus:
     """
-    This class represents the status of a single task in SC.
+    Status of a single task in SC.
 
     :var id: Unique database ID of the task
     :var is_training: True if a training job is currently running for the task
@@ -76,6 +92,7 @@ class TaskStatus:
         message describing the status of the task
     :var title: Title of the taks
     """
+
     id: str
     is_training: bool
     required_annotations: AnnotationRequirements
@@ -86,7 +103,7 @@ class TaskStatus:
 @attr.s(auto_attribs=True)
 class ProjectStatus:
     """
-    This class represents the status of a project in SC
+    Status of a project in SC.
 
     :var is_training: True if a training job is currently running for any of the
         tasks in the project
@@ -98,6 +115,7 @@ class ProjectStatus:
     :var tasks: List of TaskStatus objects, detailing the status of each task in the
         project
     """
+
     is_training: bool
     n_required_annotations: int
     status: StatusSummary
@@ -111,14 +129,15 @@ class ProjectStatus:
     @property
     def summary(self) -> str:
         """
-        Returns a string that gives a very brief summary of the project status.
+        Return a string that gives a very brief summary of the project status.
 
         :return: String holding a brief summary of the project status
         """
         summary_str = f"Project status:\n  {self.status.message}\n"
         for task in self.tasks:
-            summary_str += f"    Task: {task.title}\n" \
-                           f"      State: {task.status.message}\n"
+            summary_str += (
+                f"    Task: {task.title}\n" f"      State: {task.status.message}\n"
+            )
             if task.is_training or task.status.progress != -1.0:
                 summary_str += f"      Progress: {task.status.progress:.1f}%\n"
         summary_str += f"  Latest score: {self.project_score*100:.1f}%\n"

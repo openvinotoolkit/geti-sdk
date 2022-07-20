@@ -1,13 +1,27 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
 from enum import Enum
-from typing import Optional
 
 from ote_sdk.entities.model_template import Domain as OteDomain
 
 
 class TaskType(Enum):
     """
-    This enum represents the different task types in SC
+    Enum representing the different task types in SC.
     """
+
     DETECTION = "detection"
     SEGMENTATION = "segmentation"
     CLASSIFICATION = "classification"
@@ -21,7 +35,7 @@ class TaskType(Enum):
 
     def __str__(self) -> str:
         """
-        Returns the string representation of the TaskType instance
+        Return the string representation of the TaskType instance.
 
         :return: string containing the task type
         """
@@ -30,7 +44,7 @@ class TaskType(Enum):
     @property
     def is_trainable(self) -> bool:
         """
-        Returns True if a task of this TaskType is trainable, False otherwise
+        Return True if a task of this TaskType is trainable, False otherwise.
 
         :return:
         """
@@ -39,7 +53,7 @@ class TaskType(Enum):
     @property
     def is_global(self) -> bool:
         """
-        Returns True if a task of this TaskType produces global labels, False otherwise
+        Return True if a task of this TaskType produces global labels, False otherwise.
 
         :return:
         """
@@ -48,7 +62,7 @@ class TaskType(Enum):
     @property
     def is_local(self) -> bool:
         """
-        Returns True if a task of this TaskType produces local labels, False otherwise
+        Return True if a task of this TaskType produces local labels, False otherwise.
 
         :return:
         """
@@ -57,7 +71,7 @@ class TaskType(Enum):
     @property
     def is_anomaly(self) -> bool:
         """
-        Returns True if a task of this TaskType is an anomaly task, False otherwise
+        Return True if a task of this TaskType is an anomaly task, False otherwise.
 
         :return:
         """
@@ -66,7 +80,7 @@ class TaskType(Enum):
     @property
     def is_segmentation(self) -> bool:
         """
-        Returns True if a task of this TaskType is a segmentation task, False otherwise
+        Return True if a task of this TaskType is a segmentation task, False otherwise.
 
         :return:
         """
@@ -75,7 +89,7 @@ class TaskType(Enum):
     @property
     def is_detection(self) -> bool:
         """
-        Returns True if a task of this TaskType is a detection task, False otherwise
+        Return True if a task of this TaskType is a detection task, False otherwise.
 
         :return:
         """
@@ -84,8 +98,8 @@ class TaskType(Enum):
     @classmethod
     def from_domain(cls, domain):
         """
-        Instantiates a :py:class:`~sc_api_tools.data_models.enums.task_type.TaskType`
-        from a given :py:class:`~sc_api_tools.data_models.enums.domain.Domain`
+        Instantiate a :py:class:`~sc_api_tools.data_models.enums.task_type.TaskType`
+        from a given :py:class:`~sc_api_tools.data_models.enums.domain.Domain`.
 
         :param domain: domain to get the TaskType for
         :return: TaskType instance corresponding to the `domain`
@@ -94,7 +108,7 @@ class TaskType(Enum):
 
     def to_ote_domain(self) -> OteDomain:
         """
-        Converts a TaskType instance to an OTE SDK Domain object.
+        Convert a TaskType instance to an OTE SDK Domain object.
 
         NOTE: Not all TaskTypes have a counterpart in the OTE SDK Domain Enum, for
         example TaskType.DATASET and TaskType.CROP cannot be converted to a Domain. For
@@ -113,7 +127,7 @@ NON_TRAINABLE_TASK_TYPES = [TaskType.DATASET, TaskType.CROP]
 ANOMALY_TASK_TYPES = [
     TaskType.ANOMALY_CLASSIFICATION,
     TaskType.ANOMALY_DETECTION,
-    TaskType.ANOMALY_SEGMENTATION
+    TaskType.ANOMALY_SEGMENTATION,
 ]
 
 GLOBAL_TASK_TYPES = [TaskType.CLASSIFICATION, TaskType.ANOMALY_CLASSIFICATION]
@@ -121,11 +135,11 @@ GLOBAL_TASK_TYPES = [TaskType.CLASSIFICATION, TaskType.ANOMALY_CLASSIFICATION]
 SEGMENTATION_TASK_TYPES = [
     TaskType.SEGMENTATION,
     TaskType.ANOMALY_SEGMENTATION,
-    TaskType.INSTANCE_SEGMENTATION
+    TaskType.INSTANCE_SEGMENTATION,
 ]
 
 DETECTION_TASK_TYPES = [
     TaskType.DETECTION,
     TaskType.ROTATED_DETECTION,
-    TaskType.ANOMALY_DETECTION
+    TaskType.ANOMALY_DETECTION,
 ]

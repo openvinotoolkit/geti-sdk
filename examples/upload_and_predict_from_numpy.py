@@ -2,7 +2,6 @@ import os
 
 import cv2
 import numpy as np
-
 from dotenv import dotenv_values
 
 from sc_api_tools import SCRESTClient
@@ -23,7 +22,7 @@ def rotate_image(image: np.ndarray, angle: float) -> np.ndarray:
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Get credentials from .env file
     env_variables = dotenv_values(dotenv_path=".env")
 
@@ -40,17 +39,17 @@ if __name__ == '__main__':
     client = SCRESTClient(
         host=env_variables.get("HOST"),
         username=env_variables.get("USERNAME"),
-        password=env_variables.get("PASSWORD")
+        password=env_variables.get("PASSWORD"),
     )
 
     # `PROJECT_NAME` is the name of the project to which the media should be uploaded,
     # and from which predictions can be requested. A project with this name should
     # exist on the cluster. If the project exists but doesn't have any trained models,
     # the media will be uploaded but no predictions will be generated.
-    PROJECT_NAME = 'dummy_project'
+    PROJECT_NAME = "dummy_project"
 
     # `PATH_TO_IMAGE` is the path to the image that should be uploaded
-    PATH_TO_IMAGE = os.path.join('.', 'dummy_image.jpg')
+    PATH_TO_IMAGE = os.path.join(".", "dummy_image.jpg")
 
     # `DELETE_AFTER_PREDICTION` can be set to True to delete the media from the
     # project once all predictions are downloaded. This can be useful to save disk
@@ -73,7 +72,7 @@ if __name__ == '__main__':
         project_name=PROJECT_NAME,
         image=rotated_image,
         visualise_output=True,
-        delete_after_prediction=DELETE_AFTER_PREDICTION
+        delete_after_prediction=DELETE_AFTER_PREDICTION,
     )
 
     # We can do the same with videos. For example, to investigate the effect image
@@ -92,5 +91,5 @@ if __name__ == '__main__':
         video=rotation_video,
         frame_stride=1,
         visualise_output=True,
-        delete_after_prediction=DELETE_AFTER_PREDICTION
+        delete_after_prediction=DELETE_AFTER_PREDICTION,
     )

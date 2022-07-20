@@ -1,45 +1,57 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
 import copy
 from pprint import pformat
-from typing import ClassVar, List, Optional, Union, Dict, Any, Tuple
+from typing import Any, ClassVar, Dict, List, Optional, Sequence, Tuple, Union
 
 import attr
 import cv2
 import numpy as np
-
-from ote_sdk.entities.annotation import (
-    AnnotationSceneEntity,
-    AnnotationSceneKind
-)
+from ote_sdk.entities.annotation import AnnotationSceneEntity
 
 from sc_api_tools.data_models.annotations import Annotation
 from sc_api_tools.data_models.enums import AnnotationKind
-from sc_api_tools.data_models.label import ScoredLabel
+from sc_api_tools.data_models.label import Label, ScoredLabel
 from sc_api_tools.data_models.media import MediaInformation
 from sc_api_tools.data_models.media_identifiers import (
     ImageIdentifier,
-    VideoFrameIdentifier
+    VideoFrameIdentifier,
 )
 from sc_api_tools.data_models.shapes import (
-    Shape,
     Ellipse,
+    Polygon,
     Rectangle,
-    Polygon, RotatedRectangle,
+    RotatedRectangle,
+    Shape,
 )
 from sc_api_tools.data_models.task_annotation_state import TaskAnnotationState
 from sc_api_tools.data_models.utils import (
+    attr_value_serializer,
+    deidentify,
+    remove_null_fields,
+    round_dictionary,
     str_to_annotation_kind,
     str_to_datetime,
-    deidentify,
-    attr_value_serializer,
-    round_dictionary,
 )
-from sc_api_tools.utils import remove_null_fields
 
 
 @attr.s(auto_attribs=True)
 class AnnotationScene:
     """
-    Class representing all annotations for a certain media entity in SC
+    Representation of an annotation scen for a certain media entity in SC. An
+    annotation scene holds all annotations for that specific media entity.
 
     :var annotations: List of
         :py:class:`~sc_api_tools.data_models.annotations.Annotation`s belonging to the
@@ -56,6 +68,7 @@ class AnnotationScene:
     :var annotation_state_per_task: Optional dictionary holding the annotation state
         for this AnnotationScene for each task in the project pipeline.
     """
+
     _identifier_fields: ClassVar[List[str]] = ["id", "modified"]
     _GET_only_fields: ClassVar[List[str]] = ["annotation_state_per_task"]
 
@@ -72,39 +85,35 @@ class AnnotationScene:
     @property
     def has_data(self) -> bool:
         """
-        Returns True if this AnnotationScene has annotation associated with it
-        :return:
+        Return True if this AnnotationScene has annotation associated with it.
         """
         return len(self.annotations) > 0
 
-    def deidentify(self):
+    def deidentify(self) -> None:
         """
-        Removes all unique database ID's from the annotationscene and the entities it
-        contains
-
-        :return:
+        Remove all unique database ID's from the annotationscene and the entities it
+        contains.
         """
         deidentify(self)
         self.media_identifier = None
         for annotation in self.annotations:
             annotation.deidentify()
 
-    def prepare_for_post(self):
+    def prepare_for_post(self) -> None:
         """
-        Removes all fields that are not valid for making a POST request to the
-        /annotations endpoint
+        Remove all fields that are not valid for making a POST request to the
+        /annotations endpoint.
 
         :return:
         """
         for field_name in self._GET_only_fields:
             setattr(self, field_name, None)
 
-    def append(self, annotation: Annotation):
+    def append(self, annotation: Annotation) -> None:
         """
-        Add an annotation to the annotation scene
+        Add an annotation to the annotation scene.
 
         :param annotation: Annotation to add
-        :return:
         """
         self.annotations.append(annotation)
 
@@ -118,15 +127,17 @@ class AnnotationScene:
         """
         return next(
             (
-                annotation for annotation in self.annotations
+                annotation
+                for annotation in self.annotations
                 if annotation.shape == shape
-            ), None
+            ),
+            None,
         )
 
     def extend(self, annotations: List[Annotation]):
         """
         Extend the list of annotations in the AnnotationScene with additional entries
-        in the `annotations` list
+        in the `annotations` list.
 
         :param annotations: List of Annotations to add to the AnnotationScene
         :return:
@@ -140,7 +151,7 @@ class AnnotationScene:
 
     def to_dict(self) -> Dict[str, Any]:
         """
-        Converts the AnnotationScene to a dictionary representation
+        Convert the AnnotationScene to a dictionary representation.
 
         :return: Dictionary holding the annotation scene data
         """
@@ -150,7 +161,7 @@ class AnnotationScene:
     @property
     def overview(self) -> str:
         """
-        Returns a string that gives an overview of the annotation scene
+        Return a string that gives an overview of the annotation scene.
 
         :return: overview string of the annotation scene
         """
@@ -165,14 +176,14 @@ class AnnotationScene:
 
     @staticmethod
     def _add_shape_to_mask(
-            shape: Shape,
-            mask: np.ndarray,
-            labels: List[ScoredLabel],
-            color: Tuple[int, int, int],
-            line_thickness: int
+        shape: Shape,
+        mask: np.ndarray,
+        labels: List[ScoredLabel],
+        color: Tuple[int, int, int],
+        line_thickness: int,
     ) -> np.ndarray:
         """
-        Draws an SC shape entity `shape` on the pixel level mask `mask`. The shape
+        Draw an SC shape entity `shape` on the pixel level mask `mask`. The shape
         will be drawn in the color specified as R,G,B tuple in `color`, using a line
         thickness `line_thickness` (in pixels).
 
@@ -202,7 +213,7 @@ class AnnotationScene:
                     color=color,
                     startAngle=0,
                     endAngle=360,
-                    thickness=line_thickness
+                    thickness=line_thickness,
                 )
                 cv2.ellipse(
                     mask,
@@ -212,31 +223,28 @@ class AnnotationScene:
                     color=(1, 1, 1),
                     startAngle=0,
                     endAngle=360,
-                    thickness=1
+                    thickness=1,
                 )
             elif isinstance(shape, Rectangle):
                 if not shape.is_full_box(
-                        image_width=image_width, image_height=image_height
+                    image_width=image_width, image_height=image_height
                 ):
                     cv2.rectangle(
                         mask,
                         pt1=(x, y),
                         pt2=(x + width, y + height),
                         color=color,
-                        thickness=line_thickness
+                        thickness=line_thickness,
                     )
                     cv2.rectangle(
                         mask,
                         pt1=(x, y),
                         pt2=(x + width, y + height),
                         color=(1, 1, 1),
-                        thickness=1
+                        thickness=1,
                     )
                 else:
-                    origin = [
-                        int(0.01 * image_width),
-                        int(0.99 * image_height)
-                    ]
+                    origin = [int(0.01 * image_width), int(0.99 * image_height)]
                     for label in labels:
                         font = cv2.FONT_HERSHEY_SIMPLEX
                         font_scale = 1
@@ -247,7 +255,7 @@ class AnnotationScene:
                             fontFace=font,
                             fontScale=font_scale,
                             color=label.color_tuple,
-                            thickness=1
+                            thickness=1,
                         )
                         text_width, text_height = cv2.getTextSize(
                             label.name, font, font_scale, line_thickness
@@ -262,21 +270,17 @@ class AnnotationScene:
                 contours=[contour],
                 color=color,
                 thickness=line_thickness,
-                contourIdx=-1
+                contourIdx=-1,
             )
             cv2.drawContours(
-                mask,
-                contours=[contour],
-                color=(1, 1, 1),
-                thickness=1,
-                contourIdx=-1
+                mask, contours=[contour], color=(1, 1, 1), thickness=1, contourIdx=-1
             )
         return mask
 
     def as_mask(self, media_information: MediaInformation) -> np.ndarray:
         """
-        Converts the shapes in the annotation scene to a mask that can be overlayed on
-        an image
+        Convert the shapes in the annotation scene to a mask that can be overlayed on
+        an image.
 
         :param media_information: MediaInformation object containing the width and
             height of the image for which the mask should be generated.
@@ -295,15 +299,15 @@ class AnnotationScene:
                 mask=mask,
                 labels=annotation.labels,
                 color=label_to_copy_color.color_tuple,
-                line_thickness=line_thickness
+                line_thickness=line_thickness,
             )
         return mask
 
     def apply_identifier(
-            self, media_identifier: Union[ImageIdentifier, VideoFrameIdentifier]
-    ) -> 'AnnotationScene':
+        self, media_identifier: Union[ImageIdentifier, VideoFrameIdentifier]
+    ) -> "AnnotationScene":
         """
-        Applies a `media_identifier` to the current AnnotationScene instance, such
+        Apply a `media_identifier` to the current AnnotationScene instance, such
         that the SC cluster will recognize this AnnotationScene as belonging to the
         media item identified by the media_identifier.
 
@@ -325,13 +329,13 @@ class AnnotationScene:
 
     @classmethod
     def from_ote(
-            cls,
-            ote_annotation_scene: AnnotationSceneEntity,
-            image_width: int,
-            image_height: int
-    ) -> 'AnnotationScene':
+        cls,
+        ote_annotation_scene: AnnotationSceneEntity,
+        image_width: int,
+        image_height: int,
+    ) -> "AnnotationScene":
         """
-        Creates a :py:class:`~sc_api_tools.data_models.annotation_scene.AnnotationScene`
+        Create a :py:class:`~sc_api_tools.data_models.annotation_scene.AnnotationScene`
         instance from a given OTE SDK AnnotationSceneEntity object.
 
         :param ote_annotation_scene: OTE AnnotationSceneEntity object to create the
@@ -349,4 +353,25 @@ class AnnotationScene:
         return cls(
             annotations=annotations,
             id=ote_annotation_scene.id,
+        )
+
+    def map_labels(
+        self, labels: Sequence[Union[Label, ScoredLabel]]
+    ) -> "AnnotationScene":
+        """
+        Attempt to map the labels found in `labels` to those in the AnnotationScene
+        instance. Labels are matched by name. This method will return a new
+        AnnotationScene object.
+
+        :param labels: Labels to which the existing labels should be mapped
+        :return: AnnotationScene with updated labels, corresponding to those found in
+            the `project` (if matching labels were found)
+        """
+        annotations: List[Annotation] = []
+        for annotation in self.annotations:
+            annotations.append(annotation.map_labels(labels=labels))
+        return AnnotationScene(
+            annotations=annotations,
+            media_identifier=self.media_identifier,
+            modified=self.modified,
         )

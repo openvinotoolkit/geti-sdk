@@ -1,3 +1,17 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
 """
 Introduction
 ------------
@@ -10,7 +24,7 @@ as :py:class:`~sc_api_tools.data_models.annotation_scene.AnnotationScene`,
 
 When interacting with the SC cluster through the
 :py:class:`sc_api_tools.sc_rest_client.SCRESTClient` or the
-:py:mod:`~sc_api_tools.rest_managers`, all entities retrieved from the cluster will be
+:py:mod:`~sc_api_tools.rest_clients`, all entities retrieved from the cluster will be
 deserialized into the data models defined in this package.
 
 Module contents
@@ -138,27 +152,26 @@ Enumerations
 
 """
 
-from .enums import TaskType, AnnotationKind, MediaType
-from .project import Project, Pipeline
-from .label import Label, ScoredLabel
-from .task import Task
-from .media import Image, Video, MediaItem, VideoFrame
-from .annotations import Annotation
-from .annotation_scene import AnnotationScene
 from .algorithms import Algorithm
-from .predictions import Prediction
-from .performance import Performance
+from .annotation_scene import AnnotationScene
+from .annotations import Annotation
 from .configuration import (
-    TaskConfiguration,
     ConfigurableParameters,
+    FullConfiguration,
     GlobalConfiguration,
-    FullConfiguration
+    TaskConfiguration,
 )
-from .model_group import ModelGroup, ModelSummary
-from .model import Model, OptimizedModel
-from .status import ProjectStatus
+from .enums import AnnotationKind, MediaType, TaskType
 from .job import Job
-
+from .label import Label, ScoredLabel
+from .media import Image, MediaItem, Video, VideoFrame
+from .model import Model, OptimizedModel
+from .model_group import ModelGroup, ModelSummary
+from .performance import Performance
+from .predictions import Prediction
+from .project import Pipeline, Project
+from .status import ProjectStatus
+from .task import Task
 
 __all__ = [
     "TaskType",
@@ -187,5 +200,5 @@ __all__ = [
     "OptimizedModel",
     "ModelSummary",
     "ProjectStatus",
-    "Job"
+    "Job",
 ]

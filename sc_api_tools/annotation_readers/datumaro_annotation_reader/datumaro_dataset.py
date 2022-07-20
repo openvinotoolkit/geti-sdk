@@ -1,8 +1,22 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
 import time
-from typing import List, Dict, Tuple, Sequence, Optional
+from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
-from datumaro.components.annotation import LabelCategories, AnnotationType
+from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
@@ -12,11 +26,19 @@ from sc_api_tools.utils import get_dict_key_from_value
 
 
 class DatumaroDataset(object):
+    """
+    Wrapper for interacting with the datumaro dataset, contains some example
+    functions for dataset operations that can be carried out prior to importing the
+    dataset into SonomaCreek
+    """
+
     def __init__(self, dataset_format: str, dataset_path: str):
         """
-        Wrapper for interacting with the datumaro dataset, contains some example
-        functions for dataset operations
-        that can be carried out prior to importing the dataset into NOUS
+        Initialize the datumaro dataset.
+
+        :param dataset_format: string containing the format of the dataset, i.e.
+            'voc', 'coco', 'imagenet', etc.
+        :param dataset_path: Path to the dataset on local disk
         """
         self.dataset_format = dataset_format
         self.dataset_path = dataset_path
@@ -24,10 +46,10 @@ class DatumaroDataset(object):
         self._subset_names = self.dataset.subsets().keys()
 
     def prepare_dataset(
-            self, task_type: TaskType, previous_task_type: Optional[TaskType] = None
+        self, task_type: TaskType, previous_task_type: Optional[TaskType] = None
     ) -> Dataset:
         """
-        Prepares the dataset for uploading to Sonoma Creek
+        Prepare the dataset for uploading to Sonoma Creek.
 
         :param task_type: TaskType to prepare the dataset for
         :param previous_task_type: Optional type of the (trainable) task preceding
@@ -35,22 +57,22 @@ class DatumaroDataset(object):
         """
         if task_type.is_detection:
             new_dataset = self.dataset.transform(
-                self.dataset.env.transforms.get('shapes_to_boxes')
+                self.dataset.env.transforms.get("shapes_to_boxes")
             )
             print("Annotations have been converted to boxes")
         elif task_type.is_segmentation:
             new_dataset = self.dataset.transform(
-                self.dataset.env.transforms.get('masks_to_polygons')
+                self.dataset.env.transforms.get("masks_to_polygons")
             )
             print("Annotations have been converted to polygons")
         elif task_type.is_global:
             if previous_task_type is not None and previous_task_type.is_segmentation:
                 new_dataset = self.dataset.transform(
-                    self.dataset.env.transforms.get('masks_to_polygons')
+                    self.dataset.env.transforms.get("masks_to_polygons")
                 )
             else:
                 new_dataset = self.dataset.transform(
-                    self.dataset.env.transforms.get('shapes_to_boxes')
+                    self.dataset.env.transforms.get("shapes_to_boxes")
                 )
             print(f"{str(task_type).capitalize()} dataset prepared.")
         else:
@@ -59,7 +81,7 @@ class DatumaroDataset(object):
 
     def set_dataset(self, dataset: Dataset):
         """
-        Sets the dataset for this DatumaroDataset instance
+        Set the dataset for this DatumaroDataset instance.
 
         :param dataset:
         :return:
@@ -70,22 +92,23 @@ class DatumaroDataset(object):
 
     @property
     def categories(self) -> LabelCategories:
+        """
+        Return the LabelCategories in the dataset.
+        """
         categories: LabelCategories = self.dataset.categories()[AnnotationType.label]
         return categories
 
     @property
     def label_names(self) -> List[str]:
         """
-        Returns the labels
-        :return:
+        Return a list of all label names in the dataset.
         """
         return [item.name for item in self.categories]
 
     @property
     def label_mapping(self) -> Dict[int, str]:
         """
-        Returns the mapping of label name to label index
-        :return:
+        Return the mapping of label index to label name.
         """
         return {value: key for key, value in self.categories._indices.items()}
 
@@ -105,19 +128,19 @@ class DatumaroDataset(object):
             path=self.dataset_path, format=self.dataset_format
         )
         print(
-            f'Datumaro dataset consisting of {len(dataset)} items in '
-            f'{self.dataset_format} format was loaded from {self.dataset_path}'
+            f"Datumaro dataset consisting of {len(dataset)} items in "
+            f"{self.dataset_format} format was loaded from {self.dataset_path}"
         )
-        print(f'Datumaro dataset was created in {time.time() - t_start:.1f} seconds')
+        print(f"Datumaro dataset was created in {time.time() - t_start:.1f} seconds")
         return dataset, dataset.env
 
     def remove_unannotated_items(self):
         """
-        Keep only annotated images
+        Keep only annotated images.
         """
         self.dataset = self.dataset.select(lambda item: len(item.annotations) != 0)
 
-    def filter_items_by_labels(self, labels: Sequence[str], criterion='OR') -> None:
+    def filter_items_by_labels(self, labels: Sequence[str], criterion="OR") -> None:
         """
         Retain only those items with annotations in the list of labels passed.
 
@@ -130,23 +153,21 @@ class DatumaroDataset(object):
         for label in labels:
             if label not in list(label_map.values()):
                 raise ValueError(
-                    f'Cannot filter on label {label} because this is not in the '
-                    f'dataset.'
+                    f"Cannot filter on label {label} because this is not in the "
+                    f"dataset."
                 )
 
         if labels:
+
             def select_function(dataset_item: DatasetItem, labels: List[str]):
                 # Filter function to apply to each item in the dataset
-                item_labels = [
-                    label_map[x.label] for x
-                    in dataset_item.annotations
-                ]
+                item_labels = [label_map[x.label] for x in dataset_item.annotations]
                 matches = []
                 for label in labels:
                     if label in item_labels:
-                        if criterion == 'OR':
+                        if criterion == "OR":
                             return True
-                        elif criterion in ['AND', 'NOT', 'XOR']:
+                        elif criterion in ["AND", "NOT", "XOR"]:
                             matches.append(True)
                         else:
                             raise ValueError(
@@ -155,11 +176,11 @@ class DatumaroDataset(object):
                             )
                     else:
                         matches.append(False)
-                if criterion == 'AND':
+                if criterion == "AND":
                     return all(matches)
-                elif criterion == 'NOT':
+                elif criterion == "NOT":
                     return not any(matches)
-                elif criterion == 'XOR':
+                elif criterion == "XOR":
                     return np.sum(matches) == 1
 
             # Messy way to manually keep track of labels and indices, must be a
@@ -175,14 +196,21 @@ class DatumaroDataset(object):
             self.dataset = Dataset.from_iterable(
                 self.dataset.select(lambda item: select_function(item, labels)),
                 categories=new_categories,
-                env=self.dataset.env
+                env=self.dataset.env,
             )
             print(
-                f'After filtering, dataset with labels {labels} contains '
-                f'{len(self.dataset)} items.'
+                f"After filtering, dataset with labels {labels} contains "
+                f"{len(self.dataset)} items."
             )
 
     def get_item_by_id(self, datum_id: str) -> DatasetItem:
+        """
+        Return the dataset item by its id.
+
+        :param datum_id: Datumaro id of the item to retrieve
+        :raises: ValueError if no item by that id was found.
+        :return: DatasetItem with the given id
+        """
         ds_item: Optional[DatasetItem] = None
         for subset_name in self._subset_names:
             ds_item = self.dataset.get(id=datum_id, subset=subset_name)
