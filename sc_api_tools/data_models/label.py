@@ -27,10 +27,15 @@ from sc_api_tools.data_models.enums import TaskType
 class LabelSource:
     """
     Representation of a source for a ScoredLabel in SC
+
+    :var user_id: ID of the user who assigned the label, if any
+    :var model_id: ID of the model which generated the label, if any
+    :var model_storage_id: ID of the model storage to which the model belongs
     """
 
-    id: str
-    type: str
+    user_id: Optional[str] = None
+    model_id: Optional[str] = None
+    model_storage_id: Optional[str] = None
 
 
 @attr.s(auto_attribs=True)

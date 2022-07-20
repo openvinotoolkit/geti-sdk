@@ -19,7 +19,11 @@ import attr
 
 from sc_api_tools.data_models.enums import JobState, JobType
 from sc_api_tools.data_models.status import StatusSummary
-from sc_api_tools.data_models.utils import attr_value_serializer, str_to_enum_converter
+from sc_api_tools.data_models.utils import (
+    attr_value_serializer,
+    str_to_datetime,
+    str_to_enum_converter,
+)
 from sc_api_tools.http_session import SCRequestException, SCSession
 
 
@@ -65,6 +69,19 @@ class TaskMetadata:
 
 
 @attr.s(auto_attribs=True)
+class ProjectMetadata:
+    """
+    Metadata related to a project on the SC cluster.
+
+    :var name: Name of the project
+    :var id: ID of the project
+    """
+
+    name: Optional[str] = None
+    id: Optional[str] = None
+
+
+@attr.s(auto_attribs=True)
 class JobMetadata:
     """
     Metadata for a particular job on the SC cluster.
@@ -82,6 +99,7 @@ class JobMetadata:
     """
 
     task: TaskMetadata
+    project: Optional[ProjectMetadata] = None
     base_model_id: Optional[str] = None
     model_storage_id: Optional[str] = None
     optimization_type: Optional[str] = None
@@ -105,10 +123,11 @@ class Job:
     name: str
     description: str
     id: str
-    project_id: str
     status: JobStatus
     type: str = attr.ib(converter=str_to_enum_converter(JobType))
     metadata: JobMetadata
+    project_id: Optional[str] = None
+    creation_time: Optional[str] = attr.ib(converter=str_to_datetime, default=None)
 
     def __attrs_post_init__(self):
         """

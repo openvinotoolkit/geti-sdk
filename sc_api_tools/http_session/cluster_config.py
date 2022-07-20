@@ -15,7 +15,8 @@
 from dataclasses import dataclass
 from typing import Dict, Optional
 
-API_PATTERN = "/api/v1.0/"
+DEFAULT_API_VERSION = "v1"
+LEGACY_API_VERSION = "v1.0"
 
 
 @dataclass
@@ -46,9 +47,41 @@ class ClusterConfig:
     has_valid_certificate: bool = False
     proxies: Optional[Dict[str, str]] = None
 
+    def __post_init__(self):
+        """
+        Initialize private attributes
+        """
+        self._api_version = DEFAULT_API_VERSION
+
     @property
     def base_url(self) -> str:
         """
         Return the base UR for accessing the cluster.
         """
-        return f"{self.host}{API_PATTERN}"
+        return f"{self.host}/api/{self.api_version}/"
+
+    @property
+    def api_version(self) -> str:
+        """
+        Return the api version string to be used in the URL for making REST requests.
+        """
+        return self._api_version
+
+    @api_version.setter
+    def api_version(self, value: str) -> None:
+        """
+        Set the api_version string to be used in the URL for making REST requests.
+        """
+        if not value.startswith("v"):
+            raise ValueError(
+                "API version string should follow the format: 'vX', where X is the "
+                "(integer) version number, e.g.: 'v1', 'v2', 'v3'."
+            )
+        self._api_version = value
+
+    @property
+    def api_pattern(self) -> str:
+        """
+        Return the API pattern used in the URL
+        """
+        return f"/api/{self.api_version}/"

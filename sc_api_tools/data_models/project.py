@@ -178,7 +178,12 @@ class Project:
     :var thumbnail: URL at which a thumbnail for the project can be obtained
     """
 
-    _identifier_fields: ClassVar[str] = ["id", "thumbnail", "creation_time"]
+    _identifier_fields: ClassVar[List[str]] = [
+        "id",
+        "thumbnail",
+        "creation_time",
+        "creator_id",
+    ]
 
     name: str
     pipeline: Pipeline
@@ -188,6 +193,7 @@ class Project:
     creation_time: Optional[str] = attr.ib(default=None, converter=str_to_datetime)
     id: Optional[str] = None
     thumbnail: Optional[str] = None
+    creator_id: Optional[str] = None
 
     def get_trainable_tasks(self) -> List[Task]:
         """

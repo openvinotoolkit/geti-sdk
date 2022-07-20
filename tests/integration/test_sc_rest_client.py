@@ -29,6 +29,7 @@ from sc_api_tools.rest_clients import AnnotationClient, ImageClient
 from tests.helpers import (
     ProjectService,
     SdkTestMode,
+    attempt_to_train_task,
     get_or_create_annotated_project_for_test_class,
 )
 from tests.helpers.constants import CASSETTE_EXTENSION, PROJECT_PREFIX
@@ -68,16 +69,20 @@ class TestSCRESTClient:
         self.ensure_annotated_project(fxt_project_service, fxt_annotation_reader)
         assert fxt_project_service.has_project
 
-        # Wait a few sec before starting training, to make sure all annotations are
-        # processed.
-        if fxt_test_mode != SdkTestMode.OFFLINE:
-            time.sleep(5)
-
         # For the integration tests we start training manually
         with fxt_vcr.use_cassette(
             f"{fxt_project_service.project.name}_setup_training.{CASSETTE_EXTENSION}"
         ):
-            fxt_project_service.training_client.train_task(0)
+            attempt_to_train_task(
+                training_client=fxt_project_service.training_client,
+                task=0,
+                test_mode=fxt_test_mode,
+            )
+
+        # Wait a few secs to check whether the project is training
+        if fxt_test_mode != SdkTestMode.OFFLINE:
+            time.sleep(5)
+
         assert fxt_project_service.is_training
 
     def test_client_initialization(self, fxt_client: SCRESTClient):

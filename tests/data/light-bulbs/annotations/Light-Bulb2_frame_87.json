@@ -5,11 +5,7 @@
                 {
                     "probability": 1.0,
                     "name": "On",
-                    "color": "#00ff19ff",
-                    "source": {
-                        "id": "N/A",
-                        "type": "N/A"
-                    }
+                    "color": "#00ff19ff"
                 }
             ],
             "shape": {
@@ -23,11 +19,5 @@
         }
     ],
     "kind": "annotation",
-    "labels_to_revisit_full_scene": [],
-    "annotation_state_per_task": [
-        {
-            "task_id": "62ce76c7fb5aa938eeb197f1",
-            "state": "annotated"
-        }
-    ]
+    "labels_to_revisit_full_scene": []
 }

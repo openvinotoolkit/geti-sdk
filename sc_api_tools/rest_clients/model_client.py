@@ -44,9 +44,7 @@ class ModelClient:
         self.project = project
         self.workspace_id = workspace_id
         self.task_ids = [task.id for task in project.get_trainable_tasks()]
-        self.base_url = (
-            f"workspaces/{workspace_id}/projects/{project_id}/" f"model_groups"
-        )
+        self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/model_groups"
         self.supported_algos = get_supported_algorithms(self.session)
 
     def get_all_model_groups(self) -> List[ModelGroup]:
@@ -57,7 +55,8 @@ class ModelClient:
         """
         response = self.session.get_rest_response(url=self.base_url, method="GET")
         model_groups = [
-            ModelRESTConverter.model_group_from_dict(group) for group in response
+            ModelRESTConverter.model_group_from_dict(group)
+            for group in response["items"]
         ]
         # Update algorithm details
         for group in model_groups:

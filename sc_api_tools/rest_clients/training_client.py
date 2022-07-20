@@ -80,8 +80,12 @@ class TrainingClient:
             job.workspace_id = self.workspace_id
             job_list.append(job)
 
-        if project_only:
+        if project_only and self.session.version < "1.2":
             return [job for job in job_list if job.project_id == self.project.id]
+        elif project_only and self.session.version >= "1.2":
+            return [
+                job for job in job_list if job.metadata.project.id == self.project.id
+            ]
         else:
             return job_list
 
@@ -161,7 +165,7 @@ class TrainingClient:
             )
 
         response = self.session.get_rest_response(
-            url=f"{self.base_url}/train", method="POST", data=[request_data]
+            url=f"{self.base_url}/train", method="POST", data={"items": [request_data]}
         )
         job = JobRESTConverter.from_dict(response)
         job.workspace_id = self.workspace_id

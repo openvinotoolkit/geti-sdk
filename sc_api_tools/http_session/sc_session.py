@@ -22,7 +22,7 @@ from requests import Response
 from requests.structures import CaseInsensitiveDict
 from urllib3.exceptions import InsecureRequestWarning
 
-from .cluster_config import API_PATTERN, ClusterConfig
+from .cluster_config import LEGACY_API_VERSION, ClusterConfig
 from .exception import SCRequestException
 
 CSRF_COOKIE_NAME = "_oauth2_proxy_csrf"
@@ -80,7 +80,7 @@ class SCSession(requests.Session):
 
         self.config = cluster_config
         self.authenticate()
-        self._product_info = self.get_rest_response("product_info", "GET")
+        self._product_info = self._get_product_info_and_set_api_version()
 
     @property
     def version(self) -> str:
@@ -178,8 +178,8 @@ class SCSession(requests.Session):
             defaults to "json"
         :param data: the data to send in a post request, as json
         """
-        if url.startswith(API_PATTERN):
-            url = url[len(API_PATTERN) :]
+        if url.startswith(self.config.api_pattern):
+            url = url[len(self.config.api_pattern) :]
 
         if contenttype == "json":
             self.headers.update({"Content-Type": "application/json"})
@@ -241,8 +241,11 @@ class SCSession(requests.Session):
         Log out of the server and end the session. All HTTPAdapters are closed and
         cookies and headers are cleared.
         """
-        sign_out_url = self.config.base_url[: -len(API_PATTERN)] + "/oauth2/sign_out"
+        sign_out_url = (
+            self.config.base_url[: -len(self.config.api_pattern)] + "/oauth2/sign_out"
+        )
         response = self.request(url=sign_out_url, method="GET", **self._proxies)
+
         if response.status_code == 200:
             print("Logout successful.")
         else:
@@ -252,7 +255,24 @@ class SCSession(requests.Session):
                 status_code=response.status_code,
                 request_data={},
             )
+
         super().close()
         self._cookies = {CSRF_COOKIE_NAME: None, PROXY_COOKIE_NAME: None}
         self.cookies.clear()
         self.headers = CaseInsensitiveDict({"Connection": "keep-alive"})
+
+    def _get_product_info_and_set_api_version(self) -> Dict[str, str]:
+        """
+        Return the product info as retrieved from the SC server.
+
+        This method will also attempt to set the API version correctly, based on the
+        retrieved product info.
+
+        :return: Dictionary containing the product info.
+        """
+        try:
+            product_info = self.get_rest_response("product_info", "GET")
+        except SCRequestException:
+            self.config.api_version = LEGACY_API_VERSION
+            product_info = self.get_rest_response("product_info", "GET")
+        return product_info
