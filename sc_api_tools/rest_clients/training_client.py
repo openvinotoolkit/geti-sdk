@@ -164,8 +164,13 @@ class TrainingClient:
                 }
             )
 
+        if self.session.version < "1.2":
+            data = [request_data]
+        else:
+            data = {"items": [request_data]}
+
         response = self.session.get_rest_response(
-            url=f"{self.base_url}/train", method="POST", data={"items": [request_data]}
+            url=f"{self.base_url}/train", method="POST", data=data
         )
         job = JobRESTConverter.from_dict(response)
         job.workspace_id = self.workspace_id

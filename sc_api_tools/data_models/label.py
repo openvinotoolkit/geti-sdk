@@ -36,6 +36,9 @@ class LabelSource:
     user_id: Optional[str] = None
     model_id: Optional[str] = None
     model_storage_id: Optional[str] = None
+    # keys 'id' and 'type' are deprecated in v1.2, but required for v1.1
+    id: Optional[str] = None
+    type: Optional[str] = None
 
 
 @attr.s(auto_attribs=True)
