@@ -1,6 +1,7 @@
 import copy
 import json
 import os
+import time
 from typing import List
 
 import pytest
@@ -9,6 +10,7 @@ from sc_api_tools.annotation_readers import SCAnnotationReader
 from sc_api_tools.data_models import AnnotationScene, Project, Video, VideoFrame
 from sc_api_tools.data_models.enums import ShapeType
 from sc_api_tools.rest_converters import AnnotationRESTConverter
+from tests.helpers import SdkTestMode
 from tests.helpers.constants import PROJECT_PREFIX
 from tests.helpers.project_service import ProjectService
 
@@ -54,6 +56,7 @@ class TestAnnotationClient:
         fxt_light_bulbs_labels: List[str],
         fxt_video_path_1_light_bulbs: str,
         fxt_light_bulbs_annotation_path: str,
+        fxt_test_mode: SdkTestMode,
     ):
         """
         Verifies that uploading and retrieving annotations for a video work
@@ -84,6 +87,9 @@ class TestAnnotationClient:
         annotation_client.annotation_reader = annotation_reader
 
         annotation_client.upload_annotations_for_video(video=video)
+
+        if fxt_test_mode != SdkTestMode.OFFLINE:
+            time.sleep(1)
 
         #  Fetch annotations from annotation client
         annotation_scenes = annotation_client.get_latest_annotations_for_video(
@@ -268,10 +274,8 @@ class TestAnnotationClient:
     def test_download_annotations_for_video(
         self,
         fxt_project_service: ProjectService,
-        fxt_light_bulbs_labels: List[str],
-        fxt_video_path_1_light_bulbs: str,
-        fxt_light_bulbs_annotation_path: str,
         fxt_temp_directory: str,
+        fxt_test_mode: SdkTestMode,
     ):
         """
         Verifies that uploading and retrieving annotations for multiple images work
@@ -311,7 +315,8 @@ class TestAnnotationClient:
 
         file_names = annotation_reader_from_temp_dir.get_data_filenames()
 
-        # Check that the length of the fetched annotations equal the length of the annotations from dataset
+        # Check that the length of the fetched annotations equal the length of the
+        # annotations from dataset
         assert len(file_names) == 8
 
         # Read and Retrieve first annotation from directory
@@ -319,15 +324,16 @@ class TestAnnotationClient:
             os.path.join(temp_dir, "annotations", f"{video.name}_frame_0.json"), "r"
         ) as file:
             json_annotation_scene = json.load(file)
-            json_annotation_scene["media_identifier"] = video.identifier
-            downloaded_annotation_scene = AnnotationRESTConverter.from_dict(
-                annotation_scene=json_annotation_scene
-            )
 
-            # De-identify both first and fetched annotation
-            downloaded_annotation_scene.deidentify()
-            de_identified_scene = copy.deepcopy(annotation_scene_frame_0)
-            de_identified_scene.deidentify()
+        json_annotation_scene["media_identifier"] = video.identifier
+        downloaded_annotation_scene = AnnotationRESTConverter.from_dict(
+            annotation_scene=json_annotation_scene
+        )
 
-            # Compare annotations
-            assert downloaded_annotation_scene == de_identified_scene
+        # De-identify both first and fetched annotation
+        downloaded_annotation_scene.deidentify()
+        de_identified_scene = copy.deepcopy(annotation_scene_frame_0)
+        de_identified_scene.deidentify()
+
+        # Compare annotations
+        assert downloaded_annotation_scene == de_identified_scene

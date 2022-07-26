@@ -47,6 +47,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
                 annotation_scene, media_information=video.media_information
             )
             for annotation_scene in annotations
+            if annotation_scene["annotations"]
         ]
 
     def upload_annotations_for_video(

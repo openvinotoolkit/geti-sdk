@@ -113,6 +113,7 @@ class MediaItem:
     # State is deprecated in SC1.1, replaced by `annotation_state_per_task`
     annotation_state_per_task: Optional[List[TaskAnnotationState]] = None
     thumbnail: Optional[str] = None
+    uploader_id: Optional[str] = None
 
     @property
     def download_url(self) -> str:
