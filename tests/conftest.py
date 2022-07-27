@@ -24,12 +24,7 @@ from sc_api_tools.http_session import ClusterConfig
 from tests.helpers.project_helpers import remove_all_test_projects
 
 from .helpers import SdkTestMode, get_sdk_fixtures, replace_host_name_in_cassettes
-from .helpers.constants import (
-    BASE_TEST_PATH,
-    CASSETTE_PATH,
-    DUMMY_HOST,
-    RECORD_CASSETTE_KEY,
-)
+from .helpers.constants import BASE_TEST_PATH, CASSETTE_PATH, RECORD_CASSETTE_KEY
 
 pytest_plugins = get_sdk_fixtures()
 
@@ -77,7 +72,7 @@ def fxt_server_config() -> ClusterConfig:
     This fixture holds the login configuration to access the SC server
     """
     if TEST_MODE == SdkTestMode.OFFLINE:
-        proxies = {"no": DUMMY_HOST}
+        proxies = {"https": "", "http": ""}
     else:
         proxies = None
     test_config = ClusterConfig(
