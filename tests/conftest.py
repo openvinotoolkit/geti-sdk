@@ -72,7 +72,7 @@ def fxt_server_config() -> ClusterConfig:
     This fixture holds the login configuration to access the SC server
     """
     if TEST_MODE == SdkTestMode.OFFLINE:
-        proxies = {}
+        proxies = {"https": None}
     else:
         proxies = None
     test_config = ClusterConfig(
