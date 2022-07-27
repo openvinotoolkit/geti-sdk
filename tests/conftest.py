@@ -76,10 +76,7 @@ def fxt_server_config() -> ClusterConfig:
     else:
         proxies = None
     test_config = ClusterConfig(
-        host=HOST,
-        username=USERNAME,
-        password=PASSWORD,
-        proxies=proxies
+        host=HOST, username=USERNAME, password=PASSWORD, proxies=proxies
     )
     yield test_config
 
