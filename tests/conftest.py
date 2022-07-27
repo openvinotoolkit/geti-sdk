@@ -15,8 +15,10 @@
 import os
 import shutil
 import tempfile
+from typing import List
 
 import pytest
+import urllib.request
 from _pytest.main import Session
 
 from sc_api_tools import SCRESTClient
@@ -108,6 +110,41 @@ def fxt_learning_parameter_settings() -> str:
     :return:
     """
     yield NIGHTLY_TEST_LEARNING_PARAMETER_SETTINGS
+
+
+@pytest.fixture(scope="session", autouse=True)
+def fxt_proxy_override() -> None:
+    """
+    This fixture disables proxy usages when tests are run in OFFLINE mode. This is
+    needed to ensure that HTTP requests will be properly matched to their recorded
+    patterns in the test cassettes.
+    """
+    if TEST_MODE != SdkTestMode.OFFLINE:
+        return
+
+    # Retrieve system proxy settings
+    proxies = urllib.request.getproxies()
+    https_proxy = proxies.get("https", None)
+    if https_proxy is None:
+        return
+
+    # Identify the environment variables that store the system wide proxy settings
+    potential_https_proxy_keys = ["https_proxy", "HTTPS_PROXY", "HTTPS_proxy"]
+    https_proxy_keys: List[str] = []
+    https_proxy_vals: List[str] = []
+    for key in potential_https_proxy_keys:
+        proxy_val = os.environ.get(key, None)
+        if proxy_val is not None:
+            https_proxy_keys.append(key)
+
+    # Remove https proxy settings for the duration of the tests
+    for key in https_proxy_keys:
+        https_proxy_vals.append(os.environ.pop(key))
+
+    yield
+    # Teardown: Restore the system wide https proxy settings
+    for key, value in zip(https_proxy_keys, https_proxy_vals):
+        os.environ[key] = value
 
 
 # ----------------------------------------------
