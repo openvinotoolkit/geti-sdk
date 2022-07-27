@@ -1,5 +1,4 @@
-> **WARNING**
->
+> **Warning**
 > **THIS PACKAGE HAS MOVED!**
 >
 >
