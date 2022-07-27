@@ -1,3 +1,15 @@
+> **WARNING**
+>
+> **THIS PACKAGE HAS MOVED!**
+>
+>
+> In order to continue working on this project and submit issues/comments/PRs, please find us at our new home:
+>
+> [github.com/openvinotoolkit/sonoma_creek_sdk](https://github.com/openvinotoolkit/sonoma_creek_sdk)
+>
+> Note that the repo you're currently looking at is now **read-only**. It is no longer
+> possible to make contributions of any form here.
+
 ## Introduction
 This package contains tools to interact with a Sonoma Creek cluster via
 the SC REST API. It provides functionality for:
