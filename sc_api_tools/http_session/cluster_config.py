@@ -38,7 +38,8 @@ class ClusterConfig:
             'https': http://proxy-server.com:<https_port_number>
         },
 
-        if set to None (the default), no proxy settings will be used.
+        if set to None (the default), the global proxy settings found on the system
+        will be used. If set to an emtpy dictionary, no proxy will be used.
     """
 
     host: str
