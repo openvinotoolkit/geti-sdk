@@ -1,6 +1,6 @@
 > **Warning**
-> **THIS PACKAGE HAS MOVED!**
 >
+> **THIS PACKAGE HAS MOVED!**
 >
 > In order to continue working on this project and submit issues/comments/PRs, please find us at our new home:
 >
