@@ -3,6 +3,10 @@ name: Build SDK package
 on:
   workflow_dispatch:
 
+env:
+  SCLAB_PYPI_USER: ${{ secrets.SCLAB_PYPI_USERNAME }}
+  SCLAB_PYPI_PASSWORD: ${{ secrets.SCLAB_PYPI_PASSWORD }}
+
 jobs:
   build_sdk:
     runs-on: self-hosted
@@ -29,10 +33,23 @@ jobs:
       - name: Check package contents
         run: twine check dist/*
 
-      - name: Upload wheel and source files
+      - name: Upload wheel and source files as github artifact
         # Publish the built wheel and source tarball to github
         uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
-          name: dist
+          name: sonoma_creek_sdk
           path: dist
+
+      - name: Publish SDK package to sclab pypi
+        run: |
+          twine upload --repository-url http://pypi.sclab.intel.com:8000 dist/* -u $SCLAB_PYPI_USER -p $SCLAB_PYPI_PASSWORD
+
+      - name: Clean up dist directory if it was created
+        if: ${{ always() }}
+        run: |
+          if OUTPUT=$(ls | grep -c dist)
+          then
+            echo "Cleaning up dist directory"
+            rm -r dist
+          fi
