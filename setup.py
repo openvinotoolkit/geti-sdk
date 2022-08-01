@@ -25,7 +25,8 @@ def get_requirements(filename: str) -> List[str]:
     """
     Get the required packages from the `filename` specified.
     """
-    filepath = os.path.join("requirements", filename)
+    package_dir = os.path.dirname(os.path.abspath(__file__))
+    filepath = os.path.join(package_dir, "requirements", filename)
     required_packages: List[str] = []
     with open(filepath, "r", encoding="utf-8") as requirements_file:
         for line in requirements_file:

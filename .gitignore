@@ -12,9 +12,10 @@ ENV/
 env.bak/
 venv.bak/
 
-# Local install files
+# Local install and build files
 *.egg-info
 build
+dist
 
 # PyCharm configuration
 .idea

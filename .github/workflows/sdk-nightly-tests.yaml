@@ -34,7 +34,7 @@ env:
   PYTHON_VERSION: 3.8
 
 jobs:
-  build:
+  nightly_tests:
     runs-on: self-hosted
 
     steps:
