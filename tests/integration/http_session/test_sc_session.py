@@ -14,6 +14,7 @@
 import pytest
 
 from sc_api_tools.http_session import SCSession
+from sc_api_tools.http_session.sc_session import INITIAL_HEADERS
 
 
 class TestSCSession:
@@ -41,6 +42,6 @@ class TestSCSession:
         """
         fxt_sc_session.logout()
         assert len(fxt_sc_session.cookies) == 0
-        assert len(fxt_sc_session.headers) == 1
+        assert len(fxt_sc_session.headers) == len(INITIAL_HEADERS)
         for key, value in fxt_sc_session._cookies.items():
             assert value is None

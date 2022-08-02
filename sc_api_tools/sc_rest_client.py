@@ -29,7 +29,7 @@ from .data_models import Image, Prediction, Project, TaskType, Video, VideoFrame
 from .data_models.containers import MediaList
 from .data_models.enums import OptimizationType
 from .deployment import DeployedModel, Deployment
-from .http_session import ClusterConfig, SCSession
+from .http_session import SCSession, ServerCredentialConfig
 from .rest_clients import (
     AnnotationClient,
     ConfigurationClient,
@@ -83,7 +83,7 @@ class SCRESTClient:
         proxies: Optional[Dict[str, str]] = None,
     ):
         self.session = SCSession(
-            cluster_config=ClusterConfig(
+            server_config=ServerCredentialConfig(
                 host=host,
                 username=username,
                 password=password,
