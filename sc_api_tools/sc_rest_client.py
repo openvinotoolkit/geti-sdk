@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import logging
 import os
 import warnings
 from typing import Dict, List, Optional, Sequence, Tuple, Union
@@ -44,7 +44,7 @@ from .utils import (
     get_default_workspace_id,
     get_task_types_by_project_type,
     show_image_with_annotation_scene,
-    show_video_frames_with_annotation_scenes,
+    show_video_frames_with_annotation_scenes, configure_basic_stdout_logging,
 )
 
 
@@ -82,6 +82,9 @@ class SCRESTClient:
         verify_certificate: bool = False,
         proxies: Optional[Dict[str, str]] = None,
     ):
+        if not logging.root.handlers:
+            configure_basic_stdout_logging()
+
         self.session = SCSession(
             cluster_config=ClusterConfig(
                 host=host,
