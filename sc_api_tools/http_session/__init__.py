@@ -26,14 +26,14 @@ However, an SCSession can be established directly using the following code snipp
 
 .. code-block:: python
 
-   from sc_api_tools.http_session import ClusterConfig, SCSession
+   from sc_api_tools.http_session import ServerCredentialConfig, SCSession
 
-   config = ClusterConfig(
+   config = ServerCredentialConfig(
      host="https://0.0.0.0", username="dummy_user", password="dummy_password"
    )
-   session = SCSession(cluster_config=config)
+   session = SCSession(server_config=config)
 
-Initializing the session will perform authentication on the SC cluster.
+Initializing the session will perform authentication on the SC server.
 
 Module contents
 ---------------
@@ -43,7 +43,12 @@ Module contents
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: sc_api_tools.http_session.cluster_config.ClusterConfig
+.. autoclass:: sc_api_tools.http_session.server_config.ServerTokenConfig
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. autoclass:: sc_api_tools.http_session.server_config.ServerCredentialConfig
    :members:
    :undoc-members:
    :show-inheritance:
@@ -55,8 +60,13 @@ Module contents
 
 """
 
-from .cluster_config import ClusterConfig
 from .exception import SCRequestException
 from .sc_session import SCSession
+from .server_config import ServerCredentialConfig, ServerTokenConfig
 
-__all__ = ["SCSession", "ClusterConfig", "SCRequestException"]
+__all__ = [
+    "SCSession",
+    "ServerTokenConfig",
+    "ServerCredentialConfig",
+    "SCRequestException",
+]

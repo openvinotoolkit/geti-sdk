@@ -15,7 +15,7 @@
 import pytest
 
 from sc_api_tools import SCRESTClient
-from sc_api_tools.http_session import ClusterConfig, SCSession
+from sc_api_tools.http_session import SCSession, ServerCredentialConfig
 from tests.helpers.constants import CASSETTE_EXTENSION
 
 DUMMY_USER = "dummy_user"
@@ -23,7 +23,7 @@ DUMMY_PASSWORD = "dummy_password"
 
 
 @pytest.fixture(scope="module")
-def fxt_sc_session(fxt_vcr, fxt_server_config: ClusterConfig) -> SCSession:
+def fxt_sc_session(fxt_vcr, fxt_server_config: ServerCredentialConfig) -> SCSession:
     """
     This fixture returns an SCSession instance which has already performed
     authentication
@@ -36,11 +36,11 @@ def fxt_sc_session(fxt_vcr, fxt_server_config: ClusterConfig) -> SCSession:
         ],
         allow_playback_repeats=True,
     ):
-        yield SCSession(cluster_config=fxt_server_config)
+        yield SCSession(server_config=fxt_server_config)
 
 
 @pytest.fixture(scope="module")
-def fxt_client(fxt_vcr, fxt_server_config: ClusterConfig) -> SCRESTClient:
+def fxt_client(fxt_vcr, fxt_server_config: ServerCredentialConfig) -> SCRESTClient:
     """
     This fixture returns an SCRESTClient instance which has already performed
     authentication and retrieved a default workspace id
@@ -62,7 +62,7 @@ def fxt_client(fxt_vcr, fxt_server_config: ClusterConfig) -> SCRESTClient:
 
 
 @pytest.fixture(scope="module")
-def fxt_client_no_vcr(fxt_server_config: ClusterConfig) -> SCRESTClient:
+def fxt_client_no_vcr(fxt_server_config: ServerCredentialConfig) -> SCRESTClient:
     yield SCRESTClient(
         host=fxt_server_config.host,
         username=fxt_server_config.username,

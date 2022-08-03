@@ -12,22 +12,22 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from dataclasses import dataclass
 from typing import Dict, Optional
+
+import attrs
 
 DEFAULT_API_VERSION = "v1"
 LEGACY_API_VERSION = "v1.0"
 
 
-@dataclass
-class ClusterConfig:
+@attrs.define(slots=False)
+class ServerConfig:
     """
-    Configuration for requests sessions, with host, username and password.
+    Base configuration holding the connection details of the SC server. Contains the
+    hostname, ssl certificate configuration and proxy configuration.
 
     :var host: full hostname or ip address of the SC instance.
         Note: this should include the protocol (i.e. https://your_sc_hostname.com)
-    :var username: Username to log in to the instance.
-    :var password: Password required to log in to the instance
     :var has_valid_certificate: Set to True if the server has a valid SSL certificate
         that should be validated and used to establish an encrypted HTTPS connection
     :var proxies: Optional dictionary containing proxy information, if this is
@@ -43,12 +43,10 @@ class ClusterConfig:
     """
 
     host: str
-    username: str
-    password: str
-    has_valid_certificate: bool = False
-    proxies: Optional[Dict[str, str]] = None
+    has_valid_certificate: bool = attrs.field(default=False, kw_only=True)
+    proxies: Optional[Dict[str, str]] = attrs.field(default=None, kw_only=True)
 
-    def __post_init__(self):
+    def __attrs_post_init__(self):
         """
         Initialize private attributes
         """
@@ -86,3 +84,32 @@ class ClusterConfig:
         Return the API pattern used in the URL
         """
         return f"/api/{self.api_version}/"
+
+
+@attrs.define(slots=False)
+class ServerCredentialConfig(ServerConfig):
+    """
+    Configuration for an SC server that requires authentication via username and
+    password.
+
+    NOTE: This is a legacy authentication method. Recent server versions should
+    authenticate via a personal access token (API key)
+
+    :var username: Username to log in to the instance.
+    :var password: Password required to log in to the instance
+    """
+
+    username: str
+    password: str
+
+
+@attrs.define
+class ServerTokenConfig(ServerConfig):
+    """
+    Configuration for an SC server that uses a personal access token (API key) for
+    authentication.
+
+    :var token: Personal access token that can be used to connect to the server.
+    """
+
+    token: str
