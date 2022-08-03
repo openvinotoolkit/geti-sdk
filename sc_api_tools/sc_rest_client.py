@@ -18,8 +18,6 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 
-from sc_api_tools.http_session import SCRequestException
-
 from .annotation_readers import (
     AnnotationReader,
     DatumAnnotationReader,
@@ -29,7 +27,12 @@ from .data_models import Image, Prediction, Project, TaskType, Video, VideoFrame
 from .data_models.containers import MediaList
 from .data_models.enums import OptimizationType
 from .deployment import DeployedModel, Deployment
-from .http_session import SCSession, ServerCredentialConfig
+from .http_session import (
+    SCRequestException,
+    SCSession,
+    ServerCredentialConfig,
+    ServerTokenConfig,
+)
 from .rest_clients import (
     AnnotationClient,
     ConfigurationClient,
@@ -56,10 +59,15 @@ class SCRESTClient:
     uploading, as well as project deployment. Initializing the class will establish a
     HTTP session to the SC cluster, and requires authentication.
 
+    NOTE: The client can either be initialized using user credentials (`username`
+    and `password`), or using a personal access token (`token`). Arguments for either
+    one of these two options must be passed, otherwise a TypeError will be raised.
+
     :param host: IP address or URL at which the cluster can be reached, for example
         'https://0.0.0.0' or 'https://sc_example.intel.com'
     :param username: Username to log in to the cluster
     :param password: Password to log in to the cluster
+    :param token: Personal access token that can be used for authentication
     :param workspace_id: Optional ID of the workspace that should be addressed by this
         SCRESTClient instance. If not specified, the default workspace is used.
     :param verify_certificate: True to verify the certificate used for making HTTPS
@@ -76,20 +84,40 @@ class SCRESTClient:
     def __init__(
         self,
         host: str,
-        username: str,
-        password: str,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        token: Optional[str] = None,
         workspace_id: Optional[str] = None,
         verify_certificate: bool = False,
         proxies: Optional[Dict[str, str]] = None,
     ):
-        self.session = SCSession(
-            server_config=ServerCredentialConfig(
+        if token is not None:
+            server_config = ServerTokenConfig(
+                host=host,
+                token=token,
+                proxies=proxies,
+                has_valid_certificate=verify_certificate,
+            )
+            if username is not None or password is not None:
+                print(
+                    "Both a personal access token and credentials were passed to the "
+                    "SCRESTClient, using token authentication."
+                )
+        elif username is not None and password is not None:
+            server_config = ServerCredentialConfig(
                 host=host,
                 username=username,
                 password=password,
                 proxies=proxies,
                 has_valid_certificate=verify_certificate,
-            ),
+            )
+        else:
+            raise TypeError(
+                "__init__ missing required keyword arguments: Either `username` and "
+                "`password` or `token` must be specified."
+            )
+        self.session = SCSession(
+            server_config=server_config,
         )
         if workspace_id is None:
             workspace_id = get_default_workspace_id(self.session)
