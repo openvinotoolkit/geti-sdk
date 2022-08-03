@@ -231,13 +231,13 @@ class ModelClient:
         """
         model = self.get_active_model_for_task(task=task)
         if model is None:
-            print(
+            logging.info(
                 f"Project '{self.project.name} does not have any trained models yet, "
                 f"unable to download active model."
             )
             return None
         model_filepath = os.path.join(path_to_folder, "models")
-        print(
+        logging.info(
             f"Downloading active model for task {task.title} in project "
             f"{self.project.name} to folder {model_filepath}..."
         )

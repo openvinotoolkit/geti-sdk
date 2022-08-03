@@ -118,7 +118,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
             media_list = MediaList(media_list)
         if media_list.media_type == VideoFrame:
             raise ValueError("Unable to delete individual video frames.")
-        print(
+        logging.info(
             f"Deleting {len(media_list)} {self.plural_media_name} from project "
             f"'{self._project_name}'..."
         )
@@ -127,7 +127,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
                 self.session.get_rest_response(url=media_item.base_url, method="DELETE")
             except SCRequestException as error:
                 if error.status_code == 409:
-                    print(
+                    logging.info(
                         f"Project '{self._project_name}' is locked for deletion, "
                         f"unable to delete media. Aborting deletion."
                     )
@@ -186,7 +186,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         uploaded_media: MediaList[MediaTypeVar] = MediaList[MediaTypeVar]([])
         upload_count = 0
         skip_count = 0
-        print(f"Starting {self._MEDIA_TYPE} upload...")
+        logging.info(f"Starting {self._MEDIA_TYPE} upload...")
         t_start = time.time()
         for filepath in filepaths:
             name, ext = os.path.splitext(os.path.basename(filepath))
@@ -203,7 +203,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
             uploaded_media.append(media_item)
             upload_count += 1
             if upload_count % 100 == 0:
-                print(
+                logging.info(
                     f"Uploading... {upload_count} {self.plural_media_name} uploaded "
                     f"successfully."
                 )
@@ -222,7 +222,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
                 f"existed in project, these {self.plural_media_name} were"
                 f" skipped."
             )
-        print(msg)
+        logging.info(msg)
         return uploaded_media
 
     def _upload_folder(
@@ -281,7 +281,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         path_to_media_folder = os.path.join(path_to_folder, self.plural_media_name)
         if not os.path.exists(path_to_media_folder):
             os.makedirs(path_to_media_folder)
-        print(
+        logging.info(
             f"Downloading {len(media_list)} {self.plural_media_name} from project "
             f"'{self._project_name}' to folder {path_to_media_folder}..."
         )
@@ -328,4 +328,4 @@ class BaseMediaClient(Generic[MediaTypeVar]):
                 f"in the target folder, download was skipped for these "
                 f"{self.plural_media_name}."
             )
-        print(msg)
+        logging.info(msg)

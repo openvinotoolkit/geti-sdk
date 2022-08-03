@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import logging
 import os
 import time
 from typing import List
@@ -281,7 +281,7 @@ class TestSCRESTClient:
             except SCRequestException as error:
                 prediction = None
                 time.sleep(sleep_time)
-                print(error)
+                logging.info(error)
             if prediction is not None:
                 assert isinstance(prediction, Prediction)
                 break

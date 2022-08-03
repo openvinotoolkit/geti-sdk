@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from sc_api_tools import SCRESTClient
@@ -36,7 +37,7 @@ def create_segmentation_demo_project(
         created on the SC cluster.
     """
     coco_path = get_coco_dataset(dataset_path)
-    print("\n ------- Creating segmentation project --------------- \n")
+    logging.info("\n ------- Creating segmentation project --------------- \n")
 
     labels_of_interest = ["backpack", "suitcase"]
     project_type = "segmentation"
@@ -90,7 +91,7 @@ def create_detection_demo_project(
         created on the SC cluster.
     """
     coco_path = get_coco_dataset(dataset_path)
-    print("\n ------- Creating detection project --------------- \n")
+    logging.info("\n ------- Creating detection project --------------- \n")
 
     labels_of_interest = ["cell phone", "person"]
     project_type = "detection"
@@ -145,7 +146,7 @@ def create_classification_demo_project(
         created on the SC cluster.
     """
     coco_path = get_coco_dataset(dataset_path)
-    print("\n ------- Creating classification project --------------- \n")
+    logging.info("\n ------- Creating classification project --------------- \n")
 
     labels_of_interest = ["horse", "cat", "zebra", "bear"]
     project_type = "classification"
@@ -201,7 +202,7 @@ def create_anomaly_classification_demo_project(
         created on the SC cluster.
     """
     coco_path = get_coco_dataset(dataset_path)
-    print("\n ------- Creating anomaly classification project --------------- \n")
+    logging.info("\n ------- Creating anomaly classification project --------------- \n")
 
     animal_labels = ["horse", "dog", "cat", "elephant", "giraffe", "cow", "sheep"]
     traffic_labels = ["stop sign", "traffic light"]
@@ -272,7 +273,7 @@ def create_detection_to_segmentation_demo_project(
         created on the SC cluster.
     """
     coco_path = get_coco_dataset(dataset_path)
-    print("\n ------- Creating detection -> segmentation project --------------- \n")
+    logging.info("\n ------- Creating detection -> segmentation project --------------- \n")
     animal_labels = ["dog", "cat", "horse", "cow", "sheep"]
     project_type = "detection_to_segmentation"
     project_name = "Animal detection to segmentation demo"
@@ -335,7 +336,7 @@ def create_detection_to_classification_demo_project(
         created on the SC cluster.
     """
     coco_path = get_coco_dataset(dataset_path)
-    print("\n ------- Creating detection -> classification project --------------- \n")
+    logging.info("\n ------- Creating detection -> classification project --------------- \n")
     domestic_labels = ["dog", "cat", "horse", "cow", "sheep"]
     wild_labels = ["elephant", "giraffe", "zebra", "bear"]
     animal_labels = domestic_labels + wild_labels

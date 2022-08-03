@@ -54,7 +54,7 @@ class SCAnnotationReader(AnnotationReader):
         :param all_labels: List of all label names in the project
         """
         if self._label_names_to_include is None:
-            print("No label mapping defined, including all labels")
+            logging.info("No label mapping defined, including all labels")
             labels = all_labels
         else:
             labels = [
@@ -86,13 +86,13 @@ class SCAnnotationReader(AnnotationReader):
             os.path.join(self.base_folder, f"{filename}{self.annotation_format}")
         )
         if len(filepath) > 1:
-            print(
+            logging.info(
                 f"Multiple matching annotation files found for image with "
                 f"name {filename}. Skipping this image..."
             )
             return []
         elif len(filepath) == 0:
-            print(
+            logging.info(
                 f"No matching annotation file found for image with name {filename}."
                 f" Skipping this image..."
             )
@@ -124,7 +124,7 @@ class SCAnnotationReader(AnnotationReader):
 
         :return: List of label names
         """
-        print(f"Reading annotation files in folder {self.base_folder}...")
+        logging.info(f"Reading annotation files in folder {self.base_folder}...")
         unique_label_names = []
         annotation_files = glob.glob(
             os.path.join(self.base_folder, f"*{self.annotation_format}")

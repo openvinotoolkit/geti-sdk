@@ -208,7 +208,7 @@ class ConfigurationClient:
         configuration_path = os.path.join(path_to_folder, "configuration.json")
         with open(configuration_path, "w") as file:
             json.dump(config_data, file, indent=4)
-        print(
+        logging.info(
             f"Project parameters for project '{self.project.name}' were saved to file "
             f"{configuration_path}."
         )
@@ -280,7 +280,7 @@ class ConfigurationClient:
                         failed_parameters.append(
                             {task_config.task_title: parameter.name}
                         )
-            print(
+            logging.info(
                 f"Setting configuration failed for the following parameters: "
                 f"{failed_parameters}. All other parameters were set successfully."
             )

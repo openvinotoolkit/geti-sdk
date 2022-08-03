@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import logging
 import time
 from typing import Any, Dict, List, Optional, Union
 
@@ -194,7 +194,7 @@ class TrainingClient:
             JobState.FAILED,
             JobState.ERROR,
         ]
-        print("---------------- Monitoring progress -------------------")
+        logging.info("---------------- Monitoring progress -------------------")
         jobs_to_monitor = [
             job for job in jobs if job.status.state not in completed_states
         ]
@@ -216,16 +216,16 @@ class TrainingClient:
                         complete_count += 1
                 if complete_count == len(jobs_to_monitor):
                     monitoring = False
-                print(msg + "\n")
+                logging.info(msg + "\n")
                 time.sleep(15)
                 t_elapsed = time.time() - t_start
         except KeyboardInterrupt:
-            print("Job monitoring interrupted, stopping...")
+            logging.info("Job monitoring interrupted, stopping...")
             for job in jobs:
                 job.update(self.session)
             return jobs
         if t_elapsed < timeout:
-            print("All jobs completed, monitoring stopped.")
+            logging.info("All jobs completed, monitoring stopped.")
         else:
-            print(f"Monitoring stopped after {t_elapsed:.1f} seconds due to timeout.")
+            logging.info(f"Monitoring stopped after {t_elapsed:.1f} seconds due to timeout.")
         return jobs

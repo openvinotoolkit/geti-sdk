@@ -97,18 +97,18 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         :param append_annotations:
         :return:
         """
-        print("Starting video annotation upload...")
+        logging.info("Starting video annotation upload...")
         upload_count = 0
         for video in videos:
             upload_count += self.upload_annotations_for_video(
                 video=video, append_annotations=append_annotations
             )
         if upload_count > 0:
-            print(
+            logging.info(
                 f"Upload complete. Uploaded {upload_count} new video frame annotations"
             )
         else:
-            print("No new video frame annotations were found.")
+            logging.info("No new video frame annotations were found.")
 
     def upload_annotations_for_images(
         self, images: MediaList[Image], append_annotations: bool = False
@@ -122,7 +122,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         :param append_annotations:
         :return:
         """
-        print("Starting image annotation upload...")
+        logging.info("Starting image annotation upload...")
         upload_count = 0
         for image in images:
             if not append_annotations:
@@ -132,9 +132,9 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
             if response.annotations:
                 upload_count += 1
         if upload_count > 0:
-            print(f"Upload complete. Uploaded {upload_count} new image annotations")
+            logging.info(f"Upload complete. Uploaded {upload_count} new image annotations")
         else:
-            print("No new image annotations were found.")
+            logging.info("No new image annotations were found.")
 
     def download_annotations_for_video(
         self, video: Video, path_to_folder: str, append_video_uid: bool = False
@@ -216,7 +216,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         :return: Time elapsed to download the annotations, in seconds
         """
         t_total = 0
-        print(
+        logging.info(
             f"Starting annotation download... saving annotations for "
             f"{len(videos)} videos to folder {path_to_folder}/annotations"
         )

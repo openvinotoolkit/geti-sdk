@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+import logging
 
 import pytest
 
@@ -69,11 +70,11 @@ class TestTrainingClient:
         job_state = job.status.state
         if job_state in JobState.active_states():
             # Cancel the job
-            print(f"Job '{job.name}' is still active, cancelling...")
+            logging.info(f"Job '{job.name}' is still active, cancelling...")
             job.cancel(fxt_project_service.session)
         else:
-            print(f"Job '{job.name}' has already excited with status {job_state}.")
-        print(job_state)
+            logging.info(f"Job '{job.name}' has already excited with status {job_state}.")
+        logging.info(job_state)
 
     @pytest.mark.vcr()
     def test_get_status(

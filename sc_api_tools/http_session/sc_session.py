@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+import logging
 import warnings
 from json import JSONDecodeError
 from typing import Dict, Optional, Union
@@ -146,7 +147,7 @@ class SCSession(requests.Session):
         self.headers.clear()
         self.headers.update({"Content-Type": "application/x-www-form-urlencoded"})
         if verbose:
-            print(f"Authenticating on host {self.config.host}...")
+            logging.info(f"Authenticating on host {self.config.host}...")
         response = self.post(
             url=login_path,
             data={"login": self.config.username, "password": self.config.password},
@@ -165,7 +166,7 @@ class SCSession(requests.Session):
         cookie = {PROXY_COOKIE_NAME: previous_response.cookies.get(PROXY_COOKIE_NAME)}
         self._cookies.update(cookie)
         if verbose:
-            print("Authentication successful. Cookie received.")
+            logging.info("Authentication successful. Cookie received.")
         self.logged_in = True
 
     def get_rest_response(
@@ -213,9 +214,9 @@ class SCSession(requests.Session):
             "Content-Type", []
         ):
             # Authentication has likely expired, re-authenticate
-            print("Authorization expired, re-authenticating...", end=" ")
+            logging.info("Authorization expired, re-authenticating...", end=" ")
             self.authenticate(verbose=False)
-            print("Done!")
+            logging.info("Done!")
             response = self.request(**request_params, **self._proxies)
 
         if response.status_code not in [200, 201]:
@@ -244,7 +245,7 @@ class SCSession(requests.Session):
         cookies and headers are cleared.
         """
         if not self.logged_in:
-            print("Already signed out.")
+            logging.info("Already signed out.")
             return
 
         sign_out_url = (
@@ -253,7 +254,7 @@ class SCSession(requests.Session):
         response = self.request(url=sign_out_url, method="GET", **self._proxies)
 
         if response.status_code == 200:
-            print("Logout successful.")
+            logging.info("Logout successful.")
         else:
             raise SCRequestException(
                 method="GET",

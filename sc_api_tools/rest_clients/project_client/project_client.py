@@ -106,7 +106,7 @@ class ProjectClient:
         """
         project = self.get_project_by_name(project_name)
         if project is not None:
-            print(
+            logging.info(
                 f"Project with name {project_name} already exists, continuing with "
                 f"exiting project. No new project has been created."
             )
@@ -149,7 +149,7 @@ class ProjectClient:
             project = self.session.get_rest_response(
                 url=f"{self.base_url}projects", method="POST", data=project_template
             )
-            print("Project created successfully.")
+            logging.info("Project created successfully.")
             project = ProjectRESTConverter.from_dict(project)
         return project
 
@@ -178,7 +178,7 @@ class ProjectClient:
         project_config_path = os.path.join(path_to_folder, "project.json")
         with open(project_config_path, "w") as file:
             json.dump(project_data, file, indent=4)
-        print(
+        logging.info(
             f"Project parameters for project '{project_name}' were saved to file "
             f"{project_config_path}."
         )
@@ -282,7 +282,7 @@ class ProjectClient:
         project = ProjectRESTConverter.from_dict(project_data)
         if project_name is not None:
             project.name = project_name
-        print(
+        logging.info(
             f"Creating project '{project.name}' from parameters in "
             f"configuration file at {path_to_project}."
         )
@@ -326,9 +326,9 @@ class ProjectClient:
             the list returned by the `get_all_projects` method
         """
         projects = self.get_all_projects()
-        print(f"{len(projects)} projects were found on the platform:\n")
+        logging.info(f"{len(projects)} projects were found on the platform:\n")
         for project in projects:
-            print(" " + project.summary + "\n")
+            logging.info(" " + project.summary + "\n")
         return projects
 
     def _create_project_template(

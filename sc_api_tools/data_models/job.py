@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import logging
 from pprint import pformat
 from typing import Any, Dict, Optional
 
@@ -196,7 +196,7 @@ class Job:
             self.status.state = JobState.CANCELLED
         except SCRequestException as error:
             if error.status_code == 404:
-                print(f"Job '{self.name}' is not active anymore, unable to delete.")
+                logging.info(f"Job '{self.name}' is not active anymore, unable to delete.")
                 self.status.state = JobState.INACTIVE
             else:
                 raise error

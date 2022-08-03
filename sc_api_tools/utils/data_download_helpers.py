@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import logging
 import os
 import shutil
 import zipfile
@@ -73,13 +73,13 @@ def get_proxies(url: str = "") -> Dict[str, str]:
     :param url: URL that should be resolved
     :return:
     """
-    print(f"Connecting to url {url}...")
+    logging.info(f"Connecting to url {url}...")
     proxies: Dict[str, str] = {}
     try:
         requests.head(url=url, proxies=proxies, timeout=10)
         return proxies
     except requests.exceptions.ConnectionError:
-        print(
+        logging.info(
             "Unable to reach URL for COCO dataset download, attempting to connect "
             "via proxy"
         )
@@ -89,7 +89,7 @@ def get_proxies(url: str = "") -> Dict[str, str]:
     }
     try:
         requests.head(url=url, proxies=proxies)
-        print("Connection succeeded.")
+        logging.info("Connection succeeded.")
     except requests.exceptions.ConnectionError as error:
         raise ValueError(
             "Unable to resolve URL with any proxy settings, please try to turn off "
@@ -114,11 +114,11 @@ def download_file(url: str, target_folder: Optional[str]) -> str:
         target_folder = "data"
     path_to_file = os.path.join(target_folder, filename)
     if os.path.exists(path_to_file) and os.path.isfile(path_to_file):
-        print(f"File {filename} exists at {path_to_file}. No new data was downloaded.")
+        logging.info(f"File {filename} exists at {path_to_file}. No new data was downloaded.")
         return path_to_file
 
     proxies = get_proxies(url)
-    print(f"Downloading {filename}...")
+    logging.info(f"Downloading {filename}...")
     with requests.get(url, stream=True, proxies=proxies) as r:
         if r.status_code != 200:
             r.raise_for_status()
@@ -129,7 +129,7 @@ def download_file(url: str, target_folder: Optional[str]) -> str:
         with tqdm.wrapattr(r.raw, "read", total=file_size, desc="") as r_raw:
             with open(path_to_file, "wb") as f:
                 shutil.copyfileobj(r_raw, f)
-    print("Download complete.")
+    logging.info("Download complete.")
     return path_to_file
 
 
@@ -211,14 +211,14 @@ def get_coco_dataset_from_path(
 
     if directory_has_coco_subset(target_folder=target_folder, coco_subset=found_subset):
         if verbose:
-            print(
+            logging.info(
                 f"COCO dataset (subset: {str(found_subset)}) found at path "
                 f"{target_folder}"
             )
         return target_folder
     else:
         if verbose:
-            print(
+            logging.info(
                 f"COCO dataset was not found at path {target_folder}, making an "
                 f"attempt to download the data."
             )
@@ -232,7 +232,7 @@ def get_coco_dataset_from_path(
         )
     else:
         if verbose:
-            print(
+            logging.info(
                 f"Unable to download annotations for COCO subset {found_subset}. "
                 f"Downloading images only"
             )
@@ -260,7 +260,7 @@ def get_coco_dataset_from_path(
     # Extract images and annotations
     for zipfile_path, target_dir in zip_to_extraction_mapping.items():
         if verbose:
-            print(f"Extracting {zipfile_path}...")
+            logging.info(f"Extracting {zipfile_path}...")
         with zipfile.ZipFile(zipfile_path, "r") as zip_ref:
             zip_ref.extractall(target_dir)
 
@@ -277,7 +277,7 @@ def get_coco_dataset_from_path(
                 os.remove(filepath)
 
     if verbose:
-        print("COCO dataset downloaded and extracted successfully.")
+        logging.info("COCO dataset downloaded and extracted successfully.")
     return target_folder
 
 
@@ -290,7 +290,7 @@ def get_coco_dataset(dataset_path: Optional[str] = None, verbose: bool = False) 
     folder 'data' in the top level of the sc-api-tools package.
 
     :param dataset_path: Path to check against.
-    :param verbose: True to print detailed output, False to check silently
+    :param verbose: True to logging.info detailed output, False to check silently
     :return: Path to the COCO dataset
     """
     if dataset_path is None:
