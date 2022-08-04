@@ -270,8 +270,9 @@ class SCSession(requests.Session):
         try:
             response = self.request(url=sign_out_url, method="GET", **self._proxies)
 
-            if response.status_code == 200 and verbose:
-                print("Logout successful.")
+            if response.status_code == 200:
+                if verbose:
+                    print("Logout successful.")
             else:
                 raise SCRequestException(
                     method="GET",
