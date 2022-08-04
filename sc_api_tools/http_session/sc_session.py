@@ -19,6 +19,7 @@ import requests
 import simplejson
 import urllib3
 from requests import Response
+from requests.exceptions import RequestException
 from requests.structures import CaseInsensitiveDict
 from urllib3.exceptions import InsecureRequestWarning
 
@@ -253,10 +254,12 @@ class SCSession(requests.Session):
 
         return result
 
-    def logout(self) -> None:
+    def logout(self, verbose: bool = True) -> None:
         """
         Log out of the server and end the session. All HTTPAdapters are closed and
         cookies and headers are cleared.
+
+        :param verbose: False to suppress output messages
         """
         if not self.logged_in or self.use_token:
             return
@@ -264,17 +267,24 @@ class SCSession(requests.Session):
         sign_out_url = (
             self.config.base_url[: -len(self.config.api_pattern)] + "/oauth2/sign_out"
         )
-        response = self.request(url=sign_out_url, method="GET", **self._proxies)
+        try:
+            response = self.request(url=sign_out_url, method="GET", **self._proxies)
 
-        if response.status_code == 200:
-            print("Logout successful.")
-        else:
-            raise SCRequestException(
-                method="GET",
-                url=sign_out_url,
-                status_code=response.status_code,
-                request_data={},
-            )
+            if response.status_code == 200 and verbose:
+                print("Logout successful.")
+            else:
+                raise SCRequestException(
+                    method="GET",
+                    url=sign_out_url,
+                    status_code=response.status_code,
+                    request_data={},
+                )
+        except RequestException:
+            if verbose:
+                print(
+                    f"The {self.__class__.__name__} is closed successfully, but the "
+                    f"client was not able to logout from the server."
+                )
 
         super().close()
         self._cookies = {CSRF_COOKIE_NAME: None, PROXY_COOKIE_NAME: None}
@@ -305,7 +315,7 @@ class SCSession(requests.Session):
         manager.
         """
         if self.logged_in:
-            self.logout()
+            self.logout(verbose=False)
         super().__exit__(exc_type, exc_value, traceback)
 
     def __del__(self):
@@ -314,4 +324,4 @@ class SCSession(requests.Session):
         from memory.
         """
         if self.logged_in:
-            self.logout()
+            self.logout(verbose=False)
