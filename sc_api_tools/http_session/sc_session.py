@@ -79,6 +79,7 @@ class SCSession(requests.Session):
         self.verify = cluster_config.has_valid_certificate
 
         self.config = cluster_config
+        self.logged_in = False
         self.authenticate()
         self._product_info = self._get_product_info_and_set_api_version()
 
@@ -165,6 +166,7 @@ class SCSession(requests.Session):
         self._cookies.update(cookie)
         if verbose:
             print("Authentication successful. Cookie received.")
+        self.logged_in = True
 
     def get_rest_response(
         self, url: str, method: str, contenttype: str = "json", data=None
@@ -241,6 +243,10 @@ class SCSession(requests.Session):
         Log out of the server and end the session. All HTTPAdapters are closed and
         cookies and headers are cleared.
         """
+        if not self.logged_in:
+            print("Already signed out.")
+            return
+
         sign_out_url = (
             self.config.base_url[: -len(self.config.api_pattern)] + "/oauth2/sign_out"
         )
@@ -260,6 +266,7 @@ class SCSession(requests.Session):
         self._cookies = {CSRF_COOKIE_NAME: None, PROXY_COOKIE_NAME: None}
         self.cookies.clear()
         self.headers = CaseInsensitiveDict({"Connection": "keep-alive"})
+        self.logged_in = False
 
     def _get_product_info_and_set_api_version(self) -> Dict[str, str]:
         """
@@ -276,3 +283,21 @@ class SCSession(requests.Session):
             self.config.api_version = LEGACY_API_VERSION
             product_info = self.get_rest_response("product_info", "GET")
         return product_info
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Log out of the SC server. This method is called when exiting the runtime
+        context related to the session, in case the session is used as a context
+        manager.
+        """
+        if self.logged_in:
+            self.logout()
+        super().__exit__(exc_type, exc_value, traceback)
+
+    def __del__(self):
+        """
+        Log out of the SC server. This method is called when the session is deleted
+        from memory.
+        """
+        if self.logged_in:
+            self.logout()

@@ -95,7 +95,7 @@ class Shape:
 
         :param ote_shape: OTE SDK shape to convert from
         :param image_width: Width of the image to which the shape applies (in pixels)
-        :param image_height: Heigth of the image to which the shape applies (in pixels)
+        :param image_height: Height of the image to which the shape applies (in pixels)
         :return: Shape entity created from the ote_shape
         """
         shape_mapping = {
@@ -207,7 +207,7 @@ class Rectangle(Shape):
 
         :param ote_shape: OTE SDK Rectangle entity to convert from
         :param image_width: Width of the image to which the rectangle applies (in pixels)
-        :param image_height: Heigth of the image to which the rectangle applies (in pixels)
+        :param image_height: Height of the image to which the rectangle applies (in pixels)
         :return: Rectangle instance created according to the ote_shape
         """
         return cls(
@@ -287,7 +287,7 @@ class Ellipse(Shape):
             x=self.x / image_width,
             y=self.y / image_height,
             width=self.width / image_width,
-            heigth=self.height / image_height,
+            height=self.height / image_height,
             type=str(self.type),
         )
 
@@ -301,7 +301,7 @@ class Ellipse(Shape):
 
         :param ote_shape: OTE SDK Ellipse entity to convert from
         :param image_width: Width of the image to which the ellipse applies (in pixels)
-        :param image_height: Heigth of the image to which the ellipse applies (in pixels)
+        :param image_height: Height of the image to which the ellipse applies (in pixels)
         :return: Ellipse instance created according to the ote_shape
         """
         return cls(
@@ -435,7 +435,7 @@ class Polygon(Shape):
 
         :param ote_shape: OTE SDK Polygon entity to convert from
         :param image_width: Width of the image to which the polygon applies (in pixels)
-        :param image_height: Heigth of the image to which the polygon applies (in pixels)
+        :param image_height: Height of the image to which the polygon applies (in pixels)
         :return: Polygon instance created according to the ote_shape
         """
         points = [
@@ -617,7 +617,7 @@ class RotatedRectangle(Shape):
 
         :param ote_shape: OTE SDK Rectangle entity to convert from
         :param image_width: Width of the image to which the shape applies (in pixels)
-        :param image_height: Heigth of the image to which the shape applies (in pixels)
+        :param image_height: Height of the image to which the shape applies (in pixels)
         :return: RotatedRectangle instance created according to the ote_shape
         """
         polygon = Polygon.from_ote(

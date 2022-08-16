@@ -54,9 +54,12 @@ class ModelClient:
         :return: List of model groups in the project
         """
         response = self.session.get_rest_response(url=self.base_url, method="GET")
+        if self.session.version < "1.2":
+            response_array = response
+        else:
+            response_array = response["items"]
         model_groups = [
-            ModelRESTConverter.model_group_from_dict(group)
-            for group in response["items"]
+            ModelRESTConverter.model_group_from_dict(group) for group in response_array
         ]
         # Update algorithm details
         for group in model_groups:
