@@ -14,6 +14,8 @@
 
 from typing import Generic, List, Optional, Union
 
+from tqdm import tqdm
+
 from sc_api_tools.data_models import AnnotationScene, Image, Video, VideoFrame
 from sc_api_tools.data_models.containers import MediaList
 
@@ -124,7 +126,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         """
         print("Starting image annotation upload...")
         upload_count = 0
-        for image in images:
+        for image in tqdm(images, desc="Uploading annotations"):
             if not append_annotations:
                 response = self._upload_annotation_for_2d_media_item(media_item=image)
             else:

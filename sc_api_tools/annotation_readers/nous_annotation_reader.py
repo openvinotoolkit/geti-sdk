@@ -4,7 +4,7 @@ import os
 import re
 from typing import Tuple, List, Dict, Any, Union, Optional
 
-from sc_api_tools.data_models import TaskType
+from sc_api_tools.data_models import TaskType, Image, VideoFrame
 from sc_api_tools.rest_converters import AnnotationRESTConverter
 
 from .base_annotation_reader import AnnotationReader
@@ -14,39 +14,40 @@ class NOUSAnnotationReader(AnnotationReader):
     """
     Class to read annotations for the NOUS dataset
     """
+
     def __init__(
-            self,
-            base_data_folder: str,
-            annotation_format: str = ".json",
-            task_type: Union[TaskType, str] = TaskType.SEGMENTATION
+        self,
+        base_data_folder: str,
+        annotation_format: str = ".json",
+        task_type: Union[TaskType, str] = TaskType.SEGMENTATION,
     ):
         super().__init__(
             base_data_folder=base_data_folder,
             annotation_format=annotation_format,
-            task_type=task_type
+            task_type=task_type,
         )
 
         self.label_filter: Optional[List[str]] = None
         self._all_label_names = self.get_all_label_names(verbose=False)
 
     def replace_empty_with_no_object(
-            self, label: str, all_label_names: List[str]
+        self, label: str, all_label_names: List[str]
     ) -> str:
 
         if self.task_type == TaskType.DETECTION:
-            if 'Empty' in label and str(self.task_type) in str.lower(label):
-                return 'No Object'
+            if "Empty" in label and str(self.task_type) in str.lower(label):
+                return "No Object"
 
         if self.task_type == TaskType.CLASSIFICATION:
-            if 'Empty' in label and str(self.task_type) in str.lower(label):
+            if "Empty" in label and str(self.task_type) in str.lower(label):
                 if len(all_label_names) > 1:
-                    return 'No Class'
+                    return "No Class"
                 else:
-                    return 'Empty Image'
+                    return "Empty Image"
 
         if self.task_type == TaskType.SEGMENTATION:
-            if 'Empty' in label and str(self.task_type) in str.lower(label):
-                return 'Empty'
+            if "Empty" in label and str(self.task_type) in str.lower(label):
+                return "Empty"
 
         return label
 
@@ -59,12 +60,12 @@ class NOUSAnnotationReader(AnnotationReader):
             print(f"Reading annotation files in folder {self.base_folder}...")
         unique_label_names = []
         for annotation_file in os.listdir(self.base_folder):
-            with open(os.path.join(self.base_folder, annotation_file), 'r') as f:
+            with open(os.path.join(self.base_folder, annotation_file), "r") as f:
                 data = json.load(f)
             for entry in data["data"]:
                 labels = [label["name"] for label in entry["labels"]]
                 for label in labels:
-                    if 'Empty' in label and str(self.task_type) in str.lower(label):
+                    if "Empty" in label and str(self.task_type) in str.lower(label):
                         continue
                     if label not in unique_label_names:
                         unique_label_names.append(label)
@@ -87,12 +88,14 @@ class NOUSAnnotationReader(AnnotationReader):
                 should be '_'
             - The UID part of the filename.
         """
-        name_separator = '_'
-        uuid_pattern = re.compile("[0-9a-fA-F]{24}")
-        uuid_matches = uuid_pattern.search(filename)
-        uuid_start_index = uuid_matches.span()[0]
-        filename_no_uid = filename[:uuid_start_index-1]
-        return filename_no_uid, name_separator, uuid_matches.group()
+        # name_separator = '_'
+        # uuid_pattern = re.compile("[0-9a-fA-F]{24}")
+        # uuid_matches = uuid_pattern.search(filename)
+        # uuid_start_index = uuid_matches.span()[0]
+        # filename_no_uid = filename[:uuid_start_index-1]
+        # return filename_no_uid, name_separator, uuid_matches.group()
+
+        return os.path.splitext(filename)[0], "_", ""
 
     def _get_new_shape(self, x: float, y: float, radius: float) -> dict:
         """
@@ -109,7 +112,7 @@ class NOUSAnnotationReader(AnnotationReader):
                 "width": 2 * radius,
                 "height": 2 * radius,
                 "x": x - radius,
-                "y": y - radius
+                "y": y - radius,
             }
         elif self.task_type == TaskType.DETECTION:
             new_shape = {
@@ -117,7 +120,7 @@ class NOUSAnnotationReader(AnnotationReader):
                 "x": x - radius,
                 "y": y - radius,
                 "width": 2 * radius,
-                "height": 2 * radius
+                "height": 2 * radius,
             }
         else:
             raise ValueError(
@@ -125,7 +128,15 @@ class NOUSAnnotationReader(AnnotationReader):
             )
         return new_shape
 
-    def _get_new_rect(self, x: float, y: float, width: float, height: float) -> dict:
+    def _get_new_rect(
+        self,
+        x: float,
+        y: float,
+        width: float,
+        height: float,
+        image_width: int,
+        image_height: int,
+    ) -> dict:
         """
         Converts a NOUS point shape into SC shape format, for the appropriate task type.
 
@@ -135,21 +146,23 @@ class NOUSAnnotationReader(AnnotationReader):
         :return: dictionary containing the new SC shape data
         """
 
-        if x+width > 1:
-            width = 1-x
+        if x + width > 1:
+            width = 1 - x
 
-        if y+height > 1:
-            height = 1-y
+        if y + height > 1:
+            height = 1 - y
 
         if self.task_type in [
-            TaskType.DETECTION, TaskType.CLASSIFICATION, TaskType.SEGMENTATION
+            TaskType.DETECTION,
+            TaskType.CLASSIFICATION,
+            TaskType.SEGMENTATION,
         ]:
             new_shape = {
                 "type": "RECTANGLE",
-                "x": x,
-                "y": y,
-                "width": width,
-                "height": height
+                "x": int(x * image_width),
+                "y": int(y * image_height),
+                "width": int(width * image_width),
+                "height": int(height * image_height),
             }
         else:
             raise ValueError(
@@ -178,7 +191,7 @@ class NOUSAnnotationReader(AnnotationReader):
                     "x": x_min,
                     "y": y_min,
                     "width": x_max - x_min,
-                    "height": y_max - y_min
+                    "height": y_max - y_min,
                 }
             )
         else:
@@ -196,29 +209,26 @@ class NOUSAnnotationReader(AnnotationReader):
         self.label_filter = labels
 
     def get_data(
-            self,
-            filename: str,
-            label_name_to_id_mapping: dict,
-            preserve_shape_for_global_labels: bool = False,
-            frame: int = -1
+        self,
+        filename: str,
+        label_name_to_id_mapping: dict,
+        preserve_shape_for_global_labels: bool = False,
+        frame: int = -1,
+        media_item: Union[Image, VideoFrame] = None,
     ):
-        media_filename, separator_token, uuid = self._convert_filename(
-            filename
-        )
+        media_filename, separator_token, uuid = self._convert_filename(filename)
 
         if frame != -1:
-            annotation_filename = f'{media_filename}_frame_{frame}'
+            annotation_filename = f"{media_filename}_frame_{frame}"
         else:
             annotation_filename = media_filename
 
         annotation_files = [
-            self._convert_filename(filename)[0] for filename
-            in os.listdir(self.base_folder)
+            self._convert_filename(filename)[0]
+            for filename in os.listdir(self.base_folder)
         ]
 
-        filepath = glob.glob(
-            os.path.join(self.base_folder, f"{annotation_filename}*")
-        )
+        filepath = glob.glob(os.path.join(self.base_folder, f"{annotation_filename}*"))
 
         annotation_list = []
         if annotation_filename not in annotation_files or len(filepath) == 0:
@@ -227,7 +237,7 @@ class NOUSAnnotationReader(AnnotationReader):
             if len(filepath) != 1:
                 # Try to match the annotation files against the media uuid
                 for filename in filepath:
-                    with open(filename, 'r') as f:
+                    with open(filename, "r") as f:
                         data = json.load(f)
                     if data.get("image_id", None) == uuid:
                         filepath = [filename]
@@ -251,7 +261,7 @@ class NOUSAnnotationReader(AnnotationReader):
                     return []
 
             filepath = filepath[0]
-            with open(filepath, 'r') as f:
+            with open(filepath, "r") as f:
                 data = json.load(f)
             for entry in data["data"]:
                 shapes = entry["shapes"]
@@ -259,7 +269,8 @@ class NOUSAnnotationReader(AnnotationReader):
                 if self.label_filter is not None:
                     # filter annotation for labels
                     labels = [
-                        label["name"] for label in entry["labels"]
+                        label["name"]
+                        for label in entry["labels"]
                         if label["name"] in self.label_filter
                     ]
                     if len(labels) == 0:
@@ -270,7 +281,8 @@ class NOUSAnnotationReader(AnnotationReader):
                 labels = [
                     self.replace_empty_with_no_object(
                         label, all_label_names=self._all_label_names
-                    ) for label in labels
+                    )
+                    for label in labels
                 ]
 
                 new_label_ids = []
@@ -293,7 +305,14 @@ class NOUSAnnotationReader(AnnotationReader):
                     geometry = shapes[0]["geometry"]
                     x, y = geometry["x"], geometry["y"]
                     w, h = geometry["width"], geometry["height"]
-                    new_shape = self._get_new_rect(x=x, y=y, width=w, height=h)
+                    new_shape = self._get_new_rect(
+                        x=x,
+                        y=y,
+                        width=w,
+                        height=h,
+                        image_width=media_item.media_information.width,
+                        image_height=media_item.media_information.height,
+                    )
                 else:
                     raise ValueError(
                         f"Unsupported shape of type {shapes[0]['type']} found in "
@@ -305,7 +324,7 @@ class NOUSAnnotationReader(AnnotationReader):
                         "labels": [
                             {"id": label_id, "probability": 1.0}
                             for label_id in new_label_ids
-                        ]
+                        ],
                     }
                 )
                 annotation_list.append(sc_annotation)

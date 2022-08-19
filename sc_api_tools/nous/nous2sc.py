@@ -45,6 +45,7 @@ from argparse import ArgumentParser, SUPPRESS
 from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers.nous_annotation_reader import NOUSAnnotationReader
 from sc_api_tools.rest_clients import ProjectClient, ConfigurationClient, ImageClient, VideoClient
+from sc_api_tools.rest_managers.annotation_manager.nous_annotation_manager import NOUSAnnotationManager
 from sc_api_tools.utils import get_task_types_by_project_type
 
 from sc_api_tools.data_models import (
@@ -268,7 +269,7 @@ def migrate_nous_chain(
     image_manager = ImageClient(
         session=rest_client.session,
         workspace_id=rest_client.workspace_id,
-        project=project
+        project=project,
     )
     images = image_manager.upload_folder(
         path_to_folder=os.path.join(temp_dir, "images"), skip_if_filename_exists=True
@@ -296,12 +297,14 @@ def migrate_nous_chain(
     annotation_readers_per_task[0].set_labels_filter(labels_per_task[0])
 
     # Upload annotations
-    annotation_manager = NOUSAnnotationClient(
+    annotation_manager = NOUSAnnotationManager(
         session=rest_client.session,
         project=project,
         workspace_id=rest_client.workspace_id,
         annotation_reader=annotation_readers_per_task[0],
     )
+
+    images = images[:10]
 
     annotation_manager.upload_annotations_for_images(images)
     annotation_manager.upload_annotations_for_videos(videos)
@@ -319,7 +322,7 @@ def migrate_nous_chain(
     annotation_readers_per_task[1].set_labels_filter(labels_per_task[1])
 
     # Upload annotations
-    annotation_manager = NOUSAnnotationClient(
+    annotation_manager = NOUSAnnotationManager(
         session=rest_client.session,
         project=project,
         workspace_id=rest_client.workspace_id,
@@ -331,7 +334,7 @@ def migrate_nous_chain(
 
     # clean up temp folder
     print('Cleaning up...')
-    shutil.rmtree(temp_dir)
+    # shutil.rmtree(temp_dir)
     print('=================== Done ===================')
 
 

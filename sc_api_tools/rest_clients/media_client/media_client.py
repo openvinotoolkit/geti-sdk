@@ -15,7 +15,10 @@
 import os
 import time
 from glob import glob
+from threading import Thread
 from typing import Any, BinaryIO, ClassVar, Dict, Generic, List, Sequence, Type
+
+from tqdm import tqdm
 
 from sc_api_tools.data_models import Image, MediaType, Project, Video, VideoFrame
 from sc_api_tools.data_models.containers.media_list import MediaList, MediaTypeVar
@@ -166,9 +169,9 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         return self._upload_bytes(media_bytes)
 
     def _upload_loop(
-        self,
-        filepaths: List[str],
-        skip_if_filename_exists: bool = False,
+            self,
+            filepaths: List[str],
+            skip_if_filename_exists: bool = False,
     ) -> MediaList[MediaTypeVar]:
         """
         Upload media from a list of filepaths. Also checks if media items with the same
@@ -188,20 +191,30 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         skip_count = 0
         print(f"Starting {self._MEDIA_TYPE} upload...")
         t_start = time.time()
-        for filepath in filepaths:
+        uploaded_media_for_thread = [None, ] * len(filepaths)
+        threads = []
+        for i, filepath in enumerate(tqdm(filepaths, desc="Uploading images")):
             name, ext = os.path.splitext(os.path.basename(filepath))
             if name in media_in_project.names and skip_if_filename_exists:
                 skip_count += 1
                 continue
-            media_dict = self._upload(filepath=filepath)
-            media_item = MediaRESTConverter.from_dict(
-                input_dict=media_dict, media_type=self.__media_type
-            )
-            if isinstance(media_item, Video):
-                media_item._data = filepath
-            media_in_project.append(media_item)
-            uploaded_media.append(media_item)
-            upload_count += 1
+            thread = Thread(target=self._upload_media_job
+                            , args=(filepath, uploaded_media_for_thread, i))
+            threads.append(thread)
+            thread.start()
+
+            if len(threads) > 25:
+                print("threads", len(threads))
+                for thread in threads:
+                    thread.join()
+                threads = []
+                uploaded_items_threads = [item_ for item_ in uploaded_media_for_thread if item_ is not None]
+                media_in_project.extend(uploaded_items_threads)
+                uploaded_media.extend(uploaded_items_threads)
+                upload_count += len(uploaded_items_threads)
+                #
+                uploaded_media_for_thread = [None, ] * len(filepaths)
+
             if upload_count % 100 == 0:
                 print(
                     f"Uploading... {upload_count} {self.plural_media_name} uploaded "
@@ -218,18 +231,27 @@ class BaseMediaClient(Generic[MediaTypeVar]):
             msg = f"No new {self.plural_media_name} were uploaded."
         if skip_count > 0:
             msg = (
-                msg + f" Found {skip_count} {self.plural_media_name} that already "
-                f"existed in project, these {self.plural_media_name} were"
-                f" skipped."
+                    msg + f" Found {skip_count} {self.plural_media_name} that already "
+                          f"existed in project, these {self.plural_media_name} were"
+                          f" skipped."
             )
         print(msg)
-        return uploaded_media
+        return media_in_project
+
+    def _upload_media_job(self, filepath, out_list, out_index):
+        media_dict = self._upload(filepath=filepath)
+        media_item = MediaRESTConverter.from_dict(
+            input_dict=media_dict, media_type=self.__media_type
+        )
+        if isinstance(media_item, Video):
+            media_item._data = filepath
+        out_list[out_index] = media_item
 
     def _upload_folder(
-        self,
-        path_to_folder: str,
-        n_media: int = -1,
-        skip_if_filename_exists: bool = False,
+            self,
+            path_to_folder: str,
+            n_media: int = -1,
+            skip_if_filename_exists: bool = False,
     ) -> MediaList[MediaTypeVar]:
         """
         Upload all media in a folder to the project. Returns the mapping of filenames
@@ -266,7 +288,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         )
 
     def _download_all(
-        self, path_to_folder: str, append_media_uid: bool = False
+            self, path_to_folder: str, append_media_uid: bool = False
     ) -> None:
         """
         Download all media entities in a project to a folder on the local disk.

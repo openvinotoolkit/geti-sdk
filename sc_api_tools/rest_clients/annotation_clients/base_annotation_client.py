@@ -240,6 +240,7 @@ class BaseAnnotationClient:
                 annotations=[],
                 kind=AnnotationKind.ANNOTATION.value,
             )
+        print(media_item.name)
         annotation_scene.extend(new_annotation_scene.annotations)
 
         if annotation_scene.has_data:
