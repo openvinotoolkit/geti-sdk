@@ -98,12 +98,16 @@ def get_proxies(url: str = "") -> Dict[str, str]:
     return proxies
 
 
-def download_file(url: str, target_folder: Optional[str]) -> str:
+def download_file(
+    url: str, target_folder: Optional[str], check_valid_archive: bool = False
+) -> str:
     """
     Download a file from `url` to a folder on local disk `target_folder`.
 
     NOTE: If a file with the same name as the file to be downloaded already exists in
-        `target_folder`, this function will not download anything.
+        `target_folder`, this function will not download anything. If
+        `check_valid_archive` is True, this function not only checks if the target
+        file exists but also if it is a valid .zip archive.
 
     :param url:
     :param target_folder:
@@ -114,6 +118,13 @@ def download_file(url: str, target_folder: Optional[str]) -> str:
         target_folder = "data"
     path_to_file = os.path.join(target_folder, filename)
     if os.path.exists(path_to_file) and os.path.isfile(path_to_file):
+        if check_valid_archive:
+            if not zipfile.is_zipfile(path_to_file):
+                print(
+                    f"File {filename} exists at {path_to_file}, but is is not a valid "
+                    f"archive. Overwriting the existing file."
+                )
+                shutil.rmtree(path_to_file)
         print(f"File {filename} exists at {path_to_file}. No new data was downloaded.")
         return path_to_file
 
@@ -239,9 +250,11 @@ def get_coco_dataset_from_path(
         annotations_url = None
 
     # Download the zip files
-    image_zip = download_file(image_url, target_folder)
+    image_zip = download_file(image_url, target_folder, check_valid_archive=True)
     if annotations_url is not None:
-        annotations_zip = download_file(annotations_url, target_folder)
+        annotations_zip = download_file(
+            annotations_url, target_folder, check_valid_archive=True
+        )
     else:
         annotations_zip = None
 
