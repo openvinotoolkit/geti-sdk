@@ -287,11 +287,11 @@ class SCSession(requests.Session):
                     f"client was not able to logout from the server."
                 )
 
-        super().close()
         self._cookies = {CSRF_COOKIE_NAME: None, PROXY_COOKIE_NAME: None}
         self.cookies.clear()
         self.headers = CaseInsensitiveDict(INITIAL_HEADERS)
         self.logged_in = False
+        super().close()
 
     def _get_product_info_and_set_api_version(self) -> Dict[str, str]:
         """
