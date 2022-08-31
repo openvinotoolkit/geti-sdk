@@ -94,7 +94,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         :return: MediaList holding all media of a certain type in the project
         """
         response = self.session.get_rest_response(
-            url=f"{self.base_url}?top=100000", method="GET"
+            url=f"{self.base_url}?top=500", method="GET"
         )
         total_number_of_media: int = response["media_count"][self.plural_media_name]
         raw_media_list: List[Dict[str, Any]] = []

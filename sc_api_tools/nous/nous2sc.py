@@ -296,6 +296,8 @@ def migrate_nous_chain(
     )
     annotation_readers_per_task[0].set_labels_filter(labels_per_task[0])
 
+    print("labels_per_task[0]", labels_per_task[0])
+
     # Upload annotations
     annotation_manager = NOUSAnnotationManager(
         session=rest_client.session,
@@ -304,12 +306,12 @@ def migrate_nous_chain(
         annotation_reader=annotation_readers_per_task[0],
     )
 
-    images = images[:10]
+    # images = images[10:11]
 
     annotation_manager.upload_annotations_for_images(images)
     annotation_manager.upload_annotations_for_videos(videos)
 
-    # Now process the second task
+    # Now process the second taskf
     # Filter on the second task labels
     # Upload with the append_annotations option to 'add' second task annotation to
     # the first
@@ -319,7 +321,7 @@ def migrate_nous_chain(
     annotation_readers_per_task[1].prepare_and_set_dataset(
         task_type=project.get_trainable_tasks()[1].type
     )
-    annotation_readers_per_task[1].set_labels_filter(labels_per_task[1])
+    annotation_readers_per_task[1].set_labels_filter([x_["name"] for x_ in labels_per_task[1]])
 
     # Upload annotations
     annotation_manager = NOUSAnnotationManager(

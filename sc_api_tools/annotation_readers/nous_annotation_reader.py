@@ -163,7 +163,12 @@ class NOUSAnnotationReader(AnnotationReader):
                 "y": int(y * image_height),
                 "width": int(width * image_width),
                 "height": int(height * image_height),
+                # "x": x,
+                # "y": y,
+                # "width": width,
+                # "height": height,
             }
+            print(new_shape)
         else:
             raise ValueError(
                 f"Unsupported task type set in annotation reader: {self.task_type}"
