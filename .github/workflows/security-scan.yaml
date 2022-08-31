@@ -53,7 +53,7 @@ jobs:
         run: |
           export no_proxy=snyk.devtools.intel.com
           snyk auth $SNYK_TOKEN -d
-          snyk test --all-projects --json-file-output=$REPORT_DIRECTORY/snyk.json --print-deps
+          snyk test --all-projects --json-file-output=$REPORT_DIRECTORY/snyk.json --print-deps | echo "Snyk tests completed with exit code $?"
           snyk-to-html -i snyk.json -o snyk.html
 
       - name: Bandit scan
