@@ -53,10 +53,28 @@ jobs:
         run: |
           export no_proxy=snyk.devtools.intel.com
           snyk auth $SNYK_TOKEN -d
-          snyk test --json-file-output=$REPORT_DIRECTORY/snyk_base.json --print-deps --file=requirements/requirements.txt --package-manager=pip || echo "Snyk tests on base requirements completed with exit code $?"
-          snyk test --json-file-output=$REPORT_DIRECTORY/snyk_docs.json --print-deps --file=requirements/requirements-docs.txt --package-manager=pip || echo "Snyk tests on documentation requirements completed with exit code $?"
-          snyk test --json-file-output=$REPORT_DIRECTORY/snyk_notebooks.json --print-deps --file=requirements/requirements-notebooks.txt --package-manager=pip || echo "Snyk tests on notebook requirements completed with exit code $?"
-          snyk test --json-file-output=$REPORT_DIRECTORY/snyk_dev.json --print-deps --file=requirements/requirements-dev.txt --package-manager=pip || echo "Snyk tests on development requirements completed with exit code $?"
+
+          snyk test --json-file-output=$REPORT_DIRECTORY/snyk_base.json \
+                    --print-deps \
+                    --file=requirements/requirements.txt \
+                    --project-name=sonoma_creek_sdk \
+                    --package-manager=pip || echo "Snyk tests on base requirements completed with exit code $?"
+          snyk test --json-file-output=$REPORT_DIRECTORY/snyk_docs.json \
+                    --print-deps \
+                    --file=requirements/requirements-docs.txt \
+                    --project-name=sonoma_creek_sdk \
+                    --package-manager=pip || echo "Snyk tests on documentation requirements completed with exit code $?"
+          snyk test --json-file-output=$REPORT_DIRECTORY/snyk_notebooks.json \
+                    --print-deps \
+                    --file=requirements/requirements-notebooks.txt \
+                    --project-name=sonoma_creek_sdk \
+                    --package-manager=pip || echo "Snyk tests on notebook requirements completed with exit code $?"
+          snyk test --json-file-output=$REPORT_DIRECTORY/snyk_dev.json \
+                    --print-deps \
+                    --file=requirements/requirements-dev.txt \
+                    --project-name=sonoma_creek_sdk \
+                    --package-manager=pip || echo "Snyk tests on development requirements completed with exit code $?"
+
           snyk-to-html -i $REPORT_DIRECTORY/snyk_base.json -o $REPORT_DIRECTORY/snyk_base.html
           snyk-to-html -i $REPORT_DIRECTORY/snyk_docs.json -o $REPORT_DIRECTORY/snyk_docs.html
           snyk-to-html -i $REPORT_DIRECTORY/snyk_notebooks.json -o $REPORT_DIRECTORY/snyk_notebooks.html
