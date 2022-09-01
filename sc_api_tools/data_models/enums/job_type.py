@@ -26,6 +26,7 @@ class JobType(Enum):
     RECONSTRUCT_VIDEO = "reconstruct_video"
     EVALUATE = "evaluate"
     OPTIMIZATION = "optimization"
+    TEST = "test"
 
     def __str__(self) -> str:
         """

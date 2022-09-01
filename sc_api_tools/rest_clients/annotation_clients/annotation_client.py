@@ -36,12 +36,10 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         response = self.session.get_rest_response(
             url=f"{video.base_url}/annotations/latest", method="GET"
         )
-        if isinstance(response, list):
+        if self.session.version < "1.2":
             annotations = response
-        elif isinstance(response, dict):
-            annotations = response["items"]
         else:
-            raise TypeError(f"Invalid response type {type(response)}.")
+            annotations = response["video_annotations"]
         return [
             self.annotation_scene_from_rest_response(
                 annotation_scene, media_information=video.media_information

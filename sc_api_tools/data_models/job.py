@@ -13,11 +13,12 @@
 # and limitations under the License.
 
 from pprint import pformat
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import attr
 
 from sc_api_tools.data_models.enums import JobState, JobType
+from sc_api_tools.data_models.project import Dataset
 from sc_api_tools.data_models.status import StatusSummary
 from sc_api_tools.data_models.utils import (
     attr_value_serializer,
@@ -69,6 +70,22 @@ class TaskMetadata:
 
 
 @attr.s(auto_attribs=True)
+class TestMetadata:
+    """
+    Metadata related to a model test job on the SC cluster.
+
+    :var model_template_id: Identifier of the model template used in the test
+    :var model_architecture: Name of the neural network architecture used for the model
+    :var datasets: List of dictionaries, each dictionary holding the id and name of a
+        dataset used in the test
+    """
+
+    model_architecture: str
+    model_template_id: str
+    datasets: List[Dataset]
+
+
+@attr.s(auto_attribs=True)
 class ProjectMetadata:
     """
     Metadata related to a project on the SC cluster.
@@ -98,8 +115,9 @@ class JobMetadata:
         produced by the job. Only used for optimization jobs.
     """
 
-    task: TaskMetadata
+    task: Optional[TaskMetadata] = None
     project: Optional[ProjectMetadata] = None
+    test: Optional[TestMetadata] = None
     base_model_id: Optional[str] = None
     model_storage_id: Optional[str] = None
     optimization_type: Optional[str] = None

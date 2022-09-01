@@ -26,7 +26,10 @@ def get_default_workspace_id(rest_session: SCSession) -> str:
     if isinstance(workspaces, list):
         workspace_list = workspaces
     elif isinstance(workspaces, dict):
-        workspace_list = workspaces["items"]
+        if rest_session.version > "1.1":
+            workspace_list = workspaces["workspaces"]
+        else:
+            workspace_list = workspaces["items"]
     else:
         raise ValueError(
             f"Unexpected response from cluster: {workspaces}. Expected to receive a "

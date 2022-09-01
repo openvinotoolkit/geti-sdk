@@ -57,7 +57,7 @@ class ModelClient:
         if self.session.version < "1.2":
             response_array = response
         else:
-            response_array = response["items"]
+            response_array = response["model_groups"]
         model_groups = [
             ModelRESTConverter.model_group_from_dict(group) for group in response_array
         ]
