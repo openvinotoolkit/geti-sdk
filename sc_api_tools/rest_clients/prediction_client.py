@@ -62,12 +62,16 @@ class PredictionClient:
             url=f"{self._base_url}model_groups", method="GET"
         )
         model_info_array: List[Dict[str, Any]]
-        if isinstance(response, dict):
-            model_info_array = response.get("items", [])
-        elif isinstance(response, list):
-            model_info_array = response
+
+        if self.session.version >= "1.2":
+            model_info_array = response.get("model_groups", [])
         else:
-            raise ValueError(f"Unexpected response from SC cluster: {response}")
+            if isinstance(response, dict):
+                model_info_array = response.get("items", [])
+            elif isinstance(response, list):
+                model_info_array = response
+            else:
+                raise ValueError(f"Unexpected response from SC cluster: {response}")
 
         task_ids = [task.id for task in self.project.get_trainable_tasks()]
         tasks_with_models: List[str] = []
@@ -183,7 +187,7 @@ class PredictionClient:
                             PredictionRESTConverter.from_dict(
                                 prediction
                             ).resolve_labels_for_result_media(labels=self._labels)
-                            for prediction in response
+                            for prediction in response["video_predictions"]
                         ]
                 else:
                     raise TypeError(

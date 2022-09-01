@@ -261,37 +261,53 @@ class SCSession(requests.Session):
 
         :param verbose: False to suppress output messages
         """
+        requires_closing = True
+        requires_sign_out = True
+
         if not self.logged_in or self.use_token:
-            return
+            requires_closing = False
+            requires_sign_out = False
 
-        sign_out_url = (
-            self.config.base_url[: -len(self.config.api_pattern)] + "/oauth2/sign_out"
-        )
-        try:
-            response = self.request(url=sign_out_url, method="GET", **self._proxies)
+        if requires_sign_out:
+            sign_out_url = (
+                self.config.base_url[: -len(self.config.api_pattern)]
+                + "/oauth2/sign_out"
+            )
+            try:
+                response = self.request(url=sign_out_url, method="GET", **self._proxies)
 
-            if response.status_code == 200:
+                if response.status_code == 200:
+                    if verbose:
+                        print("Logout successful.")
+                else:
+                    raise SCRequestException(
+                        method="GET",
+                        url=sign_out_url,
+                        status_code=response.status_code,
+                        request_data={},
+                    )
+            except RequestException:
                 if verbose:
-                    print("Logout successful.")
-            else:
-                raise SCRequestException(
-                    method="GET",
-                    url=sign_out_url,
-                    status_code=response.status_code,
-                    request_data={},
-                )
-        except RequestException:
-            if verbose:
-                print(
-                    f"The {self.__class__.__name__} is closed successfully, but the "
-                    f"client was not able to logout from the server."
-                )
+                    print(
+                        f"The {self.__class__.__name__} is closed successfully, but "
+                        f"the client was not able to logout from the server."
+                    )
+            except TypeError:
+                # The session is already closed
+                requires_closing = False
 
         self._cookies = {CSRF_COOKIE_NAME: None, PROXY_COOKIE_NAME: None}
         self.cookies.clear()
         self.headers = CaseInsensitiveDict(INITIAL_HEADERS)
         self.logged_in = False
-        super().close()
+        if requires_closing:
+            try:
+                super().close()
+            except TypeError:
+                # Sometimes a TypeError is raised if logout is called during garbage
+                # collection, however we can safely ignore this since the session will
+                # be deleted in that case anyway.
+                pass
 
     def _get_product_info_and_set_api_version(self) -> Dict[str, str]:
         """
