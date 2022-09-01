@@ -41,7 +41,8 @@ class NOUSAnnotationReader(AnnotationReader):
         if self.task_type == TaskType.CLASSIFICATION:
             if "Empty" in label and str(self.task_type) in str.lower(label):
                 if len(all_label_names) > 1:
-                    return "No Class"
+                    # return "No Class"
+                    return label
                 else:
                     return "Empty Image"
 
@@ -168,7 +169,7 @@ class NOUSAnnotationReader(AnnotationReader):
                 # "width": width,
                 # "height": height,
             }
-            print(new_shape)
+            # print(new_shape)
         else:
             raise ValueError(
                 f"Unsupported task type set in annotation reader: {self.task_type}"

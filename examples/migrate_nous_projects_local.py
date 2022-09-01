@@ -3,6 +3,8 @@ import os
 from collections import Counter
 from json import JSONDecodeError
 
+from tqdm import tqdm
+
 from sc_api_tools import SCRESTClient
 from sc_api_tools.nous.nous2sc import migrate_nous_chain
 from sc_api_tools.rest_clients import ProjectClient
@@ -10,24 +12,36 @@ from sc_api_tools.rest_clients import ProjectClient
 if __name__ == '__main__':
     ann_dir = "/home/lhogeweg/Documents/Datasets/diopsis21clean/annotation"
     labels = []
-    for fn in os.listdir(ann_dir):
+    ann_files = os.listdir(ann_dir)
+    specific_images = None
+    for fn in ann_files:
         try:
             j_ann = json.load(open(os.path.join(ann_dir, fn)))
             for j_shape in j_ann["data"]:
-                labels.extend([x["name"] for x in j_shape["labels"]])
+                image_labels = [x["name"] for x in j_shape["labels"]]
+                # if "Muscidae" in image_labels:
+                #     specific_images.append(fn.split(".")[0])
+                labels.extend(image_labels)
         except JSONDecodeError:
             print(fn)
+    # exit(0)
 
     counts = Counter(labels).most_common()
     print(counts)
     sufficient_labels = set([x[0] for x in counts if x[1] >= 6])
     # exit(0)
+    sufficient_labels -= {"Cataclysta lemnata - do not use", "Muscidae"}
     print(sufficient_labels)
 
     update_annotations = False
     if update_annotations:
-        for fn in os.listdir(ann_dir):
-            p = os.path.join(ann_dir, fn)
+        for fn in tqdm(ann_files, total=len(ann_files)):
+            try:
+                p = os.path.join(ann_dir, fn)
+            except JSONDecodeError:
+                print(fn)
+                raise
+
             j_ann = json.load(open(p))
             for j_shape in j_ann["data"]:
                 j_shape["labels"] = [x for x in j_shape["labels"] if x["name"] in sufficient_labels]
@@ -45,16 +59,18 @@ if __name__ == '__main__':
     # print(id_to_label)
 
     for id_, label in id_to_label.items():
-        if label["name"] in sufficient_labels and label["name"] != "Object":
-            migrate_label = {
-                "name": label["name"],
-            }
-            if label["parent"] in id_to_label and label["name"] != "Empty Classification":
-                migrate_label["parent_id"] = id_to_label[label["parent"]]["name"]
-                migrate_label["group"] = "g_" + id_to_label[label["parent"]]["name"]
-                print("migrate_label['group']", migrate_label["group"])
-            labels_migrate.append(migrate_label)
-
+        label_name = label["name"]
+        if label_name not in sufficient_labels or label_name == "Object" or "Empty" in label_name:
+            continue
+        migrate_label = {
+            "name": label_name,
+        }
+        if label["parent"] in id_to_label and label_name != "Empty Classification":
+            migrate_label["parent_id"] = id_to_label[label["parent"]]["name"]
+            migrate_label["group"] = "g_" + id_to_label[label["parent"]]["name"]
+            print("migrate_label['group']", migrate_label["group"])
+        labels_migrate.append(migrate_label)
+    labels_migrate.append({'name': 'No Animalia'})
     print(labels_migrate)
 
     # client = SCRESTClient(
@@ -68,7 +84,7 @@ if __name__ == '__main__':
         host=host,
         username="laurens.hogeweg@intel.com",
         password="@SCvision+LH",
-        proxies={"https": "http://proxy-dmz.intel.com:912"}
+        # proxies={"https": "http://proxy-dmz.intel.com:912"}
     )
 
     # project_manager = ProjectClient(
@@ -101,5 +117,7 @@ if __name__ == '__main__':
         task_types=['detection', 'classification'],
         labels_per_task=[['Object'], labels_migrate],
         project_name='diopsis',
-        temp_dir="/home/lhogeweg/Documents/Datasets/diopsis21clean"
+        temp_dir="/home/lhogeweg/Documents/Datasets/diopsis21clean",
+        offset=100,
+        specific_images=specific_images
     )

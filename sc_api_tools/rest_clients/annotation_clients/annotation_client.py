@@ -11,7 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import traceback
+from threading import Thread
 from typing import Generic, List, Optional, Union
 
 from tqdm import tqdm
@@ -20,6 +21,7 @@ from sc_api_tools.data_models import AnnotationScene, Image, Video, VideoFrame
 from sc_api_tools.data_models.containers import MediaList
 
 from .base_annotation_client import AnnotationReaderType, BaseAnnotationClient
+from ...http_session import SCRequestException
 
 
 class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
@@ -126,17 +128,36 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         """
         print("Starting image annotation upload...")
         upload_count = 0
+        threads = []
         for image in tqdm(images, desc="Uploading annotations"):
-            if not append_annotations:
-                response = self._upload_annotation_for_2d_media_item(media_item=image)
-            else:
-                response = self._append_annotation_for_2d_media_item(media_item=image)
-            if response.annotations:
-                upload_count += 1
+            thread = Thread(target=self._append_or_upload
+                            , args=(append_annotations, image, upload_count))
+            threads.append(thread)
+            thread.start()
+
+            if len(threads) > 0:
+                print("threads", len(threads))
+                for thread in threads:
+                    thread.join()
+                threads = []
+            # upload_count = self._append_or_upload(append_annotations, image, upload_count)
         if upload_count > 0:
             print(f"Upload complete. Uploaded {upload_count} new image annotations")
         else:
             print("No new image annotations were found.")
+
+    def _append_or_upload(self, append_annotations, image, upload_count):
+        if not append_annotations:
+            response = self._upload_annotation_for_2d_media_item(media_item=image)
+        else:
+            try:
+                response = self._append_annotation_for_2d_media_item(media_item=image)
+            except SCRequestException:
+                print(f"smt went wrong for {image.name}")
+                traceback.print_exc()
+        if response.annotations:
+            upload_count += 1
+        return upload_count
 
     def download_annotations_for_video(
         self, video: Video, path_to_folder: str, append_video_uid: bool = False

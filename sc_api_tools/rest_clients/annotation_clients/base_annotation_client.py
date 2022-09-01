@@ -106,6 +106,9 @@ class BaseAnnotationClient:
         project_label_name_to_id_mapping = {
             name: id_ for (id_, name) in project_label_mapping.items()
         }
+        # project_label_name_to_id_mapping = {
+        #     name.replace("Empty Classification", "No Class"): id_ for (id_, name) in project_label_mapping.items()
+        # }
         for source_label_name in source_label_names:
             if source_label_name not in project_label_name_to_id_mapping:
                 print(
@@ -240,7 +243,7 @@ class BaseAnnotationClient:
                 annotations=[],
                 kind=AnnotationKind.ANNOTATION.value,
             )
-        print(media_item.name)
+        # print(media_item.name)
         annotation_scene.extend(new_annotation_scene.annotations)
 
         if annotation_scene.has_data:

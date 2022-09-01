@@ -194,7 +194,8 @@ def migrate_nous_chain(
     labels_per_task: List[Union[List[str], List[Dict[str, Any]]]],
     project_name: Optional[str] = None,
         temp_dir: Optional[str] = None
-):
+, offset=None,
+specific_images:List[str]=None):
     """
     NOTE:
     I'm sure the task-chain annotations could be uploaded in a single step
@@ -275,6 +276,10 @@ def migrate_nous_chain(
         path_to_folder=os.path.join(temp_dir, "images"), skip_if_filename_exists=True
     )
 
+    if specific_images is not None:
+        images = [x_ for x_ in images if x_.name in specific_images]
+        print("IMAGES", len(images))
+
     # Upload videos
     video_manager = VideoClient(
         workspace_id=rest_client.workspace_id,
@@ -306,16 +311,6 @@ def migrate_nous_chain(
         annotation_reader=annotation_readers_per_task[0],
     )
 
-    # images = images[10:11]
-
-    annotation_manager.upload_annotations_for_images(images)
-    annotation_manager.upload_annotations_for_videos(videos)
-
-    # Now process the second taskf
-    # Filter on the second task labels
-    # Upload with the append_annotations option to 'add' second task annotation to
-    # the first
-
     # Set annotation reader task type
     annotation_readers_per_task[1].task_type = project.get_trainable_tasks()[1].type
     annotation_readers_per_task[1].prepare_and_set_dataset(
@@ -324,15 +319,29 @@ def migrate_nous_chain(
     annotation_readers_per_task[1].set_labels_filter([x_["name"] for x_ in labels_per_task[1]])
 
     # Upload annotations
-    annotation_manager = NOUSAnnotationManager(
+    annotation_manager_part2 = NOUSAnnotationManager(
         session=rest_client.session,
         project=project,
         workspace_id=rest_client.workspace_id,
         annotation_reader=annotation_readers_per_task[1],
     )
 
-    annotation_manager.upload_annotations_for_images(images, append_annotations=True)
-    annotation_manager.upload_annotations_for_videos(videos, append_annotations=True)
+    for start in range(offset, len(images), 100):
+        print("START", start)
+        images_ = images[start:start+100]
+
+        annotation_manager.upload_annotations_for_images(images_)
+        # annotation_manager.upload_annotations_for_videos(videos)
+
+        # Now process the second taskf
+        # Filter on the second task labels
+        # Upload with the append_annotations option to 'add' second task annotation to
+        # the first
+
+
+
+        annotation_manager_part2.upload_annotations_for_images(images_, append_annotations=True)
+        annotation_manager_part2.upload_annotations_for_videos(videos, append_annotations=True)
 
     # clean up temp folder
     print('Cleaning up...')
