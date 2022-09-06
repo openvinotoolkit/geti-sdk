@@ -49,7 +49,9 @@ class DeployedModel(OptimizedModel):
     loaded onto a device to generate predictions.
     """
 
-    hyper_parameters: TaskConfiguration = attr.ib(kw_only=True, repr=False)
+    hyper_parameters: Optional[TaskConfiguration] = attr.ib(
+        kw_only=True, repr=False, default=None
+    )
 
     def __attrs_post_init__(self):
         """
