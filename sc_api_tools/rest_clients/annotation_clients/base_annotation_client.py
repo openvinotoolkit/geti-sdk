@@ -243,7 +243,7 @@ class BaseAnnotationClient:
         annotation_scene.extend(new_annotation_scene.annotations)
 
         if annotation_scene.has_data:
-            if self.session.version <= "1.2":
+            if self.session.version <= "1.1":
                 rest_data = NormalizedAnnotationRESTConverter.to_normalized_dict(
                     annotation_scene,
                     deidentify=False,
