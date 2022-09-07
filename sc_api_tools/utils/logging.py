@@ -21,7 +21,7 @@ default_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 def configure_basic_stdout_logging():
     """
-    Set up default logging for the Public SDK. It logs to stdout using the
+    Sets up default logging for the Public SDK. It logs to stdout using the
     default level and format
     """
     logging.root.handlers = []
