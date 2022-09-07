@@ -14,6 +14,7 @@
 
 import copy
 import json
+import logging
 import os
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -450,7 +451,7 @@ class ProjectClient:
             if not (
                 user_confirmation.lower() == "yes" or user_confirmation.lower() == "y"
             ):
-                print("Aborting project deletion.")
+                logging.info("Aborting project deletion.")
                 return
         try:
             self.session.get_rest_response(
@@ -465,7 +466,7 @@ class ProjectClient:
                 )
             else:
                 raise error
-        print(f"Project '{project.name}' deleted successfully.")
+        logging.info(f"Project '{project.name}' deleted successfully.")
 
     def add_labels(
         self,
@@ -546,7 +547,7 @@ class ProjectClient:
         )
         task_data["labels"] = label_list
         remove_null_fields(project_data)
-        print(project_data)
+        logging.info(project_data)
         response = self.session.get_rest_response(
             url=f"{self.base_url}projects/{project.id}", method="PUT", data=project_data
         )

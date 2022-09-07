@@ -16,10 +16,17 @@ import logging
 import sys
 
 default_level = logging.INFO
-default_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+default_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 
 def configure_basic_stdout_logging():
+    """
+    Sets up default logging for the Public SDK. It logs to stdout using the
+    default level and format
+    """
     logging.root.handlers = []
-    logging.basicConfig(handlers=[logging.StreamHandler(stream=sys.stdout)],
-                        level=default_level, format=default_format)
+    logging.basicConfig(
+        handlers=[logging.StreamHandler(stream=sys.stdout)],
+        level=default_level,
+        format=default_format,
+    )

@@ -114,7 +114,9 @@ def download_file(url: str, target_folder: Optional[str]) -> str:
         target_folder = "data"
     path_to_file = os.path.join(target_folder, filename)
     if os.path.exists(path_to_file) and os.path.isfile(path_to_file):
-        logging.info(f"File {filename} exists at {path_to_file}. No new data was downloaded.")
+        logging.info(
+            f"File {filename} exists at {path_to_file}. No new data was downloaded."
+        )
         return path_to_file
 
     proxies = get_proxies(url)

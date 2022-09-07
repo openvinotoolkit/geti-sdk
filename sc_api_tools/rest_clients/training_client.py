@@ -227,5 +227,7 @@ class TrainingClient:
         if t_elapsed < timeout:
             logging.info("All jobs completed, monitoring stopped.")
         else:
-            logging.info(f"Monitoring stopped after {t_elapsed:.1f} seconds due to timeout.")
+            logging.info(
+                f"Monitoring stopped after {t_elapsed:.1f} seconds due to timeout."
+            )
         return jobs

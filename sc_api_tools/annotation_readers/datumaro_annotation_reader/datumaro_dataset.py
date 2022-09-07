@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import logging
 import time
 from typing import Dict, List, Optional, Sequence, Tuple
 
@@ -131,7 +131,9 @@ class DatumaroDataset(object):
             f"Datumaro dataset consisting of {len(dataset)} items in "
             f"{self.dataset_format} format was loaded from {self.dataset_path}"
         )
-        logging.info(f"Datumaro dataset was created in {time.time() - t_start:.1f} seconds")
+        logging.info(
+            f"Datumaro dataset was created in {time.time() - t_start:.1f} seconds"
+        )
         return dataset, dataset.env
 
     def remove_unannotated_items(self):

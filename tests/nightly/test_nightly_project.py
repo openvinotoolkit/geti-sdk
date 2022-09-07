@@ -166,7 +166,9 @@ class TestNightlyProject:
             assert online_mask.shape == local_mask.shape
             equal_masks = np.all(local_mask == online_mask)
             if not equal_masks:
-                logging.warning("WARNING: local and online prediction masks are not equal!")
+                logging.warning(
+                    "WARNING: local and online prediction masks are not equal!"
+                )
                 logging.info(
                     f"Number of shapes: {len(local_prediction.annotations)} - local   "
                     f"----    {len(online_prediction.annotations)} - online."

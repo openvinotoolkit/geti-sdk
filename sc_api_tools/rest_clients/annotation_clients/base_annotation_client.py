@@ -13,6 +13,7 @@
 # and limitations under the License.
 
 import json
+import logging
 import os
 import time
 from typing import Any, Dict, List, Optional, Type, TypeVar, Union
@@ -419,5 +420,5 @@ class BaseAnnotationClient:
                 f"{media_name_plural}, these {media_name_plural} were skipped."
             )
         if verbose:
-            print(msg)
+            logging.info(msg)
         return t_elapsed

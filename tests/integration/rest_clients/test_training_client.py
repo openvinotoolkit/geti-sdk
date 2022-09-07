@@ -73,7 +73,9 @@ class TestTrainingClient:
             logging.info(f"Job '{job.name}' is still active, cancelling...")
             job.cancel(fxt_project_service.session)
         else:
-            logging.info(f"Job '{job.name}' has already excited with status {job_state}.")
+            logging.info(
+                f"Job '{job.name}' has already excited with status {job_state}."
+            )
         logging.info(job_state)
 
     @pytest.mark.vcr()

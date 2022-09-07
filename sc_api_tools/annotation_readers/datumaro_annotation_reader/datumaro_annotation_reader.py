@@ -13,6 +13,7 @@
 # and limitations under the License.
 
 import copy
+import logging
 from typing import Dict, List, Optional, Sequence, Union
 
 from datumaro.components.annotation import Bbox, Polygon

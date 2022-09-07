@@ -196,7 +196,9 @@ class Job:
             self.status.state = JobState.CANCELLED
         except SCRequestException as error:
             if error.status_code == 404:
-                logging.info(f"Job '{self.name}' is not active anymore, unable to delete.")
+                logging.info(
+                    f"Job '{self.name}' is not active anymore, unable to delete."
+                )
                 self.status.state = JobState.INACTIVE
             else:
                 raise error

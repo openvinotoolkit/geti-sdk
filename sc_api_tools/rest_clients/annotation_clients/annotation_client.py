@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import logging
 from typing import Generic, List, Optional, Union
 
 from sc_api_tools.data_models import AnnotationScene, Image, Video, VideoFrame
@@ -132,7 +132,9 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
             if response.annotations:
                 upload_count += 1
         if upload_count > 0:
-            logging.info(f"Upload complete. Uploaded {upload_count} new image annotations")
+            logging.info(
+                f"Upload complete. Uploaded {upload_count} new image annotations"
+            )
         else:
             logging.info("No new image annotations were found.")
 
@@ -226,7 +228,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
                 path_to_folder=path_to_folder,
                 append_video_uid=append_video_uid,
             )
-        print(f"Video annotation download finished in {t_total:.1f} seconds.")
+        logging.info(f"Video annotation download finished in {t_total:.1f} seconds.")
         return t_total
 
     def download_all_annotations(self, path_to_folder: str) -> None:
