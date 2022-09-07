@@ -15,12 +15,13 @@
 import os
 import shutil
 import tempfile
+from typing import Union
 
 import pytest
 from _pytest.main import Session
 
 from sc_api_tools import SCRESTClient
-from sc_api_tools.http_session import ServerCredentialConfig
+from sc_api_tools.http_session import ServerCredentialConfig, ServerTokenConfig
 from tests.helpers.project_helpers import remove_all_test_projects
 
 from .helpers import SdkTestMode, get_sdk_fixtures, replace_host_name_in_cassettes
@@ -46,6 +47,11 @@ USERNAME = os.environ.get("SC_USERNAME", "dummy_user")
 PASSWORD = os.environ.get("SC_PASSWORD", "dummy_password")
 # PASSWORD should hold the password that is used for logging in to the SC instance
 
+TOKEN = os.environ.get("TOKEN", None)
+# TOKEN should hold the Personal Access Token that can be used to access the server.
+# When both a TOKEN and username + password are provided, the test suite will use the
+# TOKEN to execute the tests
+
 CLEAR_EXISTING_TEST_PROJECTS = os.environ.get(
     "CLEAR_EXISTING_TEST_PROJECTS", "0"
 ).lower() in ["true", "1"]
@@ -67,7 +73,7 @@ NIGHTLY_TEST_LEARNING_PARAMETER_SETTINGS = os.environ.get(
 
 
 @pytest.fixture(scope="session")
-def fxt_server_config() -> ServerCredentialConfig:
+def fxt_server_config() -> Union[ServerTokenConfig, ServerCredentialConfig]:
     """
     This fixture holds the login configuration to access the SC server
     """
@@ -75,9 +81,12 @@ def fxt_server_config() -> ServerCredentialConfig:
         proxies = {"https": "", "http": ""}
     else:
         proxies = None
-    test_config = ServerCredentialConfig(
-        host=HOST, username=USERNAME, password=PASSWORD, proxies=proxies
-    )
+    if TOKEN is None:
+        test_config = ServerCredentialConfig(
+            host=HOST, username=USERNAME, password=PASSWORD, proxies=proxies
+        )
+    else:
+        test_config = ServerTokenConfig(host=HOST, token=TOKEN, proxies=proxies)
     yield test_config
 
 
@@ -127,9 +136,11 @@ def pytest_sessionstart(session: Session) -> None:
     :param session: Pytest session instance that has just been created
     """
     if CLEAR_EXISTING_TEST_PROJECTS and TEST_MODE != SdkTestMode.OFFLINE:
-        remove_all_test_projects(
-            SCRESTClient(host=HOST, username=USERNAME, password=PASSWORD)
-        )
+        if TOKEN is None:
+            auth_params = {"username": USERNAME, "password": PASSWORD}
+        else:
+            auth_params = {"token": TOKEN}
+        remove_all_test_projects(SCRESTClient(host=HOST, **auth_params))
     if TEST_MODE == SdkTestMode.RECORD:
         record_cassette_path = tempfile.mkdtemp()
         print(f"Cassettes will be recorded to `{record_cassette_path}`.")
