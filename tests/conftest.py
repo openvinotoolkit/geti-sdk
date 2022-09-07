@@ -21,7 +21,7 @@ import pytest
 from _pytest.main import Session
 
 from sc_api_tools import SCRESTClient
-from sc_api_tools.http_session import ClusterConfig
+from sc_api_tools.http_session import ServerCredentialConfig
 from tests.helpers.project_helpers import remove_all_test_projects
 
 from .helpers import SdkTestMode, get_sdk_fixtures, replace_host_name_in_cassettes
@@ -68,7 +68,7 @@ NIGHTLY_TEST_LEARNING_PARAMETER_SETTINGS = os.environ.get(
 
 
 @pytest.fixture(scope="session")
-def fxt_server_config() -> ClusterConfig:
+def fxt_server_config() -> ServerCredentialConfig:
     """
     This fixture holds the login configuration to access the SC server
     """
@@ -76,7 +76,7 @@ def fxt_server_config() -> ClusterConfig:
         proxies = {"https": "", "http": ""}
     else:
         proxies = None
-    test_config = ClusterConfig(
+    test_config = ServerCredentialConfig(
         host=HOST, username=USERNAME, password=PASSWORD, proxies=proxies
     )
     yield test_config

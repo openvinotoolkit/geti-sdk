@@ -20,32 +20,34 @@ import requests
 import simplejson
 import urllib3
 from requests import Response
+from requests.exceptions import RequestException
 from requests.structures import CaseInsensitiveDict
 from urllib3.exceptions import InsecureRequestWarning
 
-from .cluster_config import LEGACY_API_VERSION, ClusterConfig
 from .exception import SCRequestException
+from .server_config import LEGACY_API_VERSION, ServerCredentialConfig, ServerTokenConfig
 
 CSRF_COOKIE_NAME = "_oauth2_proxy_csrf"
 PROXY_COOKIE_NAME = "_oauth2_proxy"
+
+INITIAL_HEADERS = {"Connection": "keep-alive", "Upgrade-Insecure-Requests": "1"}
 
 
 class SCSession(requests.Session):
     """
     Wrapper for requests.session that sets the correct headers and cookies.
 
-    :param cluster_config: ClusterConfig with the parameters for host, username,
-        password
+    :param server_config: Server configuration holding the hostname of the SC server,
+        as well as the details required for authentication (either username and
+        password or personal access token)
     """
 
     def __init__(
         self,
-        cluster_config: ClusterConfig,
+        server_config: Union[ServerTokenConfig, ServerCredentialConfig],
     ):
         super().__init__()
-        self.headers.update(
-            {"Connection": "keep-alive", "Upgrade-Insecure-Requests": "1"}
-        )
+        self.headers.update(INITIAL_HEADERS)
         self.allow_redirects = False
         self.token = None
         self._cookies: Dict[str, Optional[str]] = {
@@ -54,22 +56,22 @@ class SCSession(requests.Session):
         }
 
         # Configure proxies
-        if cluster_config.proxies is None:
+        if server_config.proxies is None:
             self._proxies: Dict[str, str] = {}
         else:
-            self._proxies = {"proxies": cluster_config.proxies}
+            self._proxies = {"proxies": server_config.proxies}
 
         # Sanitize hostname
-        if not cluster_config.host.startswith("https://"):
-            if cluster_config.host.startswith("http://"):
+        if not server_config.host.startswith("https://"):
+            if server_config.host.startswith("http://"):
                 raise ValueError(
                     "HTTP connections are not supported, please use HTTPS instead."
                 )
             else:
-                cluster_config.host = "https://" + cluster_config.host
+                server_config.host = "https://" + server_config.host
 
         # Configure certificate verification
-        if not cluster_config.has_valid_certificate:
+        if not server_config.has_valid_certificate:
             warnings.warn(
                 "You have disabled TLS certificate validation, HTTPS requests made to "
                 "the SonomaCreek server may be compromised. For optimal security, "
@@ -77,11 +79,20 @@ class SCSession(requests.Session):
                 InsecureRequestWarning,
             )
             urllib3.disable_warnings(InsecureRequestWarning)
-        self.verify = cluster_config.has_valid_certificate
+        self.verify = server_config.has_valid_certificate
 
-        self.config = cluster_config
+        self.config = server_config
         self.logged_in = False
-        self.authenticate()
+
+        # Determine authentication method
+        if isinstance(server_config, ServerCredentialConfig):
+            self.authenticate()
+            self.use_token = False
+        else:
+            self.headers.update({"Authorization": f"Bearer {server_config.token}"})
+            self.use_token = True
+
+        # Get server version
         self._product_info = self._get_product_info_and_set_api_version()
 
     @property
@@ -214,10 +225,15 @@ class SCSession(requests.Session):
             "Content-Type", []
         ):
             # Authentication has likely expired, re-authenticate
-            logging.info("Authorization expired, re-authenticating...", end=" ")
-            self.authenticate(verbose=False)
-            logging.info("Done!")
-            response = self.request(**request_params, **self._proxies)
+            if not self.use_token:
+                logging.info("Authorization expired, re-authenticating...", end=" ")
+                self.authenticate(verbose=False)
+                logging.info("Done!")
+                response = self.request(**request_params, **self._proxies)
+            else:
+                # In case of token authentication, SCRequestException will be raised
+                # upon authentication failure
+                pass
 
         if response.status_code not in [200, 201]:
             try:
@@ -239,35 +255,59 @@ class SCSession(requests.Session):
 
         return result
 
-    def logout(self) -> None:
+    def logout(self, verbose: bool = True) -> None:
         """
         Log out of the server and end the session. All HTTPAdapters are closed and
         cookies and headers are cleared.
+        :param verbose: False to suppress output messages
         """
-        if not self.logged_in:
-            logging.info("Already signed out.")
-            return
+        requires_closing = True
+        requires_sign_out = True
 
-        sign_out_url = (
-            self.config.base_url[: -len(self.config.api_pattern)] + "/oauth2/sign_out"
-        )
-        response = self.request(url=sign_out_url, method="GET", **self._proxies)
+        if not self.logged_in or self.use_token:
+            requires_closing = False
+            requires_sign_out = False
 
-        if response.status_code == 200:
-            logging.info("Logout successful.")
-        else:
-            raise SCRequestException(
-                method="GET",
-                url=sign_out_url,
-                status_code=response.status_code,
-                request_data={},
+        if requires_sign_out:
+            sign_out_url = (
+                self.config.base_url[: -len(self.config.api_pattern)]
+                + "/oauth2/sign_out"
             )
+            try:
+                response = self.request(url=sign_out_url, method="GET", **self._proxies)
 
-        super().close()
+                if response.status_code == 200:
+                    if verbose:
+                        print("Logout successful.")
+                else:
+                    raise SCRequestException(
+                        method="GET",
+                        url=sign_out_url,
+                        status_code=response.status_code,
+                        request_data={},
+                    )
+            except RequestException:
+                if verbose:
+                    print(
+                        f"The {self.__class__.__name__} is closed successfully, but "
+                        f"the client was not able to logout from the server."
+                    )
+            except TypeError:
+                # The session is already closed
+                requires_closing = False
+
         self._cookies = {CSRF_COOKIE_NAME: None, PROXY_COOKIE_NAME: None}
         self.cookies.clear()
-        self.headers = CaseInsensitiveDict({"Connection": "keep-alive"})
+        self.headers = CaseInsensitiveDict(INITIAL_HEADERS)
         self.logged_in = False
+        if requires_closing:
+            try:
+                super().close()
+            except TypeError:
+                # Sometimes a TypeError is raised if logout is called during garbage
+                # collection, however we can safely ignore this since the session will
+                # be deleted in that case anyway.
+                pass
 
     def _get_product_info_and_set_api_version(self) -> Dict[str, str]:
         """
@@ -292,7 +332,7 @@ class SCSession(requests.Session):
         manager.
         """
         if self.logged_in:
-            self.logout()
+            self.logout(verbose=False)
         super().__exit__(exc_type, exc_value, traceback)
 
     def __del__(self):
@@ -301,4 +341,4 @@ class SCSession(requests.Session):
         from memory.
         """
         if self.logged_in:
-            self.logout()
+            self.logout(verbose=False)

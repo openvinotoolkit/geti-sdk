@@ -53,7 +53,11 @@ class AlgorithmList(UserList):
             algorithms in SC
         """
         algorithm_list = AlgorithmList([])
-        algo_rest_list = copy.deepcopy(rest_input["items"])
+        try:
+            algo_rest = rest_input["items"]
+        except KeyError:
+            algo_rest = rest_input["supported_algorithms"]
+        algo_rest_list = copy.deepcopy(algo_rest)
         for algorithm_dict in algo_rest_list:
             algorithm_list.append(Algorithm(**algorithm_dict))
         return algorithm_list

@@ -75,7 +75,11 @@ class TrainingClient:
             url=f"workspaces/{self.workspace_id}/jobs", method="GET"
         )
         job_list: List[Job] = []
-        for job_dict in response["items"]:
+        if self.session.version >= "1.2":
+            response_list_key = "jobs"
+        else:
+            response_list_key = "items"
+        for job_dict in response[response_list_key]:
             job = JobRESTConverter.from_dict(job_dict)
             job.workspace_id = self.workspace_id
             job_list.append(job)
@@ -167,7 +171,7 @@ class TrainingClient:
         if self.session.version < "1.2":
             data = [request_data]
         else:
-            data = {"items": [request_data]}
+            data = {"training_parameters": [request_data]}
 
         response = self.session.get_rest_response(
             url=f"{self.base_url}/train", method="POST", data=data

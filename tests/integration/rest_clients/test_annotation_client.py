@@ -89,7 +89,7 @@ class TestAnnotationClient:
         annotation_client.upload_annotations_for_video(video=video)
 
         if fxt_test_mode != SdkTestMode.OFFLINE:
-            time.sleep(1)
+            time.sleep(2)
 
         #  Fetch annotations from annotation client
         annotation_scenes = annotation_client.get_latest_annotations_for_video(
@@ -317,7 +317,9 @@ class TestAnnotationClient:
 
         # Check that the length of the fetched annotations equal the length of the
         # annotations from dataset
-        assert len(file_names) == 8
+        assert len(file_names) == len(
+            TestAnnotationClient.sorted_frame_indices_video_1_light_bulbs_project
+        )
 
         # Read and Retrieve first annotation from directory
         with open(

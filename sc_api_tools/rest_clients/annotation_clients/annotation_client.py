@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import logging
-from typing import Generic, List, Optional, Union
+from typing import Generic, List, Optional, Sequence, Union
 
 from sc_api_tools.data_models import AnnotationScene, Image, Video, VideoFrame
 from sc_api_tools.data_models.containers import MediaList
@@ -36,12 +36,10 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         response = self.session.get_rest_response(
             url=f"{video.base_url}/annotations/latest", method="GET"
         )
-        if isinstance(response, list):
+        if self.session.version < "1.2":
             annotations = response
-        elif isinstance(response, dict):
-            annotations = response["items"]
         else:
-            raise TypeError(f"Invalid response type {type(response)}.")
+            annotations = response["video_annotations"]
         return [
             self.annotation_scene_from_rest_response(
                 annotation_scene, media_information=video.media_information
@@ -86,7 +84,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         return upload_count
 
     def upload_annotations_for_videos(
-        self, videos: MediaList[Video], append_annotations: bool = False
+        self, videos: Sequence[Video], append_annotations: bool = False
     ):
         """
         Upload annotations for a list of videos. If append_annotations is set to True,
@@ -111,7 +109,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
             logging.info("No new video frame annotations were found.")
 
     def upload_annotations_for_images(
-        self, images: MediaList[Image], append_annotations: bool = False
+        self, images: Sequence[Image], append_annotations: bool = False
     ):
         """
         Upload annotations for a list of images. If append_annotations is set to True,

@@ -13,7 +13,7 @@
 # and limitations under the License.
 
 from datetime import datetime
-from typing import ClassVar, List, Optional
+from typing import Any, ClassVar, Dict, List, Optional
 
 import attr
 import numpy as np
@@ -46,6 +46,7 @@ class ResultMedium:
     url: Optional[str] = None
     label_id: Optional[str] = None
     id: Optional[str] = None
+    roi: Optional[Dict[str, Any]] = None
     label_name: Optional[str] = attr.ib(init=False, default=None)
     data: Optional[bytes] = attr.ib(default=None, repr=False, init=False)
 

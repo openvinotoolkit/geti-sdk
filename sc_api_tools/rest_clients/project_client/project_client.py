@@ -71,9 +71,13 @@ class ProjectClient:
             url=f"{self.base_url}projects/",
             method="GET",
         )
+        if self.session.version > "1.1":
+            project_key = "projects"
+        else:
+            project_key = "items"
         return [
             ProjectRESTConverter.from_dict(project_input=project)
-            for project in project_list["items"]
+            for project in project_list[project_key]
         ]
 
     def get_project_by_name(self, project_name: str) -> Optional[Project]:
