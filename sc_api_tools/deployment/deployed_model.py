@@ -34,6 +34,7 @@ from sc_api_tools.http_session import SCSession
 from sc_api_tools.rest_converters import ConfigurationRESTConverter, ModelRESTConverter
 
 MODEL_DIR_NAME = "model"
+PYTHON_DIR_NAME = "python"
 WRAPPER_DIR_NAME = "model_wrappers"
 
 LABELS_CONFIG_KEY = "labels"
@@ -59,6 +60,7 @@ class DeployedModel(OptimizedModel):
         """
         super().__attrs_post_init__()
         self._model_data_path: Optional[str] = None
+        self._model_python_path: Optional[str] = None
         self._needs_tempdir_deletion: bool = False
         self._has_custom_model_wrappers: bool = False
         self._label_schema: Optional[LabelSchemaEntity] = None
@@ -79,42 +81,54 @@ class DeployedModel(OptimizedModel):
         """
         if isinstance(source, (os.PathLike, str)):
             if os.path.isfile(source) and os.path.splitext(source)[1] == ".zip":
+                # Extract zipfile into temporary directory
                 if self._model_data_path is None:
-                    model_dir = tempfile.mkdtemp()
+                    temp_dir = tempfile.mkdtemp()
                     self._needs_tempdir_deletion = True
                 else:
-                    model_dir = self._model_data_path
+                    temp_dir = self._model_data_path
+
                 with zipfile.ZipFile(source, "r") as zipped_source_model:
-                    zipped_source_model.extractall(model_dir)
+                    zipped_source_model.extractall(temp_dir)
 
-                self._model_data_path = os.path.join(model_dir, MODEL_DIR_NAME)
+                # _model_data_path contains the model structure and weights
+                # _model_python_path contains the custom model wrappers
+                self._model_data_path = os.path.join(temp_dir, MODEL_DIR_NAME)
+                self._model_python_path = os.path.join(temp_dir, PYTHON_DIR_NAME)
 
-                # Check if the model includes custom model wrappers, if so include them
-                # in the data dir
-                python_path = os.path.join(model_dir, "python")
-                if WRAPPER_DIR_NAME in os.listdir(python_path):
-                    wrappers_path = os.path.join(python_path, WRAPPER_DIR_NAME)
-                    wrappers_destination_path = os.path.join(
-                        self._model_data_path, WRAPPER_DIR_NAME
-                    )
-                    shutil.copytree(src=wrappers_path, dst=wrappers_destination_path)
+                # Check if the model includes custom model wrappers
+                if WRAPPER_DIR_NAME in os.listdir(self._model_python_path):
                     self._has_custom_model_wrappers = True
-                self.get_data(self._model_data_path)
+                self.get_data(temp_dir)
 
             elif os.path.isdir(source):
-                if MODEL_DIR_NAME in os.listdir(source):
-                    source = os.path.join(source, MODEL_DIR_NAME)
                 source_contents = os.listdir(source)
-                if "model.bin" in source_contents and "model.xml" in source_contents:
-                    self._model_data_path = source
+                if MODEL_DIR_NAME in source_contents:
+                    model_dir = os.path.join(source, MODEL_DIR_NAME)
+                else:
+                    model_dir = source
+                model_dir_contents = os.listdir(model_dir)
+                if (
+                    "model.bin" in model_dir_contents
+                    and "model.xml" in model_dir_contents
+                ):
+                    self._model_data_path = model_dir
                 else:
                     raise ValueError(
-                        f"Unable to load model data from path '{source}'. Model "
+                        f"Unable to load model data from path '{model_dir}'. Model "
                         f"file 'model.xml' and weights file 'model.bin' were not found "
                         f"at the path specified. "
                     )
-                if WRAPPER_DIR_NAME in source_contents:
+                if PYTHON_DIR_NAME in source_contents:
+                    model_python_path = os.path.join(source, PYTHON_DIR_NAME)
+                else:
+                    model_python_path = os.path.join(
+                        os.path.dirname(source), PYTHON_DIR_NAME
+                    )
+                python_dir_contents = os.listdir(model_python_path)
+                if WRAPPER_DIR_NAME in python_dir_contents:
                     self._has_custom_model_wrappers = True
+                    self._model_python_path = os.path.join(source, PYTHON_DIR_NAME)
 
         elif isinstance(source, SCSession):
             if self.base_url is None:
@@ -200,7 +214,9 @@ class DeployedModel(OptimizedModel):
         # Create model wrapper with the loaded configuration
         # First, add custom wrapper (if any) to path so that we can find it
         if self._has_custom_model_wrappers:
-            wrapper_module_path = os.path.join(self._model_data_path, WRAPPER_DIR_NAME)
+            wrapper_module_path = os.path.join(
+                self._model_python_path, WRAPPER_DIR_NAME
+            )
             module_name = WRAPPER_DIR_NAME
             try:
                 spec = importlib.util.spec_from_file_location(
@@ -227,7 +243,7 @@ class DeployedModel(OptimizedModel):
 
     @classmethod
     def from_model_and_hypers(
-        cls, model: OptimizedModel, hyper_parameters: TaskConfiguration
+        cls, model: OptimizedModel, hyper_parameters: Optional[TaskConfiguration] = None
     ) -> "DeployedModel":
         """
         Create a DeployedModel instance out of an OptimizedModel and it's
@@ -259,9 +275,14 @@ class DeployedModel(OptimizedModel):
         :return: DeployedModel instance
         """
         config_filepath = os.path.join(path_to_folder, "hyper_parameters.json")
-        with open(config_filepath, "r") as config_file:
-            config_dict = json.load(config_file)
-        hparams = ConfigurationRESTConverter.task_configuration_from_dict(config_dict)
+        if os.path.isfile(config_filepath):
+            with open(config_filepath, "r") as config_file:
+                config_dict = json.load(config_file)
+            hparams = ConfigurationRESTConverter.task_configuration_from_dict(
+                config_dict
+            )
+        else:
+            hparams = None
         model_detail_path = os.path.join(path_to_folder, "model.json")
         with open(model_detail_path, "r") as model_detail_file:
             model_detail_dict = json.load(model_detail_file)
