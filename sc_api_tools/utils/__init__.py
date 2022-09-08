@@ -26,7 +26,6 @@ from .algorithm_helpers import get_supported_algorithms
 from .data_download_helpers import get_coco_dataset
 from .dictionary_helpers import get_dict_key_from_value
 from .label_helpers import generate_classification_labels, generate_segmentation_labels
-from .logging import configure_basic_stdout_logging
 from .plot_helpers import (
     show_image_with_annotation_scene,
     show_video_frames_with_annotation_scenes,
@@ -38,7 +37,6 @@ from .workspace_helpers import get_default_workspace_id
 __all__ = [
     "get_default_workspace_id",
     "generate_classification_labels",
-    "configure_basic_stdout_logging",
     "generate_segmentation_labels",
     "get_dict_key_from_value",
     "get_task_types_by_project_type",

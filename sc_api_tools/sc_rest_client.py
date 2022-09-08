@@ -51,8 +51,8 @@ from .utils import (
     show_video_frames_with_annotation_scenes,
 )
 
-DEFAULT_LEVEL = logging.INFO
-DEFAULT_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+DEFAULT_LOG_LEVEL = logging.INFO
+DEFAULT_LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 
 
 class SCRESTClient:
@@ -95,17 +95,15 @@ class SCRESTClient:
         verify_certificate: bool = False,
         proxies: Optional[Dict[str, str]] = None,
     ):
-        """
-        Set up default logging for the Public SDK. It logs to stdout using the
-        default level and format
-        """
+        # Set up default logging for the SDK.
         if not logging.root.handlers:
             logging.basicConfig(
                 handlers=[logging.StreamHandler(stream=sys.stdout)],
-                level=DEFAULT_LEVEL,
-                format=DEFAULT_FORMAT,
+                level=DEFAULT_LOG_LEVEL,
+                format=DEFAULT_LOG_FORMAT,
             )
 
+        # Set up server configuration with either token or credential authentication
         if token is not None:
             server_config = ServerTokenConfig(
                 host=host,
@@ -114,7 +112,7 @@ class SCRESTClient:
                 has_valid_certificate=verify_certificate,
             )
             if username is not None or password is not None:
-                print(
+                warnings.warn(
                     "Both a personal access token and credentials were passed to the "
                     "SCRESTClient, using token authentication."
                 )
@@ -131,6 +129,8 @@ class SCRESTClient:
                 "__init__ missing required keyword arguments: Either `username` and "
                 "`password` or `token` must be specified."
             )
+
+        # Initialize session and get workspace id
         self.session = SCSession(
             server_config=server_config,
         )
