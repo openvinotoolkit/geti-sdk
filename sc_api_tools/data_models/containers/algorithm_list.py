@@ -22,7 +22,7 @@ from sc_api_tools.data_models.enums import TaskType
 DEFAULT_ALGORITHMS = {
     "classification": "Custom_Image_Classification_EfficinetNet-B0",
     "detection": "Custom_Object_Detection_Gen3_ATSS",
-    "segmentation": "Custom_Semantic_Segmentation_Lite-HRNet-18_OCR",
+    "segmentation": "Custom_Semantic_Segmentation_Lite-HRNet-18-mod2_OCR",
     "anomaly_classification": "ote_anomaly_classification_padim",
     "anomaly_detection": "ote_anomaly_classification_padim",
     "anomaly_segmentation": "ote_anomaly_segmentation_padim",
