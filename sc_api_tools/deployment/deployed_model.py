@@ -59,6 +59,7 @@ class DeployedModel(OptimizedModel):
         """
         super().__attrs_post_init__()
         self._model_data_path: Optional[str] = None
+        self._model_python_path: Optional[str] = None
         self._needs_tempdir_deletion: bool = False
         self._has_custom_model_wrappers: bool = False
         self._label_schema: Optional[LabelSchemaEntity] = None
@@ -88,6 +89,7 @@ class DeployedModel(OptimizedModel):
                     zipped_source_model.extractall(model_dir)
 
                 self._model_data_path = os.path.join(model_dir, MODEL_DIR_NAME)
+                self._model_python_path = os.path.join(self._model_data_path, "python")
 
                 # Check if the model includes custom model wrappers, if so include them
                 # in the data dir
@@ -200,7 +202,9 @@ class DeployedModel(OptimizedModel):
         # Create model wrapper with the loaded configuration
         # First, add custom wrapper (if any) to path so that we can find it
         if self._has_custom_model_wrappers:
-            wrapper_module_path = os.path.join(self._model_data_path, WRAPPER_DIR_NAME)
+            wrapper_module_path = os.path.join(
+                self._model_python_path, WRAPPER_DIR_NAME
+            )
             module_name = WRAPPER_DIR_NAME
             try:
                 spec = importlib.util.spec_from_file_location(
@@ -227,7 +231,7 @@ class DeployedModel(OptimizedModel):
 
     @classmethod
     def from_model_and_hypers(
-        cls, model: OptimizedModel, hyper_parameters: TaskConfiguration
+        cls, model: OptimizedModel, hyper_parameters: Optional[TaskConfiguration] = None
     ) -> "DeployedModel":
         """
         Create a DeployedModel instance out of an OptimizedModel and it's
@@ -259,9 +263,14 @@ class DeployedModel(OptimizedModel):
         :return: DeployedModel instance
         """
         config_filepath = os.path.join(path_to_folder, "hyper_parameters.json")
-        with open(config_filepath, "r") as config_file:
-            config_dict = json.load(config_file)
-        hparams = ConfigurationRESTConverter.task_configuration_from_dict(config_dict)
+        if os.path.isfile(config_filepath):
+            with open(config_filepath, "r") as config_file:
+                config_dict = json.load(config_file)
+            hparams = ConfigurationRESTConverter.task_configuration_from_dict(
+                config_dict
+            )
+        else:
+            hparams = None
         model_detail_path = os.path.join(path_to_folder, "model.json")
         with open(model_detail_path, "r") as model_detail_file:
             model_detail_dict = json.load(model_detail_file)
