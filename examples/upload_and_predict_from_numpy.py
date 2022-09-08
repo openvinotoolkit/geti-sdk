@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 from dotenv import dotenv_values
 
+from examples.utils import ensure_example_project
 from sc_api_tools import SCRESTClient
 
 
@@ -46,10 +47,10 @@ if __name__ == "__main__":
     # and from which predictions can be requested. A project with this name should
     # exist on the cluster. If the project exists but doesn't have any trained models,
     # the media will be uploaded but no predictions will be generated.
-    PROJECT_NAME = "dummy_project"
+    PROJECT_NAME = "COCO dog detection"
 
     # `PATH_TO_IMAGE` is the path to the image that should be uploaded
-    PATH_TO_IMAGE = os.path.join(".", "dummy_image.jpg")
+    PATH_TO_IMAGE = os.path.join("..", "notebooks", "data", "dogs.png")
 
     # `DELETE_AFTER_PREDICTION` can be set to True to delete the media from the
     # project once all predictions are downloaded. This can be useful to save disk
@@ -66,6 +67,14 @@ if __name__ == "__main__":
 
     # Rotate the image by 20 degrees
     rotated_image = rotate_image(image=numpy_image, angle=20)
+
+    # Make sure that the project exists
+    ensure_example_project(client=client, project_name=PROJECT_NAME)
+
+    print(
+        "Uploading and predicting example image now, an image window containing the "
+        "image and prediction will pop up."
+    )
 
     # We can upload and predict the resulting array directly:
     sc_image, image_prediction = client.upload_and_predict_image(

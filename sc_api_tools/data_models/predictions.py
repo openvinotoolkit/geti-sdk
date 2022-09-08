@@ -94,7 +94,11 @@ class ResultMedium:
 
         :return: friendly name for the result medium
         """
-        return self.name + "_" + self.label_name
+        return (
+            self.name + "_" + self.label_name
+            if self.label_name is not None
+            else self.name
+        )
 
 
 @attr.s(auto_attribs=True)

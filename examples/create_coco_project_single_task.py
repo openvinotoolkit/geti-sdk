@@ -37,8 +37,8 @@ if __name__ == "__main__":
 
     # Current options for project_type are 'detection', 'segmentation' or
     # 'classification'
-    PROJECT_TYPE = "segmentation"
-    PROJECT_NAME = "COCO dog segmentation"
+    PROJECT_TYPE = "detection"
+    PROJECT_NAME = "COCO dog detection"
 
     # Change this to True if you want the project to start auto-training after the
     # annotations have been uploaded
