@@ -24,8 +24,8 @@ Once you have created a new environment, follow these steps to install the packa
    requirements for deployment using `pip install -r requirements/requirements-deployment.txt`.
 
 4. Then run `pip install .` to install the package.
-You can also install it in editable mode using `pip install -e .` This is handy if
-you want to make changes to the package, or want to keep it up to date with the
+
+5. you want to make changes to the package, or want to keep it up to date with the
 latest code changes in the repository.
 
 > **NOTE**: sc-api-tools needs `python==3.8` to run. Python 3.9 will work on Linux

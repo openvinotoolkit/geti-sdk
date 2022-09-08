@@ -366,7 +366,7 @@ class ProjectService:
                     task_config.set_parameter_value("batch_size", 1)
                     self.configuration_client.set_configuration(task_config)
                 except ValueError:
-                    logging.info(
+                    logging.warning(
                         f"Parameter batch_size was not found in the configuration for "
                         f"task {task.summary}. Unable to configure batch size"
                     )

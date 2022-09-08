@@ -16,6 +16,7 @@ import glob
 import json
 import logging
 import os
+import warnings
 from typing import List, Optional, Union
 
 from sc_api_tools.data_models import Annotation, TaskType
@@ -87,7 +88,7 @@ class SCAnnotationReader(AnnotationReader):
             os.path.join(self.base_folder, f"{filename}{self.annotation_format}")
         )
         if len(filepath) > 1:
-            logging.info(
+            warnings.warn(
                 f"Multiple matching annotation files found for image with "
                 f"name {filename}. Skipping this image..."
             )

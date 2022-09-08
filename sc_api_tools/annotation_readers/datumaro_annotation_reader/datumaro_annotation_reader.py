@@ -201,8 +201,8 @@ class DatumAnnotationReader(AnnotationReader):
                     ]
                     shape = {"type": "POLYGON", "points": points}
                 else:
-                    logging.info(
-                        f"WARNING: Unsupported annotation type found: "
+                    logging.warning(
+                        f"Unsupported annotation type found: "
                         f"{type(annotation)}. Skipping..."
                     )
                     continue
