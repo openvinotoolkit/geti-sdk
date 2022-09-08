@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import logging
+import time
 import warnings
 from json import JSONDecodeError
-from typing import Dict, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 import requests
 import simplejson
@@ -31,6 +32,7 @@ CSRF_COOKIE_NAME = "_oauth2_proxy_csrf"
 PROXY_COOKIE_NAME = "_oauth2_proxy"
 
 INITIAL_HEADERS = {"Connection": "keep-alive", "Upgrade-Insecure-Requests": "1"}
+SUCCESS_STATUS_CODES = [200, 201]
 
 
 class SCSession(requests.Session):
@@ -89,8 +91,10 @@ class SCSession(requests.Session):
             self.authenticate()
             self.use_token = False
         else:
-            self.headers.update({"Authorization": f"Bearer {server_config.token}"})
             self.use_token = True
+            access_token = self._acquire_access_token()
+            self.headers.update({"Authorization": f"Bearer {access_token}"})
+            self.headers.pop("Connection")
 
         # Get server version
         self._product_info = self._get_product_info_and_set_api_version()
@@ -104,6 +108,19 @@ class SCSession(requests.Session):
         """
         version_string = self._product_info.get("product-version", "1.0.0-")
         return version_string.split("-")[0]
+
+    def _acquire_access_token(self) -> str:
+        """
+        Request an access token from the server, in exchange for the
+        PersonalAccessToken.
+        """
+        response = self.get_rest_response(
+            url="service_accounts/access_token",
+            method="POST",
+            data={"service_id": self.config.token},
+            contenttype="json",
+        )
+        return response.get("access_token")
 
     def _follow_login_redirects(self, response: Response) -> str:
         """
@@ -217,35 +234,18 @@ class SCSession(requests.Session):
             "url": requesturl,
             **kw_data_arg,
             "stream": True,
-            "cookies": self._cookies,
         }
+
+        if not self.use_token:
+            request_params.update({"cookies": self._cookies})
+
         response = self.request(**request_params, **self._proxies)
 
-        if response.status_code in [401, 403] or "text/html" in response.headers.get(
-            "Content-Type", []
-        ):
-            # Authentication has likely expired, re-authenticate
-            if not self.use_token:
-                logging.info("Authorization expired, re-authenticating...", end=" ")
-                self.authenticate(verbose=False)
-                logging.info("Done!")
-                response = self.request(**request_params, **self._proxies)
-            else:
-                # In case of token authentication, SCRequestException will be raised
-                # upon authentication failure
-                pass
-
-        if response.status_code not in [200, 201]:
-            try:
-                response_data = response.json()
-            except (JSONDecodeError, simplejson.errors.JSONDecodeError):
-                response_data = None
-            raise SCRequestException(
-                method=method,
-                url=url,
-                status_code=response.status_code,
+        if response.status_code not in SUCCESS_STATUS_CODES:
+            response = self._handle_error_response(
+                response=response,
+                request_params=request_params,
                 request_data=kw_data_arg,
-                response_data=response_data,
             )
 
         if response.headers.get("Content-Type", None) == "application/json":
@@ -259,6 +259,7 @@ class SCSession(requests.Session):
         """
         Log out of the server and end the session. All HTTPAdapters are closed and
         cookies and headers are cleared.
+
         :param verbose: False to suppress output messages
         """
         requires_closing = True
@@ -276,7 +277,7 @@ class SCSession(requests.Session):
             try:
                 response = self.request(url=sign_out_url, method="GET", **self._proxies)
 
-                if response.status_code == 200:
+                if response.status_code in SUCCESS_STATUS_CODES:
                     if verbose:
                         print("Logout successful.")
                 else:
@@ -342,3 +343,57 @@ class SCSession(requests.Session):
         """
         if self.logged_in:
             self.logout(verbose=False)
+
+    def _handle_error_response(
+        self,
+        response: Response,
+        request_params: Dict[str, Any],
+        request_data: Dict[str, Any],
+    ) -> Response:
+        """
+        Handle error responses from the server.
+
+        :param response: The Response object received from the server
+        :param request_params: Dictionary containing the original parameters of the
+            request
+        :raises: SCRequestException in case the error cannot be handled
+        :return: Response object resulting from the request
+        """
+        if response.status_code in [401, 403] or "text/html" in response.headers.get(
+            "Content-Type", []
+        ):
+            # Authentication has likely expired, re-authenticate
+            if not self.use_token:
+                print("Authorization expired, re-authenticating...", end=" ")
+                self.authenticate(verbose=False)
+                print("Done!")
+                response = self.request(**request_params, **self._proxies)
+
+                if response.status_code in SUCCESS_STATUS_CODES:
+                    return response
+            else:
+                # In case of token authentication, SCRequestException will be raised
+                # upon authentication failure
+                pass
+
+        elif response.status_code == 503:
+            # In case of Service Unavailable, wait some time and try again. If it
+            # still doesn't work, raise exception
+            time.sleep(1)
+            response = self.request(**request_params, **self._proxies)
+
+            if response.status_code in SUCCESS_STATUS_CODES:
+                return response
+
+        try:
+            response_data = response.json()
+        except (JSONDecodeError, simplejson.errors.JSONDecodeError):
+            response_data = None
+
+        raise SCRequestException(
+            method=request_params["method"],
+            url=request_params["url"],
+            status_code=response.status_code,
+            request_data=request_data,
+            response_data=response_data,
+        )

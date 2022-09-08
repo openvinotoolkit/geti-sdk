@@ -11,11 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+from typing import Union
 
 import pytest
 
 from sc_api_tools import SCRESTClient
-from sc_api_tools.http_session import SCSession, ServerCredentialConfig
+from sc_api_tools.http_session import (
+    SCSession,
+    ServerCredentialConfig,
+    ServerTokenConfig,
+)
 from tests.helpers.constants import CASSETTE_EXTENSION
 
 DUMMY_USER = "dummy_user"
@@ -23,7 +28,9 @@ DUMMY_PASSWORD = "dummy_password"
 
 
 @pytest.fixture(scope="module")
-def fxt_sc_session(fxt_vcr, fxt_server_config: ServerCredentialConfig) -> SCSession:
+def fxt_sc_session(
+    fxt_vcr, fxt_server_config: Union[ServerTokenConfig, ServerCredentialConfig]
+) -> SCSession:
     """
     This fixture returns an SCSession instance which has already performed
     authentication
@@ -40,7 +47,9 @@ def fxt_sc_session(fxt_vcr, fxt_server_config: ServerCredentialConfig) -> SCSess
 
 
 @pytest.fixture(scope="module")
-def fxt_client(fxt_vcr, fxt_server_config: ServerCredentialConfig) -> SCRESTClient:
+def fxt_client(
+    fxt_vcr, fxt_server_config: Union[ServerTokenConfig, ServerCredentialConfig]
+) -> SCRESTClient:
     """
     This fixture returns an SCRESTClient instance which has already performed
     authentication and retrieved a default workspace id
@@ -52,19 +61,32 @@ def fxt_client(fxt_vcr, fxt_server_config: ServerCredentialConfig) -> SCRESTClie
             ("password", DUMMY_PASSWORD),
         ],
     ):
+        if isinstance(fxt_server_config, ServerCredentialConfig):
+            auth_params = {
+                "username": fxt_server_config.username,
+                "password": fxt_server_config.password,
+            }
+        else:
+            auth_params = {"token": fxt_server_config.token}
         yield SCRESTClient(
             host=fxt_server_config.host,
-            username=fxt_server_config.username,
-            password=fxt_server_config.password,
             verify_certificate=fxt_server_config.has_valid_certificate,
             proxies=fxt_server_config.proxies,
+            **auth_params,
         )
 
 
 @pytest.fixture(scope="module")
-def fxt_client_no_vcr(fxt_server_config: ServerCredentialConfig) -> SCRESTClient:
+def fxt_client_no_vcr(
+    fxt_server_config: Union[ServerTokenConfig, ServerCredentialConfig]
+) -> SCRESTClient:
+    if isinstance(fxt_server_config, ServerCredentialConfig):
+        auth_params = {
+            "username": fxt_server_config.username,
+            "password": fxt_server_config.password,
+        }
+    else:
+        auth_params = {"token": fxt_server_config.token}
     yield SCRESTClient(
-        host=fxt_server_config.host,
-        username=fxt_server_config.username,
-        password=fxt_server_config.password,
+        host=fxt_server_config.host, proxies=fxt_server_config.proxies, **auth_params
     )
