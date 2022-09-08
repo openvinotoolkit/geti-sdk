@@ -88,8 +88,10 @@ class SCSession(requests.Session):
             self.authenticate()
             self.use_token = False
         else:
-            self.headers.update({"Authorization": f"Bearer {server_config.token}"})
             self.use_token = True
+            access_token = self._acquire_access_token()
+            self.headers.update({"Authorization": f"Bearer {access_token}"})
+            self.headers.pop("Connection")
 
         # Get server version
         self._product_info = self._get_product_info_and_set_api_version()
@@ -103,6 +105,19 @@ class SCSession(requests.Session):
         """
         version_string = self._product_info.get("product-version", "1.0.0-")
         return version_string.split("-")[0]
+
+    def _acquire_access_token(self) -> str:
+        """
+        Request an access token from the server, in exchange for the
+        PersonalAccessToken.
+        """
+        response = self.get_rest_response(
+            url="service_accounts/access_token",
+            method="POST",
+            data={"service_id": self.config.token},
+            contenttype="json",
+        )
+        return response.get("access_token")
 
     def _follow_login_redirects(self, response: Response) -> str:
         """
@@ -216,8 +231,11 @@ class SCSession(requests.Session):
             "url": requesturl,
             **kw_data_arg,
             "stream": True,
-            "cookies": self._cookies,
         }
+
+        if not self.use_token:
+            request_params.update({"cookies": self._cookies})
+
         response = self.request(**request_params, **self._proxies)
 
         if response.status_code in [401, 403] or "text/html" in response.headers.get(

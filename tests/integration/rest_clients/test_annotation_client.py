@@ -86,10 +86,13 @@ class TestAnnotationClient:
         annotation_client = fxt_project_service.annotation_client
         annotation_client.annotation_reader = annotation_reader
 
+        if fxt_test_mode != SdkTestMode.OFFLINE:
+            time.sleep(1)
+
         annotation_client.upload_annotations_for_video(video=video)
 
         if fxt_test_mode != SdkTestMode.OFFLINE:
-            time.sleep(2)
+            time.sleep(1)
 
         #  Fetch annotations from annotation client
         annotation_scenes = annotation_client.get_latest_annotations_for_video(
