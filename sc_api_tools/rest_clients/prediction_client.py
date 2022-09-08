@@ -461,7 +461,7 @@ class PredictionClient:
             kind = prediction.kind
             if kind != AnnotationKind.PREDICTION:
                 if verbose:
-                    logging.info(
+                    logging.warning(
                         f"Received invalid prediction of kind {kind} for {media_name} "
                         f"with name{media_item.name}"
                     )

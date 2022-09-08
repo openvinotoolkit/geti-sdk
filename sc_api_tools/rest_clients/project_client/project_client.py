@@ -331,9 +331,9 @@ class ProjectClient:
             the list returned by the `get_all_projects` method
         """
         projects = self.get_all_projects()
-        logging.info(f"{len(projects)} projects were found on the platform:\n")
+        print(f"{len(projects)} projects were found on the platform:\n")
         for project in projects:
-            logging.info(" " + project.summary + "\n")
+            print(" " + project.summary + "\n")
         return projects
 
     def _create_project_template(

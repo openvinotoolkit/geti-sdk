@@ -13,6 +13,7 @@
 # and limitations under the License.
 import logging
 import os
+import sys
 import warnings
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
@@ -43,13 +44,15 @@ from .rest_clients import (
     VideoClient,
 )
 from .utils import (
-    configure_basic_stdout_logging,
     generate_classification_labels,
     get_default_workspace_id,
     get_task_types_by_project_type,
     show_image_with_annotation_scene,
     show_video_frames_with_annotation_scenes,
 )
+
+DEFAULT_LEVEL = logging.INFO
+DEFAULT_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 
 class SCRESTClient:
@@ -92,8 +95,16 @@ class SCRESTClient:
         verify_certificate: bool = False,
         proxies: Optional[Dict[str, str]] = None,
     ):
+        """
+        Set up default logging for the Public SDK. It logs to stdout using the
+        default level and format
+        """
         if not logging.root.handlers:
-            configure_basic_stdout_logging()
+            logging.basicConfig(
+                handlers=[logging.StreamHandler(stream=sys.stdout)],
+                level=DEFAULT_LEVEL,
+                format=DEFAULT_FORMAT,
+            )
 
         if token is not None:
             server_config = ServerTokenConfig(

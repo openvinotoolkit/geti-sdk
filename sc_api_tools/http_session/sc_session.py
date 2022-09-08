@@ -279,7 +279,7 @@ class SCSession(requests.Session):
 
                 if response.status_code in SUCCESS_STATUS_CODES:
                     if verbose:
-                        print("Logout successful.")
+                        logging.info("Logout successful.")
                 else:
                     raise SCRequestException(
                         method="GET",
@@ -289,7 +289,7 @@ class SCSession(requests.Session):
                     )
             except RequestException:
                 if verbose:
-                    print(
+                    logging.info(
                         f"The {self.__class__.__name__} is closed successfully, but "
                         f"the client was not able to logout from the server."
                     )
@@ -364,9 +364,9 @@ class SCSession(requests.Session):
         ):
             # Authentication has likely expired, re-authenticate
             if not self.use_token:
-                print("Authorization expired, re-authenticating...", end=" ")
+                logging.info("Authorization expired, re-authenticating...", end=" ")
                 self.authenticate(verbose=False)
-                print("Done!")
+                logging.info("Done!")
                 response = self.request(**request_params, **self._proxies)
 
                 if response.status_code in SUCCESS_STATUS_CODES:

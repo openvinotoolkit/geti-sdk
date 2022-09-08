@@ -28,7 +28,7 @@ def force_delete_project(project_name: str, project_client: ProjectClient) -> No
     try:
         project_client.delete_project(project=project_name, requires_confirmation=False)
     except TypeError:
-        logging.error(
+        logging.warning(
             f"Project {project_name} was not found on the server, it was most "
             f"likely already deleted."
         )
