@@ -68,7 +68,7 @@ class ProjectClient:
             project on the SC cluster
         """
         project_list = self.session.get_rest_response(
-            url=f"{self.base_url}projects/",
+            url=f"{self.base_url}projects",
             method="GET",
         )
         if self.session.version > "1.1":
