@@ -13,6 +13,7 @@
 # and limitations under the License.
 
 import copy
+import logging
 from typing import Dict, List, Optional, Sequence, Union
 
 from datumaro.components.annotation import Bbox, Polygon
@@ -76,7 +77,7 @@ class DatumAnnotationReader(AnnotationReader):
         if not isinstance(task_type, TaskType):
             task_type = TaskType(task_type)
         if task_type != self.task_type:
-            print(f"Task type changed to {task_type} for dataset")
+            logging.info(f"Task type changed to {task_type} for dataset")
             if task_type not in self._SUPPORTED_TASK_TYPES:
                 raise ValueError(f"Unsupported task type {task_type}")
             new_dataset = DatumaroDataset(
@@ -91,7 +92,7 @@ class DatumAnnotationReader(AnnotationReader):
             task_type=task_type, previous_task_type=previous_task_type
         )
         self.dataset.set_dataset(dataset)
-        print(f"Dataset is prepared for {task_type} task.")
+        logging.info(f"Dataset is prepared for {task_type} task.")
 
     def convert_labels_to_segmentation_names(self) -> None:
         """
@@ -200,8 +201,8 @@ class DatumAnnotationReader(AnnotationReader):
                     ]
                     shape = {"type": "POLYGON", "points": points}
                 else:
-                    print(
-                        f"WARNING: Unsupported annotation type found: "
+                    logging.warning(
+                        f"Unsupported annotation type found: "
                         f"{type(annotation)}. Skipping..."
                     )
                     continue

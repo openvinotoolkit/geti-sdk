@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 """ This module defines the test configuration """
+import logging
 import os
 import shutil
 import tempfile
@@ -143,7 +144,7 @@ def pytest_sessionstart(session: Session) -> None:
         remove_all_test_projects(SCRESTClient(host=HOST, **auth_params))
     if TEST_MODE == SdkTestMode.RECORD:
         record_cassette_path = tempfile.mkdtemp()
-        print(f"Cassettes will be recorded to `{record_cassette_path}`.")
+        logging.info(f"Cassettes will be recorded to `{record_cassette_path}`.")
         os.environ.update({RECORD_CASSETTE_KEY: record_cassette_path})
 
 
@@ -160,9 +161,9 @@ def pytest_sessionfinish(session: Session, exitstatus: int) -> None:
     if TEST_MODE == SdkTestMode.RECORD:
         record_cassette_path = os.environ.pop(RECORD_CASSETTE_KEY)
         if exitstatus == 0:
-            print("Recording successful! Wrapping up....")
+            logging.info("Recording successful! Wrapping up....")
             # Copy recorded cassettes to fixtures/cassettes
-            print(
+            logging.info(
                 f"Copying newly recorded cassettes from `{record_cassette_path}` to "
                 f"`{CASSETTE_PATH}`."
             )
@@ -172,7 +173,7 @@ def pytest_sessionfinish(session: Session, exitstatus: int) -> None:
 
             # Scrub hostname from cassettes
             replace_host_name_in_cassettes(HOST)
-            print(
+            logging.info(
                 f" Hostname {HOST} was scrubbed from all cassette files successfully."
             )
         else:

@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import logging
 import time
 from typing import Dict, List, Optional, Sequence, Tuple
 
@@ -59,12 +59,12 @@ class DatumaroDataset(object):
             new_dataset = self.dataset.transform(
                 self.dataset.env.transforms.get("shapes_to_boxes")
             )
-            print("Annotations have been converted to boxes")
+            logging.info("Annotations have been converted to boxes")
         elif task_type.is_segmentation:
             new_dataset = self.dataset.transform(
                 self.dataset.env.transforms.get("masks_to_polygons")
             )
-            print("Annotations have been converted to polygons")
+            logging.info("Annotations have been converted to polygons")
         elif task_type.is_global:
             if previous_task_type is not None and previous_task_type.is_segmentation:
                 new_dataset = self.dataset.transform(
@@ -74,7 +74,7 @@ class DatumaroDataset(object):
                 new_dataset = self.dataset.transform(
                     self.dataset.env.transforms.get("shapes_to_boxes")
                 )
-            print(f"{str(task_type).capitalize()} dataset prepared.")
+            logging.info(f"{str(task_type).capitalize()} dataset prepared.")
         else:
             raise ValueError(f"Unsupported task type {task_type}")
         return new_dataset
@@ -127,11 +127,13 @@ class DatumaroDataset(object):
         dataset = Dataset.import_from(
             path=self.dataset_path, format=self.dataset_format
         )
-        print(
+        logging.info(
             f"Datumaro dataset consisting of {len(dataset)} items in "
             f"{self.dataset_format} format was loaded from {self.dataset_path}"
         )
-        print(f"Datumaro dataset was created in {time.time() - t_start:.1f} seconds")
+        logging.info(
+            f"Datumaro dataset was created in {time.time() - t_start:.1f} seconds"
+        )
         return dataset, dataset.env
 
     def remove_unannotated_items(self):
@@ -198,7 +200,7 @@ class DatumaroDataset(object):
                 categories=new_categories,
                 env=self.dataset.env,
             )
-            print(
+            logging.info(
                 f"After filtering, dataset with labels {labels} contains "
                 f"{len(self.dataset)} items."
             )

@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+import logging
 import time
 import warnings
 from json import JSONDecodeError
@@ -174,7 +175,7 @@ class SCSession(requests.Session):
         self.headers.clear()
         self.headers.update({"Content-Type": "application/x-www-form-urlencoded"})
         if verbose:
-            print(f"Authenticating on host {self.config.host}...")
+            logging.info(f"Authenticating on host {self.config.host}...")
         response = self.post(
             url=login_path,
             data={"login": self.config.username, "password": self.config.password},
@@ -193,7 +194,7 @@ class SCSession(requests.Session):
         cookie = {PROXY_COOKIE_NAME: previous_response.cookies.get(PROXY_COOKIE_NAME)}
         self._cookies.update(cookie)
         if verbose:
-            print("Authentication successful. Cookie received.")
+            logging.info("Authentication successful. Cookie received.")
         self.logged_in = True
 
     def get_rest_response(
@@ -278,7 +279,7 @@ class SCSession(requests.Session):
 
                 if response.status_code in SUCCESS_STATUS_CODES:
                     if verbose:
-                        print("Logout successful.")
+                        logging.info("Logout successful.")
                 else:
                     raise SCRequestException(
                         method="GET",
@@ -288,7 +289,7 @@ class SCSession(requests.Session):
                     )
             except RequestException:
                 if verbose:
-                    print(
+                    logging.info(
                         f"The {self.__class__.__name__} is closed successfully, but "
                         f"the client was not able to logout from the server."
                     )
@@ -363,9 +364,9 @@ class SCSession(requests.Session):
         ):
             # Authentication has likely expired, re-authenticate
             if not self.use_token:
-                print("Authorization expired, re-authenticating...", end=" ")
+                logging.info("Authorization expired, re-authenticating...", end=" ")
                 self.authenticate(verbose=False)
-                print("Done!")
+                logging.info("Done!")
                 response = self.request(**request_params, **self._proxies)
 
                 if response.status_code in SUCCESS_STATUS_CODES:

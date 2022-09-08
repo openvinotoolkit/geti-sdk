@@ -13,6 +13,7 @@
 # and limitations under the License.
 
 import json
+import logging
 import os
 import time
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -305,7 +306,7 @@ class PredictionClient:
         :return: Time elapsed to download the predictions, in seconds
         """
         t_total = 0
-        print(
+        logging.info(
             f"Starting prediction download... saving predictions for "
             f"{len(videos)} videos to folder {path_to_folder}/predictions"
         )
@@ -317,7 +318,7 @@ class PredictionClient:
                 inferred_frames_only=inferred_frames_only,
                 frame_stride=frame_stride,
             )
-        print(f"Video prediction download finished in {t_total:.1f} seconds.")
+        logging.info(f"Video prediction download finished in {t_total:.1f} seconds.")
         return t_total
 
     def download_predictions_for_video(
@@ -434,7 +435,7 @@ class PredictionClient:
             path_to_predictions_folder = path_to_folder
 
         if verbose:
-            print(
+            logging.info(
                 f"Starting prediction download... saving predictions for "
                 f"{len(media_list)} {media_name_plural} to folder "
                 f"{path_to_predictions_folder}"
@@ -450,7 +451,7 @@ class PredictionClient:
             )
             if prediction is None:
                 if verbose:
-                    print(
+                    logging.info(
                         f"Unable to retrieve prediction for {media_name} "
                         f"{media_item.name}, with reason: {msg}. Skipping this "
                         f"{media_name}"
@@ -460,7 +461,7 @@ class PredictionClient:
             kind = prediction.kind
             if kind != AnnotationKind.PREDICTION:
                 if verbose:
-                    print(
+                    logging.warning(
                         f"Received invalid prediction of kind {kind} for {media_name} "
                         f"with name{media_item.name}"
                     )
@@ -473,7 +474,7 @@ class PredictionClient:
                     result_media = prediction.get_result_media_data(self.session)
                 except SCRequestException:
                     if verbose:
-                        print(
+                        logging.info(
                             f"Unable to retrieve prediction result map for "
                             f"{media_name} '{media_item.name}'. Skipping"
                         )
@@ -521,5 +522,5 @@ class PredictionClient:
                 f"{media_name_plural}, these {media_name_plural} were skipped."
             )
         if verbose:
-            print(msg)
+            logging.info(msg)
         return t_elapsed

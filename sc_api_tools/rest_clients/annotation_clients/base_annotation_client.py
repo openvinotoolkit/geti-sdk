@@ -13,6 +13,7 @@
 # and limitations under the License.
 
 import json
+import logging
 import os
 import time
 from typing import Any, Dict, List, Optional, Type, TypeVar, Union
@@ -231,7 +232,7 @@ class BaseAnnotationClient:
         )
         annotation_scene = self._get_latest_annotation_for_2d_media_item(media_item)
         if annotation_scene is None:
-            print(
+            logging.info(
                 f"No existing annotation found for {str(media_item.type)} named "
                 f"{media_item.name}"
             )
@@ -347,7 +348,7 @@ class BaseAnnotationClient:
                 "annotations."
             )
         if verbose:
-            print(
+            logging.info(
                 f"Starting annotation download... saving annotations for "
                 f"{len(media_list)} {media_name_plural} to folder "
                 f"{path_to_annotations_folder}"
@@ -359,7 +360,7 @@ class BaseAnnotationClient:
             annotation_scene = self._get_latest_annotation_for_2d_media_item(media_item)
             if annotation_scene is None:
                 if verbose:
-                    print(
+                    logging.info(
                         f"Unable to retrieve latest annotation for {media_name} "
                         f"{media_item.name}. Skipping this {media_name}"
                     )
@@ -368,7 +369,7 @@ class BaseAnnotationClient:
             kind = annotation_scene.kind
             if kind != AnnotationKind.ANNOTATION:
                 if verbose:
-                    print(
+                    logging.info(
                         f"Received invalid annotation of kind {kind} for {media_name} "
                         f"with name{media_item.name}"
                     )
@@ -419,5 +420,5 @@ class BaseAnnotationClient:
                 f"{media_name_plural}, these {media_name_plural} were skipped."
             )
         if verbose:
-            print(msg)
+            logging.info(msg)
         return t_elapsed

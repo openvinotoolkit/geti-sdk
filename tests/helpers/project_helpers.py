@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import logging
 from typing import List, Sequence
 
 from sc_api_tools import SCRESTClient
@@ -63,7 +63,7 @@ def get_or_create_annotated_project_for_test_class(
         elif learning_parameter_settings == "reduced_mem":
             project_service.set_reduced_memory_hypers()
         elif learning_parameter_settings != "default":
-            print(
+            logging.info(
                 f"Invalid learning parameter settings '{learning_parameter_settings}' "
                 f"specified, continuing with default hyper parameters."
             )
@@ -93,5 +93,5 @@ def remove_all_test_projects(client: SCRESTClient) -> List[str]:
         if project.name.startswith(PROJECT_PREFIX):
             force_delete_project(project.name, project_client)
             projects_removed.append(project.name)
-    print(f"{len(projects_removed)} test projects were removed from the server.")
+    logging.info(f"{len(projects_removed)} test projects were removed from the server.")
     return projects_removed

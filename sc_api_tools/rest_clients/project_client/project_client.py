@@ -14,6 +14,7 @@
 
 import copy
 import json
+import logging
 import os
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -110,7 +111,7 @@ class ProjectClient:
         """
         project = self.get_project_by_name(project_name)
         if project is not None:
-            print(
+            logging.info(
                 f"Project with name {project_name} already exists, continuing with "
                 f"exiting project. No new project has been created."
             )
@@ -153,7 +154,7 @@ class ProjectClient:
             project = self.session.get_rest_response(
                 url=f"{self.base_url}projects", method="POST", data=project_template
             )
-            print("Project created successfully.")
+            logging.info("Project created successfully.")
             project = ProjectRESTConverter.from_dict(project)
         return project
 
@@ -182,7 +183,7 @@ class ProjectClient:
         project_config_path = os.path.join(path_to_folder, "project.json")
         with open(project_config_path, "w") as file:
             json.dump(project_data, file, indent=4)
-        print(
+        logging.info(
             f"Project parameters for project '{project_name}' were saved to file "
             f"{project_config_path}."
         )
@@ -286,7 +287,7 @@ class ProjectClient:
         project = ProjectRESTConverter.from_dict(project_data)
         if project_name is not None:
             project.name = project_name
-        print(
+        logging.info(
             f"Creating project '{project.name}' from parameters in "
             f"configuration file at {path_to_project}."
         )
@@ -454,7 +455,7 @@ class ProjectClient:
             if not (
                 user_confirmation.lower() == "yes" or user_confirmation.lower() == "y"
             ):
-                print("Aborting project deletion.")
+                logging.info("Aborting project deletion.")
                 return
         try:
             self.session.get_rest_response(
@@ -469,7 +470,7 @@ class ProjectClient:
                 )
             else:
                 raise error
-        print(f"Project '{project.name}' deleted successfully.")
+        logging.info(f"Project '{project.name}' deleted successfully.")
 
     def add_labels(
         self,
@@ -550,7 +551,7 @@ class ProjectClient:
         )
         task_data["labels"] = label_list
         remove_null_fields(project_data)
-        print(project_data)
+        logging.info(project_data)
         response = self.session.get_rest_response(
             url=f"{self.base_url}projects/{project.id}", method="PUT", data=project_data
         )

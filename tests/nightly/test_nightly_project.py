@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import logging
 import os
 import time
 from typing import ClassVar, List
@@ -117,7 +117,7 @@ class TestNightlyProject:
             except SCRequestException as error:
                 prediction = None
                 time.sleep(20)
-                print(error)
+                logging.info(error)
             if prediction is not None:
                 assert isinstance(prediction, Prediction)
                 break
@@ -166,16 +166,16 @@ class TestNightlyProject:
             assert online_mask.shape == local_mask.shape
             equal_masks = np.all(local_mask == online_mask)
             if not equal_masks:
-                print("WARNING: local and online prediction masks are not equal!")
-                print(
+                logging.warning("Local and online prediction masks are not equal!")
+                logging.info(
                     f"Number of shapes: {len(local_prediction.annotations)} - local   "
                     f"----    {len(online_prediction.annotations)} - online."
                 )
 
-            print("\n\n-------- Local prediction --------")
-            print(local_prediction.overview)
-            print("\n\n-------- Online prediction --------")
-            print(online_prediction.overview)
+            logging.info("\n\n-------- Local prediction --------")
+            logging.info(local_prediction.overview)
+            logging.info("\n\n-------- Online prediction --------")
+            logging.info(online_prediction.overview)
 
             # Save the predictions as test artifacts
             predictions_dir = os.path.join(fxt_artifact_directory, "predictions")

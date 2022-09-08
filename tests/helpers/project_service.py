@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import logging
 from contextlib import nullcontext
 from typing import Any, Dict, List, Optional, Sequence, Union
 
@@ -366,7 +366,7 @@ class ProjectService:
                     task_config.set_parameter_value("batch_size", 1)
                     self.configuration_client.set_configuration(task_config)
                 except ValueError:
-                    print(
+                    logging.warning(
                         f"Parameter batch_size was not found in the configuration for "
                         f"task {task.summary}. Unable to configure batch size"
                     )

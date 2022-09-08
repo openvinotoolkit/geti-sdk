@@ -11,8 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import logging
 import os
+import sys
 import warnings
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
@@ -49,6 +50,9 @@ from .utils import (
     show_image_with_annotation_scene,
     show_video_frames_with_annotation_scenes,
 )
+
+DEFAULT_LOG_LEVEL = logging.INFO
+DEFAULT_LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 
 
 class SCRESTClient:
@@ -91,6 +95,15 @@ class SCRESTClient:
         verify_certificate: bool = False,
         proxies: Optional[Dict[str, str]] = None,
     ):
+        # Set up default logging for the SDK.
+        if not logging.root.handlers:
+            logging.basicConfig(
+                handlers=[logging.StreamHandler(stream=sys.stdout)],
+                level=DEFAULT_LOG_LEVEL,
+                format=DEFAULT_LOG_FORMAT,
+            )
+
+        # Set up server configuration with either token or credential authentication
         if token is not None:
             server_config = ServerTokenConfig(
                 host=host,
@@ -99,7 +112,7 @@ class SCRESTClient:
                 has_valid_certificate=verify_certificate,
             )
             if username is not None or password is not None:
-                print(
+                warnings.warn(
                     "Both a personal access token and credentials were passed to the "
                     "SCRESTClient, using token authentication."
                 )
@@ -116,6 +129,8 @@ class SCRESTClient:
                 "__init__ missing required keyword arguments: Either `username` and "
                 "`password` or `token` must be specified."
             )
+
+        # Initialize session and get workspace id
         self.session = SCSession(
             server_config=server_config,
         )
@@ -293,10 +308,10 @@ class SCRESTClient:
 
         # Download deployment
         if include_deployment:
-            print("Creating deployment for project...")
+            logging.info("Creating deployment for project...")
             self.deploy_project(project.name, output_folder=target_folder)
 
-        print(f"Project '{project.name}' was downloaded successfully.")
+        logging.info(f"Project '{project.name}' was downloaded successfully.")
         return project
 
     def upload_project(
@@ -401,7 +416,7 @@ class SCRESTClient:
                     path_to_folder=target_folder
                 )
             except SCRequestException:
-                print(
+                logging.info(
                     f"Attempted to set configuration according to the "
                     f"'configuration.json' file in the project directory, but setting "
                     f"the configuration failed. Probably the configuration specified "
@@ -416,7 +431,7 @@ class SCRESTClient:
                     f"verify model configuration manually."
                 )
         configuration_client.set_project_auto_train(auto_train=enable_auto_train)
-        print(f"Project '{project.name}' was uploaded successfully.")
+        logging.info(f"Project '{project.name}' was uploaded successfully.")
         return project
 
     def create_single_task_project_from_dataset(
@@ -740,14 +755,16 @@ class SCRESTClient:
             target_folder = os.path.join(".", "projects")
         if not os.path.exists(target_folder):
             os.makedirs(target_folder)
-        print(
+        logging.info(
             f"Found {len(projects)} projects on the SC cluster. Commencing project "
             f"download..."
         )
 
         # Download all found projects
         for index, project in enumerate(projects):
-            print(f"Downloading project '{project.name}'... {index+1}/{len(projects)}.")
+            logging.info(
+                f"Downloading project '{project.name}'... {index+1}/{len(projects)}."
+            )
             self.download_project(
                 project_name=project.name,
                 target_folder=os.path.join(target_folder, project.name),
@@ -779,13 +796,13 @@ class SCRESTClient:
             for folder in candidate_project_folders
             if ProjectClient.is_project_dir(folder)
         ]
-        print(
+        logging.info(
             f"Found {len(project_folders)} project data folders in the target "
             f"directory '{target_folder}'. Commencing project upload..."
         )
         projects: List[Project] = []
         for index, project_folder in enumerate(project_folders):
-            print(
+            logging.info(
                 f"Uploading project from folder '{os.path.basename(project_folder)}'..."
                 f" {index + 1}/{len(project_folders)}."
             )
@@ -833,7 +850,7 @@ class SCRESTClient:
         )
         project = project_client.get_project_by_name(project_name=project_name)
         if project is None:
-            print(
+            logging.info(
                 f"Project '{project_name}' was not found on the cluster. Aborting "
                 f"media upload."
             )
@@ -859,7 +876,7 @@ class SCRESTClient:
             session=self.session, workspace_id=self.workspace_id, project=project
         )
         if not prediction_client.ready_to_predict:
-            print(
+            logging.info(
                 f"Project '{project_name}' is not ready to make predictions, likely "
                 f"because one of the tasks in the task chain does not have a "
                 f"trained model yet. Aborting prediction."
@@ -1033,7 +1050,7 @@ class SCRESTClient:
         else:
             video_data = video
         if needs_upload:
-            print(f"Uploading video to project '{project_name}'...")
+            logging.info(f"Uploading video to project '{project_name}'...")
             uploaded_video = video_client.upload_video(video=video_data)
         else:
             uploaded_video = video
@@ -1052,7 +1069,7 @@ class SCRESTClient:
         frames = MediaList(
             uploaded_video.to_frames(frame_stride=frame_stride, include_data=True)
         )
-        print(
+        logging.info(
             f"Getting predictions for video '{uploaded_video.name}', using stride "
             f"{frame_stride}"
         )
@@ -1121,7 +1138,7 @@ class SCRESTClient:
             deployed_model = DeployedModel.from_model_and_hypers(
                 model=preferred_model, hyper_parameters=model_config
             )
-            print(
+            logging.info(
                 f"Retrieving {preferred_model.optimization_type} model data for "
                 f"{project.get_trainable_tasks()[model_index].title}..."
             )

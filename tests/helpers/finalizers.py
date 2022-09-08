@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import logging
 import time
 
 from sc_api_tools.rest_clients import ProjectClient, TrainingClient
@@ -28,12 +28,12 @@ def force_delete_project(project_name: str, project_client: ProjectClient) -> No
     try:
         project_client.delete_project(project=project_name, requires_confirmation=False)
     except TypeError:
-        print(
+        logging.warning(
             f"Project {project_name} was not found on the server, it was most "
             f"likely already deleted."
         )
     except ValueError:
-        print(
+        logging.error(
             f"Unable to delete project '{project_name}' from the server, it "
             f"is most likely locked for deletion due to an operation/training "
             f"session that is in progress. "
