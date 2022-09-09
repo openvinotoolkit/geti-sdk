@@ -64,8 +64,7 @@ browser and take you to the JupyterLab landing page, with the SDK notebooks open
 > instance.
 
 ## Example use cases
-The package provides a main class `SonomaCreek` that can be used for creating, downloading and
-uploading projects.
+The package provides a main class `SonomaCreek` that can be used for the following use cases
 ### Downloading and uploading projects
 - **Project download** The following python snippet is a minimal example of how to
   download a project using the SCRESTClient:
@@ -187,6 +186,9 @@ What is supported:
   snippets provided [above](#downloading-and-uploading-projects). Only
   annotations, media and configurations are backed up, models are not.
 
+
+- **Launching and monitoring training jobs**
+
 What is not supported:
 - Model upload
 - Prediction upload
@@ -241,6 +243,8 @@ The `SonomaCreek` class provides the following methods:
 For further details regarding these methods, please refer to the method documentation
 and the [code snippets](#downloading-and-uploading-projects) and
 [example scripts](#examples) provided in this repo.
+
+Please visit the full documentation for a complete API reference.
 
 ## Using Docker
 
