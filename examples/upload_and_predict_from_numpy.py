@@ -3,8 +3,8 @@ import os
 import cv2
 import numpy as np
 from dotenv import dotenv_values
+from utils import ensure_example_project
 
-from examples.utils import ensure_example_project
 from sc_api_tools import SCRESTClient
 
 
