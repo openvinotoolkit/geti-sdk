@@ -30,6 +30,7 @@ jobs:
         run: |
           cd docs
           make html
+          make html
           cd ..
 
       - name: Commit documentation changes
@@ -37,6 +38,7 @@ jobs:
           mkdir -p /tmp/docs_build
           cp -r docs/build/html/* /tmp/docs_build
           rm -rf ./*
+          git fetch && git pull
           git checkout gh-pages
           git fetch && git pull
           cp -r /tmp/docs_build/* ./
