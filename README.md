@@ -1,40 +1,70 @@
 ## Introduction
-This package contains tools to interact with a Sonoma Creek cluster via
-the SC REST API. It provides functionality for:
-- Project creation from datasets on disk
+Welcome to the SonomaCreek SDK! This python package contains tools to interact with a
+SonomaCreek server via the REST API. It provides functionality for:
+
+- Project creation from annotated datasets on disk
 - Project downloading (images, videos, configuration, annotations, predictions and models)
 - Project creation and upload from a previous download
 - Deploying a project for local inference with OpenVINO
+- Getting and setting project and model configuration
+- Launching and monitoring training jobs
+- Media upload and prediction
 
-## Installation
+This repository also contains a set of (tutorial style) Jupyter
+[notebooks](/notebooks/README.md) that demonstrate how to use the SDK. We highly
+recommend checking them out to give you a flying start with the package.
+
+## Getting started
+### Installation
 I recommend using an environment manager such as
 [Anaconda](https://www.anaconda.com/products/individual) or
 [venv](https://docs.python.org/3/library/venv.html) to create a new
-Python environment before installing the package and it's requirements. The package
+Python environment before installing the package, and it's requirements. The SDK
 requires Python version 3.8, so make sure to use that version in your environment.
 
 Once you have created a new environment, follow these steps to install the package:
 
-1. Download or clone the repository and navigate to the `sc_api_tools` directory.
+#### PyPI installation
+To install the SonomaCreek SDK from PyPI, simply use `pip install sonoma_creek_sdk`
 
-2. From there, install the requirements using
-`pip install -r requirements/requirements.txt`.
+If you plan on running the jupyter notebooks, install the requirements for them by
+running `pip install sonoma_creek_sdk[notebooks]`
 
-3. (Optional) If you plan on using the package to deploy inference models, install the
-   requirements for deployment using `pip install -r requirements/requirements-deployment.txt`.
+#### Local installation
+To install the SDK in editable mode, follow these steps:
 
-4. Then run `pip install .` to install the package.
+1. Download or clone the repository and navigate to the root directory of the repo.
 
-5. you want to make changes to the package, or want to keep it up to date with the
-latest code changes in the repository.
+2. From there, install the SDK using `pip install -e .`
+
+3. (Optional) If you plan on running the tests, the notebooks or want to build the
+   documentation, you can install the package extra requirements by doing
+   `pip install -e .[dev,docs,notebooks]`
 
 > **NOTE**: sc-api-tools needs `python==3.8` to run. Python 3.9 will work on Linux
 > systems, but unfortunately not on Windows yet since not all required packages are
 > available for that version.
 
-## Using the package
-The package provides a main class `SCRESTClient` that can be used for creating, downloading and
-uploading projects.
+### Examples
+The [examples](/examples/README.md) folder contains example scripts, showing various
+use cases for the package. They can be run by navigating to the `examples` directory
+in your terminal, and simply running the scripts like any other python script.
+
+### Jupyter Notebooks
+In addition, the [notebooks](/notebooks/README.md) folder contains jupyter notebooks
+with example use cases for the `sonoma_creek_sdk`. To run the notebooks,
+make sure to first install the requirements for this using
+`pip install -r requirements/requirements-notebooks.txt`
+
+Once the notebook requirements are installed, navigate to the `notebooks` directory in
+your terminal. Then, fire up JupyterLab by typing `jupyter lab`. This should open your
+browser and take you to the JupyterLab landing page, with the SDK notebooks open.
+
+> **NOTE**: Both the example scripts and the notebooks require access to a SonomaCreek
+> instance.
+
+## Example use cases
+The package provides a main class `SonomaCreek` that can be used for the following use cases
 ### Downloading and uploading projects
 - **Project download** The following python snippet is a minimal example of how to
   download a project using the SCRESTClient:
@@ -95,9 +125,6 @@ the single project methods in the code snippets above.
 
 ### Deploying a project
 
-**NOTE**: Before running inference locally, please install the
-required packages for deployment using `pip install -r requirements/requirements-deployment.txt`
-
 The following code snippet shows how to create a deployment for local inference with
 OpenVINO:
 ```
@@ -127,14 +154,6 @@ The `deployment.infer` method takes a numpy image as input.
 The `deployment.save` method will save the deployment to the folder named
 'dummy_project', on the local disk. The deployment can be reloaded again later using
 `Deployment.from_folder('dummy_project')`.
-
-### Examples
-The [examples](/examples/README.md) folder contains example scripts, showing various
-usecases for the package.
-
-
-In addition, the [notebooks](/notebooks/README.md) folder contains jupyter notebooks
-with more example use cases for the `sc-api-tools` package.
 
 ## Supported features
 What is supported:
@@ -167,12 +186,17 @@ What is supported:
   snippets provided [above](#downloading-and-uploading-projects). Only
   annotations, media and configurations are backed up, models are not.
 
+
+- **Launching and monitoring training jobs**
+
 What is not supported:
 - Model upload
 - Prediction upload
+- Plenty of other things that are supported in SonomaCreek but not included in the SDK
+  just yet. These will be added in due time.
 
-## API reference
-The high level `SCRESTClient` class provides the following methods:
+## High level API reference
+The `SonomaCreek` class provides the following methods:
 
 - `download_project` -- Downloads a project by project name.
 
@@ -180,27 +204,27 @@ The high level `SCRESTClient` class provides the following methods:
 - `upload_project` -- Upload project from a folder.
 
 
-- `download_all_projects` -- Downloads all projects found on the SC cluster.
+- `download_all_projects` -- Downloads all projects found on the server.
 
 
-- `upload_all_projects` -- Uploads all projects found in a specified folder to the SC
-  cluster.
+- `upload_all_projects` -- Uploads all projects found in a specified folder to the
+  server.
 
 
 - `upload_and_predict_image` -- Uploads a single image to an existing project on the
-  SC cluster, and requests a prediction for that image. Optionally, the prediction can
+  server, and requests a prediction for that image. Optionally, the prediction can
   be visualized as an overlay on the image.
 
 
 - `upload_and_predict_video` -- Uploads a single video to an existing project on the
-  SC cluster, and requests predictions for the frames in the video. As with
+  server, and requests predictions for the frames in the video. As with
   upload_and_predict_image, the predictions can be visualized on the frames. The
   parameter `frame_stride` can be used to control which frames are extracted for
   prediction.
 
 
 - `upload_and_predict_media_folder` -- Upload all media (images and videos) from a
-  folder on local disk to an existing project on the SC cluster, and download
+  folder on local disk to an existing project on the server, and download
   predictions for all uploaded media.
 
 
@@ -209,20 +233,23 @@ The high level `SCRESTClient` class provides the following methods:
   for the project on a local machine. Pipeline inference is also supported.
 
 
-- `create_project_single_task_from_dataset` -- Creates a single task project on the SC
-  cluster, potentially using labels and uploading annotations from an external dataset.
+- `create_project_single_task_from_dataset` -- Creates a single task project on the
+  server, potentially using labels and uploading annotations from an external dataset.
 
 
-- `create_task_chain_project_from_dataset` -- Creates a task chain project on the SC
-  cluster, potentially using labels and uploading annotations from an external dataset.
+- `create_task_chain_project_from_dataset` -- Creates a task chain project on the
+  server, potentially using labels and uploading annotations from an external dataset.
 
 For further details regarding these methods, please refer to the method documentation
 and the [code snippets](#downloading-and-uploading-projects) and
 [example scripts](#examples) provided in this repo.
 
+Please visit the full documentation for a complete API reference.
+
 ## Using Docker
 
-The Dockerfile can be used to run the package without having to install python on your machine.
+The Dockerfile can be used to run the package without having to install python on your
+machine.
 
 First build the docker image
 ``` sh
