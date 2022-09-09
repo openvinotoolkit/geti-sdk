@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -41,18 +42,26 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#using-the-package">Using the package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Getting started</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pypi-installation">PyPI installation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#local-installation">Local installation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#jupyter-notebooks">Jupyter Notebooks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#example-use-cases">Example use cases</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#downloading-and-uploading-projects">Downloading and uploading projects</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#up-downloading-all-projects">Up/Downloading all projects</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#deploying-a-project">Deploying a project</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#supported-features">Supported features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#api-reference">API reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#high-level-api-reference">High level API reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#using-docker">Using Docker</a></li>
 </ul>
 </li>
@@ -86,51 +95,83 @@
            <div itemprop="articleBody">
              
   <section id="getting-started">
-<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h1>
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h1>
 <section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h2>
-<p>This package contains tools to interact with a Sonoma Creek cluster via
-the SC REST API. It provides functionality for:</p>
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
+<p>Welcome to the SonomaCreek SDK! This python package contains tools to interact with a
+SonomaCreek server via the REST API. It provides functionality for:</p>
 <ul class="simple">
-<li><p>Project creation from datasets on disk</p></li>
+<li><p>Project creation from annotated datasets on disk</p></li>
 <li><p>Project downloading (images, videos, configuration, annotations, predictions and models)</p></li>
 <li><p>Project creation and upload from a previous download</p></li>
 <li><p>Deploying a project for local inference with OpenVINO</p></li>
+<li><p>Getting and setting project and model configuration</p></li>
+<li><p>Launching and monitoring training jobs</p></li>
+<li><p>Media upload and prediction</p></li>
 </ul>
+<p>This repository also contains a set of (tutorial style) Jupyter
+<a class="reference external" href="/notebooks/README.md">notebooks</a> that demonstrate how to use the SDK. We highly
+recommend checking them out to give you a flying start with the package.</p>
 </section>
+<section id="id1">
+<h2>Getting started<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
+<h3>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h3>
 <p>I recommend using an environment manager such as
 <a class="reference external" href="https://www.anaconda.com/products/individual">Anaconda</a> or
 <a class="reference external" href="https://docs.python.org/3/library/venv.html">venv</a> to create a new
-Python environment before installing the package and it’s requirements. The package
+Python environment before installing the package, and it’s requirements. The SDK
 requires Python version 3.8, so make sure to use that version in your environment.</p>
 <p>Once you have created a new environment, follow these steps to install the package:</p>
+<section id="pypi-installation">
+<h4>PyPI installation<a class="headerlink" href="#pypi-installation" title="Permalink to this heading"></a></h4>
+<p>To install the SonomaCreek SDK from PyPI, simply use <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">sonoma_creek_sdk</span></code></p>
+<p>If you plan on running the jupyter notebooks, install the requirements for them by
+running <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">sonoma_creek_sdk[notebooks]</span></code></p>
+</section>
+<section id="local-installation">
+<h4>Local installation<a class="headerlink" href="#local-installation" title="Permalink to this heading"></a></h4>
+<p>To install the SDK in editable mode, follow these steps:</p>
 <ol class="arabic simple">
-<li><p>Download or clone the repository and navigate to the <code class="docutils literal notranslate"><span class="pre">sc_api_tools</span></code> directory.</p></li>
-<li><p>From there, install the requirements using</p></li>
+<li><p>Download or clone the repository and navigate to the root directory of the repo.</p></li>
+<li><p>From there, install the SDK using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code></p></li>
+<li><p>(Optional) If you plan on running the tests, the notebooks or want to build the
+documentation, you can install the package extra requirements by doing
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.[dev,docs,notebooks]</span></code></p></li>
 </ol>
-<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements/requirements.txt</span></code>.</p>
-<ol class="arabic simple">
-<li><p>(Optional) If you plan on using the package to deploy inference models, install the
-requirements for deployment using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements/requirements-deployment.txt</span></code>.</p></li>
-<li><p>Then run <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">.</span></code> to install the package.</p></li>
-</ol>
-<p>You can also install it in editable mode using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code> This is handy if
-you want to make changes to the package, or want to keep it up to date with the
-latest code changes in the repository.</p>
 <blockquote>
 <div><p><strong>NOTE</strong>: sc-api-tools needs <code class="docutils literal notranslate"><span class="pre">python==3.8</span></code> to run. Python 3.9 will work on Linux
 systems, but unfortunately not on Windows yet since not all required packages are
 available for that version.</p>
 </div></blockquote>
 </section>
-<section id="using-the-package">
-<h2>Using the package<a class="headerlink" href="#using-the-package" title="Permalink to this headline"></a></h2>
-<p>The package provides a main class <code class="docutils literal notranslate"><span class="pre">SCRESTClient</span></code> that can be used for creating, downloading and
-uploading projects.</p>
+</section>
+<section id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h3>
+<p>The <a class="reference external" href="/examples/README.md">examples</a> folder contains example scripts, showing various
+use cases for the package. They can be run by navigating to the <code class="docutils literal notranslate"><span class="pre">examples</span></code> directory
+in your terminal, and simply running the scripts like any other python script.</p>
+</section>
+<section id="jupyter-notebooks">
+<h3>Jupyter Notebooks<a class="headerlink" href="#jupyter-notebooks" title="Permalink to this heading"></a></h3>
+<p>In addition, the <a class="reference external" href="/notebooks/README.md">notebooks</a> folder contains jupyter notebooks
+with example use cases for the <code class="docutils literal notranslate"><span class="pre">sonoma_creek_sdk</span></code>. To run the notebooks,
+make sure to first install the requirements for this using
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements/requirements-notebooks.txt</span></code></p>
+<p>Once the notebook requirements are installed, navigate to the <code class="docutils literal notranslate"><span class="pre">notebooks</span></code> directory in
+your terminal. Then, fire up JupyterLab by typing <code class="docutils literal notranslate"><span class="pre">jupyter</span> <span class="pre">lab</span></code>. This should open your
+browser and take you to the JupyterLab landing page, with the SDK notebooks open.</p>
+<blockquote>
+<div><p><strong>NOTE</strong>: Both the example scripts and the notebooks require access to a SonomaCreek
+instance.</p>
+</div></blockquote>
+</section>
+</section>
+<section id="example-use-cases">
+<h2>Example use cases<a class="headerlink" href="#example-use-cases" title="Permalink to this heading"></a></h2>
+<p>The package provides a main class <code class="docutils literal notranslate"><span class="pre">SonomaCreek</span></code> that can be used for the following use cases</p>
 <section id="downloading-and-uploading-projects">
-<h3>Downloading and uploading projects<a class="headerlink" href="#downloading-and-uploading-projects" title="Permalink to this headline"></a></h3>
+<h3>Downloading and uploading projects<a class="headerlink" href="#downloading-and-uploading-projects" title="Permalink to this heading"></a></h3>
 <ul>
 <li><p><strong>Project download</strong> The following python snippet is a minimal example of how to
 download a project using the SCRESTClient:</p>
@@ -182,16 +223,14 @@ method.</p>
 uploading it again to the same cluster), or to migrate a project to a different cluster
 (download it, and upload it to the target cluster).</p>
 <section id="up-downloading-all-projects">
-<h4>Up/Downloading all projects<a class="headerlink" href="#up-downloading-all-projects" title="Permalink to this headline"></a></h4>
+<h4>Up/Downloading all projects<a class="headerlink" href="#up-downloading-all-projects" title="Permalink to this heading"></a></h4>
 <p>To up- or download all projects from a cluster, simply use the
 <code class="docutils literal notranslate"><span class="pre">client.download_all_projects</span></code> and <code class="docutils literal notranslate"><span class="pre">client.upload_all_projects</span></code> methods instead of
 the single project methods in the code snippets above.</p>
 </section>
 </section>
 <section id="deploying-a-project">
-<h3>Deploying a project<a class="headerlink" href="#deploying-a-project" title="Permalink to this headline"></a></h3>
-<p><strong>NOTE</strong>: Before running inference locally, please install the
-required packages for deployment using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements/requirements-deployment.txt</span></code></p>
+<h3>Deploying a project<a class="headerlink" href="#deploying-a-project" title="Permalink to this heading"></a></h3>
 <p>The following code snippet shows how to create a deployment for local inference with
 OpenVINO:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cv2</span>
@@ -221,16 +260,9 @@ OpenVINO:</p>
 ‘dummy_project’, on the local disk. The deployment can be reloaded again later using
 <code class="docutils literal notranslate"><span class="pre">Deployment.from_folder('dummy_project')</span></code>.</p>
 </section>
-<section id="examples">
-<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline"></a></h3>
-<p>The <a class="reference external" href="/examples/README.md">examples</a> folder contains example scripts, showing various
-usecases for the package.</p>
-<p>In addition, the <a class="reference external" href="/notebooks/README.md">notebooks</a> folder contains jupyter notebooks
-with more example use cases for the <code class="docutils literal notranslate"><span class="pre">sc-api-tools</span></code> package.</p>
-</section>
 </section>
 <section id="supported-features">
-<h2>Supported features<a class="headerlink" href="#supported-features" title="Permalink to this headline"></a></h2>
+<h2>Supported features<a class="headerlink" href="#supported-features" title="Permalink to this heading"></a></h2>
 <p>What is supported:</p>
 <ul class="simple">
 <li><p><strong>Creating projects</strong>. You can pass a variable <code class="docutils literal notranslate"><span class="pre">project_type</span></code> to control what kind of
@@ -251,48 +283,53 @@ and running the full pipeline inference on a local machine.</p></li>
 <li><p><strong>Creating and restoring a backup of an existing project</strong>, using the code
 snippets provided <span class="xref std std-ref">above</span>. Only
 annotations, media and configurations are backed up, models are not.</p></li>
+<li><p><strong>Launching and monitoring training jobs</strong></p></li>
 </ul>
 <p>What is not supported:</p>
 <ul class="simple">
 <li><p>Model upload</p></li>
 <li><p>Prediction upload</p></li>
+<li><p>Plenty of other things that are supported in SonomaCreek but not included in the SDK
+just yet. These will be added in due time.</p></li>
 </ul>
 </section>
-<section id="api-reference">
-<h2>API reference<a class="headerlink" href="#api-reference" title="Permalink to this headline"></a></h2>
-<p>The high level <code class="docutils literal notranslate"><span class="pre">SCRESTClient</span></code> class provides the following methods:</p>
+<section id="high-level-api-reference">
+<h2>High level API reference<a class="headerlink" href="#high-level-api-reference" title="Permalink to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">SonomaCreek</span></code> class provides the following methods:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">download_project</span></code> – Downloads a project by project name.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">upload_project</span></code> – Upload project from a folder.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">download_all_projects</span></code> – Downloads all projects found on the SC cluster.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">upload_all_projects</span></code> – Uploads all projects found in a specified folder to the SC
-cluster.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">download_all_projects</span></code> – Downloads all projects found on the server.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">upload_all_projects</span></code> – Uploads all projects found in a specified folder to the
+server.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">upload_and_predict_image</span></code> – Uploads a single image to an existing project on the
-SC cluster, and requests a prediction for that image. Optionally, the prediction can
+server, and requests a prediction for that image. Optionally, the prediction can
 be visualized as an overlay on the image.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">upload_and_predict_video</span></code> – Uploads a single video to an existing project on the
-SC cluster, and requests predictions for the frames in the video. As with
+server, and requests predictions for the frames in the video. As with
 upload_and_predict_image, the predictions can be visualized on the frames. The
 parameter <code class="docutils literal notranslate"><span class="pre">frame_stride</span></code> can be used to control which frames are extracted for
 prediction.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">upload_and_predict_media_folder</span></code> – Upload all media (images and videos) from a
-folder on local disk to an existing project on the SC cluster, and download
+folder on local disk to an existing project on the server, and download
 predictions for all uploaded media.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">deploy_project</span></code> – Downloads the active model for all tasks in the project as an
 OpenVINO inference model. The resulting <code class="docutils literal notranslate"><span class="pre">Deployment</span></code> can be used to run inference
 for the project on a local machine. Pipeline inference is also supported.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">create_project_single_task_from_dataset</span></code> – Creates a single task project on the SC
-cluster, potentially using labels and uploading annotations from an external dataset.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">create_task_chain_project_from_dataset</span></code> – Creates a task chain project on the SC
-cluster, potentially using labels and uploading annotations from an external dataset.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_project_single_task_from_dataset</span></code> – Creates a single task project on the
+server, potentially using labels and uploading annotations from an external dataset.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_task_chain_project_from_dataset</span></code> – Creates a task chain project on the
+server, potentially using labels and uploading annotations from an external dataset.</p></li>
 </ul>
 <p>For further details regarding these methods, please refer to the method documentation
 and the <span class="xref std std-ref">code snippets</span> and
 <span class="xref std std-ref">example scripts</span> provided in this repo.</p>
+<p>Please visit the full documentation for a complete API reference.</p>
 </section>
 <section id="using-docker">
-<h2>Using Docker<a class="headerlink" href="#using-docker" title="Permalink to this headline"></a></h2>
-<p>The Dockerfile can be used to run the package without having to install python on your machine.</p>
+<h2>Using Docker<a class="headerlink" href="#using-docker" title="Permalink to this heading"></a></h2>
+<p>The Dockerfile can be used to run the package without having to install python on your
+machine.</p>
 <p>First build the docker image</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>docker build -t sc-api-tools .
 </pre></div>

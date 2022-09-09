@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -84,16 +85,16 @@
            <div itemprop="articleBody">
              
   <section id="sc-sdk-test-suite">
-<h1>SC SDK test suite<a class="headerlink" href="#sc-sdk-test-suite" title="Permalink to this headline"></a></h1>
+<h1>SC SDK test suite<a class="headerlink" href="#sc-sdk-test-suite" title="Permalink to this heading"></a></h1>
 <section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h2>
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
 <p>This directory contains the test suite for the SC REST SDK. To maintain flexibility, we
 mostly make use of integration tests rather than unit tests for all but the core
 elements of the SDK. In addition, we have a suite of nightly tests that are executed
 every night at midnight (Amsterdam time).</p>
 </section>
 <section id="integration-tests">
-<h2>Integration tests<a class="headerlink" href="#integration-tests" title="Permalink to this headline"></a></h2>
+<h2>Integration tests<a class="headerlink" href="#integration-tests" title="Permalink to this heading"></a></h2>
 <p>The integration tests for this package makes use of recording of HTTP requests and responses,
 relying on the VCR.py package. The tests are located in the <code class="docutils literal notranslate"><span class="pre">integration</span></code> directory.
 By default, the tests are run in offline mode, meaning
@@ -102,7 +103,7 @@ testing. All requests are intercepted, and a previously recorded response is ret
 The recorded interactions can be found in <a class="reference external" href="fixtures/cassettes">fixtures/cassettes</a>.</p>
 </section>
 <section id="nightly-tests">
-<h2>Nightly tests<a class="headerlink" href="#nightly-tests" title="Permalink to this headline"></a></h2>
+<h2>Nightly tests<a class="headerlink" href="#nightly-tests" title="Permalink to this heading"></a></h2>
 <p>The nightly tests are located in the <code class="docutils literal notranslate"><span class="pre">nightly</span></code> directory. They can only be ran in
 <code class="docutils literal notranslate"><span class="pre">ONLINE</span></code> mode, meaning that a live SC instance is required to run them against. The
 nightly tests need to be run using a <code class="docutils literal notranslate"><span class="pre">online.ini</span></code> file that contains the host name and
@@ -110,18 +111,18 @@ login details for the SC server to run the tests against (see section
 <span class="xref std std-ref">Running the tests</span> below).</p>
 </section>
 <section id="running-the-tests">
-<h2>Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline"></a></h2>
+<h2>Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this heading"></a></h2>
 <p>First, install the requirements for the test suite using
 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements/requirements-dev.txt</span></code>. Then, run the tests using
 <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">./tests/integration</span></code>, or
 (optionally) enable coverage using <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">--cov=sc_api_tools</span> <span class="pre">./tests/integration</span></code>.</p>
 <section id="test-modes">
-<h3>Test modes<a class="headerlink" href="#test-modes" title="Permalink to this headline"></a></h3>
+<h3>Test modes<a class="headerlink" href="#test-modes" title="Permalink to this heading"></a></h3>
 <p>By default, the integration tests are executed in <code class="docutils literal notranslate"><span class="pre">OFFLINE</span></code> mode. In addition, they
 can be run in <code class="docutils literal notranslate"><span class="pre">ONLINE</span></code> or <code class="docutils literal notranslate"><span class="pre">RECORD</span></code> mode. The simplest way to change modes is to
 define a custom pytest configuration file for each mode, as explained below:</p>
 <section id="online-mode">
-<h4>Online mode<a class="headerlink" href="#online-mode" title="Permalink to this headline"></a></h4>
+<h4>Online mode<a class="headerlink" href="#online-mode" title="Permalink to this heading"></a></h4>
 <p>If you want to run the test suite against a real SC server (for example to make sure
 that the SDK data models are still up to date with the SC REST contracts), the tests
 can be executed in <code class="docutils literal notranslate"><span class="pre">ONLINE</span></code> mode. To do so, define a file <code class="docutils literal notranslate"><span class="pre">online.ini</span></code> in the <code class="docutils literal notranslate"><span class="pre">tests</span></code>
@@ -137,7 +138,7 @@ env =
 </div></blockquote>
 </section>
 <section id="record-mode">
-<h4>Record mode<a class="headerlink" href="#record-mode" title="Permalink to this headline"></a></h4>
+<h4>Record mode<a class="headerlink" href="#record-mode" title="Permalink to this heading"></a></h4>
 <p>If you have added a new test that makes http requests, all cassettes should be deleted
 and re-recorded to maintain consistency across the recorded responses. This can be done
 by running the tests in <code class="docutils literal notranslate"><span class="pre">RECORD</span></code> mode. The easiest way to do this is to create a file
@@ -149,7 +150,7 @@ time required for test execution considerably</p>
 </div></blockquote>
 </section>
 <section id="running-the-tests-in-a-non-default-mode">
-<h4>Running the tests in a non-default mode<a class="headerlink" href="#running-the-tests-in-a-non-default-mode" title="Permalink to this headline"></a></h4>
+<h4>Running the tests in a non-default mode<a class="headerlink" href="#running-the-tests-in-a-non-default-mode" title="Permalink to this heading"></a></h4>
 <p>Once you created the custom <code class="docutils literal notranslate"><span class="pre">online.ini</span></code> or <code class="docutils literal notranslate"><span class="pre">record.ini</span></code> configurations, you can run
 the tests using <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">-c</span> <span class="pre">online.ini</span> <span class="pre">./integration</span></code>. This will execute the tests in
 online mode.</p>

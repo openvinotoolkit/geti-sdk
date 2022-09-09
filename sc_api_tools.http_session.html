@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -84,35 +85,36 @@
            <div itemprop="articleBody">
              
   <section id="module-sc_api_tools.http_session">
-<span id="sc-api-tools-http-session"></span><h1>sc_api_tools.http_session<a class="headerlink" href="#module-sc_api_tools.http_session" title="Permalink to this headline"></a></h1>
+<span id="sc-api-tools-http-session"></span><h1>sc_api_tools.http_session<a class="headerlink" href="#module-sc_api_tools.http_session" title="Permalink to this heading"></a></h1>
 <section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h2>
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
 <p>The <cite>http_session</cite> package acts as a wrapper around <cite>requests.Session</cite> and handles all
 http requests to the SC cluster.</p>
 <p>Normally it is not necessary to interact with the classes in this package directly, as
 they are instantiated through the main <code class="xref py py-class docutils literal notranslate"><span class="pre">sc_api_tools.SCRESTClient</span></code> class.</p>
 <p>However, an SCSession can be established directly using the following code snippet:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sc_api_tools.http_session</span> <span class="kn">import</span> <span class="n">ClusterConfig</span><span class="p">,</span> <span class="n">SCSession</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sc_api_tools.http_session</span> <span class="kn">import</span> <span class="n">ServerCredentialConfig</span><span class="p">,</span> <span class="n">SCSession</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">ClusterConfig</span><span class="p">(</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">ServerCredentialConfig</span><span class="p">(</span>
   <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://0.0.0.0&quot;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;dummy_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;dummy_password&quot;</span>
 <span class="p">)</span>
-<span class="n">session</span> <span class="o">=</span> <span class="n">SCSession</span><span class="p">(</span><span class="n">cluster_config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+<span class="n">session</span> <span class="o">=</span> <span class="n">SCSession</span><span class="p">(</span><span class="n">server_config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Initializing the session will perform authentication on the SC cluster.</p>
+<p>Initializing the session will perform authentication on the SC server.</p>
 </section>
 <section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline"></a></h2>
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="sc_api_tools.http_session.sc_session.SCSession">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.http_session.sc_session.</span></span><span class="sig-name descname"><span class="pre">SCSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sc_api_tools.http_session.cluster_config.ClusterConfig" title="sc_api_tools.http_session.cluster_config.ClusterConfig"><span class="pre">sc_api_tools.http_session.cluster_config.ClusterConfig</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.http_session.sc_session.SCSession" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">requests.sessions.Session</span></code></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.http_session.sc_session.</span></span><span class="sig-name descname"><span class="pre">SCSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#sc_api_tools.http_session.server_config.ServerTokenConfig" title="sc_api_tools.http_session.server_config.ServerTokenConfig"><span class="pre">ServerTokenConfig</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#sc_api_tools.http_session.server_config.ServerCredentialConfig" title="sc_api_tools.http_session.server_config.ServerCredentialConfig"><span class="pre">ServerCredentialConfig</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.http_session.sc_session.SCSession" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></p>
 <p>Wrapper for requests.session that sets the correct headers and cookies.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>cluster_config</strong> – ClusterConfig with the parameters for host, username,
-password</p>
+<dd class="field-odd"><p><strong>server_config</strong> – Server configuration holding the hostname of the SC server,
+as well as the details required for authentication (either username and
+password or personal access token)</p>
 </dd>
 </dl>
 <dl class="py property">
@@ -139,7 +141,7 @@ password</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.http_session.sc_session.SCSession.get_rest_response">
-<span class="sig-name descname"><span class="pre">get_rest_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contenttype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">requests.models.Response</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.http_session.sc_session.SCSession.get_rest_response" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_rest_response</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contenttype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Response</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#sc_api_tools.http_session.sc_session.SCSession.get_rest_response" title="Permalink to this definition"></a></dt>
 <dd><p>Return the REST response from a request to <cite>url</cite> with <cite>method</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -156,82 +158,61 @@ defaults to “json”</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sc_api_tools.http_session.sc_session.SCSession.logout">
-<span class="sig-name descname"><span class="pre">logout</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.http_session.sc_session.SCSession.logout" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">logout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sc_api_tools.http_session.sc_session.SCSession.logout" title="Permalink to this definition"></a></dt>
 <dd><p>Log out of the server and end the session. All HTTPAdapters are closed and
 cookies and headers are cleared.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>verbose</strong> – False to suppress output messages</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="sc_api_tools.http_session.cluster_config.ClusterConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.http_session.cluster_config.</span></span><span class="sig-name descname"><span class="pre">ClusterConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_valid_certificate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.http_session.cluster_config.ClusterConfig" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Configuration for requests sessions, with host, username and password.</p>
+<dt class="sig sig-object py" id="sc_api_tools.http_session.server_config.ServerTokenConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.http_session.server_config.</span></span><span class="sig-name descname"><span class="pre">ServerTokenConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_valid_certificate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.http_session.server_config.ServerTokenConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ServerConfig</span></code></p>
+<p>Configuration for an SC server that uses a personal access token (API key) for
+authentication.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><p><strong>token</strong> – Personal access token that can be used to connect to the server.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sc_api_tools.http_session.server_config.ServerTokenConfig.token">
+<span class="sig-name descname"><span class="pre">token</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sc_api_tools.http_session.server_config.ServerTokenConfig.token" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sc_api_tools.http_session.server_config.ServerCredentialConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sc_api_tools.http_session.server_config.</span></span><span class="sig-name descname"><span class="pre">ServerCredentialConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_valid_certificate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sc_api_tools.http_session.server_config.ServerCredentialConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ServerConfig</span></code></p>
+<p>Configuration for an SC server that requires authentication via username and
+password.</p>
+<p>NOTE: This is a legacy authentication method. Recent server versions should
+authenticate via a personal access token (API key)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>host</strong> – full hostname or ip address of the SC instance.
-Note: this should include the protocol (i.e. <a class="reference external" href="https://your_sc_hostname.com">https://your_sc_hostname.com</a>)</p></li>
 <li><p><strong>username</strong> – Username to log in to the instance.</p></li>
 <li><p><strong>password</strong> – Password required to log in to the instance</p></li>
-<li><p><strong>has_valid_certificate</strong> – Set to True if the server has a valid SSL certificate
-that should be validated and used to establish an encrypted HTTPS connection</p></li>
-<li><p><strong>proxies</strong> – <p>Optional dictionary containing proxy information, if this is
-required to connect to the SC server. For example:</p>
-<dl class="simple">
-<dt>proxies = {</dt><dd><p>‘http’: <a class="reference external" href="http://proxy-server.com">http://proxy-server.com</a>:&lt;http_port_number&gt;,
-‘https’: <a class="reference external" href="http://proxy-server.com">http://proxy-server.com</a>:&lt;https_port_number&gt;</p>
-</dd>
-</dl>
-<p>},</p>
-<p>if set to None (the default), no proxy settings will be used.</p>
-</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sc_api_tools.http_session.cluster_config.ClusterConfig.host">
-<span class="sig-name descname"><span class="pre">host</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sc_api_tools.http_session.cluster_config.ClusterConfig.host" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="sc_api_tools.http_session.server_config.ServerCredentialConfig.username">
+<span class="sig-name descname"><span class="pre">username</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sc_api_tools.http_session.server_config.ServerCredentialConfig.username" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="sc_api_tools.http_session.cluster_config.ClusterConfig.username">
-<span class="sig-name descname"><span class="pre">username</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sc_api_tools.http_session.cluster_config.ClusterConfig.username" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="sc_api_tools.http_session.server_config.ServerCredentialConfig.password">
+<span class="sig-name descname"><span class="pre">password</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sc_api_tools.http_session.server_config.ServerCredentialConfig.password" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sc_api_tools.http_session.cluster_config.ClusterConfig.password">
-<span class="sig-name descname"><span class="pre">password</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sc_api_tools.http_session.cluster_config.ClusterConfig.password" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sc_api_tools.http_session.cluster_config.ClusterConfig.has_valid_certificate">
-<span class="sig-name descname"><span class="pre">has_valid_certificate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#sc_api_tools.http_session.cluster_config.ClusterConfig.has_valid_certificate" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="sc_api_tools.http_session.cluster_config.ClusterConfig.proxies">
-<span class="sig-name descname"><span class="pre">proxies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#sc_api_tools.http_session.cluster_config.ClusterConfig.proxies" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="sc_api_tools.http_session.cluster_config.ClusterConfig.base_url">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">base_url</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sc_api_tools.http_session.cluster_config.ClusterConfig.base_url" title="Permalink to this definition"></a></dt>
-<dd><p>Return the base UR for accessing the cluster.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="sc_api_tools.http_session.cluster_config.ClusterConfig.api_version">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">api_version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sc_api_tools.http_session.cluster_config.ClusterConfig.api_version" title="Permalink to this definition"></a></dt>
-<dd><p>Return the api version string to be used in the URL for making REST requests.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="sc_api_tools.http_session.cluster_config.ClusterConfig.api_pattern">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">api_pattern</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#sc_api_tools.http_session.cluster_config.ClusterConfig.api_pattern" title="Permalink to this definition"></a></dt>
-<dd><p>Return the API pattern used in the URL</p>
-</dd></dl>
 
 </dd></dl>
 
