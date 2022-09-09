@@ -46,6 +46,7 @@ jobs:
 
       - name: Publish SDK package to sclab pypi
         run: |
+          export no_proxy=pypi.sclab.intel.com
           twine upload --repository-url http://pypi.sclab.intel.com:8000 dist/* -u $SCLAB_PYPI_USER -p $SCLAB_PYPI_PASSWORD
 
       - name: Clean up dist directory if it was created
