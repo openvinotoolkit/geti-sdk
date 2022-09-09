@@ -3,7 +3,7 @@ import os
 import cv2
 import numpy as np
 from dotenv import dotenv_values
-from utils import ensure_example_project
+from utils import DATA_PATH, ensure_example_project
 
 from sc_api_tools import SCRESTClient
 
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     PROJECT_NAME = "COCO dog detection"
 
     # `PATH_TO_IMAGE` is the path to the image that should be uploaded
-    PATH_TO_IMAGE = os.path.join("..", "notebooks", "data", "dogs.png")
+    PATH_TO_IMAGE = os.path.join(DATA_PATH, "dogs.png")
 
     # `DELETE_AFTER_PREDICTION` can be set to True to delete the media from the
     # project once all predictions are downloaded. This can be useful to save disk

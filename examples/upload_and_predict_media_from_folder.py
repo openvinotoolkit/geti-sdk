@@ -1,7 +1,5 @@
-import os
-
 from dotenv import dotenv_values
-from utils import ensure_example_project
+from utils import DATA_PATH, ensure_example_project
 
 from sc_api_tools import SCRESTClient
 
@@ -12,7 +10,7 @@ if __name__ == "__main__":
     if not env_variables:
         raise ValueError(
             "Unable to load login details from .env file, please make sure the file "
-            "exists at the root of the `examples` directory."
+            "exists inside your current working directory."
         )
 
     # --------------------------------------------------
@@ -27,7 +25,7 @@ if __name__ == "__main__":
 
     # `FOLDER_WITH_MEDIA` is the path to the directory with images and videos that
     # should be uploaded to the SC cluster
-    FOLDER_WITH_MEDIA = os.path.join("..", "notebooks", "data")
+    FOLDER_WITH_MEDIA = DATA_PATH
 
     # `PROJECT_NAME` is the name of the project to which the media should be uploaded,
     # and from which predictions can be requested. A project with this name should
