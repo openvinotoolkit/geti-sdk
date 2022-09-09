@@ -1,20 +1,32 @@
 ## Introduction
-This package contains tools to interact with a Sonoma Creek cluster via
-the SC REST API. It provides functionality for:
-- Project creation from datasets on disk
+Welcome to the SonomaCreek SDK! This python package contains tools to interact with a
+SonomaCreek server via the REST API. It provides functionality for:
+
+- Project creation from annotated datasets on disk
 - Project downloading (images, videos, configuration, annotations, predictions and models)
 - Project creation and upload from a previous download
 - Deploying a project for local inference with OpenVINO
+- Getting and setting project and model configuration
+- Launching and monitoring training jobs
+- Media upload and prediction
+
+This repository also contains a set of (tutorial style) Jupyter notebooks that
+demonstrate how to use the SDK.
 
 ## Installation
 I recommend using an environment manager such as
 [Anaconda](https://www.anaconda.com/products/individual) or
 [venv](https://docs.python.org/3/library/venv.html) to create a new
-Python environment before installing the package and it's requirements. The package
+Python environment before installing the package and it's requirements. The SDK
 requires Python version 3.8, so make sure to use that version in your environment.
 
 Once you have created a new environment, follow these steps to install the package:
 
+### Simple installation
+To install the SonomaCreek SDK from PyPI, simply use `pip install sonoma_creek_sdk`.
+
+### Advanced installation
+To install the package in editable mode, follow these steps:
 1. Download or clone the repository and navigate to the `sc_api_tools` directory.
 
 2. From there, install the requirements using
@@ -25,8 +37,9 @@ Once you have created a new environment, follow these steps to install the packa
 
 4. Then run `pip install .` to install the package.
 
-5. you want to make changes to the package, or want to keep it up to date with the
-latest code changes in the repository.
+5. Alternatively you can install the package in editable mode using `pip install -e .`,
+   this is useful in case you want to make changes to the package, or want to keep it
+   up to date with the latest code changes in the repository.
 
 > **NOTE**: sc-api-tools needs `python==3.8` to run. Python 3.9 will work on Linux
 > systems, but unfortunately not on Windows yet since not all required packages are
