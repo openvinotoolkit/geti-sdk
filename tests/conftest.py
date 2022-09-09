@@ -21,8 +21,8 @@ from typing import Union
 import pytest
 from _pytest.main import Session
 
-from sc_api_tools import SCRESTClient
-from sc_api_tools.http_session import ServerCredentialConfig, ServerTokenConfig
+from geti_sdk import Geti
+from geti_sdk.http_session import ServerCredentialConfig, ServerTokenConfig
 from tests.helpers.project_helpers import remove_all_test_projects
 
 from .helpers import SdkTestMode, get_sdk_fixtures, replace_host_name_in_cassettes
@@ -141,7 +141,7 @@ def pytest_sessionstart(session: Session) -> None:
             auth_params = {"username": USERNAME, "password": PASSWORD}
         else:
             auth_params = {"token": TOKEN}
-        remove_all_test_projects(SCRESTClient(host=HOST, **auth_params))
+        remove_all_test_projects(Geti(host=HOST, **auth_params))
     if TEST_MODE == SdkTestMode.RECORD:
         record_cassette_path = tempfile.mkdtemp()
         logging.info(f"Cassettes will be recorded to `{record_cassette_path}`.")

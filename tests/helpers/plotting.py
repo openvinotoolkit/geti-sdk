@@ -19,8 +19,8 @@ from typing import Union
 import cv2
 import numpy as np
 
-from sc_api_tools.data_models import Image, Prediction
-from sc_api_tools.utils import show_image_with_annotation_scene
+from geti_sdk.data_models import Image, Prediction
+from geti_sdk.utils import show_image_with_annotation_scene
 
 
 def add_text_to_top_of_image(image: np.ndarray, text: str) -> np.ndarray:

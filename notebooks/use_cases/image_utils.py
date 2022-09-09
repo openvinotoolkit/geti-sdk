@@ -5,7 +5,7 @@ import numpy as np
 from IPython.display import display
 from PIL import Image as PILImage
 
-from sc_api_tools.data_models import Image
+from geti_sdk.data_models import Image
 
 
 def simulate_low_light_image(

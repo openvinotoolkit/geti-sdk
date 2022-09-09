@@ -1,14 +1,14 @@
 import logging
 from typing import Optional
 
-from sc_api_tools import SCRESTClient
-from sc_api_tools.annotation_readers import DatumAnnotationReader
-from sc_api_tools.data_models import Project
-from sc_api_tools.utils import get_coco_dataset, get_task_types_by_project_type
+from geti_sdk import Geti
+from geti_sdk.annotation_readers import DatumAnnotationReader
+from geti_sdk.data_models import Project
+from geti_sdk.utils import get_coco_dataset, get_task_types_by_project_type
 
 
 def create_segmentation_demo_project(
-    client: SCRESTClient,
+    geti: Geti,
     n_images: int,
     n_annotations: int = -1,
     auto_train: bool = False,
@@ -20,7 +20,7 @@ def create_segmentation_demo_project(
     This method creates a project with a single 'Segmentation' task, with segmentation
     mask for labels: 'backpack' and 'suitcase'.
 
-    :param client: SCRESTClient, representing the client for the SC cluster on which
+    :param geti: Geti instance, representing the GETi server on which
         the project should be created.
     :param n_images: Number of images that should be uploaded. Pass -1 to upload all
         available images in the dataset for the given labels
@@ -30,7 +30,7 @@ def create_segmentation_demo_project(
         created and the images have been annotated, False to leave auto-training
         turned off.
     :param dataset_path: Path to the COCO dataset to use as data source. Defaults to
-        the 'data' directory in the top level folder of the sc_api_tools package. If
+        the 'data' directory in the top level folder of the geti_sdk package. If
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
     :return: Project object, holding detailed information about the project that was
@@ -49,7 +49,7 @@ def create_segmentation_demo_project(
     )
     annotation_reader.filter_dataset(labels=labels_of_interest, criterion="OR")
     # Create project and upload data
-    return client.create_single_task_project_from_dataset(
+    return geti.create_single_task_project_from_dataset(
         project_name=project_name,
         project_type=project_type,
         path_to_images=coco_path,
@@ -62,7 +62,7 @@ def create_segmentation_demo_project(
 
 
 def create_detection_demo_project(
-    client: SCRESTClient,
+    geti: Geti,
     n_images: int,
     n_annotations: int = -1,
     auto_train: bool = False,
@@ -74,7 +74,7 @@ def create_detection_demo_project(
     This method creates a project with a single 'Detection' task, with labels and
     annotations for 'cell phone' and 'person' objects
 
-    :param client: SCRESTClient, representing the client for the SC cluster on which
+    :param geti: Geti instance, representing the GETi server on which
         the project should be created.
     :param n_images: Number of images that should be uploaded. Pass -1 to upload all
         available images in the dataset for the given labels
@@ -84,7 +84,7 @@ def create_detection_demo_project(
         created and the images have been annotated, False to leave auto-training
         turned off.
     :param dataset_path: Path to the COCO dataset to use as data source. Defaults to
-        the 'data' directory in the top level folder of the sc_api_tools package. If
+        the 'data' directory in the top level folder of the geti_sdk package. If
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
     :return: Project object, holding detailed information about the project that was
@@ -103,7 +103,7 @@ def create_detection_demo_project(
     )
     annotation_reader.filter_dataset(labels=labels_of_interest, criterion="AND")
     # Create project and upload data
-    return client.create_single_task_project_from_dataset(
+    return geti.create_single_task_project_from_dataset(
         project_name=project_name,
         project_type=project_type,
         path_to_images=coco_path,
@@ -116,7 +116,7 @@ def create_detection_demo_project(
 
 
 def create_classification_demo_project(
-    client: SCRESTClient,
+    geti: Geti,
     n_images: int,
     n_annotations: int = -1,
     auto_train: bool = False,
@@ -129,7 +129,7 @@ def create_classification_demo_project(
     classify images with different types of animals. The following animals are
     considered: "horse", "cat", "zebra", "bear"
 
-    :param client: SCRESTClient, representing the client for the SC cluster on which
+    :param geti: Geti instance, representing the GETi server on which
         the project should be created.
     :param n_images: Number of images that should be uploaded. Pass -1 to upload all
         available images in the dataset for the given labels
@@ -139,7 +139,7 @@ def create_classification_demo_project(
         created and the images have been annotated, False to leave auto-training
         turned off.
     :param dataset_path: Path to the COCO dataset to use as data source. Defaults to
-        the 'data' directory in the top level folder of the sc_api_tools package. If
+        the 'data' directory in the top level folder of the geti_sdk package. If
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
     :return: Project object, holding detailed information about the project that was
@@ -158,7 +158,7 @@ def create_classification_demo_project(
     )
     annotation_reader.filter_dataset(labels=labels_of_interest, criterion="XOR")
     # Create project and upload data
-    return client.create_single_task_project_from_dataset(
+    return geti.create_single_task_project_from_dataset(
         project_name=project_name,
         project_type=project_type,
         path_to_images=coco_path,
@@ -171,7 +171,7 @@ def create_classification_demo_project(
 
 
 def create_anomaly_classification_demo_project(
-    client: SCRESTClient,
+    geti: Geti,
     n_images: int,
     n_annotations: int = -1,
     auto_train: bool = False,
@@ -185,7 +185,7 @@ def create_anomaly_classification_demo_project(
     with animals in them are considered 'Normal', whereas images with traffic lights or
     stop signs in them are considered 'Anomalous'
 
-    :param client: SCRESTClient, representing the client for the SC cluster on which
+    :param geti: Geti instance, representing the GETi server on which
         the project should be created.
     :param n_images: Number of images that should be uploaded. Pass -1 to upload all
         available images in the dataset for the given labels
@@ -195,7 +195,7 @@ def create_anomaly_classification_demo_project(
         created and the images have been annotated, False to leave auto-training
         turned off.
     :param dataset_path: Path to the COCO dataset to use as data source. Defaults to
-        the 'data' directory in the top level folder of the sc_api_tools package. If
+        the 'data' directory in the top level folder of the geti_sdk package. If
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
     :return: Project object, holding detailed information about the project that was
@@ -229,7 +229,7 @@ def create_anomaly_classification_demo_project(
     )
 
     # Create project and upload data
-    return client.create_single_task_project_from_dataset(
+    return geti.create_single_task_project_from_dataset(
         project_name=project_name,
         project_type=project_type,
         path_to_images=coco_path,
@@ -242,7 +242,7 @@ def create_anomaly_classification_demo_project(
 
 
 def create_detection_to_segmentation_demo_project(
-    client: SCRESTClient,
+    geti: Geti,
     n_images: int,
     n_annotations: int = -1,
     auto_train: bool = False,
@@ -258,7 +258,7 @@ def create_detection_to_segmentation_demo_project(
         "dog", "cat", "horse", "elephant", "cow", "sheep", "giraffe", "zebra", "bear"
 
 
-    :param client: SCRESTClient, representing the client for the SC cluster on which
+    :param geti: Geti instance, representing the GETi server on which
         the project should be created.
     :param n_images: Number of images that should be uploaded. Pass -1 to upload all
         available images in the dataset for the given labels
@@ -268,7 +268,7 @@ def create_detection_to_segmentation_demo_project(
         created and the images have been annotated, False to leave auto-training
         turned off.
     :param dataset_path: Path to the COCO dataset to use as data source. Defaults to
-        the 'data' directory in the top level folder of the sc_api_tools package. If
+        the 'data' directory in the top level folder of the geti_sdk package. If
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
     :return: Project object, holding detailed information about the project that was
@@ -297,7 +297,7 @@ def create_detection_to_segmentation_demo_project(
     )
 
     # Create project and upload data
-    return client.create_task_chain_project_from_dataset(
+    return geti.create_task_chain_project_from_dataset(
         project_name=project_name,
         project_type=project_type,
         path_to_images=coco_path,
@@ -309,7 +309,7 @@ def create_detection_to_segmentation_demo_project(
 
 
 def create_detection_to_classification_demo_project(
-    client: SCRESTClient,
+    geti: Geti,
     n_images: int,
     n_annotations: int = -1,
     auto_train: bool = False,
@@ -323,7 +323,7 @@ def create_detection_to_classification_demo_project(
     'Classification' task. The detection task has the label 'animal', and the
     classification task discriminates between 'domestic' and 'wild' animals.
 
-    :param client: SCRESTClient, representing the client for the SC cluster on which
+    :param geti: Geti instance, representing the GETi server on which
         the project should be created.
     :param n_images: Number of images that should be uploaded. Pass -1 to upload all
         available images in the dataset for the given labels
@@ -333,7 +333,7 @@ def create_detection_to_classification_demo_project(
         created and the images have been annotated, False to leave auto-training
         turned off.
     :param dataset_path: Path to the COCO dataset to use as data source. Defaults to
-        the 'data' directory in the top level folder of the sc_api_tools package. If
+        the 'data' directory in the top level folder of the geti_sdk package. If
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
     :return: Project object, holding detailed information about the project that was
@@ -371,7 +371,7 @@ def create_detection_to_classification_demo_project(
         labels_to_group=wild_labels, group_name="wild"
     )
     # Create project and upload data
-    return client.create_task_chain_project_from_dataset(
+    return geti.create_task_chain_project_from_dataset(
         project_name=project_name,
         project_type=project_type,
         path_to_images=coco_path,

@@ -16,9 +16,9 @@ from typing import Dict, List
 
 import pytest
 
-from sc_api_tools import SCRESTClient
-from sc_api_tools.data_models import Project, TaskType
-from sc_api_tools.rest_clients import ProjectClient
+from geti_sdk import Geti
+from geti_sdk.data_models import Project, TaskType
+from geti_sdk.rest_clients import ProjectClient
 from tests.helpers.constants import PROJECT_PREFIX
 from tests.helpers.project_service import ProjectService
 
@@ -69,7 +69,7 @@ class TestProjectClient:
         fxt_project_service.reset_state()
 
     @pytest.mark.vcr()
-    def test_get_all_projects(self, fxt_client: SCRESTClient):
+    def test_get_all_projects(self, fxt_geti: Geti):
         """
         Verifies that getting a list of all projects in the workspace works as expected
 
@@ -80,7 +80,7 @@ class TestProjectClient:
             instance
         """
         project_client = ProjectClient(
-            session=fxt_client.session, workspace_id=fxt_client.workspace_id
+            session=fxt_geti.session, workspace_id=fxt_geti.workspace_id
         )
         projects = project_client.get_all_projects()
         for project in projects:

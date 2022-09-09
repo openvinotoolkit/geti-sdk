@@ -1,27 +1,25 @@
-from sc_api_tools import SCRESTClient
-from sc_api_tools.annotation_readers import DatumAnnotationReader
-from sc_api_tools.data_models import Project
-from sc_api_tools.data_models.enums import JobState
-from sc_api_tools.rest_clients import PredictionClient, ProjectClient, TrainingClient
-from sc_api_tools.utils import get_coco_dataset
+from geti_sdk import Geti
+from geti_sdk.annotation_readers import DatumAnnotationReader
+from geti_sdk.data_models import Project
+from geti_sdk.data_models.enums import JobState
+from geti_sdk.rest_clients import PredictionClient, ProjectClient, TrainingClient
+from geti_sdk.utils import get_coco_dataset
 
 DEMO_LABELS = ["dog"]
 DEMO_PROJECT_TYPE = "detection"
 DEMO_PROJECT_NAME = "COCO dog detection"
 
 
-def ensure_example_project(client: SCRESTClient, project_name: str) -> Project:
+def ensure_example_project(geti: Geti, project_name: str) -> Project:
     """
-    Ensure that the project specified by `project_name` exists on the SonomaCreek
-    instance addressed by `client`.
+    Ensure that the project specified by `project_name` exists on the GETi
+    instance addressed by `geti`.
 
-    :param client: SCRESTClient pointing to the SonomaCreek instance
+    :param geti: Geti instance pointing to the GETi server
     :param project_name: Name of the project
-    :return: Project object, representing the project in SonomaCreek
+    :return: Project object, representing the project in GETi
     """
-    project_client = ProjectClient(
-        session=client.session, workspace_id=client.workspace_id
-    )
+    project_client = ProjectClient(session=geti.session, workspace_id=geti.workspace_id)
     project = project_client.get_project_by_name(project_name=project_name)
 
     if project is None:
@@ -46,7 +44,7 @@ def ensure_example_project(client: SCRESTClient, project_name: str) -> Project:
             )
             annotation_reader.filter_dataset(labels=DEMO_LABELS, criterion="OR")
             # Create project and upload data
-            project = client.create_single_task_project_from_dataset(
+            project = geti.create_single_task_project_from_dataset(
                 project_name=project_name,
                 project_type=DEMO_PROJECT_TYPE,
                 path_to_images=coco_path,
@@ -59,23 +57,23 @@ def ensure_example_project(client: SCRESTClient, project_name: str) -> Project:
         else:
             raise ValueError(
                 f"The project named `{project_name}` does not exist on the server at "
-                f"`{client.session.config.host}`. Please either create it first, or "
+                f"`{geti.session.config.host}`. Please either create it first, or "
                 f"specify an existing project."
             )
 
-    ensure_project_is_trained(client, project)
+    ensure_project_is_trained(geti, project)
     return project
 
 
-def ensure_project_is_trained(client: SCRESTClient, project: Project):
+def ensure_project_is_trained(geti: Geti, project: Project):
     """
     Ensure that the `project` has a trained model for each task.
 
-    :param client: SCRESTClient pointing to the SonomaCreek instance
-    :param project: Project object, representing the project in SonomaCreek
+    :param geti: Geti instance pointing to the GETi server
+    :param project: Project object, representing the project in GETi
     """
     prediction_client = PredictionClient(
-        session=client.session, workspace_id=client.workspace_id, project=project
+        session=geti.session, workspace_id=geti.workspace_id, project=project
     )
     if prediction_client.ready_to_predict:
         print(f"\nProject '{project.name}' is ready to predict.\n")
@@ -86,7 +84,7 @@ def ensure_project_is_trained(client: SCRESTClient, project: Project):
         f"training completion.\n"
     )
     training_client = TrainingClient(
-        session=client.session, workspace_id=client.workspace_id, project=project
+        session=geti.session, workspace_id=geti.workspace_id, project=project
     )
     # If there are no jobs running for the project, we launch them
     jobs = training_client.get_jobs(project_only=True)

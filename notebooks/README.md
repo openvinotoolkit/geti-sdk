@@ -1,12 +1,12 @@
-# Notebooks for sc-api-tools
+# Notebooks for the GETi SDK
 ## Getting started
 To get started with the example notebooks provided in this folder, please make sure
-that you have installed the `sc-api-tools` package. The steps to install the package
+that you have installed the `geti-sdk` package. The steps to install the package
 can be found in the [main readme](../README.md) in this repository. Once the package
 is installed, you can follow the steps below to set up the notebooks.
 1. Navigate to this folder in a terminal
 
-2. Activate the python environment in which you installed the sc-api-tools package
+2. Activate the python environment in which you installed the geti-sdk package
 
 3. Run `pip install -r ../requirements/requirements-notebooks.txt` to install the packages required to
    run the notebooks
@@ -22,12 +22,12 @@ is installed, you can follow the steps below to set up the notebooks.
 6. The notebooks should show up in the side menu of the jupyter web interface.
 
 > ### Credentials management
-> The notebooks rely on a `.env` file to load the login details for the SonomaCreek
+> The notebooks rely on a `.env` file to load the login details for the GETi
 > instance which they run against. To provide the credentials for your SC instance,
 > create a file named `.env` directly in the `notebooks` directory. The file should have
 > the following contents:
 > ```shell
-> # SonomaCreek instance details
+> # GETi instance details
 > HOST=
 > USERNAME=
 > PASSWORD=
@@ -74,7 +74,7 @@ The following notebooks are currently provided:
 
 
 - [009 download_and_upload_project](009_download_and_upload_project.ipynb) -- This
-notebook shows how to download a project to local disk, including all media,
+  notebook shows how to download a project to local disk, including all media,
   annotations as well as the project configuration. The notebook also demonstrates how
   to re-create the project from a previously downloaded project, and upload all
   downloaded data to the newly created project.

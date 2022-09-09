@@ -88,7 +88,7 @@ jobs:
           eval "$(conda shell.bash hook)"
           conda activate $CONDA_ENV
 
-          pytest tests/nightly --cov=sc_api_tools --html=$REPORT_DIRECTORY/nightly_test_report.html --self-contained-html
+          pytest tests/nightly --cov=geti_sdk --html=$REPORT_DIRECTORY/nightly_test_report.html --self-contained-html
 
       - name: Upload artifacts for nightly tests
         # Publish the test artifacts in the $ARTIFACT_DIRECTORY to github
@@ -109,7 +109,7 @@ jobs:
           eval "$(conda shell.bash hook)"
           conda activate $CONDA_ENV
 
-          pytest tests/integration --cov=sc_api_tools --html=$REPORT_DIRECTORY/integration_test_report.html --self-contained-html
+          pytest tests/integration --cov=geti_sdk --html=$REPORT_DIRECTORY/integration_test_report.html --self-contained-html
 
       - name: Upload test reports
         # Publish the test reports to github

@@ -14,7 +14,7 @@
 import logging
 import time
 
-from sc_api_tools.rest_clients import ProjectClient, TrainingClient
+from geti_sdk.rest_clients import ProjectClient, TrainingClient
 
 
 def force_delete_project(project_name: str, project_client: ProjectClient) -> None:

@@ -7,7 +7,7 @@ SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build
-PYTHONDIR     = ../sc_api_tools
+PYTHONDIR     = ../geti_sdk
 
 # Put it first so that "make" without argument is like "make help".
 help:

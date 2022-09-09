@@ -13,35 +13,36 @@
 # and limitations under the License.
 import pytest
 
-from sc_api_tools.http_session import SCSession
-from sc_api_tools.http_session.sc_session import INITIAL_HEADERS
+from geti_sdk.http_session import GetiSession
+from geti_sdk.http_session.geti_session import INITIAL_HEADERS
 
 
 class TestSCSession:
-    def test_authenticate(self, fxt_sc_session: SCSession):
+    def test_authenticate(self, fxt_geti_session: GetiSession):
         """
-        Test that the authenticated SCSession instance contains authentication cookies
+        Test that the authenticated GetiSession instance contains authentication cookies
         """
-        fxt_sc_session.authenticate(verbose=False)
+        fxt_geti_session.authenticate(verbose=False)
 
-    def test_product_version(self, fxt_sc_session: SCSession):
+    def test_product_version(self, fxt_geti_session: GetiSession):
         """
         Test that the 'version' attribute of the session is assigned a valid product
         version
         """
         possible_versions = ["1.0", "1.1", "1.2"]
         version_matches = [
-            fxt_sc_session.version.startswith(version) for version in possible_versions
+            fxt_geti_session.version.startswith(version)
+            for version in possible_versions
         ]
         assert sum(version_matches) == 1
 
     @pytest.mark.vcr()
-    def test_logout(self, fxt_sc_session: SCSession):
+    def test_logout(self, fxt_geti_session: GetiSession):
         """
         Test that logging out of the platform works, and clears all cookies and headers
         """
-        fxt_sc_session.logout()
-        assert len(fxt_sc_session.cookies) == 0
-        assert len(fxt_sc_session.headers) == len(INITIAL_HEADERS)
-        for key, value in fxt_sc_session._cookies.items():
+        fxt_geti_session.logout()
+        assert len(fxt_geti_session.cookies) == 0
+        assert len(fxt_geti_session.headers) == len(INITIAL_HEADERS)
+        for key, value in fxt_geti_session._cookies.items():
             assert value is None

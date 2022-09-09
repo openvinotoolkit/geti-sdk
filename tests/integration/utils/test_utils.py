@@ -14,13 +14,13 @@
 
 import pytest
 
-from sc_api_tools.data_models import Algorithm, TaskType
-from sc_api_tools.utils import get_supported_algorithms
+from geti_sdk.data_models import Algorithm, TaskType
+from geti_sdk.utils import get_supported_algorithms
 
 
 class TestUtils:
     @pytest.mark.vcr()
-    def test_get_supported_algorithms(self, fxt_sc_session):
+    def test_get_supported_algorithms(self, fxt_geti_session):
         """
         Verifies that getting the list of supported algorithms from the server works
         as expected
@@ -35,7 +35,7 @@ class TestUtils:
         5. Assert that the list of classification algorithms is not empty and that
             each algorithm in it has the proper task type
         """
-        algorithms = get_supported_algorithms(fxt_sc_session)
+        algorithms = get_supported_algorithms(fxt_geti_session)
 
         assert len(algorithms) > 0
         for algorithm in algorithms:

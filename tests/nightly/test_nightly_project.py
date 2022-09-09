@@ -19,11 +19,11 @@ from typing import ClassVar, List
 import cv2
 import numpy as np
 
-from sc_api_tools import SCRESTClient
-from sc_api_tools.annotation_readers import DatumAnnotationReader
-from sc_api_tools.data_models import Job, Prediction
-from sc_api_tools.data_models.enums import JobState
-from sc_api_tools.http_session import SCRequestException
+from geti_sdk import Geti
+from geti_sdk.annotation_readers import DatumAnnotationReader
+from geti_sdk.data_models import Job, Prediction
+from geti_sdk.data_models.enums import JobState
+from geti_sdk.http_session import GetiRequestException
 from tests.helpers import (
     ProjectService,
     get_or_create_annotated_project_for_test_class,
@@ -97,7 +97,7 @@ class TestNightlyProject:
         self,
         fxt_project_service_no_vcr: ProjectService,
         fxt_image_path: str,
-        fxt_client_no_vcr: SCRESTClient,
+        fxt_geti_no_vcr: Geti,
     ):
         """
         Tests uploading and predicting an image to the project. Waits for the
@@ -108,13 +108,13 @@ class TestNightlyProject:
 
         for j in range(n_attempts):
             try:
-                image, prediction = fxt_client_no_vcr.upload_and_predict_image(
+                image, prediction = fxt_geti_no_vcr.upload_and_predict_image(
                     project_name=project.name,
                     image=fxt_image_path,
                     visualise_output=False,
                     delete_after_prediction=False,
                 )
-            except SCRequestException as error:
+            except GetiRequestException as error:
                 prediction = None
                 time.sleep(20)
                 logging.info(error)
@@ -125,7 +125,7 @@ class TestNightlyProject:
     def test_deployment(
         self,
         fxt_project_service_no_vcr: ProjectService,
-        fxt_client_no_vcr: SCRESTClient,
+        fxt_geti_no_vcr: Geti,
         fxt_temp_directory: str,
         fxt_image_path: str,
         fxt_image_path_complex: str,
@@ -138,7 +138,7 @@ class TestNightlyProject:
         project = fxt_project_service_no_vcr.project
 
         deployment_folder = os.path.join(fxt_temp_directory, project.name)
-        deployment = fxt_client_no_vcr.deploy_project(
+        deployment = fxt_geti_no_vcr.deploy_project(
             project.name, output_folder=deployment_folder
         )
 
@@ -153,7 +153,7 @@ class TestNightlyProject:
 
             local_prediction = deployment.infer(image_np)
             assert isinstance(local_prediction, Prediction)
-            image, online_prediction = fxt_client_no_vcr.upload_and_predict_image(
+            image, online_prediction = fxt_geti_no_vcr.upload_and_predict_image(
                 project.name,
                 image=image_bgr,
                 delete_after_prediction=True,

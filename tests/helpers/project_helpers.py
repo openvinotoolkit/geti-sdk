@@ -14,9 +14,9 @@
 import logging
 from typing import List, Sequence
 
-from sc_api_tools import SCRESTClient
-from sc_api_tools.annotation_readers import AnnotationReader
-from sc_api_tools.rest_clients import ProjectClient
+from geti_sdk import Geti
+from geti_sdk.annotation_readers import AnnotationReader
+from geti_sdk.rest_clients import ProjectClient
 
 from .constants import PROJECT_PREFIX
 from .finalizers import force_delete_project
@@ -75,19 +75,17 @@ def get_or_create_annotated_project_for_test_class(
     return project
 
 
-def remove_all_test_projects(client: SCRESTClient) -> List[str]:
+def remove_all_test_projects(geti: Geti) -> List[str]:
     """
-    Removes all projects created in the REST SDK tests from the server.
+    Removes all projects created in the SDK tests from the server.
 
     WARNING: This will remove projects without asking for confirmation. Use with
     caution!
 
-    :param client: Client to the server from which to remove all projects created by
-        the SDK test suite
+    :param geti: Geti instance pointing to the server from which to remove all
+        projects created by the SDK test suite
     """
-    project_client = ProjectClient(
-        session=client.session, workspace_id=client.workspace_id
-    )
+    project_client = ProjectClient(session=geti.session, workspace_id=geti.workspace_id)
     projects_removed: List[str] = []
     for project in project_client.get_all_projects():
         if project.name.startswith(PROJECT_PREFIX):

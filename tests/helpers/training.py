@@ -1,9 +1,9 @@
 import time
 from typing import Optional, Union
 
-from sc_api_tools.data_models import Job, Task
-from sc_api_tools.http_session import SCRequestException
-from sc_api_tools.rest_clients import TrainingClient
+from geti_sdk.data_models import Job, Task
+from geti_sdk.http_session import GetiRequestException
+from geti_sdk.rest_clients import TrainingClient
 
 from .enums import SdkTestMode
 
@@ -36,7 +36,7 @@ def attempt_to_train_task(
         try:
             job = training_client.train_task(task)
             break
-        except SCRequestException as error:
+        except GetiRequestException as error:
             if error.response_error_code != not_ready_response:
                 raise error
         if test_mode != SdkTestMode.OFFLINE:

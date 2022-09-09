@@ -36,23 +36,23 @@ def get_requirements(filename: str) -> List[str]:
     return required_packages
 
 
-with open("sc_api_tools/__init__.py", "r", encoding="utf-8") as init_file:
+with open("geti_sdk/__init__.py", "r", encoding="utf-8") as init_file:
     for line in init_file:
         line = line.strip()
         if line.startswith("__version__"):
             VERSION = line.split("=")[1].strip().strip('"')
 
 setuptools.setup(
-    name="sc-api-tools",
+    name="geti_sdk",
     version=VERSION,
     author="Ludo Cornelissen",
     author_email="ludo.cornelissen@intel.com",
-    description="A module for interacting with the Sonoma Creek REST API",
+    description="A module for interacting with the GETi REST API",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
-    url="https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools",
+    url="https://github.com/openvinotoolkit/geti_sdk",
     project_urls={
-        "Bug Tracker": "https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/issues",
+        "Bug Tracker": "https://github.com/openvinotoolkit/geti_sdk/issues",
     },
     classifiers=[
         "Programming Language :: Python :: 3",

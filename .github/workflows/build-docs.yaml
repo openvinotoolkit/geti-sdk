@@ -27,8 +27,10 @@ jobs:
           pip install -r requirements/requirements-docs.txt
 
       - name: Build sphinx documentation
+        # We build twice to ensure that all references are resolved
         run: |
           cd docs
+          make html
           make html
           cd ..
 

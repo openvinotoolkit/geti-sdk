@@ -1,6 +1,6 @@
 ## Introduction
-Welcome to the SonomaCreek SDK! This python package contains tools to interact with a
-SonomaCreek server via the REST API. It provides functionality for:
+Welcome to the GETi SDK! This python package contains tools to interact with a
+GETi server via the REST API. It provides functionality for:
 
 - Project creation from annotated datasets on disk
 - Project downloading (images, videos, configuration, annotations, predictions and models)
@@ -25,10 +25,10 @@ requires Python version 3.8, so make sure to use that version in your environmen
 Once you have created a new environment, follow these steps to install the package:
 
 #### PyPI installation
-To install the SonomaCreek SDK from PyPI, simply use `pip install sonoma_creek_sdk`
+To install the GETi SDK from PyPI, simply use `pip install geti_sdk`
 
 If you plan on running the jupyter notebooks, install the requirements for them by
-running `pip install sonoma_creek_sdk[notebooks]`
+running `pip install geti_sdk[notebooks]`
 
 #### Local installation
 To install the SDK in editable mode, follow these steps:
@@ -38,10 +38,12 @@ To install the SDK in editable mode, follow these steps:
 2. From there, install the SDK using `pip install -e .`
 
 3. (Optional) If you plan on running the tests, the notebooks or want to build the
-   documentation, you can install the package extra requirements by doing
-   `pip install -e .[dev,docs,notebooks]`
+   documentation, you can install the package extra requirements by doing for example
+   `pip install -e .[dev]`
 
-> **NOTE**: sc-api-tools needs `python==3.8` to run. Python 3.9 will work on Linux
+   The valid options for the extra requirements are `[dev, docs, notebooks]`.
+
+> **NOTE**: geti-sdk needs `python==3.8` to run. Python 3.9 will work on Linux
 > systems, but unfortunately not on Windows yet since not all required packages are
 > available for that version.
 
@@ -52,7 +54,7 @@ in your terminal, and simply running the scripts like any other python script.
 
 ### Jupyter Notebooks
 In addition, the [notebooks](/notebooks/README.md) folder contains jupyter notebooks
-with example use cases for the `sonoma_creek_sdk`. To run the notebooks,
+with example use cases for the `geti_sdk`. To run the notebooks,
 make sure to first install the requirements for this using
 `pip install -r requirements/requirements-notebooks.txt`
 
@@ -60,26 +62,26 @@ Once the notebook requirements are installed, navigate to the `notebooks` direct
 your terminal. Then, fire up JupyterLab by typing `jupyter lab`. This should open your
 browser and take you to the JupyterLab landing page, with the SDK notebooks open.
 
-> **NOTE**: Both the example scripts and the notebooks require access to a SonomaCreek
+> **NOTE**: Both the example scripts and the notebooks require access to a GETi
 > instance.
 
 ## Example use cases
-The package provides a main class `SonomaCreek` that can be used for the following use cases
+The package provides a main class `Geti` that can be used for the following use cases
 ### Downloading and uploading projects
 - **Project download** The following python snippet is a minimal example of how to
-  download a project using the SCRESTClient:
+  download a project using Geti:
 
     ```
-    from sc_api_tools import SCRESTClient
+    from geti_sdk import Geti
 
-    client = SCRESTClient(
+    geti = Geti(
       host="https://0.0.0.0", username="dummy_user", password="dummy_password"
     )
 
-    client.download_project(project_name="dummy_project")
+    geti.download_project(project_name="dummy_project")
     ```
   Here, it is assumed that the project with name 'dummy_project' exists on the cluster.
-  The client will create a folder named 'dummy_project' in your current working
+  The Geti instance will create a folder named 'dummy_project' in your current working
   directory, and download the project parameters, images, videos, annotations,
   predictions and the active model for the project (including optimized models derived
   from it) to that folder.
@@ -98,29 +100,29 @@ The package provides a main class `SonomaCreek` that can be used for the followi
 
 
 - **Project upload** The following python snippet is a minimal example of how to
-  re-create a project on an SC cluster using the data from a previously downloaded
+  re-create a project on an GETi cluster using the data from a previously downloaded
   project:
     ```
-    from sc_api_tools import SCRESTClient
+    from geti_sdk import Geti
 
-    client = SCRESTClient(
+    geti = Geti(
         host="https://0.0.0.0", username="dummy_user", password="dummy_password"
     )
 
-    client.upload_project(target_folder="dummy_project")
+    geti.upload_project(target_folder="dummy_project")
     ```
   The parameter `target_folder` must be a valid path to the directory holding the
   project data. If you want to create the project using a different name than the
   original project, you can pass an additional parameter `project_name` to the upload
   method.
 
-The client can be used to either back-up a project (by downloading it and later
+The Geti instance can be used to either back-up a project (by downloading it and later
 uploading it again to the same cluster), or to migrate a project to a different cluster
 (download it, and upload it to the target cluster).
 
 #### Up/Downloading all projects
 To up- or download all projects from a cluster, simply use the
-`client.download_all_projects` and `client.upload_all_projects` methods instead of
+`geti.download_all_projects` and `geti.upload_all_projects` methods instead of
 the single project methods in the code snippets above.
 
 ### Deploying a project
@@ -130,14 +132,14 @@ OpenVINO:
 ```
 import cv2
 
-from sc_api_tools import SCRESTClient
+from geti_sdk import Geti
 
-client = SCRESTClient(
+geti = Geti(
         host="https://0.0.0.0", username="dummy_user", password="dummy_password"
     )
 
 # Download the model data and create a `Deployment`
-deployment = client.deploy_project(project_name="dummy_project")
+deployment = geti.deploy_project(project_name="dummy_project")
 
 # Load the inference models for all tasks in the project, for CPU inference
 deployment.load_inference_models(device='CPU')
@@ -192,11 +194,11 @@ What is supported:
 What is not supported:
 - Model upload
 - Prediction upload
-- Plenty of other things that are supported in SonomaCreek but not included in the SDK
+- Plenty of other things that are supported in GETi but not included in the SDK
   just yet. These will be added in due time.
 
 ## High level API reference
-The `SonomaCreek` class provides the following methods:
+The `Geti` class provides the following methods:
 
 - `download_project` -- Downloads a project by project name.
 
@@ -253,11 +255,11 @@ machine.
 
 First build the docker image
 ``` sh
-docker build -t sc-api-tools .
+docker build -t geti-sdk .
 ```
 
 then run it using,
 
 ``` sh
-docker run --rm -ti -v $(pwd):/app sc-api-tools:latest /bin/bash
+docker run --rm -ti -v $(pwd):/app geti-sdk:latest /bin/bash
 ```

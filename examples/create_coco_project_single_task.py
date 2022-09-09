@@ -1,8 +1,8 @@
 from dotenv import dotenv_values
 
-from sc_api_tools import SCRESTClient
-from sc_api_tools.annotation_readers import DatumAnnotationReader
-from sc_api_tools.utils import get_coco_dataset
+from geti_sdk import Geti
+from geti_sdk.annotation_readers import DatumAnnotationReader
+from geti_sdk.utils import get_coco_dataset
 
 if __name__ == "__main__":
     # Get credentials from .env file
@@ -17,8 +17,8 @@ if __name__ == "__main__":
     # --------------------------------------------------
     # Configuration section
     # --------------------------------------------------
-    # Set up REST client with server address and login details
-    client = SCRESTClient(
+    # Set up the Geti instance with server address and login details
+    geti = Geti(
         host=env_variables.get("HOST"),
         username=env_variables.get("USERNAME"),
         password=env_variables.get("PASSWORD"),
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     )
     annotation_reader.filter_dataset(labels=LABELS_OF_INTEREST, criterion="OR")
     # Create project and upload data
-    client.create_single_task_project_from_dataset(
+    geti.create_single_task_project_from_dataset(
         project_name=PROJECT_NAME,
         project_type=PROJECT_TYPE,
         path_to_images=coco_path,

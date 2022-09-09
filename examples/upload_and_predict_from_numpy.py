@@ -5,7 +5,7 @@ import numpy as np
 from dotenv import dotenv_values
 from utils import DATA_PATH, ensure_example_project
 
-from sc_api_tools import SCRESTClient
+from geti_sdk import Geti
 
 
 def rotate_image(image: np.ndarray, angle: float) -> np.ndarray:
@@ -36,8 +36,8 @@ if __name__ == "__main__":
     # --------------------------------------------------
     # Configuration section
     # --------------------------------------------------
-    # Set up REST client with server address and login details
-    client = SCRESTClient(
+    # Set up the Geti instance with server address and login details
+    geti = Geti(
         host=env_variables.get("HOST"),
         username=env_variables.get("USERNAME"),
         password=env_variables.get("PASSWORD"),
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     rotated_image = rotate_image(image=numpy_image, angle=20)
 
     # Make sure that the project exists
-    ensure_example_project(client=client, project_name=PROJECT_NAME)
+    ensure_example_project(geti=geti, project_name=PROJECT_NAME)
 
     print(
         "Uploading and predicting example image now, an image window containing the "
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     )
 
     # We can upload and predict the resulting array directly:
-    sc_image, image_prediction = client.upload_and_predict_image(
+    sc_image, image_prediction = geti.upload_and_predict_image(
         project_name=PROJECT_NAME,
         image=rotated_image,
         visualise_output=True,
@@ -95,7 +95,7 @@ if __name__ == "__main__":
         rotation_video.append(rotate_image(image=numpy_image, angle=angle))
 
     # Create video, upload and predict from the list of frames
-    sc_video, video_frames, frame_predictions = client.upload_and_predict_video(
+    sc_video, video_frames, frame_predictions = geti.upload_and_predict_video(
         project_name=PROJECT_NAME,
         video=rotation_video,
         frame_stride=1,

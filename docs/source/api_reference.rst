@@ -4,11 +4,11 @@ API Reference
 .. toctree::
    :maxdepth: 4
 
-   sc_rest_client
-   Annotation readers <sc_api_tools.annotation_readers>
-   Data models <sc_api_tools.data_models>
-   Deployment <sc_api_tools.deployment>
-   HTTP session <sc_api_tools.http_session>
-   REST converters <sc_api_tools.rest_converters>
-   REST clients <sc_api_tools.rest_clients>
-   Utils <sc_api_tools.utils>
+   geti
+   Annotation readers <geti_sdk.annotation_readers>
+   Data models <geti_sdk.data_models>
+   Deployment <geti_sdk.deployment>
+   HTTP session <geti_sdk.http_session>
+   REST converters <geti_sdk.rest_converters>
+   REST clients <geti_sdk.rest_clients>
+   utils <geti_sdk.utils>
