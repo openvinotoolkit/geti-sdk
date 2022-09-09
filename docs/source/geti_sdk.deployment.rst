@@ -9,6 +9,6 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    Data models <geti_sdk.deployment.data_models>

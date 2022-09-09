@@ -2,7 +2,7 @@ API Reference
 -------------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 3
 
    geti
    Annotation readers <geti_sdk.annotation_readers>

@@ -39,8 +39,8 @@ jobs:
           mkdir -p /tmp/docs_build
           cp -r docs/build/html/* /tmp/docs_build
           rm -rf ./*
-          git checkout gh-pages
           git fetch && git pull
+          git checkout gh-pages
           cp -r /tmp/docs_build/* ./
           rm -rf /tmp/docs_build
           touch .nojekyll
