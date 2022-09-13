@@ -405,9 +405,11 @@ class SCRESTClient:
                 images=images,
             )
         if len(videos) > 0:
-            if len(images) == 0:
-                # Wait a few seconds to ensure videos are processed by the server
-                time.sleep(5)
+            project_videos = []
+            while len(project_videos) != len(videos):
+                # Wait to ensure videos are processed by the server
+                project_videos = video_client.get_all_videos()
+                time.sleep(1)
             annotation_client.upload_annotations_for_videos(
                 videos=videos,
             )
@@ -420,7 +422,7 @@ class SCRESTClient:
                     path_to_folder=target_folder
                 )
             except SCRequestException:
-                logging.info(
+                logging.warning(
                     f"Attempted to set configuration according to the "
                     f"'configuration.json' file in the project directory, but setting "
                     f"the configuration failed. Probably the configuration specified "
@@ -429,7 +431,7 @@ class SCRESTClient:
                     f"project. Please make sure to reconfigure the models manually."
                 )
             if result is None:
-                warnings.warn(
+                logging.warning(
                     f"Not all configurable parameters could be set according to the "
                     f"configuration in {configuration_file}. Please make sure to "
                     f"verify model configuration manually."
