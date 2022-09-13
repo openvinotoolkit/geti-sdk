@@ -44,8 +44,15 @@ from argparse import ArgumentParser, SUPPRESS
 
 from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers.nous_annotation_reader import NOUSAnnotationReader
-from sc_api_tools.rest_clients import ProjectClient, ConfigurationClient, ImageClient, VideoClient
-from sc_api_tools.rest_managers.annotation_manager.nous_annotation_manager import NOUSAnnotationManager
+from sc_api_tools.rest_clients import (
+    ProjectClient,
+    ConfigurationClient,
+    ImageClient,
+    VideoClient,
+)
+from sc_api_tools.rest_managers.annotation_manager.nous_annotation_manager import (
+    NOUSAnnotationManager,
+)
 from sc_api_tools.utils import get_task_types_by_project_type
 
 from sc_api_tools.data_models import (
@@ -67,11 +74,11 @@ def unzip_to_temp(export_path):
 
 
 def migrate_nous_project(
-        rest_client: SCRESTClient,
-        export_path: Union[str, os.PathLike],
-        project_type: str,
-        project_name: Optional[str] = None,
-        labels: Optional[Union[List[str], List[Dict[str, Any]]]] = None
+    rest_client: SCRESTClient,
+    export_path: Union[str, os.PathLike],
+    project_type: str,
+    project_name: Optional[str] = None,
+    labels: Optional[Union[List[str], List[Dict[str, Any]]]] = None,
 ):
     """
     README:
@@ -103,45 +110,43 @@ def migrate_nous_project(
 
     # if no project name supplied then use the zip filename
     if project_name is None:
-        project_name = os.path.split(export_path)[1].split('.')[0]
+        project_name = os.path.split(export_path)[1].split(".")[0]
 
     temp_dir = unzip_to_temp(export_path)
 
     # Create NOUS annotation reader
     annotation_reader = NOUSAnnotationReader(
         base_data_folder=os.path.join(temp_dir, "annotation"),
-        task_type=TaskType(project_type)
+        task_type=TaskType(project_type),
     )
 
     # Read all the labels from the annotation files
-    '''
+    """
     For single task projects, all the labels found in the 
     annotation files will be used when creating a new project on SC. 
     
     If the `labels` argument is passed, the labels will not be determined from the 
     annotation reader but the label data inside the `labels` variable will be used 
     instead.
-    '''
+    """
     if labels is None:
         labels = annotation_reader.get_all_label_names()
     elif project_type == "classification" and len(labels) == 1:
-        labels.append('Empty Image')
+        labels.append("Empty Image")
 
     # Create project
     project_manager = ProjectClient(
         session=rest_client.session, workspace_id=rest_client.workspace_id
     )
     project = project_manager.get_or_create_project(
-        project_name=project_name,
-        project_type=project_type,
-        labels=[labels]
+        project_name=project_name, project_type=project_type, labels=[labels]
     )
 
     # Disable auto training
     configuration_manager = ConfigurationClient(
         session=rest_client.session,
         workspace_id=rest_client.workspace_id,
-        project=project
+        project=project,
     )
     configuration_manager.set_project_auto_train(auto_train=False)
 
@@ -149,7 +154,7 @@ def migrate_nous_project(
     image_manager = ImageClient(
         session=rest_client.session,
         workspace_id=rest_client.workspace_id,
-        project=project
+        project=project,
     )
     images = image_manager.upload_folder(
         path_to_folder=os.path.join(temp_dir, "images")
@@ -159,7 +164,7 @@ def migrate_nous_project(
     video_manager = VideoClient(
         workspace_id=rest_client.workspace_id,
         session=rest_client.session,
-        project=project
+        project=project,
     )
     videos = video_manager.upload_folder(
         path_to_folder=os.path.join(temp_dir, "videos")
@@ -168,7 +173,8 @@ def migrate_nous_project(
     # Set annotation reader task type
     annotation_reader.task_type = project.get_trainable_tasks()[0].type
     annotation_reader.prepare_and_set_dataset(
-        task_type=project.get_trainable_tasks()[0].type)
+        task_type=project.get_trainable_tasks()[0].type
+    )
 
     # Upload annotations
     annotation_manager = NOUSAnnotationManager(
@@ -182,20 +188,21 @@ def migrate_nous_project(
     annotation_manager.upload_annotations_for_videos(videos)
 
     # clean up temp folder
-    print('Cleaning up...')
+    print("Cleaning up...")
     shutil.rmtree(temp_dir)
-    print('=================== Done ===================')
+    print("=================== Done ===================")
 
 
 def migrate_nous_chain(
-        rest_client: SCRESTClient,
-        export_path: Union[str, os.PathLike],
-        task_types: List[str],
-        labels_per_task: List[Union[List[str], List[Dict[str, Any]]]],
-        project_name: Optional[str] = None,
-        temp_dir: Optional[str] = None
-        , offset=None,
-        specific_images: List[str] = None):
+    rest_client: SCRESTClient,
+    export_path: Union[str, os.PathLike],
+    task_types: List[str],
+    labels_per_task: List[Union[List[str], List[Dict[str, Any]]]],
+    project_name: Optional[str] = None,
+    temp_dir: Optional[str] = None,
+    offset=None,
+    specific_images: List[str] = None,
+):
     """
     NOTE:
     I'm sure the task-chain annotations could be uploaded in a single step
@@ -231,15 +238,14 @@ def migrate_nous_chain(
     - Test with hierarchical labels
     """
 
-    project_type = '_to_'.join(task_types)
+    project_type = "_to_".join(task_types)
     if temp_dir is None:
         temp_dir = unzip_to_temp(export_path)
 
     label_source_per_task = []
     for task_type in get_task_types_by_project_type(project_type):
         annotation_reader = NOUSAnnotationReader(
-            base_data_folder=os.path.join(temp_dir, "annotation"),
-            task_type=task_type
+            base_data_folder=os.path.join(temp_dir, "annotation"), task_type=task_type
         )
         label_source_per_task.append(annotation_reader)
 
@@ -253,16 +259,14 @@ def migrate_nous_chain(
         session=rest_client.session, workspace_id=rest_client.workspace_id
     )
     project = project_manager.get_or_create_project(
-        project_name=project_name,
-        project_type=project_type,
-        labels=labels_per_task
+        project_name=project_name, project_type=project_type, labels=labels_per_task
     )
 
     # Disable auto training
     configuration_manager = ConfigurationClient(
         session=rest_client.session,
         workspace_id=rest_client.workspace_id,
-        project=project
+        project=project,
     )
     configuration_manager.set_project_auto_train(auto_train=False)
 
@@ -284,7 +288,7 @@ def migrate_nous_chain(
     video_manager = VideoClient(
         workspace_id=rest_client.workspace_id,
         session=rest_client.session,
-        project=project
+        project=project,
     )
     videos = video_manager.upload_folder(
         path_to_folder=os.path.join(temp_dir, "videos")
@@ -316,7 +320,9 @@ def migrate_nous_chain(
     annotation_readers_per_task[1].prepare_and_set_dataset(
         task_type=project.get_trainable_tasks()[1].type
     )
-    annotation_readers_per_task[1].set_labels_filter([x_["name"] for x_ in labels_per_task[1]])
+    annotation_readers_per_task[1].set_labels_filter(
+        [x_["name"] for x_ in labels_per_task[1]]
+    )
 
     # Upload annotations
     annotation_manager_part2 = NOUSAnnotationManager(
@@ -330,7 +336,7 @@ def migrate_nous_chain(
     image_page_size = 100
     for start in range(offset, max(image_page_size, len(images)), image_page_size):
         print("START", start)
-        images_ = images[start:start + image_page_size]
+        images_ = images[start : start + image_page_size]
 
         annotation_manager.upload_annotations_for_images(images_)
         # annotation_manager.upload_annotations_for_videos(videos)
@@ -340,52 +346,77 @@ def migrate_nous_chain(
         # Upload with the append_annotations option to 'add' second task annotation to
         # the first
 
-        annotation_manager_part2.upload_annotations_for_images(images_, append_annotations=True)
-        annotation_manager_part2.upload_annotations_for_videos(videos, append_annotations=True)
+        annotation_manager_part2.upload_annotations_for_images(
+            images_, append_annotations=True
+        )
+        annotation_manager_part2.upload_annotations_for_videos(
+            videos, append_annotations=True
+        )
 
     # clean up temp folder
-    print('Cleaning up...')
+    print("Cleaning up...")
     # shutil.rmtree(temp_dir)
-    print('=================== Done ===================')
+    print("=================== Done ===================")
 
 
 def build_argparser():
     parser = ArgumentParser(add_help=False)
-    args = parser.add_argument_group('Options')
+    args = parser.add_argument_group("Options")
     args.add_argument(
-        '-h', '--help', action='help', default=SUPPRESS,
-        help='Show this help message and exit.'
+        "-h",
+        "--help",
+        action="help",
+        default=SUPPRESS,
+        help="Show this help message and exit.",
     )
     args.add_argument(
         "-host", "--host", help="Required. Sonoma creek host.", required=True, type=str
     )
     args.add_argument(
-        "-user", "--user", help="Required. Sonoma creek username.",
-        required=True, type=str
+        "-user",
+        "--user",
+        help="Required. Sonoma creek username.",
+        required=True,
+        type=str,
     )
     args.add_argument(
-        "-pass", "--password", help="Required. Sonoma creek password.",
-        required=True, type=str
+        "-pass",
+        "--password",
+        help="Required. Sonoma creek password.",
+        required=True,
+        type=str,
     )
     args.add_argument(
-        "-path", "--path", help="Required. Path to nous exported project.",
-        required=True, type=str
+        "-path",
+        "--path",
+        help="Required. Path to nous exported project.",
+        required=True,
+        type=str,
     )
     args.add_argument(
         "-n", "--name", help="Required. Project name", required=True, type=str
     )
     args.add_argument(
-        "-t", "--task", required=True, type=str,
-        help="Required. Project task. detection, classification, segmentation or chain"
+        "-t",
+        "--task",
+        required=True,
+        type=str,
+        help="Required. Project task. detection, classification, segmentation or chain",
     )
     args.add_argument(
-        "-ct", "--chain_task", required=False, nargs='+',
-        help='Optional. Tasks used for chain project. '
-             'Format: -tc detection segmentation'
+        "-ct",
+        "--chain_task",
+        required=False,
+        nargs="+",
+        help="Optional. Tasks used for chain project. "
+        "Format: -tc detection segmentation",
     )
     args.add_argument(
-        "-l", "--labels", required=False, nargs='+',
-        help='Optional. Labels used for chain project. Format: -l person hat'
+        "-l",
+        "--labels",
+        required=False,
+        nargs="+",
+        help="Optional. Labels used for chain project. Format: -l person hat",
     )
 
     return parser
@@ -396,13 +427,13 @@ def main():
 
     client = SCRESTClient(host=args.host, username=args.user, password=args.password)
 
-    if args.task == 'chain':
+    if args.task == "chain":
         migrate_nous_chain(
             rest_client=client,
             export_path=args.path,
             project_name=args.name,
             task_types=args.chain_task,
-            labels_per_task=[[label] for label in args.labels]
+            labels_per_task=[[label] for label in args.labels],
         )
 
     else:
@@ -410,9 +441,9 @@ def main():
             rest_client=client,
             export_path=args.path,
             project_type=args.task,
-            project_name=args.name
+            project_name=args.name,
         )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main() or 0)

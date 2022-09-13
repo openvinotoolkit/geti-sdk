@@ -9,7 +9,7 @@ from sc_api_tools import SCRESTClient
 from sc_api_tools.nous.nous2sc import migrate_nous_chain
 from sc_api_tools.rest_clients import ProjectClient
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ann_dir = "/home/lhogeweg/Documents/Datasets/diopsis21clean/annotation"
     labels = []
     ann_files = os.listdir(ann_dir)
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     sufficient_labels -= {"Cataclysta lemnata - do not use", "Muscidae"}
     print(sufficient_labels)
 
-    update_annotations = False
+    update_annotations = True
     if update_annotations:
         for fn in tqdm(ann_files, total=len(ann_files)):
             try:
@@ -44,7 +44,9 @@ if __name__ == '__main__':
 
             j_ann = json.load(open(p))
             for j_shape in j_ann["data"]:
-                j_shape["labels"] = [x for x in j_shape["labels"] if x["name"] in sufficient_labels]
+                j_shape["labels"] = [
+                    x for x in j_shape["labels"] if x["name"] in sufficient_labels
+                ]
             json.dump(j_ann, open(p, "w"), indent=2)
 
     j_project = json.load(open("/mnt/big/diopsis_s/project.json"))
@@ -60,7 +62,11 @@ if __name__ == '__main__':
 
     for id_, label in id_to_label.items():
         label_name = label["name"]
-        if label_name not in sufficient_labels or label_name == "Object" or "Empty" in label_name:
+        if (
+            label_name not in sufficient_labels
+            or label_name == "Object"
+            or "Empty" in label_name
+        ):
             continue
         migrate_label = {
             "name": label_name,
@@ -70,13 +76,13 @@ if __name__ == '__main__':
             migrate_label["group"] = "g_" + id_to_label[label["parent"]]["name"]
             print("migrate_label['group']", migrate_label["group"])
         labels_migrate.append(migrate_label)
-    labels_migrate.append({'name': 'No Animalia'})
+    labels_migrate.append({"name": "No Animalia"})
     print(labels_migrate)
 
     client = SCRESTClient(
         host="https://sc-demo.iotg.sclab.intel.com/",
         username="laurens.hogeweg@intel.com",
-        password="@SCvision+LH"
+        password="@SCvision+LH",
     )
 
     # host = "https://vm40.openvino.ai"
@@ -113,11 +119,12 @@ if __name__ == '__main__':
 
     migrate_nous_chain(
         rest_client=client,
-        export_path='/home/lhogeweg/Documents/Datasets/diopsis21.zip',
-        task_types=['detection', 'classification'],
-        labels_per_task=[['Object'], labels_migrate],
-        project_name='diopsis',
+        export_path="/home/lhogeweg/Documents/Datasets/diopsis21.zip",
+        # unzip this once to temp_dir to speed up the script if run multiple times
+        task_types=["detection", "classification"],
+        labels_per_task=[["Object"], labels_migrate],
+        project_name="diopsis",
         temp_dir="/home/lhogeweg/Documents/Datasets/diopsis21clean",
-        offset=3800,
-        specific_images=specific_images
+        offset=0,  # start uploading annotations from this offset
+        specific_images=specific_images,
     )
