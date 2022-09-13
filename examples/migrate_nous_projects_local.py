@@ -10,6 +10,7 @@ from sc_api_tools.nous.nous2sc import migrate_nous_chain
 from sc_api_tools.rest_clients import ProjectClient
 
 if __name__ == "__main__":
+    # unzip https://intel-my.sharepoint.com/:u:/p/laurens_hogeweg/EWVlj9qX2X1EuPT91GBemkkB4TlYAjg6jK02XGVM-n_2lw?e=ibdiwY
     ann_dir = "/home/lhogeweg/Documents/Datasets/diopsis21clean/annotation"
     labels = []
     ann_files = os.listdir(ann_dir)
@@ -49,6 +50,7 @@ if __name__ == "__main__":
                 ]
             json.dump(j_ann, open(p, "w"), indent=2)
 
+    # from https://intel-my.sharepoint.com/:u:/p/laurens_hogeweg/EWsuZUo9d31GlYTV4e6u1sIBn8xwGDXqS5rggbx9oOrnyA?e=cGpSDL
     j_project = json.load(open("/mnt/big/diopsis_s/project.json"))
     id_to_label = {}
     for j_label in j_project["pipeline"]["tasks"][3]["properties"][0]["user_value"]:
@@ -120,6 +122,7 @@ if __name__ == "__main__":
     migrate_nous_chain(
         rest_client=client,
         export_path="/home/lhogeweg/Documents/Datasets/diopsis21.zip",
+        # https://intel-my.sharepoint.com/:u:/p/laurens_hogeweg/EWVlj9qX2X1EuPT91GBemkkB4TlYAjg6jK02XGVM-n_2lw?e=ibdiwY
         # unzip this once to temp_dir to speed up the script if run multiple times
         task_types=["detection", "classification"],
         labels_per_task=[["Object"], labels_migrate],
