@@ -26,7 +26,8 @@ def get_default_workspace_id(rest_session: SCSession) -> str:
     if isinstance(workspaces, list):
         workspace_list = workspaces
     elif isinstance(workspaces, dict):
-        workspace_list = workspaces["items"]
+        print(workspaces)
+        workspace_list = workspaces["workspaces"]
     else:
         raise ValueError(
             f"Unexpected response from cluster: {workspaces}. Expected to receive a "

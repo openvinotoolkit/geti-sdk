@@ -72,7 +72,7 @@ class ProjectClient:
         )
         return [
             ProjectRESTConverter.from_dict(project_input=project)
-            for project in project_list["items"]
+            for project in project_list["projects"]
         ]
 
     def get_project_by_name(self, project_name: str) -> Optional[Project]:

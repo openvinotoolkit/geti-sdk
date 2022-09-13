@@ -130,23 +130,24 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         upload_count = 0
         threads = []
         for image in tqdm(images, desc="Uploading annotations"):
-            thread = Thread(target=self._append_or_upload
-                            , args=(append_annotations, image, upload_count))
-            threads.append(thread)
-            thread.start()
-
-            if len(threads) > 0:
-                print("threads", len(threads))
-                for thread in threads:
-                    thread.join()
-                threads = []
-            # upload_count = self._append_or_upload(append_annotations, image, upload_count)
+            # thread = Thread(target=self._append_or_upload
+            #                 , args=(append_annotations, image, upload_count))
+            # threads.append(thread)
+            # thread.start()
+            #
+            # if len(threads) > 0:
+            #     print("threads", len(threads))
+            #     for thread in threads:
+            #         thread.join()
+            #     threads = []
+            upload_count = self._append_or_upload(append_annotations, image, upload_count)
         if upload_count > 0:
             print(f"Upload complete. Uploaded {upload_count} new image annotations")
         else:
             print("No new image annotations were found.")
 
     def _append_or_upload(self, append_annotations, image, upload_count):
+        response = None
         if not append_annotations:
             response = self._upload_annotation_for_2d_media_item(media_item=image)
         else:
@@ -155,7 +156,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
             except SCRequestException:
                 print(f"smt went wrong for {image.name}")
                 traceback.print_exc()
-        if response.annotations:
+        if response and response.annotations:
             upload_count += 1
         return upload_count
 

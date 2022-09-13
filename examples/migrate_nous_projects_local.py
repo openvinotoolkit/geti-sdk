@@ -56,7 +56,7 @@ if __name__ == '__main__':
 
     labels_migrate = []
 
-    # print(id_to_label)
+    print("|LABELS|", len(id_to_label))
 
     for id_, label in id_to_label.items():
         label_name = label["name"]
@@ -73,19 +73,19 @@ if __name__ == '__main__':
     labels_migrate.append({'name': 'No Animalia'})
     print(labels_migrate)
 
-    # client = SCRESTClient(
-    #     host="https://10.91.120.185",
-    #     username="laurens.hogeweg@intel.com",
-    #     password="@SCvision+LH"
-    # )
-
-    host = "https://vm40.openvino.ai"
     client = SCRESTClient(
-        host=host,
+        host="https://sc-demo.iotg.sclab.intel.com/",
         username="laurens.hogeweg@intel.com",
-        password="@SCvision+LH",
-        # proxies={"https": "http://proxy-dmz.intel.com:912"}
+        password="@SCvision+LH"
     )
+
+    # host = "https://vm40.openvino.ai"
+    # client = SCRESTClient(
+    #     host=host,
+    #     username="laurens.hogeweg@intel.com",
+    #     password="@SCvision+LH",
+    #     # proxies={"https": "http://proxy-dmz.intel.com:912"}
+    # )
 
     # project_manager = ProjectClient(
     #     session=client.session, workspace_id=client.workspace_id
@@ -118,6 +118,6 @@ if __name__ == '__main__':
         labels_per_task=[['Object'], labels_migrate],
         project_name='diopsis',
         temp_dir="/home/lhogeweg/Documents/Datasets/diopsis21clean",
-        offset=100,
+        offset=3800,
         specific_images=specific_images
     )

@@ -67,11 +67,11 @@ def unzip_to_temp(export_path):
 
 
 def migrate_nous_project(
-    rest_client: SCRESTClient,
-    export_path: Union[str, os.PathLike],
-    project_type: str,
-    project_name: Optional[str] = None,
-    labels: Optional[Union[List[str], List[Dict[str, Any]]]] = None
+        rest_client: SCRESTClient,
+        export_path: Union[str, os.PathLike],
+        project_type: str,
+        project_name: Optional[str] = None,
+        labels: Optional[Union[List[str], List[Dict[str, Any]]]] = None
 ):
     """
     README:
@@ -188,14 +188,14 @@ def migrate_nous_project(
 
 
 def migrate_nous_chain(
-    rest_client: SCRESTClient,
-    export_path: Union[str, os.PathLike],
-    task_types: List[str],
-    labels_per_task: List[Union[List[str], List[Dict[str, Any]]]],
-    project_name: Optional[str] = None,
+        rest_client: SCRESTClient,
+        export_path: Union[str, os.PathLike],
+        task_types: List[str],
+        labels_per_task: List[Union[List[str], List[Dict[str, Any]]]],
+        project_name: Optional[str] = None,
         temp_dir: Optional[str] = None
-, offset=None,
-specific_images:List[str]=None):
+        , offset=None,
+        specific_images: List[str] = None):
     """
     NOTE:
     I'm sure the task-chain annotations could be uploaded in a single step
@@ -326,9 +326,11 @@ specific_images:List[str]=None):
         annotation_reader=annotation_readers_per_task[1],
     )
 
-    for start in range(offset, len(images), 100):
+    # images = images[:10]
+    image_page_size = 100
+    for start in range(offset, max(image_page_size, len(images)), image_page_size):
         print("START", start)
-        images_ = images[start:start+100]
+        images_ = images[start:start + image_page_size]
 
         annotation_manager.upload_annotations_for_images(images_)
         # annotation_manager.upload_annotations_for_videos(videos)
@@ -337,8 +339,6 @@ specific_images:List[str]=None):
         # Filter on the second task labels
         # Upload with the append_annotations option to 'add' second task annotation to
         # the first
-
-
 
         annotation_manager_part2.upload_annotations_for_images(images_, append_annotations=True)
         annotation_manager_part2.upload_annotations_for_videos(videos, append_annotations=True)

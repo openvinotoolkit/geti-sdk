@@ -15,6 +15,7 @@
 import json
 import os
 import time
+import traceback
 from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
 from sc_api_tools.annotation_readers import AnnotationReader
@@ -190,9 +191,16 @@ class BaseAnnotationClient:
                 )
             if self.session.version != "1.0":
                 rest_data.pop("kind")
-            self.session.get_rest_response(
-                url=f"{media_item.base_url}/annotations", method="POST", data=rest_data
-            )
+            try:
+                self.session.get_rest_response(
+                    url=f"{media_item.base_url}/annotations",
+                    method="POST",
+                    data=rest_data,
+                )
+            except SCRequestException as ex:
+                print(f"Failed to upload {traceback.format_exc()}")
+                print(ex.request_data)
+
         return scene_to_upload
 
     def annotation_scene_from_rest_response(
