@@ -120,8 +120,6 @@ class ProjectStatus:
     n_required_annotations: int
     status: StatusSummary
     tasks: List[TaskStatus]
-    project_score: Optional[float] = None
-    # 'project_score' is deprecated in v1.1, replaced by project_performance
     project_performance: Optional[Performance] = None
     n_running_jobs: Optional[int] = None
     n_running_jobs_project: Optional[int] = None
@@ -140,5 +138,5 @@ class ProjectStatus:
             )
             if task.is_training or task.status.progress != -1.0:
                 summary_str += f"      Progress: {task.status.progress:.1f}%\n"
-        summary_str += f"  Latest score: {self.project_score*100:.1f}%\n"
+        summary_str += f"  Latest score: {self.project_performance.score*100:.1f}%\n"
         return summary_str
