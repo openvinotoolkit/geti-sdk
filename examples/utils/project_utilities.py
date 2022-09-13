@@ -1,3 +1,5 @@
+import time
+
 from sc_api_tools import SCRESTClient
 from sc_api_tools.annotation_readers import DatumAnnotationReader
 from sc_api_tools.data_models import Project
@@ -67,19 +69,27 @@ def ensure_example_project(client: SCRESTClient, project_name: str) -> Project:
     return project
 
 
-def ensure_project_is_trained(client: SCRESTClient, project: Project):
+def ensure_project_is_trained(client: SCRESTClient, project: Project) -> bool:
     """
     Ensure that the `project` has a trained model for each task.
 
+    If no trained model is found for any of the tasks, the function will attempt to
+    start training for that task. It will then await the completion of the training job.
+
+    This method returns True if all tasks in the project have a trained model
+    available, and the project is therefore ready to make predictions.
+
     :param client: SCRESTClient pointing to the SonomaCreek instance
     :param project: Project object, representing the project in SonomaCreek
+    :return: True if the project is trained and ready to make predictions, False
+        otherwise
     """
     prediction_client = PredictionClient(
         session=client.session, workspace_id=client.workspace_id, project=project
     )
     if prediction_client.ready_to_predict:
         print(f"\nProject '{project.name}' is ready to predict.\n")
-        return
+        return True
 
     print(
         f"\nProject '{project.name}' is not ready for prediction yet, awaiting model "
@@ -101,5 +111,18 @@ def ensure_project_is_trained(client: SCRESTClient, project: Project):
     # Monitor job progress to ensure training finishes
     training_client.monitor_jobs(running_jobs + new_jobs)
 
-    print(f"\nProject '{project.name}' is ready to predict.\n")
-    return
+    tries = 20
+    while not prediction_client.ready_to_predict and tries > 0:
+        time.sleep(1)
+        tries -= 1
+
+    if prediction_client.ready_to_predict:
+        print(f"\nProject '{project.name}' is ready to predict.\n")
+        prediction_ready = True
+    else:
+        print(
+            f"\nAll jobs completed, yet project '{project.name}' is still not ready "
+            f"to predict. This is likely due to an error in the training job.\n"
+        )
+        prediction_ready = False
+    return prediction_ready

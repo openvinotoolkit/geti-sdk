@@ -20,6 +20,16 @@ DEFAULT_API_VERSION = "v1"
 LEGACY_API_VERSION = "v1.0"
 
 
+def trim_trailing_slash(input_string: str) -> str:
+    """
+    Remove trailing slash(es) from a string, if present.
+
+    :param input_string: String to remove the trailing slash(es) from
+    :return: Updated string
+    """
+    return input_string.rstrip("/")
+
+
 @attrs.define(slots=False)
 class ServerConfig:
     """
@@ -42,7 +52,7 @@ class ServerConfig:
         will be used. If set to an emtpy dictionary, no proxy will be used.
     """
 
-    host: str
+    host: str = attrs.field(converter=trim_trailing_slash)
     has_valid_certificate: bool = attrs.field(default=False, kw_only=True)
     proxies: Optional[Dict[str, str]] = attrs.field(default=None, kw_only=True)
 
@@ -52,12 +62,21 @@ class ServerConfig:
         """
         self._api_version = DEFAULT_API_VERSION
 
+        # Sanitize hostname
+        if not self.host.startswith("https://"):
+            if self.host.startswith("http://"):
+                raise ValueError(
+                    "HTTP connections are not supported, please use HTTPS instead."
+                )
+            else:
+                self.host = "https://" + self.host
+
     @property
     def base_url(self) -> str:
         """
         Return the base UR for accessing the cluster.
         """
-        return f"{self.host}/api/{self.api_version}/"
+        return f"{self.host}{self.api_pattern}"
 
     @property
     def api_version(self) -> str:

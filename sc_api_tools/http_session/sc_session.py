@@ -63,15 +63,6 @@ class SCSession(requests.Session):
         else:
             self._proxies = {"proxies": server_config.proxies}
 
-        # Sanitize hostname
-        if not server_config.host.startswith("https://"):
-            if server_config.host.startswith("http://"):
-                raise ValueError(
-                    "HTTP connections are not supported, please use HTTPS instead."
-                )
-            else:
-                server_config.host = "https://" + server_config.host
-
         # Configure certificate verification
         if not server_config.has_valid_certificate:
             warnings.warn(
