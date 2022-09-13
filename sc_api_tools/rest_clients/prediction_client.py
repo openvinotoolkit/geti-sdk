@@ -30,6 +30,7 @@ from sc_api_tools.data_models import (
 from sc_api_tools.data_models.containers import MediaList
 from sc_api_tools.data_models.enums import PredictionMode
 from sc_api_tools.http_session import SCRequestException, SCSession
+from sc_api_tools.platform_versions import SC11_VERSION
 from sc_api_tools.rest_converters.prediction_rest_converter import (
     NormalizedPredictionRESTConverter,
     PredictionRESTConverter,
@@ -64,15 +65,15 @@ class PredictionClient:
         )
         model_info_array: List[Dict[str, Any]]
 
-        if self.session.version >= "1.2":
-            model_info_array = response.get("model_groups", [])
-        else:
+        if self.session.version == SC11_VERSION:
             if isinstance(response, dict):
                 model_info_array = response.get("items", [])
             elif isinstance(response, list):
                 model_info_array = response
             else:
                 raise ValueError(f"Unexpected response from SC cluster: {response}")
+        else:
+            model_info_array = response.get("model_groups", [])
 
         task_ids = [task.id for task in self.project.get_trainable_tasks()]
         tasks_with_models: List[str] = []
@@ -162,7 +163,7 @@ class PredictionClient:
                     method="GET",
                 )
                 if isinstance(media_item, (Image, VideoFrame)):
-                    if self.session.version < "1.2":
+                    if self.session.version == SC11_VERSION:
                         result = NormalizedPredictionRESTConverter.normalized_prediction_from_dict(
                             prediction=response,
                             image_height=media_item.media_information.height,
@@ -172,7 +173,7 @@ class PredictionClient:
                         result = PredictionRESTConverter.from_dict(response)
                     result.resolve_labels_for_result_media(labels=self._labels)
                 elif isinstance(media_item, Video):
-                    if self.session.version < "1.2":
+                    if self.session.version == SC11_VERSION:
                         result = [
                             NormalizedPredictionRESTConverter.normalized_prediction_from_dict(
                                 prediction=prediction,

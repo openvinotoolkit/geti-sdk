@@ -15,6 +15,7 @@ import pytest
 
 from sc_api_tools.http_session import SCSession
 from sc_api_tools.http_session.sc_session import INITIAL_HEADERS
+from sc_api_tools.platform_versions import SC11_VERSION, SC12_VERSION
 
 
 class TestSCSession:
@@ -29,11 +30,11 @@ class TestSCSession:
         Test that the 'version' attribute of the session is assigned a valid product
         version
         """
-        possible_versions = ["1.0", "1.1", "1.2"]
+        known_versions = [SC11_VERSION, SC12_VERSION]
         version_matches = [
-            fxt_sc_session.version.startswith(version) for version in possible_versions
+            fxt_sc_session.version >= version for version in known_versions
         ]
-        assert sum(version_matches) == 1
+        assert sum(version_matches) >= 1
 
     @pytest.mark.vcr()
     def test_logout(self, fxt_sc_session: SCSession):

@@ -38,15 +38,9 @@ def get_supported_algorithms(
     if task_type is not None and domain is not None:
         raise ValueError("Please specify either task type or domain, but not both")
     elif task_type is not None:
-        if rest_session.version == "1.0":
-            query = f"?domain={Domain.from_task_type(task_type)}"
-        else:
-            query = f"?task_type={task_type}"
+        query = f"?task_type={task_type}"
     elif domain is not None:
-        if rest_session.version == "1.0":
-            query = f"?domain={domain}"
-        else:
-            query = f"?task_type={TaskType.from_domain(domain)}"
+        query = f"?task_type={TaskType.from_domain(domain)}"
     else:
         query = ""
 

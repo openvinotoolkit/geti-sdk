@@ -27,6 +27,7 @@ from sc_api_tools.data_models.containers import AlgorithmList
 from sc_api_tools.data_models.enums import JobState
 from sc_api_tools.data_models.project import Dataset
 from sc_api_tools.http_session import SCSession
+from sc_api_tools.platform_versions import SC11_VERSION, SC12_VERSION
 from sc_api_tools.rest_converters import (
     ConfigurationRESTConverter,
     JobRESTConverter,
@@ -75,18 +76,18 @@ class TrainingClient:
             url=f"workspaces/{self.workspace_id}/jobs", method="GET"
         )
         job_list: List[Job] = []
-        if self.session.version >= "1.2":
-            response_list_key = "jobs"
-        else:
+        if self.session.version == SC11_VERSION:
             response_list_key = "items"
+        else:
+            response_list_key = "jobs"
         for job_dict in response[response_list_key]:
             job = JobRESTConverter.from_dict(job_dict)
             job.workspace_id = self.workspace_id
             job_list.append(job)
 
-        if project_only and self.session.version < "1.2":
+        if project_only and self.session.version == SC11_VERSION:
             return [job for job in job_list if job.project_id == self.project.id]
-        elif project_only and self.session.version >= "1.2":
+        elif project_only and self.session.version >= SC12_VERSION:
             return [
                 job for job in job_list if job.metadata.project.id == self.project.id
             ]
@@ -168,7 +169,7 @@ class TrainingClient:
                 }
             )
 
-        if self.session.version < "1.2":
+        if self.session.version == SC11_VERSION:
             data = [request_data]
         else:
             data = {"training_parameters": [request_data]}

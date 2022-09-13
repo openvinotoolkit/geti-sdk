@@ -14,6 +14,7 @@
 import logging
 import os
 import sys
+import time
 import warnings
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
@@ -404,6 +405,9 @@ class SCRESTClient:
                 images=images,
             )
         if len(videos) > 0:
+            if len(images) == 0:
+                # Wait a few seconds to ensure videos are processed by the server
+                time.sleep(5)
             annotation_client.upload_annotations_for_videos(
                 videos=videos,
             )
