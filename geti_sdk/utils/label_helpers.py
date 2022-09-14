@@ -37,8 +37,8 @@ def generate_classification_labels(
     :param labels: Label names to be used
     :param multilabel: True to be able to assign multiple labels to one image, False
         otherwise. Defaults to False.
-    :return: List of dictionaries containing the label data that can be sent to the GETi
-        project creation endpoint
+    :return: List of dictionaries containing the label data that can be sent to the
+        Intel® Geti™ project creation endpoint
     """
     label_list: List[Dict[str, str]] = []
     if multilabel or len(labels) == 1:

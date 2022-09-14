@@ -96,9 +96,9 @@ class ModelClient:
         task: Optional[Task] = None,
     ) -> Optional[Model]:
         """
-        Retrieve a Model from the GETi cluster, corresponding to specific algorithm and
-        model version. If no version is passed, this method will retrieve the latest
-        model for the algorithm.
+        Retrieve a Model from the Intel® Geti™ server, corresponding to a specific
+        algorithm and model version. If no version is passed, this method will
+        retrieve the latest model for the algorithm.
 
         If no model for the algorithm is available in the project, this method returns
         None
@@ -161,8 +161,8 @@ class ModelClient:
         If the task does not have any trained models, this method returns None
 
         :param task: Task object containing details of the task to get the model for
-        :return: Model object representing the currently active model in the GETi
-            project, if any
+        :return: Model object representing the currently active model in the
+            Intel® Geti™ project, if any
         """
         model_groups = self.get_all_model_groups()
         model_id: Optional[str] = None
@@ -265,7 +265,7 @@ class ModelClient:
         the index of that task will be None
 
         :return: Model object representing the currently active model for the task in
-            the GETi project, if any
+            the Intel® Geti™ project, if any
         """
         return [
             self.get_active_model_for_task(task=task)
@@ -282,9 +282,9 @@ class ModelClient:
         :param path_to_folder: Path to the target folder in which to save the active
             models, and all optimized models derived from them.
         :return: List of Model objects representing the currently active models
-            (if any) for all tasks in the GETi project. The index of the Model in the
-            list corresponds to the index of the task in the list of trainable tasks
-            for the project.
+            (if any) for all tasks in the Intel® Geti™ project. The index of the
+            Model in the list corresponds to the index of the task in the list of
+            trainable tasks for the project.
         """
         return [
             self.download_active_model_for_task(
@@ -295,7 +295,7 @@ class ModelClient:
 
     def get_model_for_job(self, job: Job) -> Model:
         """
-        Return the model that was created by the `job` from the GETi cluster.
+        Return the model that was created by the `job` from the Intel® Geti™ server.
 
         :param job: Job to retrieve the model for
         :return: Model produced by the job

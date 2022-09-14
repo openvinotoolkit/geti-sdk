@@ -35,7 +35,7 @@ from geti_sdk.data_models.utils import remove_null_fields
 
 class ConfigurationRESTConverter:
     """
-    Class that handles conversion of GETi REST output for configurable parameter
+    Class that handles conversion of Intel® Geti™ REST output for configurable parameter
     entities to objects and vice versa.
     """
 
@@ -44,7 +44,7 @@ class ConfigurationRESTConverter:
         """
         Create an EntityIdentifier object from an input dictionary.
 
-        :param input_dict: Dictionary representing an EntityIdentifier in GETi
+        :param input_dict: Dictionary representing an EntityIdentifier in Intel® Geti™
         :return: EntityIdentifier object corresponding to the data in `input_dict`
         """
         identifier_type = input_dict.get("type", None)
@@ -65,8 +65,8 @@ class ConfigurationRESTConverter:
     def from_dict(input_dict: Dict[str, Any]) -> ConfigurableParameters:
         """
         Create a ConfigurableParameters object holding the configurable parameters
-        for an entity in GETi, from a dictionary returned by the GETi /configuration REST
-        endpoints.
+        for an entity in the Intel® Geti™ platform, from a dictionary returned by the
+        /configuration REST endpoints.
 
         :param input_dict: Dictionary containing the configurable parameters
         :return: ConfigurableParameters instance holding the parameter data
@@ -88,7 +88,7 @@ class ConfigurationRESTConverter:
     ) -> List[ConfigurableParameters]:
         """
         Create a list of configurable parameters from a list of dictionaries received
-        by the GETi /configuration endpoints.
+        by the Intel® Geti™ /configuration endpoints.
 
         :param input_list: List of dictionaries to convert
         :return: List of ConfigurableParameters instances
@@ -135,7 +135,8 @@ class ConfigurationRESTConverter:
     def task_configuration_from_dict(input_dict: Dict[str, Any]) -> TaskConfiguration:
         """
         Create a TaskConfiguration object holding all configurable parameters for a
-        task in GETi, from a dictionary returned by the /configuration REST endpoints.
+        task in an Intel® Geti™ project, from a dictionary returned by the
+        /configuration REST endpoints.
 
         :param input_dict: Dictionary containing the configurable parameters for the
             task
@@ -156,7 +157,8 @@ class ConfigurationRESTConverter:
     ) -> Dict[str, Any]:
         """
         Convert a TaskConfiguration, GlobalConfiguration or FullConfiguration into a
-        dictionary, removing fields that are None or are only relevant to the GETi UI.
+        dictionary, removing fields that are None or are only relevant to the
+        Intel® Geti™ UI.
 
         :param configuration: TaskConfiguration or GlobalConfiguration to convert
         :param deidentify: True to remove all unique database identifiers, False to
@@ -185,7 +187,7 @@ class ConfigurationRESTConverter:
     ) -> GlobalConfiguration:
         """
         Create a GlobalConfiguration object holding the configurable parameters
-        for all project-wide components in the GETi project, from input from the
+        for all project-wide components in the Intel® Geti™ project, from input from the
         /configuration/global REST endpoint.
 
         :param input_: REST response holding the serialized configurable parameters
@@ -208,8 +210,9 @@ class ConfigurationRESTConverter:
     @staticmethod
     def full_configuration_from_rest(input_dict: Dict[str, Any]) -> FullConfiguration:
         """
-        Convert a dictionary holding the full configuration for an GETi project, as
-        returned by the /configuration endpoint, to an object representation.
+        Convert a dictionary holding the full configuration for an Intel® Geti™
+        project, as returned by the /configuration endpoint, to an object
+        representation.
 
         :param input_dict: Dictionary representing the full project configuration
         :return: FullConfiguration instance holding the global and task chain

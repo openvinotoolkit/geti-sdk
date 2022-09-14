@@ -31,7 +31,7 @@ from geti_sdk.http_session import GetiRequestException, GetiSession
 @attr.s(auto_attribs=True)
 class JobStatus(StatusSummary):
     """
-    Current status of a job on the GETi cluster.
+    Current status of a job on the Intel® Geti™ server.
 
     :var state: Current state of the job
     """
@@ -43,8 +43,8 @@ class JobStatus(StatusSummary):
         """
         Create a JobStatus object from a dictionary.
 
-        :param status_dict: Dictionary representing a status, as returned by the GETi
-            /status and /jobs endpoints
+        :param status_dict: Dictionary representing a status, as returned by the
+            Intel® Geti™ /status and /jobs endpoints
         :return: JobStatus object holding the status data contained in `status_dict`
         """
         return cls(**status_dict)
@@ -53,7 +53,7 @@ class JobStatus(StatusSummary):
 @attr.s(auto_attribs=True)
 class TaskMetadata:
     """
-    Metadata related to a task on the GETi cluster.
+    Metadata related to a task on the Intel® Geti™ cluster.
 
     :var name: Name of the task
     :var model_template_id: Identifier of the model template used by the task

@@ -50,7 +50,7 @@ class TrainingClient:
 
     def get_status(self) -> ProjectStatus:
         """
-        Get the current status of the project from the GETi cluster.
+        Get the current status of the project from the Intel® Geti™ server.
 
         :return: ProjectStatus object reflecting the current project status
         """
@@ -61,7 +61,7 @@ class TrainingClient:
 
     def get_jobs(self, project_only: bool = True) -> List[Job]:
         """
-        Return a list of all jobs on the GETi cluster.
+        Return a list of all jobs on the Intel® Geti™ server.
 
         If `project_only = True` (the default), only those jobs related to the project
         managed by this TrainingClient will be returned. If set to False, all jobs in
@@ -69,7 +69,7 @@ class TrainingClient:
 
         :param project_only: True to return only those jobs pertaining to the project
             for which the TrainingClient is active. False to return all jobs in the
-            GETi workspace.
+            Intel® Geti™ workspace.
         :return: List of Jobs
         """
         response = self.session.get_rest_response(

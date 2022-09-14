@@ -17,7 +17,8 @@ from enum import Enum
 
 class ShapeType(Enum):
     """
-    Enum representing the types of shapes available in GETi.
+    Enum representing the types of shapes available for annotations on the Intel® Geti™
+    platform.
     """
 
     RECTANGLE = "RECTANGLE"

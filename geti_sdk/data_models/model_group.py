@@ -28,8 +28,8 @@ from geti_sdk.utils.algorithm_helpers import get_supported_algorithms
 @attr.s(auto_attribs=True)
 class ModelSummary:
     """
-    Representation of a Model in GETi, containing only the minimal information about
-    the model.
+    Representation of a Model on the Intel® Geti™ platform, containing only the
+    minimal information about the model.
 
     :var name: Name of the model
     :var creation_date: Creation date of the model
@@ -59,9 +59,9 @@ class ModelSummary:
 @attr.s(auto_attribs=True)
 class ModelGroup:
     """
-    Representation of a ModelGroup in GETi. A model group is a collection of models that
-    all share the same neural network architecture, but may have been trained with
-    different training datasets or hyper parameters.
+    Representation of a ModelGroup on the Intel® Geti™ server. A model group is a
+    collection of models that all share the same neural network architecture, but may
+    have been trained with different training datasets or hyper parameters.
     """
 
     _identifier_fields: ClassVar[List[str]] = ["id", "task_id"]
@@ -147,7 +147,7 @@ class ModelGroup:
         """
         Get the details for the algorithm corresponding to this ModelGroup.
 
-        :param session: REST session to an GETi cluster
+        :param session: REST session to an Intel® Geti™ server
         :return: Algorithm object holding the algorithm details for the ModelGroup
         """
         if self._algorithm is not None:
@@ -161,7 +161,7 @@ class ModelGroup:
         """
         Return the details for the algorithm corresponding to the ModelGroup
         This property will return None unless the `get_algorithm_details` method is
-        called to retrieve the algorithm information from the GETi cluster
+        called to retrieve the algorithm information from the Intel® Geti™ server
 
         :return: Algorithm details, if available
         """

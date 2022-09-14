@@ -23,7 +23,7 @@ from geti_sdk.data_models.utils import str_to_optional_enum_converter
 @attr.s(auto_attribs=True)
 class Algorithm:
     """
-    Representation of a supported algorithm in GETi.
+    Representation of a supported algorithm on the Intel® Geti™ platform.
     """
 
     algorithm_name: str
@@ -42,7 +42,8 @@ class Algorithm:
 
     def __attrs_post_init__(self):
         """
-        Convert domain to task type for backward compatibility with GETi MVP
+        Convert domain to task type for backward compatibility with earlier versions of
+        the Intel® Geti™ platform
         """
         if self.domain is not None and self.task_type is None:
             self.task_type = TaskType.from_domain(self.domain)

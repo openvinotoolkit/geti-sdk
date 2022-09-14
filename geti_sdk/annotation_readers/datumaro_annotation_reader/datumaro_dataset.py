@@ -29,7 +29,7 @@ class DatumaroDataset(object):
     """
     Wrapper for interacting with the datumaro dataset, contains some example
     functions for dataset operations that can be carried out prior to importing the
-    dataset into GETi
+    dataset into an Intel® Geti™ project.
     """
 
     def __init__(self, dataset_format: str, dataset_path: str):

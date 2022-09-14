@@ -19,7 +19,7 @@ from geti_sdk.data_models.enums.task_type import TaskType
 
 class Domain(Enum):
     """
-    Enum representing the different task domains in GETi.
+    Enum representing the different task domains in Intel® Geti™ projects.
     """
 
     DETECTION = "DETECTION"

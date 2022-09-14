@@ -272,7 +272,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         self, media_item: Union[Image, VideoFrame], annotation_scene: AnnotationScene
     ) -> AnnotationScene:
         """
-        Upload an annotation for an image or video frame to the GETi cluster.
+        Upload an annotation for an image or video frame to the Intel® Geti™ server.
 
         :param media_item: Image or VideoFrame to apply and upload the annotation to
         :param annotation_scene: AnnotationScene to upload
@@ -293,7 +293,8 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         self, media_item: Union[Image, VideoFrame]
     ) -> Optional[AnnotationScene]:
         """
-        Retrieve the latest annotations for an image or video frame from the GETi cluster.
+        Retrieve the latest annotations for an image or video frame from the
+        Intel® Geti™ platform.
         If no annotation is available, this method returns None.
 
         :param media_item: Image or VideoFrame to retrieve the annotations for

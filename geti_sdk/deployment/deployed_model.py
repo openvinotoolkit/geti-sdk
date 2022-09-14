@@ -46,8 +46,8 @@ ALL_LABELS_KEY = "all_labels"
 @attr.s(auto_attribs=True)
 class DeployedModel(OptimizedModel):
     """
-    Representation of a GETi model that has been deployed for inference. It can be
-    loaded onto a device to generate predictions.
+    Representation of an Intel® Geti™ model that has been deployed for inference. It
+    can be loaded onto a device to generate predictions.
     """
 
     hyper_parameters: Optional[TaskConfiguration] = attr.ib(
@@ -71,8 +71,8 @@ class DeployedModel(OptimizedModel):
         Load the model weights from a data source. The `source` can be one of the
         following:
 
-          1. The GETi cluster (if an GetiSession instance is passed). In this case the
-             weights will be downloaded, and extracted to a temporary directory
+          1. The Intel® Geti™ platform (if an GetiSession instance is passed). In this
+            case the weights will be downloaded, and extracted to a temporary directory
           2. A zip file on local disk, in this case the weights will be extracted to a
              temporary directory
           3. A folder on local disk containing the .xml and .bin file for the model
@@ -357,6 +357,7 @@ class DeployedModel(OptimizedModel):
         :param metadata: Dictionary holding metadata
         :return: Postprocessed inference results. The exact format depends on the
             type of model that is loaded:
+
             * For segmentation models, it will be a numpy array holding the output mask
             * For classification models, it will be a list of tuples holding the
                 output class index and class probability

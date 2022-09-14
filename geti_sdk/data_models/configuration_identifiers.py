@@ -24,8 +24,8 @@ from geti_sdk.data_models.utils import attr_value_serializer, str_to_enum_conver
 @attr.s(auto_attribs=True)
 class EntityIdentifier:
     """
-    Identifying information for a configurable entity in GETi, as returned by the
-    /configuration endpoint.
+    Identifying information for a configurable entity on the Intel® Geti™ platform,
+    as returned by the /configuration endpoint.
 
     :var workspace_id: ID of the workspace to which the entity belongs
     :var type: Type of the configuration
@@ -48,8 +48,8 @@ class EntityIdentifier:
 @attr.s(auto_attribs=True)
 class HyperParameterGroupIdentifier(EntityIdentifier):
     """
-    Identifying information for a HyperParameterGroup in GETi, as returned by the
-    /configuration endpoint.
+    Identifying information for a HyperParameterGroup on the Intel® Geti™ platform,
+    as returned by the /configuration endpoint.
 
     :var model_storage_id: ID of the model storage to which the hyper parameter group
         belongs
@@ -78,8 +78,8 @@ class HyperParameterGroupIdentifier(EntityIdentifier):
 @attr.s(auto_attribs=True)
 class ComponentEntityIdentifier(EntityIdentifier):
     """
-    Identifying information for a configurable Component in GETi, as returned by the
-    /configuration endpoint.
+    Identifying information for a configurable Component on the Intel® Geti™ platform,
+    as returned by the /configuration endpoint.
 
     :var component: Name of the component
     :var project_id: ID of the project to which the component belongs

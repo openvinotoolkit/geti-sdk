@@ -58,13 +58,13 @@ DEFAULT_LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 
 class Geti:
     """
-    Interact with an Intel GETi server via the REST API.
+    Interact with an Intel® Geti™ server via the REST API.
 
-    The Geti class provides methods for project creation, downloading and
+    The `Geti` class provides methods for project creation, downloading and
     uploading, as well as project deployment. Initializing the class will establish a
-    HTTP session to the GETi cluster, and requires authentication.
+    HTTP session to the Intel® Geti™ server, and requires authentication.
 
-    NOTE: The Geti instance can either be initialized using user credentials (`username`
+    NOTE: The `Geti` instance can either be initialized using user credentials (`username`
     and `password`), or using a personal access token (`token`). Arguments for either
     one of these two options must be passed, otherwise a TypeError will be raised.
 
@@ -141,7 +141,7 @@ class Geti:
 
     def logout(self) -> None:
         """
-        Log out of GETi and end the HTTP session.
+        Log out of the Intel® Geti™ platform and end the HTTP session.
         """
         self.session.logout()
 
@@ -322,8 +322,8 @@ class Geti:
         enable_auto_train: bool = True,
     ) -> Project:
         """
-        Upload a previously downloaded GETi project to the cluster. This method expects
-        the `target_folder` to contain the following:
+        Upload a previously downloaded Intel® Geti™ project to the server. This method
+        expects the `target_folder` to contain the following:
 
             images
                 Folder holding all images in the project, if any
@@ -452,8 +452,8 @@ class Geti:
         enable_auto_train: bool = True,
     ) -> Project:
         """
-        Create a single task project named `project_name` on the GETi cluster, and
-        upload data from a dataset on local disk.
+        Create a single task project named `project_name` on the Intel® Geti™ server,
+        and upload data from a dataset on local disk.
 
         The type of task that will be in the project can be controlled by setting the
         `project_type`, options are:
@@ -569,8 +569,8 @@ class Geti:
         enable_auto_train: bool = True,
     ) -> Project:
         """
-        Create a single task project named `project_name` on the GETi cluster, and
-        upload data from a dataset on local disk.
+        Create a single task project named `project_name` on the Intel® Geti™ cluster,
+        and upload data from a dataset on local disk.
 
         The type of task that will be in the project can be controlled by setting the
         `project_type`, current options are:
@@ -738,7 +738,7 @@ class Geti:
         self, target_folder: str, include_predictions: bool = True
     ) -> List[Project]:
         """
-        Download all projects in the workspace from the GETi cluster.
+        Download all projects in the workspace from the Intel® Geti™ server.
 
         :param target_folder: Directory on local disk to download the project data to.
             If not specified, this method will create a directory named 'projects' in
@@ -748,7 +748,7 @@ class Geti:
             If this is set to True but the project has no trained models, downloading
             predictions will be skipped.
         :return: List of Project objects, each entry corresponding to one of the
-            projects found on the GETi cluster
+            projects found on the Intel® Geti™ server
         """
         # Obtain project details from cluster
         project_client = ProjectClient(
@@ -762,8 +762,8 @@ class Geti:
         if not os.path.exists(target_folder):
             os.makedirs(target_folder)
         logging.info(
-            f"Found {len(projects)} projects on the GETi cluster. Commencing project "
-            f"download..."
+            f"Found {len(projects)} projects in the designated workspace on the "
+            f"Intel® Geti™ server. Commencing project download..."
         )
 
         # Download all found projects
@@ -781,7 +781,7 @@ class Geti:
     def upload_all_projects(self, target_folder: str) -> List[Project]:
         """
         Upload all projects found in the directory `target_folder` on local disk to
-        the GETi cluster.
+        the Intel® Geti™ server.
 
         This method expects the directory `target_folder` to contain subfolders. Each
         subfolder should correspond to the (previously downloaded) data for one

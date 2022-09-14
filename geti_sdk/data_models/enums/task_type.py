@@ -19,7 +19,7 @@ from ote_sdk.entities.model_template import Domain as OteDomain
 
 class TaskType(Enum):
     """
-    Enum representing the different task types in GETi.
+    Enum representing the different task types in Intel® Geti™ projects.
     """
 
     DETECTION = "detection"

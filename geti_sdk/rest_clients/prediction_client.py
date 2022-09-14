@@ -39,7 +39,7 @@ from geti_sdk.rest_converters.prediction_rest_converter import (
 
 class PredictionClient:
     """
-    Class to download predictions from an existing GETi project.
+    Class to download predictions from an existing Intel® Geti™ project.
     """
 
     def __init__(self, session: GetiSession, project: Project, workspace_id: str):
@@ -71,7 +71,9 @@ class PredictionClient:
             elif isinstance(response, list):
                 model_info_array = response
             else:
-                raise ValueError(f"Unexpected response from GETi cluster: {response}")
+                raise ValueError(
+                    f"Unexpected response from Intel® Geti™ server: {response}"
+                )
         else:
             model_info_array = response.get("model_groups", [])
 
@@ -123,8 +125,8 @@ class PredictionClient:
     @mode.setter
     def mode(self, new_mode: Union[str, PredictionMode]):
         """
-        Set the mode for the Prediction client to retrieve predictions from the GETi
-        cluster.
+        Set the mode for the Prediction client to retrieve predictions from the
+        Intel® Geti™ server.
 
         :param new_mode: PredictionMode (or string representing a prediction mode) to
             set
@@ -217,7 +219,7 @@ class PredictionClient:
 
     def get_image_prediction(self, image: Image) -> Prediction:
         """
-        Get a prediction for an image from the GETi cluster, if available.
+        Get a prediction for an image from the Intel® Geti™ server, if available.
 
         :param image: Image to get the prediction for. The image has to be present in
             the project on the cluster already.
@@ -232,7 +234,7 @@ class PredictionClient:
 
     def get_video_frame_prediction(self, video_frame: VideoFrame) -> Prediction:
         """
-        Get a prediction for a video frame from the GETi cluster, if available.
+        Get a prediction for a video frame from the Intel® Geti™ server, if available.
 
         :param video_frame: VideoFrame to get the prediction for. The frame has to be
             present in the project on the cluster already.
@@ -247,7 +249,7 @@ class PredictionClient:
 
     def get_video_predictions(self, video: Video) -> List[Prediction]:
         """
-        Get a list of predictions for a video from the GETi cluster, if available.
+        Get a list of predictions for a video from the Intel® Geti™ server, if available.
 
         :param video: Video to get the predictions for. The video has to be present in
             the project on the cluster already.

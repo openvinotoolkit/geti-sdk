@@ -27,7 +27,7 @@ from .base_annotation_reader import AnnotationReader
 
 class SCAnnotationReader(AnnotationReader):
     """
-    AnnotationReader for loading annotation files in GETi format.
+    AnnotationReader for loading annotation files in Intel® Geti™ format.
     """
 
     def __init__(
@@ -77,10 +77,13 @@ class SCAnnotationReader(AnnotationReader):
         :param label_name_to_id_mapping: mapping of label name to label id.
         :param preserve_shape_for_global_labels: False to convert shapes for global
             tasks to full rectangles (required for classification like tasks in
-            GETi), True to preserve such shapes. This parameter should be:
+            Intel® Geti™ projects), True to preserve such shapes. This parameter
+            should be:
+
              - False when uploading annotations to a single task project
              - True when uploading annotations for a classification like task,
                 following a local task in a task chain project.
+
         :return: List of Annotation objects containing all annotations for the given
             dataset item.
         """

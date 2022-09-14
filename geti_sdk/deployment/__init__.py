@@ -16,9 +16,9 @@
 Introduction
 ------------
 
-The `deployment` package allows creating a deployment of any GETi project. A project
-deployment can run inference on an image or video frame locally, i.e. without any
-connect to the GETi cluster.
+The `deployment` package allows creating a deployment of any Intel® Geti™ project.
+A project deployment can run inference on an image or video frame locally, i.e.
+without any connection to the Intel® Geti™ server.
 
 Deployments can be created for both single task and task chain projects alike, the API
 is the same in both cases.

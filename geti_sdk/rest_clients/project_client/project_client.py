@@ -53,7 +53,7 @@ TASK_TYPE_MAPPING = {
 
 class ProjectClient:
     """
-    Class to manipulate projects on the GETi cluster, within a certain workspace.
+    Class to manipulate projects on the Intel® Geti™ server, within a certain workspace.
     """
 
     def __init__(self, session: GetiSession, workspace_id: str):
@@ -63,10 +63,10 @@ class ProjectClient:
 
     def get_all_projects(self) -> List[Project]:
         """
-        Return a list of projects found on the GETi cluster
+        Return a list of projects found on the Intel® Geti™ server
 
         :return: List of Project objects, containing the project information for each
-            project on the GETi cluster
+            project on the Intel® Geti™ server
         """
         project_list = self.session.get_rest_response(
             url=f"{self.base_url}projects",
@@ -83,11 +83,11 @@ class ProjectClient:
 
     def get_project_by_name(self, project_name: str) -> Optional[Project]:
         """
-        Get a project from the GETi cluster by project_name.
+        Get a project from the Intel® Geti™ server by project_name.
 
         :param project_name: Name of the project to get
         :return: Project object containing the data of the project, if the project is
-            found on the cluster. Returns None if the project doesn't exist
+            found on the server. Returns None if the project doesn't exist
         """
         project_list = self.get_all_projects()
         project = next(
@@ -162,10 +162,10 @@ class ProjectClient:
     def download_project_info(self, project_name: str, path_to_folder: str) -> None:
         """
         Get the project data that can be used for project creation for a project on
-        the GETi cluster, named `project_name`. From the returned data, the method
-        `ProjectClient.get_or_create_project` can create a project on the GETi cluster.
-        The data is retrieved from the cluster and saved in the target folder
-        `path_to_folder`.
+        the Intel® Geti™ server, named `project_name`. From the returned data, the
+        method `ProjectClient.get_or_create_project` can create a project on the
+        Intel® Geti™ server. The data is retrieved from the cluster and saved in the
+        target folder `path_to_folder`.
 
         :param project_name: Name of the project to retrieve the data for
         :param path_to_folder: Target folder to save the project data to.
@@ -176,7 +176,7 @@ class ProjectClient:
         project = self.get_project_by_name(project_name)
         if project is None:
             raise ValueError(
-                f"Project with name {project_name} was not found on the cluster."
+                f"Project with name {project_name} was not found on the server."
             )
         project_data = ProjectRESTConverter.to_dict(project)
         if not os.path.exists(path_to_folder):
@@ -298,7 +298,8 @@ class ProjectClient:
     def is_project_dir(path_to_folder: str) -> bool:
         """
         Check if the folder specified in `path_to_folder` is a directory
-        containing valid GETi project data that can be used to upload to an GETi cluster.
+        containing valid Intel® Geti™ project data that can be used to upload to an
+        Intel® Geti™ server.
 
         :param path_to_folder: Directory to check
         :return: True if the directory holds project data, False otherwise

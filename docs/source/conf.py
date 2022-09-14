@@ -25,23 +25,21 @@ with open(f"{root_path}/geti_sdk/__init__.py", "r", encoding="utf-8") as init_fi
 
 # -- Project information -----------------------------------------------------
 
-project = "GETi SDK"
+project = "Intel® Geti™ SDK"
 copyright = "2022 Intel Corporation"
 author = "Ludo Cornelissen"
 
 # The full version, including alpha/beta/rc tags
 release = f"v{VERSION}"
 
+master_doc = "index"
 
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx_mdinclude",
-]
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.autosectionlabel", "myst_parser"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -71,8 +69,11 @@ autodoc_default_options = {
     "exclude_members": "__weakref__",
 }
 
+# -- Options for inclusion of markdown files --------------------------------
+myst_gfm_only = True
+myst_heading_anchors = 4
+
+source_suffix = [".rst", ".md"]
 
 # -- Options for jupyter notebook conversion --------------------------------
-
-
 nbsphinx_execute = "never"

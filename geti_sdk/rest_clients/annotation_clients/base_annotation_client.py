@@ -197,8 +197,8 @@ class BaseAnnotationClient:
         self, response_dict: Dict[str, Any], media_information: MediaInformation
     ) -> AnnotationScene:
         """
-        Convert a dictionary with annotation data obtained from the GETi /annotations
-        rest endpoint into an annotation scene.
+        Convert a dictionary with annotation data obtained from the Intel® Geti™
+        /annotations rest endpoint into an annotation scene.
 
         :param response_dict: Dictionary containing the annotation data
         :param media_information: MediaInformation about the media item to which the

@@ -17,7 +17,7 @@ from typing import BinaryIO, Dict, Optional, Union
 
 class GetiRequestException(Exception):
     """
-    Exception representing an unsuccessful http request to the GETi cluster.
+    Exception representing an unsuccessful http request to the Intel® Geti™ server.
     """
 
     def __init__(
@@ -29,7 +29,7 @@ class GetiRequestException(Exception):
         response_data: Optional[Union[dict, str, list]] = None,
     ):
         """
-        Raise this exception upon unsuccessful requests to the GETi cluster.
+        Raise this exception upon unsuccessful requests to the Intel® Geti™ server.
 
         :param method: Method that was used for the request, e.g. 'POST' or 'GET', etc.
         :param url: URL to which the request was made
@@ -52,7 +52,8 @@ class GetiRequestException(Exception):
 
     def __str__(self) -> str:
         """
-        Return string representation of the unsuccessful http request to the GETi cluster
+        Return string representation of the unsuccessful http request to the
+        Intel® Geti™ server.
         """
         error_str = (
             f"{self.method} request to '{self.url}' failed with status code "

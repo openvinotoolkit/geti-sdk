@@ -21,8 +21,8 @@ from geti_sdk.data_models.utils import str_to_enum_converter_by_name_or_value
 @attr.s(auto_attribs=True)
 class TaskAnnotationState:
     """
-    Representation of the state of an annotation for a particular task in the GETi
-    project.
+    Representation of the state of an annotation for a particular task in an
+    Intel® Geti™ project.
     """
 
     task_id: str

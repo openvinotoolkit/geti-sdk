@@ -20,8 +20,8 @@ from geti_sdk.utils import deserialize_dictionary
 
 class MediaRESTConverter:
     """
-    Class that handles conversion of GETi REST output for media entities to objects and
-    vice versa.
+    Class that handles conversion of Intel® Geti™ REST output for media entities to
+    objects and vice versa.
     """
 
     @staticmethod
@@ -29,8 +29,9 @@ class MediaRESTConverter:
         input_dict: Dict[str, Any], media_type: Type[MediaTypeVar]
     ) -> MediaTypeVar:
         """
-        Create an instance of type `media_type` representing a media entity in GETi
-        from a dictionary returned by the GETi /media REST endpoints.
+        Create an instance of type `media_type` representing a media entity on the
+        Intel® Geti™ server from a dictionary returned by the GETi /media REST
+        endpoints.
 
         :param input_dict: Dictionary representing the media entity
         :param media_type: Type of the media entity

@@ -18,7 +18,7 @@ from typing import List
 
 class JobState(Enum):
     """
-    Enum representing the state of a job on the GETi cluster.
+    Enum representing the state of a job on the Intel® Geti™ server.
     """
 
     IDLE = "idle"

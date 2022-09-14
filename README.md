@@ -1,6 +1,7 @@
-## Introduction
-Welcome to the GETi SDK! This python package contains tools to interact with a
-GETi server via the REST API. It provides functionality for:
+# Introduction
+
+Welcome to the Intel® Geti™ SDK! This python package contains tools to interact with an
+Intel® Geti™ server via the REST API. It provides functionality for:
 
 - Project creation from annotated datasets on disk
 - Project downloading (images, videos, configuration, annotations, predictions and models)
@@ -11,11 +12,10 @@ GETi server via the REST API. It provides functionality for:
 - Media upload and prediction
 
 This repository also contains a set of (tutorial style) Jupyter
-[notebooks](/notebooks/README.md) that demonstrate how to use the SDK. We highly
+[notebooks](notebooks/README.md) that demonstrate how to use the SDK. We highly
 recommend checking them out to give you a flying start with the package.
 
-## Getting started
-### Installation
+# Installation
 I recommend using an environment manager such as
 [Anaconda](https://www.anaconda.com/products/individual) or
 [venv](https://docs.python.org/3/library/venv.html) to create a new
@@ -24,13 +24,13 @@ requires Python version 3.8, so make sure to use that version in your environmen
 
 Once you have created a new environment, follow these steps to install the package:
 
-#### PyPI installation
-To install the GETi SDK from PyPI, simply use `pip install geti_sdk`
+## PyPI installation
+To install the Intel® Geti™ SDK from PyPI, simply use `pip install geti_sdk`
 
 If you plan on running the jupyter notebooks, install the requirements for them by
 running `pip install geti_sdk[notebooks]`
 
-#### Local installation
+## Local installation
 To install the SDK in editable mode, follow these steps:
 
 1. Download or clone the repository and navigate to the root directory of the repo.
@@ -47,13 +47,13 @@ To install the SDK in editable mode, follow these steps:
 > systems, but unfortunately not on Windows yet since not all required packages are
 > available for that version.
 
-### Examples
-The [examples](/examples/README.md) folder contains example scripts, showing various
+# Examples
+The [examples](examples/README.md) folder contains example scripts, showing various
 use cases for the package. They can be run by navigating to the `examples` directory
 in your terminal, and simply running the scripts like any other python script.
 
-### Jupyter Notebooks
-In addition, the [notebooks](/notebooks/README.md) folder contains jupyter notebooks
+# Jupyter Notebooks
+In addition, the [notebooks](notebooks/README.md) folder contains jupyter notebooks
 with example use cases for the `geti_sdk`. To run the notebooks,
 make sure to first install the requirements for this using
 `pip install -r requirements/requirements-notebooks.txt`
@@ -62,32 +62,36 @@ Once the notebook requirements are installed, navigate to the `notebooks` direct
 your terminal. Then, fire up JupyterLab by typing `jupyter lab`. This should open your
 browser and take you to the JupyterLab landing page, with the SDK notebooks open.
 
-> **NOTE**: Both the example scripts and the notebooks require access to a GETi
-> instance.
+> **NOTE**: Both the example scripts and the notebooks require access to a server
+> running the Intel® Geti™ platform.
 
-## Example use cases
+# Example use cases
 The package provides a main class `Geti` that can be used for the following use cases
-### Downloading and uploading projects
+
+## Downloading and uploading projects
+
 - **Project download** The following python snippet is a minimal example of how to
-  download a project using Geti:
+  download a project using `Geti`:
 
-    ```
-    from geti_sdk import Geti
+  ```python
+  from geti_sdk import Geti
 
-    geti = Geti(
-      host="https://0.0.0.0", username="dummy_user", password="dummy_password"
-    )
+  geti = Geti(
+    host="https://0.0.0.0", username="dummy_user", password="dummy_password"
+  )
 
-    geti.download_project(project_name="dummy_project")
-    ```
+  geti.download_project(project_name="dummy_project")
+  ```
+
   Here, it is assumed that the project with name 'dummy_project' exists on the cluster.
-  The Geti instance will create a folder named 'dummy_project' in your current working
+  The `Geti` instance will create a folder named 'dummy_project' in your current working
   directory, and download the project parameters, images, videos, annotations,
   predictions and the active model for the project (including optimized models derived
   from it) to that folder.
 
   The method takes
   the following optional parameters:
+
     - `target_folder` -- Can be specified to change the directory to which the
       project data is saved.
 
@@ -100,36 +104,39 @@ The package provides a main class `Geti` that can be used for the following use 
 
 
 - **Project upload** The following python snippet is a minimal example of how to
-  re-create a project on an GETi cluster using the data from a previously downloaded
-  project:
-    ```
-    from geti_sdk import Geti
+  re-create a project on an Intel® Geti™ server using the data from a previously
+  downloaded project:
 
-    geti = Geti(
-        host="https://0.0.0.0", username="dummy_user", password="dummy_password"
-    )
+  ```python
+  from geti_sdk import Geti
 
-    geti.upload_project(target_folder="dummy_project")
-    ```
+  geti = Geti(
+      host="https://0.0.0.0", username="dummy_user", password="dummy_password"
+  )
+
+  geti.upload_project(target_folder="dummy_project")
+  ```
+
   The parameter `target_folder` must be a valid path to the directory holding the
   project data. If you want to create the project using a different name than the
   original project, you can pass an additional parameter `project_name` to the upload
   method.
 
-The Geti instance can be used to either back-up a project (by downloading it and later
+The `Geti` instance can be used to either back-up a project (by downloading it and later
 uploading it again to the same cluster), or to migrate a project to a different cluster
 (download it, and upload it to the target cluster).
 
-#### Up/Downloading all projects
+## Up- or downloading all projects
 To up- or download all projects from a cluster, simply use the
 `geti.download_all_projects` and `geti.upload_all_projects` methods instead of
 the single project methods in the code snippets above.
 
-### Deploying a project
+## Deploying a project
 
 The following code snippet shows how to create a deployment for local inference with
 OpenVINO:
-```
+
+```python
 import cv2
 
 from geti_sdk import Geti
@@ -151,14 +158,16 @@ prediction = deployment.infer(image=dummy_image)
 # Save the deployment to disk
 deployment.save(path_to_folder="dummy_project")
 ```
+
 The `deployment.infer` method takes a numpy image as input.
 
 The `deployment.save` method will save the deployment to the folder named
 'dummy_project', on the local disk. The deployment can be reloaded again later using
 `Deployment.from_folder('dummy_project')`.
 
-## Supported features
+# Supported features
 What is supported:
+
 - **Creating projects**. You can pass a variable `project_type` to control what kind of
   tasks will be created in the project pipeline. For example, if you want to create a
   single task segmentation project, you'd pass `project_type='segmentation'`. For a
@@ -192,12 +201,13 @@ What is supported:
 - **Launching and monitoring training jobs**
 
 What is not supported:
+
 - Model upload
 - Prediction upload
-- Plenty of other things that are supported in GETi but not included in the SDK
-  just yet. These will be added in due time.
+- Plenty of other things that are supported in the Intel® Geti™ platform but not
+  included in the SDK just yet. These will be added in due time.
 
-## High level API reference
+# High level API reference
 The `Geti` class provides the following methods:
 
 - `download_project` -- Downloads a project by project name.
@@ -244,11 +254,11 @@ The `Geti` class provides the following methods:
 
 For further details regarding these methods, please refer to the method documentation
 and the [code snippets](#downloading-and-uploading-projects) and
-[example scripts](#examples) provided in this repo.
+[example scripts](examples/README.md) provided in this repo.
 
 Please visit the full documentation for a complete API reference.
 
-## Using Docker
+# Using Docker
 
 The Dockerfile can be used to run the package without having to install python on your
 machine.

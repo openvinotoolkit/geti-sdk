@@ -39,7 +39,8 @@ class NormalizedPredictionRESTConverter(PredictionRESTConverter):
     ) -> Prediction:
         """
         Legacy method that creates an AnnotationScene object from a dictionary
-        returned by the /annotations REST endpoint in GETi versions 1.1 or below
+        returned by the /annotations REST endpoint in Intel® Geti™ versions 1.1 or
+        below
 
         :param prediction: dictionary representing a Prediction, which
             contains all predictions for a certain media entity

@@ -101,6 +101,7 @@ class AnnotationReader:
         been applied to the dataset, if any.
 
         Dictionaries in this list contain two keys:
+
         - 'labels'      -- List of label names which has been filtered on
         - 'criterion'   -- String representing the criterion that has been used in the
                            filtering. Can be 'OR', 'AND', 'XOR' or 'NOT'.

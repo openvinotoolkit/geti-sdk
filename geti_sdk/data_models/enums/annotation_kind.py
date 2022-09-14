@@ -17,7 +17,8 @@ from enum import Enum
 
 class AnnotationKind(Enum):
     """
-    Enum representing the different kind of annotation scenes in GETi.
+    Enum representing the different kind of annotation scenes on the Intel® Geti™
+    platform.
     """
 
     ANNOTATION = "annotation"

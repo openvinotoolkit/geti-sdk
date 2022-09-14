@@ -42,8 +42,8 @@ class GetiSession(requests.Session):
     handles authentication and authorization.
 
     :param server_config: Server configuration holding the hostname (or ip address) of
-        the GETi server, as well as the details required for authentication (either
-        username and password or personal access token)
+        the Intel® Geti™ server, as well as the details required for authentication
+        (either username and password or personal access token)
     """
 
     def __init__(
@@ -69,7 +69,7 @@ class GetiSession(requests.Session):
         if not server_config.has_valid_certificate:
             warnings.warn(
                 "You have disabled TLS certificate validation, HTTPS requests made to "
-                "the GETi server may be compromised. For optimal security, "
+                "the Intel® Geti™ server may be compromised. For optimal security, "
                 "please enable certificate validation.",
                 InsecureRequestWarning,
             )
@@ -95,9 +95,9 @@ class GetiSession(requests.Session):
     @property
     def version(self) -> version.Version:
         """
-        Return the version of GETi that is running on the server.
+        Return the version of the Intel® Geti™ platform that is running on the server.
 
-        :return: Version object holding the SC version number
+        :return: Version object holding the Intel® Geti™ version number
         """
         version_string = self._product_info.get("product-version", "1.0.0")
         return version.parse(version_string)
@@ -157,13 +157,13 @@ class GetiSession(requests.Session):
         except requests.exceptions.ConnectionError as error:
             if "dummy" in self.config.password or "dummy" in self.config.username:
                 raise ValueError(
-                    "Connection to the Intel Geti server failed, please make sure to update "
-                    "the user login information for the GETi platform."
+                    "Connection to the Intel® Geti™ server failed, please make sure to "
+                    "update the user login information for the Intel® Geti™ instance."
                 ) from error
             raise ValueError(
-                f"Connection to Sonoma Creek at host '{self.config.host}' failed,"
-                f" please provide a valid cluster hostname or ip address as well as "
-                f"valid login details."
+                f"Connection to the Intel® Geti™ server at host '{self.config.host}' "
+                f"failed, please provide a valid cluster hostname or ip address as"
+                f" well as valid login details."
             ) from error
         self.headers.clear()
         self.headers.update({"Content-Type": "application/x-www-form-urlencoded"})
@@ -308,7 +308,7 @@ class GetiSession(requests.Session):
 
     def _get_product_info_and_set_api_version(self) -> Dict[str, str]:
         """
-        Return the product info as retrieved from the GETi server.
+        Return the product info as retrieved from the Intel® Geti™ server.
 
         This method will also attempt to set the API version correctly, based on the
         retrieved product info.
@@ -324,8 +324,8 @@ class GetiSession(requests.Session):
 
     def __exit__(self, exc_type, exc_value, traceback):
         """
-        Log out of the GETi server. This method is called when exiting the runtime
-        context related to the session, in case the session is used as a context
+        Log out of the Intel® Geti™ server. This method is called when exiting the
+        runtime context related to the session, in case the session is used as a context
         manager.
         """
         if self.logged_in:
@@ -334,8 +334,8 @@ class GetiSession(requests.Session):
 
     def __del__(self):
         """
-        Log out of the GETi server. This method is called when the session is deleted
-        from memory.
+        Log out of the Intel® Geti™ server. This method is called when the session is
+        deleted from memory.
         """
         if self.logged_in:
             try:

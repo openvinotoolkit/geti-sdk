@@ -37,7 +37,8 @@ from geti_sdk.rest_converters import ProjectRESTConverter
 @attr.s(auto_attribs=True)
 class Deployment:
     """
-    Representation of a deployed GETi project that can be used to run inference locally
+    Representation of a deployed Intel® Geti™ project that can be used to run
+    inference locally
     """
 
     project: Project

@@ -20,7 +20,7 @@ These pages contain the documentation for the main SDK class,
 :py:class:`~geti_sdk.sc_rest_client.Geti`.
 
 The :py:class:`~geti_sdk.sc_rest_client.Geti` class implements convenience
-methods for common operations that can be performed on the GETi cluster, such as
+methods for common operations that can be performed on the Intel® Geti™ cluster, such as
 creating a project from a pre-existing dataset, downloading or uploading a project,
 uploading an image and getting a prediction for it and creating a deployment for a
 project.

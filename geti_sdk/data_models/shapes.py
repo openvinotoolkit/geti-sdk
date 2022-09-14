@@ -32,8 +32,9 @@ from geti_sdk.data_models.utils import round_to_n_digits, str_to_shape_type
 OteShapeTypeVar = TypeVar("OteShapeTypeVar", OtePolygon, OteEllipse, OtePolygon)
 
 # N_DIGITS_TO_ROUND_TO determines how pixel coordinates will be rounded when they are
-# passed from the GETi REST API. GETi itself rounds some coordinates to 4 digits, but not
-# all. Here we round all coordinates for internal consistency
+# passed from the Intel® Geti™ REST API. The Intel® Geti™ server itself rounds some
+# coordinates to 4 digits, but not all. Here we round all coordinates for internal
+# consistency
 N_DIGITS_TO_ROUND_TO = 0
 coordinate_converter = round_to_n_digits(N_DIGITS_TO_ROUND_TO)
 
@@ -41,7 +42,7 @@ coordinate_converter = round_to_n_digits(N_DIGITS_TO_ROUND_TO)
 @attr.s(auto_attribs=True)
 class Shape:
     """
-    Representation of a shape in GETi.
+    Representation of a shape in on the Intel® Geti™ platform.
 
     :var type: Type of the shape
     """
@@ -121,7 +122,8 @@ class Shape:
 @attr.s(auto_attribs=True)
 class Rectangle(Shape):
     """
-    Representation of a Rectangle in GETi, as used in the /annotations REST endpoints.
+    Representation of a Rectangle on the Intel® Geti™ platform, as used in the
+    /annotations REST endpoints.
 
     NOTE: All coordinates and dimensions are given in pixels
 
@@ -230,7 +232,8 @@ class Rectangle(Shape):
 @attr.s(auto_attribs=True)
 class Ellipse(Shape):
     """
-    Representation of an Ellipse in GETi, as used in the /annotations REST endpoints.
+    Representation of an Ellipse on the Intel® Geti™ platform, as used in the
+    /annotations REST endpoints.
 
     NOTE: All coordinates and dimensions are given in pixels
 
@@ -324,7 +327,8 @@ class Ellipse(Shape):
 @attr.s(auto_attribs=True)
 class Point:
     """
-    Representation of a point on a 2D coordinate system. Used to define Polygons in GETi.
+    Representation of a point on a 2D coordinate system. Used to define Polygons on
+    the Intel® Geti™ platform.
 
     NOTE: All coordinates are defined in pixels
 
@@ -339,7 +343,8 @@ class Point:
 @attr.s(auto_attribs=True)
 class Polygon(Shape):
     """
-    Representation of a polygon in GETi, as used in the /annotations REST endpoints.
+    Representation of a polygon on the Intel® Geti™ platform, as used in the
+    /annotations REST endpoints.
 
     :var points: List of Points that make up the polygon
     """
@@ -469,8 +474,8 @@ class Polygon(Shape):
 @attr.s(auto_attribs=True)
 class RotatedRectangle(Shape):
     """
-    Representation of a RotatedRectangle in GETi, as used in the /annotations REST
-    endpoints.
+    Representation of a RotatedRectangle on the Intel® Geti™ platform, as used in the
+    /annotations REST endpoints.
 
     NOTE: All coordinates and dimensions are specified in pixels
 
