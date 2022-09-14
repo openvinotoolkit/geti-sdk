@@ -24,6 +24,7 @@ from sc_api_tools.rest_converters import ProjectRESTConverter
 from sc_api_tools.utils.project_helpers import get_task_types_by_project_type
 
 from ...data_models.utils import remove_null_fields
+from ...platform_versions import SC11_VERSION
 from .task_templates import (
     ANOMALY_CLASSIFICATION_TASK,
     ANOMALY_DETECTION_TASK,
@@ -71,10 +72,10 @@ class ProjectClient:
             url=f"{self.base_url}projects",
             method="GET",
         )
-        if self.session.version > "1.1":
-            project_key = "projects"
-        else:
+        if self.session.version == SC11_VERSION:
             project_key = "items"
+        else:
+            project_key = "projects"
         return [
             ProjectRESTConverter.from_dict(project_input=project)
             for project in project_list[project_key]
@@ -491,13 +492,7 @@ class ProjectClient:
             single task project, but is required for a task chain project
         :return: Updated Project instance with the new labels added to it
         """
-        # Validate inputs and server version
-        if self.session.version < "1.1":
-            raise ValueError(
-                f"Your server is running SonomaCreek version {self.session.version}. "
-                f"Unfortunately this version does not support adding labels, please "
-                f"upgrade to SC1.1 or higher."
-            )
+        # Validate inputs
         if task is not None and task not in project.get_trainable_tasks():
             raise ValueError(
                 f"The provided task {task} is not part of project {project}."

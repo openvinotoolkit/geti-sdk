@@ -30,6 +30,7 @@ from sc_api_tools.data_models import (
 from sc_api_tools.data_models.containers.media_list import MediaList
 from sc_api_tools.data_models.media import MediaInformation
 from sc_api_tools.http_session import SCRequestException, SCSession
+from sc_api_tools.platform_versions import SC11_VERSION
 from sc_api_tools.rest_converters import AnnotationRESTConverter
 from sc_api_tools.rest_converters.annotation_rest_converter import (
     NormalizedAnnotationRESTConverter,
@@ -175,7 +176,7 @@ class BaseAnnotationClient:
                 )
         if scene_to_upload.annotations:
             scene_to_upload.prepare_for_post()
-            if self.session.version < "1.2":
+            if self.session.version == SC11_VERSION:
                 rest_data = NormalizedAnnotationRESTConverter.to_normalized_dict(
                     scene_to_upload,
                     deidentify=False,
@@ -186,8 +187,7 @@ class BaseAnnotationClient:
                 rest_data = AnnotationRESTConverter.to_dict(
                     scene_to_upload, deidentify=False
                 )
-            if self.session.version != "1.0":
-                rest_data.pop("kind")
+            rest_data.pop("kind")
             self.session.get_rest_response(
                 url=f"{media_item.base_url}/annotations", method="POST", data=rest_data
             )
@@ -205,7 +205,7 @@ class BaseAnnotationClient:
             annotation applies
         :return: AnnotationScene object corresponding to the data in the response_dict
         """
-        if self.session.version < "1.2":
+        if self.session.version == SC11_VERSION:
             annotation_scene = (
                 NormalizedAnnotationRESTConverter.normalized_annotation_scene_from_dict(
                     response_dict,
@@ -244,7 +244,7 @@ class BaseAnnotationClient:
         annotation_scene.extend(new_annotation_scene.annotations)
 
         if annotation_scene.has_data:
-            if self.session.version <= "1.1":
+            if self.session.version == SC11_VERSION:
                 rest_data = NormalizedAnnotationRESTConverter.to_normalized_dict(
                     annotation_scene,
                     deidentify=False,
@@ -255,10 +255,9 @@ class BaseAnnotationClient:
                 rest_data = AnnotationRESTConverter.to_dict(
                     annotation_scene, deidentify=False
                 )
-            if self.session.version != "1.0":
-                rest_data.pop("kind", None)
-                rest_data.pop("annotation_state_per_task", None)
-                rest_data.pop("id", None)
+            rest_data.pop("kind", None)
+            rest_data.pop("annotation_state_per_task", None)
+            rest_data.pop("id", None)
             response = self.session.get_rest_response(
                 url=f"{media_item.base_url}/annotations", method="POST", data=rest_data
             )

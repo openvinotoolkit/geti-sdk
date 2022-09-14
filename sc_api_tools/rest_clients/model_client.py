@@ -28,6 +28,7 @@ from sc_api_tools.data_models import (
 )
 from sc_api_tools.data_models.enums import JobState, JobType
 from sc_api_tools.http_session import SCSession
+from sc_api_tools.platform_versions import SC11_VERSION
 from sc_api_tools.rest_converters import ModelRESTConverter
 from sc_api_tools.utils import get_supported_algorithms
 
@@ -55,8 +56,8 @@ class ModelClient:
         :return: List of model groups in the project
         """
         response = self.session.get_rest_response(url=self.base_url, method="GET")
-        if self.session.version < "1.2":
-            response_array = response
+        if self.session.version == SC11_VERSION:
+            response_array = response["items"]
         else:
             response_array = response["model_groups"]
         model_groups = [
