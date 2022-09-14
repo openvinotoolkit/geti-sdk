@@ -281,7 +281,7 @@ class ConfigurationClient:
                         failed_parameters.append(
                             {task_config.task_title: parameter.name}
                         )
-            logging.info(
+            logging.warning(
                 f"Setting configuration failed for the following parameters: "
                 f"{failed_parameters}. All other parameters were set successfully."
             )

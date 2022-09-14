@@ -17,6 +17,7 @@ from typing import Generic, List, Optional, Sequence, Union
 from geti_sdk.data_models import AnnotationScene, Image, Video, VideoFrame
 from geti_sdk.data_models.containers import MediaList
 
+from ...platform_versions import SC11_VERSION
 from .base_annotation_client import AnnotationReaderType, BaseAnnotationClient
 
 
@@ -36,7 +37,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         response = self.session.get_rest_response(
             url=f"{video.base_url}/annotations/latest", method="GET"
         )
-        if self.session.version < "1.2":
+        if self.session.version == SC11_VERSION:
             annotations = response
         else:
             annotations = response["video_annotations"]

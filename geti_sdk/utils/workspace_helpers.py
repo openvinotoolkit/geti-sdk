@@ -13,6 +13,7 @@
 # and limitations under the License.
 
 from geti_sdk.http_session import GetiSession
+from geti_sdk.platform_versions import SC11_VERSION
 
 
 def get_default_workspace_id(rest_session: GetiSession) -> str:
@@ -26,10 +27,10 @@ def get_default_workspace_id(rest_session: GetiSession) -> str:
     if isinstance(workspaces, list):
         workspace_list = workspaces
     elif isinstance(workspaces, dict):
-        if rest_session.version > "1.1":
-            workspace_list = workspaces["workspaces"]
-        else:
+        if rest_session.version == SC11_VERSION:
             workspace_list = workspaces["items"]
+        else:
+            workspace_list = workspaces["workspaces"]
     else:
         raise ValueError(
             f"Unexpected response from cluster: {workspaces}. Expected to receive a "

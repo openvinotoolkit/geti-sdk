@@ -11,17 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-from typing import List
 
-from geti_sdk.data_models.enums import TaskType
+from packaging import version
 
-
-def get_task_types_by_project_type(project_type: str) -> List[TaskType]:
-    """
-    Return a list of task_type for each task in the project pipeline, for a certain
-    'project_type'.
-
-    :param project_type:
-    :return:
-    """
-    return [TaskType(task) for task in project_type.split("_to_")]
+SC11_VERSION = version.parse("1.1.0-release-20220624125113")
+SC12_VERSION = version.parse("1.2.0-test-20220906115957")

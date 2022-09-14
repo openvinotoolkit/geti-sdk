@@ -28,6 +28,7 @@ from geti_sdk.data_models import (
 )
 from geti_sdk.data_models.enums import JobState, JobType
 from geti_sdk.http_session import GetiSession
+from geti_sdk.platform_versions import SC11_VERSION
 from geti_sdk.rest_converters import ModelRESTConverter
 from geti_sdk.utils import get_supported_algorithms
 
@@ -55,8 +56,8 @@ class ModelClient:
         :return: List of model groups in the project
         """
         response = self.session.get_rest_response(url=self.base_url, method="GET")
-        if self.session.version < "1.2":
-            response_array = response
+        if self.session.version == SC11_VERSION:
+            response_array = response["items"]
         else:
             response_array = response["model_groups"]
         model_groups = [

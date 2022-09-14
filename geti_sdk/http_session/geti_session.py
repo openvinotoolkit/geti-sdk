@@ -20,6 +20,7 @@ from typing import Any, Dict, Optional, Union
 import requests
 import simplejson
 import urllib3
+from packaging import version
 from requests import Response
 from requests.exceptions import RequestException
 from requests.structures import CaseInsensitiveDict
@@ -64,15 +65,6 @@ class GetiSession(requests.Session):
         else:
             self._proxies = {"proxies": server_config.proxies}
 
-        # Sanitize hostname
-        if not server_config.host.startswith("https://"):
-            if server_config.host.startswith("http://"):
-                raise ValueError(
-                    "HTTP connections are not supported, please use HTTPS instead."
-                )
-            else:
-                server_config.host = "https://" + server_config.host
-
         # Configure certificate verification
         if not server_config.has_valid_certificate:
             warnings.warn(
@@ -101,14 +93,14 @@ class GetiSession(requests.Session):
         self._product_info = self._get_product_info_and_set_api_version()
 
     @property
-    def version(self) -> str:
+    def version(self) -> version.Version:
         """
         Return the version of GETi that is running on the server.
 
-        :return: string holding the GETi version number
+        :return: Version object holding the SC version number
         """
-        version_string = self._product_info.get("product-version", "1.0.0-")
-        return version_string.split("-")[0]
+        version_string = self._product_info.get("product-version", "1.0.0")
+        return version.parse(version_string)
 
     def _acquire_access_token(self) -> str:
         """
@@ -165,8 +157,8 @@ class GetiSession(requests.Session):
         except requests.exceptions.ConnectionError as error:
             if "dummy" in self.config.password or "dummy" in self.config.username:
                 raise ValueError(
-                    "Connection to Sonoma Creek failed, please make sure to update "
-                    "the user login information for the GETi cluster."
+                    "Connection to the Intel Geti server failed, please make sure to update "
+                    "the user login information for the GETi platform."
                 ) from error
             raise ValueError(
                 f"Connection to Sonoma Creek at host '{self.config.host}' failed,"
@@ -242,7 +234,10 @@ class GetiSession(requests.Session):
 
         response = self.request(**request_params, **self._proxies)
 
-        if response.status_code not in SUCCESS_STATUS_CODES:
+        if (
+            response.status_code not in SUCCESS_STATUS_CODES
+            or "text/html" in response.headers.get("Content-Type", [])
+        ):
             response = self._handle_error_response(
                 response=response,
                 request_params=request_params,
@@ -288,7 +283,7 @@ class GetiSession(requests.Session):
                         status_code=response.status_code,
                         request_data={},
                     )
-            except RequestException:
+            except (RequestException, AttributeError):
                 if verbose:
                     logging.info(
                         f"The {self.__class__.__name__} is closed successfully, but "
@@ -343,7 +338,10 @@ class GetiSession(requests.Session):
         from memory.
         """
         if self.logged_in:
-            self.logout(verbose=False)
+            try:
+                self.logout(verbose=False)
+            except Exception:
+                pass
 
     def _handle_error_response(
         self,
@@ -360,9 +358,7 @@ class GetiSession(requests.Session):
         :raises: GetiRequestException in case the error cannot be handled
         :return: Response object resulting from the request
         """
-        if response.status_code in [401, 403] or "text/html" in response.headers.get(
-            "Content-Type", []
-        ):
+        if response.status_code in [200, 401, 403]:
             # Authentication has likely expired, re-authenticate
             if not self.use_token:
                 logging.info("Authorization expired, re-authenticating...", end=" ")
