@@ -70,7 +70,7 @@ autodoc_default_options = {
 }
 
 # -- Options for inclusion of markdown files --------------------------------
-myst_gfm_only = True
+# myst_gfm_only = True
 myst_heading_anchors = 4
 
 source_suffix = [".rst", ".md"]

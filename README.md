@@ -1,4 +1,4 @@
-# Introduction
+# Getting started
 
 Welcome to the Intel® Geti™ SDK! This python package contains tools to interact with an
 Intel® Geti™ server via the REST API. It provides functionality for:
@@ -13,9 +13,9 @@ Intel® Geti™ server via the REST API. It provides functionality for:
 
 This repository also contains a set of (tutorial style) Jupyter
 [notebooks](notebooks/README.md) that demonstrate how to use the SDK. We highly
-recommend checking them out to give you a flying start with the package.
+recommend checking them out to get a feeling for use cases for the package.
 
-# Installation
+## Installation
 I recommend using an environment manager such as
 [Anaconda](https://www.anaconda.com/products/individual) or
 [venv](https://docs.python.org/3/library/venv.html) to create a new
@@ -24,13 +24,13 @@ requires Python version 3.8, so make sure to use that version in your environmen
 
 Once you have created a new environment, follow these steps to install the package:
 
-## PyPI installation
+### PyPI installation
 To install the Intel® Geti™ SDK from PyPI, simply use `pip install geti_sdk`
 
 If you plan on running the jupyter notebooks, install the requirements for them by
 running `pip install geti_sdk[notebooks]`
 
-## Local installation
+### Local installation
 To install the SDK in editable mode, follow these steps:
 
 1. Download or clone the repository and navigate to the root directory of the repo.
@@ -47,12 +47,12 @@ To install the SDK in editable mode, follow these steps:
 > systems, but unfortunately not on Windows yet since not all required packages are
 > available for that version.
 
-# Examples
+## Examples
 The [examples](examples/README.md) folder contains example scripts, showing various
 use cases for the package. They can be run by navigating to the `examples` directory
 in your terminal, and simply running the scripts like any other python script.
 
-# Jupyter Notebooks
+## Jupyter Notebooks
 In addition, the [notebooks](notebooks/README.md) folder contains jupyter notebooks
 with example use cases for the `geti_sdk`. To run the notebooks,
 make sure to first install the requirements for this using
@@ -65,10 +65,10 @@ browser and take you to the JupyterLab landing page, with the SDK notebooks open
 > **NOTE**: Both the example scripts and the notebooks require access to a server
 > running the Intel® Geti™ platform.
 
-# Example use cases
+## Example use cases
 The package provides a main class `Geti` that can be used for the following use cases
 
-## Downloading and uploading projects
+### Downloading and uploading projects
 
 - **Project download** The following python snippet is a minimal example of how to
   download a project using `Geti`:
@@ -126,12 +126,12 @@ The `Geti` instance can be used to either back-up a project (by downloading it a
 uploading it again to the same cluster), or to migrate a project to a different cluster
 (download it, and upload it to the target cluster).
 
-## Up- or downloading all projects
+### Up- or downloading all projects
 To up- or download all projects from a cluster, simply use the
 `geti.download_all_projects` and `geti.upload_all_projects` methods instead of
 the single project methods in the code snippets above.
 
-## Deploying a project
+### Deploying a project
 
 The following code snippet shows how to create a deployment for local inference with
 OpenVINO:
@@ -165,49 +165,7 @@ The `deployment.save` method will save the deployment to the folder named
 'dummy_project', on the local disk. The deployment can be reloaded again later using
 `Deployment.from_folder('dummy_project')`.
 
-# Supported features
-What is supported:
-
-- **Creating projects**. You can pass a variable `project_type` to control what kind of
-  tasks will be created in the project pipeline. For example, if you want to create a
-  single task segmentation project, you'd pass `project_type='segmentation'`. For a
-  detection -> segmentation task chain, you can pass
-  `project_type=detection_to_segmentation`. Please see the scripts in the `examples`
-  folder for examples on how to do this.
-
-
-- **Uploading** images, videos, annotations for images and video frames and configurations
-  to a project
-
-
-- **Downloading** images, videos, annotations, models and predictions for all images and
-  videos/video frames in a project. Also downloading the full project configuration
-  is supported.
-
-
-- **Setting configuration for a project**, like turning auto train on/off and
-  setting number of iterations for all tasks
-
-
-- **Deploying a project** to load OpenVINO inference models for all tasks in the pipeline,
-  and running the full pipeline inference on a local machine.
-
-
-- **Creating and restoring a backup of an existing project**, using the code
-  snippets provided [above](#downloading-and-uploading-projects). Only
-  annotations, media and configurations are backed up, models are not.
-
-
-- **Launching and monitoring training jobs**
-
-What is not supported:
-
-- Model upload
-- Prediction upload
-- Plenty of other things that are supported in the Intel® Geti™ platform but not
-  included in the SDK just yet. These will be added in due time.
-
-# High level API reference
+## High level API reference
 The `Geti` class provides the following methods:
 
 - `download_project` -- Downloads a project by project name.
@@ -258,7 +216,7 @@ and the [code snippets](#downloading-and-uploading-projects) and
 
 Please visit the full documentation for a complete API reference.
 
-# Using Docker
+## Using Docker
 
 The Dockerfile can be used to run the package without having to install python on your
 machine.
@@ -273,3 +231,45 @@ then run it using,
 ``` sh
 docker run --rm -ti -v $(pwd):/app geti-sdk:latest /bin/bash
 ```
+
+# Supported features
+What is supported:
+
+- **Creating projects**. You can pass a variable `project_type` to control what kind of
+  tasks will be created in the project pipeline. For example, if you want to create a
+  single task segmentation project, you'd pass `project_type='segmentation'`. For a
+  detection -> segmentation task chain, you can pass
+  `project_type=detection_to_segmentation`. Please see the scripts in the `examples`
+  folder for examples on how to do this.
+
+
+- **Uploading** images, videos, annotations for images and video frames and configurations
+  to a project
+
+
+- **Downloading** images, videos, annotations, models and predictions for all images and
+  videos/video frames in a project. Also downloading the full project configuration
+  is supported.
+
+
+- **Setting configuration for a project**, like turning auto train on/off and
+  setting number of iterations for all tasks
+
+
+- **Deploying a project** to load OpenVINO inference models for all tasks in the pipeline,
+  and running the full pipeline inference on a local machine.
+
+
+- **Creating and restoring a backup of an existing project**, using the code
+  snippets provided [above](#downloading-and-uploading-projects). Only
+  annotations, media and configurations are backed up, models are not.
+
+
+- **Launching and monitoring training jobs**
+
+What is not supported:
+
+- Model upload
+- Prediction upload
+- Plenty of other things that are supported in the Intel® Geti™ platform but not
+  included in the SDK just yet. These will be added in due time.
