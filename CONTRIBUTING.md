@@ -2,7 +2,7 @@ We appreciate any contribution to the Intel® Geti™ SDK, whether it's in the f
 Pull Request, Feature Request or general comment/issue that you found. For feature
 requests and issues, please feel free to create a GitHub Issue in this repository.
 
-## Development and pull requests
+# Development and pull requests
 To set up your development environment, please follow the steps below:
 
 1. Fork the repo
@@ -24,6 +24,6 @@ To set up your development environment, please follow the steps below:
 
 You should now be ready to make changes, run the SDK integration tests and create a Pull Request!
 
-### Testing your code
+## Testing your code
 More details about the tests can be found in the [readme](tests/README.md) for the test suite.
 If your changes require updating the tests, or the test data please refer to that document.

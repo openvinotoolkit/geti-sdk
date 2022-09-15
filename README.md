@@ -47,28 +47,22 @@ To install the SDK in editable mode, follow these steps:
 > systems, but unfortunately not on Windows yet since not all required packages are
 > available for that version.
 
-## Examples
-The [examples](examples/README.md) folder contains example scripts, showing various
-use cases for the package. They can be run by navigating to the `examples` directory
-in your terminal, and simply running the scripts like any other python script.
-
-## Jupyter Notebooks
-In addition, the [notebooks](notebooks/README.md) folder contains jupyter notebooks
-with example use cases for the `geti_sdk`. To run the notebooks,
-make sure to first install the requirements for this using
-`pip install -r requirements/requirements-notebooks.txt`
-
-Once the notebook requirements are installed, navigate to the `notebooks` directory in
-your terminal. Then, fire up JupyterLab by typing `jupyter lab`. This should open your
-browser and take you to the JupyterLab landing page, with the SDK notebooks open.
-
-> **NOTE**: Both the example scripts and the notebooks require access to a server
-> running the Intel® Geti™ platform.
-
 ## Example use cases
+The SDK contains example code in various forms to help you get familiar with the package.
+
+- [Sample code snippets](#sample-code-snippets) are short snippets that demonstrate
+  how to perform several common tasks
+
+- [Example scripts](#example-scripts) are more extensive scripts that cover more
+  advanced usage.
+
+- [Jupyter notebooks](#jupyter-notebooks) are tutorial style notebooks that cover
+  pretty much the full SDK functionality.
+
+### Sample code snippets
 The package provides a main class `Geti` that can be used for the following use cases
 
-### Downloading and uploading projects
+#### Downloading and uploading projects
 
 - **Project download** The following python snippet is a minimal example of how to
   download a project using `Geti`:
@@ -126,12 +120,12 @@ The `Geti` instance can be used to either back-up a project (by downloading it a
 uploading it again to the same cluster), or to migrate a project to a different cluster
 (download it, and upload it to the target cluster).
 
-### Up- or downloading all projects
+#### Up- or downloading all projects
 To up- or download all projects from a cluster, simply use the
 `geti.download_all_projects` and `geti.upload_all_projects` methods instead of
 the single project methods in the code snippets above.
 
-### Deploying a project
+#### Deploying a project
 
 The following code snippet shows how to create a deployment for local inference with
 OpenVINO:
@@ -164,6 +158,24 @@ The `deployment.infer` method takes a numpy image as input.
 The `deployment.save` method will save the deployment to the folder named
 'dummy_project', on the local disk. The deployment can be reloaded again later using
 `Deployment.from_folder('dummy_project')`.
+
+### Example scripts
+The [examples](examples/README.md) folder contains example scripts, showing various
+use cases for the package. They can be run by navigating to the `examples` directory
+in your terminal, and simply running the scripts like any other python script.
+
+### Jupyter Notebooks
+In addition, the [notebooks](notebooks/README.md) folder contains jupyter notebooks
+with example use cases for the `geti_sdk`. To run the notebooks,
+make sure to first install the requirements for this using
+`pip install -r requirements/requirements-notebooks.txt`
+
+Once the notebook requirements are installed, navigate to the `notebooks` directory in
+your terminal. Then, fire up JupyterLab by typing `jupyter lab`. This should open your
+browser and take you to the JupyterLab landing page, with the SDK notebooks open.
+
+> **NOTE**: Both the example scripts and the notebooks require access to a server
+> running the Intel® Geti™ platform.
 
 ## High level API reference
 The `Geti` class provides the following methods:
