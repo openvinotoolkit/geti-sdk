@@ -300,11 +300,11 @@ class GetiSession(requests.Session):
         if requires_closing:
             try:
                 super().close()
-            except TypeError:
+            except TypeError as error:
                 # Sometimes a TypeError is raised if logout is called during garbage
                 # collection, however we can safely ignore this since the session will
                 # be deleted in that case anyway.
-                pass
+                logging.debug(f"{error} encountered during GetiSession closure.")
 
     def _get_product_info_and_set_api_version(self) -> Dict[str, str]:
         """
@@ -329,7 +329,10 @@ class GetiSession(requests.Session):
         manager.
         """
         if self.logged_in:
-            self.logout(verbose=False)
+            try:
+                self.logout(verbose=False)
+            except Exception as exc:
+                logging.debug(f"{exc} encountered while exiting GetiSession context.")
         super().__exit__(exc_type, exc_value, traceback)
 
     def __del__(self):
@@ -340,8 +343,8 @@ class GetiSession(requests.Session):
         if self.logged_in:
             try:
                 self.logout(verbose=False)
-            except Exception:
-                pass
+            except Exception as exc:
+                logging.debug(f"{exc} encountered during GetiSession deletion.")
 
     def _handle_error_response(
         self,
