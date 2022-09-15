@@ -8,6 +8,6 @@ tqdm>=4.62.3
 Pillow==9.1.*
 simplejson==3.17.*
 ipython
-ote-sdk @ git+https://github.com/openvinotoolkit/training_extensions/@releases/v0.2.0-sc1.1#egg=ote-sdk&subdirectory=ote_sdk
+ote-sdk @ git+https://github.com/openvinotoolkit/training_extensions/@releases/v0.3.0-sc1.2#egg=ote-sdk&subdirectory=ote_sdk
 openvino==2022.1.0
 openmodelzoo-modelapi @ git+https://github.com/openvinotoolkit/open_model_zoo/@releases/2022/SCv1.1#egg=openmodelzoo-modelapi&subdirectory=demos/common/python
