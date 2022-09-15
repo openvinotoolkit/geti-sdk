@@ -24,7 +24,7 @@ started!
 
    getting_started
    notebooks
-   testing
+   contributing_to_the_sdk
    api_reference
 
 
