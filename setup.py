@@ -47,7 +47,7 @@ setuptools.setup(
     version=VERSION,
     author="Ludo Cornelissen",
     author_email="ludo.cornelissen@intel.com",
-    description="A module for interacting with the GETi REST API",
+    description="A module for interacting with the Intel® Geti™ platform",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     url="https://github.com/openvinotoolkit/geti_sdk",
