@@ -50,7 +50,7 @@ class TestGeti:
             project_service=project_service,
             annotation_readers=[annotation_reader],
             project_type="detection",
-            project_name=f"{PROJECT_PREFIX}_sc_rest_client",
+            project_name=f"{PROJECT_PREFIX}_geti",
             enable_auto_train=False,
         )
 

@@ -77,7 +77,9 @@ class Geti:
         Geti instance. If not specified, the default workspace is used.
     :param verify_certificate: True to verify the certificate used for making HTTPS
         requests encrypted using TLS protocol. If set to False, an
-        InsecureRequestWarning will be issued
+        InsecureRequestWarning will be issued since in this case requests made to the
+        server may be compromised. This should only ever be set to False in a secure
+        network environment.
     :param proxies: Optional dictionary containing proxy information. For example
         {
             'http': http://proxy-server.com:<http_port_number>,
