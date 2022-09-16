@@ -301,7 +301,11 @@ class ModelClient:
         :return: Model produced by the job
         """
         job.update(self.session)
-        if job.project_id != self.project.id:
+        if self.session.version == SC11_VERSION:
+            job_pid = job.project_id
+        else:
+            job_pid = job.metadata.project.id
+        if job_pid != self.project.id:
             raise ValueError(
                 f"Cannot get model for job `{job.description}`. This job does not "
                 f"belong to the project managed by this ModelClient instance."

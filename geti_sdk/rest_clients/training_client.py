@@ -221,7 +221,7 @@ class TrainingClient:
                         complete_count += 1
                 if complete_count == len(jobs_to_monitor):
                     monitoring = False
-                logging.info(msg + "\n")
+                logging.info(msg)
                 time.sleep(15)
                 t_elapsed = time.time() - t_start
         except KeyboardInterrupt:
