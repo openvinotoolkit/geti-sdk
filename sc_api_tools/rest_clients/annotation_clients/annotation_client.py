@@ -31,6 +31,9 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         """
         Retrieve all latest annotations for a video from the cluster.
 
+        If the video does not have any annotations yet, this method returns an
+        empty list
+
         :param video: Video to get the annotations for
         :return: List of AnnotationScene's, each entry corresponds to an
             AnnotationScene for a single frame in the video
