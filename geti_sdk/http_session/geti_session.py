@@ -364,9 +364,9 @@ class GetiSession(requests.Session):
         if response.status_code in [200, 401, 403]:
             # Authentication has likely expired, re-authenticate
             if not self.use_token:
-                logging.info("Authorization expired, re-authenticating...", end=" ")
+                logging.info("Authorization expired, re-authenticating...")
                 self.authenticate(verbose=False)
-                logging.info("Done!")
+                logging.info("Authentication complete.")
                 response = self.request(**request_params, **self._proxies)
 
                 if response.status_code in SUCCESS_STATUS_CODES:
