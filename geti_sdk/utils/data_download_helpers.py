@@ -83,10 +83,7 @@ def get_proxies(url: str = "") -> Dict[str, str]:
         requests.head(url=url, proxies=proxies, timeout=10)
         return proxies
     except requests.exceptions.ConnectionError:
-        logging.info(
-            "Unable to reach URL for COCO dataset download, attempting to connect "
-            "via proxy"
-        )
+        logging.info("Unable to reach URL, attempting to connect via proxy...")
     proxies = {
         "http": "http://proxy-mu.intel.com:911",
         "https": "http://proxy-mu.intel.com:912",
