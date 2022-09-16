@@ -18,7 +18,7 @@ from geti_sdk.http_session.geti_session import INITIAL_HEADERS
 from geti_sdk.platform_versions import SC11_VERSION, SC12_VERSION
 
 
-class TestSCSession:
+class TestGetiSession:
     def test_authenticate(self, fxt_geti_session: GetiSession):
         """
         Test that the authenticated GetiSession instance contains authentication cookies
