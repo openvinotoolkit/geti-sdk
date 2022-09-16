@@ -1,3 +1,16 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
 import logging
 import os
 import warnings
@@ -8,15 +21,16 @@ import cv2
 
 from geti_sdk.annotation_readers import AnnotationReader
 from geti_sdk.data_models import Annotation, ScoredLabel, TaskType
+from geti_sdk.data_models.enums.media_type import SUPPORTED_IMAGE_FORMATS
 from geti_sdk.data_models.shapes import Rectangle
 
 
 class DirectoryTreeAnnotationReader(AnnotationReader):
     """
-    AnnotationReader for loading classification annotations from a dataset organized
-    in a directory tree. This annotation reader expects images to be put in folders,
-    where the name of each image folder corresponds to the label that should be
-    assigned to all images inside it.
+    AnnotationReader for loading single label classification annotations from a
+    dataset organized in a directory tree. This annotation reader expects images to
+    be put in folders, where the name of each image folder corresponds to the label
+    that should be assigned to all images inside it.
 
     :param base_data_folder: Root of the directory tree that contains the dataset
     :param subset_folder_names: Optional list of subfolders of the base_data_folder
@@ -53,8 +67,11 @@ class DirectoryTreeAnnotationReader(AnnotationReader):
             self.target_data_dirs = [base_data_folder]
         # Label map is a dictionary mapping the root labels to new label names. It
         # can be used to filter or group the labels in the dataset
-        self._label_map: Dict[str, str] = {}
+        self.has_filters_or_grouping = False
         self._original_labels = self.get_all_label_names()
+        self._label_map: Dict[str, str] = {
+            label: label for label in self._original_labels
+        }
 
     @property
     def label_map(self) -> Dict[str, str]:
@@ -65,22 +82,21 @@ class DirectoryTreeAnnotationReader(AnnotationReader):
         If no filters or grouping has been applied, it returns a dictionary with key,
         value pairs that have identical keys and values, i.e. {"dog": "dog"}
         """
-        if not self._label_map:
-            return {label: label for label in self._original_labels}
-        else:
-            return self._label_map
+        return self._label_map
 
     def reset_filters_and_grouping(self):
         """
         Reset the applied filters and grouping, to recover the original dataset
         """
-        self._label_map = {}
+        self._label_map = {label: label for label in self._original_labels}
+        self.has_filters_or_grouping = False
 
     def get_data(
         self,
         filename: str,
         label_name_to_id_mapping: dict,
         preserve_shape_for_global_labels: bool = False,
+        image_name_as_full_path: bool = False,
     ) -> List[Annotation]:
         """
         Return the list of annotations for the media item with name `filename`
@@ -90,41 +106,60 @@ class DirectoryTreeAnnotationReader(AnnotationReader):
             unique database ID
         :param preserve_shape_for_global_labels: Unused parameter in this type of
             annotation reader
+        :param image_name_as_full_path: Set to True if the `filename` contains the
+            full path to the image
         :return: A list of Annotation objects for the media item
         """
-        matches = glob(
-            os.path.join(self.base_folder, "**", f"{filename}.*"), recursive=True
-        )
-        label_matches = [os.path.basename(os.path.dirname(match)) for match in matches]
+        filepath = ""
         annotations: List[Annotation] = []
-        if len(label_matches) > 1:
-            warnings.warn(
-                f"Multiple matching labels found for image with "
-                f"name {filename}: {label_matches}. Skipping this image..."
-            )
-        elif len(label_matches) == 0:
-            logging.info(
-                f"Image with name {filename} was not found in the dataset at path "
-                f"{self.base_folder}. Skipping this image..."
-            )
-        else:
-            img = cv2.imread(matches[0])
-            width, height = img.shape[1, 0]
-            if self.label_map:
-                label_name = self.label_map[label_matches[0]]
+        if image_name_as_full_path:
+            label_matches = [os.path.basename(os.path.dirname(filename))]
+            extension = filename[:-4]
+            if extension in SUPPORTED_IMAGE_FORMATS:
+                filepath = filename
             else:
-                label_name = label_matches[0]
-            label = ScoredLabel(
-                name=label_name,
-                probability=1.0,
-                id=label_name_to_id_mapping[label_name],
+                for format_extension in SUPPORTED_IMAGE_FORMATS:
+                    full_name = filename + format_extension
+                    if os.path.isfile(full_name):
+                        filepath = full_name
+                if filepath == "":
+                    raise ValueError(
+                        f"No valid image file found at path {filename}, unable to "
+                        f"generate annotation data."
+                    )
+        else:
+            matches = glob(
+                os.path.join(self.base_folder, "**", f"{filename}.*"), recursive=True
             )
-            annotations.append(
-                Annotation(
-                    labels=[label],
-                    shape=Rectangle(x=0, y=0, width=width, height=height),
+            label_matches = [
+                os.path.basename(os.path.dirname(match)) for match in matches
+            ]
+            if len(label_matches) > 1:
+                warnings.warn(
+                    f"Multiple matching labels found for image with "
+                    f"name {filename}: {label_matches}. Skipping this image..."
                 )
+            elif len(label_matches) == 0:
+                logging.info(
+                    f"Image with name {filename} was not found in the dataset at path "
+                    f"{self.base_folder}. Skipping this image..."
+                )
+                return []
+            filepath = matches[0]
+        img = cv2.imread(filepath)
+        width, height = img.shape[1], img.shape[0]
+        label_name = self.label_map[label_matches[0]]
+        label = ScoredLabel(
+            name=label_name,
+            probability=1.0,
+            id=label_name_to_id_mapping[label_name],
+        )
+        annotations.append(
+            Annotation(
+                labels=[label],
+                shape=Rectangle(x=0, y=0, width=width, height=height),
             )
+        )
         return annotations
 
     def get_all_label_names(self) -> List[str]:
@@ -132,16 +167,17 @@ class DirectoryTreeAnnotationReader(AnnotationReader):
         Identify all label names contained in the dataset
         """
         label_names: Set[str] = set()
-        requires_filter = False
-        if self._label_map:
-            requires_filter = True
         for directory in self.target_data_dirs:
             for path, sub_directories, files in os.walk(directory):
                 for sub_directory in sub_directories:
-                    if requires_filter:
+                    if self.has_filters_or_grouping:
                         if sub_directory not in self.label_map.keys():
                             continue
-                    label_names.add(sub_directory)
+                    if self.has_filters_or_grouping:
+                        label_name = self.label_map[sub_directory]
+                    else:
+                        label_name = sub_directory
+                    label_names.add(label_name)
         return list(label_names)
 
     def get_data_filenames(self) -> List[str]:
@@ -152,30 +188,27 @@ class DirectoryTreeAnnotationReader(AnnotationReader):
             the data folder
         """
         data_file_paths: List[str] = []
-        requires_filter = False
-        if self._label_map:
-            requires_filter = True
         for directory in self.target_data_dirs:
             for path, sub_directories, files in os.walk(directory):
-                if requires_filter:
-                    if (
-                        os.path.basename(os.path.dirname(path))
-                        not in self.label_map.keys()
-                    ):
-                        continue
                 for name in files:
+                    if self.has_filters_or_grouping:
+                        if os.path.basename(path) not in self.label_map.keys():
+                            continue
                     data_file_paths.append(
                         os.path.join(path, os.path.splitext(name)[0])
                     )
         return data_file_paths
 
-    def filter_dataset(self, labels: Sequence[str]) -> None:
+    def filter_dataset(self, labels: Sequence[str], criterion: str = "OR") -> None:
         """
         Retain only those items with annotations in the list of labels passed.
 
         :param labels: List of labels to filter on
+        :param criterion: Unused parameter for this type of annotation reader
         """
         self._label_map = {label: label for label in labels}
+        self.applied_filters.append({"labels": labels, "criterion": criterion})
+        self.has_filters_or_grouping = True
 
     def group_labels(self, labels_to_group: List[str], group_name: str) -> None:
         """
@@ -191,3 +224,22 @@ class DirectoryTreeAnnotationReader(AnnotationReader):
         for org_label_name, mapped_label in self.label_map.items():
             if org_label_name in labels_to_group:
                 self._label_map.update({org_label_name: group_name})
+        self.has_filters_or_grouping = True
+
+    def get_annotation_stats(self) -> Dict[str, Dict[str, int]]:
+        """
+        Return the image counts per label in the dataset.
+
+        :return: Dictionary containing label names as keys, and as values:
+            - n_images: Number of images containing this label
+        """
+        label_statistics: Dict[str, Dict[str, int]] = {}
+        label_names = self.get_all_label_names()
+        for label in label_names:
+            label_statistics[label] = {"n_images": 0}
+        for item_filepath in self.get_data_filenames():
+            item_label = self.label_map[
+                os.path.basename(os.path.dirname(item_filepath))
+            ]
+            label_statistics[item_label]["n_images"] += 1
+        return label_statistics

@@ -40,14 +40,21 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+
+.. automodule:: geti_sdk.annotation_readers.directory_tree_annotation_reader
+   :members:
+   :undoc-members:
+   :show-inheritance:
 """
 
 from .base_annotation_reader import AnnotationReader
 from .datumaro_annotation_reader import DatumAnnotationReader
+from .directory_tree_annotation_reader import DirectoryTreeAnnotationReader
 from .sc_annotation_reader import SCAnnotationReader
 
 __all__ = [
     "AnnotationReader",
     "DatumAnnotationReader",
     "SCAnnotationReader",
+    "DirectoryTreeAnnotationReader",
 ]

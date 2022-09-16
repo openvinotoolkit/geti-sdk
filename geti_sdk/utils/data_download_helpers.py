@@ -385,6 +385,24 @@ def get_mvtec_dataset_from_path(dataset_path: str = "data") -> str:
         f"MVTEC '{dataset_name}' dataset was not found at path {dataset_path}. Making "
         f"an attempt to download the data..."
     )
+    print(
+        "Note that the MVTec Anomaly Detection dataset is released "
+        "under the following license:\n"
+        "License:\n"
+        "  MVTec AD dataset is released under the Creative Commons \n"
+        "  Attribution-NonCommercial-ShareAlike 4.0 International License \n"
+        "  (CC BY-NC-SA 4.0)(https://creativecommons.org/licenses/by-nc-sa/4.0/).\n"
+        "\n"
+        "Reference:\n"
+        " - Paul Bergmann, Kilian Batzner, Michael Fauser, David Sattlegger, Carsten Steger:\n"
+        "   The MVTec Anomaly Detection Dataset: A Comprehensive Real-World Dataset for\n"
+        "   Unsupervised Anomaly Detection; in: International Journal of Computer Vision\n"
+        "   129(4):1038-1059, 2021, DOI: 10.1007/s11263-020-01400-4.\n"
+        " - Paul Bergmann, Michael Fauser, David Sattlegger, Carsten Steger: MVTec AD —\n"
+        "   A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection;\n"
+        "   in: IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR),\n"
+        "   9584-9592, 2019, DOI: 10.1109/CVPR.2019.00982."
+    )
     archive_name = f"{dataset_name}.tar.xz"
     url = f"https://www.mydrive.ch/shares/38536/3830184030e49fe74747669442f0f282/download/420938166-1629953277/{archive_name}"
     download_file(url, target_folder=dataset_path, check_valid_archive=False)
