@@ -16,9 +16,9 @@ from typing import Generic, List, Optional, Sequence, Union
 
 from sc_api_tools.data_models import AnnotationScene, Image, Video, VideoFrame
 from sc_api_tools.data_models.containers import MediaList
+from sc_api_tools.http_session import SCRequestException
+from sc_api_tools.platform_versions import SC11_VERSION
 
-from ...http_session import SCRequestException
-from ...platform_versions import SC11_VERSION
 from .base_annotation_client import AnnotationReaderType, BaseAnnotationClient
 
 
