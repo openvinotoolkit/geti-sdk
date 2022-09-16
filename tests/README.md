@@ -4,7 +4,7 @@ elements of the SDK. In addition, we have a suite of nightly tests that are exec
 every night at midnight (Amsterdam time).
 
 # Integration tests
-The integration tests for this package makes use of recording of HTTP requests and responses,
+The integration tests for this package leverage a record of HTTP requests and responses,
 relying on the VCR.py package. The tests are located in the `integration` directory.
 By default, the tests are run in offline mode, meaning
 that no actual Intel® Geti™ server is needed and no real http requests are being made during
@@ -12,8 +12,8 @@ testing. All requests are intercepted, and a previously recorded response is ret
 The recorded interactions can be found in [fixtures/cassettes](fixtures/cassettes).
 
 # Nightly tests
-The nightly tests are located in the `nightly` directory. They can only be ran in
-`ONLINE` mode, meaning that a live Intel® Geti™ server is required to run them against. The
+The nightly tests are located in the `nightly` directory. They can only be run in
+`ONLINE` mode, meaning that a live Intel® Geti™ server is required to run against them. The
 nightly tests need to be run using a `online.ini` file that contains the host name and
 login details for the Intel® Geti™ server to run the tests against (see section
 [Running the tests](#running-the-tests) below).
@@ -40,20 +40,20 @@ with the Intel® Geti™ server hostname and login details set appropriately:
 > [pytest]
 > env =
 >   TEST_MODE=ONLINE
->   SC_USERNAME=your_username
->   SC_PASSWORD=your_password
->   SC_HOST=https://your_sc_instance.com
+>   USERNAME=your_username
+>   PASSWORD=your_password
+>   HOST=https://your_geti_instance.com
 > ```
 
 ### Record mode
-If you have added a new test that makes http requests, all cassettes should be deleted
+If you have added a new test that makes HTTP requests, all cassettes should be deleted
 and re-recorded to maintain consistency across the recorded responses. This can be done
 by running the tests in `RECORD` mode. The easiest way to do this is to create a file
 `record.ini` with the same contents as the `online.ini` file above, but set
 `TEST_MODE=RECORD` instead of `ONLINE`.
 
 > **WARNING**: Running the test suite in `ONLINE` or `RECORD` mode will increase the
-> time required for test execution considerably
+> time required for test execution considerably.
 
 ## Running the tests in a non-default mode
 Once you created the custom `online.ini` or `record.ini` configurations, you can run

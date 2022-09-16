@@ -22,6 +22,12 @@ I recommend using an environment manager such as
 Python environment before installing the package, and it's requirements. The SDK
 requires Python version 3.8, so make sure to use that version in your environment.
 
+> **NOTE**: If you have installed multiple versions of Python,
+> use `py -3.8 venv -m <env_name>` when creating your virtual environment to specify
+> a supported version (in this case 3.8). Once you activate the
+> virtual environment <venv_path>/Scripts/activate, make sure to upgrade pip
+> to the latest version `python -m pip install --upgrade pip wheel setuptools`.
+
 Once you have created a new environment, follow these steps to install the package:
 
 ### PyPI installation
@@ -171,7 +177,7 @@ make sure to first install the requirements for this using
 `pip install -r requirements/requirements-notebooks.txt`
 
 Once the notebook requirements are installed, navigate to the `notebooks` directory in
-your terminal. Then, fire up JupyterLab by typing `jupyter lab`. This should open your
+your terminal. Then, launch JupyterLab by typing `jupyter lab`. This should open your
 browser and take you to the JupyterLab landing page, with the SDK notebooks open.
 
 > **NOTE**: Both the example scripts and the notebooks require access to a server
@@ -183,7 +189,7 @@ The `Geti` class provides the following methods:
 - `download_project` -- Downloads a project by project name.
 
 
-- `upload_project` -- Upload project from a folder.
+- `upload_project` -- Uploads project from a folder.
 
 
 - `download_all_projects` -- Downloads all projects found on the server.
@@ -205,7 +211,7 @@ The `Geti` class provides the following methods:
   prediction.
 
 
-- `upload_and_predict_media_folder` -- Upload all media (images and videos) from a
+- `upload_and_predict_media_folder` -- Uploads all media (images and videos) from a
   folder on local disk to an existing project on the server, and download
   predictions for all uploaded media.
 
@@ -222,8 +228,8 @@ The `Geti` class provides the following methods:
 - `create_task_chain_project_from_dataset` -- Creates a task chain project on the
   server, potentially using labels and uploading annotations from an external dataset.
 
-For further details regarding these methods, please refer to the method documentation
-and the [code snippets](#downloading-and-uploading-projects) and
+For further details regarding these methods, please refer to the method documentation,
+the [code snippets](#downloading-and-uploading-projects), and
 [example scripts](examples/README.md) provided in this repo.
 
 Please visit the full documentation for a complete API reference.

@@ -6,17 +6,17 @@ is installed, you can follow the steps below to set up the notebooks.
 
 1. Navigate to this folder in a terminal
 
-2. Activate the python environment in which you installed the `geti-sdk` package
+2. Activate the Python environment in which you installed the `geti-sdk` package
 
 3. Run `pip install -r ../requirements/requirements-notebooks.txt` to install the packages required to
    run the notebooks
 
-4. Create a `.env` file containing the login details for your Sonoma Creek instance,
+4. Create a `.env` file containing the login details for your the Intel® Geti™ instance,
    following the instructions in the [Credentials management](#credentials-management)
    box.
 
 5. In your terminal, navigate to the `notebooks` directory and execute the command
-   `jupyter lab`. This will fire up the jupyter server and should take you straight to
+   `jupyter lab`. This will start the jupyter server and should take you straight to
    the jupyter web interface.
 
 6. The notebooks should show up in the side menu of the jupyter web interface.
@@ -32,7 +32,7 @@ is installed, you can follow the steps below to set up the notebooks.
 > USERNAME=
 > PASSWORD=
 > ```
-> Where you should of course fill the details appropriate for your instance.
+> Where you should of course fill the appropriate details for your instance.
 
 # Available notebooks
 The following notebooks are currently provided:

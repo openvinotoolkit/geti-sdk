@@ -5,11 +5,11 @@ requests and issues, please feel free to create a GitHub Issue in this repositor
 # Development and pull requests
 To set up your development environment, please follow the steps below:
 
-1. Fork the repo
+1. Fork the repo.
 2. Install the requirements for running the test suite
    using `pip install -r requirements/requirements-dev.txt`.
 
-3. Create your branch, based of the `main` branch
+3. Create your branch based off the `main` branch.
 4. Make sure that `git lfs` is configured for your Git account, by following the
    steps [here](https://git-lfs.github.com/). Git LFS (Large File Storage) is used in
    this repo to manage certain data files used in the tests.
@@ -26,4 +26,4 @@ You should now be ready to make changes, run the SDK integration tests and creat
 
 ## Testing your code
 More details about the tests can be found in the [readme](tests/README.md) for the test suite.
-If your changes require updating the tests, or the test data please refer to that document.
+If your changes require updating the tests or the test data, please refer to that document.
