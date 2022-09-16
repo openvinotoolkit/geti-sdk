@@ -17,6 +17,7 @@ from typing import Generic, List, Optional, Sequence, Union
 from sc_api_tools.data_models import AnnotationScene, Image, Video, VideoFrame
 from sc_api_tools.data_models.containers import MediaList
 
+from ...http_session import SCRequestException
 from ...platform_versions import SC11_VERSION
 from .base_annotation_client import AnnotationReaderType, BaseAnnotationClient
 
@@ -34,9 +35,15 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         :return: List of AnnotationScene's, each entry corresponds to an
             AnnotationScene for a single frame in the video
         """
-        response = self.session.get_rest_response(
-            url=f"{video.base_url}/annotations/latest", method="GET"
-        )
+        try:
+            response = self.session.get_rest_response(
+                url=f"{video.base_url}/annotations/latest", method="GET"
+            )
+        except SCRequestException as error:
+            if error.status_code == 204:
+                return []
+            else:
+                raise error
         if self.session.version == SC11_VERSION:
             annotations = response
         else:
