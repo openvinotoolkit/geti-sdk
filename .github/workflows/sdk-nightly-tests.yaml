@@ -7,19 +7,19 @@ on:
         required: false
         type: string
     secrets:
-      SC_HOST:
+      GETI_HOST:
         required: true
-      SC_USERNAME:
+      GETI_USERNAME:
         required: true
-      SC_PASSWORD:
+      GETI_PASSWORD:
         required: true
 
 env:
   # Login details for the SC instance to run the tests against
   # Secrets are configured on repository level (Settings > Secrets)
-  SC_HOST: ${{ secrets.SC_HOST }}
-  SC_USERNAME: ${{ secrets.SC_USERNAME }}
-  SC_PASSWORD: ${{ secrets.SC_PASSWORD }}
+  GETI_HOST: ${{ secrets.GETI_HOST }}
+  GETI_USERNAME: ${{ secrets.GETI_USERNAME }}
+  GETI_PASSWORD: ${{ secrets.GETI_PASSWORD }}
 
   # Other environment variables used in the tests
   TEST_MODE: "ONLINE"
@@ -78,12 +78,12 @@ jobs:
           mkdir $REPORT_DIRECTORY
 
       - name: Nightly tests
-        # Proxy settings have to be configured and SC_HOST set to full address before
+        # Proxy settings have to be configured and GETI_HOST set to full address before
         # tests can run
         run: |
-          export no_proxy=$SC_HOST,$no_proxy
-          export NO_PROXY=$SC_HOST,$NO_PROXY
-          export SC_HOST=https://$SC_HOST
+          export no_proxy=$GETI_HOST,$no_proxy
+          export NO_PROXY=$GETI_HOST,$NO_PROXY
+          export GETI_HOST=https://$GETI_HOST
 
           eval "$(conda shell.bash hook)"
           conda activate $CONDA_ENV
@@ -103,7 +103,7 @@ jobs:
         run: |
           export no_proxy=$SC_HOST,$no_proxy
           export NO_PROXY=$SC_HOST,$NO_PROXY
-          export SC_HOST=https://$SC_HOST
+          export GETI_HOST=https://$GETI_HOST
           export CLEAR_EXISTING_TEST_PROJECTS=0
 
           eval "$(conda shell.bash hook)"

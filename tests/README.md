@@ -40,9 +40,9 @@ with the Intel® Geti™ server hostname and login details set appropriately:
 > [pytest]
 > env =
 >   TEST_MODE=ONLINE
->   USERNAME=your_username
->   PASSWORD=your_password
->   HOST=https://your_geti_instance.com
+>   GETI_USERNAME=your_username
+>   GETI_PASSWORD=your_password
+>   GETI_HOST=https://your_geti_instance.com
 > ```
 
 ### Record mode

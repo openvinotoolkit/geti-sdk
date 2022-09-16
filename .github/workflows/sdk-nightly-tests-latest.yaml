@@ -12,6 +12,6 @@ jobs:
     with:
       learning_parameter_settings: reduced_mem
     secrets:
-      SC_HOST: ${{ secrets.SC_HOST_LATEST }}
-      SC_USERNAME: ${{ secrets.SC_USERNAME }}
-      SC_PASSWORD: ${{ secrets.SC_PASSWORD }}
+      GETI_HOST: ${{ secrets.GETI_HOST_HOST_LATEST }}
+      GETI_USERNAME: ${{ secrets.GETI_USERNAME }}
+      GETI_PASSWORD: ${{ secrets.GETI_PASSWORD }}

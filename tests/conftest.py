@@ -38,17 +38,17 @@ TEST_MODE = SdkTestMode[os.environ.get("TEST_MODE", "OFFLINE")]
 # TEST_MODE specifies the mode in which tests are run. Only applies to the integration
 # tests. Possible modes are: "OFFLINE", "ONLINE", "RECORD"
 
-HOST = os.environ.get("SC_HOST", "https://dummy_host").strip("/")
+HOST = os.environ.get("GETI_HOST", "https://dummy_host").strip("/")
 # HOST should hold the domain name or ip address of the SC instance to run the tests
 # against.
 
-USERNAME = os.environ.get("SC_USERNAME", "dummy_user")
+USERNAME = os.environ.get("GETI_USERNAME", "dummy_user")
 # USERNAME should hold the username that is used for logging in to the SC instance
 
-PASSWORD = os.environ.get("SC_PASSWORD", "dummy_password")
+PASSWORD = os.environ.get("GETI_PASSWORD", "dummy_password")
 # PASSWORD should hold the password that is used for logging in to the SC instance
 
-TOKEN = os.environ.get("TOKEN", None)
+TOKEN = os.environ.get("GETI_TOKEN", None)
 # TOKEN should hold the Personal Access Token that can be used to access the server.
 # When both a TOKEN and username + password are provided, the test suite will use the
 # TOKEN to execute the tests
