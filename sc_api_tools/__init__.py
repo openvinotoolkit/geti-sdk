@@ -80,6 +80,6 @@ from .sc_rest_client import SCRESTClient
 
 name = "sc-api-tools"
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 __all__ = ["SCRESTClient"]
