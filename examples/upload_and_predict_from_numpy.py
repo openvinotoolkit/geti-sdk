@@ -3,9 +3,9 @@ import os
 import cv2
 import numpy as np
 from dotenv import dotenv_values
-from utils import DATA_PATH, ensure_example_project
 
 from geti_sdk import Geti
+from geti_sdk.demo_tools import NOTEBOOK_DATA_PATH, ensure_trained_example_project
 
 
 def rotate_image(image: np.ndarray, angle: float) -> np.ndarray:
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     PROJECT_NAME = "COCO dog detection"
 
     # `PATH_TO_IMAGE` is the path to the image that should be uploaded
-    PATH_TO_IMAGE = os.path.join(DATA_PATH, "dogs.png")
+    PATH_TO_IMAGE = os.path.join(NOTEBOOK_DATA_PATH, "dogs.png")
 
     # `DELETE_AFTER_PREDICTION` can be set to True to delete the media from the
     # project once all predictions are downloaded. This can be useful to save disk
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     rotated_image = rotate_image(image=numpy_image, angle=20)
 
     # Make sure that the project exists
-    ensure_example_project(geti=geti, project_name=PROJECT_NAME)
+    ensure_trained_example_project(geti=geti, project_name=PROJECT_NAME)
 
     print(
         "Uploading and predicting example image now, an image window containing the "

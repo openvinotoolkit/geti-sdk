@@ -23,7 +23,6 @@ Module contents
 """
 
 from .algorithm_helpers import get_supported_algorithms
-from .data_download_helpers import get_coco_dataset, get_mvtec_dataset
 from .dictionary_helpers import get_dict_key_from_value
 from .label_helpers import generate_classification_labels, generate_segmentation_labels
 from .plot_helpers import (
@@ -40,8 +39,6 @@ __all__ = [
     "generate_segmentation_labels",
     "get_dict_key_from_value",
     "get_task_types_by_project_type",
-    "get_coco_dataset",
-    "get_mvtec_dataset",
     "show_image_with_annotation_scene",
     "show_video_frames_with_annotation_scenes",
     "get_supported_algorithms",

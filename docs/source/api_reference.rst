@@ -12,3 +12,4 @@ API Reference
    REST converters <geti_sdk.rest_converters>
    REST clients <geti_sdk.rest_clients>
    utils <geti_sdk.utils>
+   demos <geti_sdk.demos>
