@@ -1,0 +1,126 @@
+# Copyright (C) 2022 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+
+import hashlib
+import logging
+import os
+import shutil
+import zipfile
+from typing import Dict, Optional
+
+import requests
+from tqdm import tqdm
+
+
+def get_proxies(url: str = "") -> Dict[str, str]:
+    """
+    Determine whether or not to use proxies to attempt to reach a certain url.
+
+    :param url: URL that should be resolved
+    :return:
+    """
+    logging.info(f"Connecting to url {url}...")
+    proxies: Dict[str, str] = {}
+    try:
+        requests.head(url=url, proxies=proxies, timeout=10)
+        return proxies
+    except requests.exceptions.ConnectionError:
+        logging.info("Unable to reach URL, attempting to connect via proxy...")
+    proxies = {
+        "http": "http://proxy-mu.intel.com:911",
+        "https": "http://proxy-mu.intel.com:912",
+    }
+    try:
+        requests.head(url=url, proxies=proxies)
+        logging.info("Connection succeeded.")
+    except requests.exceptions.ConnectionError as error:
+        raise ValueError(
+            "Unable to resolve URL with any proxy settings, please try to turn off "
+            "your VPN connection before attempting again."
+        ) from error
+    return proxies
+
+
+def download_file(
+    url: str, target_folder: Optional[str], check_valid_archive: bool = False
+) -> str:
+    """
+    Download a file from `url` to a folder on local disk `target_folder`.
+
+    NOTE: If a file with the same name as the file to be downloaded already exists in
+        `target_folder`, this function will not download anything. If
+        `check_valid_archive` is True, this function not only checks if the target
+        file exists but also if it is a valid .zip archive.
+
+    :param url:
+    :param target_folder:
+    :return: path to the downloaded file
+    """
+    filename = url.split("/")[-1]
+    if target_folder is None:
+        target_folder = "data"
+    path_to_file = os.path.join(target_folder, filename)
+    if os.path.exists(path_to_file) and os.path.isfile(path_to_file):
+        if check_valid_archive:
+            if not zipfile.is_zipfile(path_to_file):
+                logging.info(
+                    f"File {filename} exists at {path_to_file}, but is is not a valid "
+                    f"archive. Overwriting the existing file."
+                )
+                shutil.rmtree(path_to_file)
+        logging.info(
+            f"File {filename} exists at {path_to_file}. No new data was downloaded."
+        )
+        return path_to_file
+
+    proxies = get_proxies(url)
+    logging.info(f"Downloading {filename}...")
+    with requests.get(url, stream=True, proxies=proxies) as r:
+        if r.status_code != 200:
+            r.raise_for_status()
+            raise RuntimeError(
+                f"Request to {url} failed, returned status code {r.status_code}"
+            )
+        file_size = int(r.headers.get("Content-Length", 0))
+        with tqdm.wrapattr(r.raw, "read", total=file_size, desc="") as r_raw:
+            with open(path_to_file, "wb") as f:
+                shutil.copyfileobj(r_raw, f)
+    logging.info("Download complete.")
+    return path_to_file
+
+
+def ensure_directory_exists(directory_path: str):
+    """
+    Check that a directory exists at `directory_path`, and if not create it.
+
+    :param directory_path:
+    :return:
+    """
+    if not os.path.exists(directory_path):
+        os.makedirs(directory_path)
+
+
+def validate_hash(file_path: str, expected_hash: str) -> None:
+    """
+    Verify that hash matches the calculated hash of the file.
+
+    :param file_path: Path to file.
+    :param expected_hash: Expected hash of the file.
+    """
+    with open(file_path, "rb") as hash_file:
+        downloaded_hash = hashlib.md5(hash_file.read()).hexdigest()
+    if downloaded_hash != expected_hash:
+        raise ValueError(
+            f"Downloaded file {file_path} does not match the required hash."
+        )

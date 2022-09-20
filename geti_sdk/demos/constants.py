@@ -1,5 +1,3 @@
-# noqa: D104
-
 # Copyright (C) 2022 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +12,11 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+import os
 
-from .image_utils import display_image_in_notebook, simulate_low_light_image
-
-__all__ = [
-    "simulate_low_light_image",
-    "display_image_in_notebook",
-]
+DEFAULT_DATA_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data"
+)
+NOTEBOOK_DATA_PATH = os.path.join(
+    os.path.dirname(DEFAULT_DATA_PATH), "notebooks", "data"
+)
