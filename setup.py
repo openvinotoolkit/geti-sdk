@@ -53,7 +53,6 @@ setuptools.setup(
     license="Apache-2.0",
     url="https://github.com/openvinotoolkit/geti_sdk",
     project_urls={
-        "Homepage": "https://github.com/openvinotoolkit/geti_sdk",
         "Documentation": "https://openvinotoolkit.github.io/geti_sdk",
         "Bug Tracker": "https://github.com/openvinotoolkit/geti_sdk/issues",
     },
