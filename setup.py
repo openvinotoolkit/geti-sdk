@@ -50,7 +50,9 @@ setuptools.setup(
     description="Software Development Kit for the Intel® Geti™ platform",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
-    license="Apache-2.0",
+    license="Copyright (C) 2022 Intel Corporation - All Rights Reserved. Licensed "
+    "under the Apache License, Version 2.0 (the 'License'). See LICENSE file for "
+    "more details.",
     url="https://github.com/openvinotoolkit/geti_sdk",
     project_urls={
         "Documentation": "https://openvinotoolkit.github.io/geti_sdk",

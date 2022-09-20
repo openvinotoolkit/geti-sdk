@@ -101,8 +101,8 @@ jobs:
       - name: Integration tests
         # Run all integration tests in online mode (set in TEST_MODE env variable).
         run: |
-          export no_proxy=$SC_HOST,$no_proxy
-          export NO_PROXY=$SC_HOST,$NO_PROXY
+          export no_proxy=$GETI_HOST,$no_proxy
+          export NO_PROXY=$GETI_HOST,$NO_PROXY
           export GETI_HOST=https://$GETI_HOST
           export CLEAR_EXISTING_TEST_PROJECTS=0
 
