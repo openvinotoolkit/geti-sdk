@@ -1,5 +1,3 @@
-# noqa: D104
-
 # Copyright (C) 2022 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +12,9 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+# noqa: D104
 
-from .image_utils import display_image_in_notebook, simulate_low_light_image
+from .anomaly_helpers import get_mvtec_dataset
+from .coco_helpers import get_coco_dataset
 
-__all__ = [
-    "simulate_low_light_image",
-    "display_image_in_notebook",
-]
+__all__ = ["get_coco_dataset", "get_mvtec_dataset"]
