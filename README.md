@@ -28,12 +28,13 @@ requires Python version 3.8, so make sure to use that version in your environmen
 > virtual environment <venv_path>/Scripts/activate, make sure to upgrade pip
 > to the latest version `python -m pip install --upgrade pip wheel setuptools`.
 
-Once you have created a new environment, follow these steps to install the package:
+Once you have created and activated a new environment, follow these steps to install
+the package:
 
 ### PyPI installation
 To install the Intel® Geti™ SDK from PyPI, simply use `pip install geti_sdk`
 
-If you plan on running the jupyter notebooks, install the requirements for them by
+If you plan on running the Jupyter notebooks, install the requirements for them by
 running `pip install geti_sdk[notebooks]`
 
 ### Local installation
@@ -47,7 +48,14 @@ To install the SDK in editable mode, follow these steps:
    documentation, you can install the package extra requirements by doing for example
    `pip install -e .[dev]`
 
-   The valid options for the extra requirements are `[dev, docs, notebooks]`.
+   The valid options for the extra requirements are `[dev, docs, notebooks]`,
+   corresponding to the following functionality:
+
+   - `dev` Install requirements to run the test suite on your local machine
+   - `notebooks` Install requirements to run the Juypter notebooks in the `notebooks`
+     folder in this repository.
+   - `docs` Install requirements to build the documentation for the SDK from source on
+     your machine
 
 > **NOTE**: geti-sdk needs `python==3.8` to run. Python 3.9 will work on Linux
 > systems, but unfortunately not on Windows yet since not all required packages are
@@ -171,9 +179,11 @@ use cases for the package. They can be run by navigating to the `examples` direc
 in your terminal, and simply running the scripts like any other python script.
 
 ### Jupyter Notebooks
-In addition, the [notebooks](notebooks/README.md) folder contains jupyter notebooks
+In addition, the [notebooks](notebooks/README.md) folder contains Jupyter notebooks
 with example use cases for the `geti_sdk`. To run the notebooks,
-make sure to first install the requirements for this using
+make sure that the requirements for the notebooks are installed in your Python
+environment. If you have not installed these when you were installing the SDK, you can
+install them at any time using
 `pip install -r requirements/requirements-notebooks.txt`
 
 Once the notebook requirements are installed, navigate to the `notebooks` directory in
@@ -251,7 +261,7 @@ docker run --rm -ti -v $(pwd):/app geti-sdk:latest /bin/bash
 ```
 
 # Supported features
-What is supported:
+## What is supported
 
 - **Creating projects**. You can pass a variable `project_type` to control what kind of
   tasks will be created in the project pipeline. For example, if you want to create a
@@ -285,9 +295,20 @@ What is supported:
 
 - **Launching and monitoring training jobs**
 
-What is not supported:
+
+- **Authorization via Personal Access Token**
+
+
+## What is not supported
 
 - Model upload
 - Prediction upload
-- Plenty of other things that are supported in the Intel® Geti™ platform but not
-  included in the SDK just yet. These will be added in due time.
+- Exporting datasets to COCO/YOLO/VOC format: For this, you can use the export
+  functionality from the Intel® Geti™ user interface instead.
+
+The following features are not supported yet but will be added to the SDK in future
+releases:
+- Fetching the active dataset
+- Triggering (post-training) model optimization
+- Running model tests
+- Creating datasets and retrieving dataset statistics
