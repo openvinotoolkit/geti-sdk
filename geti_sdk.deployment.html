@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>geti_sdk.deployment &mdash; Intel® Geti™ SDK v0.1.0a1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="geti_sdk.deployment.data_models package" href="geti_sdk.deployment.data_models.html" />
+    <link rel="prev" title="geti_sdk.data_models" href="geti_sdk.data_models.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Intel® Geti™ SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html#supported-features">Supported features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks.html">Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing_to_the_sdk.html">Contributing to the SDK</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="geti.html">The ‘Geti’ class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geti_sdk.annotation_readers.html">Annotation readers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geti_sdk.data_models.html">Data models</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Deployment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-geti_sdk.deployment.deployed_model">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="geti_sdk.deployment.data_models.html">Data models</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="geti_sdk.http_session.html">HTTP session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geti_sdk.rest_converters.html">REST converters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geti_sdk.rest_clients.html">REST clients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geti_sdk.utils.html">utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geti_sdk.demos.html">demos</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Intel® Geti™ SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="api_reference.html">API Reference</a> &raquo;</li>
+      <li>geti_sdk.deployment</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/geti_sdk.deployment.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-geti_sdk.deployment">
+<span id="geti-sdk-deployment"></span><h1>geti_sdk.deployment<a class="headerlink" href="#module-geti_sdk.deployment" title="Permalink to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
+<p>The <cite>deployment</cite> package allows creating a deployment of any Intel® Geti™ project.
+A project deployment can run inference on an image or video frame locally, i.e.
+without any connection to the Intel® Geti™ server.</p>
+<p>Deployments can be created for both single task and task chain projects alike, the API
+is the same in both cases.</p>
+<p>Creating a deployment for a project is done through the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Geti</span></code> class, which provides a
+convenience method <code class="xref py py-meth docutils literal notranslate"><span class="pre">deploy_project()</span></code>.</p>
+<p>The following code snippet shows:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>How to create a deployment for a project</p></li>
+<li><p>How to use it to run local inference for an image</p></li>
+<li><p>How to save the deployment to disk</p></li>
+</ol>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cv2</span>
+
+<span class="kn">from</span> <span class="nn">geti_sdk</span> <span class="kn">import</span> <span class="n">Geti</span>
+
+<span class="n">geti</span> <span class="o">=</span> <span class="n">Geti</span><span class="p">(</span>
+  <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://0.0.0.0&quot;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;dummy_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;dummy_password&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Download the model data and create a `Deployment`</span>
+<span class="n">deployment</span> <span class="o">=</span> <span class="n">geti</span><span class="o">.</span><span class="n">deploy_project</span><span class="p">(</span><span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;dummy_project&quot;</span><span class="p">)</span>
+
+<span class="c1"># Load the inference models for all tasks in the project, for CPU inference</span>
+<span class="n">deployment</span><span class="o">.</span><span class="n">load_inference_models</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="s1">&#39;CPU&#39;</span><span class="p">)</span>
+
+<span class="c1"># Run inference</span>
+<span class="n">dummy_image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;dummy_image.png&#39;</span><span class="p">)</span>
+<span class="n">dummy_image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">dummy_image</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+<span class="n">prediction</span> <span class="o">=</span> <span class="n">deployment</span><span class="o">.</span><span class="n">infer</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">dummy_image</span><span class="p">)</span>
+
+<span class="c1"># Save the deployment to disk</span>
+<span class="n">deployment</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path_to_folder</span><span class="o">=</span><span class="s2">&quot;deployment_dummy_project&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A saved Deployment can be loaded from its containing folder using the
+<a class="reference internal" href="#geti_sdk.deployment.deployment.Deployment.from_folder" title="geti_sdk.deployment.deployment.Deployment.from_folder"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_folder()</span></code></a> method, like so:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">geti_sdk.deployment</span> <span class="kn">import</span> <span class="n">Deployment</span>
+
+<span class="n">local_deployment</span> <span class="o">=</span> <span class="n">Deployment</span><span class="o">.</span><span class="n">from_folder</span><span class="p">(</span><span class="s2">&quot;deployment_dummy_project&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="module-geti_sdk.deployment.deployed_model">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-geti_sdk.deployment.deployed_model" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployed_model.DeployedModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">geti_sdk.deployment.deployed_model.</span></span><span class="sig-name descname"><span class="pre">DeployedModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps_throughput</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation_date</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">datetime</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_device_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous_revision_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous_trained_revision_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">performance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Performance</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">EnumType</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_methods</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_objectives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimization_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">EnumType</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyper_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.configuration.TaskConfiguration" title="geti_sdk.data_models.configuration.TaskConfiguration"><span class="pre">TaskConfiguration</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geti_sdk.deployment.deployed_model.DeployedModel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.model.OptimizedModel" title="geti_sdk.data_models.model.OptimizedModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">OptimizedModel</span></code></a></p>
+<p>Representation of an Intel® Geti™ model that has been deployed for inference. It
+can be loaded onto a device to generate predictions.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployed_model.DeployedModel.hyper_parameters">
+<span class="sig-name descname"><span class="pre">hyper_parameters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.configuration.TaskConfiguration" title="geti_sdk.data_models.configuration.TaskConfiguration"><span class="pre">TaskConfiguration</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#geti_sdk.deployment.deployed_model.DeployedModel.hyper_parameters" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployed_model.DeployedModel.get_data">
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="geti_sdk.http_session.html#geti_sdk.http_session.geti_session.GetiSession" title="geti_sdk.http_session.geti_session.GetiSession"><span class="pre">GetiSession</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geti_sdk.deployment.deployed_model.DeployedModel.get_data" title="Permalink to this definition"></a></dt>
+<dd><p>Load the model weights from a data source. The <cite>source</cite> can be one of the
+following:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>The Intel® Geti™ platform (if an GetiSession instance is passed). In this</p></li>
+</ol>
+<blockquote>
+<div><p>case the weights will be downloaded, and extracted to a temporary directory</p>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>A zip file on local disk, in this case the weights will be extracted to a
+temporary directory</p></li>
+<li><p>A folder on local disk containing the .xml and .bin file for the model</p></li>
+</ol>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>source</strong> – Data source to load the weights from</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployed_model.DeployedModel.load_inference_model">
+<span class="sig-name descname"><span class="pre">load_inference_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'CPU'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geti_sdk.deployment.deployed_model.DeployedModel.load_inference_model" title="Permalink to this definition"></a></dt>
+<dd><p>Load the actual model weights to a specified device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device</strong> – Device (CPU or GPU) to load the model to. Defaults to ‘CPU’</p></li>
+<li><p><strong>configuration</strong> – Optional dictionary holding additional configuration
+parameters for the model</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>OpenVino inference engine model that can be used to make predictions
+on images</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployed_model.DeployedModel.from_model_and_hypers">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_model_and_hypers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.model.OptimizedModel" title="geti_sdk.data_models.model.OptimizedModel"><span class="pre">OptimizedModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyper_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.configuration.TaskConfiguration" title="geti_sdk.data_models.configuration.TaskConfiguration"><span class="pre">TaskConfiguration</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#geti_sdk.deployment.deployed_model.DeployedModel" title="geti_sdk.deployment.deployed_model.DeployedModel"><span class="pre">DeployedModel</span></a></span></span><a class="headerlink" href="#geti_sdk.deployment.deployed_model.DeployedModel.from_model_and_hypers" title="Permalink to this definition"></a></dt>
+<dd><p>Create a DeployedModel instance out of an OptimizedModel and it’s
+corresponding set of hyper parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – OptimizedModel to convert to a DeployedModel</p></li>
+<li><p><strong>hyper_parameters</strong> – TaskConfiguration instance containing the hyper
+parameters for the model</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DeployedModel instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployed_model.DeployedModel.from_folder">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#geti_sdk.deployment.deployed_model.DeployedModel" title="geti_sdk.deployment.deployed_model.DeployedModel"><span class="pre">DeployedModel</span></a></span></span><a class="headerlink" href="#geti_sdk.deployment.deployed_model.DeployedModel.from_folder" title="Permalink to this definition"></a></dt>
+<dd><p>Create a DeployedModel instance from a folder containing the model data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_to_folder</strong> – Path to the folder that holds the model data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DeployedModel instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployed_model.DeployedModel.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geti_sdk.deployment.deployed_model.DeployedModel.save" title="Permalink to this definition"></a></dt>
+<dd><p>Save the DeployedModel instance to the designated folder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_to_folder</strong> – Path to the folder to save the model to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployed_model.DeployedModel.preprocess">
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#geti_sdk.deployment.deployed_model.DeployedModel.preprocess" title="Permalink to this definition"></a></dt>
+<dd><p>Preprocess an image for inference.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>image</strong> – Numpy array containing pixel data. The image is expected to have
+dimensions [height x width x channels], with the channels in RGB order</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary holding the preprocessing result, the original shape of
+the image and the shape after preprocessing</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployed_model.DeployedModel.postprocess">
+<span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inference_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#geti_sdk.deployment.deployed_model.DeployedModel.postprocess" title="Permalink to this definition"></a></dt>
+<dd><p>Postprocess the model outputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inference_results</strong> – Dictionary holding the results of inference</p></li>
+<li><p><strong>metadata</strong> – Dictionary holding metadata</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Postprocessed inference results. The exact format depends on the
+type of model that is loaded:</p>
+<ul class="simple">
+<li><p>For segmentation models, it will be a numpy array holding the output mask</p></li>
+<li><dl class="simple">
+<dt>For classification models, it will be a list of tuples holding the</dt><dd><p>output class index and class probability</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>For detection models, it will be an instance of</dt><dd><p><cite>openvino.model_zoo.model_api.models.utils.Detection</cite>, holding the
+bounding box output</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployed_model.DeployedModel.infer">
+<span class="sig-name descname"><span class="pre">infer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preprocessed_image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#geti_sdk.deployment.deployed_model.DeployedModel.infer" title="Permalink to this definition"></a></dt>
+<dd><p>Run inference on an already preprocessed image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>preprocessed_image</strong> – Dictionary holding the preprocessing results for an
+image</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary containing the model outputs</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployed_model.DeployedModel.ote_label_schema">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ote_label_schema</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LabelSchemaEntity</span></em><a class="headerlink" href="#geti_sdk.deployment.deployed_model.DeployedModel.ote_label_schema" title="Permalink to this definition"></a></dt>
+<dd><p>Return the OTE LabelSchema for the model.</p>
+<p>This requires the inference model to be loaded, getting this property while
+inference models are not loaded will raise a ValueError</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>LabelSchemaEntity containing the OTE SDK label schema for the model</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-geti_sdk.deployment.deployment"></span><dl class="py class">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployment.Deployment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">geti_sdk.deployment.deployment.</span></span><span class="sig-name descname"><span class="pre">Deployment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.project.Project" title="geti_sdk.data_models.project.Project"><span class="pre">Project</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#geti_sdk.deployment.deployed_model.DeployedModel" title="geti_sdk.deployment.deployed_model.DeployedModel"><span class="pre">DeployedModel</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geti_sdk.deployment.deployment.Deployment" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Representation of a deployed Intel® Geti™ project that can be used to run
+inference locally</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployment.Deployment.project">
+<span class="sig-name descname"><span class="pre">project</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.project.Project" title="geti_sdk.data_models.project.Project"><span class="pre">Project</span></a></em><a class="headerlink" href="#geti_sdk.deployment.deployment.Deployment.project" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployment.Deployment.models">
+<span class="sig-name descname"><span class="pre">models</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#geti_sdk.deployment.deployed_model.DeployedModel" title="geti_sdk.deployment.deployed_model.DeployedModel"><span class="pre">DeployedModel</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#geti_sdk.deployment.deployment.Deployment.models" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployment.Deployment.is_single_task">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_single_task</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#geti_sdk.deployment.deployment.Deployment.is_single_task" title="Permalink to this definition"></a></dt>
+<dd><p>Return True if the deployment represents a project with only a single task.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if the deployed project contains only one trainable task, False
+if it is a pipeline project</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployment.Deployment.are_models_loaded">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">are_models_loaded</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#geti_sdk.deployment.deployment.Deployment.are_models_loaded" title="Permalink to this definition"></a></dt>
+<dd><p>Return True if all inference models for the Deployment are loaded and ready
+to infer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if all inference models for the deployed project are loaded in
+memory and ready for inference</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployment.Deployment.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geti_sdk.deployment.deployment.Deployment.save" title="Permalink to this definition"></a></dt>
+<dd><p>Save the Deployment instance to a folder on local disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_to_folder</strong> – Folder to save the deployment to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployment.Deployment.from_folder">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#geti_sdk.deployment.deployment.Deployment" title="geti_sdk.deployment.deployment.Deployment"><span class="pre">Deployment</span></a></span></span><a class="headerlink" href="#geti_sdk.deployment.deployment.Deployment.from_folder" title="Permalink to this definition"></a></dt>
+<dd><p>Create a Deployment instance from a specified <cite>path_to_folder</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_to_folder</strong> – Path to the folder containing the Deployment data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Deployment instance corresponding to the deployment data in the folder</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployment.Deployment.load_inference_models">
+<span class="sig-name descname"><span class="pre">load_inference_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'CPU'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geti_sdk.deployment.deployment.Deployment.load_inference_models" title="Permalink to this definition"></a></dt>
+<dd><p>Load the inference models for the deployment to the specified device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>device</strong> – Device to load the inference models to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.deployment.deployment.Deployment.infer">
+<span class="sig-name descname"><span class="pre">infer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.predictions.Prediction" title="geti_sdk.data_models.predictions.Prediction"><span class="pre">Prediction</span></a></span></span><a class="headerlink" href="#geti_sdk.deployment.deployment.Deployment.infer" title="Permalink to this definition"></a></dt>
+<dd><p>Run inference on an image for the full model chain in the deployment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>image</strong> – Image to run inference on, as a numpy array containing the pixel
+data. The image is expected to have dimensions [height x width x channels],
+with the channels in RGB order</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>inference results</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="geti_sdk.deployment.data_models.html">Data models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="geti_sdk.deployment.data_models.html#module-geti_sdk.deployment.data_models">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="geti_sdk.data_models.html" class="btn btn-neutral float-left" title="geti_sdk.data_models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="geti_sdk.deployment.data_models.html" class="btn btn-neutral float-right" title="geti_sdk.deployment.data_models package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

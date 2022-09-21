@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Getting started &mdash; SonomaCreek SDK v1.0 documentation</title>
+  <title>Getting started &mdash; Intel® Geti™ SDK v0.1.0a1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -19,8 +19,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Notebooks for sc-api-tools" href="notebooks.html" />
-    <link rel="prev" title="SonomaCreek SDK documentation" href="index.html" /> 
+    <link rel="next" title="Notebooks" href="notebooks.html" />
+    <link rel="prev" title="Intel® Geti™ SDK documentation" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -28,7 +28,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> SonomaCreek SDK
+            <a href="index.html" class="icon icon-home"> Intel® Geti™ SDK
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -41,32 +41,33 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id1">Getting started</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#pypi-installation">PyPI installation</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#local-installation">Local installation</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#jupyter-notebooks">Jupyter Notebooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pypi-installation">PyPI installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#local-installation">Local installation</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#example-use-cases">Example use cases</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#downloading-and-uploading-projects">Downloading and uploading projects</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#up-downloading-all-projects">Up/Downloading all projects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sample-code-snippets">Sample code snippets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#downloading-and-uploading-projects">Downloading and uploading projects</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#up-or-downloading-all-projects">Up- or downloading all projects</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#deploying-a-project">Deploying a project</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#deploying-a-project">Deploying a project</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-scripts">Example scripts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#jupyter-notebooks">Jupyter Notebooks</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#supported-features">Supported features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#high-level-api-reference">High level API reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#using-docker">Using Docker</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="#supported-features">Supported features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-supported">What is supported</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-not-supported">What is not supported</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks.html">Notebooks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing_to_the_sdk.html">Contributing to the SDK</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 </ul>
 
@@ -76,7 +77,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">SonomaCreek SDK</a>
+          <a href="index.html">Intel® Geti™ SDK</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -96,10 +97,8 @@
              
   <section id="getting-started">
 <h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h1>
-<section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
-<p>Welcome to the SonomaCreek SDK! This python package contains tools to interact with a
-SonomaCreek server via the REST API. It provides functionality for:</p>
+<p>Welcome to the Intel® Geti™ SDK! This python package contains tools to interact with an
+Intel® Geti™ server via the REST API. It provides functionality for:</p>
 <ul class="simple">
 <li><p>Project creation from annotated datasets on disk</p></li>
 <li><p>Project downloading (images, videos, configuration, annotations, predictions and models)</p></li>
@@ -110,82 +109,87 @@ SonomaCreek server via the REST API. It provides functionality for:</p>
 <li><p>Media upload and prediction</p></li>
 </ul>
 <p>This repository also contains a set of (tutorial style) Jupyter
-<a class="reference external" href="/notebooks/README.md">notebooks</a> that demonstrate how to use the SDK. We highly
-recommend checking them out to give you a flying start with the package.</p>
-</section>
-<section id="id1">
-<h2>Getting started<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
+<span class="xref myst">notebooks</span> that demonstrate how to use the SDK. We highly
+recommend checking them out to get a feeling for use cases for the package.</p>
 <section id="installation">
-<h3>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h3>
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
 <p>I recommend using an environment manager such as
 <a class="reference external" href="https://www.anaconda.com/products/individual">Anaconda</a> or
 <a class="reference external" href="https://docs.python.org/3/library/venv.html">venv</a> to create a new
 Python environment before installing the package, and it’s requirements. The SDK
 requires Python version 3.8, so make sure to use that version in your environment.</p>
-<p>Once you have created a new environment, follow these steps to install the package:</p>
+<blockquote>
+<div><p><strong>NOTE</strong>: If you have installed multiple versions of Python,
+use <code class="docutils literal notranslate"><span class="pre">py</span> <span class="pre">-3.8</span> <span class="pre">venv</span> <span class="pre">-m</span> <span class="pre">&lt;env_name&gt;</span></code> when creating your virtual environment to specify
+a supported version (in this case 3.8). Once you activate the
+virtual environment &lt;venv_path&gt;/Scripts/activate, make sure to upgrade pip
+to the latest version <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">pip</span> <span class="pre">wheel</span> <span class="pre">setuptools</span></code>.</p>
+</div></blockquote>
+<p>Once you have created and activated a new environment, follow these steps to install
+the package:</p>
 <section id="pypi-installation">
-<h4>PyPI installation<a class="headerlink" href="#pypi-installation" title="Permalink to this heading"></a></h4>
-<p>To install the SonomaCreek SDK from PyPI, simply use <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">sonoma_creek_sdk</span></code></p>
-<p>If you plan on running the jupyter notebooks, install the requirements for them by
-running <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">sonoma_creek_sdk[notebooks]</span></code></p>
+<h3>PyPI installation<a class="headerlink" href="#pypi-installation" title="Permalink to this heading"></a></h3>
+<p>To install the Intel® Geti™ SDK from PyPI, simply use <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">geti_sdk</span></code></p>
+<p>If you plan on running the Jupyter notebooks, install the requirements for them by
+running <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">geti_sdk[notebooks]</span></code></p>
 </section>
 <section id="local-installation">
-<h4>Local installation<a class="headerlink" href="#local-installation" title="Permalink to this heading"></a></h4>
+<h3>Local installation<a class="headerlink" href="#local-installation" title="Permalink to this heading"></a></h3>
 <p>To install the SDK in editable mode, follow these steps:</p>
-<ol class="arabic simple">
+<ol class="arabic">
 <li><p>Download or clone the repository and navigate to the root directory of the repo.</p></li>
 <li><p>From there, install the SDK using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code></p></li>
 <li><p>(Optional) If you plan on running the tests, the notebooks or want to build the
-documentation, you can install the package extra requirements by doing
-<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.[dev,docs,notebooks]</span></code></p></li>
+documentation, you can install the package extra requirements by doing for example
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.[dev]</span></code></p>
+<p>The valid options for the extra requirements are <code class="docutils literal notranslate"><span class="pre">[dev,</span> <span class="pre">docs,</span> <span class="pre">notebooks]</span></code>,
+corresponding to the following functionality:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dev</span></code> Install requirements to run the test suite on your local machine</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">notebooks</span></code> Install requirements to run the Juypter notebooks in the <code class="docutils literal notranslate"><span class="pre">notebooks</span></code>
+folder in this repository.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docs</span></code> Install requirements to build the documentation for the SDK from source on
+your machine</p></li>
+</ul>
+</li>
 </ol>
 <blockquote>
-<div><p><strong>NOTE</strong>: sc-api-tools needs <code class="docutils literal notranslate"><span class="pre">python==3.8</span></code> to run. Python 3.9 will work on Linux
+<div><p><strong>NOTE</strong>: geti-sdk needs <code class="docutils literal notranslate"><span class="pre">python==3.8</span></code> to run. Python 3.9 will work on Linux
 systems, but unfortunately not on Windows yet since not all required packages are
 available for that version.</p>
 </div></blockquote>
 </section>
 </section>
-<section id="examples">
-<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h3>
-<p>The <a class="reference external" href="/examples/README.md">examples</a> folder contains example scripts, showing various
-use cases for the package. They can be run by navigating to the <code class="docutils literal notranslate"><span class="pre">examples</span></code> directory
-in your terminal, and simply running the scripts like any other python script.</p>
-</section>
-<section id="jupyter-notebooks">
-<h3>Jupyter Notebooks<a class="headerlink" href="#jupyter-notebooks" title="Permalink to this heading"></a></h3>
-<p>In addition, the <a class="reference external" href="/notebooks/README.md">notebooks</a> folder contains jupyter notebooks
-with example use cases for the <code class="docutils literal notranslate"><span class="pre">sonoma_creek_sdk</span></code>. To run the notebooks,
-make sure to first install the requirements for this using
-<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements/requirements-notebooks.txt</span></code></p>
-<p>Once the notebook requirements are installed, navigate to the <code class="docutils literal notranslate"><span class="pre">notebooks</span></code> directory in
-your terminal. Then, fire up JupyterLab by typing <code class="docutils literal notranslate"><span class="pre">jupyter</span> <span class="pre">lab</span></code>. This should open your
-browser and take you to the JupyterLab landing page, with the SDK notebooks open.</p>
-<blockquote>
-<div><p><strong>NOTE</strong>: Both the example scripts and the notebooks require access to a SonomaCreek
-instance.</p>
-</div></blockquote>
-</section>
-</section>
 <section id="example-use-cases">
 <h2>Example use cases<a class="headerlink" href="#example-use-cases" title="Permalink to this heading"></a></h2>
-<p>The package provides a main class <code class="docutils literal notranslate"><span class="pre">SonomaCreek</span></code> that can be used for the following use cases</p>
+<p>The SDK contains example code in various forms to help you get familiar with the package.</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#sample-code-snippets"><span class="std std-doc">Sample code snippets</span></a> are short snippets that demonstrate
+how to perform several common tasks</p></li>
+<li><p><a class="reference internal" href="#example-scripts"><span class="std std-doc">Example scripts</span></a> are more extensive scripts that cover more
+advanced usage.</p></li>
+<li><p><a class="reference internal" href="#jupyter-notebooks"><span class="std std-doc">Jupyter notebooks</span></a> are tutorial style notebooks that cover
+pretty much the full SDK functionality.</p></li>
+</ul>
+<section id="sample-code-snippets">
+<h3>Sample code snippets<a class="headerlink" href="#sample-code-snippets" title="Permalink to this heading"></a></h3>
+<p>The package provides a main class <code class="docutils literal notranslate"><span class="pre">Geti</span></code> that can be used for the following use cases</p>
 <section id="downloading-and-uploading-projects">
-<h3>Downloading and uploading projects<a class="headerlink" href="#downloading-and-uploading-projects" title="Permalink to this heading"></a></h3>
+<h4>Downloading and uploading projects<a class="headerlink" href="#downloading-and-uploading-projects" title="Permalink to this heading"></a></h4>
 <ul>
 <li><p><strong>Project download</strong> The following python snippet is a minimal example of how to
-download a project using the SCRESTClient:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sc_api_tools</span> <span class="kn">import</span> <span class="n">SCRESTClient</span>
+download a project using <code class="docutils literal notranslate"><span class="pre">Geti</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">geti_sdk</span> <span class="kn">import</span> <span class="n">Geti</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">SCRESTClient</span><span class="p">(</span>
+<span class="n">geti</span> <span class="o">=</span> <span class="n">Geti</span><span class="p">(</span>
   <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://0.0.0.0&quot;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;dummy_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;dummy_password&quot;</span>
 <span class="p">)</span>
 
-<span class="n">client</span><span class="o">.</span><span class="n">download_project</span><span class="p">(</span><span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;dummy_project&quot;</span><span class="p">)</span>
+<span class="n">geti</span><span class="o">.</span><span class="n">download_project</span><span class="p">(</span><span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;dummy_project&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Here, it is assumed that the project with name ‘dummy_project’ exists on the cluster.
-The client will create a folder named ‘dummy_project’ in your current working
+The <code class="docutils literal notranslate"><span class="pre">Geti</span></code> instance will create a folder named ‘dummy_project’ in your current working
 directory, and download the project parameters, images, videos, annotations,
 predictions and the active model for the project (including optimized models derived
 from it) to that folder.</p>
@@ -202,15 +206,15 @@ are downloaded. True by default.</p></li>
 </ul>
 </li>
 <li><p><strong>Project upload</strong> The following python snippet is a minimal example of how to
-re-create a project on an SC cluster using the data from a previously downloaded
-project:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sc_api_tools</span> <span class="kn">import</span> <span class="n">SCRESTClient</span>
+re-create a project on an Intel® Geti™ server using the data from a previously
+downloaded project:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">geti_sdk</span> <span class="kn">import</span> <span class="n">Geti</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">SCRESTClient</span><span class="p">(</span>
+<span class="n">geti</span> <span class="o">=</span> <span class="n">Geti</span><span class="p">(</span>
     <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://0.0.0.0&quot;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;dummy_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;dummy_password&quot;</span>
 <span class="p">)</span>
 
-<span class="n">client</span><span class="o">.</span><span class="n">upload_project</span><span class="p">(</span><span class="n">target_folder</span><span class="o">=</span><span class="s2">&quot;dummy_project&quot;</span><span class="p">)</span>
+<span class="n">geti</span><span class="o">.</span><span class="n">upload_project</span><span class="p">(</span><span class="n">target_folder</span><span class="o">=</span><span class="s2">&quot;dummy_project&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The parameter <code class="docutils literal notranslate"><span class="pre">target_folder</span></code> must be a valid path to the directory holding the
@@ -219,30 +223,30 @@ original project, you can pass an additional parameter <code class="docutils lit
 method.</p>
 </li>
 </ul>
-<p>The client can be used to either back-up a project (by downloading it and later
+<p>The <code class="docutils literal notranslate"><span class="pre">Geti</span></code> instance can be used to either back-up a project (by downloading it and later
 uploading it again to the same cluster), or to migrate a project to a different cluster
 (download it, and upload it to the target cluster).</p>
-<section id="up-downloading-all-projects">
-<h4>Up/Downloading all projects<a class="headerlink" href="#up-downloading-all-projects" title="Permalink to this heading"></a></h4>
+</section>
+<section id="up-or-downloading-all-projects">
+<h4>Up- or downloading all projects<a class="headerlink" href="#up-or-downloading-all-projects" title="Permalink to this heading"></a></h4>
 <p>To up- or download all projects from a cluster, simply use the
-<code class="docutils literal notranslate"><span class="pre">client.download_all_projects</span></code> and <code class="docutils literal notranslate"><span class="pre">client.upload_all_projects</span></code> methods instead of
+<code class="docutils literal notranslate"><span class="pre">geti.download_all_projects</span></code> and <code class="docutils literal notranslate"><span class="pre">geti.upload_all_projects</span></code> methods instead of
 the single project methods in the code snippets above.</p>
 </section>
-</section>
 <section id="deploying-a-project">
-<h3>Deploying a project<a class="headerlink" href="#deploying-a-project" title="Permalink to this heading"></a></h3>
+<h4>Deploying a project<a class="headerlink" href="#deploying-a-project" title="Permalink to this heading"></a></h4>
 <p>The following code snippet shows how to create a deployment for local inference with
 OpenVINO:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cv2</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cv2</span>
 
-<span class="kn">from</span> <span class="nn">sc_api_tools</span> <span class="kn">import</span> <span class="n">SCRESTClient</span>
+<span class="kn">from</span> <span class="nn">geti_sdk</span> <span class="kn">import</span> <span class="n">Geti</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">SCRESTClient</span><span class="p">(</span>
+<span class="n">geti</span> <span class="o">=</span> <span class="n">Geti</span><span class="p">(</span>
         <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://0.0.0.0&quot;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;dummy_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;dummy_password&quot;</span>
     <span class="p">)</span>
 
 <span class="c1"># Download the model data and create a `Deployment`</span>
-<span class="n">deployment</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">deploy_project</span><span class="p">(</span><span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;dummy_project&quot;</span><span class="p">)</span>
+<span class="n">deployment</span> <span class="o">=</span> <span class="n">geti</span><span class="o">.</span><span class="n">deploy_project</span><span class="p">(</span><span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;dummy_project&quot;</span><span class="p">)</span>
 
 <span class="c1"># Load the inference models for all tasks in the project, for CPU inference</span>
 <span class="n">deployment</span><span class="o">.</span><span class="n">load_inference_models</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="s1">&#39;CPU&#39;</span><span class="p">)</span>
@@ -261,9 +265,80 @@ OpenVINO:</p>
 <code class="docutils literal notranslate"><span class="pre">Deployment.from_folder('dummy_project')</span></code>.</p>
 </section>
 </section>
+<section id="example-scripts">
+<h3>Example scripts<a class="headerlink" href="#example-scripts" title="Permalink to this heading"></a></h3>
+<p>The <span class="xref myst">examples</span> folder contains example scripts, showing various
+use cases for the package. They can be run by navigating to the <code class="docutils literal notranslate"><span class="pre">examples</span></code> directory
+in your terminal, and simply running the scripts like any other python script.</p>
+</section>
+<section id="jupyter-notebooks">
+<h3>Jupyter Notebooks<a class="headerlink" href="#jupyter-notebooks" title="Permalink to this heading"></a></h3>
+<p>In addition, the <span class="xref myst">notebooks</span> folder contains Jupyter notebooks
+with example use cases for the <code class="docutils literal notranslate"><span class="pre">geti_sdk</span></code>. To run the notebooks,
+make sure that the requirements for the notebooks are installed in your Python
+environment. If you have not installed these when you were installing the SDK, you can
+install them at any time using
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements/requirements-notebooks.txt</span></code></p>
+<p>Once the notebook requirements are installed, navigate to the <code class="docutils literal notranslate"><span class="pre">notebooks</span></code> directory in
+your terminal. Then, launch JupyterLab by typing <code class="docutils literal notranslate"><span class="pre">jupyter</span> <span class="pre">lab</span></code>. This should open your
+browser and take you to the JupyterLab landing page, with the SDK notebooks open.</p>
+<blockquote>
+<div><p><strong>NOTE</strong>: Both the example scripts and the notebooks require access to a server
+running the Intel® Geti™ platform.</p>
+</div></blockquote>
+</section>
+</section>
+<section id="high-level-api-reference">
+<h2>High level API reference<a class="headerlink" href="#high-level-api-reference" title="Permalink to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Geti</span></code> class provides the following methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">download_project</span></code> – Downloads a project by project name.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">upload_project</span></code> – Uploads project from a folder.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">download_all_projects</span></code> – Downloads all projects found on the server.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">upload_all_projects</span></code> – Uploads all projects found in a specified folder to the
+server.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">upload_and_predict_image</span></code> – Uploads a single image to an existing project on the
+server, and requests a prediction for that image. Optionally, the prediction can
+be visualized as an overlay on the image.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">upload_and_predict_video</span></code> – Uploads a single video to an existing project on the
+server, and requests predictions for the frames in the video. As with
+upload_and_predict_image, the predictions can be visualized on the frames. The
+parameter <code class="docutils literal notranslate"><span class="pre">frame_stride</span></code> can be used to control which frames are extracted for
+prediction.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">upload_and_predict_media_folder</span></code> – Uploads all media (images and videos) from a
+folder on local disk to an existing project on the server, and download
+predictions for all uploaded media.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">deploy_project</span></code> – Downloads the active model for all tasks in the project as an
+OpenVINO inference model. The resulting <code class="docutils literal notranslate"><span class="pre">Deployment</span></code> can be used to run inference
+for the project on a local machine. Pipeline inference is also supported.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_project_single_task_from_dataset</span></code> – Creates a single task project on the
+server, potentially using labels and uploading annotations from an external dataset.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_task_chain_project_from_dataset</span></code> – Creates a task chain project on the
+server, potentially using labels and uploading annotations from an external dataset.</p></li>
+</ul>
+<p>For further details regarding these methods, please refer to the method documentation,
+the <a class="reference internal" href="#downloading-and-uploading-projects"><span class="std std-doc">code snippets</span></a>, and
+<span class="xref myst">example scripts</span> provided in this repo.</p>
+<p>Please visit the full documentation for a complete API reference.</p>
+</section>
+<section id="using-docker">
+<h2>Using Docker<a class="headerlink" href="#using-docker" title="Permalink to this heading"></a></h2>
+<p>The Dockerfile can be used to run the package without having to install python on your
+machine.</p>
+<p>First build the docker image</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>docker build -t geti-sdk .
+</pre></div>
+</div>
+<p>then run it using,</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>docker run --rm -ti -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/app geti-sdk:latest /bin/bash
+</pre></div>
+</div>
+</section>
+</section>
 <section id="supported-features">
-<h2>Supported features<a class="headerlink" href="#supported-features" title="Permalink to this heading"></a></h2>
-<p>What is supported:</p>
+<h1>Supported features<a class="headerlink" href="#supported-features" title="Permalink to this heading"></a></h1>
+<section id="what-is-supported">
+<h2>What is supported<a class="headerlink" href="#what-is-supported" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p><strong>Creating projects</strong>. You can pass a variable <code class="docutils literal notranslate"><span class="pre">project_type</span></code> to control what kind of
 tasks will be created in the project pipeline. For example, if you want to create a
@@ -281,63 +356,28 @@ setting number of iterations for all tasks</p></li>
 <li><p><strong>Deploying a project</strong> to load OpenVINO inference models for all tasks in the pipeline,
 and running the full pipeline inference on a local machine.</p></li>
 <li><p><strong>Creating and restoring a backup of an existing project</strong>, using the code
-snippets provided <span class="xref std std-ref">above</span>. Only
+snippets provided <a class="reference internal" href="#downloading-and-uploading-projects"><span class="std std-doc">above</span></a>. Only
 annotations, media and configurations are backed up, models are not.</p></li>
 <li><p><strong>Launching and monitoring training jobs</strong></p></li>
+<li><p><strong>Authorization via Personal Access Token</strong></p></li>
 </ul>
-<p>What is not supported:</p>
+</section>
+<section id="what-is-not-supported">
+<h2>What is not supported<a class="headerlink" href="#what-is-not-supported" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>Model upload</p></li>
 <li><p>Prediction upload</p></li>
-<li><p>Plenty of other things that are supported in SonomaCreek but not included in the SDK
-just yet. These will be added in due time.</p></li>
+<li><p>Exporting datasets to COCO/YOLO/VOC format: For this, you can use the export
+functionality from the Intel® Geti™ user interface instead.</p></li>
 </ul>
-</section>
-<section id="high-level-api-reference">
-<h2>High level API reference<a class="headerlink" href="#high-level-api-reference" title="Permalink to this heading"></a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">SonomaCreek</span></code> class provides the following methods:</p>
+<p>The following features are not supported yet but will be added to the SDK in future
+releases:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">download_project</span></code> – Downloads a project by project name.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">upload_project</span></code> – Upload project from a folder.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">download_all_projects</span></code> – Downloads all projects found on the server.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">upload_all_projects</span></code> – Uploads all projects found in a specified folder to the
-server.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">upload_and_predict_image</span></code> – Uploads a single image to an existing project on the
-server, and requests a prediction for that image. Optionally, the prediction can
-be visualized as an overlay on the image.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">upload_and_predict_video</span></code> – Uploads a single video to an existing project on the
-server, and requests predictions for the frames in the video. As with
-upload_and_predict_image, the predictions can be visualized on the frames. The
-parameter <code class="docutils literal notranslate"><span class="pre">frame_stride</span></code> can be used to control which frames are extracted for
-prediction.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">upload_and_predict_media_folder</span></code> – Upload all media (images and videos) from a
-folder on local disk to an existing project on the server, and download
-predictions for all uploaded media.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">deploy_project</span></code> – Downloads the active model for all tasks in the project as an
-OpenVINO inference model. The resulting <code class="docutils literal notranslate"><span class="pre">Deployment</span></code> can be used to run inference
-for the project on a local machine. Pipeline inference is also supported.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">create_project_single_task_from_dataset</span></code> – Creates a single task project on the
-server, potentially using labels and uploading annotations from an external dataset.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">create_task_chain_project_from_dataset</span></code> – Creates a task chain project on the
-server, potentially using labels and uploading annotations from an external dataset.</p></li>
+<li><p>Fetching the active dataset</p></li>
+<li><p>Triggering (post-training) model optimization</p></li>
+<li><p>Running model tests</p></li>
+<li><p>Creating datasets and retrieving dataset statistics</p></li>
 </ul>
-<p>For further details regarding these methods, please refer to the method documentation
-and the <span class="xref std std-ref">code snippets</span> and
-<span class="xref std std-ref">example scripts</span> provided in this repo.</p>
-<p>Please visit the full documentation for a complete API reference.</p>
-</section>
-<section id="using-docker">
-<h2>Using Docker<a class="headerlink" href="#using-docker" title="Permalink to this heading"></a></h2>
-<p>The Dockerfile can be used to run the package without having to install python on your
-machine.</p>
-<p>First build the docker image</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>docker build -t sc-api-tools .
-</pre></div>
-</div>
-<p>then run it using,</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>docker run --rm -ti -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/app sc-api-tools:latest /bin/bash
-</pre></div>
-</div>
 </section>
 </section>
 
@@ -345,14 +385,14 @@ machine.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="SonomaCreek SDK documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="notebooks.html" class="btn btn-neutral float-right" title="Notebooks for sc-api-tools" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Intel® Geti™ SDK documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="notebooks.html" class="btn btn-neutral float-right" title="Notebooks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Ludo Cornelissen.</p>
+    <p>&#169; Copyright 2022 Intel Corporation.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

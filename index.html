@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SonomaCreek SDK documentation &mdash; SonomaCreek SDK v1.0 documentation</title>
+  <title>Intel® Geti™ SDK documentation &mdash; Intel® Geti™ SDK v0.1.0a1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -27,7 +27,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="#" class="icon icon-home"> SonomaCreek SDK
+            <a href="#" class="icon icon-home"> Intel® Geti™ SDK
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -40,8 +40,9 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html#supported-features">Supported features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="notebooks.html">Notebooks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing_to_the_sdk.html">Contributing to the SDK</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 </ul>
 
@@ -51,7 +52,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">SonomaCreek SDK</a>
+          <a href="#">Intel® Geti™ SDK</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -59,7 +60,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>SonomaCreek SDK documentation</li>
+      <li>Intel® Geti™ SDK documentation</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -69,56 +70,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="sonomacreek-sdk-documentation">
-<h1>SonomaCreek SDK documentation<a class="headerlink" href="#sonomacreek-sdk-documentation" title="Permalink to this heading"></a></h1>
-<p>Welcome to the documentation for the SonomaCreek SDK! The purpose of this SDK is twofold:</p>
+  <section id="intel-geti-sdk-documentation">
+<h1>Intel® Geti™ SDK documentation<a class="headerlink" href="#intel-geti-sdk-documentation" title="Permalink to this heading"></a></h1>
+<p>Welcome to the documentation for the Intel® Geti™ SDK! The purpose of this SDK is twofold:</p>
 <ol class="arabic simple">
-<li><p>Provide an easy-to-use interface to the SonomaCreek platform, to be able to
-manipulate SC projects and other entities or automate tasks on the platform. All of this
-from a python script or Jupyter notebook.</p></li>
-<li><p>Provide an API to deploy and run models trained in SonomaCreek on your local
-machine. The SDK <a class="reference internal" href="sc_api_tools.deployment.html#module-sc_api_tools.deployment" title="sc_api_tools.deployment"><code class="xref py py-mod docutils literal notranslate"><span class="pre">deployment</span></code></a> module provides a straightforward
-route to create a deployment for your SC project, save it to local disk and run it offline.</p></li>
+<li><p>Provide an easy-to-use interface to the Intel® Geti™ platform, to manipulate
+Intel® Geti™ projects and other entities or automate tasks on the platform. All
+of this from a Python script or Jupyter notebook.</p></li>
+<li><p>Provide an API to deploy and run models trained on the Intel® Geti™ server on your local
+machine. The SDK <a class="reference internal" href="geti_sdk.deployment.html#module-geti_sdk.deployment" title="geti_sdk.deployment"><code class="xref py py-mod docutils literal notranslate"><span class="pre">deployment</span></code></a> module provides a straightforward
+route to create a deployment for your Intel® Geti™ project, save it to a local disk and run
+it offline.</p></li>
 </ol>
+<p>This SDK includes various example scripts and Jupyter notebooks which illustrate a
+range of use cases for the SDK. Make sure to check them out if you’re getting
+started!</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html#id1">Getting started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html#example-use-cases">Example use cases</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html#supported-features">Supported features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html#high-level-api-reference">High level API reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html#using-docker">Using Docker</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="notebooks.html">Notebooks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="notebooks.html#getting-started">Getting started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks.html#notebooks">Notebooks</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="testing.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="testing.html#integration-tests">Integration tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="testing.html#nightly-tests">Nightly tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="testing.html#running-the-tests">Running the tests</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="sc_rest_client.html">SC REST client</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.annotation_readers.html">Annotation readers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.data_models.html">Data models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.deployment.html">Deployment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.http_session.html">HTTP session</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.rest_converters.html">REST converters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sc_api_tools.utils.html">Utils</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html#supported-features">Supported features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks.html">Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing_to_the_sdk.html">Contributing to the SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 </ul>
 </div>
-<p>This SDK includes various example scripts and jupyter notebooks which illustrate a
-range of use cases for the SDK. Make sure to check them out if you’re getting
-started!</p>
 </section>
 <section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h1>
@@ -139,7 +115,7 @@ started!</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Ludo Cornelissen.</p>
+    <p>&#169; Copyright 2022 Intel Corporation.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

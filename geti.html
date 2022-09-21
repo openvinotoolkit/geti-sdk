@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The ‘Geti’ class &mdash; Intel® Geti™ SDK v0.1.0a1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="geti_sdk.annotation_readers" href="geti_sdk.annotation_readers.html" />
+    <link rel="prev" title="API Reference" href="api_reference.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Intel® Geti™ SDK
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html#supported-features">Supported features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks.html">Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing_to_the_sdk.html">Contributing to the SDK</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">The ‘Geti’ class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-contents">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="geti_sdk.annotation_readers.html">Annotation readers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geti_sdk.data_models.html">Data models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geti_sdk.deployment.html">Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geti_sdk.http_session.html">HTTP session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geti_sdk.rest_converters.html">REST converters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geti_sdk.rest_clients.html">REST clients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geti_sdk.utils.html">utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="geti_sdk.demos.html">demos</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Intel® Geti™ SDK</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="api_reference.html">API Reference</a> &raquo;</li>
+      <li>The ‘Geti’ class</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/geti.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-geti_sdk">
+<span id="the-geti-class"></span><h1>The ‘Geti’ class<a class="headerlink" href="#module-geti_sdk" title="Permalink to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
+<p>These pages contain the documentation for the main SDK class,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Geti</span></code>.</p>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Geti</span></code> class implements convenience
+methods for common operations that can be performed on the Intel® Geti™ cluster, such as
+creating a project from a pre-existing dataset, downloading or uploading a project,
+uploading an image and getting a prediction for it and creating a deployment for a
+project.</p>
+<p>For example, to download a project, simply do:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">geti_sdk</span> <span class="kn">import</span> <span class="n">Geti</span>
+
+<span class="n">geti</span> <span class="o">=</span> <span class="n">Geti</span><span class="p">(</span>
+  <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://0.0.0.0&quot;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;dummy_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;dummy_password&quot;</span>
+<span class="p">)</span>
+
+<span class="n">geti</span><span class="o">.</span><span class="n">download_project</span><span class="p">(</span><span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;dummy_project&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For custom operations or more fine-grained control over the behavior, the
+<a class="reference internal" href="geti_sdk.rest_clients.html#module-geti_sdk.rest_clients" title="geti_sdk.rest_clients"><code class="xref py py-mod docutils literal notranslate"><span class="pre">rest_clients</span></code></a> subpackage should be used.</p>
+</section>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="geti_sdk.geti.Geti">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">geti_sdk.geti.</span></span><span class="sig-name descname"><span class="pre">Geti</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verify_certificate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geti_sdk.geti.Geti" title="Permalink to this definition"></a></dt>
+<dd><p>Interact with an Intel® Geti™ server via the REST API.</p>
+<p>The <cite>Geti</cite> class provides methods for project creation, downloading and
+uploading, as well as project deployment. Initializing the class will establish a
+HTTP session to the Intel® Geti™ server, and requires authentication.</p>
+<p>NOTE: The <cite>Geti</cite> instance can either be initialized using user credentials (<cite>username</cite>
+and <cite>password</cite>), or using a personal access token (<cite>token</cite>). Arguments for either
+one of these two options must be passed, otherwise a TypeError will be raised.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> – IP address or URL at which the cluster can be reached, for example
+‘<a class="reference external" href="https://0.0.0.0">https://0.0.0.0</a>’ or ‘<a class="reference external" href="https://sc_example.intel.com">https://sc_example.intel.com</a>’</p></li>
+<li><p><strong>username</strong> – Username to log in to the cluster</p></li>
+<li><p><strong>password</strong> – Password to log in to the cluster</p></li>
+<li><p><strong>token</strong> – Personal access token that can be used for authentication</p></li>
+<li><p><strong>workspace_id</strong> – Optional ID of the workspace that should be addressed by this
+Geti instance. If not specified, the default workspace is used.</p></li>
+<li><p><strong>verify_certificate</strong> – True to verify the certificate used for making HTTPS
+requests encrypted using TLS protocol. If set to False, an
+InsecureRequestWarning will be issued since in this case requests made to the
+server may be compromised. This should only ever be set to False in a secure
+network environment.</p></li>
+<li><p><strong>proxies</strong> – <p>Optional dictionary containing proxy information. For example
+{</p>
+<blockquote>
+<div><p>’http’: <a class="reference external" href="http://proxy-server.com">http://proxy-server.com</a>:&lt;http_port_number&gt;,
+‘https’: <a class="reference external" href="http://proxy-server.com">http://proxy-server.com</a>:&lt;https_port_number&gt;</p>
+</div></blockquote>
+<p>},
+if set to None (the default), no proxy settings will be used.</p>
+</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Project download and upload</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.geti.Geti.download_project">
+<span class="sig-name descname"><span class="pre">download_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_predictions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_active_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_deployment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.project.Project" title="geti_sdk.data_models.project.Project"><span class="pre">Project</span></a></span></span><a class="headerlink" href="#geti_sdk.geti.Geti.download_project" title="Permalink to this definition"></a></dt>
+<dd><p>Download a project with name <cite>project_name</cite> to the local disk. All images,
+image annotations, videos and video frame annotations in the project are
+downloaded. By default, predictions and models are not downloaded, but they
+can be included by passing <cite>include_predictions=True</cite> and
+<cite>include_active_models=True</cite>, respectively.</p>
+<p>In addition, if <cite>include_deployment</cite> is set to True, this method will create
+and download a deployment for the project as well.</p>
+<p>This method will download data to the path <cite>target_folder</cite>, the contents of the
+folder will be:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>images</dt><dd><p>Folder holding all images in the project, if any</p>
+</dd>
+<dt>videos</dt><dd><p>Folder holding all videos in the project, if any</p>
+</dd>
+<dt>annotations</dt><dd><p>Directory holding all annotations in the project, in .json format</p>
+</dd>
+<dt>predictions</dt><dd><p>Directory holding all predictions in the project, in .json format. If
+available, this will include saliency maps in .jpeg format. Only
+created if <cite>include_predictions=True</cite></p>
+</dd>
+<dt>models</dt><dd><p>Folder containing the active model for the project. This folder contains
+zip files holding the data for the active models for the tasks in the
+project, and any optimized models derived from them. Models are only
+downloaded if <cite>include_active_models = True</cite>.</p>
+</dd>
+<dt>deployment</dt><dd><p>Folder containing the deployment for the project, that can be used for
+local inference. The deployment is only created if
+<cite>include_deployment = True</cite>.</p>
+</dd>
+<dt>project.json</dt><dd><p>File containing the project parameters, that can be used to re-create
+the project.</p>
+</dd>
+<dt>configuration.json</dt><dd><p>File containing the configurable parameters for the active models in the
+project</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Downloading a project may take a substantial amount of time if the project
+dataset is large.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> – Name of the project to download</p></li>
+<li><p><strong>target_folder</strong> – Path to the local folder in which the project data
+should be saved. If not specified, a new directory named <cite>project_name</cite>
+will be created inside the current working directory.</p></li>
+<li><p><strong>include_predictions</strong> – True to also download the predictions for all
+images and videos in the project, False to not download any predictions.
+If this is set to True but the project has no trained models, downloading
+predictions will be skipped.</p></li>
+<li><p><strong>include_active_models</strong> – True to download the active models for all
+tasks in the project, and any optimized models derived from them. False to
+not download any models. Defaults to False</p></li>
+<li><p><strong>include_deployment</strong> – True to create and download a deployment for the
+project, that can be used for local inference with OpenVINO. Defaults to
+False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Project object, holding information obtained from the cluster
+regarding the downloaded project</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.geti.Geti.upload_project">
+<span class="sig-name descname"><span class="pre">upload_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_auto_train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.project.Project" title="geti_sdk.data_models.project.Project"><span class="pre">Project</span></a></span></span><a class="headerlink" href="#geti_sdk.geti.Geti.upload_project" title="Permalink to this definition"></a></dt>
+<dd><p>Upload a previously downloaded Intel® Geti™ project to the server. This method
+expects the <cite>target_folder</cite> to contain the following:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>images</dt><dd><p>Folder holding all images in the project, if any</p>
+</dd>
+<dt>videos</dt><dd><p>Folder holding all videos in the project, if any</p>
+</dd>
+<dt>annotations</dt><dd><p>Directory holding all annotations in the project, in .json format</p>
+</dd>
+<dt>project.json</dt><dd><p>File containing the project parameters, that can be used to re-create
+the project.</p>
+</dd>
+<dt>configuration.json</dt><dd><p>Optional file containing the configurable parameters for the active
+models in the project. If this file is not present, the configurable
+parameters for the project will be left at their default values.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_folder</strong> – Folder holding the project data to upload</p></li>
+<li><p><strong>project_name</strong> – Optional name of the project to create on the cluster. If
+left unspecified, the name of the project found in the configuration in
+the <cite>target_folder</cite> will be used.</p></li>
+<li><p><strong>enable_auto_train</strong> – True to enable auto-training for all tasks directly
+after all annotations have been uploaded. This will directly trigger a
+training round if the conditions for auto-training are met. False to leave
+auto-training disabled for all tasks. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Project object, holding information obtained from the cluster
+regarding the uploaded project</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.geti.Geti.download_all_projects">
+<span class="sig-name descname"><span class="pre">download_all_projects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_predictions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.project.Project" title="geti_sdk.data_models.project.Project"><span class="pre">Project</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#geti_sdk.geti.Geti.download_all_projects" title="Permalink to this definition"></a></dt>
+<dd><p>Download all projects in the workspace from the Intel® Geti™ server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_folder</strong> – Directory on local disk to download the project data to.
+If not specified, this method will create a directory named ‘projects’ in
+the current working directory.</p></li>
+<li><p><strong>include_predictions</strong> – True to also download the predictions for all
+images and videos in the project, False to not download any predictions.
+If this is set to True but the project has no trained models, downloading
+predictions will be skipped.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of Project objects, each entry corresponding to one of the
+projects found on the Intel® Geti™ server</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.geti.Geti.upload_all_projects">
+<span class="sig-name descname"><span class="pre">upload_all_projects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.project.Project" title="geti_sdk.data_models.project.Project"><span class="pre">Project</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#geti_sdk.geti.Geti.upload_all_projects" title="Permalink to this definition"></a></dt>
+<dd><p>Upload all projects found in the directory <cite>target_folder</cite> on local disk to
+the Intel® Geti™ server.</p>
+<p>This method expects the directory <cite>target_folder</cite> to contain subfolders. Each
+subfolder should correspond to the (previously downloaded) data for one
+project. The method looks for project folders non-recursively, meaning that
+only folders directly below the <cite>target_folder</cite> in the hierarchy are
+considered to be uploaded as project.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target_folder</strong> – Directory on local disk to retrieve the project data from</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of Project objects, each entry corresponding to one of the
+projects uploaded to the SC cluster</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Project creation from dataset</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.geti.Geti.create_single_task_project_from_dataset">
+<span class="sig-name descname"><span class="pre">create_single_task_project_from_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_reader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="geti_sdk.annotation_readers.html#geti_sdk.annotation_readers.base_annotation_reader.AnnotationReader" title="geti_sdk.annotation_readers.base_annotation_reader.AnnotationReader"><span class="pre">AnnotationReader</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_images_to_upload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_images_to_annotate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_auto_train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.project.Project" title="geti_sdk.data_models.project.Project"><span class="pre">Project</span></a></span></span><a class="headerlink" href="#geti_sdk.geti.Geti.create_single_task_project_from_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Create a single task project named <cite>project_name</cite> on the Intel® Geti™ server,
+and upload data from a dataset on local disk.</p>
+<p>The type of task that will be in the project can be controlled by setting the
+<cite>project_type</cite>, options are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>classification</p></li>
+<li><p>detection</p></li>
+<li><p>segmentation</p></li>
+<li><p>anomaly_classification</p></li>
+<li><p>anomaly_detection</p></li>
+<li><p>anomaly_segmentation</p></li>
+<li><p>instance_segmentation</p></li>
+<li><p>rotated_detection</p></li>
+</ul>
+</div></blockquote>
+<p>If a project called <cite>project_name</cite> exists on the server, this method will
+attempt to upload the media and annotations to the existing project.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> – Name of the project to create</p></li>
+<li><p><strong>project_type</strong> – Type of the project, this determines which task the
+project will perform. See above for possible values</p></li>
+<li><p><strong>path_to_images</strong> – Path to the folder holding the images on the local disk.
+See above for details.</p></li>
+<li><p><strong>annotation_reader</strong> – AnnotationReader instance that will be used to
+obtain annotations for the images.</p></li>
+<li><p><strong>labels</strong> – Optional list of labels to use. This will only be used if the
+<cite>annotation_reader</cite> that is passed also supports dataset filtering. If
+not specified, all labels that are found in the dataset are used.</p></li>
+<li><p><strong>number_of_images_to_upload</strong> – Optional integer specifying how many images
+should be uploaded. If not specified, all images found in the dataset are
+uploaded.</p></li>
+<li><p><strong>number_of_images_to_annotate</strong> – Optional integer specifying how many
+images should be annotated. If not specified, annotations for all images
+that have annotations available will be uploaded.</p></li>
+<li><p><strong>enable_auto_train</strong> – True to enable auto-training for all tasks directly
+after all annotations have been uploaded. This will directly trigger a
+training round if the conditions for auto-training are met. False to leave
+auto-training disabled for all tasks. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Project object, holding information obtained from the cluster
+regarding the uploaded project</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.geti.Geti.create_task_chain_project_from_dataset">
+<span class="sig-name descname"><span class="pre">create_task_chain_project_from_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_images</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_source_per_task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="geti_sdk.annotation_readers.html#geti_sdk.annotation_readers.base_annotation_reader.AnnotationReader" title="geti_sdk.annotation_readers.base_annotation_reader.AnnotationReader"><span class="pre">AnnotationReader</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_images_to_upload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_images_to_annotate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_auto_train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.project.Project" title="geti_sdk.data_models.project.Project"><span class="pre">Project</span></a></span></span><a class="headerlink" href="#geti_sdk.geti.Geti.create_task_chain_project_from_dataset" title="Permalink to this definition"></a></dt>
+<dd><p>Create a single task project named <cite>project_name</cite> on the Intel® Geti™ cluster,
+and upload data from a dataset on local disk.</p>
+<p>The type of task that will be in the project can be controlled by setting the
+<cite>project_type</cite>, current options are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>detection_to_segmentation</p></li>
+<li><p>detection_to_classification</p></li>
+</ul>
+</div></blockquote>
+<p>If a project called <cite>project_name</cite> exists on the server, this method will
+attempt to upload the media and annotations to the existing project.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> – Name of the project to create</p></li>
+<li><p><strong>project_type</strong> – Type of the project, this determines which task the
+project will perform. See above for possible values</p></li>
+<li><p><strong>path_to_images</strong> – Path to the folder holding the images on the local disk.
+See above for details.</p></li>
+<li><p><strong>label_source_per_task</strong> – <p>List containing the label sources for each task
+in the task chain. Each entry in the list corresponds to the label source
+for one task. The list can contain either AnnotationReader instances that
+will be used to obtain the labels for a task, or it can contain a list of
+labels to use for that task.</p>
+<p>For example, in a detection -&gt; classification project we may have labels
+for the first task (for instance ‘dog’), but no annotations for the second
+task yet (e.g. [‘small’, ‘large’]). In that case the
+<cite>label_source_per_task</cite> should contain:</p>
+<blockquote>
+<div><p>[AnnotationReader(), [‘small’, ‘large’]]</p>
+</div></blockquote>
+<p>Where the annotation reader has been properly instantiated to read the
+annotations for the ‘dog’ labels.</p>
+</p></li>
+<li><p><strong>number_of_images_to_upload</strong> – Optional integer specifying how many images
+should be uploaded. If not specified, all images found in the dataset are
+uploaded.</p></li>
+<li><p><strong>number_of_images_to_annotate</strong> – Optional integer specifying how many
+images should be annotated. If not specified, annotations for all images
+that have annotations available will be uploaded.</p></li>
+<li><p><strong>enable_auto_train</strong> – True to enable auto-training for all tasks directly
+after all annotations have been uploaded. This will directly trigger a
+training round if the conditions for auto-training are met. False to leave
+auto-training disabled for all tasks. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Project object, holding information obtained from the cluster
+regarding the uploaded project</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Project deployment</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.geti.Geti.deploy_project">
+<span class="sig-name descname"><span class="pre">deploy_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="geti_sdk.deployment.html#geti_sdk.deployment.deployment.Deployment" title="geti_sdk.deployment.deployment.Deployment"><span class="pre">Deployment</span></a></span></span><a class="headerlink" href="#geti_sdk.geti.Geti.deploy_project" title="Permalink to this definition"></a></dt>
+<dd><p>Deploy a project by creating a Deployment instance. The Deployment contains
+the optimized active models for each task in the project, and can be loaded
+with OpenVINO to run inference locally.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> – Name of the project to deploy</p></li>
+<li><p><strong>output_folder</strong> – Path to a folder on local disk to which the Deployment
+should be downloaded. If no path is specified, the deployment will not be
+saved.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Deployment for the project</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Media upload and prediction</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.geti.Geti.upload_and_predict_image">
+<span class="sig-name descname"><span class="pre">upload_and_predict_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.media.Image" title="geti_sdk.data_models.media.Image"><span class="pre">Image</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.media.VideoFrame" title="geti_sdk.data_models.media.VideoFrame"><span class="pre">VideoFrame</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delete_after_prediction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.media.Image" title="geti_sdk.data_models.media.Image"><span class="pre">Image</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.predictions.Prediction" title="geti_sdk.data_models.predictions.Prediction"><span class="pre">Prediction</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#geti_sdk.geti.Geti.upload_and_predict_image" title="Permalink to this definition"></a></dt>
+<dd><p>Upload a single image to a project named <cite>project_name</cite> on the SC cluster,
+and return a prediction for it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> – Name of the project to upload the image to</p></li>
+<li><p><strong>image</strong> – Image, numpy array representing an image, or filepath to an
+image to upload and get a prediction for</p></li>
+<li><p><strong>visualise_output</strong> – True to show the resulting prediction, overlayed on
+the image</p></li>
+<li><p><strong>delete_after_prediction</strong> – True to remove the image from the project
+once the prediction is received, False to keep the image in the project.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Tuple containing:</p>
+<ul class="simple">
+<li><p>Image object representing the image that was uploaded</p></li>
+<li><p>Prediction for the image</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.geti.Geti.upload_and_predict_video">
+<span class="sig-name descname"><span class="pre">upload_and_predict_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.media.Video" title="geti_sdk.data_models.media.Video"><span class="pre">Video</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PathLike</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualise_output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delete_after_prediction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.media.Video" title="geti_sdk.data_models.media.Video"><span class="pre">Video</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.containers.MediaList" title="geti_sdk.data_models.containers.media_list.MediaList"><span class="pre">MediaList</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.media.VideoFrame" title="geti_sdk.data_models.media.VideoFrame"><span class="pre">VideoFrame</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.predictions.Prediction" title="geti_sdk.data_models.predictions.Prediction"><span class="pre">Prediction</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#geti_sdk.geti.Geti.upload_and_predict_video" title="Permalink to this definition"></a></dt>
+<dd><p>Upload a single video to a project named <cite>project_name</cite> on the SC cluster,
+and return a list of predictions for the frames in the video.</p>
+<p>The parameter ‘frame_stride’ is used to control the stride for frame
+extraction. Predictions are only generated for the extracted frames. So to
+get predictions for all frames, <cite>frame_stride=1</cite> can be passed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> – Name of the project to upload the image to</p></li>
+<li><p><strong>video</strong> – Video or filepath to a video to upload and get predictions for.
+Can also be a 4D numpy array or a list of 3D numpy arrays, shaped such
+that the array dimensions represent <cite>frames x width x height x channels</cite>,
+i.e. each entry holds the pixel data for a video frame.</p></li>
+<li><p><strong>frame_stride</strong> – Frame stride to use. This determines the number of
+frames that will be extracted from the video, and for which predictions
+will be generated</p></li>
+<li><p><strong>visualise_output</strong> – True to show the resulting prediction, overlayed on
+the video frames.</p></li>
+<li><p><strong>delete_after_prediction</strong> – True to remove the video from the project
+once the prediction is received, False to keep the video in the project.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Tuple containing:</p>
+<ul class="simple">
+<li><p>Video object holding the data for the uploaded video</p></li>
+<li><p>List of VideoFrames extracted from the video, for which predictions
+have been generated</p></li>
+<li><p>List of Predictions for the Video</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.geti.Geti.upload_and_predict_media_folder">
+<span class="sig-name descname"><span class="pre">upload_and_predict_media_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">media_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delete_after_prediction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_if_filename_exists</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#geti_sdk.geti.Geti.upload_and_predict_media_folder" title="Permalink to this definition"></a></dt>
+<dd><p>Upload a folder with media (images, videos or both) from local disk at path
+<cite>target_folder</cite> to the project with name <cite>project_name</cite> on the SC cluster.
+After the media upload is complete, predictions will be downloaded for all
+media in the folder. This method will create a ‘predictions’ directory in
+the <cite>target_folder</cite>, containing the prediction output in json format.</p>
+<p>If <cite>delete_after_prediction</cite> is set to True, all uploaded media will be
+removed from the project on the SC cluster after the predictions have
+been downloaded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> – Name of the project to upload media to</p></li>
+<li><p><strong>media_folder</strong> – Path to the folder to upload media from</p></li>
+<li><p><strong>output_folder</strong> – Path to save the predictions to. If not specified, this
+method will create a folder named ‘&lt;media_folder_name&gt;_predictions’ on
+the same level as the media_folder</p></li>
+<li><p><strong>delete_after_prediction</strong> – True to remove the media from the project
+once all predictions are received, False to keep the media in the project.</p></li>
+<li><p><strong>skip_if_filename_exists</strong> – Set to True to skip uploading of an image (or
+video) if an image (or video) with the same filename already exists in the
+project. Defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if all media was uploaded, and predictions for all media were
+successfully downloaded. False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api_reference.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="geti_sdk.annotation_readers.html" class="btn btn-neutral float-right" title="geti_sdk.annotation_readers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 Intel Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

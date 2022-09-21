@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Notebooks for sc-api-tools &mdash; SonomaCreek SDK v1.0 documentation</title>
+  <title>Notebooks &mdash; Intel® Geti™ SDK v0.1.0a1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="SC SDK test suite" href="testing.html" />
+    <link rel="next" title="Contributing to the SDK" href="contributing_to_the_sdk.html" />
     <link rel="prev" title="Getting started" href="getting_started.html" /> 
 </head>
 
@@ -28,7 +28,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> SonomaCreek SDK
+            <a href="index.html" class="icon icon-home"> Intel® Geti™ SDK
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -41,12 +41,16 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html#supported-features">Supported features</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Notebooks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#notebooks">Notebooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-things-up">Setting things up</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#credentials-management">Credentials management</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#available-notebooks">Available notebooks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing_to_the_sdk.html">Contributing to the SDK</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
 </ul>
 
@@ -56,7 +60,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">SonomaCreek SDK</a>
+          <a href="index.html">Intel® Geti™ SDK</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -64,7 +68,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Notebooks for sc-api-tools</li>
+      <li>Notebooks</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/notebooks.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -74,74 +78,82 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="notebooks-for-sc-api-tools">
-<h1>Notebooks for sc-api-tools<a class="headerlink" href="#notebooks-for-sc-api-tools" title="Permalink to this heading"></a></h1>
-<section id="getting-started">
-<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h2>
+  <section id="notebooks">
+<h1>Notebooks<a class="headerlink" href="#notebooks" title="Permalink to this heading"></a></h1>
+<section id="setting-things-up">
+<h2>Setting things up<a class="headerlink" href="#setting-things-up" title="Permalink to this heading"></a></h2>
 <p>To get started with the example notebooks provided in this folder, please make sure
-that you have installed the <code class="docutils literal notranslate"><span class="pre">sc-api-tools</span></code> package. The steps to install the package
-can be found in the <a class="reference external" href="../README.md">main readme</a> in this repository. Once the package
+that you have installed the <code class="docutils literal notranslate"><span class="pre">geti-sdk</span></code> package. The steps to install the package
+can be found in the <span class="xref myst">main readme</span> in this repository. Once the package
 is installed, you can follow the steps below to set up the notebooks.</p>
 <ol class="arabic simple">
 <li><p>Navigate to this folder in a terminal</p></li>
-<li><p>Activate the python environment in which you installed the sc-api-tools package</p></li>
+<li><p>Activate the Python environment in which you installed the <code class="docutils literal notranslate"><span class="pre">geti-sdk</span></code> package</p></li>
 <li><p>Run <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">../requirements/requirements-notebooks.txt</span></code> to install the packages required to
 run the notebooks</p></li>
-<li><p>Create a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file containing the login details for your Sonoma Creek instance,
-following the instructions in the <span class="xref std std-ref">Credentials management</span>
+<li><p>Create a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file containing the login details for your the Intel® Geti™ instance,
+following the instructions in the <a class="reference internal" href="#credentials-management"><span class="std std-doc">Credentials management</span></a>
 box.</p></li>
 <li><p>In your terminal, navigate to the <code class="docutils literal notranslate"><span class="pre">notebooks</span></code> directory and execute the command
-<code class="docutils literal notranslate"><span class="pre">jupyter</span> <span class="pre">lab</span></code>. This will fire up the jupyter server and should take you straight to
+<code class="docutils literal notranslate"><span class="pre">jupyter</span> <span class="pre">lab</span></code>. This will start the jupyter server and should take you straight to
 the jupyter web interface.</p></li>
 <li><p>The notebooks should show up in the side menu of the jupyter web interface.</p></li>
 </ol>
+<section id="credentials-management">
+<h3>Credentials management<a class="headerlink" href="#credentials-management" title="Permalink to this heading"></a></h3>
 <blockquote>
-<div><p>The notebooks rely on a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file to load the login details for the SonomaCreek
-instance which they run against. To provide the credentials for your SC instance,
+<div><p>The notebooks rely on a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file to load the login details for the Intel® Geti™
+instance which they run against. To provide the credentials for your instance,
 create a file named <code class="docutils literal notranslate"><span class="pre">.env</span></code> directly in the <code class="docutils literal notranslate"><span class="pre">notebooks</span></code> directory. The file should have
 the following contents:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># SonomaCreek instance details</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Intel® Geti™ instance details</span>
 <span class="nv">HOST</span><span class="o">=</span>
 <span class="nv">USERNAME</span><span class="o">=</span>
 <span class="nv">PASSWORD</span><span class="o">=</span>
 </pre></div>
 </div>
-<p>Where you should of course fill the details appropriate for your instance.</p>
+<p>Where you should of course fill the appropriate details for your instance.</p>
 </div></blockquote>
 </section>
-<section id="notebooks">
-<h2>Notebooks<a class="headerlink" href="#notebooks" title="Permalink to this heading"></a></h2>
+</section>
+<section id="available-notebooks">
+<h2>Available notebooks<a class="headerlink" href="#available-notebooks" title="Permalink to this heading"></a></h2>
 <p>The following notebooks are currently provided:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="001_create_project.ipynb">001 create_project</a> – This notebook shows how to create
-a project, and explains the parameters that can be used to control the project
-properties.</p></li>
-<li><p><a class="reference external" href="002_create_project_from_dataset.ipynb">002 create_project_from_dataset</a> – This
-notebook shows how to create a project from an existing dataset, and upload images
-and annotations to it.</p></li>
-<li><p><a class="reference external" href="003_upload_and_predict_image.ipynb">003 upload_and_predict_image</a> – This notebook
-shows how to upload an image to an existing project, and get a prediction for it.</p></li>
-<li><p><a class="reference external" href="004_create_pipeline_project_from_dataset.ipynb">004 create_pipeline_project_from_dataset</a>
+<li><p><a class="reference external" href="https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/001_create_project.ipynb">001 create_project</a>
+– This notebook shows how to create a project, and explains the parameters that
+can be used to control the project properties.</p></li>
+<li><p><a class="reference external" href="https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/002_create_project_from_dataset.ipynb">002 create_project_from_dataset</a>
+– This notebook shows how to create a project from an existing dataset, and
+upload images and annotations to it.</p></li>
+<li><p><a class="reference external" href="https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/003_upload_and_predict_image.ipynb">003 upload_and_predict_image</a>
+– This notebook shows how to upload an image to an existing project, and get
+a prediction for it.</p></li>
+<li><p><a class="reference external" href="https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/004_create_pipeline_project_from_dataset.ipynb">004 create_pipeline_project_from_dataset</a>
 – This notebook shows how to create a pipeline project (with two trainable tasks in
 it) from an existing dataset, and how to upload images and annotations to it.</p></li>
-<li><p><a class="reference external" href="005_modify_image.ipynb">005 modify_image</a>
+<li><p><a class="reference external" href="https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/005_modify_image.ipynb">005 modify_image</a>
 – This notebook shows how to get an image from a project, convert it to grayscale, and
 then re-apply the annotation for the original image to it.</p></li>
-<li><p><a class="reference external" href="006_reconfigure_task.ipynb">006 reconfigure_task</a>
+<li><p><a class="reference external" href="https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/006_reconfigure_task.ipynb">006 reconfigure_task</a>
 – This notebook shows how to view and change the configuration for a task.</p></li>
-<li><p><a class="reference external" href="007_train_project.ipynb">007 train_project</a> – This notebook shows how to start a
-training job for a task in a project, monitor the job’s progress and get the model
-that was trained in the job once the training completes.</p></li>
-<li><p><a class="reference external" href="008_deploy_project.ipynb">008 deploy_project</a> – This notebook shows how to create
-a deployment for a project in order to run inference locally with OpenVINO.</p></li>
-<li><p><a class="reference external" href="009_download_and_upload_project.ipynb">009 download_and_upload_project</a> – This</p></li>
-</ul>
-<dl class="simple">
-<dt>notebook shows how to download a project to local disk, including all media,</dt><dd><p>annotations as well as the project configuration. The notebook also demonstrates how
+<li><p><a class="reference external" href="https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/007_train_project.ipynb">007 train_project</a>
+– This notebook shows how to start a training job for a task in a project, monitor
+the job’s progress and get the model that was trained in the job once the training
+completes.</p></li>
+<li><p><a class="reference external" href="https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/008_deploy_project.ipynb">008 deploy_project</a>
+– This notebook shows how to create a deployment for a project in order to run
+inference locally with OpenVINO.</p></li>
+<li><p><a class="reference external" href="https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/009_download_and_upload_project.ipynb">009 download_and_upload_project</a>
+– This notebook shows how to download a project to local disk, including all media,
+annotations as well as the project configuration. The notebook also demonstrates how
 to re-create the project from a previously downloaded project, and upload all
-downloaded data to the newly created project.</p>
-</dd>
-</dl>
+downloaded data to the newly created project.</p></li>
+<li><p><a class="reference external" href="https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/use_cases/101_simulate_low_light_product_inspection.ipynb">010 simulate_low-light_product_inspection_demo</a>
+– This notebook shows how to systematically simulate a change
+in lighting conditions (i.e. a shift in data distribution),
+and the effect such a change has on model predictions.</p></li>
+</ul>
 </section>
 </section>
 
@@ -150,13 +162,13 @@ downloaded data to the newly created project.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="getting_started.html" class="btn btn-neutral float-left" title="Getting started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="testing.html" class="btn btn-neutral float-right" title="SC SDK test suite" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="contributing_to_the_sdk.html" class="btn btn-neutral float-right" title="Contributing to the SDK" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2022, Ludo Cornelissen.</p>
+    <p>&#169; Copyright 2022 Intel Corporation.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -1,1 +1,5 @@
-.. mdinclude:: ../../tests/README.md
+Testing
++++++++
+
+.. include:: ../../tests/README.md
+   :parser: myst_parser.sphinx_
