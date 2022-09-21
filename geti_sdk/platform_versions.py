@@ -15,4 +15,4 @@
 from packaging import version
 
 SC11_VERSION = version.parse("1.1.0-release-20220624125113")
-SC12_VERSION = version.parse("1.2.0-test-20220906115957")
+SC12_VERSION = version.parse("1.0.0")
