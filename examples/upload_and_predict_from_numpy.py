@@ -5,7 +5,7 @@ import numpy as np
 from dotenv import dotenv_values
 
 from geti_sdk import Geti
-from geti_sdk.demo_tools import NOTEBOOK_DATA_PATH, ensure_trained_example_project
+from geti_sdk.demos import NOTEBOOK_DATA_PATH, ensure_trained_example_project
 
 
 def rotate_image(image: np.ndarray, angle: float) -> np.ndarray:

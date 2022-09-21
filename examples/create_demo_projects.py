@@ -1,7 +1,7 @@
 from dotenv import dotenv_values
 
 from geti_sdk import Geti
-from geti_sdk.demo_tools import (
+from geti_sdk.demos import (
     create_anomaly_classification_demo_project,
     create_classification_demo_project,
     create_detection_demo_project,

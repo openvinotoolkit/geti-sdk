@@ -100,7 +100,10 @@ def get_mvtec_dataset_from_path(dataset_path: str = "data") -> str:
     url = f"https://www.mydrive.ch/shares/38536/3830184030e49fe74747669442f0f282/download/420938166-1629953277/{archive_name}"
     download_file(url, target_folder=dataset_path, check_valid_archive=False)
     archive_path = os.path.join(dataset_path, archive_name)
-    validate_hash(archive_path, "4fe2681f0ce1793cbf71d762f926d564")
+    validate_hash(
+        file_path=archive_path,
+        expected_hash="146b2166c35a1d0cf37ded091366ac01a50338b4ac704632f1239890eaca4449",
+    )
 
     logging.info(f"Extracting the '{dataset_name}' dataset at path {archive_path}...")
     with tarfile.open(archive_path) as tar_file:
