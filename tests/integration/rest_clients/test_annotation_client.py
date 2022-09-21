@@ -6,10 +6,10 @@ from typing import List
 
 import pytest
 
-from sc_api_tools.annotation_readers import SCAnnotationReader
-from sc_api_tools.data_models import AnnotationScene, Project, Video, VideoFrame
-from sc_api_tools.data_models.enums import ShapeType
-from sc_api_tools.rest_converters import AnnotationRESTConverter
+from geti_sdk.annotation_readers import SCAnnotationReader
+from geti_sdk.data_models import AnnotationScene, Project, Video, VideoFrame
+from geti_sdk.data_models.enums import ShapeType
+from geti_sdk.rest_converters import AnnotationRESTConverter
 from tests.helpers import SdkTestMode
 from tests.helpers.constants import PROJECT_PREFIX
 from tests.helpers.project_service import ProjectService

@@ -1,10 +1,10 @@
-# Examples for sc-api-tools
+# Examples for the GETi SDK
 
 ## Getting started
-The example scripts provided here show several common usecases for the SC SDK. To run
+The example scripts provided here show several common usecases for the GETi SDK. To run
 the examples, simply:
-1. Install the sc-api-tools package into your python environment
-2. Create a `.env` file containing the login details for you Sonoma Creek instance,
+1. Install the geti-sdk package into your python environment
+2. Create a `.env` file containing the login details for you GETi instance,
    following the instructions in the [Credentials management](#credentials-management)
    box.
 3. In your terminal, navigate to the `examples` folder
@@ -13,12 +13,12 @@ the examples, simply:
 
 > ### Credentials management
 >
-> The example scripts rely on a `.env` file to load the login details for the SonomaCreek
-> instance which they run against. To provide the credentials for your SC instance,
+> The example scripts rely on a `.env` file to load the login details for the GETi
+> instance which they run against. To provide the credentials for your GETi instance,
 > create a file named `.env` directly in the `examples` directory. The file should have
 > the following contents:
 > ```shell
-> # SonomaCreek instance details
+> # GETi instance details
 > HOST=
 > USERNAME=
 > PASSWORD=
@@ -32,9 +32,9 @@ COCO dataset in various configurations. Follow these steps to run any of the scr
 
 
 1. Open the script you want to run, and modify the connection configuration for your
-   SC cluster. This means you have to specify the host (i.e. the web url or ip address
+   GETi cluster. This means you have to specify the host (i.e. the web url or ip address
    at which the cluster can be reached) and the username and password (same as what
-   you use to log in to SC manually)
+   you use to log in to GETi manually)
 
 2. Open up a terminal and navigate to the 'examples' directory. From there, execute
    the script with `python <name_of_script.py>`.
@@ -51,9 +51,9 @@ The following example scripts are available:
   label.
 
 
-- `create_demo_projects.py` -> Populates your SC cluster with 6 different projects,
+- `create_demo_projects.py` -> Populates your GETi cluster with 6 different projects,
   all based on the COCO dataset. Each project represents one of the supported task
-  within SC MVP. The projects created are:
+  within GETi MVP. The projects created are:
 
   - **Segmentation demo** -- Segmentation of 'backpack' and 'suitcase' and objects
   - **Detection demo** -- Detection of 'person' and 'cell phone' objects

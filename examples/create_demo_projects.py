@@ -1,15 +1,15 @@
-from demos import (
+from dotenv import dotenv_values
+
+from geti_sdk import Geti
+from geti_sdk.demo_tools import (
     create_anomaly_classification_demo_project,
     create_classification_demo_project,
     create_detection_demo_project,
     create_detection_to_classification_demo_project,
     create_detection_to_segmentation_demo_project,
     create_segmentation_demo_project,
+    get_coco_dataset,
 )
-from dotenv import dotenv_values
-
-from sc_api_tools import SCRESTClient
-from sc_api_tools.utils import get_coco_dataset
 
 if __name__ == "__main__":
     # Get credentials from .env file
@@ -24,8 +24,8 @@ if __name__ == "__main__":
     # --------------------------------------------------
     # Configuration section
     # --------------------------------------------------
-    # Set up REST client with server address and login details
-    client = SCRESTClient(
+    # Set up the Geti instance with server address and login details
+    geti = Geti(
         host=env_variables.get("HOST"),
         username=env_variables.get("USERNAME"),
         password=env_variables.get("PASSWORD"),
@@ -55,42 +55,40 @@ if __name__ == "__main__":
 
     # Create the demo projects
     create_segmentation_demo_project(
-        client=client,
+        geti=geti,
         n_images=NUMBER_OF_IMAGES_TO_UPLOAD,
         n_annotations=NUMBER_OF_IMAGES_TO_ANNOTATE,
         auto_train=AUTO_TRAIN_AFTER_UPLOAD,
         dataset_path=COCO_PATH,
     )
     create_detection_demo_project(
-        client=client,
+        geti=geti,
         n_images=NUMBER_OF_IMAGES_TO_UPLOAD,
         n_annotations=NUMBER_OF_IMAGES_TO_ANNOTATE,
         auto_train=AUTO_TRAIN_AFTER_UPLOAD,
         dataset_path=COCO_PATH,
     )
     create_classification_demo_project(
-        client=client,
+        geti=geti,
         n_images=NUMBER_OF_IMAGES_TO_UPLOAD,
         n_annotations=NUMBER_OF_IMAGES_TO_ANNOTATE,
         auto_train=AUTO_TRAIN_AFTER_UPLOAD,
         dataset_path=COCO_PATH,
     )
     create_anomaly_classification_demo_project(
-        client=client,
+        geti=geti,
         n_images=NUMBER_OF_IMAGES_TO_UPLOAD,
         n_annotations=NUMBER_OF_IMAGES_TO_ANNOTATE,
-        auto_train=AUTO_TRAIN_AFTER_UPLOAD,
-        dataset_path=COCO_PATH,
     )
     create_detection_to_segmentation_demo_project(
-        client=client,
+        geti=geti,
         n_images=NUMBER_OF_IMAGES_TO_UPLOAD,
         n_annotations=NUMBER_OF_IMAGES_TO_ANNOTATE,
         auto_train=AUTO_TRAIN_AFTER_UPLOAD,
         dataset_path=COCO_PATH,
     )
     create_detection_to_classification_demo_project(
-        client=client,
+        geti=geti,
         n_images=NUMBER_OF_IMAGES_TO_UPLOAD,
         n_annotations=NUMBER_OF_IMAGES_TO_ANNOTATE,
         auto_train=AUTO_TRAIN_AFTER_UPLOAD,

@@ -17,10 +17,10 @@ from typing import Any, Dict, List, Optional, Sequence, Union
 
 from vcr import VCR
 
-from sc_api_tools import SCRESTClient
-from sc_api_tools.annotation_readers import AnnotationReader, DatumAnnotationReader
-from sc_api_tools.data_models import Project, TaskType
-from sc_api_tools.rest_clients import (
+from geti_sdk import Geti
+from geti_sdk.annotation_readers import AnnotationReader, DatumAnnotationReader
+from geti_sdk.data_models import Project, TaskType
+from geti_sdk.rest_clients import (
     AnnotationClient,
     ConfigurationClient,
     ImageClient,
@@ -38,24 +38,24 @@ from .finalizers import force_delete_project
 class ProjectService:
     """
     This class contains functionality to quickly create projects and interact with
-    them through the respective client clients
+    them through the respective clients
 
-    :param client: SCRESTClient instance representing the SC server and workspace in
+    :param geti: Geti instance representing the GETi server and workspace in
         which to create the project
     :param vcr: VCR instance used for recording HTTP requests made during the project
         lifespan. If left as None, no requests will be recorded or played back from
         VCR cassettes
     """
 
-    def __init__(self, client: SCRESTClient, vcr: Optional[VCR] = None):
+    def __init__(self, geti: Geti, vcr: Optional[VCR] = None):
         if vcr is None:
             self.vcr_context = nullcontext
         else:
             self.vcr_context = vcr.use_cassette
-        self.session = client.session
-        self.workspace_id = client.workspace_id
+        self.session = geti.session
+        self.workspace_id = geti.workspace_id
         self.project_client = ProjectClient(
-            session=client.session, workspace_id=client.workspace_id
+            session=geti.session, workspace_id=geti.workspace_id
         )
 
         self._project: Optional[Project] = None

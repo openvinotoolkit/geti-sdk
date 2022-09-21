@@ -13,25 +13,33 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../../sc_api_tools"))
+sys.path.insert(0, os.path.abspath("../../geti_sdk"))
+
+root_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+with open(f"{root_path}/geti_sdk/__init__.py", "r", encoding="utf-8") as init_file:
+    for line in init_file:
+        line = line.strip()
+        if line.startswith("__version__"):
+            VERSION = line.split("=")[1].strip().strip('"')
 
 
 # -- Project information -----------------------------------------------------
 
-project = "SonomaCreek SDK"
-copyright = "2022, Ludo Cornelissen"
+project = "Intel® Geti™ SDK"
+copyright = "2022 Intel Corporation"
 author = "Ludo Cornelissen"
 
 # The full version, including alpha/beta/rc tags
-release = "v1.0"
+release = f"v{VERSION}"
 
+master_doc = "index"
 
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "sphinx_mdinclude"]
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.autosectionlabel", "myst_parser"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -60,3 +68,12 @@ autodoc_default_options = {
     "undoc-members": False,
     "exclude_members": "__weakref__",
 }
+
+# -- Options for inclusion of markdown files --------------------------------
+# myst_gfm_only = True
+myst_heading_anchors = 4
+
+source_suffix = [".rst", ".md"]
+
+# -- Options for jupyter notebook conversion --------------------------------
+nbsphinx_execute = "never"

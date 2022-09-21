@@ -36,27 +36,32 @@ def get_requirements(filename: str) -> List[str]:
     return required_packages
 
 
-with open("sc_api_tools/__init__.py", "r", encoding="utf-8") as init_file:
+with open("geti_sdk/__init__.py", "r", encoding="utf-8") as init_file:
     for line in init_file:
         line = line.strip()
         if line.startswith("__version__"):
             VERSION = line.split("=")[1].strip().strip('"')
 
 setuptools.setup(
-    name="sc-api-tools",
+    name="geti_sdk",
     version=VERSION,
-    author="Ludo Cornelissen",
+    author="Intel OpenVINO",
     author_email="ludo.cornelissen@intel.com",
-    description="A module for interacting with the Sonoma Creek REST API",
+    description="Software Development Kit for the Intel® Geti™ platform",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
-    url="https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools",
+    license="Copyright (C) 2022 Intel Corporation - All Rights Reserved. Licensed "
+    "under the Apache License, Version 2.0 (the 'License'). See LICENSE file for "
+    "more details.",
+    url="https://github.com/openvinotoolkit/geti_sdk",
     project_urls={
-        "Bug Tracker": "https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/issues",
+        "Documentation": "https://openvinotoolkit.github.io/geti_sdk",
+        "Bug Tracker": "https://github.com/openvinotoolkit/geti_sdk/issues",
     },
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
+        "License :: OSI Approved :: Apache Software License",
     ],
     packages=setuptools.find_packages(),
     python_requires=">=3.8",

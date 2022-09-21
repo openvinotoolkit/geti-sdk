@@ -17,7 +17,7 @@ from typing import Callable
 
 import pytest
 
-from sc_api_tools.annotation_readers import DatumAnnotationReader
+from geti_sdk.annotation_readers import DatumAnnotationReader
 
 
 @pytest.fixture(scope="session")

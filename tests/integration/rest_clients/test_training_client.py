@@ -15,9 +15,9 @@ import logging
 
 import pytest
 
-from sc_api_tools.annotation_readers import DatumAnnotationReader
-from sc_api_tools.data_models import Job, Project, ProjectStatus
-from sc_api_tools.data_models.enums import JobState
+from geti_sdk.annotation_readers import DatumAnnotationReader
+from geti_sdk.data_models import Job, Project, ProjectStatus
+from geti_sdk.data_models.enums import JobState
 from tests.helpers import (
     ProjectService,
     SdkTestMode,

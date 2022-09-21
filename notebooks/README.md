@@ -1,80 +1,89 @@
-# Notebooks for sc-api-tools
-## Getting started
+# Setting things up
 To get started with the example notebooks provided in this folder, please make sure
-that you have installed the `sc-api-tools` package. The steps to install the package
+that you have installed the `geti-sdk` package. The steps to install the package
 can be found in the [main readme](../README.md) in this repository. Once the package
 is installed, you can follow the steps below to set up the notebooks.
+
 1. Navigate to this folder in a terminal
 
-2. Activate the python environment in which you installed the sc-api-tools package
+2. Activate the Python environment in which you installed the `geti-sdk` package
 
 3. Run `pip install -r ../requirements/requirements-notebooks.txt` to install the packages required to
    run the notebooks
 
-4. Create a `.env` file containing the login details for your Sonoma Creek instance,
+4. Create a `.env` file containing the login details for your the Intel® Geti™ instance,
    following the instructions in the [Credentials management](#credentials-management)
    box.
 
 5. In your terminal, navigate to the `notebooks` directory and execute the command
-   `jupyter lab`. This will fire up the jupyter server and should take you straight to
+   `jupyter lab`. This will start the jupyter server and should take you straight to
    the jupyter web interface.
 
 6. The notebooks should show up in the side menu of the jupyter web interface.
 
-> ### Credentials management
-> The notebooks rely on a `.env` file to load the login details for the SonomaCreek
-> instance which they run against. To provide the credentials for your SC instance,
+## Credentials management
+> The notebooks rely on a `.env` file to load the login details for the Intel® Geti™
+> instance which they run against. To provide the credentials for your instance,
 > create a file named `.env` directly in the `notebooks` directory. The file should have
 > the following contents:
 > ```shell
-> # SonomaCreek instance details
+> # Intel® Geti™ instance details
 > HOST=
 > USERNAME=
 > PASSWORD=
 > ```
-> Where you should of course fill the details appropriate for your instance.
+> Where you should of course fill the appropriate details for your instance.
 
-## Notebooks
+# Available notebooks
 The following notebooks are currently provided:
-- [001 create_project](001_create_project.ipynb) -- This notebook shows how to create
-  a project, and explains the parameters that can be used to control the project
-  properties.
+
+- [001 create_project](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/001_create_project.ipynb)
+  -- This notebook shows how to create a project, and explains the parameters that
+  can be used to control the project properties.
 
 
-- [002 create_project_from_dataset](002_create_project_from_dataset.ipynb) -- This
-  notebook shows how to create a project from an existing dataset, and upload images
-  and annotations to it.
+- [002 create_project_from_dataset](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/002_create_project_from_dataset.ipynb)
+  -- This notebook shows how to create a project from an existing dataset, and
+  upload images and annotations to it.
 
 
-- [003 upload_and_predict_image](003_upload_and_predict_image.ipynb) -- This notebook
-  shows how to upload an image to an existing project, and get a prediction for it.
+- [003 upload_and_predict_image](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/003_upload_and_predict_image.ipynb)
+  -- This notebook shows how to upload an image to an existing project, and get
+  a prediction for it.
 
 
-- [004 create_pipeline_project_from_dataset](004_create_pipeline_project_from_dataset.ipynb)
+- [004 create_pipeline_project_from_dataset](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/004_create_pipeline_project_from_dataset.ipynb)
   -- This notebook shows how to create a pipeline project (with two trainable tasks in
   it) from an existing dataset, and how to upload images and annotations to it.
 
 
-- [005 modify_image](005_modify_image.ipynb)
+- [005 modify_image](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/005_modify_image.ipynb)
   -- This notebook shows how to get an image from a project, convert it to grayscale, and
   then re-apply the annotation for the original image to it.
 
 
-- [006 reconfigure_task](006_reconfigure_task.ipynb)
+- [006 reconfigure_task](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/006_reconfigure_task.ipynb)
   -- This notebook shows how to view and change the configuration for a task.
 
 
-- [007 train_project](007_train_project.ipynb) -- This notebook shows how to start a
-  training job for a task in a project, monitor the job's progress and get the model
-  that was trained in the job once the training completes.
+- [007 train_project](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/007_train_project.ipynb)
+  -- This notebook shows how to start a training job for a task in a project, monitor
+  the job's progress and get the model that was trained in the job once the training
+  completes.
 
 
-- [008 deploy_project](008_deploy_project.ipynb) -- This notebook shows how to create
-  a deployment for a project in order to run inference locally with OpenVINO.
+- [008 deploy_project](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/008_deploy_project.ipynb)
+  -- This notebook shows how to create a deployment for a project in order to run
+  inference locally with OpenVINO.
 
 
-- [009 download_and_upload_project](009_download_and_upload_project.ipynb) -- This
-notebook shows how to download a project to local disk, including all media,
+- [009 download_and_upload_project](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/009_download_and_upload_project.ipynb)
+  -- This notebook shows how to download a project to local disk, including all media,
   annotations as well as the project configuration. The notebook also demonstrates how
   to re-create the project from a previously downloaded project, and upload all
   downloaded data to the newly created project.
+
+- [010 simulate_low-light_product_inspection_demo](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/use_cases/101_simulate_low_light_product_inspection.ipynb)
+  -- This notebook shows how to systematically simulate a change
+  in lighting conditions (i.e. a shift in data distribution),
+  and the effect such a change has on model predictions.

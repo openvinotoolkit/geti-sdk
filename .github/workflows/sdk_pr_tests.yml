@@ -47,11 +47,11 @@ jobs:
         run: flake8 .
 
       - name: Pydocstyle linting
-        run: pydocstyle sc_api_tools --count
+        run: pydocstyle geti_sdk --count
 
       - name: Test with pytest
         run: |
-          pytest tests/integration -c tests/offline.ini --cov=sc_api_tools --html=$INTEGRATION_TEST_REPORT --self-contained-html
+          pytest tests/integration -c tests/offline.ini --cov=geti_sdk --html=$INTEGRATION_TEST_REPORT --self-contained-html
 
       - name: Upload test report for integration tests
         # Publish the integration test report to github

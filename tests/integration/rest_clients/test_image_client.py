@@ -22,7 +22,7 @@ import numpy as np
 import pytest
 from _pytest.fixtures import FixtureRequest
 
-from sc_api_tools.data_models import Project
+from geti_sdk.data_models import Project
 from tests.helpers.constants import PROJECT_PREFIX
 from tests.helpers.project_service import ProjectService
 

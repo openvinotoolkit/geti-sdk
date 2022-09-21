@@ -27,6 +27,7 @@ jobs:
           pip install -r requirements/requirements-docs.txt
 
       - name: Build sphinx documentation
+        # We build twice to ensure that all references are resolved
         run: |
           cd docs
           make html
@@ -40,7 +41,6 @@ jobs:
           rm -rf ./*
           git fetch && git pull
           git checkout gh-pages
-          git fetch && git pull
           cp -r /tmp/docs_build/* ./
           rm -rf /tmp/docs_build
           touch .nojekyll

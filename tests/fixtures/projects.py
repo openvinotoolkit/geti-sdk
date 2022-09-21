@@ -16,25 +16,23 @@ from typing import Callable
 
 import pytest
 
-from sc_api_tools import SCRESTClient
-from sc_api_tools.rest_clients import ProjectClient
+from geti_sdk import Geti
+from geti_sdk.rest_clients import ProjectClient
 from tests.helpers import ProjectService, force_delete_project
 
 
 @pytest.fixture(scope="class")
-def fxt_project_client(fxt_client: SCRESTClient) -> ProjectClient:
+def fxt_project_client(fxt_geti: Geti) -> ProjectClient:
     """
-    This fixture returns a ProjectClient instance corresponding to the client
+    This fixture returns a ProjectClient instance corresponding to the Geti instance
     """
-    yield ProjectClient(
-        session=fxt_client.session, workspace_id=fxt_client.workspace_id
-    )
+    yield ProjectClient(session=fxt_geti.session, workspace_id=fxt_geti.workspace_id)
 
 
 @pytest.fixture(scope="class")
 def fxt_project_service(
     fxt_vcr,
-    fxt_client: SCRESTClient,
+    fxt_geti: Geti,
 ) -> ProjectService:
     """
     This fixture provides a service for creating a project and the corresponding
@@ -45,14 +43,14 @@ def fxt_project_service(
 
     The project is deleted once the test function finishes.
     """
-    project_service = ProjectService(client=fxt_client, vcr=fxt_vcr)
+    project_service = ProjectService(geti=fxt_geti, vcr=fxt_vcr)
     yield project_service
     project_service.delete_project()
 
 
 @pytest.fixture(scope="class")
-def fxt_project_service_no_vcr(fxt_client_no_vcr: SCRESTClient) -> ProjectService:
-    project_service = ProjectService(client=fxt_client_no_vcr, vcr=None)
+def fxt_project_service_no_vcr(fxt_geti_no_vcr: Geti) -> ProjectService:
+    project_service = ProjectService(geti=fxt_geti_no_vcr, vcr=None)
     yield project_service
     # project_service.delete_project()
 

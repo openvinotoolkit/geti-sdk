@@ -1,6 +1,7 @@
-## Introduction
-Welcome to the SonomaCreek SDK! This python package contains tools to interact with a
-SonomaCreek server via the REST API. It provides functionality for:
+# Getting started
+
+Welcome to the Intel® Geti™ SDK! This python package contains tools to interact with an
+Intel® Geti™ server via the REST API. It provides functionality for:
 
 - Project creation from annotated datasets on disk
 - Project downloading (images, videos, configuration, annotations, predictions and models)
@@ -11,26 +12,32 @@ SonomaCreek server via the REST API. It provides functionality for:
 - Media upload and prediction
 
 This repository also contains a set of (tutorial style) Jupyter
-[notebooks](/notebooks/README.md) that demonstrate how to use the SDK. We highly
-recommend checking them out to give you a flying start with the package.
+[notebooks](notebooks/README.md) that demonstrate how to use the SDK. We highly
+recommend checking them out to get a feeling for use cases for the package.
 
-## Getting started
-### Installation
+## Installation
 I recommend using an environment manager such as
 [Anaconda](https://www.anaconda.com/products/individual) or
 [venv](https://docs.python.org/3/library/venv.html) to create a new
 Python environment before installing the package, and it's requirements. The SDK
 requires Python version 3.8, so make sure to use that version in your environment.
 
-Once you have created a new environment, follow these steps to install the package:
+> **NOTE**: If you have installed multiple versions of Python,
+> use `py -3.8 venv -m <env_name>` when creating your virtual environment to specify
+> a supported version (in this case 3.8). Once you activate the
+> virtual environment <venv_path>/Scripts/activate, make sure to upgrade pip
+> to the latest version `python -m pip install --upgrade pip wheel setuptools`.
 
-#### PyPI installation
-To install the SonomaCreek SDK from PyPI, simply use `pip install sonoma_creek_sdk`
+Once you have created and activated a new environment, follow these steps to install
+the package:
 
-If you plan on running the jupyter notebooks, install the requirements for them by
-running `pip install sonoma_creek_sdk[notebooks]`
+### PyPI installation
+To install the Intel® Geti™ SDK from PyPI, simply use `pip install geti_sdk`
 
-#### Local installation
+If you plan on running the Jupyter notebooks, install the requirements for them by
+running `pip install geti_sdk[notebooks]`
+
+### Local installation
 To install the SDK in editable mode, follow these steps:
 
 1. Download or clone the repository and navigate to the root directory of the repo.
@@ -38,54 +45,61 @@ To install the SDK in editable mode, follow these steps:
 2. From there, install the SDK using `pip install -e .`
 
 3. (Optional) If you plan on running the tests, the notebooks or want to build the
-   documentation, you can install the package extra requirements by doing
-   `pip install -e .[dev,docs,notebooks]`
+   documentation, you can install the package extra requirements by doing for example
+   `pip install -e .[dev]`
 
-> **NOTE**: sc-api-tools needs `python==3.8` to run. Python 3.9 will work on Linux
+   The valid options for the extra requirements are `[dev, docs, notebooks]`,
+   corresponding to the following functionality:
+
+   - `dev` Install requirements to run the test suite on your local machine
+   - `notebooks` Install requirements to run the Juypter notebooks in the `notebooks`
+     folder in this repository.
+   - `docs` Install requirements to build the documentation for the SDK from source on
+     your machine
+
+> **NOTE**: geti-sdk needs `python==3.8` to run. Python 3.9 will work on Linux
 > systems, but unfortunately not on Windows yet since not all required packages are
 > available for that version.
 
-### Examples
-The [examples](/examples/README.md) folder contains example scripts, showing various
-use cases for the package. They can be run by navigating to the `examples` directory
-in your terminal, and simply running the scripts like any other python script.
-
-### Jupyter Notebooks
-In addition, the [notebooks](/notebooks/README.md) folder contains jupyter notebooks
-with example use cases for the `sonoma_creek_sdk`. To run the notebooks,
-make sure to first install the requirements for this using
-`pip install -r requirements/requirements-notebooks.txt`
-
-Once the notebook requirements are installed, navigate to the `notebooks` directory in
-your terminal. Then, fire up JupyterLab by typing `jupyter lab`. This should open your
-browser and take you to the JupyterLab landing page, with the SDK notebooks open.
-
-> **NOTE**: Both the example scripts and the notebooks require access to a SonomaCreek
-> instance.
-
 ## Example use cases
-The package provides a main class `SonomaCreek` that can be used for the following use cases
-### Downloading and uploading projects
+The SDK contains example code in various forms to help you get familiar with the package.
+
+- [Sample code snippets](#sample-code-snippets) are short snippets that demonstrate
+  how to perform several common tasks
+
+- [Example scripts](#example-scripts) are more extensive scripts that cover more
+  advanced usage.
+
+- [Jupyter notebooks](#jupyter-notebooks) are tutorial style notebooks that cover
+  pretty much the full SDK functionality.
+
+### Sample code snippets
+The package provides a main class `Geti` that can be used for the following use cases
+
+#### Downloading and uploading projects
+
 - **Project download** The following python snippet is a minimal example of how to
-  download a project using the SCRESTClient:
+  download a project using `Geti`:
 
-    ```
-    from sc_api_tools import SCRESTClient
+  ```python
+  from geti_sdk import Geti
 
-    client = SCRESTClient(
-      host="https://0.0.0.0", username="dummy_user", password="dummy_password"
-    )
+  geti = Geti(
+    host="https://0.0.0.0", username="dummy_user", password="dummy_password"
+  )
 
-    client.download_project(project_name="dummy_project")
-    ```
+  geti.download_project(project_name="dummy_project")
+  ```
+
   Here, it is assumed that the project with name 'dummy_project' exists on the cluster.
-  The client will create a folder named 'dummy_project' in your current working
+  The `Geti` instance will create a folder named 'dummy_project' in your current working
   directory, and download the project parameters, images, videos, annotations,
   predictions and the active model for the project (including optimized models derived
   from it) to that folder.
 
   The method takes
   the following optional parameters:
+
     - `target_folder` -- Can be specified to change the directory to which the
       project data is saved.
 
@@ -98,46 +112,49 @@ The package provides a main class `SonomaCreek` that can be used for the followi
 
 
 - **Project upload** The following python snippet is a minimal example of how to
-  re-create a project on an SC cluster using the data from a previously downloaded
-  project:
-    ```
-    from sc_api_tools import SCRESTClient
+  re-create a project on an Intel® Geti™ server using the data from a previously
+  downloaded project:
 
-    client = SCRESTClient(
-        host="https://0.0.0.0", username="dummy_user", password="dummy_password"
-    )
+  ```python
+  from geti_sdk import Geti
 
-    client.upload_project(target_folder="dummy_project")
-    ```
+  geti = Geti(
+      host="https://0.0.0.0", username="dummy_user", password="dummy_password"
+  )
+
+  geti.upload_project(target_folder="dummy_project")
+  ```
+
   The parameter `target_folder` must be a valid path to the directory holding the
   project data. If you want to create the project using a different name than the
   original project, you can pass an additional parameter `project_name` to the upload
   method.
 
-The client can be used to either back-up a project (by downloading it and later
+The `Geti` instance can be used to either back-up a project (by downloading it and later
 uploading it again to the same cluster), or to migrate a project to a different cluster
 (download it, and upload it to the target cluster).
 
-#### Up/Downloading all projects
+#### Up- or downloading all projects
 To up- or download all projects from a cluster, simply use the
-`client.download_all_projects` and `client.upload_all_projects` methods instead of
+`geti.download_all_projects` and `geti.upload_all_projects` methods instead of
 the single project methods in the code snippets above.
 
-### Deploying a project
+#### Deploying a project
 
 The following code snippet shows how to create a deployment for local inference with
 OpenVINO:
-```
+
+```python
 import cv2
 
-from sc_api_tools import SCRESTClient
+from geti_sdk import Geti
 
-client = SCRESTClient(
+geti = Geti(
         host="https://0.0.0.0", username="dummy_user", password="dummy_password"
     )
 
 # Download the model data and create a `Deployment`
-deployment = client.deploy_project(project_name="dummy_project")
+deployment = geti.deploy_project(project_name="dummy_project")
 
 # Load the inference models for all tasks in the project, for CPU inference
 deployment.load_inference_models(device='CPU')
@@ -149,14 +166,103 @@ prediction = deployment.infer(image=dummy_image)
 # Save the deployment to disk
 deployment.save(path_to_folder="dummy_project")
 ```
+
 The `deployment.infer` method takes a numpy image as input.
 
 The `deployment.save` method will save the deployment to the folder named
 'dummy_project', on the local disk. The deployment can be reloaded again later using
 `Deployment.from_folder('dummy_project')`.
 
-## Supported features
-What is supported:
+### Example scripts
+The [examples](examples/README.md) folder contains example scripts, showing various
+use cases for the package. They can be run by navigating to the `examples` directory
+in your terminal, and simply running the scripts like any other python script.
+
+### Jupyter Notebooks
+In addition, the [notebooks](notebooks/README.md) folder contains Jupyter notebooks
+with example use cases for the `geti_sdk`. To run the notebooks,
+make sure that the requirements for the notebooks are installed in your Python
+environment. If you have not installed these when you were installing the SDK, you can
+install them at any time using
+`pip install -r requirements/requirements-notebooks.txt`
+
+Once the notebook requirements are installed, navigate to the `notebooks` directory in
+your terminal. Then, launch JupyterLab by typing `jupyter lab`. This should open your
+browser and take you to the JupyterLab landing page, with the SDK notebooks open.
+
+> **NOTE**: Both the example scripts and the notebooks require access to a server
+> running the Intel® Geti™ platform.
+
+## High level API reference
+The `Geti` class provides the following methods:
+
+- `download_project` -- Downloads a project by project name.
+
+
+- `upload_project` -- Uploads project from a folder.
+
+
+- `download_all_projects` -- Downloads all projects found on the server.
+
+
+- `upload_all_projects` -- Uploads all projects found in a specified folder to the
+  server.
+
+
+- `upload_and_predict_image` -- Uploads a single image to an existing project on the
+  server, and requests a prediction for that image. Optionally, the prediction can
+  be visualized as an overlay on the image.
+
+
+- `upload_and_predict_video` -- Uploads a single video to an existing project on the
+  server, and requests predictions for the frames in the video. As with
+  upload_and_predict_image, the predictions can be visualized on the frames. The
+  parameter `frame_stride` can be used to control which frames are extracted for
+  prediction.
+
+
+- `upload_and_predict_media_folder` -- Uploads all media (images and videos) from a
+  folder on local disk to an existing project on the server, and download
+  predictions for all uploaded media.
+
+
+- `deploy_project` -- Downloads the active model for all tasks in the project as an
+  OpenVINO inference model. The resulting `Deployment` can be used to run inference
+  for the project on a local machine. Pipeline inference is also supported.
+
+
+- `create_project_single_task_from_dataset` -- Creates a single task project on the
+  server, potentially using labels and uploading annotations from an external dataset.
+
+
+- `create_task_chain_project_from_dataset` -- Creates a task chain project on the
+  server, potentially using labels and uploading annotations from an external dataset.
+
+For further details regarding these methods, please refer to the method documentation,
+the [code snippets](#downloading-and-uploading-projects), and
+[example scripts](examples/README.md) provided in this repo.
+
+Please visit the full documentation for a complete API reference.
+
+## Using Docker
+
+The Dockerfile can be used to run the package without having to install python on your
+machine.
+
+First build the docker image
+``` sh
+docker build -t geti-sdk .
+```
+
+then run it using,
+
+``` sh
+docker run --rm -ti -v $(pwd):/app geti-sdk:latest /bin/bash
+```
+
+# Supported features
+## What is supported
+
 - **Creating projects**. You can pass a variable `project_type` to control what kind of
   tasks will be created in the project pipeline. For example, if you want to create a
   single task segmentation project, you'd pass `project_type='segmentation'`. For a
@@ -189,75 +295,20 @@ What is supported:
 
 - **Launching and monitoring training jobs**
 
-What is not supported:
+
+- **Authorization via Personal Access Token**
+
+
+## What is not supported
+
 - Model upload
 - Prediction upload
-- Plenty of other things that are supported in SonomaCreek but not included in the SDK
-  just yet. These will be added in due time.
+- Exporting datasets to COCO/YOLO/VOC format: For this, you can use the export
+  functionality from the Intel® Geti™ user interface instead.
 
-## High level API reference
-The `SonomaCreek` class provides the following methods:
-
-- `download_project` -- Downloads a project by project name.
-
-
-- `upload_project` -- Upload project from a folder.
-
-
-- `download_all_projects` -- Downloads all projects found on the server.
-
-
-- `upload_all_projects` -- Uploads all projects found in a specified folder to the
-  server.
-
-
-- `upload_and_predict_image` -- Uploads a single image to an existing project on the
-  server, and requests a prediction for that image. Optionally, the prediction can
-  be visualized as an overlay on the image.
-
-
-- `upload_and_predict_video` -- Uploads a single video to an existing project on the
-  server, and requests predictions for the frames in the video. As with
-  upload_and_predict_image, the predictions can be visualized on the frames. The
-  parameter `frame_stride` can be used to control which frames are extracted for
-  prediction.
-
-
-- `upload_and_predict_media_folder` -- Upload all media (images and videos) from a
-  folder on local disk to an existing project on the server, and download
-  predictions for all uploaded media.
-
-
-- `deploy_project` -- Downloads the active model for all tasks in the project as an
-  OpenVINO inference model. The resulting `Deployment` can be used to run inference
-  for the project on a local machine. Pipeline inference is also supported.
-
-
-- `create_project_single_task_from_dataset` -- Creates a single task project on the
-  server, potentially using labels and uploading annotations from an external dataset.
-
-
-- `create_task_chain_project_from_dataset` -- Creates a task chain project on the
-  server, potentially using labels and uploading annotations from an external dataset.
-
-For further details regarding these methods, please refer to the method documentation
-and the [code snippets](#downloading-and-uploading-projects) and
-[example scripts](#examples) provided in this repo.
-
-Please visit the full documentation for a complete API reference.
-
-## Using Docker
-
-The Dockerfile can be used to run the package without having to install python on your
-machine.
-
-First build the docker image
-``` sh
-docker build -t sc-api-tools .
-```
-
-then run it using,
-
-``` sh
-docker run --rm -ti -v $(pwd):/app sc-api-tools:latest /bin/bash
-```
+The following features are not supported yet but will be added to the SDK in future
+releases:
+- Fetching the active dataset
+- Triggering (post-training) model optimization
+- Running model tests
+- Creating datasets and retrieving dataset statistics
