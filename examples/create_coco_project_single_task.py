@@ -2,7 +2,7 @@ from dotenv import dotenv_values
 
 from geti_sdk import Geti
 from geti_sdk.annotation_readers import DatumAnnotationReader
-from geti_sdk.demo_tools import get_coco_dataset
+from geti_sdk.demos import get_coco_dataset
 
 if __name__ == "__main__":
     # Get credentials from .env file

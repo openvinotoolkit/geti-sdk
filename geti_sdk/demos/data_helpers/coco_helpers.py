@@ -16,11 +16,11 @@ import logging
 import os
 import zipfile
 from enum import Enum
-from typing import Optional
+from typing import Optional, Tuple
 
 from geti_sdk.demos.constants import DEFAULT_DATA_PATH
 
-from .download_helpers import download_file, ensure_directory_exists
+from .download_helpers import download_file, ensure_directory_exists, validate_hash
 
 DEFAULT_COCO_PATH = os.path.join(DEFAULT_DATA_PATH, "coco")
 
@@ -63,6 +63,25 @@ class COCOSubset(Enum):
             or self == COCOSubset.UNLABELED2017
         ):
             return None
+
+    def get_hashes(self) -> Tuple[Optional[str], Optional[str]]:
+        """
+        Return the expected sha256 hashes for the .zip files containing the images
+        and the annotations of the dataset
+
+        Note: If an expected hash is not known for a subset, it will be returned as
+            `None`
+
+        :return: Tuple holding the hash digests for the archives, structured like:
+            (image_zip, annotation_zip).
+        """
+        if self == COCOSubset.VAL2017:
+            return (
+                "4f7e2ccb2866ec5041993c9cf2a952bbed69647b115d0f74da7ce8f4bef82f05",
+                "113a836d90195ee1f884e704da6304dfaaecff1f023f49b6ca93c4aaae470268",
+            )
+        else:
+            return None, None
 
 
 def directory_has_coco_subset(target_folder: str, coco_subset: COCOSubset) -> bool:
@@ -170,21 +189,29 @@ def get_coco_dataset_from_path(
     # Create directories for images and annotations
     image_dir = os.path.join(target_folder, "images")
     ensure_directory_exists(image_dir)
-    zip_to_extraction_mapping = {image_zip: image_dir}
+    hashes = found_subset.get_hashes()
+    zip_to_extraction_mapping = {
+        image_zip: {"directory": image_dir, "expected_hash": hashes[0]}
+    }
 
     if annotations_zip is not None:
         annotations_dir = os.path.join(target_folder, "annotations")
         ensure_directory_exists(annotations_dir)
-        zip_to_extraction_mapping.update({annotations_zip: target_folder})
+        zip_to_extraction_mapping.update(
+            {annotations_zip: {"directory": target_folder, "expected_hash": hashes[1]}}
+        )
     else:
         annotations_dir = None
 
     # Extract images and annotations
-    for zipfile_path, target_dir in zip_to_extraction_mapping.items():
+    for zipfile_path, data_dictionary in zip_to_extraction_mapping.items():
         if verbose:
             logging.info(f"Extracting {zipfile_path}...")
+        if data_dictionary["expected_hash"] is not None:
+            validate_hash(zipfile_path, data_dictionary["expected_hash"])
         with zipfile.ZipFile(zipfile_path, "r") as zip_ref:
-            zip_ref.extractall(target_dir)
+            zip_ref.extractall(data_dictionary["directory"])
+        os.remove(zipfile_path)
 
     image_subset_names = os.listdir(image_dir)
     if annotations_dir is not None:

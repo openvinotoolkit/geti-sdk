@@ -1,7 +1,7 @@
 from dotenv import dotenv_values
 
 from geti_sdk import Geti
-from geti_sdk.demo_tools import NOTEBOOK_DATA_PATH, ensure_trained_example_project
+from geti_sdk.demos import NOTEBOOK_DATA_PATH, ensure_trained_example_project
 
 if __name__ == "__main__":
     # Get credentials from .env file

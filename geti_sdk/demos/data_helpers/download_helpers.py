@@ -119,7 +119,7 @@ def validate_hash(file_path: str, expected_hash: str) -> None:
     :param expected_hash: Expected hash of the file.
     """
     with open(file_path, "rb") as hash_file:
-        downloaded_hash = hashlib.md5(hash_file.read()).hexdigest()
+        downloaded_hash = hashlib.sha256(hash_file.read()).hexdigest()
     if downloaded_hash != expected_hash:
         raise ValueError(
             f"Downloaded file {file_path} does not match the required hash."
