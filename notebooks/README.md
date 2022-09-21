@@ -37,48 +37,53 @@ is installed, you can follow the steps below to set up the notebooks.
 # Available notebooks
 The following notebooks are currently provided:
 
-- [001 create_project](https://github.com/openvinotoolkit/sonoma_creek_sdk/blob/main/notebooks/001_create_project.ipynb)
+- [001 create_project](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/001_create_project.ipynb)
   -- This notebook shows how to create a project, and explains the parameters that
   can be used to control the project properties.
 
 
-- [002 create_project_from_dataset](https://github.com/openvinotoolkit/sonoma_creek_sdk/blob/main/notebooks/002_create_project_from_dataset.ipynb)
+- [002 create_project_from_dataset](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/002_create_project_from_dataset.ipynb)
   -- This notebook shows how to create a project from an existing dataset, and
   upload images and annotations to it.
 
 
-- [003 upload_and_predict_image](https://github.com/openvinotoolkit/sonoma_creek_sdk/blob/main/notebooks/003_upload_and_predict_image.ipynb)
+- [003 upload_and_predict_image](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/003_upload_and_predict_image.ipynb)
   -- This notebook shows how to upload an image to an existing project, and get
   a prediction for it.
 
 
-- [004 create_pipeline_project_from_dataset](https://github.com/openvinotoolkit/sonoma_creek_sdk/blob/main/notebooks/004_create_pipeline_project_from_dataset.ipynb)
+- [004 create_pipeline_project_from_dataset](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/004_create_pipeline_project_from_dataset.ipynb)
   -- This notebook shows how to create a pipeline project (with two trainable tasks in
   it) from an existing dataset, and how to upload images and annotations to it.
 
 
-- [005 modify_image](https://github.com/openvinotoolkit/sonoma_creek_sdk/blob/main/notebooks/005_modify_image.ipynb)
+- [005 modify_image](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/005_modify_image.ipynb)
   -- This notebook shows how to get an image from a project, convert it to grayscale, and
   then re-apply the annotation for the original image to it.
 
 
-- [006 reconfigure_task](https://github.com/openvinotoolkit/sonoma_creek_sdk/blob/main/notebooks/006_reconfigure_task.ipynb)
+- [006 reconfigure_task](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/006_reconfigure_task.ipynb)
   -- This notebook shows how to view and change the configuration for a task.
 
 
-- [007 train_project](https://github.com/openvinotoolkit/sonoma_creek_sdk/blob/main/notebooks/007_train_project.ipynb)
+- [007 train_project](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/007_train_project.ipynb)
   -- This notebook shows how to start a training job for a task in a project, monitor
   the job's progress and get the model that was trained in the job once the training
   completes.
 
 
-- [008 deploy_project](https://github.com/openvinotoolkit/sonoma_creek_sdk/blob/main/notebooks/008_deploy_project.ipynb)
+- [008 deploy_project](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/008_deploy_project.ipynb)
   -- This notebook shows how to create a deployment for a project in order to run
   inference locally with OpenVINO.
 
 
-- [009 download_and_upload_project](https://github.com/openvinotoolkit/sonoma_creek_sdk/blob/main/notebooks/009_download_and_upload_project.ipynb)
+- [009 download_and_upload_project](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/009_download_and_upload_project.ipynb)
   -- This notebook shows how to download a project to local disk, including all media,
   annotations as well as the project configuration. The notebook also demonstrates how
   to re-create the project from a previously downloaded project, and upload all
   downloaded data to the newly created project.
+
+- [010 simulate_low-light_product_inspection_demo](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/use_cases/101_simulate_low_light_product_inspection.ipynb)
+  -- This notebook shows how to systematically simulate a change
+  in lighting conditions (i.e. a shift in data distribution),
+  and the effect such a change has on model predictions.
