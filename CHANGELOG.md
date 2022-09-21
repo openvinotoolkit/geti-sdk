@@ -1,23 +1,18 @@
-# [pre-release] SonomaCreek SDK v0.0.1
+# Intel® Geti™ SDK v0.1.0
 
-This initial pre-release is not meant for distribution.
+This is the first official release of the Intel® Geti™ Software Development Kit (SDK).
 
-## What's Changed
-* Video support by @ljcornel in https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/pull/1
-* Openvino inference support for SC detection and segmentation models by @ljcornel in https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/pull/2
-* Nous2sc merge by @ljcornel in https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/pull/5
-* fix missing modules by @pskindel in https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/pull/8
-* Add a basic test suite with integration tests by @ljcornel in https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/pull/9
-* Sphinx documentation by @ljcornel in https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/pull/11
-* Add sphinx build directory by @ljcornel in https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/pull/12
-* Add dependency to OTE SDK, update deployment to use OTE model wrappers by @ljcornel in https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/pull/14
-* Docs action by @ljcornel in https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/pull/13
-* Add nightly tests  by @ljcornel in https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/pull/15
-* Converted shapes to pixel coordinates instead of normalized coordinates by @ljcornel in https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/pull/16
+The purpose of this SDK is twofold:
 
-## New Contributors
-* @ljcornel made their first contribution in https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/pull/1
-* @pskindel made their first contribution in https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/pull/8
-* @olkham contributed the `nous2sc` module, supporting migration of NOUS projects to SonomaCreek
+Provide an easy-to-use interface to the Intel® Geti™ platform, to manipulate
+Intel® Geti™ projects and other entities or automate tasks on the platform. All
+of this from a Python script or Jupyter notebook.
 
-**Full Changelog**: https://github.com/intel-innersource/frameworks.ai.interactive-ai-workflow.sonoma-creek-api-tools/commits/v0.0.1
+Provide an API to deploy and run models trained on the Intel® Geti™ server on your local
+machine. The SDK Deployment module provides a straightforward
+route to create a deployment for your Intel® Geti™ project, save it to a local disk and run
+it offline.
+
+This SDK includes various example scripts and Jupyter notebooks which illustrate a
+range of use cases for the SDK. Make sure to check them out if you're getting
+started!
