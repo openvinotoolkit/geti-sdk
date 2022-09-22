@@ -11,7 +11,7 @@ is installed, you can follow the steps below to set up the notebooks.
 3. Run `pip install -r ../requirements/requirements-notebooks.txt` to install the packages required to
    run the notebooks
 
-4. Create a `.env` file containing the login details for your the Intel® Geti™ instance,
+4. Create a `.env` file containing the login details for your Intel® Geti™ server,
    following the instructions in the [Credentials management](#credentials-management)
    box.
 
@@ -44,7 +44,8 @@ The following notebooks are currently provided:
 
 - [002 create_project_from_dataset](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/002_create_project_from_dataset.ipynb)
   -- This notebook shows how to create a project from an existing dataset, and
-  upload images and annotations to it.
+  upload images and annotations to it. The data used in this notebook is from the
+  [COCO](https://cocodataset.org/#home) [(CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) dataset.
 
 
 - [003 upload_and_predict_image](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/003_upload_and_predict_image.ipynb)
@@ -83,7 +84,9 @@ The following notebooks are currently provided:
   to re-create the project from a previously downloaded project, and upload all
   downloaded data to the newly created project.
 
-- [010 simulate_low-light_product_inspection_demo](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/use_cases/101_simulate_low_light_product_inspection.ipynb)
+- [101 simulate_low-light_product_inspection_demo](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/use_cases/101_simulate_low_light_product_inspection.ipynb)
   -- This notebook shows how to systematically simulate a change
   in lighting conditions (i.e. a shift in data distribution),
-  and the effect such a change has on model predictions.
+  and the effect such a change has on model predictions. This notebook uses the 'transistor'
+  category from the [MVTec AD](https://www.mvtec.com/company/research/datasets/mvtec-ad)
+  [(CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/) dataset.
