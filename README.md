@@ -1,4 +1,4 @@
-# Getting started
+# Introduction
 
 Welcome to the Intel® Geti™ SDK! This python package contains tools to interact with an
 Intel® Geti™ server via the REST API. It provides functionality for:
@@ -14,6 +14,8 @@ Intel® Geti™ server via the REST API. It provides functionality for:
 This repository also contains a set of (tutorial style) Jupyter
 [notebooks](notebooks/README.md) that demonstrate how to use the SDK. We highly
 recommend checking them out to get a feeling for use cases for the package.
+
+# Getting started
 
 ## Installation
 I recommend using an environment manager such as
