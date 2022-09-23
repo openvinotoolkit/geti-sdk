@@ -80,6 +80,6 @@ from .geti import Geti
 
 name = "geti_sdk"
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 __all__ = ["Geti"]

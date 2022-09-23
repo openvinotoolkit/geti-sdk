@@ -78,7 +78,7 @@ if __name__ == "__main__":
     create_anomaly_classification_demo_project(
         geti=geti,
         n_images=NUMBER_OF_IMAGES_TO_UPLOAD,
-        n_annotations=NUMBER_OF_IMAGES_TO_ANNOTATE,
+        n_annotations=-1,
     )
     create_detection_to_segmentation_demo_project(
         geti=geti,

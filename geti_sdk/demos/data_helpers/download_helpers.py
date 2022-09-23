@@ -71,7 +71,9 @@ def download_file(
     if target_folder is None:
         target_folder = "data"
     path_to_file = os.path.join(target_folder, filename)
+    valid_file_exists = False
     if os.path.exists(path_to_file) and os.path.isfile(path_to_file):
+        valid_file_exists = True
         if check_valid_archive:
             if not zipfile.is_zipfile(path_to_file):
                 logging.info(
@@ -82,6 +84,8 @@ def download_file(
                     shutil.rmtree(path_to_file)
                 except NotADirectoryError:
                     os.remove(path_to_file)
+                valid_file_exists = False
+    if valid_file_exists:
         logging.info(
             f"File {filename} exists at {path_to_file}. No new data was downloaded."
         )

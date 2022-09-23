@@ -1,7 +1,9 @@
+import os
+
 from dotenv import dotenv_values
 
 from geti_sdk import Geti
-from geti_sdk.demos import NOTEBOOK_DATA_PATH, ensure_trained_example_project
+from geti_sdk.demos import EXAMPLE_IMAGE_PATH, ensure_trained_example_project
 
 if __name__ == "__main__":
     # Get credentials from .env file
@@ -25,7 +27,7 @@ if __name__ == "__main__":
 
     # `FOLDER_WITH_MEDIA` is the path to the directory with images and videos that
     # should be uploaded to the GETi cluster
-    FOLDER_WITH_MEDIA = NOTEBOOK_DATA_PATH
+    FOLDER_WITH_MEDIA = os.path.dirname(EXAMPLE_IMAGE_PATH)
 
     # `PROJECT_NAME` is the name of the project to which the media should be uploaded,
     # and from which predictions can be requested. A project with this name should

@@ -20,8 +20,9 @@ dist
 # PyCharm configuration
 .idea
 
-# Data folder for COCO data
-/data/
+# Data folder for additional datasets
+/geti_sdk/demos/data/*
+!/geti_sdk/demos/data/example
 
 # Jupyter and ipython checkpoints
 .ipynb_checkpoints/

@@ -23,7 +23,7 @@ Module contents
 ---------------
 
 """
-from .constants import DEFAULT_DATA_PATH, NOTEBOOK_DATA_PATH
+from .constants import DEFAULT_DATA_PATH, EXAMPLE_IMAGE_PATH
 from .data_helpers import get_coco_dataset, get_mvtec_dataset
 from .demo_projects import (
     create_anomaly_classification_demo_project,
@@ -39,7 +39,7 @@ from .demo_projects import (
 
 __all__ = [
     "DEFAULT_DATA_PATH",
-    "NOTEBOOK_DATA_PATH",
+    "EXAMPLE_IMAGE_PATH",
     "create_segmentation_demo_project",
     "create_anomaly_classification_demo_project",
     "create_classification_demo_project",

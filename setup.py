@@ -71,4 +71,5 @@ setuptools.setup(
         "docs": get_requirements("requirements-docs.txt"),
         "notebooks": get_requirements("requirements-notebooks.txt"),
     },
+    include_package_data=True,
 )
