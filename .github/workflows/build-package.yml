@@ -1,4 +1,4 @@
-name: Build SDK package
+name: Build and publish package
 
 on:
   workflow_dispatch:

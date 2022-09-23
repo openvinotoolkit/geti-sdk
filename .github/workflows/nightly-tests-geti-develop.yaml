@@ -1,4 +1,4 @@
-name: Nightly tests [latest SC]
+name: Nightly tests [Geti-develop]
 
 on:
   workflow_dispatch: # run on request (no need for PR)
