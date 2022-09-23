@@ -21,7 +21,7 @@ dist
 .idea
 
 # Data folder for additional datasets
-/geti_sdk/demos/data/
+/geti_sdk/demos/data/*
 !/geti_sdk/demos/data/example
 
 # Jupyter and ipython checkpoints
