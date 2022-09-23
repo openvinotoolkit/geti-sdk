@@ -140,9 +140,7 @@ class GetiSession(requests.Session):
 
         :return: string containing the URL to the login page
         """
-        response = self.get(
-            f"{self.config.host}/user/login", allow_redirects=False, **self._proxies
-        )
+        response = self.get(self.config.host, allow_redirects=False, **self._proxies)
         login_page_url = self._follow_login_redirects(response)
         return login_page_url
 
