@@ -127,6 +127,12 @@ class ImageClient(BaseMediaClient[Image]):
             ID's as values
         """
         media_formats = MEDIA_SUPPORTED_FORMAT_MAPPING[self._MEDIA_TYPE]
+
+        if n_images > len(image_names) or n_images == -1:
+            n_to_upload = len(image_names)
+        else:
+            n_to_upload = n_images
+
         image_filepaths: List[str] = []
         if image_names_as_full_paths:
             if extension_included:
@@ -136,11 +142,9 @@ class ImageClient(BaseMediaClient[Image]):
                     for media_extension in media_formats:
                         if os.path.isfile(image_name + media_extension):
                             image_filepaths.append(image_name + media_extension)
+            image_filepaths = image_filepaths[0:n_to_upload]
+
         else:
-            if n_images > len(image_names) or n_images == -1:
-                n_to_upload = len(image_names)
-            else:
-                n_to_upload = n_images
             for image_name in image_names[0:n_to_upload]:
                 if not extension_included:
                     matches: List[str] = []
