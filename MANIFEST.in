@@ -1,1 +1,2 @@
 graft requirements*
+include geti_sdk/demos/data/example/dogs.png
