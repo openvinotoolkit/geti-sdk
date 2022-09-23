@@ -78,7 +78,10 @@ def download_file(
                     f"File {filename} exists at {path_to_file}, but is is not a valid "
                     f"archive. Overwriting the existing file."
                 )
-                shutil.rmtree(path_to_file)
+                try:
+                    shutil.rmtree(path_to_file)
+                except NotADirectoryError:
+                    os.remove(path_to_file)
         logging.info(
             f"File {filename} exists at {path_to_file}. No new data was downloaded."
         )
