@@ -14,9 +14,7 @@
 
 import os
 
-DEFAULT_DATA_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data"
-)
-NOTEBOOK_DATA_PATH = os.path.join(
-    os.path.dirname(DEFAULT_DATA_PATH), "notebooks", "data"
-)
+import importlib_resources
+
+DEFAULT_DATA_PATH = str(importlib_resources.files("geti_sdk.demos") / "data")
+EXAMPLE_IMAGE_PATH = os.path.join(DEFAULT_DATA_PATH, "example", "dogs.png")
