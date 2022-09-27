@@ -1,0 +1,12 @@
+name: Build and publish package [PyPI]
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-package.yaml
+    secrets:
+      PYPI_USER: ${{ secrets.PYPI_USERNAME }}
+      PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      PYPI_HOST: pypi.org
