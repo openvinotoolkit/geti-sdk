@@ -15,7 +15,7 @@ on:
 env:
   PYPI_USER: ${{ secrets.PYPI_USER }}
   PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-  PYPI_HOST: ${{ secrets.PYPI_HOSTNAME }}
+  PYPI_HOST: ${{ secrets.PYPI_HOST }}
   PYPI_PORT: ${{ secrets.PYPI_PORT }}
 
 jobs:
