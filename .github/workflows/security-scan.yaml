@@ -96,7 +96,7 @@ jobs:
         uses: hadolint/hadolint-action@v2.0.0
         with:
           dockerfile: Dockerfile
-          output-file: {{ env.REPORT_DIRECTORY }}/hadolint.txt
+          output-file: ${{ env.REPORT_DIRECTORY }}/hadolint.txt
 
       - name: Upload test reports
         # Publish the test reports to github
