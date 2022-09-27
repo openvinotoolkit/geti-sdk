@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/sdk-nightly-tests.yaml
+    uses: ./.github/workflows/nightly-tests.yaml
     with:
       learning_parameter_settings: default
     secrets:
