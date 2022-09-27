@@ -1,6 +1,12 @@
 # Introduction
 
-Welcome to the Intel® Geti™ SDK! This python package contains tools to interact with an
+Welcome to the Intel® Geti™ SDK! The [Intel® Geti™ platform](www.geti.intel.com) enables
+teams to rapidly develop AI models. The platform reduces the time needed to build
+models by easing the complexities of model development and harnessing greater
+collaboration between teams. Most importantly, the platform unlocks faster
+time-to-value for digitization initiatives with AI.
+
+The Intel® Geti™ SDK is a python package which contains tools to interact with an
 Intel® Geti™ server via the REST API. It provides functionality for:
 
 - Project creation from annotated datasets on disk
