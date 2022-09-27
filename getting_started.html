@@ -43,7 +43,6 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#getting-started">Getting started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#pypi-installation">PyPI installation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#local-installation">Local installation</a></li>
 </ul>
 </li>
@@ -134,21 +133,19 @@ a supported version (in this case 3.8). Once you activate the
 virtual environment &lt;venv_path&gt;/Scripts/activate, make sure to upgrade pip
 to the latest version <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">pip</span> <span class="pre">wheel</span> <span class="pre">setuptools</span></code>.</p>
 </div></blockquote>
-<p>Once you have created and activated a new environment, follow these steps to install
-the package:</p>
-<section id="pypi-installation">
-<h3>PyPI installation<a class="headerlink" href="#pypi-installation" title="Permalink to this heading"></a></h3>
-<p>To install the Intel® Geti™ SDK from PyPI, simply use <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">geti_sdk</span></code></p>
-<p>If you plan on running the Jupyter notebooks, install the requirements for them by
-running <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">geti_sdk[notebooks]</span></code></p>
-</section>
+<p>Once you have created and activated a new environment, follow the steps below to install
+the package.</p>
 <section id="local-installation">
 <h3>Local installation<a class="headerlink" href="#local-installation" title="Permalink to this heading"></a></h3>
-<p>To install the SDK in editable mode, follow these steps:</p>
 <ol class="arabic">
-<li><p>Download or clone the repository and navigate to the root directory of the repo.</p></li>
-<li><p>From there, install the SDK using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code></p></li>
-<li><p>(Optional) If you plan on running the tests, the notebooks or want to build the
+<li><p>Download or clone the repository and navigate to the root directory of the repo in
+your terminal.</p></li>
+<li><p><strong>Base installation</strong> Within this directory, install the SDK using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">.</span></code> This command will install the
+package and its base dependencies in your environment.</p></li>
+<li><p><strong>Notebooks installation (Optional)</strong> If you want to be able to run the notebooks, make sure to
+install the extra requirements using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">.[notebooks]</span></code> This will install both the
+SDK and all other dependencies needed to run the notebooks in your environment</p></li>
+<li><p><strong>Development installation (Optional)</strong> If you plan on running the tests or want to build the
 documentation, you can install the package extra requirements by doing for example
 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.[dev]</span></code></p>
 <p>The valid options for the extra requirements are <code class="docutils literal notranslate"><span class="pre">[dev,</span> <span class="pre">docs,</span> <span class="pre">notebooks]</span></code>,
