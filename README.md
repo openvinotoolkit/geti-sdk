@@ -1,6 +1,6 @@
 # Introduction
 
-Welcome to the Intel® Geti™ SDK! The [Intel® Geti™ platform](https://www.geti.intel.com) enables
+Welcome to the Intel® Geti™ SDK! The [Intel® Geti™ platform](https://geti.intel.com) enables
 teams to rapidly develop AI models. The platform reduces the time needed to build
 models by easing the complexities of model development and harnessing greater
 collaboration between teams. Most importantly, the platform unlocks faster
