@@ -57,10 +57,11 @@ jobs:
           if [[ $PYPI_HOST != "pypi.org" ]]; then
             export no_proxy=$PYPI_HOST
             export REPOSITORY_URL=http://$PYPI_HOST:$PYPI_PORT
+            twine upload --repository-url $REPOSITORY_URL dist/* -u $PYPI_USER -p $PYPI_PASSWORD
           else
-            export REPOSITORY_URL=https://$PYPI_HOST
+            twine upload dist/* -u $PYPI_USER -p $PYPI_PASSWORD
           fi
-          twine upload --repository-url $REPOSITORY_URL dist/* -u $PYPI_USER -p $PYPI_PASSWORD
+
 
       - name: Clean up dist directory if it was created
         if: ${{ always() }}
