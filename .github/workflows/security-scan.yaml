@@ -91,12 +91,10 @@ jobs:
 #        with:
 #          full: '--full'
 
-#      - name: Hadolint scan on Dockerfile
-#        # Run hadolint scan on the dockerfile
-#        uses: hadolint/hadolint-action@v2.0.0
-#        with:
-#          dockerfile: /github/workspace/Dockerfile
-#          output-file: ${{ env.REPORT_DIRECTORY }}/hadolint.txt
+      - name: Hadolint scan
+        # Run hadolint scan on the dockerfile
+        run: |
+         docker run --rm -i hadolint/hadolint < Dockerfile | tee $REPORT_DIRECTORY/hadolint.txt
 
       - name: Upload test reports
         # Publish the test reports to github
