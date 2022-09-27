@@ -15,7 +15,7 @@ on:
         required: true
 
 env:
-  # Login details for the SC instance to run the tests against
+  # Login details for the Geti instance to run the tests against
   # Secrets are configured on repository level (Settings > Secrets)
   GETI_HOST: ${{ secrets.GETI_HOST }}
   GETI_USERNAME: ${{ secrets.GETI_USERNAME }}

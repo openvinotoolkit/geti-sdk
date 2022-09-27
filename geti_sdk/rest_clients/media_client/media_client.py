@@ -143,8 +143,8 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         Upload a buffer representing a media file to the server.
 
         :param buffer: BinaryIO object representing a media file
-        :return: Dictionary containing the response of the SC cluster, which holds
-            the details of the uploaded entity
+        :return: Dictionary containing the response of the Intel® Geti™ server, which
+            holds the details of the uploaded entity
         """
         response = self.session.get_rest_response(
             url=f"{self.base_url}",
@@ -159,8 +159,8 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         Upload a media file to the server.
 
         :param filepath: full path to the media file on disk
-        :return: Dictionary containing the response of the SC cluster, which holds
-            the details of the uploaded entity
+        :return: Dictionary containing the response of the Intel® Geti™ server, which
+            holds the details of the uploaded entity
         """
         media_bytes = open(filepath, "rb")
         return self._upload_bytes(media_bytes)

@@ -103,7 +103,7 @@ class BaseModel:
         model, etc., if available.
 
         :return: base url at which the model can be addressed. The url is defined
-            relative to the ip address or hostname of the SC cluster
+            relative to the ip address or hostname of the Intel® Geti™ server
         """
         if self._base_url is not None:
             return self._base_url
@@ -177,7 +177,7 @@ class BaseModel:
 @attr.s(auto_attribs=True)
 class OptimizedModel(BaseModel):
     """
-    Representation of an OptimizedModel in SC. An optimized model is a trained model
+    Representation of an OptimizedModel in Intel® Geti™. An optimized model is a trained model
     that has been converted OpenVINO representation. This conversion may involve weight
     quantization, filter pruning, or other optimization techniques supported by
     OpenVINO.
@@ -196,7 +196,7 @@ class OptimizedModel(BaseModel):
 @attr.s(auto_attribs=True)
 class Model(BaseModel):
     """
-    Representation of a trained Model in SC.
+    Representation of a trained Model in Intel® Geti™.
     """
 
     architecture: str = attr.ib(kw_only=True)

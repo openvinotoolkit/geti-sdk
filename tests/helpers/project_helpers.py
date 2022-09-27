@@ -48,7 +48,7 @@ def get_or_create_annotated_project_for_test_class(
                           (i.e. single epoch, low batch size, etc.)
           'default'     - Use default hyper parameter settings
           'reduced_mem' - Reduce the batch size for memory intensive tasks
-    :return: Project instance corresponding to the project on the SC server
+    :return: Project instance corresponding to the project on the Intel® Geti™ server
     """
     project_exists = project_service.has_project
     labels = [reader.get_all_label_names() for reader in annotation_readers]

@@ -50,7 +50,7 @@ def create_anomaly_classification_demo_project(
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
     :return: Project object, holding detailed information about the project that was
-        created on the SC cluster.
+        created on the Intel® Geti™ server.
     """
     project_client = ProjectClient(session=geti.session, workspace_id=geti.workspace_id)
     data_path = get_mvtec_dataset(dataset_path)

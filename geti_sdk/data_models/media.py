@@ -43,7 +43,7 @@ from .utils import (
 @attr.s(auto_attribs=True)
 class MediaInformation:
     """
-    Basic information about a media item in SC.
+    Basic information about a media item in Intel® Geti™.
 
     :var display_url: URL that can be used to download the full size media entity
     :var height: Height of the media entity, in pixels
@@ -58,7 +58,7 @@ class MediaInformation:
 @attr.s(auto_attribs=True)
 class VideoInformation(MediaInformation):
     """
-    Basic information about a video entity in SC.
+    Basic information about a video entity in Intel® Geti™.
 
     :var duration: Duration of the video
     :var frame_count: Total number of frames in the video
@@ -73,7 +73,7 @@ class VideoInformation(MediaInformation):
 @attr.s(auto_attribs=True)
 class ImageInformation(MediaInformation):
     """
-    Basic information about an image entity in SC
+    Basic information about an image entity in Intel® Geti™
     """
 
     pass
@@ -82,7 +82,7 @@ class ImageInformation(MediaInformation):
 @attr.s(auto_attribs=True)
 class VideoFrameInformation(MediaInformation):
     """
-    Basic information about a video frame in SC.
+    Basic information about a video frame in Intel® Geti™.
     """
 
     frame_index: int
@@ -92,7 +92,7 @@ class VideoFrameInformation(MediaInformation):
 @attr.s(auto_attribs=True)
 class MediaItem:
     """
-    Representation of a media entity in SC.
+    Representation of a media entity in Intel® Geti™.
 
     :var id: Unique database ID of the media entity
     :var name: Filename of the media entity
@@ -118,7 +118,8 @@ class MediaItem:
     @property
     def download_url(self) -> str:
         """
-        Return the URL that can be used to download the full size media entity from SC.
+        Return the URL that can be used to download the full size media entity from the
+        Intel® Geti™ server.
 
         :return: URL at which the media entity can be downloaded
         """
@@ -165,7 +166,8 @@ class MediaItem:
         objects, this method will return a path-like string, pointing to the video
         on the local disk.
 
-        :param session: REST session to the SC cluster on which the MediaItem lives
+        :param session: REST session to the Intel® Geti™ server on which the MediaItem
+            lives
         :raises ValueError: If the cache is empty and no data can be downloaded
             from the cluster
         :return: numpy array holding the pixel data for the MediaItem, or string
@@ -195,7 +197,7 @@ class MediaItem:
 @attr.s(auto_attribs=True)
 class Image(MediaItem):
     """
-    Representation of an image in SC.
+    Representation of an image in Intel® Geti™.
 
     :var media_information: Container holding basic information such as width and
             height about the image entity
@@ -224,7 +226,7 @@ class Image(MediaItem):
         empty, it will download the data using the provided session. Otherwise it
         will return the cached data directly
 
-        :param session: REST session to the SC cluster on which the Image lives
+        :param session: REST session to the Intel® Geti™ server on which the Image lives
         :raises ValueError: If the cache is empty and no data can be downloaded
             from the cluster
         :return: Numpy.ndarray holding the pixel data for this Image.
@@ -238,7 +240,7 @@ class Image(MediaItem):
             else:
                 raise ValueError(
                     f"Unable to retrieve data for image {self}, received "
-                    f"response {response} from SC server."
+                    f"response {response} from Intel® Geti™ server."
                 )
         return self._data
 
@@ -257,7 +259,7 @@ class Image(MediaItem):
 @attr.s(auto_attribs=True)
 class Video(MediaItem):
     """
-    Representation of a video in SC.
+    Representation of a video in Intel® Geti™.
 
     :var media_information: Container holding basic information such as width,
             height and duration about the video entity
@@ -283,8 +285,8 @@ class Video(MediaItem):
 
     def get_data(self, session: GetiSession) -> str:
         """
-        Get the video data from the SC instance. Calling this method will download the
-        video data to a temporary file, and returns the path to file.
+        Get the video data from the Intel® Geti™ server. Calling this method will
+        download the video data to a temporary file, and returns the path to file.
 
         :param session: GetiSession object pointing to the instance from which the video
             should be downloaded.
@@ -303,7 +305,7 @@ class Video(MediaItem):
             else:
                 raise ValueError(
                     f"Unable to retrieve data for image {self}, received "
-                    f"response {response} from SC server."
+                    f"response {response} from Intel® Geti™ server."
                 )
         return self._data
 
@@ -367,7 +369,7 @@ class Video(MediaItem):
 @attr.s(auto_attribs=True)
 class VideoFrame(MediaItem):
     """
-    Representation of a video frame in SC.
+    Representation of a video frame in Intel® Geti™.
 
     :var media_information: Container holding basic information such as width and
             height about the VideoFrame entity
@@ -443,7 +445,8 @@ class VideoFrame(MediaItem):
         is empty, it will download the data using the provided session. Otherwise it
         will return the cached data directly
 
-        :param session: REST session to the SC cluster on which the VideoFrame lives
+        :param session: REST session to the Intel® Geti™ server on which the
+            VideoFrame lives
         :raises ValueError: If the cache is empty and no data can be downloaded
             from the cluster
         :return: Numpy.ndarray holding the pixel data for this VideoFrame.
@@ -457,6 +460,6 @@ class VideoFrame(MediaItem):
             else:
                 raise ValueError(
                     f"Unable to retrieve data for image {self}, received "
-                    f"response {response} from SC server."
+                    f"response {response} from Intel® Geti™ server."
                 )
         return self._data

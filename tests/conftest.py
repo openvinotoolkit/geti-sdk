@@ -39,14 +39,14 @@ TEST_MODE = SdkTestMode[os.environ.get("TEST_MODE", "OFFLINE")]
 # tests. Possible modes are: "OFFLINE", "ONLINE", "RECORD"
 
 HOST = os.environ.get("GETI_HOST", "https://dummy_host").strip("/")
-# HOST should hold the domain name or ip address of the SC instance to run the tests
+# HOST should hold the domain name or ip address of the Geti instance to run the tests
 # against.
 
 USERNAME = os.environ.get("GETI_USERNAME", "dummy_user")
-# USERNAME should hold the username that is used for logging in to the SC instance
+# USERNAME should hold the username that is used for logging in to the Geti instance
 
 PASSWORD = os.environ.get("GETI_PASSWORD", "dummy_password")
-# PASSWORD should hold the password that is used for logging in to the SC instance
+# PASSWORD should hold the password that is used for logging in to the Geti instance
 
 TOKEN = os.environ.get("GETI_TOKEN", None)
 # TOKEN should hold the Personal Access Token that can be used to access the server.
@@ -76,7 +76,7 @@ NIGHTLY_TEST_LEARNING_PARAMETER_SETTINGS = os.environ.get(
 @pytest.fixture(scope="session")
 def fxt_server_config() -> Union[ServerTokenConfig, ServerCredentialConfig]:
     """
-    This fixture holds the login configuration to access the SC server
+    This fixture holds the login configuration to access the Geti server
     """
     if TEST_MODE == SdkTestMode.OFFLINE:
         proxies = {"https": "", "http": ""}

@@ -33,15 +33,15 @@ def trim_trailing_slash(input_string: str) -> str:
 @attrs.define(slots=False)
 class ServerConfig:
     """
-    Base configuration holding the connection details of the SC server. Contains the
-    hostname, ssl certificate configuration and proxy configuration.
+    Base configuration holding the connection details of the Intel® Geti™ server.
+    Contains the hostname, ssl certificate configuration and proxy configuration.
 
-    :var host: full hostname or ip address of the SC instance.
-        Note: this should include the protocol (i.e. https://your_sc_hostname.com)
+    :var host: full hostname or ip address of the Intel® Geti™ server.
+        Note: this should include the protocol (i.e. https://your_geti_hostname.com)
     :var has_valid_certificate: Set to True if the server has a valid SSL certificate
         that should be validated and used to establish an encrypted HTTPS connection
     :var proxies: Optional dictionary containing proxy information, if this is
-        required to connect to the SC server. For example:
+        required to connect to the server. For example:
 
         proxies = {
             'http': http://proxy-server.com:<http_port_number>,
@@ -108,8 +108,8 @@ class ServerConfig:
 @attrs.define(slots=False)
 class ServerCredentialConfig(ServerConfig):
     """
-    Configuration for an SC server that requires authentication via username and
-    password.
+    Configuration for an Intel® Geti™ server that requires authentication via username
+    and password.
 
     NOTE: This is a legacy authentication method. Recent server versions should
     authenticate via a personal access token (API key)
@@ -125,8 +125,8 @@ class ServerCredentialConfig(ServerConfig):
 @attrs.define
 class ServerTokenConfig(ServerConfig):
     """
-    Configuration for an SC server that uses a personal access token (API key) for
-    authentication.
+    Configuration for an Intel® Geti™ server that uses a personal access token
+    (API key) for authentication.
 
     :var token: Personal access token that can be used to connect to the server.
     """
