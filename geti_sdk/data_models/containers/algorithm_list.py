@@ -33,7 +33,7 @@ DEFAULT_ALGORITHMS = {
 
 class AlgorithmList(UserList):
     """
-    A list containing SC supported algorithms.
+    A list containing the algorithms supported in Intel® Geti™.
     """
 
     def __init__(self, data: Optional[Sequence[Algorithm]] = None):
@@ -45,12 +45,12 @@ class AlgorithmList(UserList):
     def from_rest(rest_input: Dict[str, Any]) -> "AlgorithmList":
         """
         Create an AlgorithmList from the response of the /supported_algorithms REST
-        endpoint in SC.
+        endpoint in Intel® Geti™.
 
         :param rest_input: Dictionary retrieved from the /supported_algorithms REST
             endpoint
         :return: AlgorithmList holding the information related to the supported
-            algorithms in SC
+            algorithms in Intel® Geti™
         """
         algorithm_list = AlgorithmList([])
         try:

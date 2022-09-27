@@ -17,7 +17,7 @@ from enum import Enum
 
 class OptimizationType(Enum):
     """
-    Enum representing the optimization type for an OptimizedModel in SC.
+    Enum representing the optimization type for an OptimizedModel in Intel® Geti™.
     """
 
     NNCF = "NNCF"

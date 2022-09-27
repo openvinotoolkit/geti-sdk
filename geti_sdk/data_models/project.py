@@ -144,7 +144,7 @@ class Pipeline:
 @attr.s(auto_attribs=True)
 class Dataset:
     """
-    Representation of a dataset for a project in SC.
+    Representation of a dataset for a project in Intel® Geti™.
 
     :var id: Unique database ID of the dataset
     :var name: name of the dataset
@@ -167,7 +167,7 @@ class Dataset:
 @attr.s(auto_attribs=True)
 class Project:
     """
-    Representation of a project in SC.
+    Representation of a project in Intel® Geti™.
 
     :var id: Unique database ID of the project
     :var name: Name of the project

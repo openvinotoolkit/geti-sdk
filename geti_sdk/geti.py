@@ -793,7 +793,7 @@ class Geti:
 
         :param target_folder: Directory on local disk to retrieve the project data from
         :return: List of Project objects, each entry corresponding to one of the
-            projects uploaded to the SC cluster
+            projects uploaded to the Intel® Geti™ server.
         """
         candidate_project_folders = [
             os.path.join(target_folder, subfolder)
@@ -830,13 +830,14 @@ class Geti:
     ) -> bool:
         """
         Upload a folder with media (images, videos or both) from local disk at path
-        `target_folder` to the project with name `project_name` on the SC cluster.
+        `target_folder` to the project with name `project_name` on the Intel® Geti™
+        server.
         After the media upload is complete, predictions will be downloaded for all
         media in the folder. This method will create a 'predictions' directory in
         the `target_folder`, containing the prediction output in json format.
 
         If `delete_after_prediction` is set to True, all uploaded media will be
-        removed from the project on the SC cluster after the predictions have
+        removed from the project on the Intel® Geti™ server after the predictions have
         been downloaded.
 
         :param project_name: Name of the project to upload media to
@@ -928,8 +929,8 @@ class Geti:
         delete_after_prediction: bool = False,
     ) -> Tuple[Image, Prediction]:
         """
-        Upload a single image to a project named `project_name` on the SC cluster,
-        and return a prediction for it.
+        Upload a single image to a project named `project_name` on the Intel® Geti™
+        server, and return a prediction for it.
 
         :param project_name: Name of the project to upload the image to
         :param image: Image, numpy array representing an image, or filepath to an
@@ -1005,8 +1006,8 @@ class Geti:
         delete_after_prediction: bool = False,
     ) -> Tuple[Video, MediaList[VideoFrame], List[Prediction]]:
         """
-        Upload a single video to a project named `project_name` on the SC cluster,
-        and return a list of predictions for the frames in the video.
+        Upload a single video to a project named `project_name` on the Intel® Geti™
+        server, and return a list of predictions for the frames in the video.
 
         The parameter 'frame_stride' is used to control the stride for frame
         extraction. Predictions are only generated for the extracted frames. So to

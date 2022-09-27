@@ -56,7 +56,7 @@ def create_segmentation_demo_project(
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
     :return: Project object, holding detailed information about the project that was
-        created on the SC cluster.
+        created on the Intel® Geti™ server.
     """
     coco_path = get_coco_dataset(dataset_path)
     logging.info(" ------- Creating segmentation project --------------- ")
@@ -110,7 +110,7 @@ def create_detection_demo_project(
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
     :return: Project object, holding detailed information about the project that was
-        created on the SC cluster.
+        created on the Intel® Geti™ server.
     """
     coco_path = get_coco_dataset(dataset_path)
     logging.info(" ------- Creating detection project --------------- ")
@@ -165,7 +165,7 @@ def create_classification_demo_project(
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
     :return: Project object, holding detailed information about the project that was
-        created on the SC cluster.
+        created on the Intel® Geti™ server.
     """
     coco_path = get_coco_dataset(dataset_path)
     logging.info(" ------- Creating classification project --------------- ")
@@ -223,7 +223,7 @@ def create_detection_to_segmentation_demo_project(
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
     :return: Project object, holding detailed information about the project that was
-        created on the SC cluster.
+        created on the Intel® Geti™ server.
     """
     coco_path = get_coco_dataset(dataset_path)
     logging.info(" ------- Creating detection -> segmentation project --------------- ")
@@ -286,7 +286,7 @@ def create_detection_to_classification_demo_project(
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
     :return: Project object, holding detailed information about the project that was
-        created on the SC cluster.
+        created on the Intel® Geti™ server.
     """
     coco_path = get_coco_dataset(dataset_path)
     logging.info(

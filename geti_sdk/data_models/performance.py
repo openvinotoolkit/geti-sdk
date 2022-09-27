@@ -20,7 +20,7 @@ import attr
 @attr.define()
 class Performance:
     """
-    Performance metrics for a project or model in SC.
+    Performance metrics for a project or model in Intel® Geti™.
 
     :var score: Overall score of the project or model
     :var local_score: Accuracy of the model or project with respect to object
