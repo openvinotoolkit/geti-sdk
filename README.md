@@ -36,23 +36,21 @@ requires Python version 3.8, so make sure to use that version in your environmen
 > virtual environment <venv_path>/Scripts/activate, make sure to upgrade pip
 > to the latest version `python -m pip install --upgrade pip wheel setuptools`.
 
-Once you have created and activated a new environment, follow these steps to install
-the package:
-
-### PyPI installation
-To install the Intel® Geti™ SDK from PyPI, simply use `pip install geti_sdk`
-
-If you plan on running the Jupyter notebooks, install the requirements for them by
-running `pip install geti_sdk[notebooks]`
+Once you have created and activated a new environment, follow the steps below to install
+the package.
 
 ### Local installation
-To install the SDK in editable mode, follow these steps:
+1. Download or clone the repository and navigate to the root directory of the repo in
+   your terminal.
 
-1. Download or clone the repository and navigate to the root directory of the repo.
+2. **Base installation** Within this directory, install the SDK using `pip install .` This command will install the
+   package and its base dependencies in your environment.
 
-2. From there, install the SDK using `pip install -e .`
+3. **Notebooks installation (Optional)** If you want to be able to run the notebooks, make sure to
+   install the extra requirements using `pip install .[notebooks]` This will install both the
+   SDK and all other dependencies needed to run the notebooks in your environment
 
-3. (Optional) If you plan on running the tests, the notebooks or want to build the
+4. **Development installation (Optional)** If you plan on running the tests or want to build the
    documentation, you can install the package extra requirements by doing for example
    `pip install -e .[dev]`
 
