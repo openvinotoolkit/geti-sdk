@@ -13,8 +13,12 @@
 # and limitations under the License.
 
 import os
+from importlib import resources
 
-import importlib_resources
+try:
+    DEFAULT_DATA_PATH = str(resources.files("geti_sdk.demos") / "data")
+except AttributeError:
+    with resources.path("geti_sdk.demos", "data") as data_path:
+        DEFAULT_DATA_PATH = str(data_path)
 
-DEFAULT_DATA_PATH = str(importlib_resources.files("geti_sdk.demos") / "data")
 EXAMPLE_IMAGE_PATH = os.path.join(DEFAULT_DATA_PATH, "example", "dogs.png")
