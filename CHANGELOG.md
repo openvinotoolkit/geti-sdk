@@ -1,10 +1,10 @@
-# Intel® Geti™ SDK v0.1.0
+# Intel® Geti™ SDK v0.2.0
 
 This is the first official release of the Intel® Geti™ Software Development Kit (SDK).
 
 The purpose of this SDK is twofold:
 
-1. Provide an easy-to-use interface to the Intel® Geti™ platform, to manipulate
+1. Provide an easy-to-use interface to the [Intel® Geti™ platform](www.geti.intel.com), to manipulate
 Intel® Geti™ projects and other entities or automate tasks on the platform. All
 of this from a Python script or Jupyter notebook.
 
