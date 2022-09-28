@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import Any, Dict, Type, TypeVar, cast
+from typing import Any, Dict, Optional, Type, TypeVar, cast
 
 from omegaconf import OmegaConf
+from omegaconf.errors import ConfigKeyError, MissingMandatoryValue
 
 OutputTypeVar = TypeVar("OutputTypeVar")
 
@@ -33,5 +34,59 @@ def deserialize_dictionary(
     """
     model_dict_config = OmegaConf.create(input_dictionary)
     schema = OmegaConf.structured(output_type)
-    values = OmegaConf.merge(schema, model_dict_config)
-    return cast(output_type, OmegaConf.to_object(values))
+    schema_error: Optional[DataModelMismatchException] = None
+    try:
+        values = OmegaConf.merge(schema, model_dict_config)
+        output = cast(output_type, OmegaConf.to_object(values))
+    except (ConfigKeyError, MissingMandatoryValue) as error:
+        schema_error = DataModelMismatchException(
+            input_dictionary=input_dictionary,
+            output_data_model=output_type,
+            message=error.args[0],
+            error_type=type(error),
+        )
+        output = None
+    if schema_error is not None:
+        raise schema_error
+    return output
+
+
+class DataModelMismatchException(BaseException):
+    """
+    Exception raised when a deserialization event fails, meaning that the
+    serialized input data does not match the expected schema for the object to
+    construct.
+
+    :param output_data_model: Type of the data model to which the data would be
+        deserialized
+    :param input_dictionary: Input dictionary which would be deserialized
+    :param message: Error message that describes the error that occurred during
+        deserialization
+    :param error_type: Type of the error which occurred during deserialization
+    """
+
+    def __init__(
+        self,
+        input_dictionary: dict,
+        output_data_model: Type,
+        message: str,
+        error_type: Type,
+    ) -> None:
+        self.output_data_model = output_data_model
+        self.message = message
+        self.input_dictionary = input_dictionary
+        self.error_type = error_type
+
+    def __str__(self) -> str:
+        """
+        Return the string representation of the exception.
+
+        :return: String representation of the exception
+        """
+        return (
+            f"Deserialization of input dictionary to object of type "
+            f"'{self.output_data_model.__name__}' failed with error: \n\n"
+            f"'{self.error_type.__name__}': {self.message}. "
+            f"\n\nThe following input data was received for "
+            f"deserialization: \n{self.input_dictionary}"
+        )
