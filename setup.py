@@ -43,7 +43,7 @@ with open("geti_sdk/__init__.py", "r", encoding="utf-8") as init_file:
             VERSION = line.split("=")[1].strip().strip('"')
 
 setuptools.setup(
-    name="geti_sdk",
+    name="geti-sdk",
     version=VERSION,
     author="Intel OpenVINO",
     author_email="ludo.cornelissen@intel.com",
@@ -53,10 +53,10 @@ setuptools.setup(
     license="Copyright (C) 2022 Intel Corporation - All Rights Reserved. Licensed "
     "under the Apache License, Version 2.0 (the 'License'). See LICENSE file for "
     "more details.",
-    url="https://github.com/openvinotoolkit/geti_sdk",
+    url="https://github.com/openvinotoolkit/geti-sdk",
     project_urls={
-        "Documentation": "https://openvinotoolkit.github.io/geti_sdk",
-        "Bug Tracker": "https://github.com/openvinotoolkit/geti_sdk/issues",
+        "Documentation": "https://openvinotoolkit.github.io/geti-sdk",
+        "Bug Tracker": "https://github.com/openvinotoolkit/geti-sdk/issues",
     },
     classifiers=[
         "Programming Language :: Python :: 3",
