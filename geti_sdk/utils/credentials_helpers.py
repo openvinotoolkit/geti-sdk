@@ -49,6 +49,11 @@ def get_server_details_from_env(
     :param env_file_path: Path to the file containing the server details
     :param use_global_variables: If set to True, the method will not read the server
         details from a file but will use environment variables instead
+    :return: Tuple consisting of:
+      - string holding the hostname or ip address of the server
+      - Dictionary containing the authentication information. This can either contain
+          the personal access token or the username/password to log in to the Geti
+          server.
     """
     if use_global_variables:
         host_key = "GETI_HOST"
