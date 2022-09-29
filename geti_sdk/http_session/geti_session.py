@@ -107,12 +107,20 @@ class GetiSession(requests.Session):
         Request an access token from the server, in exchange for the
         PersonalAccessToken.
         """
-        response = self.get_rest_response(
-            url="service_accounts/access_token",
-            method="POST",
-            data={"service_id": self.config.token},
-            contenttype="json",
-        )
+        try:
+            response = self.get_rest_response(
+                url="service_accounts/access_token",
+                method="POST",
+                data={"service_id": self.config.token},
+                contenttype="json",
+            )
+        except GetiRequestException as error:
+            if error.status_code == 401:
+                raise ValueError(
+                    "Token authorization failed. Please make sure to provide a valid "
+                    "Personal Access Token."
+                )
+            raise
         logging.info(f"Personal access token validated on host {self.config.host}")
         return response.get("access_token")
 
