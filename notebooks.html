@@ -45,7 +45,11 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html#supported-features">Supported features</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Notebooks</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#setting-things-up">Setting things up</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#credentials-management">Credentials management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#authentication">Authentication</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#personal-access-token">Personal Access Token</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#credentials">Credentials</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#available-notebooks">Available notebooks</a></li>
@@ -92,29 +96,49 @@ is installed, you can follow the steps below to set up the notebooks.</p>
 <li><p>Activate the Python environment in which you installed the <code class="docutils literal notranslate"><span class="pre">geti-sdk</span></code> package</p></li>
 <li><p>Run <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">../requirements/requirements-notebooks.txt</span></code> to install the packages required to
 run the notebooks</p></li>
-<li><p>Create a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file containing the login details for your Intel® Geti™ server,
-following the instructions in the <a class="reference internal" href="#credentials-management"><span class="std std-doc">Credentials management</span></a>
+<li><p>Create a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file containing the server details for your Intel® Geti™ server,
+following the instructions in the <a class="reference internal" href="#authentication"><span class="std std-doc">Authentication</span></a>
 box.</p></li>
 <li><p>In your terminal, navigate to the <code class="docutils literal notranslate"><span class="pre">notebooks</span></code> directory and execute the command
 <code class="docutils literal notranslate"><span class="pre">jupyter</span> <span class="pre">lab</span></code>. This will start the jupyter server and should take you straight to
 the jupyter web interface.</p></li>
 <li><p>The notebooks should show up in the side menu of the jupyter web interface.</p></li>
 </ol>
-<section id="credentials-management">
-<h3>Credentials management<a class="headerlink" href="#credentials-management" title="Permalink to this heading"></a></h3>
-<blockquote>
-<div><p>The notebooks rely on a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file to load the login details for the Intel® Geti™
-instance which they run against. To provide the credentials for your instance,
-create a file named <code class="docutils literal notranslate"><span class="pre">.env</span></code> directly in the <code class="docutils literal notranslate"><span class="pre">notebooks</span></code> directory. The file should have
-the following contents:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Intel® Geti™ instance details</span>
+<section id="authentication">
+<h3>Authentication<a class="headerlink" href="#authentication" title="Permalink to this heading"></a></h3>
+<p>The notebooks rely on a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file to load the server details for the Intel® Geti™
+instance which they run against. To provide the details for your Intel® Geti™ instance,
+create a file named <code class="docutils literal notranslate"><span class="pre">.env</span></code> directly in the <code class="docutils literal notranslate"><span class="pre">notebooks</span></code> directory. Two types of
+authentication are supported: Either via a Personal Access Token (the recommended
+approach) or via user credentials.</p>
+<section id="personal-access-token">
+<h4>Personal Access Token<a class="headerlink" href="#personal-access-token" title="Permalink to this heading"></a></h4>
+<p>To use the personal access token for authenticating on your server, the <code class="docutils literal notranslate"><span class="pre">.env</span></code> file
+should have the following contents:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># GETi instance details</span>
+<span class="nv">HOST</span><span class="o">=</span>
+<span class="nv">TOKEN</span><span class="o">=</span>
+</pre></div>
+</div>
+<p>Where you should of course fill the details appropriate for your instance. For details
+on how to acquire a Personal Access Token, please refer to the section
+<span class="xref myst">Connecting to the Geti platform</span> in the
+main readme.</p>
+</section>
+<section id="credentials">
+<h4>Credentials<a class="headerlink" href="#credentials" title="Permalink to this heading"></a></h4>
+<p>To use your user credentials for authenticating on your server, the <code class="docutils literal notranslate"><span class="pre">.env</span></code> file
+should have the following contents:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># GETi instance details</span>
 <span class="nv">HOST</span><span class="o">=</span>
 <span class="nv">USERNAME</span><span class="o">=</span>
 <span class="nv">PASSWORD</span><span class="o">=</span>
 </pre></div>
 </div>
-<p>Where you should of course fill the appropriate details for your instance.</p>
-</div></blockquote>
+<p>Where you should of course fill the details appropriate for your instance.</p>
+<p>In case both a TOKEN and USERNAME/PASSWORD variables are provided, the SDK
+will default to using the TOKEN since this method is considered more secure.</p>
+</section>
 </section>
 </section>
 <section id="available-notebooks">

@@ -48,6 +48,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#example-use-cases">Example use cases</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#sample-code-snippets">Sample code snippets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#connecting-to-the-geti-platform">Connecting to the Geti platform</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#downloading-and-uploading-projects">Downloading and uploading projects</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#up-or-downloading-all-projects">Up- or downloading all projects</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#deploying-a-project">Deploying a project</a></li>
@@ -180,6 +181,52 @@ pretty much the full SDK functionality.</p></li>
 <section id="sample-code-snippets">
 <h3>Sample code snippets<a class="headerlink" href="#sample-code-snippets" title="Permalink to this heading"></a></h3>
 <p>The package provides a main class <code class="docutils literal notranslate"><span class="pre">Geti</span></code> that can be used for the following use cases</p>
+<section id="connecting-to-the-geti-platform">
+<h4>Connecting to the Geti platform<a class="headerlink" href="#connecting-to-the-geti-platform" title="Permalink to this heading"></a></h4>
+<p>To establish a connection between the SDK running on your local machine, and the
+Intel® Geti™ platform running on a remote server, the <code class="docutils literal notranslate"><span class="pre">Geti</span></code> class needs to know the
+hostname or IP address for the server and it needs to have some form of authentication.</p>
+<p>Instantiating the <code class="docutils literal notranslate"><span class="pre">Geti</span></code> class will establish the connection and perform authentication.</p>
+<ul>
+<li><p><strong>Personal Access Token</strong></p>
+<p>The recommended authentication method is the ‘Personal Access Token’. The token can be
+obtained by following the steps below:</p>
+<ol class="arabic simple">
+<li><p>Open the Intel® Geti™ user interface in your browser</p></li>
+<li><p>Click on the <code class="docutils literal notranslate"><span class="pre">User</span></code> menu, in the top right corner of the page. The menu is
+accessible from any page inside Intel® Geti™.</p></li>
+<li><p>In the dropdown menu that follows, select <code class="docutils literal notranslate"><span class="pre">Personal</span> <span class="pre">access</span> <span class="pre">token</span></code>.</p></li>
+<li><p>Follow the steps to create a token.</p></li>
+<li><p>Make sure to copy the token value!</p></li>
+</ol>
+<p>Once you created a personal access token, it can be passed to the <code class="docutils literal notranslate"><span class="pre">Geti</span></code> class as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">geti_sdk</span> <span class="kn">import</span> <span class="n">Geti</span>
+
+<span class="n">geti</span> <span class="o">=</span> <span class="n">Geti</span><span class="p">(</span>
+    <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://your_server_hostname_or_ip_address&quot;</span><span class="p">,</span>
+    <span class="n">token</span><span class="o">=</span><span class="s2">&quot;your_personal_access_token&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>User Credentials</strong></p>
+<blockquote>
+<div><p><strong>NOTE</strong>: For optimal security, using the token method outlined above is recommended.</p>
+</div></blockquote>
+<p>In addition to the token, your username and password can also be used to connect to
+the server. They can be passed as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">geti_sdk</span> <span class="kn">import</span> <span class="n">Geti</span>
+
+<span class="n">geti</span> <span class="o">=</span> <span class="n">Geti</span><span class="p">(</span>
+    <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://your_server_hostname_or_ip_address&quot;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;dummy_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;dummy_password&quot;</span>
+<span class="p">)</span>
+
+</pre></div>
+</div>
+<p>Here, <code class="docutils literal notranslate"><span class="pre">&quot;dummy_user&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;dummy_password&quot;</span></code> should be replaced by your username and password for the Geti server.</p>
+</li>
+</ul>
+</section>
 <section id="downloading-and-uploading-projects">
 <h4>Downloading and uploading projects<a class="headerlink" href="#downloading-and-uploading-projects" title="Permalink to this heading"></a></h4>
 <ul>
@@ -188,7 +235,7 @@ download a project using <code class="docutils literal notranslate"><span class=
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">geti_sdk</span> <span class="kn">import</span> <span class="n">Geti</span>
 
 <span class="n">geti</span> <span class="o">=</span> <span class="n">Geti</span><span class="p">(</span>
-  <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://0.0.0.0&quot;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;dummy_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;dummy_password&quot;</span>
+  <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://your_server_hostname_or_ip_address&quot;</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="s2">&quot;your_personal_access_token&quot;</span>
 <span class="p">)</span>
 
 <span class="n">geti</span><span class="o">.</span><span class="n">download_project</span><span class="p">(</span><span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;dummy_project&quot;</span><span class="p">)</span>
@@ -217,7 +264,7 @@ downloaded project:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">geti_sdk</span> <span class="kn">import</span> <span class="n">Geti</span>
 
 <span class="n">geti</span> <span class="o">=</span> <span class="n">Geti</span><span class="p">(</span>
-    <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://0.0.0.0&quot;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;dummy_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;dummy_password&quot;</span>
+  <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://your_server_hostname_or_ip_address&quot;</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="s2">&quot;your_personal_access_token&quot;</span>
 <span class="p">)</span>
 
 <span class="n">geti</span><span class="o">.</span><span class="n">upload_project</span><span class="p">(</span><span class="n">target_folder</span><span class="o">=</span><span class="s2">&quot;dummy_project&quot;</span><span class="p">)</span>
@@ -248,8 +295,8 @@ OpenVINO:</p>
 <span class="kn">from</span> <span class="nn">geti_sdk</span> <span class="kn">import</span> <span class="n">Geti</span>
 
 <span class="n">geti</span> <span class="o">=</span> <span class="n">Geti</span><span class="p">(</span>
-        <span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://0.0.0.0&quot;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;dummy_user&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;dummy_password&quot;</span>
-    <span class="p">)</span>
+<span class="n">host</span><span class="o">=</span><span class="s2">&quot;https://your_server_hostname_or_ip_address&quot;</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="s2">&quot;your_personal_access_token&quot;</span>
+<span class="p">)</span>
 
 <span class="c1"># Download the model data and create a `Deployment`</span>
 <span class="n">deployment</span> <span class="o">=</span> <span class="n">geti</span><span class="o">.</span><span class="n">deploy_project</span><span class="p">(</span><span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;dummy_project&quot;</span><span class="p">)</span>
