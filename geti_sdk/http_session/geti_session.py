@@ -113,6 +113,7 @@ class GetiSession(requests.Session):
             data={"service_id": self.config.token},
             contenttype="json",
         )
+        logging.info(f"Personal access token validated on host {self.config.host}")
         return response.get("access_token")
 
     def _follow_login_redirects(self, response: Response) -> str:

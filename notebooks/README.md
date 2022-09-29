@@ -11,8 +11,8 @@ is installed, you can follow the steps below to set up the notebooks.
 3. Run `pip install -r ../requirements/requirements-notebooks.txt` to install the packages required to
    run the notebooks
 
-4. Create a `.env` file containing the login details for your Intel® Geti™ server,
-   following the instructions in the [Credentials management](#credentials-management)
+4. Create a `.env` file containing the server details for your Intel® Geti™ server,
+   following the instructions in the [Authentication](#authentication)
    box.
 
 5. In your terminal, navigate to the `notebooks` directory and execute the command
@@ -21,18 +21,37 @@ is installed, you can follow the steps below to set up the notebooks.
 
 6. The notebooks should show up in the side menu of the jupyter web interface.
 
-## Credentials management
-> The notebooks rely on a `.env` file to load the login details for the Intel® Geti™
-> instance which they run against. To provide the credentials for your instance,
-> create a file named `.env` directly in the `notebooks` directory. The file should have
-> the following contents:
+> ## Authentication
+>
+> The notebooks rely on a `.env` file to load the server details for the Intel® Geti™
+> instance which they run against. To provide the details for your Intel® Geti™ instance,
+> create a file named `.env` directly in the `notebooks` directory. Two types of
+> authentication are supported: Either via a Personal Access Token (the recommended
+> approach) or via user credentials.
+>
+> ### Personal Access Token
+> To use the personal access token for authenticating on your server, the `.env` file
+> should have the following contents:
 > ```shell
-> # Intel® Geti™ instance details
+> # GETi instance details
+> HOST=
+> TOKEN=
+> ```
+> Where you should of course fill the details appropriate for your instance.
+>
+> ### Credentials
+> To use your user credentials for authenticating on your server, the `.env` file
+> should have the following contents:
+> ```shell
+> # GETi instance details
 > HOST=
 > USERNAME=
 > PASSWORD=
 > ```
-> Where you should of course fill the appropriate details for your instance.
+> Where you should of course fill the details appropriate for your instance.
+>
+> In case both a TOKEN and USERNAME/PASSWORD variables are provided, the SDK
+> will default to using the TOKEN since this method is considered more secure.
 
 # Available notebooks
 The following notebooks are currently provided:
