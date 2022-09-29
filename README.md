@@ -87,6 +87,8 @@ To establish a connection between the SDK running on your local machine, and the
 Intel® Geti™ platform running on a remote server, the `Geti` class needs to know the
 hostname or IP address for the server and it needs to have some form of authentication.
 
+Instantiating the `Geti` class will establish the connection and perform authentication.
+
 - **Personal Access Token**
 
   The recommended authentication method is the 'Personal Access Token'. The token can be
