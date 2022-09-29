@@ -4,19 +4,37 @@
 The example scripts provided here show several common usecases for the Intel® Geti™ SDK. To run
 the examples, simply:
 1. Install the `geti-sdk` package into your python environment
-2. Create a `.env` file containing the login details for you Intel® Geti™ server,
-   following the instructions in the [Credentials management](#credentials-management)
+2. Create a `.env` file containing the authentication information for you Intel® Geti™
+   server, following the instructions in the [Authentication](#authentication)
    box.
 3. In your terminal, navigate to the `examples` folder
 4. Activate your python environment
 5. Run the example script you'd like to run using `python <name_of_script.py>`
 
-> ### Credentials management
+> ### Authentication
 >
-> The example scripts rely on a `.env` file to load the login details for the Intel® Geti™
-> instance which they run against. To provide the credentials for your Intel® Geti™ instance,
-> create a file named `.env` directly in the `examples` directory. The file should have
-> the following contents:
+> The example scripts rely on a `.env` file to load the server details for the Intel® Geti™
+> instance which they run against. To provide the details for your Intel® Geti™ instance,
+> create a file named `.env` directly in the `examples` directory. Two types of
+> authentication are supported: Either via a Personal Access Token (the recommended
+> approach) or via user credentials.
+>
+> #### Personal Access Token
+> To use the personal access token for authenticating on your server, the `.env` file
+> should have the following contents:
+> ```shell
+> # GETi instance details
+> HOST=
+> TOKEN=
+> ```
+> Where you should of course fill the details appropriate for your instance. For details
+> on how to acquire a Personal Access Token, please refer to the section
+> [Connecting to the Geti platform](../README.md#connecting-to-the-geti-platform) in the
+> main readme.
+>
+> #### Credentials
+> To use your user credentials for authenticating on your server, the `.env` file
+> should have the following contents:
 > ```shell
 > # GETi instance details
 > HOST=
@@ -24,6 +42,9 @@ the examples, simply:
 > PASSWORD=
 > ```
 > Where you should of course fill the details appropriate for your instance.
+>
+> In case both a TOKEN and USERNAME/PASSWORD variables are provided, the SDK
+> will default to using the TOKEN since this method is considered more secure.
 
 ## Creating a project from an existing dataset
 #### COCO/Datumaro examples

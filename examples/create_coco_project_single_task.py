@@ -1,28 +1,17 @@
-from dotenv import dotenv_values
-
 from geti_sdk import Geti
 from geti_sdk.annotation_readers import DatumAnnotationReader
 from geti_sdk.demos import get_coco_dataset
+from geti_sdk.utils import get_server_details_from_env
 
 if __name__ == "__main__":
     # Get credentials from .env file
-    env_variables = dotenv_values(dotenv_path=".env")
-
-    if not env_variables:
-        raise ValueError(
-            "Unable to load login details from .env file, please make sure the file "
-            "exists at the root of the `examples` directory."
-        )
+    hostname, authentication = get_server_details_from_env()
 
     # --------------------------------------------------
     # Configuration section
     # --------------------------------------------------
-    # Set up the Geti instance with server address and login details
-    geti = Geti(
-        host=env_variables.get("HOST"),
-        username=env_variables.get("USERNAME"),
-        password=env_variables.get("PASSWORD"),
-    )
+    # Set up the Geti instance with server hostname and authentication details
+    geti = Geti(host=hostname, **authentication)
 
     # Dataset configuration
     NUMBER_OF_IMAGES_TO_UPLOAD = 75

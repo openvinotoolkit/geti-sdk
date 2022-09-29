@@ -82,6 +82,52 @@ The SDK contains example code in various forms to help you get familiar with the
 ### Sample code snippets
 The package provides a main class `Geti` that can be used for the following use cases
 
+#### Connecting to the Geti platform
+To establish a connection between the SDK running on your local machine, and the
+Intel® Geti™ platform running on a remote server, the `Geti` class needs to know the
+hostname or IP address for the server and it needs to have some form of authentication.
+
+Instantiating the `Geti` class will establish the connection and perform authentication.
+
+- **Personal Access Token**
+
+  The recommended authentication method is the 'Personal Access Token'. The token can be
+  obtained by following the steps below:
+
+    1. Open the Intel® Geti™ user interface in your browser
+    2. Click on the `User` menu, in the top right corner of the page. The menu is
+       accessible from any page inside Intel® Geti™.
+    3. In the dropdown menu that follows, select `Personal access token`.
+    4. Follow the steps to create a token.
+    5. Make sure to copy the token value!
+
+  Once you created a personal access token, it can be passed to the `Geti` class as follows:
+  ```python
+  from geti_sdk import Geti
+
+  geti = Geti(
+      host="https://your_server_hostname_or_ip_address",
+      token="your_personal_access_token"
+  )
+  ```
+
+- **User Credentials**
+  > **NOTE**: For optimal security, using the token method outlined above is recommended.
+
+  In addition to the token, your username and password can also be used to connect to
+  the server. They can be passed as follows:
+
+  ```python
+  from geti_sdk import Geti
+
+  geti = Geti(
+      host="https://your_server_hostname_or_ip_address", username="dummy_user", password="dummy_password"
+  )
+
+  ```
+  Here, `"dummy_user"` and `"dummy_password"` should be replaced by your username and password for the Geti server.
+
+
 #### Downloading and uploading projects
 
 - **Project download** The following python snippet is a minimal example of how to
@@ -91,7 +137,7 @@ The package provides a main class `Geti` that can be used for the following use 
   from geti_sdk import Geti
 
   geti = Geti(
-    host="https://0.0.0.0", username="dummy_user", password="dummy_password"
+    host="https://your_server_hostname_or_ip_address", token="your_personal_access_token"
   )
 
   geti.download_project(project_name="dummy_project")
@@ -125,7 +171,7 @@ The package provides a main class `Geti` that can be used for the following use 
   from geti_sdk import Geti
 
   geti = Geti(
-      host="https://0.0.0.0", username="dummy_user", password="dummy_password"
+    host="https://your_server_hostname_or_ip_address", token="your_personal_access_token"
   )
 
   geti.upload_project(target_folder="dummy_project")
@@ -156,8 +202,8 @@ import cv2
 from geti_sdk import Geti
 
 geti = Geti(
-        host="https://0.0.0.0", username="dummy_user", password="dummy_password"
-    )
+host="https://your_server_hostname_or_ip_address", token="your_personal_access_token"
+)
 
 # Download the model data and create a `Deployment`
 deployment = geti.deploy_project(project_name="dummy_project")
