@@ -37,7 +37,10 @@ is installed, you can follow the steps below to set up the notebooks.
 > HOST=
 > TOKEN=
 > ```
-> Where you should of course fill the details appropriate for your instance.
+> Where you should of course fill the details appropriate for your instance. For details
+> on how to acquire a Personal Access Token, please refer to the section
+> [Connecting to the Geti platform](../README.md#connecting-to-the-geti-platform) in the
+> main readme.
 >
 > ### Credentials
 > To use your user credentials for authenticating on your server, the `.env` file
