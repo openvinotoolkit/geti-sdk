@@ -97,9 +97,12 @@ Instantiating the `Geti` class will establish the connection and perform authent
     1. Open the Intel® Geti™ user interface in your browser
     2. Click on the `User` menu, in the top right corner of the page. The menu is
        accessible from any page inside Intel® Geti™.
-    3. In the dropdown menu that follows, select `Personal access token`.
-    4. Follow the steps to create a token.
+    3. In the dropdown menu that follows, click on `Personal access token`, as shown in
+       the image below.
+    4. In the screen that follows, go through the steps to create a token.
     5. Make sure to copy the token value!
+
+   ![Personal access token menu](docs/source/images/personal_access_token.png)
 
   Once you created a personal access token, it can be passed to the `Geti` class as follows:
   ```python
