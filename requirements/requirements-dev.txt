@@ -1,3 +1,4 @@
+# Requirements for running the tests
 vcrpy==4.2.*
 pytest==7.1.*
 pytest-recording==0.12.*
@@ -8,5 +9,5 @@ flake8>=4.0
 pydocstyle>=6.1
 black>=22.6
 isort>=5.10
-pre-commit
-nbqa
+pre-commit>=2.20.0
+nbqa>=1.4.0

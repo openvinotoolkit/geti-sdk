@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import json
 import os
 from typing import Callable
 
@@ -157,3 +157,22 @@ def fxt_annotation_reader_factory(
         )
 
     yield _create_annotation_reader
+
+
+@pytest.fixture(scope="function")
+def fxt_project_dictionary(fxt_base_test_path: str) -> dict:
+    """
+    Return a dictionary representing a project.
+    """
+    project_datafile = os.path.join(fxt_base_test_path, "data", "mock_project.json")
+    with open(project_datafile, "r") as file:
+        project_dict = json.load(file)
+    yield project_dict
+
+
+@pytest.fixture(scope="function")
+def fxt_env_filepath(fxt_base_test_path: str) -> str:
+    """
+    Return the path to a mock .env file
+    """
+    yield os.path.join(fxt_base_test_path, "data", "mock.env")

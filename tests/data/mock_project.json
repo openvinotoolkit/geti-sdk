@@ -1,0 +1,30 @@
+{
+  "name": "Mock detection project",
+  "pipeline": {
+    "tasks": [
+      {
+        "title": "Dataset", "task_type": "dataset"
+      },
+      {
+        "title": "Detection task",
+        "task_type": "detection",
+        "labels": [
+          {
+            "name": "animal",
+            "color": "#cd29aaff",
+            "group": "default_detection",
+            "is_empty": false
+          }
+        ]
+      }
+    ],
+    "connections": [
+      {
+        "to": "Detection task", "from_": "Dataset"
+      }
+    ]
+  },
+  "datasets": [
+    {"name": "Mock detection project"}
+  ]
+}

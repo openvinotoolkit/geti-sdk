@@ -35,6 +35,7 @@ def create_segmentation_demo_project(
     n_annotations: int = -1,
     auto_train: bool = False,
     dataset_path: Optional[str] = None,
+    project_name: str = "Segmentation demo",
 ) -> Project:
     """
     Create a demo project of type 'segmentation', based off the MS COCO dataset.
@@ -55,6 +56,7 @@ def create_segmentation_demo_project(
         the 'data' directory in the top level folder of the geti_sdk package. If
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
+    :param project_name: Name of the project to create
     :return: Project object, holding detailed information about the project that was
         created on the Intel® Geti™ server.
     """
@@ -63,7 +65,6 @@ def create_segmentation_demo_project(
 
     labels_of_interest = ["backpack", "suitcase"]
     project_type = "segmentation"
-    project_name = "Segmentation demo"
 
     # Create annotation reader
     annotation_reader = DatumAnnotationReader(
@@ -89,6 +90,7 @@ def create_detection_demo_project(
     n_annotations: int = -1,
     auto_train: bool = False,
     dataset_path: Optional[str] = None,
+    project_name: str = "Detection demo",
 ) -> Project:
     """
     Create a demo project of type 'detection', based off the MS COCO dataset.
@@ -109,6 +111,7 @@ def create_detection_demo_project(
         the 'data' directory in the top level folder of the geti_sdk package. If
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
+    :param project_name: Name of the project to create
     :return: Project object, holding detailed information about the project that was
         created on the Intel® Geti™ server.
     """
@@ -117,7 +120,6 @@ def create_detection_demo_project(
 
     labels_of_interest = ["cell phone", "person"]
     project_type = "detection"
-    project_name = "Detection demo"
 
     # Create annotation reader
     annotation_reader = DatumAnnotationReader(
@@ -143,6 +145,7 @@ def create_classification_demo_project(
     n_annotations: int = -1,
     auto_train: bool = False,
     dataset_path: Optional[str] = None,
+    project_name: str = "Classification demo",
 ) -> Project:
     """
     Create a demo project of type 'classification', based off the MS COCO dataset.
@@ -164,6 +167,7 @@ def create_classification_demo_project(
         the 'data' directory in the top level folder of the geti_sdk package. If
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
+    :param project_name: Name of the project to create
     :return: Project object, holding detailed information about the project that was
         created on the Intel® Geti™ server.
     """
@@ -172,7 +176,6 @@ def create_classification_demo_project(
 
     labels_of_interest = ["horse", "cat", "zebra", "bear"]
     project_type = "classification"
-    project_name = "Classification demo"
 
     # Create annotation reader
     annotation_reader = DatumAnnotationReader(
@@ -198,6 +201,7 @@ def create_detection_to_segmentation_demo_project(
     n_annotations: int = -1,
     auto_train: bool = False,
     dataset_path: Optional[str] = None,
+    project_name: str = "Animal detection to segmentation demo",
 ) -> Project:
     """
     Create a demo project of type 'detection_to_segmentation', based off the MS COCO
@@ -222,6 +226,7 @@ def create_detection_to_segmentation_demo_project(
         the 'data' directory in the top level folder of the geti_sdk package. If
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
+    :param project_name: Name of the project to create
     :return: Project object, holding detailed information about the project that was
         created on the Intel® Geti™ server.
     """
@@ -229,7 +234,6 @@ def create_detection_to_segmentation_demo_project(
     logging.info(" ------- Creating detection -> segmentation project --------------- ")
     animal_labels = ["dog", "cat", "horse", "cow", "sheep"]
     project_type = "detection_to_segmentation"
-    project_name = "Animal detection to segmentation demo"
 
     label_source_per_task = []
     for task_type in get_task_types_by_project_type(project_type):
@@ -263,6 +267,7 @@ def create_detection_to_classification_demo_project(
     n_annotations: int = -1,
     auto_train: bool = False,
     dataset_path: Optional[str] = None,
+    project_name: str = "Animal detection to classification demo",
 ) -> Project:
     """
     Create a demo project of type 'detection_to_classification', based off the MS COCO
@@ -285,6 +290,7 @@ def create_detection_to_classification_demo_project(
         the 'data' directory in the top level folder of the geti_sdk package. If
         the dataset is not found in the target folder, this method will attempt to
         download it from the internet.
+    :param project_name: Name of the project to create
     :return: Project object, holding detailed information about the project that was
         created on the Intel® Geti™ server.
     """
@@ -297,7 +303,6 @@ def create_detection_to_classification_demo_project(
     animal_labels = domestic_labels + wild_labels
 
     project_type = "detection_to_classification"
-    project_name = "Animal detection to classification demo"
 
     label_source_per_task = []
     for task_type in get_task_types_by_project_type(project_type):
