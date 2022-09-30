@@ -67,19 +67,21 @@ the package.
 > systems, but unfortunately not on Windows yet since not all required packages are
 > available for that version.
 
-## Example use cases
+## Using the SDK
 The SDK contains example code in various forms to help you get familiar with the package.
 
-- [Sample code snippets](#sample-code-snippets) are short snippets that demonstrate
-  how to perform several common tasks
-
-- [Example scripts](#example-scripts) are more extensive scripts that cover more
-  advanced usage.
+- [Code examples](#code-examples) are short snippets that demonstrate
+  how to perform several common tasks. This also shows how to configure the SDK to
+  connect to your Geti server.
 
 - [Jupyter notebooks](#jupyter-notebooks) are tutorial style notebooks that cover
-  pretty much the full SDK functionality.
+  pretty much the full SDK functionality. **These are the recommended way to get started
+  with the SDK.**
 
-### Sample code snippets
+- [Example scripts](#example-scripts) are more extensive scripts that cover more
+  advanced usage than the code examples, have a look at these if you don't like Jupyter.
+
+### Code examples
 The package provides a main class `Geti` that can be used for the following use cases
 
 #### Connecting to the Geti platform
@@ -97,9 +99,12 @@ Instantiating the `Geti` class will establish the connection and perform authent
     1. Open the Intel® Geti™ user interface in your browser
     2. Click on the `User` menu, in the top right corner of the page. The menu is
        accessible from any page inside Intel® Geti™.
-    3. In the dropdown menu that follows, select `Personal access token`.
-    4. Follow the steps to create a token.
+    3. In the dropdown menu that follows, click on `Personal access token`, as shown in
+       the image below.
+    4. In the screen that follows, go through the steps to create a token.
     5. Make sure to copy the token value!
+
+   ![Personal access token menu](docs/source/images/personal_access_token.png)
 
   Once you created a personal access token, it can be passed to the `Geti` class as follows:
   ```python

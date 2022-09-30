@@ -73,7 +73,7 @@ autodoc_default_options = {
 # myst_gfm_only = True
 myst_heading_anchors = 4
 
-source_suffix = [".rst"]
+# source_suffix = [".rst"]
 
 # -- Options for jupyter notebook conversion --------------------------------
 nbsphinx_execute = "never"
