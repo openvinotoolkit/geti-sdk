@@ -11,6 +11,7 @@ on:
 
 env:
   INTEGRATION_TEST_REPORT: integration_test_report.html
+  REPORT_DIRECTORY: reports
 
 jobs:
   pr_tests:
@@ -37,6 +38,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install ".[dev,notebooks]"
 
+      - name: Create report directory
+        # Creates the temporary directory that is used to store the test report
+        run: |
+          mkdir $REPORT_DIRECTORY
+
       - name: Check formatting with black
         run: black . --check
 
@@ -51,12 +57,18 @@ jobs:
 
       - name: Test with pytest
         run: |
-          pytest tests/integration -c tests/offline.ini --cov=geti_sdk --html=$INTEGRATION_TEST_REPORT --self-contained-html
+          pytest tests/integration -c tests/offline.ini --cov=geti_sdk --html=$REPORT_DIRECTORY/$INTEGRATION_TEST_REPORT --self-contained-html --cov-report html:$REPORT_DIRECTORY/coverage
 
       - name: Upload test report for integration tests
         # Publish the integration test report to github
         uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
-          name: integration-test-report
-          path: ${{ env.INTEGRATION_TEST_REPORT }}
+          name: integration-test-reports
+          path: ${{ env.REPORT_DIRECTORY }}
+
+      - name: Clean up report directories
+        # Remove temporary report directory
+        if: ${{ always() }}
+        run: |
+          rm -r $REPORT_DIRECTORY
