@@ -12,12 +12,19 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import copy
+import os
 
 import pytest
 
 from geti_sdk.data_models import Algorithm, Project, TaskType
-from geti_sdk.utils import deserialize_dictionary, get_supported_algorithms
+from geti_sdk.utils import (
+    deserialize_dictionary,
+    get_server_details_from_env,
+    get_supported_algorithms,
+)
 from geti_sdk.utils.serialization_helpers import DataModelMismatchException
+from tests.fixtures.geti import DUMMY_PASSWORD, DUMMY_USER
+from tests.helpers.constants import DUMMY_HOST
 
 
 class TestUtils:
@@ -78,3 +85,39 @@ class TestUtils:
             deserialize_dictionary(
                 input_dictionary=dictionary_with_extra_key, output_type=object_type
             )
+
+    def test_get_server_details_from_env(self, fxt_env_filepath: str):
+        """
+        Verifies that fetching server details from a .env file works.
+
+        This also tests that getting the server details from the global environment
+        works as expected.
+        """
+        host, authentication_info = get_server_details_from_env(fxt_env_filepath)
+
+        assert host == DUMMY_HOST
+        assert authentication_info["token"] == "this_is_a_fake_token"
+        assert len(authentication_info) == 1
+
+        environ_keys = ["GETI_HOST", "GETI_USERNAME", "GETI_PASSWORD"]
+        expected_results = {}
+        dummy_results = {
+            "GETI_HOST": DUMMY_HOST,
+            "GETI_USERNAME": DUMMY_USER,
+            "GETI_PASSWORD": DUMMY_PASSWORD,
+        }
+        for ekey in environ_keys:
+            evalue = os.environ.get(ekey, None)
+            if evalue is not None:
+                expected_results.update({ekey: evalue})
+            else:
+                variable_dictionary = {ekey: dummy_results[ekey]}
+                os.environ.update(variable_dictionary)
+                expected_results.update(variable_dictionary)
+
+        host, authentication_info = get_server_details_from_env(
+            use_global_variables=True
+        )
+        assert host == expected_results["GETI_HOST"]
+        assert authentication_info["username"] == expected_results["GETI_USERNAME"]
+        assert authentication_info["password"] == expected_results["GETI_PASSWORD"]

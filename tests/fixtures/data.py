@@ -168,3 +168,11 @@ def fxt_project_dictionary(fxt_base_test_path: str) -> dict:
     with open(project_datafile, "r") as file:
         project_dict = json.load(file)
     yield project_dict
+
+
+@pytest.fixture(scope="function")
+def fxt_env_filepath(fxt_base_test_path: str) -> str:
+    """
+    Return the path to a mock .env file
+    """
+    yield os.path.join(fxt_base_test_path, "data", "mock.env")
