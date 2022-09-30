@@ -245,10 +245,13 @@ install them at any time using
 
 Once the notebook requirements are installed, navigate to the `notebooks` directory in
 your terminal. Then, launch JupyterLab by typing `jupyter lab`. This should open your
-browser and take you to the JupyterLab landing page, with the SDK notebooks open.
+browser and take you to the JupyterLab landing page, with the SDK notebooks open (see
+the screenshot below).
 
 > **NOTE**: Both the example scripts and the notebooks require access to a server
 > running the Intel® Geti™ platform.
+
+![Jupyter lab landing page](docs/source/images/jupyter_lab_landing_page.png)
 
 ## High level API reference
 The `Geti` class provides the following methods:
