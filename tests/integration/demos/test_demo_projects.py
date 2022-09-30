@@ -15,6 +15,7 @@ from typing import Tuple
 
 import pytest
 from _pytest.fixtures import FixtureRequest
+from func_timeout import FunctionTimedOut, func_timeout
 
 from geti_sdk import Geti
 from geti_sdk.annotation_readers import DatumAnnotationReader
@@ -37,7 +38,7 @@ from geti_sdk.rest_clients import (
     PredictionClient,
     ProjectClient,
 )
-from tests.helpers import force_delete_project
+from tests.helpers import SdkTestMode, force_delete_project
 from tests.helpers.constants import PROJECT_PREFIX
 
 
@@ -138,7 +139,11 @@ class TestDemoProjects:
 
     @pytest.mark.vcr()
     def test_ensure_project_is_trained(
-        self, request: FixtureRequest, fxt_geti: Geti, fxt_project_client: ProjectClient
+        self,
+        request: FixtureRequest,
+        fxt_geti: Geti,
+        fxt_project_client: ProjectClient,
+        fxt_test_mode: SdkTestMode,
     ):
         """
         Test that the `ensure_project_is_trained` function results in a trained project
@@ -172,6 +177,20 @@ class TestDemoProjects:
         )
         assert not prediction_client.ready_to_predict
 
-        ensure_project_is_trained(geti=fxt_geti, project=project)
+        ensure_trained_args = {"geti": fxt_geti, "project": project}
+
+        if fxt_test_mode != SdkTestMode.OFFLINE:
+            ensure_project_is_trained(**ensure_trained_args)
+
+        else:
+            try:
+                func_timeout(
+                    timeout=5,
+                    func=ensure_project_is_trained,
+                    args=tuple(ensure_trained_args.values()),
+                )
+            except FunctionTimedOut:
+                # Timeout is expected in case the tests are run offline
+                pass
 
         assert prediction_client.ready_to_predict
