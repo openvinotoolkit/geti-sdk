@@ -15,11 +15,10 @@ from typing import Tuple
 
 import pytest
 from _pytest.fixtures import FixtureRequest
-from func_timeout import FunctionTimedOut, func_timeout
 
 from geti_sdk import Geti
 from geti_sdk.annotation_readers import DatumAnnotationReader
-from geti_sdk.demos import get_coco_dataset
+from geti_sdk.demos import ensure_trained_anomaly_project, get_coco_dataset
 from geti_sdk.demos.data_helpers.anomaly_helpers import is_ad_dataset
 from geti_sdk.demos.data_helpers.coco_helpers import (
     COCOSubset,
@@ -56,7 +55,6 @@ class TestDemoProjects:
         """
         assert is_ad_dataset(fxt_anomaly_dataset)
 
-    @pytest.mark.vcr()
     @pytest.mark.parametrize(
         "demo_project_fixture_name",
         [
@@ -78,20 +76,20 @@ class TestDemoProjects:
         self,
         request,
         demo_project_fixture_name: str,
-        fxt_geti: Geti,
+        fxt_geti_no_vcr: Geti,
         fxt_project_client: ProjectClient,
         fxt_demo_images_and_annotations: Tuple[int, int],
     ):
         project = request.getfixturevalue(demo_project_fixture_name)
         project_on_server = fxt_project_client.get_project_by_name(project.name)
         image_client = ImageClient(
-            session=fxt_geti.session,
-            workspace_id=fxt_geti.workspace_id,
+            session=fxt_geti_no_vcr.session,
+            workspace_id=fxt_geti_no_vcr.workspace_id,
             project=project_on_server,
         )
         annotation_client = AnnotationClient(
-            session=fxt_geti.session,
-            workspace_id=fxt_geti.workspace_id,
+            session=fxt_geti_no_vcr.session,
+            workspace_id=fxt_geti_no_vcr.workspace_id,
             project=project_on_server,
         )
         images = image_client.get_all_images()
@@ -108,7 +106,7 @@ class TestDemoProjects:
     def test_ensure_project_is_trained(
         self,
         request: FixtureRequest,
-        fxt_geti: Geti,
+        fxt_geti_no_vcr: Geti,
         fxt_project_client: ProjectClient,
         fxt_test_mode: SdkTestMode,
     ):
@@ -124,7 +122,7 @@ class TestDemoProjects:
         )
         annotation_reader.filter_dataset(labels=DEMO_LABELS, criterion="OR")
 
-        project = fxt_geti.create_single_task_project_from_dataset(
+        project = fxt_geti_no_vcr.create_single_task_project_from_dataset(
             project_name=project_name,
             project_type=DEMO_PROJECT_TYPE,
             path_to_images=coco_path,
@@ -138,26 +136,38 @@ class TestDemoProjects:
             lambda: force_delete_project(project_name, fxt_project_client)
         )
         prediction_client = PredictionClient(
-            session=fxt_geti.session,
-            workspace_id=fxt_geti.workspace_id,
+            session=fxt_geti_no_vcr.session,
+            workspace_id=fxt_geti_no_vcr.workspace_id,
             project=project,
         )
         assert not prediction_client.ready_to_predict
 
-        ensure_trained_args = {"geti": fxt_geti, "project": project}
+        ensure_project_is_trained(geti=fxt_geti_no_vcr, project=project)
 
-        if fxt_test_mode != SdkTestMode.OFFLINE:
-            ensure_project_is_trained(**ensure_trained_args)
+        assert prediction_client.ready_to_predict
 
-        else:
-            try:
-                func_timeout(
-                    timeout=5,
-                    func=ensure_project_is_trained,
-                    args=tuple(ensure_trained_args.values()),
-                )
-            except FunctionTimedOut:
-                # Timeout is expected in case the tests are run offline
-                pass
+    def test_ensure_trained_anomaly_project(self, fxt_geti_no_vcr: Geti):
+        """
+        Test the `ensure_trained_anomaly_project` method
+        """
+        project_client = ProjectClient(
+            session=fxt_geti_no_vcr.session, workspace_id=fxt_geti_no_vcr.workspace_id
+        )
+        project_name = f"{PROJECT_PREFIX}_ensure_trained_anomaly_project"
+        if project_client.get_project_by_name(project_name) is not None:
+            force_delete_project(
+                project_name=project_name, project_client=project_client
+            )
+        assert project_name not in [
+            project.name for project in project_client.get_all_projects()
+        ]
 
+        project = ensure_trained_anomaly_project(
+            geti=fxt_geti_no_vcr, project_name=project_name
+        )
+        prediction_client = PredictionClient(
+            session=fxt_geti_no_vcr.session,
+            workspace_id=fxt_geti_no_vcr.workspace_id,
+            project=project,
+        )
         assert prediction_client.ready_to_predict
