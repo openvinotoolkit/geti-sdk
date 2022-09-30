@@ -19,8 +19,7 @@ from func_timeout import FunctionTimedOut, func_timeout
 
 from geti_sdk import Geti
 from geti_sdk.annotation_readers import DatumAnnotationReader
-from geti_sdk.data_models import Project
-from geti_sdk.demos import get_coco_dataset, get_mvtec_dataset
+from geti_sdk.demos import get_coco_dataset
 from geti_sdk.demos.data_helpers.anomaly_helpers import is_ad_dataset
 from geti_sdk.demos.data_helpers.coco_helpers import (
     COCOSubset,
@@ -43,51 +42,19 @@ from tests.helpers.constants import PROJECT_PREFIX
 
 
 class TestDemoProjects:
-    def test_get_coco_dataset(self):
+    def test_get_coco_dataset(self, fxt_coco_dataset: str):
         """
-        Test that the method returns the path to a directory containing the val2017
-        subset of the coco dataset.
+        Test that the `get_coco_dataset` method returns the path to a directory
+        containing the val2017 subset of the coco dataset.
         """
-        coco_path = get_coco_dataset()
-        assert directory_has_coco_subset(coco_path, COCOSubset.VAL2017)
+        assert directory_has_coco_subset(fxt_coco_dataset, COCOSubset.VAL2017)
 
-    def test_get_mvtec_dataset(self):
+    def test_get_mvtec_dataset(self, fxt_anomaly_dataset: str):
         """
-        Test that the method returns the path to a directory containing the MVTec AD
-        'transistor' dataset
+        Test that the `get_mvtec_dataset` method returns the path to a directory
+        containing the MVTec AD 'transistor' dataset
         """
-        ad_path = get_mvtec_dataset()
-        assert is_ad_dataset(ad_path)
-
-    def _validate_project(
-        self,
-        project: Project,
-        project_client: ProjectClient,
-        geti: Geti,
-        n_images: int,
-        n_annotations: int,
-    ):
-        """
-        Check that the project exists on the server, and that it contains the
-        expected number of images and annotations.
-        """
-        project_on_server = project_client.get_project_by_name(project.name)
-        image_client = ImageClient(
-            session=geti.session,
-            workspace_id=geti.workspace_id,
-            project=project_on_server,
-        )
-        annotation_client = AnnotationClient(
-            session=geti.session,
-            workspace_id=geti.workspace_id,
-            project=project_on_server,
-        )
-        images = image_client.get_all_images()
-        annotations = [annotation_client.get_annotation(image) for image in images]
-
-        assert len(images) == n_images
-        assert len(annotations) == n_annotations
-        assert project_on_server == project
+        assert is_ad_dataset(fxt_anomaly_dataset)
 
     @pytest.mark.vcr()
     @pytest.mark.parametrize(
