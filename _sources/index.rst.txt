@@ -22,7 +22,7 @@ started!
    :maxdepth: 1
    :caption: Contents:
 
-   getting_started
+   getting_started.md
    notebooks
    contributing_to_the_sdk
    api_reference

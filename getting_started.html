@@ -46,8 +46,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#local-installation">Local installation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#example-use-cases">Example use cases</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#sample-code-snippets">Sample code snippets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-sdk">Using the SDK</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#code-examples">Code examples</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#connecting-to-the-geti-platform">Connecting to the Geti platform</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#downloading-and-uploading-projects">Downloading and uploading projects</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#up-or-downloading-all-projects">Up- or downloading all projects</a></li>
@@ -88,7 +88,7 @@
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
       <li>Introduction</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/getting_started.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/getting_started.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -167,19 +167,21 @@ available for that version.</p>
 </div></blockquote>
 </section>
 </section>
-<section id="example-use-cases">
-<h2>Example use cases<a class="headerlink" href="#example-use-cases" title="Permalink to this heading"></a></h2>
+<section id="using-the-sdk">
+<h2>Using the SDK<a class="headerlink" href="#using-the-sdk" title="Permalink to this heading"></a></h2>
 <p>The SDK contains example code in various forms to help you get familiar with the package.</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#sample-code-snippets"><span class="std std-doc">Sample code snippets</span></a> are short snippets that demonstrate
-how to perform several common tasks</p></li>
-<li><p><a class="reference internal" href="#example-scripts"><span class="std std-doc">Example scripts</span></a> are more extensive scripts that cover more
-advanced usage.</p></li>
+<li><p><a class="reference internal" href="#code-examples"><span class="std std-doc">Code examples</span></a> are short snippets that demonstrate
+how to perform several common tasks. This also shows how to configure the SDK to
+connect to your Geti server.</p></li>
 <li><p><a class="reference internal" href="#jupyter-notebooks"><span class="std std-doc">Jupyter notebooks</span></a> are tutorial style notebooks that cover
-pretty much the full SDK functionality.</p></li>
+pretty much the full SDK functionality. <strong>These are the recommended way to get started
+with the SDK.</strong></p></li>
+<li><p><a class="reference internal" href="#example-scripts"><span class="std std-doc">Example scripts</span></a> are more extensive scripts that cover more
+advanced usage than the code examples, have a look at these if you don’t like Jupyter.</p></li>
 </ul>
-<section id="sample-code-snippets">
-<h3>Sample code snippets<a class="headerlink" href="#sample-code-snippets" title="Permalink to this heading"></a></h3>
+<section id="code-examples">
+<h3>Code examples<a class="headerlink" href="#code-examples" title="Permalink to this heading"></a></h3>
 <p>The package provides a main class <code class="docutils literal notranslate"><span class="pre">Geti</span></code> that can be used for the following use cases</p>
 <section id="connecting-to-the-geti-platform">
 <h4>Connecting to the Geti platform<a class="headerlink" href="#connecting-to-the-geti-platform" title="Permalink to this heading"></a></h4>
@@ -195,10 +197,12 @@ obtained by following the steps below:</p>
 <li><p>Open the Intel® Geti™ user interface in your browser</p></li>
 <li><p>Click on the <code class="docutils literal notranslate"><span class="pre">User</span></code> menu, in the top right corner of the page. The menu is
 accessible from any page inside Intel® Geti™.</p></li>
-<li><p>In the dropdown menu that follows, select <code class="docutils literal notranslate"><span class="pre">Personal</span> <span class="pre">access</span> <span class="pre">token</span></code>.</p></li>
-<li><p>Follow the steps to create a token.</p></li>
+<li><p>In the dropdown menu that follows, click on <code class="docutils literal notranslate"><span class="pre">Personal</span> <span class="pre">access</span> <span class="pre">token</span></code>, as shown in
+the image below.</p></li>
+<li><p>In the screen that follows, go through the steps to create a token.</p></li>
 <li><p>Make sure to copy the token value!</p></li>
 </ol>
+<p><img alt="Personal access token menu" src="_images/personal_access_token.png" /></p>
 <p>Once you created a personal access token, it can be passed to the <code class="docutils literal notranslate"><span class="pre">Geti</span></code> class as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">geti_sdk</span> <span class="kn">import</span> <span class="n">Geti</span>
 
