@@ -118,6 +118,7 @@ def get_mvtec_dataset_from_path(dataset_path: str = "data") -> str:
         )
 
     # Fix permissions on extracted files
+    os.chmod(transistor_dataset_path, 0o774)
     for root, dirs, files in os.walk(transistor_dataset_path):
         for file_name in files:
             file_path = os.path.join(root, file_name)
