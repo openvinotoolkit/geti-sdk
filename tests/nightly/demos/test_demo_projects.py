@@ -77,11 +77,11 @@ class TestDemoProjects:
         request,
         demo_project_fixture_name: str,
         fxt_geti_no_vcr: Geti,
-        fxt_project_client: ProjectClient,
+        fxt_project_client_no_vcr: ProjectClient,
         fxt_demo_images_and_annotations: Tuple[int, int],
     ):
         project = request.getfixturevalue(demo_project_fixture_name)
-        project_on_server = fxt_project_client.get_project_by_name(project.name)
+        project_on_server = fxt_project_client_no_vcr.get_project_by_name(project.name)
         image_client = ImageClient(
             session=fxt_geti_no_vcr.session,
             workspace_id=fxt_geti_no_vcr.workspace_id,
@@ -107,7 +107,7 @@ class TestDemoProjects:
         self,
         request: FixtureRequest,
         fxt_geti_no_vcr: Geti,
-        fxt_project_client: ProjectClient,
+        fxt_project_client_no_vcr: ProjectClient,
         fxt_test_mode: SdkTestMode,
     ):
         """
@@ -133,7 +133,7 @@ class TestDemoProjects:
             enable_auto_train=False,
         )
         request.addfinalizer(
-            lambda: force_delete_project(project_name, fxt_project_client)
+            lambda: force_delete_project(project_name, fxt_project_client_no_vcr)
         )
         prediction_client = PredictionClient(
             session=fxt_geti_no_vcr.session,
@@ -146,20 +146,19 @@ class TestDemoProjects:
 
         assert prediction_client.ready_to_predict
 
-    def test_ensure_trained_anomaly_project(self, fxt_geti_no_vcr: Geti):
+    def test_ensure_trained_anomaly_project(
+        self, fxt_geti_no_vcr: Geti, fxt_project_client_no_vcr: ProjectClient
+    ):
         """
         Test the `ensure_trained_anomaly_project` method
         """
-        project_client = ProjectClient(
-            session=fxt_geti_no_vcr.session, workspace_id=fxt_geti_no_vcr.workspace_id
-        )
         project_name = f"{PROJECT_PREFIX}_ensure_trained_anomaly_project"
-        if project_client.get_project_by_name(project_name) is not None:
+        if fxt_project_client_no_vcr.get_project_by_name(project_name) is not None:
             force_delete_project(
-                project_name=project_name, project_client=project_client
+                project_name=project_name, project_client=fxt_project_client_no_vcr
             )
         assert project_name not in [
-            project.name for project in project_client.get_all_projects()
+            project.name for project in fxt_project_client_no_vcr.get_all_projects()
         ]
 
         project = ensure_trained_anomaly_project(
