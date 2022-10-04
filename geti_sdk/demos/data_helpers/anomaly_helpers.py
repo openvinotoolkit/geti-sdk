@@ -22,6 +22,8 @@ from geti_sdk.demos.constants import DEFAULT_DATA_PATH
 from .download_helpers import download_file, ensure_directory_exists, validate_hash
 
 DEFAULT_MVTEC_PATH = os.path.join(DEFAULT_DATA_PATH, "mvtec")
+EXECUTE = 0o0100
+READ = 0o0400
 
 
 def is_ad_dataset(target_folder: str = "data") -> bool:
@@ -107,7 +109,7 @@ def get_mvtec_dataset_from_path(dataset_path: str = "data") -> str:
 
     logging.info(f"Extracting the '{dataset_name}' dataset at path {archive_path}...")
     with tarfile.open(archive_path) as tar_file:
-        tar_file.extractall(dataset_path, numeric_owner=True)
+        tar_file.extractall(dataset_path)
 
     if not is_ad_dataset(transistor_dataset_path):
         raise ValueError(
@@ -116,6 +118,12 @@ def get_mvtec_dataset_from_path(dataset_path: str = "data") -> str:
             f"dataset directory at {transistor_dataset_path} contains the expected "
             f"'{dataset_name}' dataset."
         )
+
+    # Fix permissions on extracted files
+    for root, dirs, files in os.walk(transistor_dataset_path):
+        for file_name in files:
+            file_path = os.path.join(root, file_name)
+            os.chmod(file_path, 0o0664)
 
     logging.info("Cleaning up...")
     os.remove(archive_path)
