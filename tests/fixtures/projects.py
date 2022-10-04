@@ -30,6 +30,16 @@ def fxt_project_client(fxt_geti: Geti) -> ProjectClient:
 
 
 @pytest.fixture(scope="class")
+def fxt_project_client_no_vcr(fxt_geti_no_vcr: Geti) -> ProjectClient:
+    """
+    This fixture returns a ProjectClient instance corresponding to the Geti instance
+    """
+    yield ProjectClient(
+        session=fxt_geti_no_vcr.session, workspace_id=fxt_geti_no_vcr.workspace_id
+    )
+
+
+@pytest.fixture(scope="class")
 def fxt_project_service(
     fxt_vcr,
     fxt_geti: Geti,

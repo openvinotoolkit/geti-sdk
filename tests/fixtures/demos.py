@@ -15,7 +15,6 @@ import shutil
 from typing import Tuple
 
 import pytest
-from vcr import VCR
 
 from geti_sdk import Geti
 from geti_sdk.data_models import Project
@@ -43,10 +42,10 @@ def fxt_demo_images_and_annotations() -> Tuple[int, int]:
     yield 10, 10
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def fxt_anomaly_classification_demo_project(
     fxt_geti_no_vcr: Geti,
-    fxt_project_client: ProjectClient,
+    fxt_project_client_no_vcr: ProjectClient,
     fxt_demo_images_and_annotations: Tuple[int, int],
 ) -> Project:
     """
@@ -61,13 +60,15 @@ def fxt_anomaly_classification_demo_project(
         project_name=project_name,
     )
     yield project
-    force_delete_project(project_name=project_name, project_client=fxt_project_client)
+    force_delete_project(
+        project_name=project_name, project_client=fxt_project_client_no_vcr
+    )
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def fxt_segmentation_demo_project(
     fxt_geti_no_vcr: Geti,
-    fxt_project_client: ProjectClient,
+    fxt_project_client_no_vcr: ProjectClient,
     fxt_demo_images_and_annotations: Tuple[int, int],
 ) -> Project:
     """
@@ -82,13 +83,15 @@ def fxt_segmentation_demo_project(
         project_name=project_name,
     )
     yield project
-    force_delete_project(project_name=project.name, project_client=fxt_project_client)
+    force_delete_project(
+        project_name=project.name, project_client=fxt_project_client_no_vcr
+    )
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def fxt_detection_to_classification_demo_project(
     fxt_geti_no_vcr: Geti,
-    fxt_project_client: ProjectClient,
+    fxt_project_client_no_vcr: ProjectClient,
     fxt_demo_images_and_annotations: Tuple[int, int],
 ) -> Project:
     """
@@ -97,16 +100,21 @@ def fxt_detection_to_classification_demo_project(
     """
     project_name = f"{PROJECT_PREFIX}_detection_to_classification_demo"
     project = create_detection_to_classification_demo_project(
-        geti=fxt_geti_no_vcr, n_images=4, n_annotations=4, project_name=project_name
+        geti=fxt_geti_no_vcr,
+        n_images=fxt_demo_images_and_annotations[0],
+        n_annotations=fxt_demo_images_and_annotations[1],
+        project_name=project_name,
     )
     yield project
-    force_delete_project(project_name=project.name, project_client=fxt_project_client)
+    force_delete_project(
+        project_name=project.name, project_client=fxt_project_client_no_vcr
+    )
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def fxt_detection_to_segmentation_demo_project(
     fxt_geti_no_vcr: Geti,
-    fxt_project_client: ProjectClient,
+    fxt_project_client_no_vcr: ProjectClient,
     fxt_demo_images_and_annotations: Tuple[int, int],
 ) -> Project:
     """
@@ -121,13 +129,15 @@ def fxt_detection_to_segmentation_demo_project(
         project_name=project_name,
     )
     yield project
-    force_delete_project(project_name=project_name, project_client=fxt_project_client)
+    force_delete_project(
+        project_name=project_name, project_client=fxt_project_client_no_vcr
+    )
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def fxt_classification_demo_project(
     fxt_geti_no_vcr: Geti,
-    fxt_project_client: ProjectClient,
+    fxt_project_client_no_vcr: ProjectClient,
     fxt_demo_images_and_annotations: Tuple[int, int],
 ) -> Project:
     """
@@ -142,11 +152,13 @@ def fxt_classification_demo_project(
         project_name=project_name,
     )
     yield project
-    force_delete_project(project_name=project_name, project_client=fxt_project_client)
+    force_delete_project(
+        project_name=project_name, project_client=fxt_project_client_no_vcr
+    )
 
 
 @pytest.fixture(scope="session")
-def fxt_coco_dataset(fxt_vcr: VCR):
+def fxt_coco_dataset():
     """
     Return the path to the coco dataset (subset val2017)
     """
@@ -156,7 +168,7 @@ def fxt_coco_dataset(fxt_vcr: VCR):
 
 
 @pytest.fixture(scope="session")
-def fxt_anomaly_dataset(fxt_vcr: VCR):
+def fxt_anomaly_dataset():
     """
     Return the path to the MVTec AD 'transistor' dataset
     """
