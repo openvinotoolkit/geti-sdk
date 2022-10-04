@@ -107,7 +107,7 @@ def get_mvtec_dataset_from_path(dataset_path: str = "data") -> str:
 
     logging.info(f"Extracting the '{dataset_name}' dataset at path {archive_path}...")
     with tarfile.open(archive_path) as tar_file:
-        tar_file.extractall(dataset_path)
+        tar_file.extractall(dataset_path, numeric_owner=True)
 
     if not is_ad_dataset(transistor_dataset_path):
         raise ValueError(
