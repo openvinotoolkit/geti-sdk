@@ -22,8 +22,6 @@ from geti_sdk.demos.constants import DEFAULT_DATA_PATH
 from .download_helpers import download_file, ensure_directory_exists, validate_hash
 
 DEFAULT_MVTEC_PATH = os.path.join(DEFAULT_DATA_PATH, "mvtec")
-EXECUTE = 0o0100
-READ = 0o0400
 
 
 def is_ad_dataset(target_folder: str = "data") -> bool:
