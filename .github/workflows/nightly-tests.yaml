@@ -80,6 +80,8 @@ jobs:
       - name: Nightly tests
         # Proxy settings have to be configured and GETI_HOST set to full address before
         # tests can run
+        #
+        # NOTE: This step executes all tests in the `tests` directory in `ONLINE` mode
         run: |
           export no_proxy=$GETI_HOST,$no_proxy
           export NO_PROXY=$GETI_HOST,$NO_PROXY
@@ -88,7 +90,7 @@ jobs:
           eval "$(conda shell.bash hook)"
           conda activate $CONDA_ENV
 
-          pytest tests/nightly --cov=geti_sdk --html=$REPORT_DIRECTORY/nightly_test_report.html --self-contained-html
+          pytest tests --cov=geti_sdk --html=$REPORT_DIRECTORY/nightly_test_report.html --self-contained-html --cov-report html:$REPORT_DIRECTORY/coverage
 
       - name: Upload artifacts for nightly tests
         # Publish the test artifacts in the $ARTIFACT_DIRECTORY to github
@@ -97,19 +99,6 @@ jobs:
         with:
           name: artifacts
           path: ${{ env.ARTIFACT_DIRECTORY }}
-
-      - name: Integration tests
-        # Run all integration tests in online mode (set in TEST_MODE env variable).
-        run: |
-          export no_proxy=$GETI_HOST,$no_proxy
-          export NO_PROXY=$GETI_HOST,$NO_PROXY
-          export GETI_HOST=https://$GETI_HOST
-          export CLEAR_EXISTING_TEST_PROJECTS=0
-
-          eval "$(conda shell.bash hook)"
-          conda activate $CONDA_ENV
-
-          pytest tests/integration --cov=geti_sdk --html=$REPORT_DIRECTORY/integration_test_report.html --self-contained-html --cov-report html:$REPORT_DIRECTORY/coverage
 
       - name: Upload test reports
         # Publish the test reports to github
