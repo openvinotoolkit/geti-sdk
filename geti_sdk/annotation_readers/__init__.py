@@ -31,7 +31,7 @@ Module contents
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: geti_sdk.annotation_readers.sc_annotation_reader
+.. automodule:: geti_sdk.annotation_readers.geti_annotation_reader
    :members:
    :undoc-members:
    :show-inheritance:
@@ -50,11 +50,11 @@ Module contents
 from .base_annotation_reader import AnnotationReader
 from .datumaro_annotation_reader import DatumAnnotationReader
 from .directory_tree_annotation_reader import DirectoryTreeAnnotationReader
-from .sc_annotation_reader import SCAnnotationReader
+from .geti_annotation_reader import GetiAnnotationReader
 
 __all__ = [
     "AnnotationReader",
     "DatumAnnotationReader",
-    "SCAnnotationReader",
+    "GetiAnnotationReader",
     "DirectoryTreeAnnotationReader",
 ]

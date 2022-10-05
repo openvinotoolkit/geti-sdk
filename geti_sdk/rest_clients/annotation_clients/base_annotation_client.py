@@ -304,6 +304,7 @@ class BaseAnnotationClient:
         annotation_list = self.annotation_reader.get_data(
             filename=media_item.name,
             label_name_to_id_mapping=self.label_mapping,
+            media_information=media_item.media_information,
             preserve_shape_for_global_labels=preserve_shape_for_global_labels,
         )
         return AnnotationRESTConverter.from_dict(

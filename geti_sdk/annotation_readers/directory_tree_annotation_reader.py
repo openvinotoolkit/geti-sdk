@@ -17,11 +17,10 @@ import warnings
 from glob import glob
 from typing import Dict, List, Optional, Sequence, Set, Union
 
-import cv2
-
 from geti_sdk.annotation_readers import AnnotationReader
 from geti_sdk.data_models import Annotation, ScoredLabel, TaskType
 from geti_sdk.data_models.enums.media_type import SUPPORTED_IMAGE_FORMATS
+from geti_sdk.data_models.media import MediaInformation
 from geti_sdk.data_models.shapes import Rectangle
 
 
@@ -95,6 +94,7 @@ class DirectoryTreeAnnotationReader(AnnotationReader):
         self,
         filename: str,
         label_name_to_id_mapping: dict,
+        media_information: MediaInformation,
         preserve_shape_for_global_labels: bool = False,
         image_name_as_full_path: bool = False,
     ) -> List[Annotation]:
@@ -104,6 +104,8 @@ class DirectoryTreeAnnotationReader(AnnotationReader):
         :param filename: Name of the item to return the annotations for
         :param label_name_to_id_mapping: Dictionary mapping the name of a label to its
             unique database ID
+        :param media_information: MediaInformation object containing information
+            (e.g. width, height) about the media item to upload the annotation for
         :param preserve_shape_for_global_labels: Unused parameter in this type of
             annotation reader
         :param image_name_as_full_path: Set to True if the `filename` contains the
@@ -146,8 +148,6 @@ class DirectoryTreeAnnotationReader(AnnotationReader):
                 )
                 return []
             filepath = matches[0]
-        img = cv2.imread(filepath)
-        width, height = img.shape[1], img.shape[0]
         label_name = self.label_map[label_matches[0]]
         label = ScoredLabel(
             name=label_name,
@@ -157,7 +157,12 @@ class DirectoryTreeAnnotationReader(AnnotationReader):
         annotations.append(
             Annotation(
                 labels=[label],
-                shape=Rectangle(x=0, y=0, width=width, height=height),
+                shape=Rectangle(
+                    x=0,
+                    y=0,
+                    width=media_information.width,
+                    height=media_information.height,
+                ),
             )
         )
         return annotations
