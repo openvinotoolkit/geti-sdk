@@ -25,6 +25,7 @@ from geti_sdk.data_models.enums.task_type import GLOBAL_TASK_TYPES
 from geti_sdk.rest_converters import AnnotationRESTConverter
 from geti_sdk.utils import generate_segmentation_labels, get_dict_key_from_value
 
+from ...data_models.media import MediaInformation
 from .datumaro_dataset import DatumaroDataset
 
 
@@ -148,6 +149,7 @@ class DatumAnnotationReader(AnnotationReader):
         self,
         filename: str,
         label_name_to_id_mapping: dict,
+        media_information: MediaInformation,
         preserve_shape_for_global_labels: bool = False,
     ) -> List[SCAnnotation]:
         """
@@ -155,6 +157,8 @@ class DatumAnnotationReader(AnnotationReader):
 
         :param filename: name of the item to get the annotation data for.
         :param label_name_to_id_mapping: mapping of label name to label id.
+        :param media_information: MediaInformation object containing information
+            (e.g. width, height) about the media item to upload the annotation for
         :param preserve_shape_for_global_labels: False to convert shapes for global
             tasks to full rectangles (required for classification like tasks in
             Intel® Geti™ projects), True to preserve such shapes. This parameter

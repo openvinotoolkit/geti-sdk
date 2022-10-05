@@ -19,6 +19,7 @@ from typing import Dict, List, Optional, Union
 
 from geti_sdk.data_models.annotations import Annotation
 from geti_sdk.data_models.enums import TaskType
+from geti_sdk.data_models.media import MediaInformation
 
 
 class AnnotationReader:
@@ -44,6 +45,7 @@ class AnnotationReader:
         self,
         filename: str,
         label_name_to_id_mapping: dict,
+        media_information: MediaInformation,
         preserve_shape_for_global_labels: bool = False,
     ) -> List[Annotation]:
         """

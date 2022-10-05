@@ -22,10 +22,14 @@ from typing import List, Optional, Union
 from geti_sdk.data_models import Annotation, TaskType
 from geti_sdk.rest_converters import AnnotationRESTConverter
 
+from ..data_models.media import MediaInformation
+from ..rest_converters.annotation_rest_converter import (
+    NormalizedAnnotationRESTConverter,
+)
 from .base_annotation_reader import AnnotationReader
 
 
-class SCAnnotationReader(AnnotationReader):
+class GetiAnnotationReader(AnnotationReader):
     """
     AnnotationReader for loading annotation files in Intel® Geti™ format.
     """
@@ -36,11 +40,25 @@ class SCAnnotationReader(AnnotationReader):
         annotation_format: str = ".json",
         task_type: Optional[Union[TaskType, str]] = None,
         label_names_to_include: Optional[List[str]] = None,
+        use_legacy_annotation_format: bool = False,
     ):
+        """
+        :param base_data_folder: Path to the folder containing the annotations
+        :param annotation_format: Extension of the annotation files. Defaults to ".json"
+        :param task_type: Optional task type to prepare the annotations for. Can also
+            be specified later.
+        :param label_names_to_include: Names of the labels that should be included
+            when reading annotation data. This can be used to filter the annotations
+            for certain labels.
+        :param use_legacy_annotation_format: True to use the deprecated normalized
+            annotation format when reading the annotation files. Set this to True when
+            uploading a project created with alpha versions of Intel Geti. Defaults to
+            False
+        """
         if annotation_format != ".json":
             raise ValueError(
                 f"Annotation format {annotation_format} is currently not"
-                f" supported by the SCAnnotationReader"
+                f" supported by the GetiAnnotationReader"
             )
         super().__init__(
             base_data_folder=base_data_folder,
@@ -48,6 +66,7 @@ class SCAnnotationReader(AnnotationReader):
             task_type=task_type,
         )
         self._label_names_to_include = label_names_to_include
+        self._normalized_annotations = use_legacy_annotation_format
 
     def _get_label_names(self, all_labels: List[str]) -> List[str]:
         """
@@ -68,6 +87,7 @@ class SCAnnotationReader(AnnotationReader):
         self,
         filename: str,
         label_name_to_id_mapping: dict,
+        media_information: MediaInformation,
         preserve_shape_for_global_labels: bool = False,
     ) -> List[Annotation]:
         """
@@ -75,6 +95,8 @@ class SCAnnotationReader(AnnotationReader):
 
         :param filename: name of the item to get the annotation data for.
         :param label_name_to_id_mapping: mapping of label name to label id.
+        :param media_information: MediaInformation object containing information
+            (e.g. width, height) about the media item to upload the annotation for
         :param preserve_shape_for_global_labels: False to convert shapes for global
             tasks to full rectangles (required for classification like tasks in
             Intel® Geti™ projects), True to preserve such shapes. This parameter
@@ -109,7 +131,18 @@ class SCAnnotationReader(AnnotationReader):
 
         new_annotations = []
         for annotation in data["annotations"]:
-            annotation_object = AnnotationRESTConverter.annotation_from_dict(annotation)
+            if self._normalized_annotations:
+                annotation_object = (
+                    NormalizedAnnotationRESTConverter.normalized_annotation_from_dict(
+                        annotation,
+                        image_width=media_information.width,
+                        image_height=media_information.height,
+                    )
+                )
+            else:
+                annotation_object = AnnotationRESTConverter.annotation_from_dict(
+                    annotation
+                )
             for label in annotation_object.labels:
                 label.id = label_name_to_id_mapping[label.name]
             for label_dict in annotation["labels"]:

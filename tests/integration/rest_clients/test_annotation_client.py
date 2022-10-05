@@ -6,7 +6,7 @@ from typing import List
 
 import pytest
 
-from geti_sdk.annotation_readers import SCAnnotationReader
+from geti_sdk.annotation_readers import GetiAnnotationReader
 from geti_sdk.data_models import AnnotationScene, Project, Video, VideoFrame
 from geti_sdk.data_models.enums import ShapeType
 from geti_sdk.rest_converters import AnnotationRESTConverter
@@ -79,7 +79,7 @@ class TestAnnotationClient:
         video = video_client.upload_video(video=fxt_video_path_1_light_bulbs)
 
         # Upload annotations for video
-        annotation_reader = SCAnnotationReader(
+        annotation_reader = GetiAnnotationReader(
             base_data_folder=fxt_light_bulbs_annotation_path
         )
 
@@ -191,7 +191,7 @@ class TestAnnotationClient:
         video_2 = video_client.upload_video(video=fxt_video_path_2_light_bulbs)
 
         # Upload annotations for video
-        annotation_reader = SCAnnotationReader(
+        annotation_reader = GetiAnnotationReader(
             base_data_folder=fxt_light_bulbs_annotation_path
         )
 
@@ -253,7 +253,7 @@ class TestAnnotationClient:
         image_2 = image_client.upload_image(fxt_image_path_2_light_bulbs)
 
         # Upload annotations for image
-        annotation_reader = SCAnnotationReader(
+        annotation_reader = GetiAnnotationReader(
             base_data_folder=fxt_light_bulbs_annotation_path
         )
 
@@ -312,7 +312,7 @@ class TestAnnotationClient:
             video=video, path_to_folder=temp_dir
         )
         # Get annotations for test directory
-        annotation_reader_from_temp_dir = SCAnnotationReader(
+        annotation_reader_from_temp_dir = GetiAnnotationReader(
             base_data_folder=annotations_temp_dir
         )
 
