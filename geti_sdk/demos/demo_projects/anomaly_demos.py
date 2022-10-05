@@ -125,6 +125,10 @@ def ensure_trained_anomaly_project(
         project = create_anomaly_classification_demo_project(
             geti=geti, n_images=-1, project_name=project_name
         )
+        logging.info(
+            f"Project `{project_name}` of type `anomaly_classification` was created on "
+            f"host `{geti.session.config.host}`."
+        )
 
     ensure_project_is_trained(geti, project)
     return project

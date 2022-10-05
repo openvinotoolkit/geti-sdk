@@ -11,32 +11,32 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+import time
 from typing import Tuple
 
 import pytest
-from _pytest.fixtures import FixtureRequest
 
 from geti_sdk import Geti
-from geti_sdk.annotation_readers import DatumAnnotationReader
-from geti_sdk.demos import ensure_trained_anomaly_project, get_coco_dataset
-from geti_sdk.demos.data_helpers.anomaly_helpers import is_ad_dataset
+from geti_sdk.data_models import Project
+from geti_sdk.demos import (
+    ensure_trained_anomaly_project,
+    ensure_trained_example_project,
+    get_coco_dataset,
+)
+from geti_sdk.demos.data_helpers.anomaly_helpers import get_mvtec_dataset, is_ad_dataset
 from geti_sdk.demos.data_helpers.coco_helpers import (
     COCOSubset,
     directory_has_coco_subset,
 )
 from geti_sdk.demos.demo_projects import ensure_project_is_trained
-from geti_sdk.demos.demo_projects.coco_demos import (
-    DEMO_LABELS,
-    DEMO_PROJECT_NAME,
-    DEMO_PROJECT_TYPE,
-)
+from geti_sdk.demos.demo_projects.coco_demos import DEMO_PROJECT_NAME
 from geti_sdk.rest_clients import (
     AnnotationClient,
     ImageClient,
     PredictionClient,
     ProjectClient,
 )
-from tests.helpers import SdkTestMode, force_delete_project
+from tests.helpers import force_delete_project
 from tests.helpers.constants import PROJECT_PREFIX
 
 
@@ -47,6 +47,8 @@ class TestDemoProjects:
         containing the val2017 subset of the coco dataset.
         """
         assert directory_has_coco_subset(fxt_coco_dataset, COCOSubset.VAL2017)
+        # Test that getting the existing dataset results in the correct path
+        assert get_coco_dataset() == fxt_coco_dataset
 
     def test_get_mvtec_dataset(self, fxt_anomaly_dataset: str):
         """
@@ -54,10 +56,13 @@ class TestDemoProjects:
         containing the MVTec AD 'transistor' dataset
         """
         assert is_ad_dataset(fxt_anomaly_dataset)
+        # Test that getting the existing dataset results in the correct path
+        assert get_mvtec_dataset() == fxt_anomaly_dataset
 
     @pytest.mark.parametrize(
         "demo_project_fixture_name",
         [
+            "fxt_detection_demo_project",
             "fxt_classification_demo_project",
             "fxt_anomaly_classification_demo_project",
             "fxt_segmentation_demo_project",
@@ -65,6 +70,7 @@ class TestDemoProjects:
             "fxt_detection_to_segmentation_demo_project",
         ],
         ids=[
+            "Detection",
             "Classification",
             "Anomaly classification",
             "Segmentation",
@@ -102,47 +108,25 @@ class TestDemoProjects:
                 project, attribute_name
             )
 
-    @pytest.mark.vcr()
     def test_ensure_project_is_trained(
         self,
-        request: FixtureRequest,
         fxt_geti_no_vcr: Geti,
         fxt_project_client_no_vcr: ProjectClient,
-        fxt_test_mode: SdkTestMode,
+        fxt_detection_demo_project: Project,
     ):
         """
         Test that the `ensure_project_is_trained` function results in a trained project
         """
-        project_name = f"{PROJECT_PREFIX}_{DEMO_PROJECT_NAME}"
-        coco_path = get_coco_dataset()
-
-        # Create annotation reader
-        annotation_reader = DatumAnnotationReader(
-            base_data_folder=coco_path, annotation_format="coco"
-        )
-        annotation_reader.filter_dataset(labels=DEMO_LABELS, criterion="OR")
-
-        project = fxt_geti_no_vcr.create_single_task_project_from_dataset(
-            project_name=project_name,
-            project_type=DEMO_PROJECT_TYPE,
-            path_to_images=coco_path,
-            annotation_reader=annotation_reader,
-            labels=DEMO_LABELS,
-            number_of_images_to_upload=12,
-            number_of_images_to_annotate=12,
-            enable_auto_train=False,
-        )
-        request.addfinalizer(
-            lambda: force_delete_project(project_name, fxt_project_client_no_vcr)
-        )
         prediction_client = PredictionClient(
             session=fxt_geti_no_vcr.session,
             workspace_id=fxt_geti_no_vcr.workspace_id,
-            project=project,
+            project=fxt_detection_demo_project,
         )
         assert not prediction_client.ready_to_predict
 
-        ensure_project_is_trained(geti=fxt_geti_no_vcr, project=project)
+        ensure_project_is_trained(
+            geti=fxt_geti_no_vcr, project=fxt_detection_demo_project
+        )
 
         assert prediction_client.ready_to_predict
 
@@ -164,6 +148,62 @@ class TestDemoProjects:
         project = ensure_trained_anomaly_project(
             geti=fxt_geti_no_vcr, project_name=project_name
         )
+        prediction_client = PredictionClient(
+            session=fxt_geti_no_vcr.session,
+            workspace_id=fxt_geti_no_vcr.workspace_id,
+            project=project,
+        )
+        assert prediction_client.ready_to_predict
+
+    def test_ensure_trained_example_project(
+        self,
+        fxt_geti_no_vcr: Geti,
+        fxt_project_client_no_vcr: ProjectClient,
+        fxt_detection_demo_project: Project,
+    ):
+        """
+        Test the `ensure_trained_example_project` method. Three cases are tested:
+
+        1. Project already exists and is already trained -> project should be returned
+            quickly
+        2. Project does not exist yet, and does not match default example project name
+            -> ValueError should be raised
+        3. Project does not exist yet and matches default example project name
+            `DEMO_PROJECT_NAME` -> Project should be created and training should start.
+        """
+
+        # Case 1: Project exists and is already trained
+        t_start = time.time()
+        ensure_trained_example_project(
+            geti=fxt_geti_no_vcr, project_name=fxt_detection_demo_project.name
+        )
+        assert time.time() - t_start < 5
+
+        # Case 2: Project does not exist and name does not not match the default
+        # example project name. ValueError should be raised
+        non_existing_project_name = f"{PROJECT_PREFIX}_this_project_does_not_exist"
+        if (
+            fxt_project_client_no_vcr.get_project_by_name(non_existing_project_name)
+            is not None
+        ):
+            force_delete_project(
+                project_name=non_existing_project_name,
+                project_client=fxt_project_client_no_vcr,
+            )
+        assert non_existing_project_name not in [
+            project.name for project in fxt_project_client_no_vcr.get_all_projects()
+        ]
+        with pytest.raises(ValueError):
+            ensure_trained_example_project(
+                geti=fxt_geti_no_vcr, project_name=non_existing_project_name
+            )
+
+        # Case 3: Project does not exist and name matches default example project name.
+        # Project will be created.
+        project = ensure_trained_example_project(
+            geti=fxt_geti_no_vcr, project_name=DEMO_PROJECT_NAME
+        )
+
         prediction_client = PredictionClient(
             session=fxt_geti_no_vcr.session,
             workspace_id=fxt_geti_no_vcr.workspace_id,

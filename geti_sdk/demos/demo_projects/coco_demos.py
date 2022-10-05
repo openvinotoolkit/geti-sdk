@@ -336,7 +336,9 @@ def create_detection_to_classification_demo_project(
     )
 
 
-def ensure_trained_example_project(geti: Geti, project_name: str) -> Project:
+def ensure_trained_example_project(
+    geti: Geti, project_name: str = DEMO_PROJECT_NAME
+) -> Project:
     """
     Ensure that the project specified by `project_name` exists on the GETi
     instance addressed by `geti`.

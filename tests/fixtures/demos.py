@@ -21,6 +21,7 @@ from geti_sdk.data_models import Project
 from geti_sdk.demos import (
     create_anomaly_classification_demo_project,
     create_classification_demo_project,
+    create_detection_demo_project,
     create_detection_to_classification_demo_project,
     create_detection_to_segmentation_demo_project,
     create_segmentation_demo_project,
@@ -39,10 +40,10 @@ def fxt_demo_images_and_annotations() -> Tuple[int, int]:
 
     :return: Tuple containing (n_images, n_annotations)
     """
-    yield 10, 10
+    yield 12, 12
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="class")
 def fxt_anomaly_classification_demo_project(
     fxt_geti_no_vcr: Geti,
     fxt_project_client_no_vcr: ProjectClient,
@@ -65,7 +66,7 @@ def fxt_anomaly_classification_demo_project(
     )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="class")
 def fxt_segmentation_demo_project(
     fxt_geti_no_vcr: Geti,
     fxt_project_client_no_vcr: ProjectClient,
@@ -88,7 +89,7 @@ def fxt_segmentation_demo_project(
     )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="class")
 def fxt_detection_to_classification_demo_project(
     fxt_geti_no_vcr: Geti,
     fxt_project_client_no_vcr: ProjectClient,
@@ -111,7 +112,7 @@ def fxt_detection_to_classification_demo_project(
     )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="class")
 def fxt_detection_to_segmentation_demo_project(
     fxt_geti_no_vcr: Geti,
     fxt_project_client_no_vcr: ProjectClient,
@@ -134,7 +135,7 @@ def fxt_detection_to_segmentation_demo_project(
     )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="class")
 def fxt_classification_demo_project(
     fxt_geti_no_vcr: Geti,
     fxt_project_client_no_vcr: ProjectClient,
@@ -157,21 +158,48 @@ def fxt_classification_demo_project(
     )
 
 
+@pytest.fixture(scope="class")
+def fxt_detection_demo_project(
+    fxt_geti_no_vcr: Geti,
+    fxt_project_client_no_vcr: ProjectClient,
+    fxt_demo_images_and_annotations: Tuple[int, int],
+) -> Project:
+    """
+    Create an annotated detection project on the Geti instance, and
+    return the Project object representing it.
+    """
+    project_name = f"{PROJECT_PREFIX}_detection_demo"
+    project = create_detection_demo_project(
+        geti=fxt_geti_no_vcr,
+        n_images=fxt_demo_images_and_annotations[0],
+        n_annotations=fxt_demo_images_and_annotations[1],
+        project_name=project_name,
+    )
+    yield project
+    force_delete_project(
+        project_name=project_name, project_client=fxt_project_client_no_vcr
+    )
+
+
 @pytest.fixture(scope="session")
-def fxt_coco_dataset():
+def fxt_coco_dataset(fxt_github_actions_environment: bool):
     """
     Return the path to the coco dataset (subset val2017)
     """
     coco_path = get_coco_dataset()
     yield coco_path
-    shutil.rmtree(coco_path)
+    # If running in CI, clean up the dataset after the test session
+    if fxt_github_actions_environment:
+        shutil.rmtree(coco_path)
 
 
 @pytest.fixture(scope="session")
-def fxt_anomaly_dataset():
+def fxt_anomaly_dataset(fxt_github_actions_environment: bool):
     """
     Return the path to the MVTec AD 'transistor' dataset
     """
     anomaly_path = get_mvtec_dataset()
     yield anomaly_path
-    shutil.rmtree(anomaly_path)
+    # If running in CI, clean up the dataset after the test session
+    if fxt_github_actions_environment:
+        shutil.rmtree(anomaly_path)
