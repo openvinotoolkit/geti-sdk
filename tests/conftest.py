@@ -122,6 +122,15 @@ def fxt_learning_parameter_settings() -> str:
     yield NIGHTLY_TEST_LEARNING_PARAMETER_SETTINGS
 
 
+@pytest.fixture(scope="session")
+def fxt_github_actions_environment() -> bool:
+    """
+    Return True if the tests are running in a GitHub actions environment, False
+    otherwise
+    """
+    yield os.environ.get("GITHUB_ACTIONS", False)
+
+
 # ----------------------------------------------
 # ---------------- Pytest hooks ----------------
 # ----------------------------------------------
