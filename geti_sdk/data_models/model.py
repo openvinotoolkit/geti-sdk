@@ -191,6 +191,7 @@ class OptimizedModel(BaseModel):
     optimization_type: str = attr.ib(
         kw_only=True, converter=str_to_enum_converter(OptimizationType)
     )
+    version: Optional[int] = attr.ib(kw_only=True, default=None)
 
 
 @attr.s(auto_attribs=True)
