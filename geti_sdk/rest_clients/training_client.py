@@ -27,7 +27,6 @@ from geti_sdk.data_models.containers import AlgorithmList
 from geti_sdk.data_models.enums import JobState
 from geti_sdk.data_models.project import Dataset
 from geti_sdk.http_session import GetiSession
-from geti_sdk.platform_versions import SC11_VERSION, SC12_VERSION
 from geti_sdk.rest_converters import (
     ConfigurationRESTConverter,
     JobRESTConverter,
@@ -76,7 +75,7 @@ class TrainingClient:
             url=f"workspaces/{self.workspace_id}/jobs", method="GET"
         )
         job_list: List[Job] = []
-        if self.session.version == SC11_VERSION:
+        if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
             response_list_key = "items"
         else:
             response_list_key = "jobs"
@@ -85,9 +84,11 @@ class TrainingClient:
             job.workspace_id = self.workspace_id
             job_list.append(job)
 
-        if project_only and self.session.version == SC11_VERSION:
+        if project_only and (
+            self.session.version.is_sc_mvp or self.session.version.is_sc_1_1
+        ):
             return [job for job in job_list if job.project_id == self.project.id]
-        elif project_only and self.session.version >= SC12_VERSION:
+        elif project_only and self.session.version.is_geti:
             return [
                 job for job in job_list if job.metadata.project.id == self.project.id
             ]
@@ -169,7 +170,7 @@ class TrainingClient:
                 }
             )
 
-        if self.session.version == SC11_VERSION:
+        if self.session.version.is_sc_1_1 or self.session.version.is_sc_mvp:
             data = [request_data]
         else:
             data = {"training_parameters": [request_data]}

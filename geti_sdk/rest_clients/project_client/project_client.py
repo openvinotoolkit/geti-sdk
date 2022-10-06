@@ -21,7 +21,6 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from geti_sdk.data_models import Project, Task, TaskType
 from geti_sdk.data_models.utils import remove_null_fields
 from geti_sdk.http_session import GetiRequestException, GetiSession
-from geti_sdk.platform_versions import SC11_VERSION
 from geti_sdk.rest_converters import ProjectRESTConverter
 from geti_sdk.utils.project_helpers import get_task_types_by_project_type
 
@@ -72,7 +71,7 @@ class ProjectClient:
             url=f"{self.base_url}projects",
             method="GET",
         )
-        if self.session.version == SC11_VERSION:
+        if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
             project_key = "items"
         else:
             project_key = "projects"

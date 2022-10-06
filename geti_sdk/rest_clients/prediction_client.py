@@ -30,7 +30,6 @@ from geti_sdk.data_models import (
 from geti_sdk.data_models.containers import MediaList
 from geti_sdk.data_models.enums import PredictionMode
 from geti_sdk.http_session import GetiRequestException, GetiSession
-from geti_sdk.platform_versions import SC11_VERSION
 from geti_sdk.rest_converters.prediction_rest_converter import (
     NormalizedPredictionRESTConverter,
     PredictionRESTConverter,
@@ -65,7 +64,7 @@ class PredictionClient:
         )
         model_info_array: List[Dict[str, Any]]
 
-        if self.session.version == SC11_VERSION:
+        if self.session.version.is_sc_1_1 or self.session.version.is_sc_mvp:
             if isinstance(response, dict):
                 model_info_array = response.get("items", [])
             elif isinstance(response, list):
@@ -165,7 +164,7 @@ class PredictionClient:
                     method="GET",
                 )
                 if isinstance(media_item, (Image, VideoFrame)):
-                    if self.session.version == SC11_VERSION:
+                    if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
                         result = NormalizedPredictionRESTConverter.normalized_prediction_from_dict(
                             prediction=response,
                             image_height=media_item.media_information.height,
@@ -175,7 +174,7 @@ class PredictionClient:
                         result = PredictionRESTConverter.from_dict(response)
                     result.resolve_labels_for_result_media(labels=self._labels)
                 elif isinstance(media_item, Video):
-                    if self.session.version == SC11_VERSION:
+                    if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
                         result = [
                             NormalizedPredictionRESTConverter.normalized_prediction_from_dict(
                                 prediction=prediction,
