@@ -1,3 +1,16 @@
+# v0.2.3 Intel® Geti™ SDK (06-10-2022)
+## What's Changed
+* Remove VCR from nightly test for demos by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/54
+* Improve nightly tests for `demos` module by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/55
+* Update sc_annotation_reader by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/56
+* Add version to optimized model by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/57
+* Update SDK platform version parsing mechanism by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/58
+* Add nightly tests against Geti-MVP by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/59
+* Handle failed training jobs in notebook 007 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/60
+* Update example script to store prediction results to file by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/61
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v0.2.2...v0.2.3
+
 # v0.2.2 Intel® Geti™ SDK (04-10-2022)
 ## What's Changed
 * Add coverage report to pre-merge and nightly test artifacts by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/47
