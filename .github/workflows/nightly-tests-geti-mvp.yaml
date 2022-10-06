@@ -1,0 +1,17 @@
+name: Nightly tests [Geti-MVP]
+
+on:
+  workflow_dispatch: # run on request (no need for PR)
+
+  schedule: # Execute tests at midnight every day
+    - cron: "0 0 * * *"
+
+jobs:
+  build:
+    uses: ./.github/workflows/nightly-tests.yaml
+    with:
+      learning_parameter_settings: default
+    secrets:
+      GETI_HOST: ${{ secrets.GETI_MVP_HOST }}
+      GETI_USERNAME: ${{ secrets.GETI_USERNAME }}
+      GETI_PASSWORD: ${{ secrets.GETI_PASSWORD }}
