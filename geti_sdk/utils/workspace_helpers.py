@@ -13,7 +13,6 @@
 # and limitations under the License.
 
 from geti_sdk.http_session import GetiSession
-from geti_sdk.platform_versions import SC11_VERSION
 
 
 def get_default_workspace_id(rest_session: GetiSession) -> str:
@@ -27,7 +26,7 @@ def get_default_workspace_id(rest_session: GetiSession) -> str:
     if isinstance(workspaces, list):
         workspace_list = workspaces
     elif isinstance(workspaces, dict):
-        if rest_session.version == SC11_VERSION:
+        if rest_session.version.is_sc_mvp or rest_session.version.is_sc_1_1:
             workspace_list = workspaces["items"]
         else:
             workspace_list = workspaces["workspaces"]

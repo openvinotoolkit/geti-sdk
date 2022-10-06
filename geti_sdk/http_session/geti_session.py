@@ -20,11 +20,12 @@ from typing import Any, Dict, Optional, Union
 import requests
 import simplejson
 import urllib3
-from packaging import version
 from requests import Response
 from requests.exceptions import RequestException
 from requests.structures import CaseInsensitiveDict
 from urllib3.exceptions import InsecureRequestWarning
+
+from geti_sdk.platform_versions import GetiVersion
 
 from .exception import GetiRequestException
 from .server_config import LEGACY_API_VERSION, ServerCredentialConfig, ServerTokenConfig
@@ -93,14 +94,17 @@ class GetiSession(requests.Session):
         self._product_info = self._get_product_info_and_set_api_version()
 
     @property
-    def version(self) -> version.Version:
+    def version(self) -> GetiVersion:
         """
         Return the version of the Intel® Geti™ platform that is running on the server.
 
         :return: Version object holding the Intel® Geti™ version number
         """
-        version_string = self._product_info.get("product-version", "1.0.0")
-        return version.parse(version_string)
+        if "build-version" in self._product_info.keys():
+            version_string = self._product_info.get("build-version")
+        else:
+            version_string = self._product_info.get("product-version")
+        return GetiVersion(version_string)
 
     def _acquire_access_token(self) -> str:
         """

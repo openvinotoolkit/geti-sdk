@@ -15,7 +15,6 @@ import pytest
 
 from geti_sdk.http_session import GetiSession
 from geti_sdk.http_session.geti_session import INITIAL_HEADERS
-from geti_sdk.platform_versions import SC11_VERSION, SC12_VERSION
 
 
 class TestGetiSession:
@@ -30,11 +29,12 @@ class TestGetiSession:
         Test that the 'version' attribute of the session is assigned a valid product
         version
         """
-        known_versions = [SC11_VERSION, SC12_VERSION]
-        version_matches = [
-            fxt_geti_session.version >= version for version in known_versions
+        version_tests = [
+            fxt_geti_session.version.is_sc_mvp,
+            fxt_geti_session.version.is_sc_1_1,
+            fxt_geti_session.version.is_geti and fxt_geti_session.version.is_geti_1_0,
         ]
-        assert sum(version_matches) >= 1
+        assert sum(version_tests) == 1
 
     @pytest.mark.vcr()
     def test_logout(self, fxt_geti_session: GetiSession):

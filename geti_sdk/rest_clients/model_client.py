@@ -28,7 +28,6 @@ from geti_sdk.data_models import (
 )
 from geti_sdk.data_models.enums import JobState, JobType
 from geti_sdk.http_session import GetiSession
-from geti_sdk.platform_versions import SC11_VERSION
 from geti_sdk.rest_converters import ModelRESTConverter
 from geti_sdk.utils import get_supported_algorithms
 
@@ -56,7 +55,7 @@ class ModelClient:
         :return: List of model groups in the project
         """
         response = self.session.get_rest_response(url=self.base_url, method="GET")
-        if self.session.version == SC11_VERSION:
+        if self.session.version.is_sc_1_1 or self.session.version.is_sc_mvp:
             response_array = response["items"]
         else:
             response_array = response["model_groups"]
@@ -301,7 +300,7 @@ class ModelClient:
         :return: Model produced by the job
         """
         job.update(self.session)
-        if self.session.version == SC11_VERSION:
+        if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
             job_pid = job.project_id
         else:
             job_pid = job.metadata.project.id

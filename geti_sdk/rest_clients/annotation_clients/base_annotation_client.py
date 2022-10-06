@@ -30,7 +30,6 @@ from geti_sdk.data_models import (
 from geti_sdk.data_models.containers.media_list import MediaList
 from geti_sdk.data_models.media import MediaInformation
 from geti_sdk.http_session import GetiRequestException, GetiSession
-from geti_sdk.platform_versions import SC11_VERSION
 from geti_sdk.rest_converters import AnnotationRESTConverter
 from geti_sdk.rest_converters.annotation_rest_converter import (
     NormalizedAnnotationRESTConverter,
@@ -176,7 +175,7 @@ class BaseAnnotationClient:
                 )
         if scene_to_upload.annotations:
             scene_to_upload.prepare_for_post()
-            if self.session.version == SC11_VERSION:
+            if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
                 rest_data = NormalizedAnnotationRESTConverter.to_normalized_dict(
                     scene_to_upload,
                     deidentify=False,
@@ -205,7 +204,7 @@ class BaseAnnotationClient:
             annotation applies
         :return: AnnotationScene object corresponding to the data in the response_dict
         """
-        if self.session.version == SC11_VERSION:
+        if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
             annotation_scene = (
                 NormalizedAnnotationRESTConverter.normalized_annotation_scene_from_dict(
                     response_dict,
@@ -244,7 +243,7 @@ class BaseAnnotationClient:
         annotation_scene.extend(new_annotation_scene.annotations)
 
         if annotation_scene.has_data:
-            if self.session.version == SC11_VERSION:
+            if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
                 rest_data = NormalizedAnnotationRESTConverter.to_normalized_dict(
                     annotation_scene,
                     deidentify=False,
