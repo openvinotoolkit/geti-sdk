@@ -83,7 +83,8 @@ def show_image_with_annotation_scene(
 def show_video_frames_with_annotation_scenes(
     video_frames: MediaList[VideoFrame],
     annotation_scenes: List[Union[AnnotationScene, Prediction]],
-    wait_time: float = 3,
+    wait_time: float = 1,
+    filepath: Optional[str] = None,
 ):
     """
     Display a list of VideoFrames, with their annotations or predictions overlayed on
@@ -93,8 +94,25 @@ def show_video_frames_with_annotation_scenes(
     :param annotation_scenes: List of AnnotationsScenes or Predictions to overlay on
         the frames
     :param wait_time: Time to show each frame, in seconds
+    :param filepath: Optional filepath to save the video with annotation overlay to.
+        If left as None, the video frames will be shown in a new opencv window
     """
     image_name = video_frames[0].name.split("_frame_")[0]
+
+    first_frame = video_frames[0]
+
+    out_writer: Optional[cv2.VideoWriter] = None
+    if filepath is not None:
+        out_writer = cv2.VideoWriter(
+            filename=f"{filepath}",
+            fourcc=cv2.VideoWriter_fourcc("M", "J", "P", "G"),
+            fps=1 / wait_time,
+            frameSize=(
+                first_frame.media_information.width,
+                first_frame.media_information.height,
+            ),
+        )
+
     for frame, annotation_scene in zip(video_frames, annotation_scenes):
         if type(annotation_scene) == AnnotationScene:
             name = "Annotation"
@@ -111,6 +129,13 @@ def show_video_frames_with_annotation_scenes(
         result[np.sum(mask, axis=-1) > 0] = 0
         result += mask[..., ::-1]
 
-        cv2.imshow(f"{name} for {image_name}", result)
-        cv2.waitKey(int(wait_time * 1000))
+        if out_writer is None:
+            cv2.imshow(f"{name} for {image_name}", result)
+            cv2.waitKey(int(wait_time * 1000))
+        else:
+            out_writer.write(result)
+
+    if out_writer is None:
         cv2.destroyAllWindows()
+    else:
+        out_writer.release()

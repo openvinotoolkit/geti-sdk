@@ -3,7 +3,11 @@ import numpy as np
 
 from geti_sdk import Geti
 from geti_sdk.demos import EXAMPLE_IMAGE_PATH, ensure_trained_example_project
-from geti_sdk.utils import get_server_details_from_env
+from geti_sdk.utils import (
+    get_server_details_from_env,
+    show_image_with_annotation_scene,
+    show_video_frames_with_annotation_scenes,
+)
 
 
 def rotate_image(image: np.ndarray, angle: float) -> np.ndarray:
@@ -60,17 +64,23 @@ if __name__ == "__main__":
     ensure_trained_example_project(geti=geti, project_name=PROJECT_NAME)
 
     print(
-        "Uploading and predicting example image now, an image window containing the "
-        "image and prediction will pop up."
+        "Uploading and predicting example image now... The prediction results will be "
+        "overlayed on the image and saved to a file in your current working directory."
     )
 
     # We can upload and predict the resulting array directly:
     sc_image, image_prediction = geti.upload_and_predict_image(
         project_name=PROJECT_NAME,
         image=rotated_image,
-        visualise_output=True,
+        visualise_output=False,
         delete_after_prediction=DELETE_AFTER_PREDICTION,
     )
+    filepath = "example_prediction.jpg"
+    # Save the result to a file
+    show_image_with_annotation_scene(
+        image=sc_image, annotation_scene=image_prediction, filepath=filepath
+    )
+    print(f"Prediction for the example image was saved to file: '{filepath}'")
 
     # We can do the same with videos. For example, to investigate the effect image
     # rotations have on our model predictions, we can create a video with rotated
@@ -78,15 +88,29 @@ if __name__ == "__main__":
     # our model holds up under image rotations
 
     # Create list of rotated images, these will be the frames of the video
+    print(
+        "Creating a video of rotated images, and requesting predictions for all "
+        "frames... Output predictions will be written to file upon completion."
+    )
     rotation_video = []
-    for angle in [0, 90, 180, 270, 360]:
+    for angle in [0, 45, 90, 135, 180, 225, 270, 315, 360]:
         rotation_video.append(rotate_image(image=numpy_image, angle=angle))
 
+    print("Video generated, retrieving predictions...")
     # Create video, upload and predict from the list of frames
     sc_video, video_frames, frame_predictions = geti.upload_and_predict_video(
         project_name=PROJECT_NAME,
         video=rotation_video,
         frame_stride=1,
-        visualise_output=True,
+        visualise_output=False,
         delete_after_prediction=DELETE_AFTER_PREDICTION,
     )
+
+    video_filepath = "example_video_prediction.avi"
+    # Again, we save the result to a file
+    show_video_frames_with_annotation_scenes(
+        video_frames=video_frames,
+        annotation_scenes=frame_predictions,
+        filepath=video_filepath,
+    )
+    print(f"Predictions for the video were saved to file: '{video_filepath}'")
