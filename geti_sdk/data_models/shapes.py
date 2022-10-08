@@ -228,6 +228,26 @@ class Rectangle(Shape):
         """
         return self.width * self.height
 
+    @property
+    def x_max(self) -> int:
+        """
+        Return the value of the maximal x-coordinate that the Rectangle instance
+        touches.
+
+        :return: Maximum x-coordinate for the rectangle
+        """
+        return self.x + self.width
+
+    @property
+    def y_max(self) -> int:
+        """
+        Return the value of the maximal y-coordinate that the Rectangle instance
+        touches.
+
+        :return: Maximum y-coordinate for the rectangle
+        """
+        return self.y + self.height
+
 
 @attr.s(auto_attribs=True)
 class Ellipse(Shape):
@@ -323,6 +343,26 @@ class Ellipse(Shape):
         """
         return self.width * self.height * math.pi
 
+    @property
+    def x_max(self) -> int:
+        """
+        Return the value of the maximal x-coordinate that the Ellipse instance
+        touches.
+
+        :return: Maximum x-coordinate for the ellipse
+        """
+        return self.x + self.width
+
+    @property
+    def y_max(self) -> int:
+        """
+        Return the value of the maximal y-coordinate that the Ellipse instance
+        touches.
+
+        :return: Maximum y-coordinate for the ellipse
+        """
+        return self.y + self.height
+
 
 @attr.s(auto_attribs=True)
 class Point:
@@ -359,6 +399,8 @@ class Polygon(Shape):
         Initialize private attributes.
         """
         self._contour: Optional[np.ndarray] = None
+        self._x_max: Optional[int] = None
+        self._y_max: Optional[int] = None
 
     def points_as_contour(self) -> np.ndarray:
         """
@@ -457,6 +499,35 @@ class Polygon(Shape):
         :return: area of the polygon
         """
         return cv2.contourArea(self.points_as_contour())
+
+    def _calculate_xy_max(self):
+        """
+        Calculate the maximum x and y coordinates that the Polyon touches, in pixels.
+        """
+        coord_maxes = self.points_as_contour().max(axis=0)
+        self._x_max, self._y_max = coord_maxes[0], coord_maxes[1]
+
+    @property
+    def x_max(self) -> int:
+        """
+        Return the maximum x-coordinate of the Polygon, in pixels
+
+        :return: largest x-coordinate that the polygon touches
+        """
+        if self._x_max is None:
+            self._calculate_xy_max()
+        return self._x_max
+
+    @property
+    def y_max(self) -> int:
+        """
+        Return the maximum y-coordinate of the Polygon, in pixels
+
+        :return: largest y-coordinate that the polygon touches
+        """
+        if self._y_max is None:
+            self._calculate_xy_max()
+        return self._y_max
 
     def fit_rotated_rectangle(self) -> "RotatedRectangle":
         """

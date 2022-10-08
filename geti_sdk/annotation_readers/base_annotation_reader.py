@@ -40,6 +40,8 @@ class AnnotationReader:
         self.annotation_format = annotation_format
         self.task_type = task_type
 
+        self._filepaths: Optional[List[str]] = None
+
     @abstractmethod
     def get_data(
         self,
@@ -60,10 +62,15 @@ class AnnotationReader:
         :return: List of filenames (excluding extension) for all annotation files in
             the data folder
         """
-        filepaths = glob(os.path.join(self.base_folder, f"*{self.annotation_format}"))
-        return [
-            os.path.splitext(os.path.basename(filepath))[0] for filepath in filepaths
-        ]
+        if self._filepaths is None:
+            filepaths = glob(
+                os.path.join(self.base_folder, f"*{self.annotation_format}")
+            )
+            self._filepaths = [
+                os.path.splitext(os.path.basename(filepath))[0]
+                for filepath in filepaths
+            ]
+        return self._filepaths
 
     @abstractmethod
     def get_all_label_names(self) -> List[str]:

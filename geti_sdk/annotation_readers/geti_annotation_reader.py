@@ -17,15 +17,16 @@ import json
 import logging
 import os
 import warnings
-from typing import List, Optional, Union
+from random import sample
+from typing import Any, Dict, List, Optional, Union
 
 from geti_sdk.data_models import Annotation, TaskType
+from geti_sdk.data_models.media import MediaInformation
 from geti_sdk.rest_converters import AnnotationRESTConverter
-
-from ..data_models.media import MediaInformation
-from ..rest_converters.annotation_rest_converter import (
+from geti_sdk.rest_converters.annotation_rest_converter import (
     NormalizedAnnotationRESTConverter,
 )
+
 from .base_annotation_reader import AnnotationReader
 
 
@@ -40,7 +41,6 @@ class GetiAnnotationReader(AnnotationReader):
         annotation_format: str = ".json",
         task_type: Optional[Union[TaskType, str]] = None,
         label_names_to_include: Optional[List[str]] = None,
-        use_legacy_annotation_format: bool = False,
     ):
         """
         :param base_data_folder: Path to the folder containing the annotations
@@ -50,10 +50,6 @@ class GetiAnnotationReader(AnnotationReader):
         :param label_names_to_include: Names of the labels that should be included
             when reading annotation data. This can be used to filter the annotations
             for certain labels.
-        :param use_legacy_annotation_format: True to use the deprecated normalized
-            annotation format when reading the annotation files. Set this to True when
-            uploading a project created with alpha versions of Intel Geti. Defaults to
-            False
         """
         if annotation_format != ".json":
             raise ValueError(
@@ -66,7 +62,7 @@ class GetiAnnotationReader(AnnotationReader):
             task_type=task_type,
         )
         self._label_names_to_include = label_names_to_include
-        self._normalized_annotations = use_legacy_annotation_format
+        self._normalized_annotations = self._has_normalized_annotations()
 
     def _get_label_names(self, all_labels: List[str]) -> List[str]:
         """
@@ -82,6 +78,34 @@ class GetiAnnotationReader(AnnotationReader):
                 label for label in all_labels if label in self._label_names_to_include
             ]
         return labels
+
+    def _get_raw_annotation_data(self, filename: str) -> Dict[str, Any]:
+        """
+        Read the annotation data from the file at `filename`
+
+        :param filename: Name of the annotation file to read
+        :return: Dictionary holding the annotation data
+        """
+        filepath = glob.glob(
+            os.path.join(self.base_folder, f"{filename}{self.annotation_format}")
+        )
+        if len(filepath) > 1:
+            warnings.warn(
+                f"Multiple matching annotation files found for image with "
+                f"name {filename}. Skipping this image..."
+            )
+            data = {"annotations": []}
+        elif len(filepath) == 0:
+            logging.info(
+                f"No matching annotation file found for image with name {filename}."
+                f" Skipping this image..."
+            )
+            data = {"annotations": []}
+        else:
+            filepath = filepath[0]
+            with open(filepath, "r") as f:
+                data = json.load(f)
+        return data
 
     def get_data(
         self,
@@ -109,25 +133,7 @@ class GetiAnnotationReader(AnnotationReader):
         :return: List of Annotation objects containing all annotations for the given
             dataset item.
         """
-        filepath = glob.glob(
-            os.path.join(self.base_folder, f"{filename}{self.annotation_format}")
-        )
-        if len(filepath) > 1:
-            warnings.warn(
-                f"Multiple matching annotation files found for image with "
-                f"name {filename}. Skipping this image..."
-            )
-            return []
-        elif len(filepath) == 0:
-            logging.info(
-                f"No matching annotation file found for image with name {filename}."
-                f" Skipping this image..."
-            )
-            return []
-        else:
-            filepath = filepath[0]
-        with open(filepath, "r") as f:
-            data = json.load(f)
+        data = self._get_raw_annotation_data(filename=filename)
 
         new_annotations = []
         for annotation in data["annotations"]:
@@ -187,3 +193,49 @@ class GetiAnnotationReader(AnnotationReader):
                     if label not in unique_label_names:
                         unique_label_names.append(label)
         return unique_label_names
+
+    def _has_normalized_annotations(self) -> bool:
+        """
+        Check if the annotation files belonging to this annotation reader are normalized
+        """
+        filenames = self.get_data_filenames()
+        n_sample = min(len(filenames), 50)
+        if n_sample == 50:
+            list_to_check = sample(filenames, n_sample)
+        else:
+            list_to_check = filenames
+
+        NORMALIZED_KEY = "normalized"
+        PIXEL_KEY = "pixel"
+
+        annotation_stats = {NORMALIZED_KEY: 0, PIXEL_KEY: 0}
+        for filename in list_to_check:
+            data = self._get_raw_annotation_data(filename=filename)
+            for annotation_dict in data["annotations"]:
+                annotation_object = AnnotationRESTConverter.annotation_from_dict(
+                    annotation_dict
+                )
+                shape = annotation_object.shape
+                x_max, y_max = shape.x_max, shape.y_max
+                if x_max <= 1 and y_max <= 1:
+                    annotation_stats[NORMALIZED_KEY] += 1
+                else:
+                    annotation_stats[PIXEL_KEY] += 1
+
+        if annotation_stats[NORMALIZED_KEY] == 0:
+            return False
+        elif annotation_stats[PIXEL_KEY] == 0:
+            logging.info(
+                "Legacy annotation format detected. The annotations you are trying to "
+                "upload were most likely downloaded from a pre-production version of "
+                "the Intel Geti software. They will be converted to the latest "
+                "annotation format upon upload to the Intel Geti platform. "
+            )
+            return True
+        else:
+            raise ValueError(
+                f"The annotation directory '{self.base_folder}' contains both "
+                f"normalized ({annotation_stats[NORMALIZED_KEY]} shapes) and "
+                f"non-normalized ({annotation_stats[PIXEL_KEY]} shapes) objects. "
+                f"Unable to parse annotation data."
+            )
