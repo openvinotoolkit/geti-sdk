@@ -322,7 +322,6 @@ class Geti:
         target_folder: str,
         project_name: Optional[str] = None,
         enable_auto_train: bool = True,
-        normalized_annotation_files: bool = False,
     ) -> Project:
         """
         Upload a previously downloaded Intel® Geti™ project to the server. This method
@@ -354,8 +353,6 @@ class Geti:
             after all annotations have been uploaded. This will directly trigger a
             training round if the conditions for auto-training are met. False to leave
             auto-training disabled for all tasks. Defaults to True.
-        :param normalized_annotation_files: Set this to True when uploading a project
-            that was downloaded from earlier (alpha) versions of Intel Geti.
         :return: Project object, holding information obtained from the cluster
             regarding the uploaded project
         """
@@ -398,7 +395,6 @@ class Geti:
         annotation_reader = GetiAnnotationReader(
             base_data_folder=os.path.join(target_folder, "annotations"),
             task_type=None,
-            use_legacy_annotation_format=normalized_annotation_files,
         )
         annotation_client = AnnotationClient[GetiAnnotationReader](
             session=self.session,
