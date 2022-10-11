@@ -121,6 +121,7 @@ class ProjectStatus:
     status: StatusSummary
     tasks: List[TaskStatus]
     project_performance: Optional[Performance] = None
+    project_score: Optional[float] = None  # Deprecated in Geti 1.0, to be removed
     n_running_jobs: Optional[int] = None
     n_running_jobs_project: Optional[int] = None
 
