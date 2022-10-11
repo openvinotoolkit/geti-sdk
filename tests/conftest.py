@@ -53,6 +53,13 @@ TOKEN = os.environ.get("GETI_TOKEN", None)
 # When both a TOKEN and username + password are provided, the test suite will use the
 # TOKEN to execute the tests
 
+HTTP_PROXY = os.environ.get("GETI_HTTP_PROXY", None)
+HTTPS_PROXY = os.environ.get("GETI_HTTPS_PROXY", None)
+# HTTP_PROXY and HTTPS_PROXY are urls to the proxy servers that should be used to
+# connect to the Geti instance.
+# NOTE: PROXIES can only be used in ONLINE mode, they cannot be used in RECORD mode
+# (will raise an error) and have no effect in OFFLINE mode.
+
 CLEAR_EXISTING_TEST_PROJECTS = os.environ.get(
     "CLEAR_EXISTING_TEST_PROJECTS", "0"
 ).lower() in ["true", "1"]
@@ -80,8 +87,19 @@ def fxt_server_config() -> Union[ServerTokenConfig, ServerCredentialConfig]:
     """
     if TEST_MODE == SdkTestMode.OFFLINE:
         proxies = {"https": "", "http": ""}
+    elif TEST_MODE == SdkTestMode.ONLINE:
+        proxies = {"https": HTTPS_PROXY, "http": HTTP_PROXY}
     else:
         proxies = None
+        if TEST_MODE == SdkTestMode.RECORD and (
+            HTTPS_PROXY is not None or HTTP_PROXY is not None
+        ):
+            raise ValueError(
+                "Unable to use proxy servers in RECORD mode! Please clear the "
+                "GETI_HTTPS_PROXY and GETI_HTTP_PROXY environment variables before "
+                "running the test suite in RECORD mode."
+            )
+
     if TOKEN is None:
         test_config = ServerCredentialConfig(
             host=HOST, username=USERNAME, password=PASSWORD, proxies=proxies
