@@ -19,7 +19,9 @@ class GetiVersion:
     Version identifier of the Intel Geti platform
     """
 
-    _FIRST_GETI_HASH = "20220129184214"
+    _GETI10_TIMETAG = "20220910154208"
+    _SC11_TIMETAG = "20220624125113"
+    _SCMVP_TIMETAG = "20220129184214"
 
     def __init__(self, version_string: str) -> None:
         """
@@ -31,19 +33,19 @@ class GetiVersion:
         version_parts = version_string.split("-")
         if len(version_parts) == 3:
             base_version = Version(version_parts[0])
-            tag = version_parts[1]
-            version_hash = version_parts[2]
+            build_tag = version_parts[1]
+            time_tag = version_parts[2]
         elif len(version_parts) == 4:
             base_version = Version(version_parts[0] + "-" + version_parts[1])
-            tag = version_parts[2]
-            version_hash = version_parts[3]
+            build_tag = version_parts[2]
+            time_tag = version_parts[3]
         else:
             raise InvalidVersion(
                 f"Unable to parse full platform version. Received '{version_string}'"
             )
         self.version = base_version
-        self.tag = tag
-        self.hash = version_hash
+        self.build_tag = build_tag
+        self.time_tag = time_tag
 
     def __gt__(self, other):
         """
@@ -58,7 +60,15 @@ class GetiVersion:
             raise TypeError(
                 f"Unsupported comparison operation, {other} is not a GetiVersion."
             )
-        return self.hash > other.hash
+        if self.is_geti and other.is_geti:
+            return self.time_tag > other.time_tag
+        else:
+            if self.is_geti and not other.is_geti:
+                return True
+            elif not self.is_geti and other.is_geti:
+                return False
+            else:
+                return self.time_tag > other.time_tag
 
     def __eq__(self, other):
         """
@@ -72,11 +82,7 @@ class GetiVersion:
             raise TypeError(
                 f"Unsupported comparison operation, {other} is not a GetiVersion."
             )
-        return (
-            self.hash == other.hash
-            and self.tag == other.tag
-            and self.version == other.version
-        )
+        return self.time_tag == other.time_tag and self.version == other.version
 
     @property
     def is_sc_mvp(self) -> bool:
@@ -84,7 +90,10 @@ class GetiVersion:
         Return True if the version corresponds to a platform on the SC MVP version of
         the software.
         """
-        return self.version == Version("1.0.0") and self.hash <= self._FIRST_GETI_HASH
+        return (
+            self.version == Version("1.0.0")
+            and self._SCMVP_TIMETAG <= self.time_tag <= self._SC11_TIMETAG
+        )
 
     @property
     def is_sc_1_1(self) -> bool:
@@ -92,7 +101,10 @@ class GetiVersion:
         Return True if the version corresponds to a platform on the SC v1.1 version of
         the software.
         """
-        return self.version == Version("1.1.0") and self.hash <= self._FIRST_GETI_HASH
+        return (
+            self.version == Version("1.1.0")
+            and self._SC11_TIMETAG <= self.time_tag <= self._GETI10_TIMETAG
+        )
 
     @property
     def is_geti_1_0(self) -> bool:
@@ -101,8 +113,7 @@ class GetiVersion:
         the software.
         """
         return (
-            self.version.base_version == Version("1.0.0").base_version
-            and self.hash >= self._FIRST_GETI_HASH
+            self.version.base_version == Version("1.0.0").base_version and self.is_geti
         )
 
     @property
@@ -111,4 +122,8 @@ class GetiVersion:
         Return True if the version corresponds to any version of the Geti platform.
         Return False if it corresponds to any SC version.
         """
-        return self.version > Version("1.0.0b0") and self.hash >= self._FIRST_GETI_HASH
+        return (
+            self.version > Version("1.0.0b0")
+            and self.time_tag >= self._GETI10_TIMETAG
+            and not (self.is_sc_1_1 or self.is_sc_mvp)
+        )
