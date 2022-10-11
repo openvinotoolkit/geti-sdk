@@ -56,7 +56,12 @@ class ModelClient:
         """
         response = self.session.get_rest_response(url=self.base_url, method="GET")
         if self.session.version.is_sc_1_1 or self.session.version.is_sc_mvp:
-            response_array = response["items"]
+            # The API is not fully consistent here, depending on exact release.
+            # Response may either be a dict or a list
+            try:
+                response_array = response["items"]
+            except TypeError:
+                response_array = response
         else:
             response_array = response["model_groups"]
         model_groups = [
