@@ -20,7 +20,7 @@ from geti_sdk.data_models.enums import Domain, TaskType
 from geti_sdk.data_models.utils import str_to_optional_enum_converter
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class Algorithm:
     """
     Representation of a supported algorithm on the Intel® Geti™ platform.
@@ -31,11 +31,11 @@ class Algorithm:
     model_template_id: str
     gigaflops: float
     summary: Optional[str] = None
-    domain: Optional[str] = attr.ib(
+    domain: Optional[str] = attr.field(
         default=None, converter=str_to_optional_enum_converter(Domain)
     )
     # `domain` is deprecated in SC1.1, replaced by task_type
-    task_type: Optional[str] = attr.ib(
+    task_type: Optional[str] = attr.field(
         default=None, converter=str_to_optional_enum_converter(TaskType)
     )
     supports_auto_hpo: Optional[bool] = None

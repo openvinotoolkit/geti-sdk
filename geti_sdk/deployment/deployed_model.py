@@ -43,14 +43,14 @@ LABEL_GROUPS_KEY = "label_groups"
 ALL_LABELS_KEY = "all_labels"
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class DeployedModel(OptimizedModel):
     """
     Representation of an Intel® Geti™ model that has been deployed for inference. It
     can be loaded onto a device to generate predictions.
     """
 
-    hyper_parameters: Optional[TaskConfiguration] = attr.ib(
+    hyper_parameters: Optional[TaskConfiguration] = attr.field(
         kw_only=True, repr=False, default=None
     )
 

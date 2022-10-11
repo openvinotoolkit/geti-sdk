@@ -28,7 +28,7 @@ from geti_sdk.data_models.configuration_identifiers import (
 from geti_sdk.data_models.utils import attr_value_serializer, deidentify
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class ConfigurableParameters(ParameterGroup):
     """
     Representation of configurable parameters in GETi, as returned by the
@@ -43,8 +43,8 @@ class ConfigurableParameters(ParameterGroup):
 
     entity_identifier: Union[
         HyperParameterGroupIdentifier, ComponentEntityIdentifier
-    ] = attr.ib(kw_only=True)
-    id: Optional[str] = attr.ib(default=None, kw_only=True)
+    ] = attr.field(kw_only=True)
+    id: Optional[str] = attr.field(default=None, kw_only=True)
 
     def deidentify(self) -> None:
         """
@@ -55,7 +55,7 @@ class ConfigurableParameters(ParameterGroup):
         deidentify(self.entity_identifier)
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True, slots=False)
 class Configuration:
     """
     Representation of a set of configurable parameters in GETi, that apply to a project
@@ -207,7 +207,7 @@ class Configuration:
         )
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class GlobalConfiguration(Configuration):
     """
     Representation of the project-wide configurable parameters for a project in GETi.
@@ -260,7 +260,7 @@ class GlobalConfiguration(Configuration):
         return summary_str
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class TaskConfiguration(Configuration):
     """
     Representation of the configurable parameters for a task in GETi.
@@ -268,8 +268,8 @@ class TaskConfiguration(Configuration):
 
     _identifier_fields: ClassVar[List[str]] = ["task_id"]
 
-    task_id: Optional[str] = attr.ib(default=None, kw_only=True)
-    task_title: str = attr.ib(kw_only=True)
+    task_id: Optional[str] = attr.field(default=None, kw_only=True)
+    task_title: str = attr.field(kw_only=True)
 
     @property
     def model_configurations(self) -> List[ConfigurableParameters]:
@@ -353,7 +353,7 @@ class TaskConfiguration(Configuration):
         return summary_str
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class FullConfiguration:
     """
     Representation of the full configuration (both global and task-chain) for a

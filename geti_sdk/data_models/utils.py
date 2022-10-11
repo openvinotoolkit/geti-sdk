@@ -27,7 +27,7 @@ EnumType = TypeVar("EnumType", bound=Enum)
 
 def deidentify(instance: Any):
     """
-    Set all identifier fields of an instance of an attr.s decorated class within the
+    Set all identifier fields of an instance of an attr.define decorated class within the
     GETi REST DataModels to None.
 
     :param instance: Object to deidentify
@@ -211,7 +211,7 @@ def str_to_datetime(datetime_str: Optional[Union[str, datetime]]) -> Optional[da
 
 def attr_value_serializer(instance, field, value):
     """
-    Convert a value in an attr.s decorated class to string representation, used
+    Convert a value in an attr.define decorated class to string representation, used
     while converting the attrs object to a dictionary.
 
     Converts Enums and datetime objects to string representation

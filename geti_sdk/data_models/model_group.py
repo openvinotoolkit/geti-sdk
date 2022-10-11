@@ -25,7 +25,7 @@ from geti_sdk.http_session import GetiSession
 from geti_sdk.utils.algorithm_helpers import get_supported_algorithms
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class ModelSummary:
     """
     Representation of a Model on the Intel® Geti™ platform, containing only the
@@ -45,18 +45,18 @@ class ModelSummary:
     _identifier_fields: ClassVar[List[str]] = ["id", "model_storage_id"]
 
     name: str
-    creation_date: str = attr.ib(converter=str_to_datetime)
+    creation_date: str = attr.field(converter=str_to_datetime)
     score_up_to_date: bool
     size: Optional[int] = None
     version: Optional[int] = None  # 'version' is removed in v1.1
-    score: Optional[float] = attr.ib(default=None)  # 'score' is removed in v1.1
+    score: Optional[float] = attr.field(default=None)  # 'score' is removed in v1.1
     performance: Optional[Performance] = None
-    active_model: bool = attr.ib(default=False)
-    id: Optional[str] = attr.ib(default=None, repr=False)
-    model_storage_id: Optional[str] = attr.ib(default=None, repr=False)
+    active_model: bool = attr.field(default=False)
+    id: Optional[str] = attr.field(default=None, repr=False)
+    model_storage_id: Optional[str] = attr.field(default=None, repr=False)
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True, slots=False)
 class ModelGroup:
     """
     Representation of a ModelGroup on the Intel® Geti™ server. A model group is a
@@ -68,9 +68,9 @@ class ModelGroup:
 
     name: str
     model_template_id: str
-    models: List[ModelSummary] = attr.ib(repr=False)
-    task_id: Optional[str] = attr.ib(default=None)
-    id: Optional[str] = attr.ib(default=None)
+    models: List[ModelSummary] = attr.field(repr=False)
+    task_id: Optional[str] = attr.field(default=None)
+    id: Optional[str] = attr.field(default=None)
 
     def __attrs_post_init__(self) -> None:
         """

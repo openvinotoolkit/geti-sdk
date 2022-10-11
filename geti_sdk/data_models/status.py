@@ -19,7 +19,7 @@ import attr
 from geti_sdk.data_models.performance import Performance
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class StatusSummary:
     """
     Summary of the status of a project or task on the GETi cluster.
@@ -46,7 +46,7 @@ class StatusSummary:
         return cls(**status_dict)
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class LabelAnnotationRequirements:
     """
     Detailed information regarding the required number of annotations for a
@@ -64,7 +64,7 @@ class LabelAnnotationRequirements:
     value: int
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class AnnotationRequirements:
     """
     Container holding the required number of annotations before auto-training can be
@@ -78,7 +78,7 @@ class AnnotationRequirements:
     value: int
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class TaskStatus:
     """
     Status of a single task in GETi.
@@ -100,7 +100,7 @@ class TaskStatus:
     title: str
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class ProjectStatus:
     """
     Status of a project in GETi.

@@ -23,7 +23,7 @@ from ote_sdk.entities.scored_label import ScoredLabel as OteScoredLabel
 from geti_sdk.data_models.enums import TaskType
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class LabelSource:
     """
     Representation of a source for a ScoredLabel in GETi
@@ -41,7 +41,7 @@ class LabelSource:
     type: Optional[str] = None
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class Label:
     """
     Representation of a Label in GETi.
@@ -81,7 +81,7 @@ class Label:
         )
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class ScoredLabel:
     """
     Representation of a Label with an assigned probability in GETi.

@@ -27,7 +27,7 @@ from geti_sdk.data_models.utils import deidentify, str_to_annotation_kind
 from geti_sdk.http_session import GetiSession
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class ResultMedium:
     """
     Representation of a single result medium in Intel® Geti™.
@@ -47,8 +47,8 @@ class ResultMedium:
     label_id: Optional[str] = None
     id: Optional[str] = None
     roi: Optional[Dict[str, Any]] = None
-    label_name: Optional[str] = attr.ib(init=False, default=None)
-    data: Optional[bytes] = attr.ib(default=None, repr=False, init=False)
+    label_name: Optional[str] = attr.field(init=False, default=None)
+    data: Optional[bytes] = attr.field(default=None, repr=False, init=False)
 
     def resolve_label_name(self, labels: List[Label]):
         """
@@ -101,7 +101,7 @@ class ResultMedium:
         )
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class Prediction(AnnotationScene):
     """
     Representation of the model predictions for a certain media entity in Intel® Geti™.
@@ -115,12 +115,12 @@ class Prediction(AnnotationScene):
     :var maps: List of additional result media belonging to this prediction
     """
 
-    kind: str = attr.ib(
+    kind: str = attr.field(
         converter=str_to_annotation_kind,
         default=AnnotationKind.PREDICTION,
         kw_only=True,
     )
-    maps: List[ResultMedium] = attr.ib(factory=list, kw_only=True)
+    maps: List[ResultMedium] = attr.field(factory=list, kw_only=True)
 
     def resolve_labels_for_result_media(self, labels: List[Label]) -> None:
         """

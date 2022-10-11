@@ -22,7 +22,7 @@ from geti_sdk.data_models import Annotation, Label, Prediction
 from .region_of_interest import ROI
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class IntermediateInferenceResult:
     """
     Inference results for intermediate tasks in the pipeline

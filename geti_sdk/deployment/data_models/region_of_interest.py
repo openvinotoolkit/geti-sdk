@@ -18,7 +18,7 @@ from geti_sdk.data_models import Annotation
 from geti_sdk.data_models.shapes import Rectangle, Shape
 
 
-@attr.s(auto_attribs=True)
+@attr.define(auto_attribs=True)
 class ROI(Annotation):
     """
     A region of interest for a given image. ROIs are generated for
@@ -26,8 +26,8 @@ class ROI(Annotation):
     labels (for instance a detection or segmentation task).
     """
 
-    shape: Rectangle = attr.ib(kw_only=True)
-    original_shape: Shape = attr.ib(kw_only=True)
+    shape: Rectangle = attr.field(kw_only=True)
+    original_shape: Shape = attr.field(kw_only=True)
 
     @classmethod
     def from_annotation(cls, annotation: Annotation) -> "ROI":
