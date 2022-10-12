@@ -39,7 +39,7 @@ N_DIGITS_TO_ROUND_TO = 0
 coordinate_converter = round_to_n_digits(N_DIGITS_TO_ROUND_TO)
 
 
-@attr.s(auto_attribs=True)
+@attr.define(slots=False)
 class Shape:
     """
     Representation of a shape in on the Intel® Geti™ platform.
@@ -47,7 +47,7 @@ class Shape:
     :var type: Type of the shape
     """
 
-    type: str = attr.ib(converter=str_to_shape_type)
+    type: str = attr.field(converter=str_to_shape_type)
 
     @abc.abstractmethod
     def to_roi(self) -> "Rectangle":
@@ -119,7 +119,7 @@ class Shape:
         raise NotImplementedError
 
 
-@attr.s(auto_attribs=True)
+@attr.define(slots=False)
 class Rectangle(Shape):
     """
     Representation of a Rectangle on the Intel® Geti™ platform, as used in the
@@ -133,11 +133,11 @@ class Rectangle(Shape):
     :var height: Height of the rectangle
     """
 
-    x: int = attr.ib(converter=coordinate_converter)
-    y: int = attr.ib(converter=coordinate_converter)
-    width: int = attr.ib(converter=coordinate_converter)
-    height: int = attr.ib(converter=coordinate_converter)
-    type: str = attr.ib(
+    x: int = attr.field(converter=coordinate_converter)
+    y: int = attr.field(converter=coordinate_converter)
+    width: int = attr.field(converter=coordinate_converter)
+    height: int = attr.field(converter=coordinate_converter)
+    type: str = attr.field(
         converter=str_to_shape_type, default=ShapeType.RECTANGLE, kw_only=True
     )
 
@@ -249,7 +249,7 @@ class Rectangle(Shape):
         return self.y + self.height
 
 
-@attr.s(auto_attribs=True)
+@attr.define(slots=False)
 class Ellipse(Shape):
     """
     Representation of an Ellipse on the Intel® Geti™ platform, as used in the
@@ -263,11 +263,11 @@ class Ellipse(Shape):
     :var height: Height of the ellipse
     """
 
-    x: int = attr.ib(converter=coordinate_converter)
-    y: int = attr.ib(converter=coordinate_converter)
-    width: int = attr.ib(converter=coordinate_converter)
-    height: int = attr.ib(converter=coordinate_converter)
-    type: str = attr.ib(
+    x: int = attr.field(converter=coordinate_converter)
+    y: int = attr.field(converter=coordinate_converter)
+    width: int = attr.field(converter=coordinate_converter)
+    height: int = attr.field(converter=coordinate_converter)
+    type: str = attr.field(
         converter=str_to_shape_type, default=ShapeType.ELLIPSE, kw_only=True
     )
 
@@ -364,7 +364,7 @@ class Ellipse(Shape):
         return self.y + self.height
 
 
-@attr.s(auto_attribs=True)
+@attr.define(slots=False)
 class Point:
     """
     Representation of a point on a 2D coordinate system. Used to define Polygons on
@@ -376,11 +376,11 @@ class Point:
     :var y: Y coordinate of the point
     """
 
-    x: int = attr.ib(converter=coordinate_converter)
-    y: int = attr.ib(converter=coordinate_converter)
+    x: int = attr.field(converter=coordinate_converter)
+    y: int = attr.field(converter=coordinate_converter)
 
 
-@attr.s(auto_attribs=True)
+@attr.define(slots=False)
 class Polygon(Shape):
     """
     Representation of a polygon on the Intel® Geti™ platform, as used in the
@@ -390,7 +390,7 @@ class Polygon(Shape):
     """
 
     points: List[Point]
-    type: str = attr.ib(
+    type: str = attr.field(
         converter=str_to_shape_type, default=ShapeType.POLYGON, kw_only=True
     )
 
@@ -542,7 +542,7 @@ class Polygon(Shape):
         )
 
 
-@attr.s(auto_attribs=True)
+@attr.define(slots=False)
 class RotatedRectangle(Shape):
     """
     Representation of a RotatedRectangle on the Intel® Geti™ platform, as used in the
@@ -557,12 +557,12 @@ class RotatedRectangle(Shape):
     :var height: Height of the rectangle
     """
 
-    angle: float = attr.ib(converter=round_to_n_digits(n=4))
-    x: int = attr.ib(converter=coordinate_converter)
-    y: int = attr.ib(converter=coordinate_converter)
-    width: int = attr.ib(converter=coordinate_converter)
-    height: int = attr.ib(converter=coordinate_converter)
-    type: str = attr.ib(
+    angle: float = attr.field(converter=round_to_n_digits(n=4))
+    x: int = attr.field(converter=coordinate_converter)
+    y: int = attr.field(converter=coordinate_converter)
+    width: int = attr.field(converter=coordinate_converter)
+    height: int = attr.field(converter=coordinate_converter)
+    type: str = attr.field(
         converter=str_to_shape_type, default=ShapeType.ROTATED_RECTANGLE, kw_only=True
     )
 

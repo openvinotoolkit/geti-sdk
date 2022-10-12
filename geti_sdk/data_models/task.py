@@ -33,7 +33,7 @@ from geti_sdk.data_models.utils import (
 )
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class Task:
     """
     Representation of a Task in GETi.
@@ -48,7 +48,7 @@ class Task:
     _identifier_fields: ClassVar[List[str]] = ["id", "label_schema_id"]
 
     title: str
-    task_type: str = attr.ib(converter=str_to_task_type)
+    task_type: str = attr.field(converter=str_to_task_type)
     labels: Optional[List[Label]] = None
     label_schema_id: Optional[str] = None
     id: Optional[str] = None

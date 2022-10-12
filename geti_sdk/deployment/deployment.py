@@ -34,7 +34,7 @@ from geti_sdk.deployment.deployed_model import DeployedModel
 from geti_sdk.rest_converters import ProjectRESTConverter
 
 
-@attr.s(auto_attribs=True)
+@attr.define(slots=False)
 class Deployment:
     """
     Representation of a deployed Intel® Geti™ project that can be used to run

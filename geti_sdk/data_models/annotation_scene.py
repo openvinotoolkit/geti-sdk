@@ -44,7 +44,7 @@ from geti_sdk.data_models.utils import (
 )
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class AnnotationScene:
     """
     Representation of an annotation scen for a certain media entity in GETi. An
@@ -70,12 +70,12 @@ class AnnotationScene:
     _GET_only_fields: ClassVar[List[str]] = ["annotation_state_per_task"]
 
     annotations: List[Annotation]
-    kind: str = attr.ib(
+    kind: str = attr.field(
         converter=str_to_annotation_kind, default=AnnotationKind.ANNOTATION
     )
     media_identifier: Optional[Union[ImageIdentifier, VideoFrameIdentifier]] = None
     id: Optional[str] = None
-    modified: Optional[str] = attr.ib(converter=str_to_datetime, default=None)
+    modified: Optional[str] = attr.field(converter=str_to_datetime, default=None)
     labels_to_revisit_full_scene: Optional[List[str]] = None
     annotation_state_per_task: Optional[List[TaskAnnotationState]] = None
 

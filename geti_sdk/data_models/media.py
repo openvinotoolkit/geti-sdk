@@ -40,7 +40,7 @@ from .utils import (
 )
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class MediaInformation:
     """
     Basic information about a media item in Intel® Geti™.
@@ -55,7 +55,7 @@ class MediaInformation:
     width: int
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class VideoInformation(MediaInformation):
     """
     Basic information about a video entity in Intel® Geti™.
@@ -70,7 +70,7 @@ class VideoInformation(MediaInformation):
     frame_stride: int
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class ImageInformation(MediaInformation):
     """
     Basic information about an image entity in Intel® Geti™
@@ -79,7 +79,7 @@ class ImageInformation(MediaInformation):
     pass
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class VideoFrameInformation(MediaInformation):
     """
     Basic information about a video frame in Intel® Geti™.
@@ -89,7 +89,7 @@ class VideoFrameInformation(MediaInformation):
     video_id: str
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class MediaItem:
     """
     Representation of a media entity in Intel® Geti™.
@@ -106,8 +106,8 @@ class MediaItem:
 
     id: str
     name: str
-    type: str = attr.ib(converter=str_to_media_type)
-    upload_time: str = attr.ib(converter=str_to_datetime)
+    type: str = attr.field(converter=str_to_media_type)
+    upload_time: str = attr.field(converter=str_to_datetime)
     media_information: MediaInformation
     state: Optional[str] = None
     # State is deprecated in SC1.1, replaced by `annotation_state_per_task`
@@ -194,7 +194,7 @@ class MediaItem:
         return pformat(self.to_dict())
 
 
-@attr.s(auto_attribs=True)
+@attr.define(slots=False)
 class Image(MediaItem):
     """
     Representation of an image in Intel® Geti™.
@@ -203,7 +203,7 @@ class Image(MediaItem):
             height about the image entity
     """
 
-    media_information: ImageInformation = attr.ib(kw_only=True)
+    media_information: ImageInformation = attr.field(kw_only=True)
 
     def __attrs_post_init__(self):
         """
@@ -256,7 +256,7 @@ class Image(MediaItem):
         return self._data
 
 
-@attr.s(auto_attribs=True)
+@attr.define(slots=False)
 class Video(MediaItem):
     """
     Representation of a video in Intel® Geti™.
@@ -265,7 +265,7 @@ class Video(MediaItem):
             height and duration about the video entity
     """
 
-    media_information: VideoInformation = attr.ib(kw_only=True)
+    media_information: VideoInformation = attr.field(kw_only=True)
 
     def __attrs_post_init__(self):
         """
@@ -366,7 +366,7 @@ class Video(MediaItem):
                 os.remove(self._data)
 
 
-@attr.s(auto_attribs=True)
+@attr.define(slots=False)
 class VideoFrame(MediaItem):
     """
     Representation of a video frame in Intel® Geti™.
@@ -377,8 +377,8 @@ class VideoFrame(MediaItem):
         downloaded using the 'get_data' method
     """
 
-    media_information: VideoFrameInformation = attr.ib(kw_only=True)
-    video_name: Optional[str] = attr.ib(kw_only=True, default=None)
+    media_information: VideoFrameInformation = attr.field(kw_only=True)
+    video_name: Optional[str] = attr.field(kw_only=True, default=None)
 
     def __attrs_post_init__(self):
         """
