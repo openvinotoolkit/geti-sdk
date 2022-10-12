@@ -59,12 +59,12 @@ jobs:
         run: |
           pytest tests/pre-merge -c tests/offline.ini --cov=geti_sdk --html=$REPORT_DIRECTORY/$PREMERGE_TEST_REPORT --self-contained-html --cov-report html:$REPORT_DIRECTORY/coverage
 
-      - name: Upload test report for integration tests
-        # Publish the integration test report to github
+      - name: Upload test report for pre-merge tests
+        # Publish the test report to github
         uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
-          name: integration-test-reports
+          name: pre-merge-test-reports
           path: ${{ env.REPORT_DIRECTORY }}
 
       - name: Clean up report directories
