@@ -25,7 +25,7 @@ from geti_sdk.http_session import GetiSession
 from geti_sdk.utils.algorithm_helpers import get_supported_algorithms
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class ModelSummary:
     """
     Representation of a Model on the Intel® Geti™ platform, containing only the
@@ -56,7 +56,7 @@ class ModelSummary:
     model_storage_id: Optional[str] = attr.field(default=None, repr=False)
 
 
-@attr.define(auto_attribs=True, slots=False)
+@attr.define(slots=False)
 class ModelGroup:
     """
     Representation of a ModelGroup on the Intel® Geti™ server. A model group is a

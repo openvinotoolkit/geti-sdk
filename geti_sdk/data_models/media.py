@@ -40,7 +40,7 @@ from .utils import (
 )
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class MediaInformation:
     """
     Basic information about a media item in Intel® Geti™.
@@ -55,7 +55,7 @@ class MediaInformation:
     width: int
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class VideoInformation(MediaInformation):
     """
     Basic information about a video entity in Intel® Geti™.
@@ -70,7 +70,7 @@ class VideoInformation(MediaInformation):
     frame_stride: int
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class ImageInformation(MediaInformation):
     """
     Basic information about an image entity in Intel® Geti™
@@ -79,7 +79,7 @@ class ImageInformation(MediaInformation):
     pass
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class VideoFrameInformation(MediaInformation):
     """
     Basic information about a video frame in Intel® Geti™.
@@ -89,7 +89,7 @@ class VideoFrameInformation(MediaInformation):
     video_id: str
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class MediaItem:
     """
     Representation of a media entity in Intel® Geti™.
@@ -194,7 +194,7 @@ class MediaItem:
         return pformat(self.to_dict())
 
 
-@attr.define(auto_attribs=True, slots=False)
+@attr.define(slots=False)
 class Image(MediaItem):
     """
     Representation of an image in Intel® Geti™.
@@ -256,7 +256,7 @@ class Image(MediaItem):
         return self._data
 
 
-@attr.define(auto_attribs=True, slots=False)
+@attr.define(slots=False)
 class Video(MediaItem):
     """
     Representation of a video in Intel® Geti™.
@@ -366,7 +366,7 @@ class Video(MediaItem):
                 os.remove(self._data)
 
 
-@attr.define(auto_attribs=True, slots=False)
+@attr.define(slots=False)
 class VideoFrame(MediaItem):
     """
     Representation of a video frame in Intel® Geti™.

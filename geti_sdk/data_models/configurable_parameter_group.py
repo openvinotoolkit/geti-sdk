@@ -107,7 +107,7 @@ def _parameter_dicts_to_list(
     return parameters
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class ParameterGroup:
     """
     Representation of a group of configurable parameters in GETi, as returned by the

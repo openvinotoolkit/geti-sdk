@@ -28,7 +28,7 @@ from geti_sdk.data_models.configuration_identifiers import (
 from geti_sdk.data_models.utils import attr_value_serializer, deidentify
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class ConfigurableParameters(ParameterGroup):
     """
     Representation of configurable parameters in GETi, as returned by the
@@ -55,7 +55,7 @@ class ConfigurableParameters(ParameterGroup):
         deidentify(self.entity_identifier)
 
 
-@attr.define(auto_attribs=True, slots=False)
+@attr.define(slots=False)
 class Configuration:
     """
     Representation of a set of configurable parameters in GETi, that apply to a project
@@ -207,7 +207,7 @@ class Configuration:
         )
 
 
-@attr.define(auto_attribs=True)
+@attr.define(slots=False)
 class GlobalConfiguration(Configuration):
     """
     Representation of the project-wide configurable parameters for a project in GETi.
@@ -260,7 +260,7 @@ class GlobalConfiguration(Configuration):
         return summary_str
 
 
-@attr.define(auto_attribs=True)
+@attr.define(slots=False)
 class TaskConfiguration(Configuration):
     """
     Representation of the configurable parameters for a task in GETi.
@@ -353,7 +353,7 @@ class TaskConfiguration(Configuration):
         return summary_str
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class FullConfiguration:
     """
     Representation of the full configuration (both global and task-chain) for a

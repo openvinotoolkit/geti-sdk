@@ -28,7 +28,7 @@ from geti_sdk.data_models.utils import (
 from geti_sdk.http_session import GetiRequestException, GetiSession
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class JobStatus(StatusSummary):
     """
     Current status of a job on the Intel® Geti™ server.
@@ -50,7 +50,7 @@ class JobStatus(StatusSummary):
         return cls(**status_dict)
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class TaskMetadata:
     """
     Metadata related to a task on the Intel® Geti™ cluster.
@@ -69,7 +69,7 @@ class TaskMetadata:
     dataset_storage_id: Optional[str] = None
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class TestMetadata:
     """
     Metadata related to a model test job on the GETi cluster.
@@ -85,7 +85,7 @@ class TestMetadata:
     datasets: List[Dataset]
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class ProjectMetadata:
     """
     Metadata related to a project on the GETi cluster.
@@ -98,7 +98,7 @@ class ProjectMetadata:
     id: Optional[str] = None
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class JobMetadata:
     """
     Metadata for a particular job on the GETi cluster.
@@ -124,7 +124,7 @@ class JobMetadata:
     optimized_model_id: Optional[str] = None
 
 
-@attr.define(auto_attribs=True, slots=False)
+@attr.define(slots=False)
 class Job:
     """
     Representation of a job running on the GETi cluster.

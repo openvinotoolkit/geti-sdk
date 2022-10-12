@@ -28,7 +28,7 @@ from geti_sdk.data_models.utils import (
 )
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class ConfigurableParameter:
     """
     Representation of a generic configurable parameter in GETi.
@@ -109,7 +109,7 @@ class ConfigurableParameter:
         return pformat(overview_dict)
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class ConfigurableBoolean(ConfigurableParameter):
     """
     Representation of a configurable boolean in GETi.
@@ -119,7 +119,7 @@ class ConfigurableBoolean(ConfigurableParameter):
     value: bool = attr.field(kw_only=True)
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class ConfigurableInteger(ConfigurableParameter):
     """
     Representation of a configurable integer in GETi.
@@ -134,7 +134,7 @@ class ConfigurableInteger(ConfigurableParameter):
     max_value: Optional[int] = attr.field(default=None, kw_only=True)
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class ConfigurableFloat(ConfigurableParameter):
     """
     Representation of a configurable float in GETi.
@@ -149,7 +149,7 @@ class ConfigurableFloat(ConfigurableParameter):
     max_value: float = attr.field(kw_only=True)
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class SelectableFloat(ConfigurableParameter):
     """
     Representation of a float selectable configurable parameter in GETi.
@@ -162,7 +162,7 @@ class SelectableFloat(ConfigurableParameter):
     options: List[float] = attr.field(kw_only=True)
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class SelectableString(ConfigurableParameter):
     """
     Representation of a string selectable configurable parameter in GETi.

@@ -29,7 +29,7 @@ from .utils import (
 )
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class Connection:
     """
     Representation of a connection between two tasks in GETi.
@@ -42,7 +42,7 @@ class Connection:
     from_: str
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class Pipeline:
     """
     Representation of a pipeline for a project in GETi.
@@ -141,7 +141,7 @@ class Pipeline:
             task.deidentify()
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class Dataset:
     """
     Representation of a dataset for a project in Intel® Geti™.
@@ -164,7 +164,7 @@ class Dataset:
         deidentify(self)
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class Project:
     """
     Representation of a project in Intel® Geti™.

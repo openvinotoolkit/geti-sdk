@@ -44,7 +44,7 @@ from geti_sdk.data_models.utils import (
 )
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class AnnotationScene:
     """
     Representation of an annotation scen for a certain media entity in GETi. An

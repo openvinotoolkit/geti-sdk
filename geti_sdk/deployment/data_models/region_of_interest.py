@@ -18,7 +18,7 @@ from geti_sdk.data_models import Annotation
 from geti_sdk.data_models.shapes import Rectangle, Shape
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class ROI(Annotation):
     """
     A region of interest for a given image. ROIs are generated for

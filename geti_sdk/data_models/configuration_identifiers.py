@@ -21,7 +21,7 @@ from geti_sdk.data_models.enums import ConfigurationEntityType
 from geti_sdk.data_models.utils import attr_value_serializer, str_to_enum_converter
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class EntityIdentifier:
     """
     Identifying information for a configurable entity on the Intel® Geti™ platform,
@@ -45,7 +45,7 @@ class EntityIdentifier:
         return attr.asdict(self, value_serializer=attr_value_serializer, recurse=True)
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class HyperParameterGroupIdentifier(EntityIdentifier):
     """
     Identifying information for a HyperParameterGroup on the Intel® Geti™ platform,
@@ -75,7 +75,7 @@ class HyperParameterGroupIdentifier(EntityIdentifier):
         self.model_template_id = algorithm.model_template_id
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class ComponentEntityIdentifier(EntityIdentifier):
     """
     Identifying information for a configurable Component on the Intel® Geti™ platform,

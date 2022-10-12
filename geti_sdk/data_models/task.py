@@ -33,7 +33,7 @@ from geti_sdk.data_models.utils import (
 )
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class Task:
     """
     Representation of a Task in GETi.

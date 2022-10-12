@@ -18,7 +18,7 @@ from geti_sdk.data_models.enums import AnnotationState
 from geti_sdk.data_models.utils import str_to_enum_converter_by_name_or_value
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class TaskAnnotationState:
     """
     Representation of the state of an annotation for a particular task in an

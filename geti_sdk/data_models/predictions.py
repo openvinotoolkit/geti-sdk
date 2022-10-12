@@ -27,7 +27,7 @@ from geti_sdk.data_models.utils import deidentify, str_to_annotation_kind
 from geti_sdk.http_session import GetiSession
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class ResultMedium:
     """
     Representation of a single result medium in Intel® Geti™.
@@ -101,7 +101,7 @@ class ResultMedium:
         )
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class Prediction(AnnotationScene):
     """
     Representation of the model predictions for a certain media entity in Intel® Geti™.

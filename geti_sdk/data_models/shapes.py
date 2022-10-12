@@ -39,7 +39,7 @@ N_DIGITS_TO_ROUND_TO = 0
 coordinate_converter = round_to_n_digits(N_DIGITS_TO_ROUND_TO)
 
 
-@attr.define(auto_attribs=True, slots=False)
+@attr.define(slots=False)
 class Shape:
     """
     Representation of a shape in on the Intel® Geti™ platform.
@@ -119,7 +119,7 @@ class Shape:
         raise NotImplementedError
 
 
-@attr.define(auto_attribs=True)
+@attr.define(slots=False)
 class Rectangle(Shape):
     """
     Representation of a Rectangle on the Intel® Geti™ platform, as used in the
@@ -249,7 +249,7 @@ class Rectangle(Shape):
         return self.y + self.height
 
 
-@attr.define(auto_attribs=True)
+@attr.define(slots=False)
 class Ellipse(Shape):
     """
     Representation of an Ellipse on the Intel® Geti™ platform, as used in the
@@ -364,7 +364,7 @@ class Ellipse(Shape):
         return self.y + self.height
 
 
-@attr.define(auto_attribs=True)
+@attr.define(slots=False)
 class Point:
     """
     Representation of a point on a 2D coordinate system. Used to define Polygons on
@@ -380,7 +380,7 @@ class Point:
     y: int = attr.field(converter=coordinate_converter)
 
 
-@attr.define(auto_attribs=True)
+@attr.define(slots=False)
 class Polygon(Shape):
     """
     Representation of a polygon on the Intel® Geti™ platform, as used in the
@@ -542,7 +542,7 @@ class Polygon(Shape):
         )
 
 
-@attr.define(auto_attribs=True)
+@attr.define(slots=False)
 class RotatedRectangle(Shape):
     """
     Representation of a RotatedRectangle on the Intel® Geti™ platform, as used in the

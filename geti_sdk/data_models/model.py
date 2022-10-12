@@ -33,7 +33,7 @@ from . import Label
 from .performance import Performance
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class OptimizationCapabilities:
     """
     Representation of the various model optimization capabilities in GETi.
@@ -44,7 +44,7 @@ class OptimizationCapabilities:
     is_filter_pruning_supported: Optional[bool] = None
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class BaseModel:
     """
     Representation of the basic information for a Model or OptimizedModel in GETi
@@ -174,7 +174,7 @@ class BaseModel:
         deidentify(self)
 
 
-@attr.define(auto_attribs=True, slots=False)
+@attr.define(slots=False)
 class OptimizedModel(BaseModel):
     """
     Representation of an OptimizedModel in Intel® Geti™. An optimized model is a trained model
@@ -194,7 +194,7 @@ class OptimizedModel(BaseModel):
     version: Optional[int] = attr.field(kw_only=True, default=None)
 
 
-@attr.define(auto_attribs=True, slots=False)
+@attr.define(slots=False)
 class Model(BaseModel):
     """
     Representation of a trained Model in Intel® Geti™.

@@ -43,7 +43,7 @@ LABEL_GROUPS_KEY = "label_groups"
 ALL_LABELS_KEY = "all_labels"
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class DeployedModel(OptimizedModel):
     """
     Representation of an Intel® Geti™ model that has been deployed for inference. It

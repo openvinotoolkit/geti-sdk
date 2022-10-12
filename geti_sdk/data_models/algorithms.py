@@ -20,7 +20,7 @@ from geti_sdk.data_models.enums import Domain, TaskType
 from geti_sdk.data_models.utils import str_to_optional_enum_converter
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class Algorithm:
     """
     Representation of a supported algorithm on the Intel® Geti™ platform.

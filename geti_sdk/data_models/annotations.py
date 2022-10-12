@@ -28,7 +28,7 @@ from geti_sdk.data_models.shapes import (
 from geti_sdk.data_models.utils import deidentify, str_to_datetime
 
 
-@attr.define(auto_attribs=True)
+@attr.define
 class Annotation:
     """
     Representation of a single annotation for a media item on the Intel® Geti™ platform.
