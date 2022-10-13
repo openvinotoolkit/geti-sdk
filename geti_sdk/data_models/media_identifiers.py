@@ -19,7 +19,7 @@ import attr
 from geti_sdk.data_models.utils import attr_value_serializer, str_to_media_type
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class MediaIdentifier:
     """
     Representation of media identification data as output by the Intel® Geti™
@@ -28,7 +28,7 @@ class MediaIdentifier:
     :var type: Type of the media to which the annotation belongs
     """
 
-    type: str = attr.ib(converter=str_to_media_type)
+    type: str = attr.field(converter=str_to_media_type)
 
     def to_dict(self) -> Dict[str, str]:
         """
@@ -39,7 +39,7 @@ class MediaIdentifier:
         return attr.asdict(self, value_serializer=attr_value_serializer)
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class ImageIdentifier(MediaIdentifier):
     """
     Representation of image identification data used by the Intel® Geti™ /annotations
@@ -53,7 +53,7 @@ class ImageIdentifier(MediaIdentifier):
     image_id: str
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class VideoFrameIdentifier(MediaIdentifier):
     """
     Representation of video frame identification data used by the Intel® Geti™
@@ -70,7 +70,7 @@ class VideoFrameIdentifier(MediaIdentifier):
     video_id: str
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class VideoIdentifier(MediaIdentifier):
     """
     Representation of video identification data used by the Intel® Geti™ /annotations

@@ -107,7 +107,7 @@ def _parameter_dicts_to_list(
     return parameters
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class ParameterGroup:
     """
     Representation of a group of configurable parameters in GETi, as returned by the
@@ -123,7 +123,7 @@ class ParameterGroup:
     _non_minimal_fields: ClassVar[List[str]] = ["description"]
 
     header: str
-    type: str = attr.ib(converter=str_to_enum_converter(ConfigurableParameterType))
+    type: str = attr.field(converter=str_to_enum_converter(ConfigurableParameterType))
     description: Optional[str] = None
     parameters: Optional[Sequence[PARAMETER_TYPES]] = None
     name: Optional[str] = None

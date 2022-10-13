@@ -33,7 +33,7 @@ from . import Label
 from .performance import Performance
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class OptimizationCapabilities:
     """
     Representation of the various model optimization capabilities in GETi.
@@ -44,7 +44,7 @@ class OptimizationCapabilities:
     is_filter_pruning_supported: Optional[bool] = None
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class BaseModel:
     """
     Representation of the basic information for a Model or OptimizedModel in GETi
@@ -60,15 +60,15 @@ class BaseModel:
     fps_throughput: str
     latency: str
     precision: List[str]
-    creation_date: str = attr.ib(converter=str_to_datetime)
+    creation_date: str = attr.field(converter=str_to_datetime)
     size: Optional[int] = None
     target_device: Optional[str] = None
     target_device_type: Optional[str] = None
     previous_revision_id: Optional[str] = None
     previous_trained_revision_id: Optional[str] = None
-    score: Optional[float] = attr.ib(default=None)  # 'score' is removed in v1.1
+    score: Optional[float] = attr.field(default=None)  # 'score' is removed in v1.1
     performance: Optional[Performance] = None
-    id: Optional[str] = attr.ib(default=None)
+    id: Optional[str] = attr.field(default=None)
 
     def __attrs_post_init__(self):
         """
@@ -174,7 +174,7 @@ class BaseModel:
         deidentify(self)
 
 
-@attr.s(auto_attribs=True)
+@attr.define(slots=False)
 class OptimizedModel(BaseModel):
     """
     Representation of an OptimizedModel in Intel® Geti™. An optimized model is a trained model
@@ -183,29 +183,29 @@ class OptimizedModel(BaseModel):
     OpenVINO.
     """
 
-    model_status: str = attr.ib(
+    model_status: str = attr.field(
         kw_only=True, converter=str_to_enum_converter(ModelStatus)
     )
-    optimization_methods: List[str] = attr.ib(kw_only=True)
-    optimization_objectives: Dict[str, Any] = attr.ib(kw_only=True)
-    optimization_type: str = attr.ib(
+    optimization_methods: List[str] = attr.field(kw_only=True)
+    optimization_objectives: Dict[str, Any] = attr.field(kw_only=True)
+    optimization_type: str = attr.field(
         kw_only=True, converter=str_to_enum_converter(OptimizationType)
     )
-    version: Optional[int] = attr.ib(kw_only=True, default=None)
+    version: Optional[int] = attr.field(kw_only=True, default=None)
 
 
-@attr.s(auto_attribs=True)
+@attr.define(slots=False)
 class Model(BaseModel):
     """
     Representation of a trained Model in Intel® Geti™.
     """
 
-    architecture: str = attr.ib(kw_only=True)
-    score_up_to_date: bool = attr.ib(kw_only=True)
-    optimization_capabilities: OptimizationCapabilities = attr.ib(kw_only=True)
-    optimized_models: List[OptimizedModel] = attr.ib(kw_only=True)
+    architecture: str = attr.field(kw_only=True)
+    score_up_to_date: bool = attr.field(kw_only=True)
+    optimization_capabilities: OptimizationCapabilities = attr.field(kw_only=True)
+    optimized_models: List[OptimizedModel] = attr.field(kw_only=True)
     labels: Optional[List[Label]] = None
-    version: Optional[int] = attr.ib(default=None, kw_only=True)
+    version: Optional[int] = attr.field(default=None, kw_only=True)
     # 'version' is deprecated in v1.1
     training_dataset_info: Optional[Dict[str, str]] = None
 

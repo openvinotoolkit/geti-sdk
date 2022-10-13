@@ -294,7 +294,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
                 uid_string = f"_{media_item.id}"
             media_filepath = os.path.join(
                 path_to_media_folder,
-                media_item.name
+                os.path.basename(media_item.name)
                 + uid_string
                 + MEDIA_DOWNLOAD_FORMAT_MAPPING[self._MEDIA_TYPE],
             )
@@ -305,7 +305,6 @@ class BaseMediaClient(Generic[MediaTypeVar]):
                 url=media_item.download_url, method="GET", contenttype="jpeg"
             )
 
-            os.makedirs(os.path.dirname(media_filepath), exist_ok=True)
             with open(media_filepath, "wb") as f:
                 f.write(response.content)
             if isinstance(media_item, (Image, VideoFrame)):

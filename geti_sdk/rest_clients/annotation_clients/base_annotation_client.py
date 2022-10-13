@@ -376,19 +376,21 @@ class BaseAnnotationClient:
                 continue
             export_data = AnnotationRESTConverter.to_dict(annotation_scene)
 
-            filename = media_item.name + ".json"
+            base_media_item_name = os.path.basename(media_item.name)
+            filename = base_media_item_name + ".json"
             if append_media_uid:
                 if isinstance(media_item, Image):
-                    filename = f"{media_item.name}_{media_item.id}.json"
+                    filename = f"{base_media_item_name}_{media_item.id}.json"
                 elif isinstance(media_item, VideoFrame):
                     if media_item.video_name is not None:
+                        base_video_name = os.path.basename(media_item.video_name)
                         filename = (
-                            f"{media_item.video_name}_"
+                            f"{base_video_name}_"
                             f"{media_item.media_information.video_id}_frame_"
                             f"{media_item.media_information.frame_index}.json"
                         )
                     else:
-                        video_name = media_item.name.split("_frame_")[0]
+                        video_name = base_media_item_name.split("_frame_")[0]
                         filename = (
                             f"{video_name}_"
                             f"{media_item.media_information.video_id}_frame_"
@@ -401,7 +403,6 @@ class BaseAnnotationClient:
 
             annotation_path = os.path.join(path_to_annotations_folder, filename)
 
-            os.makedirs(os.path.dirname(annotation_path), exist_ok=True)
             with open(annotation_path, "w") as f:
                 json.dump(export_data, f, indent=4)
             download_count += 1

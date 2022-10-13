@@ -53,10 +53,10 @@ TOKEN = os.environ.get("GETI_TOKEN", None)
 # When both a TOKEN and username + password are provided, the test suite will use the
 # TOKEN to execute the tests
 
-HTTP_PROXY = os.environ.get("GETI_HTTP_PROXY", None)
-HTTPS_PROXY = os.environ.get("GETI_HTTPS_PROXY", None)
-# HTTP_PROXY and HTTPS_PROXY are urls to the proxy servers that should be used to
-# connect to the Geti instance.
+GETI_HTTP_PROXY = os.environ.get("GETI_HTTP_PROXY_URL", None)
+GETI_HTTPS_PROXY = os.environ.get("GETI_HTTPS_PROXY_URL", None)
+# GETI_HTTP_PROXY and GETI_HTTPS_PROXY are urls to the proxy servers that should be
+# used to connect to the Geti instance.
 # NOTE: PROXIES can only be used in ONLINE mode, they cannot be used in RECORD mode
 # (will raise an error) and have no effect in OFFLINE mode.
 
@@ -85,14 +85,19 @@ def fxt_server_config() -> Union[ServerTokenConfig, ServerCredentialConfig]:
     """
     This fixture holds the login configuration to access the Geti server
     """
+    # Configure proxies for OFFLINE, ONLINE and RECORD mode
     if TEST_MODE == SdkTestMode.OFFLINE:
         proxies = {"https": "", "http": ""}
-    elif TEST_MODE == SdkTestMode.ONLINE:
-        proxies = {"https": HTTPS_PROXY, "http": HTTP_PROXY}
+    elif TEST_MODE == SdkTestMode.ONLINE and (
+        GETI_HTTP_PROXY is not None or GETI_HTTPS_PROXY is not None
+    ):
+        proxies = {"https": GETI_HTTPS_PROXY, "http": GETI_HTTP_PROXY}
     else:
+        # In RECORD mode or when both proxies are None, the `proxies` argument for the
+        # ServerConfig should be set to None
         proxies = None
         if TEST_MODE == SdkTestMode.RECORD and (
-            HTTPS_PROXY is not None or HTTP_PROXY is not None
+            GETI_HTTPS_PROXY is not None or GETI_HTTP_PROXY is not None
         ):
             raise ValueError(
                 "Unable to use proxy servers in RECORD mode! Please clear the "
@@ -100,6 +105,7 @@ def fxt_server_config() -> Union[ServerTokenConfig, ServerCredentialConfig]:
                 "running the test suite in RECORD mode."
             )
 
+    # Use token if available
     if TOKEN is None:
         test_config = ServerCredentialConfig(
             host=HOST, username=USERNAME, password=PASSWORD, proxies=proxies
@@ -164,11 +170,18 @@ def pytest_sessionstart(session: Session) -> None:
     :param session: Pytest session instance that has just been created
     """
     if CLEAR_EXISTING_TEST_PROJECTS and TEST_MODE != SdkTestMode.OFFLINE:
+        # Handle authentication via token or credentials
         if TOKEN is None:
             auth_params = {"username": USERNAME, "password": PASSWORD}
         else:
             auth_params = {"token": TOKEN}
-        remove_all_test_projects(Geti(host=HOST, **auth_params))
+        # Handle proxies
+        if GETI_HTTP_PROXY is not None or GETI_HTTPS_PROXY is not None:
+            proxies = {"http": GETI_HTTP_PROXY, "https": GETI_HTTPS_PROXY}
+        else:
+            proxies = None
+        # Remove existing test projects
+        remove_all_test_projects(Geti(host=HOST, **auth_params, proxies=proxies))
     if TEST_MODE == SdkTestMode.RECORD:
         record_cassette_path = tempfile.mkdtemp()
         logging.info(f"Cassettes will be recorded to `{record_cassette_path}`.")

@@ -28,7 +28,7 @@ from geti_sdk.data_models.utils import (
 )
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class ConfigurableParameter:
     """
     Representation of a generic configurable parameter in GETi.
@@ -62,14 +62,14 @@ class ConfigurableParameter:
 
     name: str
     value: Union[str, bool, float, int]
-    data_type: Optional[str] = attr.ib(
+    data_type: Optional[str] = attr.field(
         default=None, converter=str_to_enum_converter(ParameterDataType)
     )
     default_value: Optional[Union[str, bool, float, int]] = None
     description: Optional[str] = None
     editable: Optional[bool] = None
     header: Optional[str] = None
-    template_type: Optional[str] = attr.ib(
+    template_type: Optional[str] = attr.field(
         default=None, converter=str_to_enum_converter(ParameterInputType)
     )
     ui_rules: Optional[Dict[str, Any]] = None
@@ -109,17 +109,17 @@ class ConfigurableParameter:
         return pformat(overview_dict)
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class ConfigurableBoolean(ConfigurableParameter):
     """
     Representation of a configurable boolean in GETi.
     """
 
-    default_value: Optional[bool] = attr.ib(default=None, kw_only=True)
-    value: bool = attr.ib(kw_only=True)
+    default_value: Optional[bool] = attr.field(default=None, kw_only=True)
+    value: bool = attr.field(kw_only=True)
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class ConfigurableInteger(ConfigurableParameter):
     """
     Representation of a configurable integer in GETi.
@@ -128,13 +128,13 @@ class ConfigurableInteger(ConfigurableParameter):
     :var max_value: Maximum value allowed to be set for the configurable integer
     """
 
-    default_value: Optional[int] = attr.ib(default=None, kw_only=True)
-    value: int = attr.ib(kw_only=True)
-    min_value: Optional[int] = attr.ib(default=None, kw_only=True)
-    max_value: Optional[int] = attr.ib(default=None, kw_only=True)
+    default_value: Optional[int] = attr.field(default=None, kw_only=True)
+    value: int = attr.field(kw_only=True)
+    min_value: Optional[int] = attr.field(default=None, kw_only=True)
+    max_value: Optional[int] = attr.field(default=None, kw_only=True)
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class ConfigurableFloat(ConfigurableParameter):
     """
     Representation of a configurable float in GETi.
@@ -143,13 +143,13 @@ class ConfigurableFloat(ConfigurableParameter):
     :var max_value: Maximum value allowed to be set for the configurable float
     """
 
-    default_value: Optional[float] = attr.ib(kw_only=True, default=None)
-    value: float = attr.ib(kw_only=True)
-    min_value: float = attr.ib(kw_only=True)
-    max_value: float = attr.ib(kw_only=True)
+    default_value: Optional[float] = attr.field(kw_only=True, default=None)
+    value: float = attr.field(kw_only=True)
+    min_value: float = attr.field(kw_only=True)
+    max_value: float = attr.field(kw_only=True)
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class SelectableFloat(ConfigurableParameter):
     """
     Representation of a float selectable configurable parameter in GETi.
@@ -157,12 +157,12 @@ class SelectableFloat(ConfigurableParameter):
     :var options: List of options that the selectable float is allowed to take
     """
 
-    default_value: Optional[float] = attr.ib(kw_only=True, default=None)
-    value: float = attr.ib(kw_only=True)
-    options: List[float] = attr.ib(kw_only=True)
+    default_value: Optional[float] = attr.field(kw_only=True, default=None)
+    value: float = attr.field(kw_only=True)
+    options: List[float] = attr.field(kw_only=True)
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class SelectableString(ConfigurableParameter):
     """
     Representation of a string selectable configurable parameter in GETi.
@@ -170,7 +170,7 @@ class SelectableString(ConfigurableParameter):
     :var options: List of options that the selectable string is allowed to take
     """
 
-    default_value: Optional[str] = attr.ib(kw_only=True, default=None)
-    enum_name: str = attr.ib(kw_only=True)
-    value: str = attr.ib(kw_only=True)
-    options: List[str] = attr.ib(kw_only=True)
+    default_value: Optional[str] = attr.field(kw_only=True, default=None)
+    enum_name: str = attr.field(kw_only=True)
+    value: str = attr.field(kw_only=True)
+    options: List[str] = attr.field(kw_only=True)

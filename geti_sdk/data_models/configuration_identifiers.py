@@ -21,7 +21,7 @@ from geti_sdk.data_models.enums import ConfigurationEntityType
 from geti_sdk.data_models.utils import attr_value_serializer, str_to_enum_converter
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class EntityIdentifier:
     """
     Identifying information for a configurable entity on the Intel® Geti™ platform,
@@ -33,7 +33,7 @@ class EntityIdentifier:
 
     _identifier_fields: ClassVar[str] = ["workspace_id"]
 
-    type: str = attr.ib(converter=str_to_enum_converter(ConfigurationEntityType))
+    type: str = attr.field(converter=str_to_enum_converter(ConfigurationEntityType))
     workspace_id: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
@@ -45,7 +45,7 @@ class EntityIdentifier:
         return attr.asdict(self, value_serializer=attr_value_serializer, recurse=True)
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class HyperParameterGroupIdentifier(EntityIdentifier):
     """
     Identifying information for a HyperParameterGroup on the Intel® Geti™ platform,
@@ -58,10 +58,10 @@ class HyperParameterGroupIdentifier(EntityIdentifier):
 
     _identifier_fields: ClassVar[str] = ["model_storage_id", "workspace_id"]
 
-    group_name: str = attr.ib(kw_only=True)
+    group_name: str = attr.field(kw_only=True)
     model_storage_id: Optional[str] = None
-    algorithm_name: Optional[str] = attr.ib(repr=False, default=None)
-    model_template_id: Optional[str] = attr.ib(repr=False, default=None)
+    algorithm_name: Optional[str] = attr.field(repr=False, default=None)
+    model_template_id: Optional[str] = attr.field(repr=False, default=None)
 
     def resolve_algorithm(self, algorithm: Algorithm):
         """
@@ -75,7 +75,7 @@ class HyperParameterGroupIdentifier(EntityIdentifier):
         self.model_template_id = algorithm.model_template_id
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class ComponentEntityIdentifier(EntityIdentifier):
     """
     Identifying information for a configurable Component on the Intel® Geti™ platform,
@@ -88,6 +88,6 @@ class ComponentEntityIdentifier(EntityIdentifier):
 
     _identifier_fields: ClassVar[str] = ["project_id", "task_id", "workspace_id"]
 
-    component: str = attr.ib(kw_only=True)
+    component: str = attr.field(kw_only=True)
     project_id: Optional[str] = None
     task_id: Optional[str] = None

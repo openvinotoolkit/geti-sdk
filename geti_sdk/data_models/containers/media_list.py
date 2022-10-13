@@ -14,6 +14,7 @@
 
 from __future__ import annotations
 
+import os
 from collections import UserList
 from typing import Any, Dict, Generic, List, Type, TypeVar
 
@@ -100,5 +101,5 @@ class MediaList(UserList, Generic[MediaTypeVar]):
         Return True if the media list contains at least two items that have the same
         filename, False otherwise.
         """
-        filenames = self.names
+        filenames = [os.path.basename(name) for name in self.names]
         return len(set(filenames)) != len(filenames)

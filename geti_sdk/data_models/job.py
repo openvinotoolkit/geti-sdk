@@ -28,7 +28,7 @@ from geti_sdk.data_models.utils import (
 from geti_sdk.http_session import GetiRequestException, GetiSession
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class JobStatus(StatusSummary):
     """
     Current status of a job on the Intel® Geti™ server.
@@ -36,7 +36,7 @@ class JobStatus(StatusSummary):
     :var state: Current state of the job
     """
 
-    state: str = attr.ib(converter=str_to_enum_converter(JobState))
+    state: str = attr.field(converter=str_to_enum_converter(JobState))
 
     @classmethod
     def from_dict(cls, status_dict: Dict[str, Any]) -> "JobStatus":
@@ -50,7 +50,7 @@ class JobStatus(StatusSummary):
         return cls(**status_dict)
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class TaskMetadata:
     """
     Metadata related to a task on the Intel® Geti™ cluster.
@@ -69,7 +69,7 @@ class TaskMetadata:
     dataset_storage_id: Optional[str] = None
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class TestMetadata:
     """
     Metadata related to a model test job on the GETi cluster.
@@ -85,7 +85,7 @@ class TestMetadata:
     datasets: List[Dataset]
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class ProjectMetadata:
     """
     Metadata related to a project on the GETi cluster.
@@ -98,7 +98,7 @@ class ProjectMetadata:
     id: Optional[str] = None
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class JobMetadata:
     """
     Metadata for a particular job on the GETi cluster.
@@ -124,7 +124,7 @@ class JobMetadata:
     optimized_model_id: Optional[str] = None
 
 
-@attr.s(auto_attribs=True)
+@attr.define(slots=False)
 class Job:
     """
     Representation of a job running on the GETi cluster.
@@ -142,10 +142,10 @@ class Job:
     description: str
     id: str
     status: JobStatus
-    type: str = attr.ib(converter=str_to_enum_converter(JobType))
+    type: str = attr.field(converter=str_to_enum_converter(JobType))
     metadata: JobMetadata
     project_id: Optional[str] = None
-    creation_time: Optional[str] = attr.ib(converter=str_to_datetime, default=None)
+    creation_time: Optional[str] = attr.field(converter=str_to_datetime, default=None)
 
     def __attrs_post_init__(self):
         """

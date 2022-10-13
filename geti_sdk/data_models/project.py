@@ -29,7 +29,7 @@ from .utils import (
 )
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class Connection:
     """
     Representation of a connection between two tasks in GETi.
@@ -42,7 +42,7 @@ class Connection:
     from_: str
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class Pipeline:
     """
     Representation of a pipeline for a project in GETi.
@@ -141,7 +141,7 @@ class Pipeline:
             task.deidentify()
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class Dataset:
     """
     Representation of a dataset for a project in Intel® Geti™.
@@ -154,7 +154,7 @@ class Dataset:
 
     name: str
     id: Optional[str] = None
-    creation_time: Optional[str] = attr.ib(default=None, converter=str_to_datetime)
+    creation_time: Optional[str] = attr.field(default=None, converter=str_to_datetime)
     use_for_training: Optional[bool] = None
 
     def deidentify(self) -> None:
@@ -164,7 +164,7 @@ class Dataset:
         deidentify(self)
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class Project:
     """
     Representation of a project in Intel® Geti™.
@@ -190,7 +190,7 @@ class Project:
     datasets: List[Dataset]
     score: Optional[float] = None  # 'score' is removed in v1.1
     performance: Optional[Performance] = None
-    creation_time: Optional[str] = attr.ib(default=None, converter=str_to_datetime)
+    creation_time: Optional[str] = attr.field(default=None, converter=str_to_datetime)
     id: Optional[str] = None
     thumbnail: Optional[str] = None
     creator_id: Optional[str] = None

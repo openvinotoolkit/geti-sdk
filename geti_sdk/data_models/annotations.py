@@ -28,7 +28,7 @@ from geti_sdk.data_models.shapes import (
 from geti_sdk.data_models.utils import deidentify, str_to_datetime
 
 
-@attr.s(auto_attribs=True)
+@attr.define
 class Annotation:
     """
     Representation of a single annotation for a media item on the Intel® Geti™ platform.
@@ -45,7 +45,7 @@ class Annotation:
 
     labels: List[ScoredLabel]
     shape: Union[Rectangle, Ellipse, Polygon, RotatedRectangle]
-    modified: Optional[str] = attr.ib(converter=str_to_datetime, default=None)
+    modified: Optional[str] = attr.field(converter=str_to_datetime, default=None)
     id: Optional[str] = None
     labels_to_revisit: Optional[List[str]] = None
 
