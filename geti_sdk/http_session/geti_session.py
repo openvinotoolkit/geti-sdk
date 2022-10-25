@@ -384,6 +384,9 @@ class GetiSession(requests.Session):
                 logging.info("New bearer token obtained.")
                 self.headers.update({"Authorization": f"Bearer {access_token}"})
 
+            # We make one attempt to do the request again. If it fails again, a
+            # GetiRequestException will be raised holding further details of the
+            # reason for failure.
             response = self.request(**request_params, **self._proxies)
             if response.status_code in SUCCESS_STATUS_CODES:
                 return response
