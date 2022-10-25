@@ -18,11 +18,7 @@ import pytest
 
 from geti_sdk import Geti
 from geti_sdk.data_models import Project
-from geti_sdk.demos import (
-    ensure_trained_anomaly_project,
-    ensure_trained_example_project,
-    get_coco_dataset,
-)
+from geti_sdk.demos import ensure_trained_example_project, get_coco_dataset
 from geti_sdk.demos.data_helpers.anomaly_helpers import get_mvtec_dataset, is_ad_dataset
 from geti_sdk.demos.data_helpers.coco_helpers import (
     COCOSubset,
@@ -128,31 +124,6 @@ class TestDemoProjects:
             geti=fxt_geti_no_vcr, project=fxt_detection_demo_project
         )
 
-        assert prediction_client.ready_to_predict
-
-    def test_ensure_trained_anomaly_project(
-        self, fxt_geti_no_vcr: Geti, fxt_project_client_no_vcr: ProjectClient
-    ):
-        """
-        Test the `ensure_trained_anomaly_project` method
-        """
-        project_name = f"{PROJECT_PREFIX}_ensure_trained_anomaly_project"
-        if fxt_project_client_no_vcr.get_project_by_name(project_name) is not None:
-            force_delete_project(
-                project_name=project_name, project_client=fxt_project_client_no_vcr
-            )
-        assert project_name not in [
-            project.name for project in fxt_project_client_no_vcr.get_all_projects()
-        ]
-
-        project = ensure_trained_anomaly_project(
-            geti=fxt_geti_no_vcr, project_name=project_name
-        )
-        prediction_client = PredictionClient(
-            session=fxt_geti_no_vcr.session,
-            workspace_id=fxt_geti_no_vcr.workspace_id,
-            project=project,
-        )
         assert prediction_client.ready_to_predict
 
     def test_ensure_trained_example_project(
