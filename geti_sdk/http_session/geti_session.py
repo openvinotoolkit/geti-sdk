@@ -374,18 +374,19 @@ class GetiSession(requests.Session):
         """
         if response.status_code in [200, 401, 403]:
             # Authentication has likely expired, re-authenticate
+            logging.info("Authentication may have expired, re-authenticating...")
             if not self.use_token:
-                logging.info("Authorization expired, re-authenticating...")
                 self.authenticate(verbose=False)
                 logging.info("Authentication complete.")
-                response = self.request(**request_params, **self._proxies)
 
-                if response.status_code in SUCCESS_STATUS_CODES:
-                    return response
             else:
-                # In case of token authentication, GetiRequestException will be raised
-                # upon authentication failure
-                pass
+                access_token = self._acquire_access_token()
+                logging.info("New bearer token obtained.")
+                self.headers.update({"Authorization": f"Bearer {access_token}"})
+
+            response = self.request(**request_params, **self._proxies)
+            if response.status_code in SUCCESS_STATUS_CODES:
+                return response
 
         elif response.status_code == 503:
             # In case of Service Unavailable, wait some time and try again. If it
