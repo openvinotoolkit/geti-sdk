@@ -1,3 +1,17 @@
+# v0.2.4 Intel® Geti™ SDK (25-10-2022)
+## What's Changed
+* Auto detect normalized annotation files for GetiAnnotationReader by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/63
+* Fix version detection mechanism and add tests for GetiVersion by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/64
+* Minor changes for backward compatibility with SCv1.1 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/67
+* Enable proxies in ONLINE test mode by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/66
+* Fix proxy config in tests for online mode by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/68
+* Updated Attrs Classes and Fields by @HiteshManglani123 in https://github.com/openvinotoolkit/geti-sdk/pull/65
+* Validate media filename upon download by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/69
+* Update pytest-env requirement from ==0.6.* to ==0.8.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/70
+* Fix anomaly classification deployment by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/71
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v0.2.3...v0.2.4
+
 # v0.2.3 Intel® Geti™ SDK (06-10-2022)
 ## What's Changed
 * Remove VCR from nightly test for demos by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/54
