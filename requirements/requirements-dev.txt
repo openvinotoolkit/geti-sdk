@@ -3,7 +3,7 @@ vcrpy==4.2.*
 pytest==7.1.*
 pytest-recording==0.12.*
 pytest-cov==4.0.*
-pytest-env==0.6.*
+pytest-env==0.8.*
 pytest-html==3.1.*
 flake8>=4.0
 pydocstyle>=6.1
