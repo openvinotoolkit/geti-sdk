@@ -4,7 +4,7 @@ pytest==7.1.*
 pytest-recording==0.12.*
 pytest-cov==4.0.*
 pytest-env==0.8.*
-pytest-html==3.1.*
+pytest-html==3.2.*
 flake8>=4.0
 pydocstyle>=6.1
 black>=22.6
