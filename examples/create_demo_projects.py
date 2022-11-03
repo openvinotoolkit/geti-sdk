@@ -11,14 +11,14 @@ from geti_sdk.demos import (
 from geti_sdk.utils import get_server_details_from_env
 
 if __name__ == "__main__":
-    # Get credentials from .env file
-    hostname, authentication = get_server_details_from_env()
+    # Get the server configuration from .env file
+    server_config = get_server_details_from_env()
 
     # --------------------------------------------------
     # Configuration section
     # --------------------------------------------------
-    # Set up the Geti instance with server hostname and authentication details
-    geti = Geti(host=hostname, **authentication)
+    # Set up the Geti instance with the server configuration details
+    geti = Geti(server_config=server_config)
 
     # Dataset configuration
     NUMBER_OF_IMAGES_TO_UPLOAD = 100

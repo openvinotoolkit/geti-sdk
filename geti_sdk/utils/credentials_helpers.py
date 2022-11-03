@@ -12,14 +12,46 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import os
-from typing import Dict, Tuple
+from typing import Optional, Union
 
 from dotenv import dotenv_values
+
+from geti_sdk.http_session.server_config import (
+    ServerCredentialConfig,
+    ServerTokenConfig,
+)
+
+
+def convert_boolean_env_variable(
+    value: Optional[str], default_value: bool = False
+) -> bool:
+    """
+    Convert a string that was extracted from environment variables to a
+    boolean.
+
+    Strings like 'True', 'true', 't', '1', 'T' are accepted and converted to True
+    Strings like 'False', 'false', 'f', '0', 'F', are accepted and converted to False
+    Other strings are rejected, a ValueError will be raised in that case
+
+    :param value: string to convert to boolean
+    :param default_value: Default value to return, will be returned in case `value` is
+        None
+    :return: Boolean corresponding to the input `value`
+    """
+    true_strings = ("true", "1", "t")
+    false_strings = ("false", "0", "f")
+
+    if value is None:
+        return default_value
+
+    if value.lower() not in true_strings + false_strings:
+        raise ValueError(f"Invalid value `{value}` for boolean variable")
+    return value in true_strings
 
 
 def get_server_details_from_env(
     env_file_path: str = ".env", use_global_variables: bool = False
-) -> Tuple[str, Dict[str, str]]:
+) -> Union[ServerTokenConfig, ServerCredentialConfig]:
     """
     Retrieve the server information (hostname and authentication details) from
     environment variables.
@@ -29,14 +61,20 @@ def get_server_details_from_env(
     different file, simply specify the path to the file in `env_file_path`. The
     following variables are relevant:
 
-        HOST     -> hostname or ip address of the Geti server
-        TOKEN    -> Personal Access Token that can be used for authorization
+        HOST        -> hostname or ip address of the Geti server
+
+        TOKEN       -> Personal Access Token that can be used for authorization
+
+        VERIFY_CERT -> boolean, pass 1 or True to verify
+
 
     In addition, authentication via credentials is also supported. In that case, the
     following variables should be provided:
 
         USERNAME -> username to log in to the Geti server
+
         PASSWORD -> password for logging in to the Geti server
+
 
     If both TOKEN, USERNAME and PASSWORD are provided, the method will use the preferred
     token authorization.
@@ -49,17 +87,15 @@ def get_server_details_from_env(
     :param env_file_path: Path to the file containing the server details
     :param use_global_variables: If set to True, the method will not read the server
         details from a file but will use environment variables instead
-    :return: Tuple consisting of:
-      - string holding the hostname or ip address of the server
-      - Dictionary containing the authentication information. This can either contain
-          the personal access token or the username/password to log in to the Geti
-          server.
+    :return: A ServerConfig instance that contains the details of the Geti server
+        specified in the environment
     """
     if use_global_variables:
         host_key = "GETI_HOST"
         token_key = "GETI_TOKEN"  # nosec: B105
         username_key = "GETI_USERNAME"
         password_key = "GETI_PASSWORD"  # nosec: B105
+        cert_key = "GETI_VERIFY_CERT"
 
         retrieval_func = os.environ.get
         env_name = "environment variables"
@@ -68,6 +104,7 @@ def get_server_details_from_env(
         token_key = "TOKEN"  # nosec: B105
         username_key = "USERNAME"
         password_key = "PASSWORD"  # nosec: B105
+        cert_key = "VERIFY_CERT"
 
         env_variables = dotenv_values(dotenv_path=env_file_path)
         if not env_variables:
@@ -78,6 +115,7 @@ def get_server_details_from_env(
         retrieval_func = env_variables.get
         env_name = "environment file"
 
+    # Extract hostname
     hostname = retrieval_func(host_key, None)
     if hostname is None:
         raise ValueError(
@@ -85,6 +123,12 @@ def get_server_details_from_env(
             f"that the variable {host_key} is defined."
         )
 
+    # Extract certificate validation. Defaults to True
+    verify_certificate = convert_boolean_env_variable(
+        value=retrieval_func(cert_key, None), default_value=True
+    )
+
+    # Extract token/credentials
     token = retrieval_func(token_key, None)
     if token is None:
         user = retrieval_func(username_key, None)
@@ -95,7 +139,14 @@ def get_server_details_from_env(
                 f"the {env_name}. Please make sure that either '{token_key}' or "
                 f"'{username_key}' and '{password_key}' is defined in the environment."
             )
-        authentication_dict = {"username": user, "password": password}
+        server_config = ServerCredentialConfig(
+            host=hostname,
+            username=user,
+            password=password,
+            has_valid_certificate=verify_certificate,
+        )
     else:
-        authentication_dict = {"token": token}
-    return hostname, authentication_dict
+        server_config = ServerTokenConfig(
+            host=hostname, token=token, has_valid_certificate=verify_certificate
+        )
+    return server_config
