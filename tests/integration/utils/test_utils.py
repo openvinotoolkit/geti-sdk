@@ -117,7 +117,9 @@ class TestUtils:
                 expected_results.update(variable_dictionary)
 
         server_config = get_server_details_from_env(use_global_variables=True)
-        assert server_config.host == expected_results["GETI_HOST"]
+        assert server_config.host.replace("https://", "") == expected_results[
+            "GETI_HOST"
+        ].replace("https://", "")
         assert server_config.username == expected_results["GETI_USERNAME"]
         assert server_config.password == expected_results["GETI_PASSWORD"]
         assert not hasattr(server_config, "token")
