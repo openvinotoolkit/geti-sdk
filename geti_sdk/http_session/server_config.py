@@ -122,7 +122,7 @@ class ServerCredentialConfig(ServerConfig):
     password: str
 
 
-@attrs.define
+@attrs.define(slots=False)
 class ServerTokenConfig(ServerConfig):
     """
     Configuration for an Intel® Geti™ server that uses a personal access token

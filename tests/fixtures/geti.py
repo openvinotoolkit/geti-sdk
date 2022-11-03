@@ -84,5 +84,8 @@ def fxt_geti_no_vcr(
     else:
         auth_params = {"token": fxt_server_config.token}
     yield Geti(
-        host=fxt_server_config.host, proxies=fxt_server_config.proxies, **auth_params
+        host=fxt_server_config.host,
+        proxies=fxt_server_config.proxies,
+        **auth_params,
+        verify_certificate=fxt_server_config.has_valid_certificate,
     )

@@ -130,8 +130,21 @@ Instantiating the `Geti` class will establish the connection and perform authent
   )
 
   ```
-  Here, `"dummy_user"` and `"dummy_password"` should be replaced by your username and password for the Geti server.
+  Here, `"dummy_user"` and `"dummy_password"` should be replaced by your username and
+  password for the Geti server.
 
+
+- **SSL certificate validation**
+
+  By default, the SDK verifies the SSL certificate of your server before establishing
+  a connection over HTTPS. If the certificate can't be validated, this will results in
+  an error and the SDK will not be able to connect to the server.
+
+  However, this may not be appropriate or desirable in all cases, for instance if your
+  Geti server does not have a certificate because you are running it in a private
+  network environment. In that case, certificate validation can be disabled by passing
+  `verify_certificate=False` to the `Geti` constructor. Please only disable certificate
+  validation in a secure environment!
 
 #### Downloading and uploading projects
 

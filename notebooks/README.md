@@ -55,6 +55,19 @@ is installed, you can follow the steps below to set up the notebooks.
 >
 > In case both a TOKEN and USERNAME/PASSWORD variables are provided, the SDK
 > will default to using the TOKEN since this method is considered more secure.
+>
+> ### SSL Certificate verification
+> By default, the SDK verifies the SSL certificate of your server before establishing
+> a connection over HTTPS. If the certificate can't be validated, this will results in
+> an error and the SDK will not be able to connect to the server.
+>
+> However, this may not be appropriate or desirable in all cases, for instance if your
+> Geti server does not have a certificate because you are running it in a private
+> network environment. In that case, certificate validation can be disabled by adding
+> the following variable to the `.env` file:
+> ```shell
+> VERIFY_CERT=0
+> ```
 
 # Available notebooks
 The following notebooks are currently provided:
