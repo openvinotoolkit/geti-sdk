@@ -314,6 +314,18 @@ please use the <cite>overview</cite> property</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.data_models.task.Task.prepare_for_post">
+<span class="sig-name descname"><span class="pre">prepare_for_post</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#geti_sdk.data_models.task.Task.prepare_for_post" title="Permalink to this definition"></a></dt>
+<dd><p>Set all fields to None that are not valid for making a POST request to the
+/projects endpoint.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <span class="target" id="module-geti_sdk.data_models.project"></span><dl class="py class">
@@ -441,6 +453,18 @@ innermost list holds the labels for that specific task</p>
 <dd><p>Remove all unique database ID’s from the tasks and labels in the pipeline.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.data_models.project.Pipeline.prepare_for_post">
+<span class="sig-name descname"><span class="pre">prepare_for_post</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#geti_sdk.data_models.project.Pipeline.prepare_for_post" title="Permalink to this definition"></a></dt>
+<dd><p>Set all fields to None that are not valid for making a POST request to the
+/projects endpoint.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -479,6 +503,18 @@ innermost list holds the labels for that specific task</p>
 <dt class="sig sig-object py" id="geti_sdk.data_models.project.Dataset.deidentify">
 <span class="sig-name descname"><span class="pre">deidentify</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#geti_sdk.data_models.project.Dataset.deidentify" title="Permalink to this definition"></a></dt>
 <dd><p>Remove unique database ID from the Dataset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.data_models.project.Dataset.prepare_for_post">
+<span class="sig-name descname"><span class="pre">prepare_for_post</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#geti_sdk.data_models.project.Dataset.prepare_for_post" title="Permalink to this definition"></a></dt>
+<dd><p>Set all fields to None that are not valid for making a POST request to the
+/projects endpoint.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -575,6 +611,18 @@ will have it’s project type set as: ‘detection_to_segmentation’</p>
 <dt class="sig sig-object py" id="geti_sdk.data_models.project.Project.deidentify">
 <span class="sig-name descname"><span class="pre">deidentify</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#geti_sdk.data_models.project.Project.deidentify" title="Permalink to this definition"></a></dt>
 <dd><p>Remove all unique database ID’s from the project, pipeline and datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.data_models.project.Project.prepare_for_post">
+<span class="sig-name descname"><span class="pre">prepare_for_post</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#geti_sdk.data_models.project.Project.prepare_for_post" title="Permalink to this definition"></a></dt>
+<dd><p>Set all fields to None that are not valid for making a POST request to the
+/projects endpoint.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p></p>
@@ -766,6 +814,18 @@ please use the <cite>overview</cite> property</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>OTE SDK LabelEntity instance corresponding to the label</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.data_models.label.Label.prepare_for_post">
+<span class="sig-name descname"><span class="pre">prepare_for_post</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#geti_sdk.data_models.label.Label.prepare_for_post" title="Permalink to this definition"></a></dt>
+<dd><p>Set all fields to None that are not valid for making a POST request to the
+/projects endpoint.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
 </dd>
 </dl>
 </dd></dl>
