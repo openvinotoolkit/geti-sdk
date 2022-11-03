@@ -26,14 +26,14 @@ def rotate_image(image: np.ndarray, angle: float) -> np.ndarray:
 
 
 if __name__ == "__main__":
-    # Get credentials from .env file
-    hostname, authentication = get_server_details_from_env()
+    # Get the server configuration from .env file
+    server_config = get_server_details_from_env()
 
     # --------------------------------------------------
     # Configuration section
     # --------------------------------------------------
-    # Set up the Geti instance with server hostname and authentication details
-    geti = Geti(host=hostname, **authentication)
+    # Set up the Geti instance with the server configuration details
+    geti = Geti(server_config=server_config)
 
     # `PROJECT_NAME` is the name of the project to which the media should be uploaded,
     # and from which predictions can be requested. A project with this name should
