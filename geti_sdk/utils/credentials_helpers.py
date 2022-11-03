@@ -92,18 +92,18 @@ def get_server_details_from_env(
     """
     if use_global_variables:
         host_key = "GETI_HOST"
-        token_key = "GETI_TOKEN"
+        token_key = "GETI_TOKEN"  # nosec: B105
         username_key = "GETI_USERNAME"
-        password_key = "GETI_PASSWORD"
+        password_key = "GETI_PASSWORD"  # nosec: B105
         cert_key = "GETI_VERIFY_CERT"
 
         retrieval_func = os.environ.get
         env_name = "environment variables"
     else:
         host_key = "HOST"
-        token_key = "TOKEN"
+        token_key = "TOKEN"  # nosec: B105
         username_key = "USERNAME"
-        password_key = "PASSWORD"
+        password_key = "PASSWORD"  # nosec: B105
         cert_key = "VERIFY_CERT"
 
         env_variables = dotenv_values(dotenv_path=env_file_path)
