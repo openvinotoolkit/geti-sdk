@@ -48,6 +48,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#authentication">Authentication</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#personal-access-token">Personal Access Token</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#credentials">Credentials</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ssl-certificate-verification">SSL Certificate verification</a></li>
 </ul>
 </li>
 </ul>
@@ -138,6 +139,19 @@ should have the following contents:</p>
 <p>Where you should of course fill the details appropriate for your instance.</p>
 <p>In case both a TOKEN and USERNAME/PASSWORD variables are provided, the SDK
 will default to using the TOKEN since this method is considered more secure.</p>
+</section>
+<section id="ssl-certificate-verification">
+<h4>SSL Certificate verification<a class="headerlink" href="#ssl-certificate-verification" title="Permalink to this heading"></a></h4>
+<p>By default, the SDK verifies the SSL certificate of your server before establishing
+a connection over HTTPS. If the certificate can’t be validated, this will results in
+an error and the SDK will not be able to connect to the server.</p>
+<p>However, this may not be appropriate or desirable in all cases, for instance if your
+Geti server does not have a certificate because you are running it in a private
+network environment. In that case, certificate validation can be disabled by adding
+the following variable to the <code class="docutils literal notranslate"><span class="pre">.env</span></code> file:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">VERIFY_CERT</span><span class="o">=</span><span class="m">0</span>
+</pre></div>
+</div>
 </section>
 </section>
 </section>

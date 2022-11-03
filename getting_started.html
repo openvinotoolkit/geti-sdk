@@ -227,7 +227,18 @@ the server. They can be passed as follows:</p>
 
 </pre></div>
 </div>
-<p>Here, <code class="docutils literal notranslate"><span class="pre">&quot;dummy_user&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;dummy_password&quot;</span></code> should be replaced by your username and password for the Geti server.</p>
+<p>Here, <code class="docutils literal notranslate"><span class="pre">&quot;dummy_user&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;dummy_password&quot;</span></code> should be replaced by your username and
+password for the Geti server.</p>
+</li>
+<li><p><strong>SSL certificate validation</strong></p>
+<p>By default, the SDK verifies the SSL certificate of your server before establishing
+a connection over HTTPS. If the certificate can’t be validated, this will results in
+an error and the SDK will not be able to connect to the server.</p>
+<p>However, this may not be appropriate or desirable in all cases, for instance if your
+Geti server does not have a certificate because you are running it in a private
+network environment. In that case, certificate validation can be disabled by passing
+<code class="docutils literal notranslate"><span class="pre">verify_certificate=False</span></code> to the <code class="docutils literal notranslate"><span class="pre">Geti</span></code> constructor. Please only disable certificate
+validation in a secure environment!</p>
 </li>
 </ul>
 </section>
