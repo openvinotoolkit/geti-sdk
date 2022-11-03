@@ -140,6 +140,16 @@ class Pipeline:
         for task in self.tasks:
             task.deidentify()
 
+    def prepare_for_post(self) -> None:
+        """
+        Set all fields to None that are not valid for making a POST request to the
+        /projects endpoint.
+
+        :return:
+        """
+        for task in self.tasks:
+            task.prepare_for_post()
+
 
 @attr.define
 class Dataset:
@@ -151,6 +161,7 @@ class Dataset:
     """
 
     _identifier_fields: ClassVar[str] = ["id", "creation_time"]
+    _GET_only_fields: ClassVar[List[str]] = ["use_for_training", "creation_time"]
 
     name: str
     id: Optional[str] = None
@@ -162,6 +173,16 @@ class Dataset:
         Remove unique database ID from the Dataset.
         """
         deidentify(self)
+
+    def prepare_for_post(self) -> None:
+        """
+        Set all fields to None that are not valid for making a POST request to the
+        /projects endpoint.
+
+        :return:
+        """
+        for field_name in self._GET_only_fields:
+            setattr(self, field_name, None)
 
 
 @attr.define
@@ -184,6 +205,7 @@ class Project:
         "creation_time",
         "creator_id",
     ]
+    _GET_only_fields: ClassVar[List[str]] = ["thumbnail", "score", "performance"]
 
     name: str
     pipeline: Pipeline
@@ -234,6 +256,19 @@ class Project:
         self.pipeline.deidentify()
         for dataset in self.datasets:
             dataset.deidentify()
+
+    def prepare_for_post(self) -> None:
+        """
+        Set all fields to None that are not valid for making a POST request to the
+        /projects endpoint.
+
+        :return:
+        """
+        for field_name in self._GET_only_fields:
+            setattr(self, field_name, None)
+        self.pipeline.prepare_for_post()
+        for dataset in self.datasets:
+            dataset.prepare_for_post()
 
     def to_dict(self) -> Dict[str, Any]:
         """
