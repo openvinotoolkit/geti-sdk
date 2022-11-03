@@ -55,6 +55,7 @@ class Label:
     """
 
     _identifier_fields: ClassVar[List[str]] = ["id", "hotkey"]
+    _GET_only_fields: ClassVar[List[str]] = ["is_empty", "is_anomalous"]
 
     name: str
     color: str
@@ -79,6 +80,16 @@ class Label:
             is_empty=self.is_empty,
             color=Color.from_hex_str(self.color),
         )
+
+    def prepare_for_post(self) -> None:
+        """
+        Set all fields to None that are not valid for making a POST request to the
+        /projects endpoint.
+
+        :return:
+        """
+        for field_name in self._GET_only_fields:
+            setattr(self, field_name, None)
 
 
 @attr.define

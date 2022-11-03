@@ -291,6 +291,7 @@ class ProjectClient:
             f"Creating project '{project.name}' from parameters in "
             f"configuration file at {path_to_project}."
         )
+        project.prepare_for_post()
         return self.get_or_create_project(**project.get_parameters())
 
     @staticmethod
