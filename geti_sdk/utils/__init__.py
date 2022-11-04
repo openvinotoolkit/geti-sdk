@@ -30,7 +30,7 @@ from .plot_helpers import (
     show_image_with_annotation_scene,
     show_video_frames_with_annotation_scenes,
 )
-from .project_helpers import get_task_types_by_project_type
+from .project_helpers import get_project_folder_name, get_task_types_by_project_type
 from .serialization_helpers import deserialize_dictionary
 from .workspace_helpers import get_default_workspace_id
 
@@ -45,4 +45,5 @@ __all__ = [
     "get_supported_algorithms",
     "deserialize_dictionary",
     "get_server_details_from_env",
+    "get_project_folder_name",
 ]
