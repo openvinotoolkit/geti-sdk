@@ -241,8 +241,10 @@ class Geti:
 
         :param project_name: Name of the project to download
         :param target_folder: Path to the local folder in which the project data
-            should be saved. If not specified, a new directory named `project_name`
-            will be created inside the current working directory.
+            should be saved. If not specified, a new directory will be created inside
+            the current working directory. The name of the resulting directory will be
+            the result of the concatenation of the project unique ID (24 characters)
+            and the project name, i.e.: `"{project.id}_{project.name}"`
         :param include_predictions: True to also download the predictions for all
             images and videos in the project, False to not download any predictions.
             If this is set to True but the project has no trained models, downloading
@@ -264,9 +266,8 @@ class Geti:
 
         # Validate or create target_folder
         if target_folder is None:
-            target_folder = os.path.join(".", project_name)
-        if not os.path.exists(target_folder):
-            os.makedirs(target_folder)
+            target_folder = os.path.join(".", f"{project.id}_{project.name}")
+        os.makedirs(target_folder, exist_ok=True)
 
         # Download project creation parameters:
         project_client.download_project_info(
