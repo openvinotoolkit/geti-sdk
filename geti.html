@@ -223,8 +223,10 @@ dataset is large.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>project_name</strong> – Name of the project to download</p></li>
 <li><p><strong>target_folder</strong> – Path to the local folder in which the project data
-should be saved. If not specified, a new directory named <cite>project_name</cite>
-will be created inside the current working directory.</p></li>
+should be saved. If not specified, a new directory will be created inside
+the current working directory. The name of the resulting directory will be
+the result of the concatenation of the project unique ID (24 characters)
+and the project name, i.e.: <cite>“{project.id}_{project.name}”</cite></p></li>
 <li><p><strong>include_predictions</strong> – True to also download the predictions for all
 images and videos in the project, False to not download any predictions.
 If this is set to True but the project has no trained models, downloading
