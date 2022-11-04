@@ -1,2 +1,2 @@
 # Requirements for running the Jupyter notebooks
-jupyterlab>=3.2
+jupyterlab>=3.5.0
