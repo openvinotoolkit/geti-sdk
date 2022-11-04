@@ -1,4 +1,4 @@
-# v1.0.0rc1 Intel® Geti™ SDK (04-11-2022)
+# v1.0.0 Intel® Geti™ SDK (04-11-2022)
 ## What's Changed
 * Add a re-authentication mechanism when using token authentication by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/72
 * Update pytest requirement from ==7.1.* to ==7.2.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/73
