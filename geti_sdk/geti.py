@@ -47,6 +47,7 @@ from .rest_clients import (
 from .utils import (
     generate_classification_labels,
     get_default_workspace_id,
+    get_project_folder_name,
     get_task_types_by_project_type,
     show_image_with_annotation_scene,
     show_video_frames_with_annotation_scenes,
@@ -266,7 +267,7 @@ class Geti:
 
         # Validate or create target_folder
         if target_folder is None:
-            target_folder = os.path.join(".", f"{project.id}_{project.name}")
+            target_folder = os.path.join(".", get_project_folder_name(project))
         os.makedirs(target_folder, exist_ok=True)
 
         # Download project creation parameters:
@@ -811,7 +812,9 @@ class Geti:
             )
             self.download_project(
                 project_name=project.name,
-                target_folder=os.path.join(target_folder, project.name),
+                target_folder=os.path.join(
+                    target_folder, get_project_folder_name(project)
+                ),
                 include_predictions=include_predictions,
             )
         return projects

@@ -14,6 +14,7 @@
 from typing import List
 
 from geti_sdk.data_models.enums import TaskType
+from geti_sdk.data_models.project import Project
 
 
 def get_task_types_by_project_type(project_type: str) -> List[TaskType]:
@@ -25,3 +26,13 @@ def get_task_types_by_project_type(project_type: str) -> List[TaskType]:
     :return:
     """
     return [TaskType(task) for task in project_type.split("_to_")]
+
+
+def get_project_folder_name(project: Project) -> str:
+    """
+    Return a folder name for the project, that can be used to download the project to.
+
+    :param project: Project to get a folder name for
+    :return: string holding the folder name for the project
+    """
+    return f"{project.id}_{project.name}"
