@@ -270,7 +270,7 @@ class Geti:
         if target_folder is None:
             target_folder = os.path.join(".", get_project_folder_name(project))
         else:
-            validate_filepath(target_folder)
+            validate_filepath(target_folder, platform="auto")
         os.makedirs(target_folder, exist_ok=True)
 
         # Download project creation parameters:
