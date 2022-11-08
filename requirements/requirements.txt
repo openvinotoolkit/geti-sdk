@@ -7,6 +7,7 @@ opencv-python==4.5.*
 python-dotenv==0.20.*
 tqdm==4.62.*
 Pillow==9.3.*
+pathvalidate>=2.5.0
 simplejson==3.17.*
 ipython==8.6.*
 ote-sdk @ git+https://github.com/openvinotoolkit/training_extensions/@releases/v0.3.0-sc1.2#egg=ote-sdk&subdirectory=ote_sdk
