@@ -19,6 +19,7 @@ import warnings
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
+from pathvalidate import validate_filepath
 
 from .annotation_readers import (
     AnnotationReader,
@@ -268,6 +269,8 @@ class Geti:
         # Validate or create target_folder
         if target_folder is None:
             target_folder = os.path.join(".", get_project_folder_name(project))
+        else:
+            validate_filepath(target_folder)
         os.makedirs(target_folder, exist_ok=True)
 
         # Download project creation parameters:

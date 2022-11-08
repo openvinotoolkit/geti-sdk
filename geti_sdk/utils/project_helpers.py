@@ -13,6 +13,8 @@
 # and limitations under the License.
 from typing import List
 
+from pathvalidate import sanitize_filename
+
 from geti_sdk.data_models.enums import TaskType
 from geti_sdk.data_models.project import Project
 
@@ -35,4 +37,5 @@ def get_project_folder_name(project: Project) -> str:
     :param project: Project to get a folder name for
     :return: string holding the folder name for the project
     """
-    return f"{project.id}_{project.name}"
+    name_part = sanitize_filename(project.name)
+    return f"{project.id}_{name_part}"
