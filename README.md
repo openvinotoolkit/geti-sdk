@@ -180,6 +180,9 @@ Instantiating the `Geti` class will establish the connection and perform authent
       project, and any optimized models derived from it. If set to False, no models
       are downloaded. True by default.
 
+  > **NOTE**: During project downloading the Geti SDK stores data on local disk. If
+  > necessary, please apply additional security control to protect downloaded files
+  > (e.g., enforce access control, delete sensitive data securely).
 
 - **Project upload** The following python snippet is a minimal example of how to
   re-create a project on an Intel® Geti™ server using the data from a previously
