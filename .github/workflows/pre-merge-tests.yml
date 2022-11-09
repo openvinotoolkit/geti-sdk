@@ -24,10 +24,10 @@ jobs:
     steps:
 
       - name: Checkout code with caching for Git LFS
-        uses: nschloe/action-cached-lfs-checkout@v1.1.2
+        uses: nschloe/action-cached-lfs-checkout@v1.2.0
 
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
