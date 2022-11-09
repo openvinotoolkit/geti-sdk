@@ -19,7 +19,7 @@ from typing import Optional
 
 from geti_sdk.demos.constants import DEFAULT_DATA_PATH
 
-from .download_helpers import download_file, ensure_directory_exists, validate_hash
+from .download_helpers import download_file, validate_hash
 
 DEFAULT_MVTEC_PATH = os.path.join(DEFAULT_DATA_PATH, "mvtec")
 
@@ -64,7 +64,7 @@ def get_mvtec_dataset_from_path(dataset_path: str = "data") -> str:
 
     """
     dataset_name = "transistor"
-    ensure_directory_exists(dataset_path)
+    os.makedirs(dataset_path, exist_ok=True, mode=0o770)
     transistor_dataset_path = os.path.join(dataset_path, dataset_name)
     if os.path.isdir(transistor_dataset_path) and is_ad_dataset(
         transistor_dataset_path
@@ -118,14 +118,14 @@ def get_mvtec_dataset_from_path(dataset_path: str = "data") -> str:
         )
 
     # Fix permissions on extracted files
-    os.chmod(transistor_dataset_path, 0o774)  # nosec: B103
+    os.chmod(transistor_dataset_path, 0o770)  # nosec: B103
     for root, dirs, files in os.walk(transistor_dataset_path):
         for file_name in files:
             file_path = os.path.join(root, file_name)
-            os.chmod(file_path, 0o0664)
+            os.chmod(file_path, 0o0660)
         for dir_name in dirs:
             dir_path = os.path.join(root, dir_name)
-            os.chmod(dir_path, 0o0774)  # nosec: B103
+            os.chmod(dir_path, 0o0770)  # nosec: B103
 
     logging.info("Cleaning up...")
     os.remove(archive_path)

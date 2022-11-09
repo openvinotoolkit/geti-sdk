@@ -442,8 +442,7 @@ class PredictionClient:
                 f"{len(media_list)} {media_name_plural} to folder "
                 f"{path_to_predictions_folder}"
             )
-        if not os.path.exists(path_to_predictions_folder):
-            os.makedirs(path_to_predictions_folder)
+        os.makedirs(path_to_predictions_folder, exist_ok=True, mode=0o770)
         t_start = time.time()
         download_count = 0
         skip_count = 0
@@ -485,8 +484,7 @@ class PredictionClient:
                     path_to_result_media_folder = os.path.join(
                         path_to_predictions_folder, "saliency_maps"
                     )
-                    if not os.path.exists(path_to_result_media_folder):
-                        os.makedirs(path_to_result_media_folder)
+                    os.makedirs(path_to_result_media_folder, exist_ok=True, mode=0o770)
                     for result_medium in result_media:
                         result_media_path = os.path.join(
                             path_to_result_media_folder,
@@ -496,7 +494,11 @@ class PredictionClient:
                             + ".jpg",
                         )
 
-                        os.makedirs(os.path.dirname(result_media_path), exist_ok=True)
+                        os.makedirs(
+                            os.path.dirname(result_media_path),
+                            exist_ok=True,
+                            mode=0o770,
+                        )
                         with open(result_media_path, "wb") as f:
                             f.write(result_medium.data)
 
@@ -506,7 +508,7 @@ class PredictionClient:
                 path_to_predictions_folder, media_item.name + ".json"
             )
 
-            os.makedirs(os.path.dirname(prediction_path), exist_ok=True)
+            os.makedirs(os.path.dirname(prediction_path), exist_ok=True, mode=0o770)
             with open(prediction_path, "w") as f:
                 json.dump(export_data, f, indent=4)
             download_count += 1

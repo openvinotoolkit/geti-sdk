@@ -333,8 +333,7 @@ class BaseAnnotationClient:
         :return: Returns the time elapsed to download the annotations, in seconds
         """
         path_to_annotations_folder = os.path.join(path_to_folder, "annotations")
-        if not os.path.exists(path_to_annotations_folder):
-            os.makedirs(path_to_annotations_folder)
+        os.makedirs(path_to_annotations_folder, exist_ok=True, mode=0o770)
         if media_list.media_type == Image:
             media_name = "image"
             media_name_plural = "images"
