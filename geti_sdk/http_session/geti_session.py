@@ -165,6 +165,12 @@ class GetiSession(requests.Session):
         """
         try:
             login_path = self._get_initial_login_url()
+        except requests.exceptions.SSLError as error:
+            raise requests.exceptions.SSLError(
+                f"Connection to Intel® Geti™ server at '{self.config.host}' failed, "
+                f"the server address can be resolved but the SSL certificate could not "
+                f"be verified. \n Full error description: {error.args[-1]}"
+            )
         except requests.exceptions.ConnectionError as error:
             if "dummy" in self.config.password or "dummy" in self.config.username:
                 raise ValueError(
@@ -243,7 +249,14 @@ class GetiSession(requests.Session):
         if not self.use_token:
             request_params.update({"cookies": self._cookies})
 
-        response = self.request(**request_params, **self._proxies)
+        try:
+            response = self.request(**request_params, **self._proxies)
+        except requests.exceptions.SSLError as error:
+            raise requests.exceptions.SSLError(
+                f"Connection to Intel® Geti™ server at '{self.config.host}' failed, "
+                f"the server address can be resolved but the SSL certificate could not "
+                f"be verified. \n Full error description: {error.args[-1]}"
+            )
 
         if (
             response.status_code not in SUCCESS_STATUS_CODES

@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import logging
 from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union
@@ -202,7 +202,14 @@ def str_to_datetime(datetime_str: Optional[Union[str, datetime]]) -> Optional[da
     :return: datetime instance
     """
     if isinstance(datetime_str, str):
-        return datetime.fromisoformat(datetime_str)
+        try:
+            return datetime.fromisoformat(datetime_str)
+        except ValueError:
+            logging.debug(
+                f"Unable to convert str '{datetime_str}' to datetime, converter "
+                f"returns None instead."
+            )
+            return None
     elif isinstance(datetime_str, datetime):
         return datetime_str
     elif datetime_str is None:

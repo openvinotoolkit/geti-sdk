@@ -181,7 +181,9 @@ def pytest_sessionstart(session: Session) -> None:
         else:
             proxies = None
         # Remove existing test projects
-        remove_all_test_projects(Geti(host=HOST, **auth_params, proxies=proxies))
+        remove_all_test_projects(
+            Geti(host=HOST, **auth_params, proxies=proxies, verify_certificate=False)
+        )
     if TEST_MODE == SdkTestMode.RECORD:
         record_cassette_path = tempfile.mkdtemp()
         logging.info(f"Cassettes will be recorded to `{record_cassette_path}`.")

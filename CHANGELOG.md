@@ -1,3 +1,24 @@
+# v1.0.0 Intel® Geti™ SDK (04-11-2022)
+## What's Changed
+* Add a re-authentication mechanism when using token authentication by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/72
+* Update pytest requirement from ==7.1.* to ==7.2.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/73
+* Update pillow requirement from ==9.2.* to ==9.3.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/74
+* Update pytest-html requirement from ==3.1.* to ==3.2.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/75
+* Catch value error when invalid datetime string is converted by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/76
+* Update nightly test workflow to include tests against Geti `develop` branch by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/78
+* Enable SSL certificate validation by default by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/77
+* Remove disallowed fields from project before POSTing by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/79
+* Ignore false positive bandit detections by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/80
+* Update numpy, ipython, jupyterlab versions by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/81
+* Fix and unify folder naming for project download by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/82
+
+
+## Breaking Changes
+* The `Geti` class now has SSL certificate validation enabled by default. This will result in an error when connecting to a server with a certificate that can't be validated. Note that it is still possible to disable certificate validation by passing `verify_certificate = False` when initializing the `Geti` instance. Please note that disabling certificate validation is unsafe and should only be considered in a secure network environment.
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v0.2.4...v1.0.0rc1
+
 # v0.2.4 Intel® Geti™ SDK (25-10-2022)
 ## What's Changed
 * Auto detect normalized annotation files for GetiAnnotationReader by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/63

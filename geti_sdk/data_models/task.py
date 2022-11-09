@@ -159,3 +159,21 @@ class Task:
                 f"Parent: {label.parent_id}\n"
             )
         return summary_str
+
+    def prepare_for_post(self) -> None:
+        """
+        Set all fields to None that are not valid for making a POST request to the
+        /projects endpoint.
+
+        :return:
+        """
+        if self.labels is not None:
+            labels_indices_to_pop: List[int] = []
+            for ii, label in enumerate(self.labels):
+                if label.is_empty:
+                    labels_indices_to_pop.append(ii)
+                label.prepare_for_post()
+            for index in labels_indices_to_pop:
+                # Empty labels are not allowed to be specified explicitly in a POST
+                # request
+                self.labels.pop(index)

@@ -19,6 +19,7 @@ import warnings
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
+from pathvalidate import validate_filepath
 
 from .annotation_readers import (
     AnnotationReader,
@@ -47,6 +48,7 @@ from .rest_clients import (
 from .utils import (
     generate_classification_labels,
     get_default_workspace_id,
+    get_project_folder_name,
     get_task_types_by_project_type,
     show_image_with_annotation_scene,
     show_video_frames_with_annotation_scenes,
@@ -64,9 +66,19 @@ class Geti:
     uploading, as well as project deployment. Initializing the class will establish a
     HTTP session to the Intel® Geti™ server, and requires authentication.
 
-    NOTE: The `Geti` instance can either be initialized using user credentials (`username`
-    and `password`), or using a personal access token (`token`). Arguments for either
-    one of these two options must be passed, otherwise a TypeError will be raised.
+    NOTE: The `Geti` instance can either be initialized in the following ways:
+
+        1. Using user credentials. This requires: `host`, `username` and `password` to
+            be passed as input
+        2. Using a personal access token. This requires: `host` and `token` to be
+            passed as input
+        3. Using a :py:class:`~geti_sdk.http_session.server_config.ServerTokenConfig`
+            or :py:class:`~geti_sdk.http_session.server_config.ServerCredentialConfig`
+            instance that contains the full configuration for the Geti server to
+            communicate with. This requires `server_config` to be passed as input.
+
+    Arguments for either one of these options must be passed, otherwise a TypeError
+    will be raised.
 
     :param host: IP address or URL at which the cluster can be reached, for example
         'https://0.0.0.0' or 'https://sc_example.intel.com'
@@ -86,17 +98,22 @@ class Geti:
             'https': http://proxy-server.com:<https_port_number>
         },
         if set to None (the default), no proxy settings will be used.
+    :param server_config: ServerConfiguration instance holding the full details for
+        the Geti server to communicate with
     """
 
     def __init__(
         self,
-        host: str,
+        host: Optional[str] = None,
         username: Optional[str] = None,
         password: Optional[str] = None,
         token: Optional[str] = None,
         workspace_id: Optional[str] = None,
-        verify_certificate: bool = False,
+        verify_certificate: bool = True,
         proxies: Optional[Dict[str, str]] = None,
+        server_config: Optional[
+            Union[ServerTokenConfig, ServerCredentialConfig]
+        ] = None,
     ):
         # Set up default logging for the SDK.
         if not logging.root.handlers:
@@ -106,32 +123,52 @@ class Geti:
                 format=DEFAULT_LOG_FORMAT,
             )
 
-        # Set up server configuration with either token or credential authentication
-        if token is not None:
-            server_config = ServerTokenConfig(
-                host=host,
-                token=token,
-                proxies=proxies,
-                has_valid_certificate=verify_certificate,
-            )
-            if username is not None or password is not None:
-                warnings.warn(
-                    "Both a personal access token and credentials were passed to "
-                    "Geti, using token authentication."
-                )
-        elif username is not None and password is not None:
-            server_config = ServerCredentialConfig(
-                host=host,
-                username=username,
-                password=password,
-                proxies=proxies,
-                has_valid_certificate=verify_certificate,
-            )
-        else:
+        # Validate input parameters
+        if host is None and server_config is None:
             raise TypeError(
-                "__init__ missing required keyword arguments: Either `username` and "
-                "`password` or `token` must be specified."
+                "__init__ missing required keyword arguments: Either `host` or "
+                "`server_config` must be specified."
             )
+
+        if server_config is None:
+            # Set up server configuration with either token or credential authentication
+            if token is not None:
+                server_config = ServerTokenConfig(
+                    host=host,
+                    token=token,
+                    proxies=proxies,
+                    has_valid_certificate=verify_certificate,
+                )
+                if username is not None or password is not None:
+                    warnings.warn(
+                        "Both a personal access token and credentials were passed to "
+                        "Geti, using token authentication."
+                    )
+            elif username is not None and password is not None:
+                server_config = ServerCredentialConfig(
+                    host=host,
+                    username=username,
+                    password=password,
+                    proxies=proxies,
+                    has_valid_certificate=verify_certificate,
+                )
+            else:
+                raise TypeError(
+                    "__init__ missing required keyword arguments: Either `username` and "
+                    "`password` or `token` must be specified."
+                )
+        else:
+            if host is not None:
+                warnings.warn(
+                    "Both `host` and `server_config` were passed to `Geti`, ignoring "
+                    "the value set for `host`."
+                )
+            if proxies is not None:
+                warnings.warn(
+                    "Both `proxies` and `server_config` were passed to `Geti`, "
+                    "ignoring the value set for `proxies`. If you want to use proxies "
+                    "please update the `server_config` accordingly."
+                )
 
         # Initialize session and get workspace id
         self.session = GetiSession(
@@ -206,8 +243,10 @@ class Geti:
 
         :param project_name: Name of the project to download
         :param target_folder: Path to the local folder in which the project data
-            should be saved. If not specified, a new directory named `project_name`
-            will be created inside the current working directory.
+            should be saved. If not specified, a new directory will be created inside
+            the current working directory. The name of the resulting directory will be
+            the result of the concatenation of the project unique ID (24 characters)
+            and the project name, i.e.: `"{project.id}_{project.name}"`
         :param include_predictions: True to also download the predictions for all
             images and videos in the project, False to not download any predictions.
             If this is set to True but the project has no trained models, downloading
@@ -229,9 +268,10 @@ class Geti:
 
         # Validate or create target_folder
         if target_folder is None:
-            target_folder = os.path.join(".", project_name)
-        if not os.path.exists(target_folder):
-            os.makedirs(target_folder)
+            target_folder = os.path.join(".", get_project_folder_name(project))
+        else:
+            validate_filepath(target_folder, platform="auto")
+        os.makedirs(target_folder, exist_ok=True)
 
         # Download project creation parameters:
         project_client.download_project_info(
@@ -775,7 +815,9 @@ class Geti:
             )
             self.download_project(
                 project_name=project.name,
-                target_folder=os.path.join(target_folder, project.name),
+                target_folder=os.path.join(
+                    target_folder, get_project_folder_name(project)
+                ),
                 include_predictions=include_predictions,
             )
         return projects

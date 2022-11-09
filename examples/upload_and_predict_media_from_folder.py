@@ -5,14 +5,14 @@ from geti_sdk.demos import EXAMPLE_IMAGE_PATH, ensure_trained_example_project
 from geti_sdk.utils import get_server_details_from_env
 
 if __name__ == "__main__":
-    # Get credentials from .env file
-    hostname, authentication = get_server_details_from_env()
+    # Get the server configuration from .env file
+    server_config = get_server_details_from_env()
 
     # --------------------------------------------------
     # Configuration section
     # --------------------------------------------------
-    # Set up the Geti instance with server hostname and authentication details
-    geti = Geti(host=hostname, **authentication)
+    # Set up the Geti instance with the server configuration details
+    geti = Geti(server_config=server_config)
 
     # `FOLDER_WITH_MEDIA` is the path to the directory with images and videos that
     # should be uploaded to the GETi cluster

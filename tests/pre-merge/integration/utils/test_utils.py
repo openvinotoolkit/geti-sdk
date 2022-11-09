@@ -93,11 +93,12 @@ class TestUtils:
         This also tests that getting the server details from the global environment
         works as expected.
         """
-        host, authentication_info = get_server_details_from_env(fxt_env_filepath)
+        server_config = get_server_details_from_env(fxt_env_filepath)
 
-        assert host == DUMMY_HOST
-        assert authentication_info["token"] == "this_is_a_fake_token"
-        assert len(authentication_info) == 1
+        assert server_config.host == f"https://{DUMMY_HOST}"
+        assert server_config.token == "this_is_a_fake_token"
+        assert not hasattr(server_config, "username")
+        assert not hasattr(server_config, "password")
 
         environ_keys = ["GETI_HOST", "GETI_USERNAME", "GETI_PASSWORD"]
         expected_results = {}
@@ -115,9 +116,10 @@ class TestUtils:
                 os.environ.update(variable_dictionary)
                 expected_results.update(variable_dictionary)
 
-        host, authentication_info = get_server_details_from_env(
-            use_global_variables=True
-        )
-        assert host == expected_results["GETI_HOST"]
-        assert authentication_info["username"] == expected_results["GETI_USERNAME"]
-        assert authentication_info["password"] == expected_results["GETI_PASSWORD"]
+        server_config = get_server_details_from_env(use_global_variables=True)
+        assert server_config.host.replace("https://", "") == expected_results[
+            "GETI_HOST"
+        ].replace("https://", "")
+        assert server_config.username == expected_results["GETI_USERNAME"]
+        assert server_config.password == expected_results["GETI_PASSWORD"]
+        assert not hasattr(server_config, "token")
