@@ -212,8 +212,7 @@ class ModelClient:
             url=url, method="GET", contenttype="zip"
         )
         model_folder = os.path.join(path_to_folder, "models")
-        if not os.path.exists(model_folder):
-            os.makedirs(model_folder)
+        os.makedirs(model_folder, exist_ok=True, mode=0o770)
         model_filepath = os.path.join(model_folder, filename)
         with open(model_filepath, "wb") as f:
             f.write(response.content)

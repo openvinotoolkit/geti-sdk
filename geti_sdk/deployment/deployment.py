@@ -83,8 +83,7 @@ class Deployment:
         project_dict = ProjectRESTConverter.to_dict(self.project)
         deployment_folder = os.path.join(path_to_folder, "deployment")
 
-        if not os.path.exists(deployment_folder):
-            os.makedirs(deployment_folder)
+        os.makedirs(deployment_folder, exist_ok=True, mode=0o770)
         # Save project data
         project_filepath = os.path.join(deployment_folder, "project.json")
         with open(project_filepath, "w") as project_file:
@@ -92,8 +91,7 @@ class Deployment:
         # Save model for each task
         for task, model in zip(self.project.get_trainable_tasks(), self.models):
             model_dir = os.path.join(deployment_folder, task.title)
-            if not os.path.exists(model_dir):
-                os.makedirs(model_dir)
+            os.makedirs(model_dir, exist_ok=True, mode=0o770)
             model.save(model_dir)
 
     @classmethod

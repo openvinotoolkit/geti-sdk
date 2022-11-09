@@ -20,7 +20,7 @@ from typing import Optional, Tuple
 
 from geti_sdk.demos.constants import DEFAULT_DATA_PATH
 
-from .download_helpers import download_file, ensure_directory_exists, validate_hash
+from .download_helpers import download_file, validate_hash
 
 DEFAULT_COCO_PATH = os.path.join(DEFAULT_DATA_PATH, "coco")
 
@@ -134,7 +134,7 @@ def get_coco_dataset_from_path(
     :param verbose: True to print verbose output, False for silent mode
     :return: Path to the COCO dataset
     """
-    ensure_directory_exists(target_folder)
+    os.makedirs(target_folder, exist_ok=True, mode=0o770)
     found_subset = None
 
     if coco_subset is None:
@@ -188,7 +188,7 @@ def get_coco_dataset_from_path(
 
     # Create directories for images and annotations
     image_dir = os.path.join(target_folder, "images")
-    ensure_directory_exists(image_dir)
+    os.makedirs(image_dir, exist_ok=True, mode=0o770)
     hashes = found_subset.get_hashes()
     zip_to_extraction_mapping = {
         image_zip: {"directory": image_dir, "expected_hash": hashes[0]}
@@ -196,7 +196,7 @@ def get_coco_dataset_from_path(
 
     if annotations_zip is not None:
         annotations_dir = os.path.join(target_folder, "annotations")
-        ensure_directory_exists(annotations_dir)
+        os.makedirs(annotations_dir, exist_ok=True, mode=0o770)
         zip_to_extraction_mapping.update(
             {annotations_zip: {"directory": target_folder, "expected_hash": hashes[1]}}
         )

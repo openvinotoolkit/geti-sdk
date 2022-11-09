@@ -271,7 +271,7 @@ class Geti:
             target_folder = os.path.join(".", get_project_folder_name(project))
         else:
             validate_filepath(target_folder, platform="auto")
-        os.makedirs(target_folder, exist_ok=True)
+        os.makedirs(target_folder, exist_ok=True, mode=0o770)
 
         # Download project creation parameters:
         project_client.download_project_info(
@@ -801,8 +801,7 @@ class Geti:
         # Validate or create target_folder
         if target_folder is None:
             target_folder = os.path.join(".", "projects")
-        if not os.path.exists(target_folder):
-            os.makedirs(target_folder)
+        os.makedirs(target_folder, exist_ok=True, mode=0o770)
         logging.info(
             f"Found {len(projects)} projects in the designated workspace on the "
             f"Intel® Geti™ server. Commencing project download..."
@@ -937,7 +936,7 @@ class Geti:
         if output_folder is None:
             output_folder = media_folder + "_predictions"
         if not os.path.exists(output_folder) and os.path.isdir(output_folder):
-            os.makedirs(output_folder)
+            os.makedirs(output_folder, mode=0o770)
 
         # Request image predictions
         if len(images) > 0:
