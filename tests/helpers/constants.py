@@ -20,3 +20,6 @@ CASSETTE_PATH = os.path.join(BASE_TEST_PATH, "fixtures", "cassettes")
 RECORD_CASSETTE_KEY = "RECORD_CASSETTES_TEMPORARY_DIR"
 CASSETTE_EXTENSION = "cassette"
 PROJECT_PREFIX = "geti_sdk_test"
+DUMMY_USER = "dummy_user"
+DUMMY_PASSWORD = "dummy_password"
+DUMMY_TOKEN = "dummy_token"

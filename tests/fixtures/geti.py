@@ -17,10 +17,7 @@ import pytest
 
 from geti_sdk import Geti
 from geti_sdk.http_session import GetiSession, ServerCredentialConfig, ServerTokenConfig
-from tests.helpers.constants import CASSETTE_EXTENSION
-
-DUMMY_USER = "dummy_user"
-DUMMY_PASSWORD = "dummy_password"
+from tests.helpers.constants import CASSETTE_EXTENSION, DUMMY_PASSWORD, DUMMY_USER
 
 
 @pytest.fixture(scope="module")
