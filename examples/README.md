@@ -4,7 +4,7 @@
 The example scripts provided here show several common usecases for the Intel® Geti™ SDK. To run
 the examples, simply:
 1. Install the `geti-sdk` package into your python environment
-2. Create a `.env` file containing the authentication information for you Intel® Geti™
+2. Create a `.env` file containing the authentication information for your Intel® Geti™
    server, following the instructions in the [Authentication](#authentication)
    box.
 3. In your terminal, navigate to the `examples` folder

@@ -72,7 +72,7 @@ The SDK contains example code in various forms to help you get familiar with the
 
 - [Code examples](#code-examples) are short snippets that demonstrate
   how to perform several common tasks. This also shows how to configure the SDK to
-  connect to your Geti server.
+  connect to your Intel® Geti™ server.
 
 - [Jupyter notebooks](#jupyter-notebooks) are tutorial style notebooks that cover
   pretty much the full SDK functionality. **These are the recommended way to get started
@@ -84,7 +84,7 @@ The SDK contains example code in various forms to help you get familiar with the
 ### Code examples
 The package provides a main class `Geti` that can be used for the following use cases
 
-#### Connecting to the Geti platform
+#### Connecting to the Intel® Geti™ platform
 To establish a connection between the SDK running on your local machine, and the
 Intel® Geti™ platform running on a remote server, the `Geti` class needs to know the
 hostname or IP address for the server and it needs to have some form of authentication.
@@ -98,7 +98,7 @@ Instantiating the `Geti` class will establish the connection and perform authent
 
     1. Open the Intel® Geti™ user interface in your browser
     2. Click on the `User` menu, in the top right corner of the page. The menu is
-       accessible from any page inside Intel® Geti™.
+       accessible from any page inside the Intel® Geti™ interface.
     3. In the dropdown menu that follows, click on `Personal access token`, as shown in
        the image below.
     4. In the screen that follows, go through the steps to create a token.
