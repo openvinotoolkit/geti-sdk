@@ -41,7 +41,7 @@ class TestGeti:
             "geti_sdk.geti.get_default_workspace_id", return_value=1
         )
 
-        # Act
+        # Act and assert
         # host is None and server_config is None
         with pytest.raises(TypeError):
             Geti()
