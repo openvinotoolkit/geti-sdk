@@ -204,8 +204,7 @@ class ConfigurationClient:
         """
         config = self.get_full_configuration()
         config_data = ConfigurationRESTConverter.configuration_to_minimal_dict(config)
-        if not os.path.exists(path_to_folder):
-            os.makedirs(path_to_folder)
+        os.makedirs(path_to_folder, exist_ok=True, mode=0o770)
         configuration_path = os.path.join(path_to_folder, "configuration.json")
         with open(configuration_path, "w") as file:
             json.dump(config_data, file, indent=4)

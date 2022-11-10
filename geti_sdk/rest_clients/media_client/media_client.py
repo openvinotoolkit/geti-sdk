@@ -279,8 +279,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         """
         media_list = self._get_all()
         path_to_media_folder = os.path.join(path_to_folder, self.plural_media_name)
-        if not os.path.exists(path_to_media_folder):
-            os.makedirs(path_to_media_folder)
+        os.makedirs(path_to_media_folder, exist_ok=True, mode=0o770)
         logging.info(
             f"Downloading {len(media_list)} {self.plural_media_name} from project "
             f"'{self._project_name}' to folder {path_to_media_folder}..."

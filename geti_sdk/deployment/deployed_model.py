@@ -304,8 +304,7 @@ class DeployedModel(OptimizedModel):
                 "No model definition and model weights data was found for {self}, "
                 "unable to save model."
             )
-        if not os.path.exists(path_to_folder):
-            os.makedirs(path_to_folder)
+        os.makedirs(path_to_folder, exist_ok=True, mode=0o770)
 
         shutil.copytree(
             src=self._model_data_path,

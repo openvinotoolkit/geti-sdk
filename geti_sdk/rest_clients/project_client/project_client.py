@@ -178,8 +178,7 @@ class ProjectClient:
                 f"Project with name {project_name} was not found on the server."
             )
         project_data = ProjectRESTConverter.to_dict(project)
-        if not os.path.exists(path_to_folder):
-            os.makedirs(path_to_folder)
+        os.makedirs(path_to_folder, exist_ok=True, mode=0o770)
         project_config_path = os.path.join(path_to_folder, "project.json")
         with open(project_config_path, "w") as file:
             json.dump(project_data, file, indent=4)

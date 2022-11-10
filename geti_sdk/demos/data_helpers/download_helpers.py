@@ -107,17 +107,6 @@ def download_file(
     return path_to_file
 
 
-def ensure_directory_exists(directory_path: str):
-    """
-    Check that a directory exists at `directory_path`, and if not create it.
-
-    :param directory_path:
-    :return:
-    """
-    if not os.path.exists(directory_path):
-        os.makedirs(directory_path)
-
-
 def validate_hash(file_path: str, expected_hash: str) -> None:
     """
     Verify that hash matches the calculated hash of the file.
