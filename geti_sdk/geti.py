@@ -447,10 +447,17 @@ class Geti:
                 images=images,
             )
         if len(videos) > 0:
-            project_videos = []
-            while len(project_videos) != len(videos):
-                # Wait to ensure videos are processed by the server
+            are_videos_processed = False
+            start_time = time.time()
+            logging.info(
+                "Waiting for the Geti server to process all uploaded videos..."
+            )
+            while (not are_videos_processed) and (time.time() - start_time < 100):
+                # Ensure all uploaded videos are processed by the server
                 project_videos = video_client.get_all_videos()
+                uploaded_ids = {video.id for video in videos}
+                project_video_ids = {video.id for video in project_videos}
+                are_videos_processed = uploaded_ids.issubset(project_video_ids)
                 time.sleep(1)
             annotation_client.upload_annotations_for_videos(
                 videos=videos,
