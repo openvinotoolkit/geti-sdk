@@ -47,8 +47,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="contributing_to_the_sdk.html">Contributing to the SDK</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="contributing.html">Development and pull requests</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Testing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#integration-tests">Integration tests</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#nightly-tests">Nightly tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pre-merge-test-suite">Pre-merge test suite</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#integration-tests">Integration tests</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#unit-tests">Unit tests</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#nightly-test-suite">Nightly test suite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#running-the-tests">Running the tests</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#test-modes">Test modes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#running-the-tests-in-a-non-default-mode">Running the tests in a non-default mode</a></li>
@@ -88,22 +92,42 @@
              
   <section id="testing">
 <h1>Testing<a class="headerlink" href="#testing" title="Permalink to this heading"></a></h1>
-<p>This directory contains the test suite for the Intel® Geti™ SDK. To maintain flexibility, we
-mostly make use of integration tests rather than unit tests for all but the core
-elements of the SDK. In addition, we have a suite of nightly tests that are executed
-every night at midnight (Amsterdam time).</p>
+<p>This directory contains the test suite for the Intel® Geti™ SDK. The tests are grouped
+into two categories:</p>
+<ol class="arabic simple">
+<li><p><strong>Pre-merge tests</strong> These are executed for every Pull Request to the Intel® Geti™
+SDK <code class="docutils literal notranslate"><span class="pre">main</span></code> branch. The suite contains both integration and unit tests, the main focus
+being the integration tests. The test code can be found in
+the <span class="xref myst">pre-merge</span> folder.</p></li>
+<li><p><strong>Nightly tests</strong> These tests are executed for the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch every night at
+midnight (Amsterdam time). The nightly tests are end-to-end style tests, covering
+everything from project creation to local inference through model deployment. The
+test code can be found in the <span class="xref myst">nightly</span> directory.</p></li>
+</ol>
+<section id="pre-merge-test-suite">
+<h2>Pre-merge test suite<a class="headerlink" href="#pre-merge-test-suite" title="Permalink to this heading"></a></h2>
 <section id="integration-tests">
-<h2>Integration tests<a class="headerlink" href="#integration-tests" title="Permalink to this heading"></a></h2>
-<p>The integration tests for this package leverage a record of HTTP requests and responses,
-relying on the VCR.py package. The tests are located in the <code class="docutils literal notranslate"><span class="pre">integration</span></code> directory.
-By default, the tests are run in offline mode, meaning
-that no actual Intel® Geti™ server is needed and no real http requests are being made during
-testing. All requests are intercepted, and a previously recorded response is returned.
-The recorded interactions can be found in <span class="xref myst">fixtures/cassettes</span>.</p>
+<h3>Integration tests<a class="headerlink" href="#integration-tests" title="Permalink to this heading"></a></h3>
+<p>The integration tests for the SDK leverage the recording of HTTP requests and responses,
+relying on the VCR.py package. All integration tests are defined in the
+<span class="xref myst">pre-merge/integration</span> directory. By default, the tests are run
+in offline mode, meaning that no actual Intel® Geti™ server is needed and no real
+http requests are being made during testing. All requests are intercepted, and a
+previously recorded response is returned. The recorded interactions can be found in
+<span class="xref myst">fixtures/cassettes</span>.</p>
 </section>
-<section id="nightly-tests">
-<h2>Nightly tests<a class="headerlink" href="#nightly-tests" title="Permalink to this heading"></a></h2>
-<p>The nightly tests are located in the <code class="docutils literal notranslate"><span class="pre">nightly</span></code> directory. They can only be run in
+<section id="unit-tests">
+<h3>Unit tests<a class="headerlink" href="#unit-tests" title="Permalink to this heading"></a></h3>
+<p>The SDK unit tests are defined in the <span class="xref myst">pre-merge/unit</span> directory. The
+tests are not designed to provide full coverage by themselves, but should be run in
+conjunction with the integration tests. At this moment the unit tests focus on testing
+exception flows (as opposed to happy flow) for methods that are hard to test via
+integration testing.</p>
+</section>
+</section>
+<section id="nightly-test-suite">
+<h2>Nightly test suite<a class="headerlink" href="#nightly-test-suite" title="Permalink to this heading"></a></h2>
+<p>The nightly tests are defined in the <span class="xref myst">nightly</span> directory. They can only be run in
 <code class="docutils literal notranslate"><span class="pre">ONLINE</span></code> mode, meaning that a live Intel® Geti™ server is required to run against them. The
 nightly tests need to be run using a <code class="docutils literal notranslate"><span class="pre">online.ini</span></code> file that contains the host name and
 login details for the Intel® Geti™ server to run the tests against (see section
@@ -113,8 +137,8 @@ login details for the Intel® Geti™ server to run the tests against (see secti
 <h2>Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this heading"></a></h2>
 <p>First, install the requirements for the test suite using
 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements/requirements-dev.txt</span></code>. Then, run the tests using
-<code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">./tests/integration</span></code>, or
-(optionally) enable coverage using <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">--cov=geti_sdk</span> <span class="pre">./tests/integration</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">./tests/pre-merge</span></code>, or
+(optionally) enable coverage using <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">--cov=geti_sdk</span> <span class="pre">./tests/pre-merge</span></code>.</p>
 <section id="test-modes">
 <h3>Test modes<a class="headerlink" href="#test-modes" title="Permalink to this heading"></a></h3>
 <p>By default, the integration tests are executed in <code class="docutils literal notranslate"><span class="pre">OFFLINE</span></code> mode. In addition, they
@@ -154,7 +178,7 @@ time required for test execution considerably.</p>
 <section id="running-the-tests-in-a-non-default-mode">
 <h3>Running the tests in a non-default mode<a class="headerlink" href="#running-the-tests-in-a-non-default-mode" title="Permalink to this heading"></a></h3>
 <p>Once you created the custom <code class="docutils literal notranslate"><span class="pre">online.ini</span></code> or <code class="docutils literal notranslate"><span class="pre">record.ini</span></code> configurations, you can run
-the tests using <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">-c</span> <span class="pre">online.ini</span> <span class="pre">./integration</span></code>. This will execute the tests in
+the tests using <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">-c</span> <span class="pre">online.ini</span> <span class="pre">./pre-merge</span></code>. This will execute the tests in
 online mode.</p>
 </section>
 </section>
