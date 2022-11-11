@@ -190,9 +190,10 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         upload_count = 0
         skip_count = 0
         logging.info(f"Starting {self._MEDIA_TYPE} upload...")
+        tqdm_prefix = f"Uploading {self.plural_media_name}"
         t_start = time.time()
         with logging_redirect_tqdm(tqdm_class=tqdm):
-            for filepath in tqdm(filepaths):
+            for filepath in tqdm(filepaths, prefix=tqdm_prefix):
                 name, ext = os.path.splitext(os.path.basename(filepath))
                 if name in media_in_project.names and skip_if_filename_exists:
                     skip_count += 1
@@ -291,8 +292,9 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         t_start = time.time()
         download_count = 0
         existing_count = 0
+        tqdm_prefix = f"Downloading {self.plural_media_name}"
         with logging_redirect_tqdm(tqdm_class=tqdm):
-            for media_item in tqdm(media_list):
+            for media_item in tqdm(media_list, prefix=tqdm_prefix):
                 uid_string = ""
                 if append_media_uid:
                     uid_string = f"_{media_item.id}"

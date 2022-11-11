@@ -18,6 +18,9 @@ import os
 import time
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+from tqdm.auto import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
+
 from geti_sdk.data_models import (
     AnnotationKind,
     Image,
@@ -446,72 +449,76 @@ class PredictionClient:
         t_start = time.time()
         download_count = 0
         skip_count = 0
-        for media_item in media_list:
-            prediction, msg = self._get_prediction_for_media_item(
-                media_item, prediction_mode=self.mode
-            )
-            if prediction is None:
-                if verbose:
-                    logging.info(
-                        f"Unable to retrieve prediction for {media_name} "
-                        f"{media_item.name}, with reason: {msg}. Skipping this "
-                        f"{media_name}"
-                    )
-                skip_count += 1
-                continue
-            kind = prediction.kind
-            if kind != AnnotationKind.PREDICTION:
-                if verbose:
-                    logging.warning(
-                        f"Received invalid prediction of kind {kind} for {media_name} "
-                        f"with name{media_item.name}"
-                    )
-                skip_count += 1
-                continue
-
-            # Download result media belonging to the prediction, if required
-            if prediction.has_result_media and include_result_media:
-                try:
-                    result_media = prediction.get_result_media_data(self.session)
-                except GetiRequestException:
+        tqdm_prefix = "Downloading predictions"
+        with logging_redirect_tqdm(tqdm_class=tqdm):
+            for media_item in tqdm(media_list, prefix=tqdm_prefix):
+                prediction, msg = self._get_prediction_for_media_item(
+                    media_item, prediction_mode=self.mode
+                )
+                if prediction is None:
                     if verbose:
                         logging.info(
-                            f"Unable to retrieve prediction result map for "
-                            f"{media_name} '{media_item.name}'. Skipping"
+                            f"Unable to retrieve prediction for {media_name} "
+                            f"{media_item.name}, with reason: {msg}. Skipping this "
+                            f"{media_name}"
                         )
-                    result_media = None
-                if result_media is not None:
-                    path_to_result_media_folder = os.path.join(
-                        path_to_predictions_folder, "saliency_maps"
-                    )
-                    os.makedirs(path_to_result_media_folder, exist_ok=True, mode=0o770)
-                    for result_medium in result_media:
-                        result_media_path = os.path.join(
-                            path_to_result_media_folder,
-                            media_item.name
-                            + "_"
-                            + result_medium.friendly_name
-                            + ".jpg",
+                    skip_count += 1
+                    continue
+                kind = prediction.kind
+                if kind != AnnotationKind.PREDICTION:
+                    if verbose:
+                        logging.warning(
+                            f"Received invalid prediction of kind {kind} for {media_name} "
+                            f"with name{media_item.name}"
                         )
+                    skip_count += 1
+                    continue
 
+                # Download result media belonging to the prediction, if required
+                if prediction.has_result_media and include_result_media:
+                    try:
+                        result_media = prediction.get_result_media_data(self.session)
+                    except GetiRequestException:
+                        if verbose:
+                            logging.info(
+                                f"Unable to retrieve prediction result map for "
+                                f"{media_name} '{media_item.name}'. Skipping"
+                            )
+                        result_media = None
+                    if result_media is not None:
+                        path_to_result_media_folder = os.path.join(
+                            path_to_predictions_folder, "saliency_maps"
+                        )
                         os.makedirs(
-                            os.path.dirname(result_media_path),
-                            exist_ok=True,
-                            mode=0o770,
+                            path_to_result_media_folder, exist_ok=True, mode=0o770
                         )
-                        with open(result_media_path, "wb") as f:
-                            f.write(result_medium.data)
+                        for result_medium in result_media:
+                            result_media_path = os.path.join(
+                                path_to_result_media_folder,
+                                media_item.name
+                                + "_"
+                                + result_medium.friendly_name
+                                + ".jpg",
+                            )
 
-            # Convert prediction to json and save to file
-            export_data = PredictionRESTConverter.to_dict(prediction)
-            prediction_path = os.path.join(
-                path_to_predictions_folder, media_item.name + ".json"
-            )
+                            os.makedirs(
+                                os.path.dirname(result_media_path),
+                                exist_ok=True,
+                                mode=0o770,
+                            )
+                            with open(result_media_path, "wb") as f:
+                                f.write(result_medium.data)
 
-            os.makedirs(os.path.dirname(prediction_path), exist_ok=True, mode=0o770)
-            with open(prediction_path, "w") as f:
-                json.dump(export_data, f, indent=4)
-            download_count += 1
+                # Convert prediction to json and save to file
+                export_data = PredictionRESTConverter.to_dict(prediction)
+                prediction_path = os.path.join(
+                    path_to_predictions_folder, media_item.name + ".json"
+                )
+
+                os.makedirs(os.path.dirname(prediction_path), exist_ok=True, mode=0o770)
+                with open(prediction_path, "w") as f:
+                    json.dump(export_data, f, indent=4)
+                download_count += 1
         t_elapsed = time.time() - t_start
         if download_count > 0:
             msg = (
