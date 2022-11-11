@@ -40,7 +40,7 @@ jobs:
     steps:
 
       - name: Checkout code with caching for Git LFS
-        uses: nschloe/action-cached-lfs-checkout@v1.1.2
+        uses: nschloe/action-cached-lfs-checkout@v1.2.0
 
       - name: Create fresh conda environment
         # Steps: check if env named $CONDA_ENV exists, if so remove it. Create new env
@@ -94,7 +94,7 @@ jobs:
 
       - name: Upload artifacts for nightly tests
         # Publish the test artifacts in the $ARTIFACT_DIRECTORY to github
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
           name: artifacts

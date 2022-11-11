@@ -1,18 +1,35 @@
-This directory contains the test suite for the Intel® Geti™ SDK. To maintain flexibility, we
-mostly make use of integration tests rather than unit tests for all but the core
-elements of the SDK. In addition, we have a suite of nightly tests that are executed
-every night at midnight (Amsterdam time).
+This directory contains the test suite for the Intel® Geti™ SDK. The tests are grouped
+into two categories:
 
-# Integration tests
-The integration tests for this package leverage a record of HTTP requests and responses,
-relying on the VCR.py package. The tests are located in the `integration` directory.
-By default, the tests are run in offline mode, meaning
-that no actual Intel® Geti™ server is needed and no real http requests are being made during
-testing. All requests are intercepted, and a previously recorded response is returned.
-The recorded interactions can be found in [fixtures/cassettes](fixtures/cassettes).
+1. **Pre-merge tests** These are executed for every Pull Request to the Intel® Geti™
+   SDK `main` branch. The suite contains both integration and unit tests, the main focus
+   being the integration tests. The test code can be found in
+   the [pre-merge](pre-merge) folder.
 
-# Nightly tests
-The nightly tests are located in the `nightly` directory. They can only be run in
+2. **Nightly tests** These tests are executed for the `main` branch every night at
+   midnight (Amsterdam time). The nightly tests are end-to-end style tests, covering
+   everything from project creation to local inference through model deployment. The
+   test code can be found in the [nightly](nightly) directory.
+
+# Pre-merge test suite
+## Integration tests
+The integration tests for the SDK leverage the recording of HTTP requests and responses,
+relying on the VCR.py package. All integration tests are defined in the
+[pre-merge/integration](pre-merge/integration) directory. By default, the tests are run
+in offline mode, meaning that no actual Intel® Geti™ server is needed and no real
+http requests are being made during testing. All requests are intercepted, and a
+previously recorded response is returned. The recorded interactions can be found in
+[fixtures/cassettes](fixtures/cassettes).
+
+## Unit tests
+The SDK unit tests are defined in the [pre-merge/unit](pre-merge/unit) directory. The
+tests are not designed to provide full coverage by themselves, but should be run in
+conjunction with the integration tests. At this moment the unit tests focus on testing
+exception flows (as opposed to happy flow) for methods that are hard to test via
+integration testing.
+
+# Nightly test suite
+The nightly tests are defined in the [nightly](nightly) directory. They can only be run in
 `ONLINE` mode, meaning that a live Intel® Geti™ server is required to run against them. The
 nightly tests need to be run using a `online.ini` file that contains the host name and
 login details for the Intel® Geti™ server to run the tests against (see section
@@ -21,8 +38,8 @@ login details for the Intel® Geti™ server to run the tests against (see secti
 # Running the tests
 First, install the requirements for the test suite using
 `pip install -r requirements/requirements-dev.txt`. Then, run the tests using
-`pytest ./tests/integration`, or
-(optionally) enable coverage using `pytest --cov=geti_sdk ./tests/integration`.
+`pytest ./tests/pre-merge`, or
+(optionally) enable coverage using `pytest --cov=geti_sdk ./tests/pre-merge`.
 
 ## Test modes
 By default, the integration tests are executed in `OFFLINE` mode. In addition, they
@@ -57,5 +74,5 @@ by running the tests in `RECORD` mode. The easiest way to do this is to create a
 
 ## Running the tests in a non-default mode
 Once you created the custom `online.ini` or `record.ini` configurations, you can run
-the tests using `pytest -c online.ini ./integration`. This will execute the tests in
+the tests using `pytest -c online.ini ./pre-merge`. This will execute the tests in
 online mode.

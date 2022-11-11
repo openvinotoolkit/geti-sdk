@@ -11,15 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+from typing import Dict
 
-import os
+import pytest
 
-BASE_TEST_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DUMMY_HOST = "dummy_host"
-CASSETTE_PATH = os.path.join(BASE_TEST_PATH, "fixtures", "cassettes")
-RECORD_CASSETTE_KEY = "RECORD_CASSETTES_TEMPORARY_DIR"
-CASSETTE_EXTENSION = "cassette"
-PROJECT_PREFIX = "geti_sdk_test"
-DUMMY_USER = "dummy_user"
-DUMMY_PASSWORD = "dummy_password"
-DUMMY_TOKEN = "dummy_token"
+from geti_sdk.data_models import MediaType
+from geti_sdk.data_models.media_identifiers import ImageIdentifier
+
+
+@pytest.fixture()
+def fxt_image_identifier() -> ImageIdentifier:
+    yield ImageIdentifier(image_id="image_0", type=MediaType.IMAGE)
+
+
+@pytest.fixture()
+def fxt_image_identifier_rest() -> Dict[str, str]:
+    yield {"image_id": "image_0", "type": "image"}

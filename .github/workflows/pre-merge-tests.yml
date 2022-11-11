@@ -10,7 +10,7 @@ on:
       - main
 
 env:
-  INTEGRATION_TEST_REPORT: integration_test_report.html
+  PREMERGE_TEST_REPORT: pre_merge_test_report.html
   REPORT_DIRECTORY: reports
 
 jobs:
@@ -24,12 +24,10 @@ jobs:
     steps:
 
       - name: Checkout code with caching for Git LFS
-        uses: nschloe/action-cached-lfs-checkout@v1.1.2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+        uses: nschloe/action-cached-lfs-checkout@v1.2.0
 
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -57,14 +55,14 @@ jobs:
 
       - name: Test with pytest
         run: |
-          pytest tests/integration -c tests/offline.ini --cov=geti_sdk --html=$REPORT_DIRECTORY/$INTEGRATION_TEST_REPORT --self-contained-html --cov-report html:$REPORT_DIRECTORY/coverage
+          pytest tests/pre-merge -c tests/offline.ini --cov=geti_sdk --html=$REPORT_DIRECTORY/$PREMERGE_TEST_REPORT --self-contained-html --cov-report html:$REPORT_DIRECTORY/coverage
 
-      - name: Upload test report for integration tests
-        # Publish the integration test report to github
+      - name: Upload test report for pre-merge tests
+        # Publish the test report to github
         uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
-          name: integration-test-reports
+          name: pre-merge-test-reports
           path: ${{ env.REPORT_DIRECTORY }}
 
       - name: Clean up report directories
