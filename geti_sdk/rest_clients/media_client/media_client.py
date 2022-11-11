@@ -17,6 +17,9 @@ import time
 from glob import glob
 from typing import Any, BinaryIO, ClassVar, Dict, Generic, List, Sequence, Type
 
+from tqdm.auto import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
+
 from geti_sdk.data_models import Image, MediaType, Project, Video, VideoFrame
 from geti_sdk.data_models.containers.media_list import MediaList, MediaTypeVar
 from geti_sdk.data_models.enums.media_type import (
@@ -188,25 +191,26 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         skip_count = 0
         logging.info(f"Starting {self._MEDIA_TYPE} upload...")
         t_start = time.time()
-        for filepath in filepaths:
-            name, ext = os.path.splitext(os.path.basename(filepath))
-            if name in media_in_project.names and skip_if_filename_exists:
-                skip_count += 1
-                continue
-            media_dict = self._upload(filepath=filepath)
-            media_item = MediaRESTConverter.from_dict(
-                input_dict=media_dict, media_type=self.__media_type
-            )
-            if isinstance(media_item, Video):
-                media_item._data = filepath
-            media_in_project.append(media_item)
-            uploaded_media.append(media_item)
-            upload_count += 1
-            if upload_count % 100 == 0:
-                logging.info(
-                    f"Uploading... {upload_count} {self.plural_media_name} uploaded "
-                    f"successfully."
+        with logging_redirect_tqdm(tqdm_class=tqdm):
+            for filepath in tqdm(filepaths):
+                name, ext = os.path.splitext(os.path.basename(filepath))
+                if name in media_in_project.names and skip_if_filename_exists:
+                    skip_count += 1
+                    continue
+                media_dict = self._upload(filepath=filepath)
+                media_item = MediaRESTConverter.from_dict(
+                    input_dict=media_dict, media_type=self.__media_type
                 )
+                if isinstance(media_item, Video):
+                    media_item._data = filepath
+                media_in_project.append(media_item)
+                uploaded_media.append(media_item)
+                upload_count += 1
+                if upload_count % 100 == 0:
+                    logging.info(
+                        f"Uploading... {upload_count} {self.plural_media_name} uploaded "
+                        f"successfully."
+                    )
 
         t_elapsed = time.time() - t_start
         if upload_count > 0:
@@ -287,31 +291,32 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         t_start = time.time()
         download_count = 0
         existing_count = 0
-        for media_item in media_list:
-            uid_string = ""
-            if append_media_uid:
-                uid_string = f"_{media_item.id}"
-            media_filepath = os.path.join(
-                path_to_media_folder,
-                os.path.basename(media_item.name)
-                + uid_string
-                + MEDIA_DOWNLOAD_FORMAT_MAPPING[self._MEDIA_TYPE],
-            )
-            if os.path.exists(media_filepath) and os.path.isfile(media_filepath):
-                existing_count += 1
-                continue
-            response = self.session.get_rest_response(
-                url=media_item.download_url, method="GET", contenttype="jpeg"
-            )
+        with logging_redirect_tqdm(tqdm_class=tqdm):
+            for media_item in tqdm(media_list):
+                uid_string = ""
+                if append_media_uid:
+                    uid_string = f"_{media_item.id}"
+                media_filepath = os.path.join(
+                    path_to_media_folder,
+                    os.path.basename(media_item.name)
+                    + uid_string
+                    + MEDIA_DOWNLOAD_FORMAT_MAPPING[self._MEDIA_TYPE],
+                )
+                if os.path.exists(media_filepath) and os.path.isfile(media_filepath):
+                    existing_count += 1
+                    continue
+                response = self.session.get_rest_response(
+                    url=media_item.download_url, method="GET", contenttype="jpeg"
+                )
 
-            with open(media_filepath, "wb") as f:
-                f.write(response.content)
-            if isinstance(media_item, (Image, VideoFrame)):
-                # Set the numpy data attribute if the media item supports it
-                media_item._data = numpy_from_buffer(response.content)
-            elif isinstance(media_item, Video):
-                media_item._data = media_filepath
-            download_count += 1
+                with open(media_filepath, "wb") as f:
+                    f.write(response.content)
+                if isinstance(media_item, (Image, VideoFrame)):
+                    # Set the numpy data attribute if the media item supports it
+                    media_item._data = numpy_from_buffer(response.content)
+                elif isinstance(media_item, Video):
+                    media_item._data = media_filepath
+                download_count += 1
         t_elapsed = time.time() - t_start
         if download_count > 0:
             msg = (
