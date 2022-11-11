@@ -20,6 +20,8 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 from pathvalidate import validate_filepath
+from tqdm.auto import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
 
 from .annotation_readers import (
     AnnotationReader,
@@ -815,17 +817,20 @@ class Geti:
         )
 
         # Download all found projects
-        for index, project in enumerate(projects):
-            logging.info(
-                f"Downloading project '{project.name}'... {index+1}/{len(projects)}."
-            )
-            self.download_project(
-                project_name=project.name,
-                target_folder=os.path.join(
-                    target_folder, get_project_folder_name(project)
-                ),
-                include_predictions=include_predictions,
-            )
+        with logging_redirect_tqdm(tqdm_class=tqdm):
+            for index, project in enumerate(
+                tqdm(projects, desc="Downloading projects")
+            ):
+                logging.info(
+                    f"Downloading project '{project.name}'... {index+1}/{len(projects)}."
+                )
+                self.download_project(
+                    project_name=project.name,
+                    target_folder=os.path.join(
+                        target_folder, get_project_folder_name(project)
+                    ),
+                    include_predictions=include_predictions,
+                )
         return projects
 
     def upload_all_projects(self, target_folder: str) -> List[Project]:
@@ -857,15 +862,18 @@ class Geti:
             f"directory '{target_folder}'. Commencing project upload..."
         )
         projects: List[Project] = []
-        for index, project_folder in enumerate(project_folders):
-            logging.info(
-                f"Uploading project from folder '{os.path.basename(project_folder)}'..."
-                f" {index + 1}/{len(project_folders)}."
-            )
-            project = self.upload_project(
-                target_folder=project_folder, enable_auto_train=False
-            )
-            projects.append(project)
+        with logging_redirect_tqdm(tqdm_class=tqdm):
+            for index, project_folder in enumerate(
+                tqdm(project_folders, desc="Uploading projects")
+            ):
+                logging.info(
+                    f"Uploading project from folder '{os.path.basename(project_folder)}'..."
+                    f" {index + 1}/{len(project_folders)}."
+                )
+                project = self.upload_project(
+                    target_folder=project_folder, enable_auto_train=False
+                )
+                projects.append(project)
         return projects
 
     def upload_and_predict_media_folder(
