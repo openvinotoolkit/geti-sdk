@@ -91,6 +91,7 @@ class TaskStatus:
     :var status: StatusSummary object that contains (among others) a human readable
         message describing the status of the task
     :var title: Title of the taks
+    :var n_new_annotations: Only used in Geti v1.1
     """
 
     id: str
@@ -98,6 +99,7 @@ class TaskStatus:
     required_annotations: AnnotationRequirements
     status: StatusSummary
     title: str
+    n_new_annotations: Optional[int] = None  # Added in Geti v1.1
 
 
 @attr.define
@@ -105,7 +107,7 @@ class ProjectStatus:
     """
     Status of a project in GETi.
 
-    :var is_training: True if a training job is currently running for any of the
+    :param is_training: True if a training job is currently running for any of the
         tasks in the project
     :var n_required_annotations: Total number of required annotations for the project,
         before auto-training can be started
@@ -114,12 +116,14 @@ class ProjectStatus:
         message describing the status of the project
     :var tasks: List of TaskStatus objects, detailing the status of each task in the
         project
+    :var n_new_annotations: Only used in Geti v1.1
     """
 
     is_training: bool
     n_required_annotations: int
     status: StatusSummary
     tasks: List[TaskStatus]
+    n_new_annotations: Optional[int] = None  # Added in Geti v1.1
     project_performance: Optional[Performance] = None
     project_score: Optional[float] = None  # Deprecated in Geti 1.0, to be removed
     n_running_jobs: Optional[int] = None
