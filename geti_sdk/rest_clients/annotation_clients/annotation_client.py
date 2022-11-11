@@ -87,13 +87,18 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
             ]
         )
         upload_count = 0
-        for frame in video_frames:
-            if not append_annotations:
-                response = self._upload_annotation_for_2d_media_item(media_item=frame)
-            else:
-                response = self._append_annotation_for_2d_media_item(media_item=frame)
-            if response.annotations:
-                upload_count += 1
+        with logging_redirect_tqdm(tqdm_class=tqdm):
+            for frame in tqdm(video_frames, desc="Uploading video frame annotations"):
+                if not append_annotations:
+                    response = self._upload_annotation_for_2d_media_item(
+                        media_item=frame
+                    )
+                else:
+                    response = self._append_annotation_for_2d_media_item(
+                        media_item=frame
+                    )
+                if response.annotations:
+                    upload_count += 1
         return upload_count
 
     def upload_annotations_for_videos(
@@ -138,7 +143,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
 
         tqdm_prefix = "Uploading image annotations"
         with logging_redirect_tqdm(tqdm_class=tqdm):
-            for image in tqdm(images, prefix=tqdm_prefix):
+            for image in tqdm(images, desc=tqdm_prefix):
                 if not append_annotations:
                     response = self._upload_annotation_for_2d_media_item(
                         media_item=image

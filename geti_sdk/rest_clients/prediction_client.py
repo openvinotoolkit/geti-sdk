@@ -451,7 +451,7 @@ class PredictionClient:
         skip_count = 0
         tqdm_prefix = "Downloading predictions"
         with logging_redirect_tqdm(tqdm_class=tqdm):
-            for media_item in tqdm(media_list, prefix=tqdm_prefix):
+            for media_item in tqdm(media_list, desc=tqdm_prefix):
                 prediction, msg = self._get_prediction_for_media_item(
                     media_item, prediction_mode=self.mode
                 )

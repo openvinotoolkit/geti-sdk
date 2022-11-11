@@ -359,7 +359,7 @@ class BaseAnnotationClient:
         skip_count = 0
         tqdm_prefix = f"Downloading {media_name} annotations"
         with logging_redirect_tqdm(tqdm_class=tqdm):
-            for media_item in tqdm(media_list, prefix=tqdm_prefix):
+            for media_item in tqdm(media_list, desc=tqdm_prefix):
                 annotation_scene = self._get_latest_annotation_for_2d_media_item(
                     media_item
                 )
