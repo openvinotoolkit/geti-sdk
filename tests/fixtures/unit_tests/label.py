@@ -12,14 +12,21 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-import os
+import pytest
 
-BASE_TEST_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DUMMY_HOST = "dummy_host"
-CASSETTE_PATH = os.path.join(BASE_TEST_PATH, "fixtures", "cassettes")
-RECORD_CASSETTE_KEY = "RECORD_CASSETTES_TEMPORARY_DIR"
-CASSETTE_EXTENSION = "cassette"
-PROJECT_PREFIX = "geti_sdk_test"
-DUMMY_USER = "dummy_user"
-DUMMY_PASSWORD = "dummy_password"
-DUMMY_TOKEN = "dummy_token"
+from geti_sdk.data_models import Label, ScoredLabel
+
+
+@pytest.fixture()
+def fxt_label() -> Label:
+    yield Label(
+        name="Dog",
+        color="#000000ff",
+        group="Default classification group",
+        is_empty=False,
+    )
+
+
+@pytest.fixture()
+def fxt_scored_label(fxt_label: Label) -> ScoredLabel:
+    yield ScoredLabel.from_label(label=fxt_label, probability=1.0)

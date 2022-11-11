@@ -16,19 +16,22 @@ from geti_sdk.platform_versions import GetiVersion
 
 
 class TestGetiVersion:
-    SC_MVP = "1.0.0-release-20220129184214"
-    SC_11 = "1.1.0-release-20220624125113"
-    GETI_10 = "1.0.0-release-20221005164936"
-
     def test_version_parsing_and_comparison(self):
         """
         Test parsing the version from a version string, for different release versions
         of the Intel Geti platform. Also test comparisons between versions
         """
-        mvp_version = GetiVersion(TestGetiVersion.SC_MVP)
-        sc11_version = GetiVersion(TestGetiVersion.SC_11)
-        geti10_version = GetiVersion(TestGetiVersion.GETI_10)
+        # Arrange
+        SC_MVP = "1.0.0-release-20220129184214"
+        SC_11 = "1.1.0-release-20220624125113"
+        GETI_10 = "1.0.0-release-20221005164936"
 
+        # Act
+        mvp_version = GetiVersion(SC_MVP)
+        sc11_version = GetiVersion(SC_11)
+        geti10_version = GetiVersion(GETI_10)
+
+        # Assert
         assert mvp_version.is_sc_mvp and not mvp_version.is_geti
         assert (
             sc11_version.is_sc_1_1

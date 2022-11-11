@@ -11,3 +11,4 @@ black>=22.6
 isort>=5.10
 pre-commit>=2.20.0
 nbqa>=1.4.0
+pytest-mock>=3.10.0
