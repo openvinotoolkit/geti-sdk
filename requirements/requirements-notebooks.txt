@@ -1,2 +1,3 @@
 # Requirements for running the Jupyter notebooks
 jupyterlab>=3.5.0
+ipywidgets>=8.0.0
