@@ -121,6 +121,7 @@ class TestShapes:
         rotated_rect_in_roi = fxt_rotated_rectangle.to_absolute_coordinates(
             parent_roi=fxt_rectangle_roi
         )
+        rotated_rect_polygon = fxt_rotated_rectangle.to_polygon()
 
         # Assert
         assert x_in_roi == rotated_rect_in_roi.x
@@ -128,6 +129,7 @@ class TestShapes:
         assert roi.area == expected_roi_area
         assert fxt_rotated_rectangle.area == expected_area
         assert rotated_rect.area == fxt_rotated_rectangle.area
+        assert rotated_rect_polygon.area == fxt_rotated_rectangle_as_polygon.area
 
         with pytest.raises(ValueError):
             RotatedRectangle.from_polygon(polygon=fxt_triangle)
