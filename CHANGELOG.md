@@ -1,3 +1,20 @@
+# v1.0.1 Intel® Geti™ SDK (11-11-2022)
+## What's Changed
+* Add path validation to project download target path by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/87
+* Update tqdm requirement from ==4.62.* to ==4.64.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/84
+* Update python-dotenv requirement from ==0.20.* to ==0.21.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/86
+* Add security note to README for project download by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/88
+* Update numpy requirement to 1.21.* by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/89
+* Reduce permissions upon directory creation by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/90
+* Update README to correctly reference Intel Geti brand everywhere by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/92
+* Improve check for video processing in `Geti.upload_project()` to avoid potential infinite loop by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/93
+* Add unit tests to pre-merge test suite by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/91
+* Update ProjectStatus and TaskStatus to include new field `n_new_annotations` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/94
+* Add progress bars for up/download of projects, media, annotations and predictions by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/95
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.0.0...v1.0.1
+
 # v1.0.0 Intel® Geti™ SDK (04-11-2022)
 ## What's Changed
 * Add a re-authentication mechanism when using token authentication by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/72
