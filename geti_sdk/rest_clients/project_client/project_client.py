@@ -24,6 +24,7 @@ from geti_sdk.http_session import GetiRequestException, GetiSession
 from geti_sdk.rest_converters import ProjectRESTConverter
 from geti_sdk.utils.project_helpers import get_task_types_by_project_type
 
+from ...utils import generate_unique_label_color
 from .task_templates import (
     ANOMALY_CLASSIFICATION_TASK,
     ANOMALY_DETECTION_TASK,
@@ -478,6 +479,7 @@ class ProjectClient:
         labels: Union[List[str], List[Dict[str, Any]]],
         project: Project,
         task: Optional[Task] = None,
+        revisit_affected_annotations: bool = False,
     ) -> Project:
         """
         Add the `labels` to the project labels. For a project with multiple tasks,
@@ -490,6 +492,9 @@ class ProjectClient:
         :param project: Project to which the labels should be added
         :param task: Optional Task to add the labels for. Can be left as None for a
             single task project, but is required for a task chain project
+        :param revisit_affected_annotations: True to make sure that the server will
+            assign a `to_revisit` status to all annotations linked to the label(s)
+            that are added. False to not revisit any potentially linked annotations.
         :return: Updated Project instance with the new labels added to it
         """
         # Validate inputs
@@ -506,12 +511,14 @@ class ProjectClient:
 
         # Update the list of labels for the task
         label_list = project.get_labels_per_task()[task_index]
+        existing_colors = [label["color"] for label in label_list]
         formatted_labels: List[Dict[str, Any]] = []
         for label_data in labels:
+            new_color = generate_unique_label_color(existing_colors)
             if isinstance(label_data, str):
                 label_dict = {
                     "name": label_data,
-                    "color": "#000000",
+                    "color": new_color,
                     "group": label_data,
                 }
             elif isinstance(label_data, dict):
@@ -521,7 +528,7 @@ class ProjectClient:
                         f"Unable to add label {label_data}: Label name not specified."
                     )
                 if "color" not in label_data:
-                    label_data.update({"color": "#000000"})
+                    label_data.update({"color": new_color})
                 if "group" not in label_data:
                     label_data.update({"group": label_name})
                 label_dict = label_data
@@ -531,10 +538,15 @@ class ProjectClient:
                     f"provide either the label name as a string or a dictionary of "
                     f"label properties."
                 )
+            label_dict.update(
+                {"revisit_affected_annotations": revisit_affected_annotations}
+            )
             formatted_labels.append(label_dict)
+            existing_colors.append(new_color)
         label_list.extend(formatted_labels)
 
         # Prepare data for the update request
+        project.prepare_for_post()
         project_data = project.to_dict()
         task_id = project.get_trainable_tasks()[task_index].id
         task_data = next(

@@ -205,7 +205,13 @@ class Project:
         "creation_time",
         "creator_id",
     ]
-    _GET_only_fields: ClassVar[List[str]] = ["thumbnail", "score", "performance"]
+    _GET_only_fields: ClassVar[List[str]] = [
+        "thumbnail",
+        "score",
+        "performance",
+        "creator_id",
+        "creation_time",
+    ]
 
     name: str
     pipeline: Pipeline
