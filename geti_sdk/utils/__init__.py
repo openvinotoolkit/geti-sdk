@@ -25,7 +25,11 @@ Module contents
 from .algorithm_helpers import get_supported_algorithms
 from .credentials_helpers import get_server_details_from_env
 from .dictionary_helpers import get_dict_key_from_value
-from .label_helpers import generate_classification_labels, generate_segmentation_labels
+from .label_helpers import (
+    generate_classification_labels,
+    generate_segmentation_labels,
+    generate_unique_label_color,
+)
 from .plot_helpers import (
     show_image_with_annotation_scene,
     show_video_frames_with_annotation_scenes,
@@ -46,4 +50,5 @@ __all__ = [
     "deserialize_dictionary",
     "get_server_details_from_env",
     "get_project_folder_name",
+    "generate_unique_label_color",
 ]

@@ -91,6 +91,16 @@ class Label:
         for field_name in self._GET_only_fields:
             setattr(self, field_name, None)
 
+    @property
+    def color_tuple(self) -> Tuple[int, int, int]:
+        """
+        Return the color of the label as an RGB tuple.
+
+        :return:
+        """
+        hex_color_str = copy.deepcopy(self.color).strip("#")
+        return tuple(int(hex_color_str[i : i + 2], 16) for i in (0, 2, 4))
+
 
 @attr.define
 class ScoredLabel:

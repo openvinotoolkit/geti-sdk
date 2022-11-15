@@ -15,9 +15,10 @@
 from typing import Dict, List
 
 import pytest
+from _pytest.fixtures import FixtureRequest
 
 from geti_sdk import Geti
-from geti_sdk.data_models import Project, TaskType
+from geti_sdk.data_models import Project, Task, TaskType
 from geti_sdk.rest_clients import ProjectClient
 from tests.helpers.constants import PROJECT_PREFIX
 from tests.helpers.project_service import ProjectService
@@ -118,3 +119,110 @@ class TestProjectClient:
                 assert parent_label.name == label_rest_data["parent_id"]
             if label_rest_data.get("group", None):
                 assert label.group == label_rest_data["group"]
+
+    @pytest.mark.vcr()
+    def test_list_projects(self, capfd, fxt_geti: Geti):
+        """
+        Verifies that the `list_projects` method prints a list of project summaries
+        """
+        project_client = ProjectClient(
+            session=fxt_geti.session, workspace_id=fxt_geti.workspace_id
+        )
+        projects = project_client.list_projects()
+        output, error = capfd.readouterr()
+        for project in projects:
+            assert project.summary in output
+
+    @pytest.mark.vcr()
+    def test_add_labels_single_task(
+        self, request: FixtureRequest, fxt_default_labels: List[str], fxt_geti: Geti
+    ):
+        """
+        Verify that adding labels to a single task project works as expected
+        """
+        project_client = ProjectClient(
+            session=fxt_geti.session, workspace_id=fxt_geti.workspace_id
+        )
+        project = project_client.create_project(
+            project_name=f"{PROJECT_PREFIX}_add_labels_single_task",
+            project_type="classification",
+            labels=[fxt_default_labels],
+        )
+        request.addfinalizer(
+            lambda: project_client.delete_project(
+                project=project, requires_confirmation=False
+            )
+        )
+
+        labels_to_add = ["prisma", "pyramid"]
+
+        invalid_task = Task(title="invalid_task", task_type="classification")
+        # Verify that adding labels to a task not in the project raises ValueError
+        with pytest.raises(ValueError):
+            project_client.add_labels(
+                labels=labels_to_add, project=project, task=invalid_task
+            )
+
+        # add_labels should work correctly when task is None for single task project
+        updated_project = project_client.add_labels(
+            labels=labels_to_add,
+            project=project,
+        )
+
+        updated_label_names = [label.name for label in updated_project.get_all_labels()]
+        expected_labels = labels_to_add + fxt_default_labels
+        for label in expected_labels:
+            assert label in updated_label_names
+
+        # Test adding labels with dictionary input
+        label_dict_to_add = [
+            {"name": "hexagon", "group": "default_classification_group"}
+        ]
+        updated_project_2 = project_client.add_labels(
+            labels=label_dict_to_add,
+            project=updated_project,
+        )
+        updated_label_names = [
+            label.name for label in updated_project_2.get_all_labels()
+        ]
+        for label in expected_labels + ["hexagon"]:
+            assert label in updated_label_names
+
+    @pytest.mark.vcr()
+    def test_add_labels_multitask(
+        self, request: FixtureRequest, fxt_default_labels: List[str], fxt_geti: Geti
+    ):
+        """
+        Verify that adding labels to a task chain project works as expected
+        """
+        project_client = ProjectClient(
+            session=fxt_geti.session, workspace_id=fxt_geti.workspace_id
+        )
+        project_label_names = ["block"] + fxt_default_labels
+        project = project_client.create_project(
+            project_name=f"{PROJECT_PREFIX}_add_labels_multitask",
+            project_type="detection_to_classification",
+            labels=[[project_label_names[0]], fxt_default_labels],
+        )
+        request.addfinalizer(
+            lambda: project_client.delete_project(
+                project=project, requires_confirmation=False
+            )
+        )
+
+        labels_to_add_detection = ["prisma", "pyramid"]
+
+        # Adding to task chain project without specifying task should raise ValueError
+        with pytest.raises(ValueError):
+            project_client.add_labels(labels=labels_to_add_detection, project=project)
+
+        # add_labels should work when task is specified
+        updated_project = project_client.add_labels(
+            labels=labels_to_add_detection,
+            project=project,
+            task=project.get_trainable_tasks()[1],
+        )
+
+        updated_label_names = [label.name for label in updated_project.get_all_labels()]
+        for label in labels_to_add_detection + project_label_names:
+            assert label in updated_label_names

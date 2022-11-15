@@ -11,8 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
-from typing import Dict, List
+import logging
+import math
+import time
+from random import randint
+from typing import Dict, List, Sequence, Tuple
 
 
 def generate_segmentation_labels(detection_labels: List[str]) -> List[str]:
@@ -48,3 +51,52 @@ def generate_classification_labels(
         for label in labels:
             label_list.append({"name": label, "group": "default_classification_group"})
     return label_list
+
+
+def generate_unique_label_color(label_colors: Sequence[str]) -> str:
+    """
+    Generate a label color that is unique from the label colors used in `labels`.
+
+    :param label_colors: List of hex color strings with respect to which the new color
+        should be generated
+    :return: hex string containing the new label color
+    """
+
+    def _generate_random_rgb_tuple() -> Tuple[int, int, int]:
+        """
+        Generate a random R,G,B color tuple. R,G,B are integers on the interval [0,255].
+
+        :return: RGB tuple of integers in [0, 255]
+        """
+        return randint(0, 255), randint(0, 255), randint(0, 255)
+
+    def _calculate_rgb_distance(
+        color_a: Tuple[int, int, int], color_b: Tuple[int, int, int]
+    ) -> float:
+        """
+        Calculate the root-mean-square difference between two RGB color tuples.
+        """
+        return math.sqrt(
+            (color_a[0] - color_b[0]) ** 2
+            + (color_a[1] - color_b[1]) ** 2
+            + (color_a[2] - color_b[2]) ** 2
+        )
+
+    existing_colors = [
+        tuple(int(label[i : i + 2], 16) for i in (1, 3, 5)) for label in label_colors
+    ]
+
+    success = False
+    t_start = time.time()
+    new_color = _generate_random_rgb_tuple()
+    distance_threshold = 30 if len(label_colors) < 100 else 10
+    while not success or time.time() - t_start > 100:
+        new_color = _generate_random_rgb_tuple()
+        min_distance = min(
+            [_calculate_rgb_distance(color, new_color) for color in existing_colors]
+        )
+        if min_distance > distance_threshold:
+            success = True
+    if not success:
+        logging.warning("Unable to generate sufficiently distinct label color.")
+    return "#{0:02x}{1:02x}{2:02x}".format(*new_color)
