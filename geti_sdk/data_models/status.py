@@ -91,7 +91,8 @@ class TaskStatus:
     :var status: StatusSummary object that contains (among others) a human readable
         message describing the status of the task
     :var title: Title of the taks
-    :var n_new_annotations: Only used in Geti v1.1
+    :var n_new_annotations: Number of new annotations that have been made for this
+        task since its last training round. Only used in Geti v1.1 and up
     """
 
     id: str

@@ -60,6 +60,8 @@ class TaskMetadata:
     :var model_architecture: Name of the neural network architecture used for the model
     :var model_version: Version of the model currently used by the job
     :var dataset_storage_id: Unique database ID of the dataset storage used by the job
+    :var task_id: ID of the task to which the TaskStatus object applies. Only used in
+        Geti v1.1 and up
     """
 
     model_architecture: Optional[str] = None
@@ -67,6 +69,7 @@ class TaskMetadata:
     model_version: Optional[int] = None
     name: Optional[str] = None
     dataset_storage_id: Optional[str] = None
+    task_id: Optional[str] = None  # Added in Geti v1.1
 
 
 @attr.define

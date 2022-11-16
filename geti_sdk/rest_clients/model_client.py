@@ -184,6 +184,19 @@ class ModelClient:
                     break
         if model_id is not None:
             return self._get_model_detail(group_id=group_id, model_id=model_id)
+        else:
+            # Sometimes the `active_model` flag is not set by the server, even though
+            # there is a model available for the task. In that case we fall back to
+            # returning the latest model in the available model group
+            if len(model_groups) == 1:
+                model_summary_no_active_check = model_groups[0].get_latest_model()
+                if model_summary_no_active_check is not None:
+                    model_id = model_summary_no_active_check.id
+                    group_id = model_groups[0].id
+                    if model_id is not None:
+                        return self._get_model_detail(
+                            group_id=group_id, model_id=model_id
+                        )
         return None
 
     def _download_model(self, model: ModelType, path_to_folder: str) -> ModelType:
