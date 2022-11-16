@@ -93,8 +93,6 @@ class TaskStatus:
     :var title: Title of the taks
     :var n_new_annotations: Number of new annotations that have been made for this
         task since its last training round. Only used in Geti v1.1 and up
-    :var task_id: ID of the task to which the TaskStatus object applies. Only used in
-        Geti v1.1 and up
     """
 
     id: str
@@ -103,7 +101,6 @@ class TaskStatus:
     status: StatusSummary
     title: str
     n_new_annotations: Optional[int] = None  # Added in Geti v1.1
-    task_id: Optional[str] = None  # Added in Geti v1.1
 
 
 @attr.define
