@@ -11,11 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, List
 
 import pytest
 
-from geti_sdk.data_models import Annotation, AnnotationScene, ScoredLabel
+from geti_sdk.data_models import (
+    Annotation,
+    AnnotationScene,
+    Image,
+    ScoredLabel,
+    Video,
+    VideoFrame,
+)
+from geti_sdk.data_models.containers import MediaList
+from geti_sdk.data_models.media_identifiers import ImageIdentifier
 from geti_sdk.data_models.shapes import Point, Polygon, Rectangle
 
 
@@ -95,9 +104,47 @@ def fxt_polygon_annotation_factory(
 
 @pytest.fixture()
 def fxt_annotation_scene(
+    fxt_geti_image: Image,
     fxt_rectangle_annotation_factory,
     fxt_polygon_annotation_factory,
-    fxt_image_identifier,
+) -> AnnotationScene:
+    width = fxt_geti_image.media_information.width
+    height = fxt_geti_image.media_information.height
+    yield AnnotationScene(
+        annotations=[
+            fxt_rectangle_annotation_factory(width, height),
+            fxt_polygon_annotation_factory(width, height),
+        ],
+        media_identifier=fxt_geti_image.identifier,
+    )
+
+
+@pytest.fixture()
+def fxt_video_annotation_scenes(
+    fxt_geti_video: Video,
+    fxt_rectangle_annotation_factory,
+    fxt_polygon_annotation_factory,
+    fxt_video_frames: MediaList[VideoFrame],
+) -> List[AnnotationScene]:
+    width = fxt_geti_video.media_information.width
+    height = fxt_geti_video.media_information.height
+    yield [
+        AnnotationScene(
+            annotations=[
+                fxt_rectangle_annotation_factory(width, height),
+                fxt_polygon_annotation_factory(width, height),
+            ],
+            media_identifier=video_frame.identifier,
+        )
+        for video_frame in fxt_video_frames
+    ]
+
+
+@pytest.fixture()
+def fxt_annotation_scene_from_normalized(
+    fxt_rectangle_annotation_factory,
+    fxt_polygon_annotation_factory,
+    fxt_image_identifier: ImageIdentifier,
 ) -> AnnotationScene:
     img_width = 1000
     img_height = 2000

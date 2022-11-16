@@ -17,6 +17,8 @@ from typing import ClassVar, List, Optional, Tuple
 
 import attr
 from ote_sdk.entities.color import Color
+from ote_sdk.entities.color import Color as OteColor
+from ote_sdk.entities.label import Domain as OteLabelDomain
 from ote_sdk.entities.label import LabelEntity
 from ote_sdk.entities.scored_label import ScoredLabel as OteScoredLabel
 
@@ -159,4 +161,19 @@ class ScoredLabel:
             id=ote_label.id,
             probability=ote_label.probability,
             color=ote_label.color.hex_str,
+        )
+
+    def to_ote(self) -> OteScoredLabel:
+        """
+        Create a ScoredLabel object from OTE SDK corresponding to this
+        :py:class`~geti_sdk.data_models.label.ScoredLabel` instance.
+        """
+        return OteScoredLabel(
+            label=LabelEntity(
+                name=self.name,
+                color=OteColor(*self.color_tuple),
+                id=self.id,
+                domain=OteLabelDomain.NULL,
+            ),
+            probability=self.probability,
         )

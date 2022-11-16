@@ -119,6 +119,18 @@ class Annotation:
         ]
         return Annotation(shape=shape, labels=labels, id=ote_annotation.id)
 
+    def to_ote(self, image_width: int, image_height: int) -> OteAnnotation:
+        """
+        Create an OTE SDK Annotation object corresponding to this
+        :py:class:`~geti_sdk.data_models.annotations.Annotation` instance
+
+        :param image_width: Width of the image to which the annotation applies
+        :param image_height: Height of the image to which the annotation applies
+        """
+        shape = self.shape.to_ote(image_width=image_width, image_height=image_height)
+        labels = [label.to_ote() for label in self.labels]
+        return OteAnnotation(shape=shape, labels=labels)
+
     def map_labels(self, labels: Sequence[Union[ScoredLabel, Label]]) -> "Annotation":
         """
         Attempt to map the labels found in `labels` to those in the Annotation

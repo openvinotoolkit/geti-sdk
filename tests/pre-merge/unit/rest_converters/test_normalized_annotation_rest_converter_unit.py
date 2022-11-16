@@ -68,10 +68,12 @@ class TestNormalizedAnnotationRESTConverter:
             * (int(img_heigth * y_max) - int(img_heigth * y_min))
         )
 
-    def test_to_normalized_dict(self, fxt_annotation_scene: AnnotationScene):
+    def test_to_normalized_dict(
+        self, fxt_annotation_scene_from_normalized: AnnotationScene
+    ):
         # Act
         annotation_rest = NormalizedAnnotationRESTConverter.to_normalized_dict(
-            fxt_annotation_scene, image_height=2000, image_width=1000
+            fxt_annotation_scene_from_normalized, image_height=2000, image_width=1000
         )
 
         # Assert

@@ -19,7 +19,7 @@ from typing import Any, ClassVar, Dict, List, Optional, Sequence, Tuple, Union
 import attr
 import cv2
 import numpy as np
-from ote_sdk.entities.annotation import AnnotationSceneEntity
+from ote_sdk.entities.annotation import AnnotationSceneEntity, AnnotationSceneKind
 
 from geti_sdk.data_models.annotations import Annotation
 from geti_sdk.data_models.enums import AnnotationKind
@@ -350,6 +350,24 @@ class AnnotationScene:
         return cls(
             annotations=annotations,
             id=ote_annotation_scene.id,
+        )
+
+    def to_ote(self, image_width: int, image_height: int) -> AnnotationSceneEntity:
+        """
+        Create an AnnotationSceneEntity object from OTE SDK from the Geti SDK
+        AnnotationScene instance
+
+        :param image_width: Width of the image to which the annotation scene applies
+        :param image_height: Height of the image to which the annotation scene applies
+        :return: OTE SDK AnnotationSceneEntity instance, corresponding to the current
+            AnnotationScene
+        """
+        annotations = [
+            annotation.to_ote(image_width=image_width, image_height=image_height)
+            for annotation in self.annotations
+        ]
+        return AnnotationSceneEntity(
+            annotations=annotations, kind=AnnotationSceneKind[self.kind.name]
         )
 
     def map_labels(

@@ -20,6 +20,7 @@ import attr
 import cv2
 import numpy as np
 from ote_sdk.entities.shapes.ellipse import Ellipse as OteEllipse
+from ote_sdk.entities.shapes.polygon import Point as OtePoint
 from ote_sdk.entities.shapes.polygon import Polygon as OtePolygon
 from ote_sdk.entities.shapes.rectangle import Rectangle as OteRectangle
 from ote_sdk.entities.shapes.shape import ShapeType as OteShapeType
@@ -29,7 +30,7 @@ from geti_sdk.data_models.utils import round_to_n_digits, str_to_shape_type
 
 # OteShapeTypeVar is a type variable that represents the possible different shapes
 # that can be converted from the OTE SDK
-OteShapeTypeVar = TypeVar("OteShapeTypeVar", OtePolygon, OteEllipse, OtePolygon)
+OteShapeTypeVar = TypeVar("OteShapeTypeVar", OtePolygon, OteEllipse, OteRectangle)
 
 # N_DIGITS_TO_ROUND_TO determines how pixel coordinates will be rounded when they are
 # passed from the Intel® Geti™ REST API. The Intel® Geti™ server itself rounds some
@@ -107,6 +108,20 @@ class Shape:
         return shape_mapping[ote_shape.type].from_ote(
             ote_shape, image_width=image_width, image_height=image_height
         )
+
+    def to_ote(
+        self, image_width: int, image_height: int
+    ) -> Union[OtePolygon, OteEllipse, OteRectangle]:
+        """
+        Convert the Shape instance to the corresponding shape in the OTE SDK.
+
+        :param image_width: Width of the image with respect to which the shape is
+            defined
+        :param image_height: Height of the image with respect to which the shape is
+            defined
+        :return: OTE SDK Rectangle, Ellipse or Polygon shape
+        """
+        raise NotImplementedError
 
     @property
     @abc.abstractmethod
@@ -217,6 +232,21 @@ class Rectangle(Shape):
             y=ote_shape.y1 * image_height,
             width=ote_shape.width * image_width,
             height=ote_shape.height * image_height,
+        )
+
+    def to_ote(self, image_width: int, image_height: int) -> OteRectangle:
+        """
+        Convert the Rectangle to a Rectangle instance from OTE SDK
+
+        :param image_width: Width of the image to which the rectangle applies (in pixels)
+        :param image_height: Height of the image to which the rectangle applies (in pixels)
+        :return: OTE SDK Rectangle instance
+        """
+        return OteRectangle(
+            x1=self.x / image_width,
+            y1=self.y / image_height,
+            x2=(self.x + self.width) / image_width,
+            y2=(self.y + self.height) / image_height,
         )
 
     @property
@@ -334,6 +364,22 @@ class Ellipse(Shape):
             height=int(ote_shape.height * image_height),
         )
 
+    def to_ote(self, image_width: int, image_height: int) -> OteEllipse:
+        """
+        Convert the Ellipse to an Ellipse instance from OTE SDK
+
+        :param image_width: Width of the image to which the ellipse applies (in pixels)
+        :param image_height: Height of the image to which the ellipse applies (in
+            pixels)
+        :return: OTE SDK Ellipse instance
+        """
+        return OteEllipse(
+            x1=self.x / image_width,
+            y1=self.y / image_height,
+            x2=(self.x + self.width) / image_width,
+            y2=(self.y + self.height) / image_height,
+        )
+
     @property
     def area(self) -> float:
         """
@@ -364,7 +410,7 @@ class Ellipse(Shape):
         return self.y + self.height
 
 
-@attr.define(slots=False)
+@attr.define()
 class Point:
     """
     Representation of a point on a 2D coordinate system. Used to define Polygons on
@@ -490,6 +536,21 @@ class Polygon(Shape):
             for ote_point in ote_shape.points
         ]
         return cls(points=points)
+
+    def to_ote(self, image_width: int, image_height: int) -> OtePolygon:
+        """
+        Convert the Polygon to a Polygon instance from OTE SDK
+
+        :param image_width: Width of the image to which the polygon applies (in pixels)
+        :param image_height: Height of the image to which the polygon applies (in
+            pixels)
+        :return: OTE SDK Polygon instance
+        """
+        ote_points = [
+            OtePoint(x=point.x / image_width, y=point.y / image_height)
+            for point in self.points
+        ]
+        return OtePolygon(points=ote_points)
 
     @property
     def area(self) -> float:
@@ -706,6 +767,23 @@ class RotatedRectangle(Shape):
             ote_shape, image_width=image_width, image_height=image_height
         )
         return cls.from_polygon(polygon)
+
+    def to_ote(self, image_width: int, image_height: int) -> OtePolygon:
+        """
+        Convert the RotatedRectangle to a Polygon instance from OTE SDK
+
+        :param image_width: Width of the image to which the rotated rectangle applies
+            (in pixels)
+        :param image_height: Height of the image to which the rotated rectangle
+            applies (in pixels)
+        :return: OTE SDK Polygon instance corresponding to the RotatedRectangle
+        """
+        polygon_representation = self.to_polygon()
+        ote_points = [
+            OtePoint(x=point.x / image_width, y=point.y / image_height)
+            for point in polygon_representation.points
+        ]
+        return OtePolygon(points=ote_points)
 
     def to_roi(self) -> Rectangle:
         """
