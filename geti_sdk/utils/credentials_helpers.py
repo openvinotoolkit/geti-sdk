@@ -67,6 +67,9 @@ def get_server_details_from_env(
 
         VERIFY_CERT -> boolean, pass 1 or True to verify
 
+        HTTPS_PROXY -> Address of the proxy to be used for https communication. Make
+                        sure to specify the full address, including port number. For
+                        example: HTTPS_PROXY=http://proxy.my-company.com:900
 
     In addition, authentication via credentials is also supported. In that case, the
     following variables should be provided:
@@ -96,6 +99,7 @@ def get_server_details_from_env(
         username_key = "GETI_USERNAME"
         password_key = "GETI_PASSWORD"  # nosec: B105
         cert_key = "GETI_VERIFY_CERT"
+        https_proxy_key = "GETI_HTTPS_PROXY"
 
         retrieval_func = os.environ.get
         env_name = "environment variables"
@@ -105,6 +109,7 @@ def get_server_details_from_env(
         username_key = "USERNAME"
         password_key = "PASSWORD"  # nosec: B105
         cert_key = "VERIFY_CERT"
+        https_proxy_key = "HTTPS_PROXY"
 
         env_variables = dotenv_values(dotenv_path=env_file_path)
         if not env_variables:
@@ -128,6 +133,13 @@ def get_server_details_from_env(
         value=retrieval_func(cert_key, None), default_value=True
     )
 
+    # Extract https proxy configuration
+    https_proxy = retrieval_func(https_proxy_key, None)
+    if https_proxy is not None:
+        proxies = {"https": https_proxy}
+    else:
+        proxies = None
+
     # Extract token/credentials
     token = retrieval_func(token_key, None)
     if token is None:
@@ -144,9 +156,13 @@ def get_server_details_from_env(
             username=user,
             password=password,
             has_valid_certificate=verify_certificate,
+            proxies=proxies,
         )
     else:
         server_config = ServerTokenConfig(
-            host=hostname, token=token, has_valid_certificate=verify_certificate
+            host=hostname,
+            token=token,
+            has_valid_certificate=verify_certificate,
+            proxies=proxies,
         )
     return server_config
