@@ -26,6 +26,7 @@ from geti_sdk.annotation_readers import AnnotationReader, DatumAnnotationReader
 from geti_sdk.data_models import Prediction, Project
 from geti_sdk.http_session import GetiRequestException
 from geti_sdk.rest_clients import AnnotationClient, ImageClient, VideoClient
+from geti_sdk.utils import show_video_frames_with_annotation_scenes
 from tests.helpers import (
     ProjectService,
     SdkTestMode,
@@ -278,7 +279,7 @@ class TestGeti:
 
         uploaded_project = fxt_geti.upload_project(
             target_folder=target_folder,
-            project_name=f"{PROJECT_PREFIX}_upload",
+            project_name=f"{project.name}_upload",
             enable_auto_train=False,
         )
         request.addfinalizer(lambda: fxt_project_finalizer(uploaded_project.name))
@@ -296,7 +297,7 @@ class TestGeti:
             project=uploaded_project,
         )
         annotation_target_folder = os.path.join(
-            fxt_temp_directory, "uploaded_annotations"
+            fxt_temp_directory, "uploaded_annotations", project.name
         )
 
         if include_videos:
@@ -365,6 +366,60 @@ class TestGeti:
             if prediction is not None:
                 assert isinstance(prediction, Prediction)
                 break
+
+    @pytest.mark.vcr()
+    def test_upload_and_predict_video(
+        self,
+        fxt_project_service: ProjectService,
+        fxt_geti: Geti,
+        fxt_video_path_1_light_bulbs: str,
+        fxt_temp_directory: str,
+    ) -> None:
+        """
+        Verify that the `Geti.upload_and_predict_video` method works as expected
+        """
+        video, frames, predictions = fxt_geti.upload_and_predict_video(
+            project_name=fxt_project_service.project.name,
+            video=fxt_video_path_1_light_bulbs,
+            visualise_output=False,
+        )
+        assert len(frames) == len(predictions)
+        video_filepath = os.path.join(fxt_temp_directory, "inferred_video.mp4")
+        show_video_frames_with_annotation_scenes(
+            video_frames=frames, annotation_scenes=predictions, filepath=video_filepath
+        )
+        assert os.path.isfile(video_filepath)
+
+    @pytest.mark.vcr()
+    def test_upload_and_predict_media_folder(
+        self,
+        fxt_project_service: ProjectService,
+        fxt_geti: Geti,
+        fxt_video_folder_light_bulbs: str,
+        fxt_image_folder_light_bulbs: str,
+        fxt_temp_directory: str,
+    ) -> None:
+        """
+        Verify that the `Geti.upload_and_predict_media_folder` method works as expected
+        """
+        video_output_folder = os.path.join(fxt_temp_directory, "inferred_videos")
+        image_output_folder = os.path.join(fxt_temp_directory, "inferred_images")
+
+        video_success = fxt_geti.upload_and_predict_media_folder(
+            project_name=fxt_project_service.project.name,
+            media_folder=fxt_video_folder_light_bulbs,
+            output_folder=video_output_folder,
+            delete_after_prediction=True,
+        )
+        image_success = fxt_geti.upload_and_predict_media_folder(
+            project_name=fxt_project_service.project.name,
+            media_folder=fxt_image_folder_light_bulbs,
+            output_folder=image_output_folder,
+            delete_after_prediction=True,
+        )
+
+        assert video_success
+        assert image_success
 
     @pytest.mark.vcr()
     @pytest.mark.parametrize(

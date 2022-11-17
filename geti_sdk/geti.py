@@ -1123,6 +1123,8 @@ class Geti:
                 video_data = None
             else:
                 video_data = video.get_data(self.session)
+        elif isinstance(video, (str, os.PathLike)):
+            video_data = video
         elif isinstance(video, (Sequence, np.ndarray)):
             if not isinstance(video, np.ndarray):
                 video_data = np.array(video)
