@@ -102,6 +102,19 @@ class ProjectMetadata:
 
 
 @attr.define
+class ScoreMetadata:
+    """
+    Metadata element containing scores for the tasks in the project
+
+    :var task_id: ID of the task for which the score was achieved
+    :var score: Performance score for the model for the task
+    """
+
+    task_id: str
+    score: float
+
+
+@attr.define
 class JobMetadata:
     """
     Metadata for a particular job on the GETi cluster.
@@ -116,6 +129,7 @@ class JobMetadata:
         Only used for optimization jobs
     :var optimized_model_id: Optional unique database ID of the optimized model
         produced by the job. Only used for optimization jobs.
+    :var scores: List of scores for the job. Added in Geti v1.1
     """
 
     task: Optional[TaskMetadata] = None
@@ -125,6 +139,7 @@ class JobMetadata:
     model_storage_id: Optional[str] = None
     optimization_type: Optional[str] = None
     optimized_model_id: Optional[str] = None
+    scores: Optional[List[ScoreMetadata]] = None
 
 
 @attr.define(slots=False)
