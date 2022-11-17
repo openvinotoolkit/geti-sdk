@@ -61,6 +61,7 @@ class TestUtils:
 
         assert server_config.host == f"https://{DUMMY_HOST}"
         assert server_config.token == "this_is_a_fake_token"
+        assert "https" in server_config.proxies.keys()
         assert not hasattr(server_config, "username")
         assert not hasattr(server_config, "password")
 
@@ -86,4 +87,5 @@ class TestUtils:
         ].replace("https://", "")
         assert server_config.username == expected_results["GETI_USERNAME"]
         assert server_config.password == expected_results["GETI_PASSWORD"]
+        assert server_config.proxies is None
         assert not hasattr(server_config, "token")
