@@ -926,6 +926,13 @@ the OTE SDK ScoredLabel entity passed.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.data_models.label.ScoredLabel.to_ote">
+<span class="sig-name descname"><span class="pre">to_ote</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ScoredLabel</span></span></span><a class="headerlink" href="#geti_sdk.data_models.label.ScoredLabel.to_ote" title="Permalink to this definition"></a></dt>
+<dd><p>Create a ScoredLabel object from OTE SDK corresponding to this
+:py:class`~geti_sdk.data_models.label.ScoredLabel` instance.</p>
+</dd></dl>
+
 </dd></dl>
 
 <span class="target" id="module-geti_sdk.data_models.shapes"></span><dl class="py class">
@@ -1004,6 +1011,25 @@ normalized with respect to image_width and image_height</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Shape entity created from the ote_shape</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.data_models.shapes.Shape.to_ote">
+<span class="sig-name descname"><span class="pre">to_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Polygon</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Ellipse</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Rectangle</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#geti_sdk.data_models.shapes.Shape.to_ote" title="Permalink to this definition"></a></dt>
+<dd><p>Convert the Shape instance to the corresponding shape in the OTE SDK.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_width</strong> – Width of the image with respect to which the shape is
+defined</p></li>
+<li><p><strong>image_height</strong> – Height of the image with respect to which the shape is
+defined</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>OTE SDK Rectangle, Ellipse or Polygon shape</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1142,6 +1168,23 @@ the OTE SDK Rectangle entity passed.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Rectangle instance created according to the ote_shape</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.data_models.shapes.Rectangle.to_ote">
+<span class="sig-name descname"><span class="pre">to_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Rectangle</span></span></span><a class="headerlink" href="#geti_sdk.data_models.shapes.Rectangle.to_ote" title="Permalink to this definition"></a></dt>
+<dd><p>Convert the Rectangle to a Rectangle instance from OTE SDK</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_width</strong> – Width of the image to which the rectangle applies (in pixels)</p></li>
+<li><p><strong>image_height</strong> – Height of the image to which the rectangle applies (in pixels)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>OTE SDK Rectangle instance</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1287,6 +1330,24 @@ the OTE SDK Ellipse entity passed.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Ellipse instance created according to the ote_shape</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.data_models.shapes.Ellipse.to_ote">
+<span class="sig-name descname"><span class="pre">to_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Ellipse</span></span></span><a class="headerlink" href="#geti_sdk.data_models.shapes.Ellipse.to_ote" title="Permalink to this definition"></a></dt>
+<dd><p>Convert the Ellipse to an Ellipse instance from OTE SDK</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_width</strong> – Width of the image to which the ellipse applies (in pixels)</p></li>
+<li><p><strong>image_height</strong> – Height of the image to which the ellipse applies (in
+pixels)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>OTE SDK Ellipse instance</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1452,6 +1513,24 @@ the OTE SDK Polygon entity passed.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Polygon instance created according to the ote_shape</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.data_models.shapes.Polygon.to_ote">
+<span class="sig-name descname"><span class="pre">to_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Polygon</span></span></span><a class="headerlink" href="#geti_sdk.data_models.shapes.Polygon.to_ote" title="Permalink to this definition"></a></dt>
+<dd><p>Convert the Polygon to a Polygon instance from OTE SDK</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_width</strong> – Width of the image to which the polygon applies (in pixels)</p></li>
+<li><p><strong>image_height</strong> – Height of the image to which the polygon applies (in
+pixels)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>OTE SDK Polygon instance</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1626,6 +1705,25 @@ the OTE SDK Polygon entity passed.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>RotatedRectangle instance created according to the ote_shape</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.data_models.shapes.RotatedRectangle.to_ote">
+<span class="sig-name descname"><span class="pre">to_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Polygon</span></span></span><a class="headerlink" href="#geti_sdk.data_models.shapes.RotatedRectangle.to_ote" title="Permalink to this definition"></a></dt>
+<dd><p>Convert the RotatedRectangle to a Polygon instance from OTE SDK</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_width</strong> – Width of the image to which the rotated rectangle applies
+(in pixels)</p></li>
+<li><p><strong>image_height</strong> – Height of the image to which the rotated rectangle
+applies (in pixels)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>OTE SDK Polygon instance corresponding to the RotatedRectangle</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1813,6 +1911,21 @@ from a given OTE SDK Annotation object.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Annotation instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.data_models.annotations.Annotation.to_ote">
+<span class="sig-name descname"><span class="pre">to_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Annotation</span></span></span><a class="headerlink" href="#geti_sdk.data_models.annotations.Annotation.to_ote" title="Permalink to this definition"></a></dt>
+<dd><p>Create an OTE SDK Annotation object corresponding to this
+<a class="reference internal" href="#geti_sdk.data_models.annotations.Annotation" title="geti_sdk.data_models.annotations.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a> instance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_width</strong> – Width of the image to which the annotation applies</p></li>
+<li><p><strong>image_height</strong> – Height of the image to which the annotation applies</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -2035,6 +2148,25 @@ instance from</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>AnnotationScene instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.data_models.annotation_scene.AnnotationScene.to_ote">
+<span class="sig-name descname"><span class="pre">to_ote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AnnotationSceneEntity</span></span></span><a class="headerlink" href="#geti_sdk.data_models.annotation_scene.AnnotationScene.to_ote" title="Permalink to this definition"></a></dt>
+<dd><p>Create an AnnotationSceneEntity object from OTE SDK from the Geti SDK
+AnnotationScene instance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_width</strong> – Width of the image to which the annotation scene applies</p></li>
+<li><p><strong>image_height</strong> – Height of the image to which the annotation scene applies</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>OTE SDK AnnotationSceneEntity instance, corresponding to the current
+AnnotationScene</p>
 </dd>
 </dl>
 </dd></dl>
