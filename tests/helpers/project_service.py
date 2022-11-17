@@ -54,6 +54,7 @@ class ProjectService:
             self.vcr_context = vcr.use_cassette
         self.session = geti.session
         self.workspace_id = geti.workspace_id
+        self.geti = geti
         self.project_client = ProjectClient(
             session=geti.session, workspace_id=geti.workspace_id
         )
@@ -128,6 +129,60 @@ class ProjectService:
                 project_name=project_name, project_type=project_type, labels=labels
             )
         return self.project
+
+    def create_project_from_dataset(
+        self,
+        annotation_readers: List[AnnotationReader],
+        project_name: str = "sdk_test_project_simple",
+        project_type: str = "classification",
+        path_to_dataset: str = "",
+        n_images: int = 12,
+    ):
+        """
+        Create a project from a dataset, and upload media and annotations to it
+
+        :param annotation_readers: List of annotation readers that should be used as
+            annotation sources for the tasks in the project
+        :param project_name: Name of the project to create
+        :param project_type: Type of the project to create
+        :param path_to_dataset: Path to the base folder containing the dataset
+        :param n_images: Number of annotated images to upload. If set to -1, uploads
+            all images for which the annotation reader contains annotations
+        :raises: ValueError in case the ProjectService already contains a project
+        :return: The Project that was created
+        """
+        if not self.has_project:
+            with self.vcr_context(f"{project_name}.{CASSETTE_EXTENSION}"):
+                if len(annotation_readers) == 1:
+                    annotation_reader = annotation_readers[0]
+                    project = self.geti.create_single_task_project_from_dataset(
+                        project_name=project_name,
+                        project_type=project_type,
+                        path_to_images=path_to_dataset,
+                        annotation_reader=annotation_reader,
+                        number_of_images_to_upload=n_images,
+                        number_of_images_to_annotate=n_images,
+                        enable_auto_train=False,
+                        upload_videos=True,
+                    )
+                else:
+                    project = self.geti.create_task_chain_project_from_dataset(
+                        project_name=project_name,
+                        project_type=project_type,
+                        path_to_images=path_to_dataset,
+                        label_source_per_task=annotation_readers,
+                        number_of_images_to_upload=n_images,
+                        number_of_images_to_annotate=n_images,
+                        enable_auto_train=False,
+                    )
+        else:
+            raise ValueError(
+                "This ProjectService instance already contains an existing project. "
+                "Please either delete the existing project first or use a new "
+                "instance to create another project"
+            )
+        self._project = project
+        return project
 
     @property
     def project(self) -> Project:

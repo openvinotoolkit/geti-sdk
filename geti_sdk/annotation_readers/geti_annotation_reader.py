@@ -87,7 +87,7 @@ class GetiAnnotationReader(AnnotationReader):
         :return: Dictionary holding the annotation data
         """
         filepath = glob.glob(
-            os.path.join(self.base_folder, f"{filename}{self.annotation_format}")
+            os.path.join(self.base_folder, f"{filename}{self.annotation_format}"),
         )
         if len(filepath) > 1:
             warnings.warn(
@@ -171,7 +171,7 @@ class GetiAnnotationReader(AnnotationReader):
         logging.info(f"Reading annotation files in folder {self.base_folder}...")
         unique_label_names = []
         annotation_files = glob.glob(
-            os.path.join(self.base_folder, f"*{self.annotation_format}")
+            os.path.join(self.base_folder, f"*{self.annotation_format}"),
         )
         if len(annotation_files) == 0:
             raise ValueError(

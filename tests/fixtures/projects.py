@@ -59,6 +59,28 @@ def fxt_project_service(
 
 
 @pytest.fixture(scope="class")
+def fxt_project_service_2(
+    fxt_vcr,
+    fxt_geti: Geti,
+) -> ProjectService:
+    """
+    This fixture provides a service for creating a project and the corresponding
+    clients to interact with it.
+
+    A project can be created by using `fxt_project_service.create_project()`, which
+    takes various parameters
+
+    The project is deleted once the test function finishes.
+
+    NOTE: This fixture is the same as `fxt_project_service`, but was added to make
+    it possible to persist two projects for the scope of one test class
+    """
+    project_service = ProjectService(geti=fxt_geti, vcr=fxt_vcr)
+    yield project_service
+    project_service.delete_project()
+
+
+@pytest.fixture(scope="class")
 def fxt_project_service_no_vcr(fxt_geti_no_vcr: Geti) -> ProjectService:
     project_service = ProjectService(geti=fxt_geti_no_vcr, vcr=None)
     yield project_service
