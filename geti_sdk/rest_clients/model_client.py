@@ -135,10 +135,13 @@ class ModelClient:
                         break
         if model_group is None:
             return None
-        try:
-            model_summary = model_group.get_model_by_version(version=version)
-        except ValueError:
-            return None
+        if version is not None:
+            try:
+                model_summary = model_group.get_model_by_version(version=version)
+            except ValueError:
+                return None
+        else:
+            model_summary = model_group.get_latest_model()
         return self._get_model_detail(model_group.id, model_id=model_summary.id)
 
     def _get_model_detail(self, group_id: str, model_id: str) -> Model:
