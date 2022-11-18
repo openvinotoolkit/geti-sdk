@@ -78,12 +78,12 @@ class TestModelAndPredictionClient:
         # Monitor train job to make sure the project is train-ready
         timeout = 600 if fxt_test_mode != SdkTestMode.OFFLINE else 1
         interval = 5 if fxt_test_mode != SdkTestMode.OFFLINE else 1
-        fxt_project_service.training_client.monitor_jobs(
+        jobs = fxt_project_service.training_client.monitor_jobs(
             [job], timeout=timeout, interval=interval
         )
 
         # Test that getting model for the train job works
-        model = fxt_project_service.model_client.get_model_for_job(job=job)
+        model = fxt_project_service.model_client.get_model_for_job(job=jobs[0])
         assert model is not None
 
     @pytest.mark.vcr()
