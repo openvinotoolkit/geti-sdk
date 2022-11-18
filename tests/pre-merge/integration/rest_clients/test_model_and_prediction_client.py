@@ -19,7 +19,7 @@ import pytest
 
 from geti_sdk.annotation_readers import DatumAnnotationReader
 from geti_sdk.data_models import Project, TaskType
-from geti_sdk.data_models.enums import PredictionMode
+from geti_sdk.data_models.enums import JobState, PredictionMode
 from geti_sdk.utils import get_supported_algorithms
 from tests.helpers import (
     ProjectService,
@@ -78,12 +78,16 @@ class TestModelAndPredictionClient:
         # Monitor train job to make sure the project is train-ready
         timeout = 600 if fxt_test_mode != SdkTestMode.OFFLINE else 1
         interval = 5 if fxt_test_mode != SdkTestMode.OFFLINE else 1
-        jobs = fxt_project_service.training_client.monitor_jobs(
+        fxt_project_service.training_client.monitor_jobs(
             [job], timeout=timeout, interval=interval
         )
 
         # Test that getting model for the train job works
-        model = fxt_project_service.model_client.get_model_for_job(job=jobs[0])
+        if fxt_test_mode == SdkTestMode.OFFLINE:
+            job.status.state = JobState.FINISHED
+        model = fxt_project_service.model_client.get_model_for_job(
+            job=job, check_status=False
+        )
         assert model is not None
 
     @pytest.mark.vcr()
