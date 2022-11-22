@@ -135,10 +135,13 @@ class ModelClient:
                         break
         if model_group is None:
             return None
-        try:
-            model_summary = model_group.get_model_by_version(version=version)
-        except ValueError:
-            return None
+        if version is not None:
+            try:
+                model_summary = model_group.get_model_by_version(version=version)
+            except ValueError:
+                return None
+        else:
+            model_summary = model_group.get_latest_model()
         return self._get_model_detail(model_group.id, model_id=model_summary.id)
 
     def _get_model_detail(self, group_id: str, model_id: str) -> Model:
@@ -309,14 +312,17 @@ class ModelClient:
             for task in self.project.get_trainable_tasks()
         ]
 
-    def get_model_for_job(self, job: Job) -> Model:
+    def get_model_for_job(self, job: Job, check_status: bool = True) -> Model:
         """
         Return the model that was created by the `job` from the Intel® Geti™ server.
 
         :param job: Job to retrieve the model for
+        :param check_status: True to first update the status of the job, to make sure
+            it is finished. Setting this to False will not update the job status.
         :return: Model produced by the job
         """
-        job.update(self.session)
+        if check_status:
+            job.update(self.session)
         if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
             job_pid = job.project_id
         else:

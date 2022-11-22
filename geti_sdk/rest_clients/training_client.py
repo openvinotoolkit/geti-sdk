@@ -182,7 +182,9 @@ class TrainingClient:
         job.workspace_id = self.workspace_id
         return job
 
-    def monitor_jobs(self, jobs: List[Job], timeout: int = 10000) -> List[Job]:
+    def monitor_jobs(
+        self, jobs: List[Job], timeout: int = 10000, interval: int = 15
+    ) -> List[Job]:
         """
         Monitor and print the progress of all jobs in the list `jobs`. Execution is
         halted until all jobs have either finished, failed or were cancelled.
@@ -191,6 +193,8 @@ class TrainingClient:
 
         :param jobs: List of jobs to monitor
         :param timeout: Timeout (in seconds) after which to stop the monitoring
+        :param interval: Time interval (in seconds) at which the TrainingClient polls
+            the server to update the status of the jobs. Defaults to 15 seconds
         :return: List of finished (or failed) jobs with their status updated
         """
         monitoring = True
@@ -223,7 +227,7 @@ class TrainingClient:
                 if complete_count == len(jobs_to_monitor):
                     monitoring = False
                 logging.info(msg)
-                time.sleep(15)
+                time.sleep(interval)
                 t_elapsed = time.time() - t_start
         except KeyboardInterrupt:
             logging.info("Job monitoring interrupted, stopping...")

@@ -24,6 +24,7 @@ from vcr import VCR
 from geti_sdk import Geti
 from geti_sdk.annotation_readers import AnnotationReader, DatumAnnotationReader
 from geti_sdk.data_models import Prediction, Project
+from geti_sdk.deployment import Deployment
 from geti_sdk.http_session import GetiRequestException
 from geti_sdk.rest_clients import AnnotationClient, ImageClient, VideoClient
 from geti_sdk.utils import show_video_frames_with_annotation_scenes
@@ -269,7 +270,10 @@ class TestGeti:
         project = lazy_fxt_project_service.project
         target_folder = os.path.join(fxt_temp_directory, project.name)
 
-        fxt_geti.download_project(project.name, target_folder=target_folder)
+        fxt_geti.download_project(
+            project.name,
+            target_folder=target_folder,
+        )
 
         assert os.path.isdir(target_folder)
         assert "project.json" in os.listdir(target_folder)
@@ -344,8 +348,11 @@ class TestGeti:
         # If training is not ready yet, monitor progress until job completes
         if not lazy_fxt_project_service.prediction_client.ready_to_predict:
             timeout = 300 if fxt_test_mode != SdkTestMode.OFFLINE else 1
+            interval = 5 if fxt_test_mode != SdkTestMode.OFFLINE else 1
             jobs = lazy_fxt_project_service.training_client.get_jobs(project_only=True)
-            lazy_fxt_project_service.training_client.monitor_jobs(jobs, timeout=timeout)
+            lazy_fxt_project_service.training_client.monitor_jobs(
+                jobs, timeout=timeout, interval=interval
+            )
 
         # Make several attempts to get the prediction, first attempts trigger the
         # inference server to start up but the requests may time out
@@ -384,11 +391,40 @@ class TestGeti:
             visualise_output=False,
         )
         assert len(frames) == len(predictions)
-        video_filepath = os.path.join(fxt_temp_directory, "inferred_video.mp4")
+        video_filepath = os.path.join(fxt_temp_directory, "inferred_video.avi")
         show_video_frames_with_annotation_scenes(
             video_frames=frames, annotation_scenes=predictions, filepath=video_filepath
         )
         assert os.path.isfile(video_filepath)
+
+        # Check that invalid project raises a ValueError
+        with pytest.raises(ValueError):
+            fxt_geti.upload_and_predict_video(
+                project_name="invalid_project_name",
+                video=fxt_video_path_1_light_bulbs,
+                visualise_output=False,
+            )
+
+        # Check that video is not uploaded if it's already in the project
+        video, frames, predictions = fxt_geti.upload_and_predict_video(
+            project_name=fxt_project_service.project.name,
+            video=video,
+            visualise_output=False,
+        )
+        assert len(frames) == len(predictions)
+
+        # Check that uploading list of numpy arrays as video works
+        new_frames = video.to_frames(frame_stride=50, include_data=True)
+        np_frames = [frame.numpy for frame in new_frames]
+        np_video, frames, predictions = fxt_geti.upload_and_predict_video(
+            project_name=fxt_project_service.project.name,
+            video=np_frames,
+            visualise_output=False,
+            delete_after_prediction=True,
+        )
+        assert len(frames) == len(predictions)
+        videos = fxt_project_service.video_client.get_all_videos()
+        assert np_video.id not in [vid.id for vid in videos]
 
     @pytest.mark.vcr()
     def test_upload_and_predict_media_folder(
@@ -440,11 +476,12 @@ class TestGeti:
         """
         lazy_fxt_project_service = request.getfixturevalue(project_service)
         project = lazy_fxt_project_service.project
-        deployment = fxt_geti.deploy_project(
-            project.name, output_folder=fxt_temp_directory
-        )
         deployment_folder = os.path.join(fxt_temp_directory, project.name)
-        assert os.path.isdir(deployment_folder)
+        deployment = fxt_geti.deploy_project(
+            project.name, output_folder=deployment_folder
+        )
+
+        assert os.path.isdir(os.path.join(deployment_folder, "deployment"))
         deployment.load_inference_models(device="CPU")
 
         image_bgr = cv2.imread(fxt_image_path)
@@ -464,3 +501,67 @@ class TestGeti:
 
         assert online_mask.shape == local_mask.shape
         # assert np.all(local_mask == online_mask)
+
+        deployment_from_folder = Deployment.from_folder(
+            path_to_folder=deployment_folder
+        )
+        assert deployment_from_folder.models[0].name == deployment.models[0].name
+
+    @pytest.mark.vcr()
+    def test_download_project_including_models_and_predictions(
+        self,
+        fxt_project_service: ProjectService,
+        fxt_geti: Geti,
+        fxt_temp_directory: str,
+    ):
+        """
+        Test that downloading a project including predictions, active models and
+        deployment works as expected.
+        """
+        project = fxt_project_service.project
+        target_folder = os.path.join(
+            fxt_temp_directory, project.name + "_all_inclusive"
+        )
+        fxt_geti.download_project(
+            project_name=project.name,
+            target_folder=target_folder,
+            include_predictions=True,
+            include_active_models=True,
+            include_deployment=True,
+        )
+
+        prediction_folder_name = "predictions"
+        deployment_folder_name = "deployment"
+        model_folder_name = "models"
+
+        prediction_path = os.path.join(target_folder, prediction_folder_name)
+        deployment_path = os.path.join(target_folder, deployment_folder_name)
+        model_path = os.path.join(target_folder, model_folder_name)
+
+        assert os.path.isdir(prediction_path)
+        assert os.path.isdir(deployment_path)
+        assert os.path.isdir(model_path)
+
+        # Check the contents of the downloaded predictions
+        assert os.path.isdir(os.path.join(prediction_path, "saliency_maps"))
+
+        # Check the downloaded deployment
+        deployment = Deployment.from_folder(deployment_path)
+        assert deployment.project.name == project.name
+        assert len(deployment.models) == len(project.get_trainable_tasks())
+
+        # Check the contents of the downloaded active model folder
+        model_contents = os.listdir(model_path)
+        assert (
+            f"{project.get_trainable_tasks()[0].type}_model_details.json"
+            in model_contents
+        )
+
+        found_base_model = False
+        found_optimized_model = False
+        for filename in model_contents:
+            if "_base.zip" in filename:
+                found_base_model = True
+            if "_optimized.zip" in filename:
+                found_optimized_model = True
+        assert found_optimized_model and found_base_model
