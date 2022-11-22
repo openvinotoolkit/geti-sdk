@@ -8,7 +8,7 @@ python-dotenv==0.21.*
 tqdm==4.64.*
 Pillow==9.3.*
 pathvalidate>=2.5.0
-simplejson==3.17.*
+simplejson==3.18.*
 ipython==8.6.*
 ote-sdk @ git+https://github.com/openvinotoolkit/training_extensions/@releases/v0.3.1-geti1.0.0#egg=ote-sdk&subdirectory=ote_sdk
 openvino==2022.2.0
