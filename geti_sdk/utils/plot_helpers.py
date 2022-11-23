@@ -155,5 +155,6 @@ def show_video_frames_with_annotation_scenes(
 
     if out_writer is None:
         cv2.destroyAllWindows()
+        cv2.waitKey(1)
     else:
         out_writer.release()
