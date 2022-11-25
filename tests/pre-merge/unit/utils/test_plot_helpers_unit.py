@@ -62,7 +62,7 @@ class TestPlotHelpers:
 
         # Assert
         assert mock_imshow.call_count == 2
-        assert mock_waitkey.call_count == 2
+        assert mock_waitkey.call_count == 4
         assert mock_destroywindows.call_count == 2
         mock_imwrite.assert_called_once()
         assert result.shape == fxt_numpy_image.shape
@@ -103,5 +103,5 @@ class TestPlotHelpers:
 
         # Assert
         assert mock_imshow.call_count == len(fxt_video_frames)
-        assert mock_waitkey.call_count == len(fxt_video_frames)
+        assert mock_waitkey.call_count == len(fxt_video_frames) + 1
         mock_destroywindows.assert_called_once()
