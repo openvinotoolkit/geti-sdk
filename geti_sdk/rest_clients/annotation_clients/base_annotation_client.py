@@ -176,7 +176,7 @@ class BaseAnnotationClient:
                     "defined for the AnnotationClient. Therefore, the "
                     "AnnotationClient is unable to upload any annotation data."
                 )
-        if scene_to_upload.annotations:
+        if scene_to_upload.has_data:
             scene_to_upload.prepare_for_post()
             if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
                 rest_data = NormalizedAnnotationRESTConverter.to_normalized_dict(
