@@ -1,3 +1,13 @@
+# v1.0.3 Intel® Geti™ SDK (25-11-2022)
+## What's Changed
+* Add `ScoreMetadata` to represent the new `scores` field by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/106
+* Add model and prediction client integration tests + update cassettes by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/107
+* Update simplejson requirement from ==3.17.* to ==3.18.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/108
+* Fix opencv window closure bug by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/109
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.0.2...v1.0.3
+
 # v1.0.2 Intel® Geti™ SDK (17-11-2022)
 ## What's Changed
 * Update ote-sdk requirement to v0.3.1 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/98
