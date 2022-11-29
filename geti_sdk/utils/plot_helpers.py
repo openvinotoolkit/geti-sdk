@@ -36,7 +36,8 @@ def show_image_with_annotation_scene(
     """
     Display an image with an annotation_scene overlayed on top of it.
 
-    :param image: Image to show prediction for
+    :param image: Image to show prediction for.
+        NOTE: `image` is expected to have R,G,B channel ordering
     :param annotation_scene: Annotations or Predictions to overlay on the image
     :param filepath: Optional filepath to save the image with annotation overlay to.
         If left as None, the result will not be saved to file
@@ -85,6 +86,7 @@ def show_image_with_annotation_scene(
                 cv2.imshow(window_name, result)
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
+                cv2.waitKey(1)
             else:
                 image = PILImage.fromarray(result)
                 display(image)
@@ -153,5 +155,6 @@ def show_video_frames_with_annotation_scenes(
 
     if out_writer is None:
         cv2.destroyAllWindows()
+        cv2.waitKey(1)
     else:
         out_writer.release()

@@ -22,10 +22,12 @@ from _pytest.fixtures import FixtureRequest
 from vcr import VCR
 
 from geti_sdk import Geti
-from geti_sdk.annotation_readers import DatumAnnotationReader
+from geti_sdk.annotation_readers import AnnotationReader, DatumAnnotationReader
 from geti_sdk.data_models import Prediction, Project
+from geti_sdk.deployment import Deployment
 from geti_sdk.http_session import GetiRequestException
-from geti_sdk.rest_clients import AnnotationClient, ImageClient
+from geti_sdk.rest_clients import AnnotationClient, ImageClient, VideoClient
+from geti_sdk.utils import show_video_frames_with_annotation_scenes
 from tests.helpers import (
     ProjectService,
     SdkTestMode,
@@ -44,20 +46,59 @@ class TestGeti:
 
     @staticmethod
     def ensure_annotated_project(
-        project_service: ProjectService, annotation_reader: DatumAnnotationReader
+        project_service: ProjectService,
+        annotation_readers: List[AnnotationReader],
+        project_type: str,
+        use_create_from_dataset: bool = False,
+        path_to_dataset: str = "",
     ) -> Project:
-        return get_or_create_annotated_project_for_test_class(
-            project_service=project_service,
-            annotation_readers=[annotation_reader],
-            project_type="detection",
-            project_name=f"{PROJECT_PREFIX}_geti",
-            enable_auto_train=False,
-        )
+        project_name = f"{PROJECT_PREFIX}_geti_{project_type}"
 
+        if not use_create_from_dataset:
+            return get_or_create_annotated_project_for_test_class(
+                project_service=project_service,
+                annotation_readers=annotation_readers,
+                project_type=project_type,
+                project_name=project_name,
+                enable_auto_train=False,
+            )
+        else:
+            return project_service.create_project_from_dataset(
+                annotation_readers=annotation_readers,
+                project_name=project_name,
+                project_type=project_type,
+                path_to_dataset=path_to_dataset,
+                n_images=-1,
+            )
+
+    @pytest.mark.parametrize(
+        "project_service, project_type, annotation_readers, use_create_from_dataset, path_to_media",
+        [
+            (
+                "fxt_project_service",
+                "classification",
+                "fxt_geti_annotation_reader",
+                True,
+                "fxt_light_bulbs_dataset",
+            ),
+            (
+                "fxt_project_service_2",
+                "detection_to_classification",
+                "fxt_classification_to_detection_annotation_readers",
+                False,
+                "fxt_blocks_dataset",
+            ),
+        ],
+        ids=["Single task project", "Task chain project"],
+    )
     def test_project_setup(
         self,
-        fxt_project_service: ProjectService,
-        fxt_annotation_reader: DatumAnnotationReader,
+        project_service,
+        project_type,
+        annotation_readers,
+        use_create_from_dataset,
+        path_to_media,
+        request: FixtureRequest,
         fxt_vcr: VCR,
         fxt_test_mode: SdkTestMode,
     ):
@@ -66,24 +107,38 @@ class TestGeti:
         duration of this test class. The project will train while the project
         creation tests are running.
         """
-        self.ensure_annotated_project(fxt_project_service, fxt_annotation_reader)
-        assert fxt_project_service.has_project
+        lazy_fxt_project_service = request.getfixturevalue(project_service)
+        lazy_fxt_annotation_reader = request.getfixturevalue(annotation_readers)
+        lazy_fxt_dataset_path = request.getfixturevalue(path_to_media)
+
+        if not isinstance(lazy_fxt_annotation_reader, list):
+            lazy_fxt_annotation_reader = [lazy_fxt_annotation_reader]
+
+        project = self.ensure_annotated_project(
+            project_service=lazy_fxt_project_service,
+            annotation_readers=lazy_fxt_annotation_reader,
+            project_type=project_type,
+            use_create_from_dataset=use_create_from_dataset,
+            path_to_dataset=lazy_fxt_dataset_path,
+        )
+        assert lazy_fxt_project_service.has_project
 
         # For the integration tests we start training manually
         with fxt_vcr.use_cassette(
-            f"{fxt_project_service.project.name}_setup_training.{CASSETTE_EXTENSION}"
+            f"{project.name}_setup_training.{CASSETTE_EXTENSION}"
         ):
-            attempt_to_train_task(
-                training_client=fxt_project_service.training_client,
-                task=0,
-                test_mode=fxt_test_mode,
-            )
+            for task in project.get_trainable_tasks():
+                attempt_to_train_task(
+                    training_client=lazy_fxt_project_service.training_client,
+                    task=task,
+                    test_mode=fxt_test_mode,
+                )
 
         # Wait a few secs to check whether the project is training
         if fxt_test_mode != SdkTestMode.OFFLINE:
             time.sleep(5)
 
-        assert fxt_project_service.is_training
+        assert lazy_fxt_project_service.is_training
 
     def test_geti_initialization(self, fxt_geti: Geti):
         """
@@ -193,9 +248,15 @@ class TestGeti:
             assert label_name in [label.name for label in project.get_all_labels()]
 
     @pytest.mark.vcr()
+    @pytest.mark.parametrize(
+        "project_service, include_videos",
+        [("fxt_project_service", True), ("fxt_project_service_2", False)],
+        ids=["Single task project", "Task chain project"],
+    )
     def test_download_and_upload_project(
         self,
-        fxt_project_service: ProjectService,
+        project_service,
+        include_videos,
         fxt_geti: Geti,
         fxt_temp_directory: str,
         fxt_project_finalizer,
@@ -204,13 +265,15 @@ class TestGeti:
         """
         Test that downloading a project works as expected.
 
-        :param fxt_project_service:
-        :return:
         """
-        project = fxt_project_service.project
+        lazy_fxt_project_service = request.getfixturevalue(project_service)
+        project = lazy_fxt_project_service.project
         target_folder = os.path.join(fxt_temp_directory, project.name)
 
-        fxt_geti.download_project(project.name, target_folder=target_folder)
+        fxt_geti.download_project(
+            project.name,
+            target_folder=target_folder,
+        )
 
         assert os.path.isdir(target_folder)
         assert "project.json" in os.listdir(target_folder)
@@ -220,7 +283,7 @@ class TestGeti:
 
         uploaded_project = fxt_geti.upload_project(
             target_folder=target_folder,
-            project_name=f"{PROJECT_PREFIX}_upload",
+            project_name=f"{project.name}_upload",
             enable_auto_train=False,
         )
         request.addfinalizer(lambda: fxt_project_finalizer(uploaded_project.name))
@@ -238,33 +301,58 @@ class TestGeti:
             project=uploaded_project,
         )
         annotation_target_folder = os.path.join(
-            fxt_temp_directory, "uploaded_annotations"
+            fxt_temp_directory, "uploaded_annotations", project.name
         )
-        annotation_client.download_annotations_for_images(
-            images, annotation_target_folder
-        )
+
+        if include_videos:
+            video_client = VideoClient(
+                session=fxt_geti.session,
+                workspace_id=fxt_geti.workspace_id,
+                project=uploaded_project,
+            )
+            n_videos = len(os.listdir(os.path.join(target_folder, "videos")))
+            videos = video_client.get_all_videos()
+
+            assert len(videos) == n_videos
+            annotation_client.download_all_annotations(annotation_target_folder)
+
+        else:
+            annotation_client.download_annotations_for_images(
+                images, annotation_target_folder
+            )
+
         assert (
             len(os.listdir(os.path.join(annotation_target_folder, "annotations")))
             == n_annotations
         )
 
     @pytest.mark.vcr()
+    @pytest.mark.parametrize(
+        "project_service",
+        ["fxt_project_service", "fxt_project_service_2"],
+        ids=["Single task project", "Task chain project"],
+    )
     def test_upload_and_predict_image(
         self,
+        project_service,
+        request: FixtureRequest,
         fxt_geti: Geti,
         fxt_image_path: str,
-        fxt_project_service: ProjectService,
         fxt_test_mode: SdkTestMode,
     ) -> None:
         """
         Verifies that the upload_and_predict_image method works correctly
         """
-        project = fxt_project_service.project
+        lazy_fxt_project_service = request.getfixturevalue(project_service)
+        project = lazy_fxt_project_service.project
         # If training is not ready yet, monitor progress until job completes
-        if not fxt_project_service.prediction_client.ready_to_predict:
+        if not lazy_fxt_project_service.prediction_client.ready_to_predict:
             timeout = 300 if fxt_test_mode != SdkTestMode.OFFLINE else 1
-            jobs = fxt_project_service.training_client.get_jobs(project_only=True)
-            fxt_project_service.training_client.monitor_jobs(jobs, timeout=timeout)
+            interval = 5 if fxt_test_mode != SdkTestMode.OFFLINE else 1
+            jobs = lazy_fxt_project_service.training_client.get_jobs(project_only=True)
+            lazy_fxt_project_service.training_client.monitor_jobs(
+                jobs, timeout=timeout, interval=interval
+            )
 
         # Make several attempts to get the prediction, first attempts trigger the
         # inference server to start up but the requests may time out
@@ -287,22 +375,113 @@ class TestGeti:
                 break
 
     @pytest.mark.vcr()
+    def test_upload_and_predict_video(
+        self,
+        fxt_project_service: ProjectService,
+        fxt_geti: Geti,
+        fxt_video_path_1_light_bulbs: str,
+        fxt_temp_directory: str,
+    ) -> None:
+        """
+        Verify that the `Geti.upload_and_predict_video` method works as expected
+        """
+        video, frames, predictions = fxt_geti.upload_and_predict_video(
+            project_name=fxt_project_service.project.name,
+            video=fxt_video_path_1_light_bulbs,
+            visualise_output=False,
+        )
+        assert len(frames) == len(predictions)
+        video_filepath = os.path.join(fxt_temp_directory, "inferred_video.avi")
+        show_video_frames_with_annotation_scenes(
+            video_frames=frames, annotation_scenes=predictions, filepath=video_filepath
+        )
+        assert os.path.isfile(video_filepath)
+
+        # Check that invalid project raises a ValueError
+        with pytest.raises(ValueError):
+            fxt_geti.upload_and_predict_video(
+                project_name="invalid_project_name",
+                video=fxt_video_path_1_light_bulbs,
+                visualise_output=False,
+            )
+
+        # Check that video is not uploaded if it's already in the project
+        video, frames, predictions = fxt_geti.upload_and_predict_video(
+            project_name=fxt_project_service.project.name,
+            video=video,
+            visualise_output=False,
+        )
+        assert len(frames) == len(predictions)
+
+        # Check that uploading list of numpy arrays as video works
+        new_frames = video.to_frames(frame_stride=50, include_data=True)
+        np_frames = [frame.numpy for frame in new_frames]
+        np_video, frames, predictions = fxt_geti.upload_and_predict_video(
+            project_name=fxt_project_service.project.name,
+            video=np_frames,
+            visualise_output=False,
+            delete_after_prediction=True,
+        )
+        assert len(frames) == len(predictions)
+        videos = fxt_project_service.video_client.get_all_videos()
+        assert np_video.id not in [vid.id for vid in videos]
+
+    @pytest.mark.vcr()
+    def test_upload_and_predict_media_folder(
+        self,
+        fxt_project_service: ProjectService,
+        fxt_geti: Geti,
+        fxt_video_folder_light_bulbs: str,
+        fxt_image_folder_light_bulbs: str,
+        fxt_temp_directory: str,
+    ) -> None:
+        """
+        Verify that the `Geti.upload_and_predict_media_folder` method works as expected
+        """
+        video_output_folder = os.path.join(fxt_temp_directory, "inferred_videos")
+        image_output_folder = os.path.join(fxt_temp_directory, "inferred_images")
+
+        video_success = fxt_geti.upload_and_predict_media_folder(
+            project_name=fxt_project_service.project.name,
+            media_folder=fxt_video_folder_light_bulbs,
+            output_folder=video_output_folder,
+            delete_after_prediction=True,
+        )
+        image_success = fxt_geti.upload_and_predict_media_folder(
+            project_name=fxt_project_service.project.name,
+            media_folder=fxt_image_folder_light_bulbs,
+            output_folder=image_output_folder,
+            delete_after_prediction=True,
+        )
+
+        assert video_success
+        assert image_success
+
+    @pytest.mark.vcr()
+    @pytest.mark.parametrize(
+        "project_service",
+        ["fxt_project_service", "fxt_project_service_2"],
+        ids=["Single task project", "Task chain project"],
+    )
     def test_deployment(
         self,
+        project_service,
+        request: FixtureRequest,
         fxt_geti: Geti,
         fxt_image_path: str,
-        fxt_project_service: ProjectService,
         fxt_temp_directory: str,
     ) -> None:
         """
         Verifies that deploying a project works
         """
-        project = fxt_project_service.project
-        deployment = fxt_geti.deploy_project(
-            project.name, output_folder=fxt_temp_directory
-        )
+        lazy_fxt_project_service = request.getfixturevalue(project_service)
+        project = lazy_fxt_project_service.project
         deployment_folder = os.path.join(fxt_temp_directory, project.name)
-        assert os.path.isdir(deployment_folder)
+        deployment = fxt_geti.deploy_project(
+            project.name, output_folder=deployment_folder
+        )
+
+        assert os.path.isdir(os.path.join(deployment_folder, "deployment"))
         deployment.load_inference_models(device="CPU")
 
         image_bgr = cv2.imread(fxt_image_path)
@@ -322,3 +501,67 @@ class TestGeti:
 
         assert online_mask.shape == local_mask.shape
         # assert np.all(local_mask == online_mask)
+
+        deployment_from_folder = Deployment.from_folder(
+            path_to_folder=deployment_folder
+        )
+        assert deployment_from_folder.models[0].name == deployment.models[0].name
+
+    @pytest.mark.vcr()
+    def test_download_project_including_models_and_predictions(
+        self,
+        fxt_project_service: ProjectService,
+        fxt_geti: Geti,
+        fxt_temp_directory: str,
+    ):
+        """
+        Test that downloading a project including predictions, active models and
+        deployment works as expected.
+        """
+        project = fxt_project_service.project
+        target_folder = os.path.join(
+            fxt_temp_directory, project.name + "_all_inclusive"
+        )
+        fxt_geti.download_project(
+            project_name=project.name,
+            target_folder=target_folder,
+            include_predictions=True,
+            include_active_models=True,
+            include_deployment=True,
+        )
+
+        prediction_folder_name = "predictions"
+        deployment_folder_name = "deployment"
+        model_folder_name = "models"
+
+        prediction_path = os.path.join(target_folder, prediction_folder_name)
+        deployment_path = os.path.join(target_folder, deployment_folder_name)
+        model_path = os.path.join(target_folder, model_folder_name)
+
+        assert os.path.isdir(prediction_path)
+        assert os.path.isdir(deployment_path)
+        assert os.path.isdir(model_path)
+
+        # Check the contents of the downloaded predictions
+        assert os.path.isdir(os.path.join(prediction_path, "saliency_maps"))
+
+        # Check the downloaded deployment
+        deployment = Deployment.from_folder(deployment_path)
+        assert deployment.project.name == project.name
+        assert len(deployment.models) == len(project.get_trainable_tasks())
+
+        # Check the contents of the downloaded active model folder
+        model_contents = os.listdir(model_path)
+        assert (
+            f"{project.get_trainable_tasks()[0].type}_model_details.json"
+            in model_contents
+        )
+
+        found_base_model = False
+        found_optimized_model = False
+        for filename in model_contents:
+            if "_base.zip" in filename:
+                found_base_model = True
+            if "_optimized.zip" in filename:
+                found_optimized_model = True
+        assert found_optimized_model and found_base_model

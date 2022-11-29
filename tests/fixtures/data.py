@@ -13,11 +13,11 @@
 # and limitations under the License.
 import json
 import os
-from typing import Callable
+from typing import Callable, List
 
 import pytest
 
-from geti_sdk.annotation_readers import DatumAnnotationReader
+from geti_sdk.annotation_readers import DatumAnnotationReader, GetiAnnotationReader
 
 
 @pytest.fixture(scope="session")
@@ -176,3 +176,25 @@ def fxt_env_filepath(fxt_base_test_path: str) -> str:
     Return the path to a mock .env file
     """
     yield os.path.join(fxt_base_test_path, "data", "mock.env")
+
+
+@pytest.fixture()
+def fxt_geti_annotation_reader(fxt_light_bulbs_dataset) -> GetiAnnotationReader:
+    """
+    Return a GetiAnnotationReader instance to load the `light-bulbs` test dataset
+    """
+    yield GetiAnnotationReader(
+        base_data_folder=os.path.join(fxt_light_bulbs_dataset, "annotations")
+    )
+
+
+@pytest.fixture()
+def fxt_classification_to_detection_annotation_readers(
+    fxt_annotation_reader: DatumAnnotationReader,
+    fxt_annotation_reader_grouped: DatumAnnotationReader,
+) -> List[DatumAnnotationReader]:
+    """
+    Return a list of DatumAnnotationReader objects that can be used to create a
+    `classification_to_detection` project, for the `blocks` dataset.
+    """
+    yield [fxt_annotation_reader_grouped, fxt_annotation_reader]

@@ -501,6 +501,7 @@ class Geti:
         number_of_images_to_upload: int = -1,
         number_of_images_to_annotate: int = -1,
         enable_auto_train: bool = True,
+        upload_videos: bool = False,
     ) -> Project:
         """
         Create a single task project named `project_name` on the Intel® Geti™ server,
@@ -541,6 +542,8 @@ class Geti:
             after all annotations have been uploaded. This will directly trigger a
             training round if the conditions for auto-training are met. False to leave
             auto-training disabled for all tasks. Defaults to True.
+        :param upload_videos: True to upload any videos found in the `path_to_images`
+            folder.
         :return: Project object, holding information obtained from the cluster
             regarding the uploaded project
         """
@@ -592,6 +595,16 @@ class Geti:
         ):
             images = images[:number_of_images_to_annotate]
 
+        # Upload videos, if needed
+        video_client = VideoClient(
+            session=self.session, workspace_id=self.workspace_id, project=project
+        )
+        videos: MediaList[Video] = MediaList([])
+        if upload_videos:
+            videos = video_client.upload_folder(
+                path_to_folder=path_to_images, n_videos=-1
+            )
+
         # Set annotation reader task type
         annotation_reader.task_type = project.get_trainable_tasks()[0].type
         annotation_reader.prepare_and_set_dataset(
@@ -605,6 +618,9 @@ class Geti:
             annotation_reader=annotation_reader,
         )
         annotation_client.upload_annotations_for_images(images)
+
+        if len(videos) > 0:
+            annotation_client.upload_annotations_for_videos(videos)
 
         configuration_client.set_project_auto_train(auto_train=enable_auto_train)
         return project
@@ -1107,6 +1123,8 @@ class Geti:
                 video_data = None
             else:
                 video_data = video.get_data(self.session)
+        elif isinstance(video, (str, os.PathLike)):
+            video_data = video
         elif isinstance(video, (Sequence, np.ndarray)):
             if not isinstance(video, np.ndarray):
                 video_data = np.array(video)

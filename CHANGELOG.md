@@ -1,3 +1,25 @@
+# v1.0.3 Intel® Geti™ SDK (25-11-2022)
+## What's Changed
+* Add `ScoreMetadata` to represent the new `scores` field by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/106
+* Add model and prediction client integration tests + update cassettes by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/107
+* Update simplejson requirement from ==3.17.* to ==3.18.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/108
+* Fix opencv window closure bug by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/109
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.0.2...v1.0.3
+
+# v1.0.2 Intel® Geti™ SDK (17-11-2022)
+## What's Changed
+* Update ote-sdk requirement to v0.3.1 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/98
+* Add integration tests for `project_client`, fix `project_client.add_labels` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/99
+* Update data model for TaskMetadata, improve robustness of active model fetching by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/100
+* Use OTE SDK visualizer, add plot helper unit tests by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/101
+* Add HTTPS_PROXY as variable to the credentials helper by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/102
+* Add tests for video up- and download in Geti integration tests by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/103
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.0.1...v1.0.2
+
 # v1.0.1 Intel® Geti™ SDK (11-11-2022)
 ## What's Changed
 * Add path validation to project download target path by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/87
