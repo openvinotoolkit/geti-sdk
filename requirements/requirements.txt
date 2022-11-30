@@ -1,7 +1,7 @@
 # Base requirements
 datumaro==0.3.*
 requests==2.28.*
-numpy==1.21.*
+numpy==1.22.*
 omegaconf==2.1.*
 opencv-python==4.5.*
 python-dotenv==0.21.*
@@ -12,4 +12,4 @@ simplejson==3.18.*
 ipython==8.7.*
 ote-sdk @ git+https://github.com/openvinotoolkit/training_extensions/@releases/v0.3.1-geti1.0.0#egg=ote-sdk&subdirectory=ote_sdk
 openvino==2022.2.0
-openmodelzoo-modelapi @ git+https://github.com/openvinotoolkit/open_model_zoo/@releases/2022/SCv1.1#egg=openmodelzoo-modelapi&subdirectory=demos/common/python
+openmodelzoo-modelapi @ git+https://github.com/openvinotoolkit/open_model_zoo/@releases/2022/2#egg=openmodelzoo-modelapi&subdirectory=demos/common/python
