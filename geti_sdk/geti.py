@@ -962,6 +962,7 @@ class Geti:
                 f"because one of the tasks in the task chain does not have a "
                 f"trained model yet. Aborting prediction."
             )
+            return False
 
         # Set and create output folder if necessary
         if output_folder is None:

@@ -207,7 +207,24 @@ class TrainingClient:
             job_id = response["job_ids"][0]
             job = self.get_job_by_id(job_id=job_id)
 
-        logging.info(f"Training job with ID {job_id} submitted successfully.")
+        if job is not None:
+            logging.info(f"Training job with ID {job_id} submitted successfully.")
+        else:
+            n_attempts = 0
+            while job is None and n_attempts < 5:
+                logging.info(
+                    "Training request was submitted but the training job status could "
+                    "not be retrieved from the platform yet. Re-attempting to fetch "
+                    "job status."
+                )
+                time.sleep(1)
+                job = self.get_job_by_id(job_id=job_id)
+                n_attempts += 1
+            if job is None:
+                raise RuntimeError(
+                    "Train request was submitted but the TrainingClient was unable to "
+                    "find the resulting training job on the Intel® Geti™ server."
+                )
         job.workspace_id = self.workspace_id
         return job
 
