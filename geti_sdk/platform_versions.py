@@ -79,7 +79,7 @@ class GetiVersion:
         :return: True if this instance corresponds to an earlier version of the Intel
             Geti platform than `other`
         """
-        return not self > other
+        return not self >= other
 
     def __ge__(self, other):
         """
