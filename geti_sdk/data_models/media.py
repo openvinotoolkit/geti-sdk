@@ -69,7 +69,7 @@ class VideoInformation(MediaInformation):
     duration: int
     frame_count: int
     frame_stride: int
-    frame_rate: Optional[int] = None  # Added in Geti v1.1
+    frame_rate: Optional[float] = None  # Added in Geti v1.1
 
 
 @attr.define
