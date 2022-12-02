@@ -24,11 +24,12 @@ recommend checking them out to get a feeling for use cases for the package.
 # Getting started
 
 ## Installation
-I recommend using an environment manager such as
+Using an environment manager such as
 [Anaconda](https://www.anaconda.com/products/individual) or
 [venv](https://docs.python.org/3/library/venv.html) to create a new
-Python environment before installing the package, and it's requirements. The SDK
-requires Python version 3.8, so make sure to use that version in your environment.
+Python environment before installing the Intel® Geti™ SDK and it's requirements is
+highly recommended. The SDK requires Python version 3.8, so make sure to use that
+version in your environment.
 
 > **NOTE**: If you have installed multiple versions of Python,
 > use `py -3.8 venv -m <env_name>` when creating your virtual environment to specify
