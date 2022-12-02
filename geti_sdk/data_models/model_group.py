@@ -40,6 +40,8 @@ class ModelSummary:
     :var id: Unique database ID of the model
     :var model_storage_id: Unique database ID of the model storage (also referred to
         as model group) that this model belongs to
+    :var label_schema_in_sync: Boolean indicating whether the labels of the model are
+        matching with the latest project labels
     """
 
     _identifier_fields: ClassVar[List[str]] = ["id", "model_storage_id"]

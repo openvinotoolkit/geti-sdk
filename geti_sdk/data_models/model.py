@@ -69,6 +69,7 @@ class BaseModel:
     score: Optional[float] = attr.field(default=None)  # 'score' is removed in v1.1
     performance: Optional[Performance] = None
     id: Optional[str] = attr.field(default=None)
+    label_schema_in_sync: Optional[bool] = attr.field(default=None)  # Added in Geti 1.1
 
     def __attrs_post_init__(self):
         """
