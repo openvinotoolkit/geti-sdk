@@ -54,6 +54,7 @@ class ModelSummary:
     active_model: bool = attr.field(default=False)
     id: Optional[str] = attr.field(default=None, repr=False)
     model_storage_id: Optional[str] = attr.field(default=None, repr=False)
+    label_schema_in_sync: Optional[bool] = attr.field(default=None)  # Added in Geti 1.1
 
 
 @attr.define(slots=False)
