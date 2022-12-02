@@ -30,7 +30,7 @@ def attempt_to_train_task(
     """
     job: Optional[Job] = None
     not_ready_response = "project_not_train_ready"
-    n_attempts = 5
+    n_attempts = 10
 
     for i in range(n_attempts):
         try:
