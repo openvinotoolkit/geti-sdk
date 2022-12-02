@@ -14,7 +14,7 @@
 import logging
 import os
 import time
-from typing import ClassVar, List
+from typing import ClassVar, List, Optional
 
 import cv2
 import numpy as np
@@ -106,6 +106,8 @@ class TestNightlyProject:
         n_attempts = 3
         project = fxt_project_service_no_vcr.project
 
+        prediction: Optional[Prediction] = None
+        request_exception: Optional[Exception] = None
         for j in range(n_attempts):
             try:
                 image, prediction = fxt_geti_no_vcr.upload_and_predict_image(
@@ -117,10 +119,13 @@ class TestNightlyProject:
             except GetiRequestException as error:
                 prediction = None
                 time.sleep(20)
-                logging.info(error)
+                logging.debug(error)
+                request_exception = error
             if prediction is not None:
                 assert isinstance(prediction, Prediction)
                 break
+        if prediction is None:
+            raise request_exception
 
     def test_deployment(
         self,

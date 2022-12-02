@@ -40,7 +40,7 @@ def attempt_to_train_task(
             if error.response_error_code != not_ready_response:
                 raise error
         if test_mode != SdkTestMode.OFFLINE:
-            time.sleep(2)
+            time.sleep(5)
 
     if job is not None:
         return job
