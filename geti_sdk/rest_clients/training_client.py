@@ -264,7 +264,7 @@ class TrainingClient:
                     job.update(self.session)
                     msg += (
                         f"{job.name}  -- "
-                        f"  Phase: {job.status.message} "
+                        f"  Phase: {job.status.user_friendly_message} "
                         f"  State: {job.status.state} "
                         f"  Progress: {job.status.progress:.1f}%"
                     )

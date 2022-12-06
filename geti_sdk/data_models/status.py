@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
 from typing import Any, Dict, List, Optional
 
 import attr
@@ -19,20 +18,28 @@ import attr
 from geti_sdk.data_models.performance import Performance
 
 
-@attr.define
+@attr.define(slots=False)
 class StatusSummary:
     """
     Summary of the status of a project or task on the GETi cluster.
 
-    :var message: Human readable message describing the status
+    NOTE: the 'message' attribute was removed in Geti 1.1
+
     :var progress: Training progress, if a model is being trained
     :var time_remaining: Estimated time remaining on the training process, if a model
         is being trained.
+    :var message: Optional Human readable message describing the status
     """
 
-    message: str
     progress: float
     time_remaining: float
+    message: Optional[str] = None
+
+    def __attrs_post_init__(self):
+        """
+        Initialize private attributes
+        """
+        self._user_friendly_message = "Unknown status"
 
     @classmethod
     def from_dict(cls, status_dict: Dict[str, Any]) -> "StatusSummary":
@@ -44,6 +51,23 @@ class StatusSummary:
         :return: StatusSummary object holding the status data contained in `status_dict`
         """
         return cls(**status_dict)
+
+    @property
+    def user_friendly_message(self) -> str:
+        """
+        Return a message describing the status in a human readable format
+        """
+        if self.message is not None:
+            return self.message
+        else:
+            return self._user_friendly_message
+
+    @user_friendly_message.setter
+    def user_friendly_message(self, message: str):
+        """
+        Set the user friendly message to describe the status
+        """
+        self._user_friendly_message = message
 
 
 @attr.define
@@ -102,6 +126,15 @@ class TaskStatus:
     title: str
     n_new_annotations: Optional[int] = None  # Added in Geti v1.1
 
+    def __attrs_post_init__(self):
+        """
+        Make sure task status message is set correctly
+        """
+        if self.is_training:
+            self.status.user_friendly_message = "Training"
+        elif self.required_annotations.value != 0:
+            self.status.user_friendly_message = "Waiting for user annotations"
+
 
 @attr.define
 class ProjectStatus:
@@ -130,6 +163,15 @@ class ProjectStatus:
     n_running_jobs: Optional[int] = None
     n_running_jobs_project: Optional[int] = None
 
+    def __attrs_post_init__(self):
+        """
+        Make sure task status message is set correctly
+        """
+        if self.is_training:
+            self.status.user_friendly_message = "Training"
+        elif self.n_required_annotations != 0:
+            self.status.user_friendly_message = "Waiting for user annotations"
+
     @property
     def summary(self) -> str:
         """
@@ -137,10 +179,11 @@ class ProjectStatus:
 
         :return: String holding a brief summary of the project status
         """
-        summary_str = f"Project status:\n  {self.status.message}\n"
+        summary_str = f"Project status:\n  {self.status.user_friendly_message}\n"
         for task in self.tasks:
             summary_str += (
-                f"    Task: {task.title}\n" f"      State: {task.status.message}\n"
+                f"    Task: {task.title}\n"
+                f"      State: {task.status.user_friendly_message}\n"
             )
             if task.is_training or task.status.progress != -1.0:
                 summary_str += f"      Progress: {task.status.progress:.1f}%\n"
