@@ -1265,6 +1265,22 @@ Intel® Geti™ workspace.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="geti_sdk.rest_clients.training_client.TrainingClient.get_job_by_id">
+<span class="sig-name descname"><span class="pre">get_job_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.job.Job" title="geti_sdk.data_models.job.Job"><span class="pre">Job</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#geti_sdk.rest_clients.training_client.TrainingClient.get_job_by_id" title="Permalink to this definition"></a></dt>
+<dd><p>Return the details of a Job by its <cite>job_id</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>job_id</strong> – ID of the job to retrieve</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Job instance containing detailed information and status of the job.
+If no job by the specified ID is found on the Intel® Geti™ platform, this
+method returns None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="geti_sdk.rest_clients.training_client.TrainingClient.get_algorithms_for_task">
 <span class="sig-name descname"><span class="pre">get_algorithms_for_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.task.Task" title="geti_sdk.data_models.task.Task"><span class="pre">Task</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="geti_sdk.data_models.html#geti_sdk.data_models.containers.AlgorithmList" title="geti_sdk.data_models.containers.algorithm_list.AlgorithmList"><span class="pre">AlgorithmList</span></a></span></span><a class="headerlink" href="#geti_sdk.rest_clients.training_client.TrainingClient.get_algorithms_for_task" title="Permalink to this definition"></a></dt>
 <dd><p>Return a list of supported algorithms for a specific task.</p>
