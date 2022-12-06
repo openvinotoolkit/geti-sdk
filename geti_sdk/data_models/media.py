@@ -63,11 +63,13 @@ class VideoInformation(MediaInformation):
     :var duration: Duration of the video
     :var frame_count: Total number of frames in the video
     :var frame_stride: Frame stride of the video
+    :var frame_rate: Frame rate of the video
     """
 
     duration: int
     frame_count: int
     frame_stride: int
+    frame_rate: Optional[float] = None  # Added in Geti v1.1
 
 
 @attr.define

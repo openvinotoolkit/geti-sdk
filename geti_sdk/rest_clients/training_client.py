@@ -26,7 +26,8 @@ from geti_sdk.data_models import (
 from geti_sdk.data_models.containers import AlgorithmList
 from geti_sdk.data_models.enums import JobState
 from geti_sdk.data_models.project import Dataset
-from geti_sdk.http_session import GetiSession
+from geti_sdk.http_session import GetiRequestException, GetiSession
+from geti_sdk.platform_versions import GETI_11_VERSION
 from geti_sdk.rest_converters import (
     ConfigurationRESTConverter,
     JobRESTConverter,
@@ -94,6 +95,26 @@ class TrainingClient:
             ]
         else:
             return job_list
+
+    def get_job_by_id(self, job_id: str) -> Optional[Job]:
+        """
+        Return the details of a Job by its `job_id`.
+
+        :param job_id: ID of the job to retrieve
+        :return: Job instance containing detailed information and status of the job.
+            If no job by the specified ID is found on the Intel® Geti™ platform, this
+            method returns None
+        """
+        try:
+            response = self.session.get_rest_response(
+                url=f"workspaces/{self.workspace_id}/jobs/{job_id}", method="GET"
+            )
+        except GetiRequestException as error:
+            if error.status_code == 404:
+                return None
+            else:
+                raise error
+        return JobRESTConverter.from_dict(response)
 
     def get_algorithms_for_task(self, task: Union[Task, int]) -> AlgorithmList:
         """
@@ -178,7 +199,32 @@ class TrainingClient:
         response = self.session.get_rest_response(
             url=f"{self.base_url}/train", method="POST", data=data
         )
-        job = JobRESTConverter.from_dict(response)
+
+        if self.session.version < GETI_11_VERSION:
+            job = JobRESTConverter.from_dict(response)
+            job_id = job.id
+        else:
+            job_id = response["job_ids"][0]
+            job = self.get_job_by_id(job_id=job_id)
+
+        if job is not None:
+            logging.info(f"Training job with ID {job_id} submitted successfully.")
+        else:
+            n_attempts = 0
+            while job is None and n_attempts < 5:
+                logging.info(
+                    "Training request was submitted but the training job status could "
+                    "not be retrieved from the platform yet. Re-attempting to fetch "
+                    "job status."
+                )
+                time.sleep(1)
+                job = self.get_job_by_id(job_id=job_id)
+                n_attempts += 1
+            if job is None:
+                raise RuntimeError(
+                    "Train request was submitted but the TrainingClient was unable to "
+                    "find the resulting training job on the Intel® Geti™ server."
+                )
         job.workspace_id = self.workspace_id
         return job
 

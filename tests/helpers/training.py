@@ -30,7 +30,7 @@ def attempt_to_train_task(
     """
     job: Optional[Job] = None
     not_ready_response = "project_not_train_ready"
-    n_attempts = 5
+    n_attempts = 10
 
     for i in range(n_attempts):
         try:
@@ -40,7 +40,7 @@ def attempt_to_train_task(
             if error.response_error_code != not_ready_response:
                 raise error
         if test_mode != SdkTestMode.OFFLINE:
-            time.sleep(2)
+            time.sleep(5)
 
     if job is not None:
         return job

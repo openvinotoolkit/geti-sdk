@@ -40,6 +40,8 @@ class ModelSummary:
     :var id: Unique database ID of the model
     :var model_storage_id: Unique database ID of the model storage (also referred to
         as model group) that this model belongs to
+    :var label_schema_in_sync: Boolean indicating whether the labels of the model are
+        matching with the latest project labels
     """
 
     _identifier_fields: ClassVar[List[str]] = ["id", "model_storage_id"]
@@ -54,6 +56,7 @@ class ModelSummary:
     active_model: bool = attr.field(default=False)
     id: Optional[str] = attr.field(default=None, repr=False)
     model_storage_id: Optional[str] = attr.field(default=None, repr=False)
+    label_schema_in_sync: Optional[bool] = attr.field(default=None)  # Added in Geti 1.1
 
 
 @attr.define(slots=False)

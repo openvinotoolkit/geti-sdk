@@ -70,6 +70,41 @@ class GetiVersion:
             else:
                 return self.time_tag > other.time_tag
 
+    def __lt__(self, other):
+        """
+        Return True if this GetiVersion instance is an earlier version than `other`
+
+        :param other: GetiVersion object to compare with
+        :raises: TypeError if `other` is not a GetiVersion instance
+        :return: True if this instance corresponds to an earlier version of the Intel
+            Geti platform than `other`
+        """
+        return not self >= other
+
+    def __ge__(self, other):
+        """
+        Return True if this GetiVersion instance is a later or equivalent version than
+        `other`
+
+        :param other: GetiVersion object to compare with
+        :raises: TypeError if `other` is not a GetiVersion instance
+        :return: True if this instance corresponds to a later or equivalent version of
+            the Intel Geti platform than `other`
+        """
+        return (self > other) or (self == other)
+
+    def __le__(self, other):
+        """
+        Return True if this GetiVersion instance is an earlier or equivalent version
+        than `other`
+
+        :param other: GetiVersion object to compare with
+        :raises: TypeError if `other` is not a GetiVersion instance
+        :return: True if this instance corresponds to an earlier or equivalent version
+            of the Intel Geti platform than `other`
+        """
+        return (self < other) or (self == other)
+
     def __eq__(self, other):
         """
         Return True if this GetiVersion instance is equal to `other`
@@ -82,7 +117,7 @@ class GetiVersion:
             raise TypeError(
                 f"Unsupported comparison operation, {other} is not a GetiVersion."
             )
-        return self.time_tag == other.time_tag and self.version == other.version
+        return self.version == other.version
 
     @property
     def is_sc_mvp(self) -> bool:
@@ -133,3 +168,9 @@ class GetiVersion:
             and self.time_tag >= self._GETI10_TIMETAG
             and not (self.is_sc_1_1 or self.is_sc_mvp)
         )
+
+
+SC_MVP_VERSION = GetiVersion("1.0.0-release-20220129184214")
+SC_11_VERSION = GetiVersion("1.1.0-release-20220624125113")
+GETI_10_VERSION = GetiVersion("1.0.0-release-20221005164936")
+GETI_11_VERSION = GetiVersion("1.1.0-latest-20221125121144")
