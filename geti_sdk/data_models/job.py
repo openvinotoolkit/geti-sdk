@@ -28,7 +28,7 @@ from geti_sdk.data_models.utils import (
 from geti_sdk.http_session import GetiRequestException, GetiSession
 
 
-@attr.define
+@attr.define(slots=False)
 class JobStatus(StatusSummary):
     """
     Current status of a job on the Intel® Geti™ server.
@@ -36,7 +36,7 @@ class JobStatus(StatusSummary):
     :var state: Current state of the job
     """
 
-    state: str = attr.field(converter=str_to_enum_converter(JobState))
+    state: str = attr.field(converter=str_to_enum_converter(JobState), kw_only=True)
 
     @classmethod
     def from_dict(cls, status_dict: Dict[str, Any]) -> "JobStatus":
