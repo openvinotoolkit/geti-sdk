@@ -1,3 +1,15 @@
+# v1.0.4 Intel® Geti™ SDK (08-12-2022)
+## What's Changed
+* Update ipython requirement from ==8.6.* to ==8.7.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/112
+* Properly check for empty annotation before uploading by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/111
+* Update numpy version to 1.22.* in requirements by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/104
+* Minor update to README.md by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/114
+* Update training client to handle new /train endpoint response by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/113
+* Update `StatusSummary` datamodel by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/115
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.0.3...v1.0.4
+
 # v1.0.3 Intel® Geti™ SDK (25-11-2022)
 ## What's Changed
 * Add `ScoreMetadata` to represent the new `scores` field by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/106
