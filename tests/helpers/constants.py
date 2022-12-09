@@ -21,5 +21,5 @@ RECORD_CASSETTE_KEY = "RECORD_CASSETTES_TEMPORARY_DIR"
 CASSETTE_EXTENSION = "cassette"
 PROJECT_PREFIX = "geti_sdk_test"
 DUMMY_USER = "dummy_user"
-DUMMY_PASSWORD = "dummy_password"
-DUMMY_TOKEN = "dummy_token"
+DUMMY_PASSWORD = "dummy_password"  # nosec B105
+DUMMY_TOKEN = "dummy_token"  # nosec B105
