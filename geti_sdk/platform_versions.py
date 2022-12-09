@@ -61,7 +61,10 @@ class GetiVersion:
                 f"Unsupported comparison operation, {other} is not a GetiVersion."
             )
         if self.is_geti and other.is_geti:
-            return self.time_tag > other.time_tag
+            if self.version != other.version:
+                return self.version > other.version
+            else:
+                return self.time_tag > other.time_tag
         else:
             if self.is_geti and not other.is_geti:
                 return True
