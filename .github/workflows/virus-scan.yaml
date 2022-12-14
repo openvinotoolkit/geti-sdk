@@ -1,0 +1,19 @@
+name: "ClamAV"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  clamavscan:
+    runs-on: ubuntu-latest
+    name: ClamAV Scan
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: '0'
+
+    - name: Git AV Scan
+      uses: djdefi/gitavscan@main
+      with:
+        full: '--full'
