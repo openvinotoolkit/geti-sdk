@@ -222,7 +222,7 @@ class TrainingClient:
                     f"not be retrieved from the platform yet. Re-attempting to fetch "
                     f"job status. Looking for job with ID {job_id}"
                 )
-                time.sleep(5)
+                time.sleep(2)
                 job = self.get_job_by_id(job_id=job_id)
             if job is None:
                 raise RuntimeError(
