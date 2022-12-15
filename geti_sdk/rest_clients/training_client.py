@@ -143,6 +143,7 @@ class TrainingClient:
         enable_pot_optimization: bool = False,
         hyper_parameters: Optional[TaskConfiguration] = None,
         hpo_parameters: Optional[Dict[str, Any]] = None,
+        timeout: int = 300,
     ) -> Job:
         """
         Start training of a specific task in the project.
@@ -162,6 +163,10 @@ class TrainingClient:
         :param hyper_parameters: Optional hyper parameters to use for training
         :param hpo_parameters: Optional set of parameters to use for automatic hyper
             parameter optimization. Only supported for version 1.1 and up
+        :param timeout: Timeout (in seconds) to wait for the Job to be created. If a
+            training request is submitted successfully, a training job should be
+            instantiated on the Geti server. If the Job does not appear on the server
+            job list within the `timeout`,  an error will be raised.
         :return: The training job that has been created
         """
         if isinstance(task, int):
@@ -210,16 +215,15 @@ class TrainingClient:
         if job is not None:
             logging.info(f"Training job with ID {job_id} submitted successfully.")
         else:
-            n_attempts = 0
-            while job is None and n_attempts < 5:
+            t_start = time.time()
+            while job is None and (time.time() - t_start < timeout):
                 logging.info(
-                    "Training request was submitted but the training job status could "
-                    "not be retrieved from the platform yet. Re-attempting to fetch "
-                    "job status."
+                    f"Training request was submitted but the training job status could "
+                    f"not be retrieved from the platform yet. Re-attempting to fetch "
+                    f"job status. Looking for job with ID {job_id}"
                 )
-                time.sleep(1)
+                time.sleep(5)
                 job = self.get_job_by_id(job_id=job_id)
-                n_attempts += 1
             if job is None:
                 raise RuntimeError(
                     "Train request was submitted but the TrainingClient was unable to "
