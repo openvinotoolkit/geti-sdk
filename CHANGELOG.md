@@ -1,3 +1,16 @@
+# v1.1.0 Intel® Geti™ SDK (15-12-2022)
+## What's Changed
+* Minor fix in README.md by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/118
+* Fix and improve geti version comparison mechanism by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/117
+* Ignore some false positive bandit detections by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/119
+* Update datumaro requirement from ==0.3.* to ==0.4.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/121
+* Add ClamAV workflow by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/123
+* Update `jupyterlab` requirement for notebooks to >=3.5.1 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/124
+* Increase timeout for training job polling upon calling `train_task` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/125
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.0.4...v1.1.0
+
 # v1.0.4 Intel® Geti™ SDK (08-12-2022)
 ## What's Changed
 * Update ipython requirement from ==8.6.* to ==8.7.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/112
