@@ -44,7 +44,7 @@ class OptimizationCapabilities:
     is_filter_pruning_supported: Optional[bool] = None
 
 
-@attr.define
+@attr.define(slots=False)
 class BaseModel:
     """
     Representation of the basic information for a Model or OptimizedModel in GETi
