@@ -1,3 +1,11 @@
+# v1.1.1 Intel® Geti™ SDK (20-12-2022)
+## What's Changed
+* Fix issue with model to dictionary conversion by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/128
+* Only submit train request once all running jobs for task have finished by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/129
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.1.0...v1.1.1
+
 # v1.1.0 Intel® Geti™ SDK (15-12-2022)
 ## What's Changed
 * Minor fix in README.md by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/118
