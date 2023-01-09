@@ -92,9 +92,10 @@ class NormalizedAnnotationRESTConverter(AnnotationRESTConverter):
         labels: List[ScoredLabel] = []
         for label in input_dict["labels"]:
             labels.append(AnnotationRESTConverter._scored_label_from_dict(label))
-        shape = NormalizedAnnotationRESTConverter._normalized_shape_from_dict(
-            input_dict["shape"], image_width=image_width, image_height=image_height
-        )
+        # shape = NormalizedAnnotationRESTConverter._normalized_shape_from_dict(
+        #     input_dict["shape"], image_width=image_width, image_height=image_height
+        # )
+        shape = AnnotationRESTConverter._shape_from_dict(input_dict["shape"])
         input_copy.update({"labels": labels, "shape": shape})
         return Annotation(**input_copy)
 
@@ -153,9 +154,9 @@ class NormalizedAnnotationRESTConverter(AnnotationRESTConverter):
             annotation_dict = attr.asdict(
                 annotation, recurse=True, value_serializer=attr_value_serializer
             )
-            annotation_dict["shape"] = annotation.shape.to_normalized_coordinates(
-                image_width=image_width, image_height=image_height
-            )
+            # annotation_dict["shape"] = annotation.shape.to_normalized_coordinates(
+            #     image_width=image_width, image_height=image_height
+            # )
             annotations_serialized.append(annotation_dict)
         annotation_scene_dict["annotations"] = annotations_serialized
         remove_null_fields(annotation_scene_dict)
