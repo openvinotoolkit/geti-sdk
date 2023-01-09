@@ -88,37 +88,8 @@ if __name__ == "__main__":
         password=sys.argv[1],
     )
 
-    # host = "https://vm40.openvino.ai"
-    # client = SCRESTClient(
-    #     host=host,
-    #     username="laurens.hogeweg@intel.com",
-    #     password="@SCvision+LH",
-    #     # proxies={"https": "http://proxy-dmz.intel.com:912"}
-    # )
 
-    # project_manager = ProjectClient(
-    #     session=client.session, workspace_id=client.workspace_id
-    # )
-    # project = project_manager.get_or_create_project(
-    #     project_name="diopsis",
-    #     project_type='_to_'.join(['detection', 'classification']),
-    #     labels=[['Object'], labels_migrate]
-    # )
-    # print(project)
-    # with open("diopsis.json", "w") as f:
-    #     json.dump(
-    #         project_manager.session.get_rest_response(
-    #             url=f"{project_manager.base_url}projects/{project.id}",
-    #             method="GET",
-    #         ), f, indent=2)
-    # exit(0)
 
-    # migrate_nous_project(
-    #     rest_client=client,
-    #     export_path='/mnt/big/backups/stickytraps_24nov',
-    #     project_name='sticky traps detection',
-    #     project_type='detection'
-    # )
 
     migrate_nous_chain(
         rest_client=client,
