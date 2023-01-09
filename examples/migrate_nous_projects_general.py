@@ -1,6 +1,5 @@
 import json
 import os
-import sys
 from collections import Counter
 from json import JSONDecodeError
 
@@ -85,7 +84,7 @@ if __name__ == "__main__":
     client = SCRESTClient(
         host="https://sc-demo.iotg.sclab.intel.com/",
         username="laurens.hogeweg@intel.com",
-        password=sys.argv[1],
+        password="@SCvision+LH",
     )
 
     # host = "https://vm40.openvino.ai"
