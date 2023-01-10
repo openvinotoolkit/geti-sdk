@@ -48,11 +48,13 @@ class MediaInformation:
     :var display_url: URL that can be used to download the full size media entity
     :var height: Height of the media entity, in pixels
     :var width: Width of the media entity, in pixels
+    :var size: Size of the media entity, in bytes
     """
 
     display_url: str
     height: int
     width: int
+    size: Optional[int] = None  # Added in Geti v1.2
 
 
 @attr.define
