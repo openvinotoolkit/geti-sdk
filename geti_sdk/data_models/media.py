@@ -68,10 +68,12 @@ class VideoInformation(MediaInformation):
     :var frame_rate: Frame rate of the video
     """
 
-    duration: int
-    frame_count: int
-    frame_stride: int
-    frame_rate: Optional[float] = None  # Added in Geti v1.1
+    duration: int = attr.ib(kw_only=True)
+    frame_count: int = attr.ib(kw_only=True)
+    frame_stride: int = attr.ib(kw_only=True)
+    frame_rate: Optional[float] = attr.ib(
+        kw_only=True, default=None
+    )  # Added in Geti v1.1
 
 
 @attr.define
@@ -89,8 +91,8 @@ class VideoFrameInformation(MediaInformation):
     Basic information about a video frame in Intel® Geti™.
     """
 
-    frame_index: int
-    video_id: str
+    frame_index: int = attr.ib(kw_only=True)
+    video_id: str = attr.ib(kw_only=True)
 
 
 @attr.define
