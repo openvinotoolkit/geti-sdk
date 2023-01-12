@@ -80,10 +80,14 @@ Module contents
 .. autoclass:: geti_sdk.rest_clients.training_client.TrainingClient
    :members:
 
+.. autoclass:: geti_sdk.rest_clients.deployment_client.DeploymentClient
+   :members:
+
 """
 
 from .annotation_clients import AnnotationClient
 from .configuration_client import ConfigurationClient
+from .deployment_client import DeploymentClient
 from .media_client import ImageClient, VideoClient
 from .model_client import ModelClient
 from .prediction_client import PredictionClient
@@ -99,4 +103,5 @@ __all__ = [
     "PredictionClient",
     "ModelClient",
     "TrainingClient",
+    "DeploymentClient",
 ]
