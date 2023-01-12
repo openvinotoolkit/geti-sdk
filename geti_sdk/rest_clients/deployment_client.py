@@ -28,8 +28,11 @@ from geti_sdk.data_models.enums import DeploymentState, OptimizationType
 from geti_sdk.data_models.model import Model, OptimizedModel
 from geti_sdk.deployment import Deployment
 from geti_sdk.http_session import GetiSession
-from geti_sdk.rest_clients import ConfigurationClient, ModelClient, PredictionClient
 from geti_sdk.utils import deserialize_dictionary, get_supported_algorithms
+
+from .configuration_client import ConfigurationClient
+from .model_client import ModelClient
+from .prediction_client import PredictionClient
 
 
 class DeploymentClient:
