@@ -139,7 +139,7 @@ class JobMetadata:
     model_storage_id: Optional[str] = None
     optimization_type: Optional[str] = None
     optimized_model_id: Optional[str] = None
-    scores: Optional[ScoreMetadata] = None
+    scores: Optional[List[ScoreMetadata]] = None
 
 
 @attr.define(slots=False)
