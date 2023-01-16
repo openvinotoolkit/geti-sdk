@@ -15,11 +15,13 @@ import copy
 import os
 from typing import List
 
+import numpy as np
 import pytest
 
 from geti_sdk.annotation_readers import DatumAnnotationReader
-from geti_sdk.data_models import Project, TaskType
+from geti_sdk.data_models import Image, Project, TaskType
 from geti_sdk.data_models.enums import JobState, PredictionMode
+from geti_sdk.demos import EXAMPLE_IMAGE_PATH
 from geti_sdk.utils import get_supported_algorithms
 from tests.helpers import (
     ProjectService,
@@ -166,6 +168,7 @@ class TestModelAndPredictionClient:
                 algorithm=unsupported_algo, task=task
             )
 
+    @pytest.mark.vcr()
     def test_download_active_model_for_task(
         self, fxt_project_service: ProjectService, fxt_temp_directory: str
     ) -> None:
@@ -203,3 +206,24 @@ class TestModelAndPredictionClient:
         prediction_client.mode = "online"
 
         assert prediction_client.mode == PredictionMode.ONLINE
+
+    @pytest.mark.vcr()
+    @pytest.mark.skip(reason="bug in /predict endpoint on backend")
+    def test_predict_image(
+        self,
+        fxt_project_service: ProjectService,
+        fxt_numpy_image: np.ndarray,
+        fxt_geti_image: Image,
+    ) -> None:
+        """
+        Test the 'predict_image' method of the prediction client, for various input
+        types
+        """
+        prediction_client = fxt_project_service.prediction_client
+
+        prediction_file = prediction_client.predict_image(image=EXAMPLE_IMAGE_PATH)
+        prediction_numpy = prediction_client.predict_image(image=fxt_numpy_image)
+        prediction_geti_image = prediction_client.predict_image(image=fxt_geti_image)
+
+        assert prediction_file.annotations == prediction_numpy.annotations
+        assert prediction_numpy.annotations == prediction_geti_image.annotations
