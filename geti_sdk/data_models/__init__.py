@@ -129,6 +129,13 @@ Status- and job-related entities
    :members:
    :undoc-members:
 
+Deployment-related entities
++++++++++++++++++++++++++++
+
+.. automodule:: geti_sdk.data_model.code_deployment_info
+   :members:
+   :undoc-members:
+
 Utility functions
 +++++++++++++++++
 
@@ -155,6 +162,7 @@ Enumerations
 from .algorithms import Algorithm
 from .annotation_scene import AnnotationScene
 from .annotations import Annotation
+from .code_deployment_info import CodeDeploymentInformation
 from .configuration import (
     ConfigurableParameters,
     FullConfiguration,
@@ -201,4 +209,5 @@ __all__ = [
     "ModelSummary",
     "ProjectStatus",
     "Job",
+    "CodeDeploymentInformation",
 ]

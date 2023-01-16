@@ -15,7 +15,7 @@
 import json
 import logging
 import os
-from typing import List, Optional, TypeVar
+from typing import List, Optional, TypeVar, Union
 
 from geti_sdk.data_models import (
     Algorithm,
@@ -372,3 +372,50 @@ class ModelClient:
             f"Unable to retrieve model for job {job.name} of type {job.type}. Getting "
             f"the model for this job type is not supported. "
         )
+
+    def get_task_for_model(self, model: Union[Model, OptimizedModel]) -> Task:
+        """
+        Return the task to which a certain model belongs, if possible. This method only
+        works when the model identifiers are still in place, if they have been stripped
+        it will raise a ValueError.
+
+        If the model does not match any task in the project, this method will raise an
+        error.
+
+        :param model: Model or OptimizedModel to find the task for
+        :return: Task for which the model was trained
+        """
+        project_model_groups = self.get_all_model_groups()
+        tasks = self.project.get_trainable_tasks()
+        model_group: Optional[ModelGroup] = None
+        error_msg = (
+            f"Unable to match model '{model}' to any task in project "
+            f"{self.project}. "
+        )
+        if model.model_group_id is None:
+            raise ValueError(
+                error_msg + "The model does not contain a model group identifier"
+            )
+        for group in project_model_groups:
+            if group.id == model.model_group_id:
+                model_group = group
+                break
+        if model_group is None:
+            raise ValueError(
+                error_msg + "The model does not belong to any of the model groups in "
+                "the project."
+            )
+        else:
+            task_id = model_group.task_id
+            model_task: Optional[Task] = None
+            for task in tasks:
+                if task.id == task_id:
+                    model_task = task
+                    break
+        if model_task is None:
+            raise ValueError(
+                error_msg + f"Model was found on the server but could not be linked "
+                f"to specific task for 'task_id={model_group.task_id}'."
+            )
+        else:
+            return model_task
