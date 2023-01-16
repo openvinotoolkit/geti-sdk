@@ -30,8 +30,8 @@ from .annotation_readers import (
 )
 from .data_models import Image, Prediction, Project, TaskType, Video, VideoFrame
 from .data_models.containers import MediaList
-from .data_models.enums import OptimizationType
-from .deployment import DeployedModel, Deployment
+from .data_models.model import BaseModel
+from .deployment import Deployment
 from .http_session import (
     GetiRequestException,
     GetiSession,
@@ -41,6 +41,7 @@ from .http_session import (
 from .rest_clients import (
     AnnotationClient,
     ConfigurationClient,
+    DeploymentClient,
     ImageClient,
     ModelClient,
     PredictionClient,
@@ -1169,17 +1170,29 @@ class Geti:
         return uploaded_video, frames, predictions
 
     def deploy_project(
-        self, project_name: str, output_folder: Optional[Union[str, os.PathLike]] = None
+        self,
+        project_name: str,
+        output_folder: Optional[Union[str, os.PathLike]] = None,
+        models: Optional[Sequence[BaseModel]] = None,
     ) -> Deployment:
         """
         Deploy a project by creating a Deployment instance. The Deployment contains
-        the optimized active models for each task in the project, and can be loaded
+        the optimized models for each task in the project, and can be loaded
         with OpenVINO to run inference locally.
+
+        By default, this method creates a deployment using the current active model
+        for each task in the project. However, it is possible to specify a particular
+        model to use, by passing it in the list of `models` as input to this method.
 
         :param project_name: Name of the project to deploy
         :param output_folder: Path to a folder on local disk to which the Deployment
             should be downloaded. If no path is specified, the deployment will not be
             saved.
+        :param models: Optional list of models to use in the deployment. This must
+            contain at most one model for each task in the project. If for a certain
+            task no model is specified, the currently active model for that task will
+            be used in the deployment. The order in which the models are passed does
+            not matter
         :return: Deployment for the project
         """
         project_client = ProjectClient(self.session, workspace_id=self.workspace_id)
@@ -1189,46 +1202,10 @@ class Geti:
                 f"Project '{project_name}' was not found on the cluster. Aborting "
                 f"project deployment."
             )
-        model_client = ModelClient(
-            session=self.session, workspace_id=self.workspace_id, project=project
+        deployment_client = DeploymentClient(
+            workspace_id=self.workspace_id, session=self.session, project=project
         )
-        active_models = [
-            model for model in model_client.get_all_active_models() if model is not None
-        ]
-        configuration_client = ConfigurationClient(
-            session=self.session, workspace_id=self.workspace_id, project=project
+        deployment = deployment_client.deploy_project(
+            output_folder=output_folder, models=models
         )
-        configuration = configuration_client.get_full_configuration()
-        if len(active_models) != len(project.get_trainable_tasks()):
-            raise ValueError(
-                f"Project `{project.name}` does not have a trained model for each "
-                f"task in the project. Unable to create deployment, please ensure all "
-                f"tasks are trained first."
-            )
-        deployed_models: List[DeployedModel] = []
-        for model_index, model in enumerate(active_models):
-            model_config = configuration.task_chain[model_index]
-            optimized_models = model.optimized_models
-            optimization_types = [
-                op_model.optimization_type for op_model in optimized_models
-            ]
-            preferred_model = optimized_models[0]
-            for optimization_type in OptimizationType:
-                if optimization_type in optimization_types:
-                    preferred_model = optimized_models[
-                        optimization_types.index(optimization_type)
-                    ]
-                    break
-            deployed_model = DeployedModel.from_model_and_hypers(
-                model=preferred_model, hyper_parameters=model_config
-            )
-            logging.info(
-                f"Retrieving {preferred_model.optimization_type} model data for "
-                f"{project.get_trainable_tasks()[model_index].title}..."
-            )
-            deployed_model.get_data(source=self.session)
-            deployed_models.append(deployed_model)
-        deployment = Deployment(project=project, models=deployed_models)
-        if output_folder is not None:
-            deployment.save(output_folder)
         return deployment

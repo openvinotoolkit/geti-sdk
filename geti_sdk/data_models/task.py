@@ -18,11 +18,11 @@ from typing import Any, ClassVar, Dict, List, Optional
 
 import attr
 
-from geti_sdk.data_models import TaskType
 from geti_sdk.data_models.enums.task_type import (
     ANOMALY_TASK_TYPES,
     GLOBAL_TASK_TYPES,
     NON_TRAINABLE_TASK_TYPES,
+    TaskType,
 )
 from geti_sdk.data_models.label import Label
 from geti_sdk.data_models.utils import (

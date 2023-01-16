@@ -29,7 +29,7 @@ from geti_sdk.data_models.utils import (
 )
 from geti_sdk.utils import deserialize_dictionary
 
-from . import Label
+from .label import Label
 from .performance import Performance
 
 
