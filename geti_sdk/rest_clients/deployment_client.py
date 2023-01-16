@@ -26,8 +26,9 @@ from geti_sdk.data_models.code_deployment_info import (
 )
 from geti_sdk.data_models.enums import DeploymentState, OptimizationType
 from geti_sdk.data_models.model import Model, OptimizedModel
-from geti_sdk.deployment import Deployment
+from geti_sdk.deployment import DeployedModel, Deployment
 from geti_sdk.http_session import GetiSession
+from geti_sdk.platform_versions import GETI_11_VERSION
 from geti_sdk.utils import deserialize_dictionary, get_supported_algorithms
 
 from .configuration_client import ConfigurationClient
@@ -191,7 +192,126 @@ class DeploymentClient:
                 f"make sure that each task in the project has at least one model "
                 f"trained before deploying the project."
             )
+        if self.session.version >= GETI_11_VERSION:
+            return self._backend_deploy_project(
+                output_folder=output_folder, models=models
+            )
+        else:
+            if models is not None:
+                logging.warning(
+                    "You have specified models for deployment, however the "
+                    "Intel® Geti™ platform running on your server does not support "
+                    "this functionality yet. Please update the Intel® Geti™ platform"
+                    "to version 1.1 or higher to make use of this functionality "
+                    "through the Geti SDK. Note that it is possible to deploy specific "
+                    "models via the 'Deployments' page in the Intel® Geti™ graphical "
+                    "user interface."
+                )
+            logging.info("Creating project deployment using active model(s).")
+            return self._legacy_deploy_project(output_folder=output_folder)
 
+    def _clean_up_temporary_resources(self, deployment_id: str) -> bool:
+        """
+        Clean up any temporary files that were used to create the deployment with id
+        `deployment_id`
+
+        Note that resources can only be removed by the same DeploymentClient instance
+        that created the deployment
+
+        :param deployment_id: ID of the deployment for which temporary resources
+            should be removed
+        :return True if all temporary resources were removed successfully, False
+            otherwise
+        """
+        if deployment_id not in self._deployment_resource_cache.keys():
+            return False
+        temp_dir = self._deployment_resource_cache[deployment_id]
+        if os.path.isdir(temp_dir):
+            shutil.rmtree(self._deployment_resource_cache[deployment_id])
+            return True
+        return False
+
+    def __del__(self):
+        """
+        Clean up the temporary directories created to store deployments. This
+        method is called when the DeploymentClient instance is deleted.
+        """
+        for deployment_id, temp_dir in self._deployment_resource_cache.items():
+            if os.path.isdir(temp_dir):
+                shutil.rmtree(temp_dir)
+
+    def _legacy_deploy_project(
+        self, output_folder: Optional[Union[str, os.PathLike]] = None
+    ) -> Deployment:
+        """
+        Create a deployment for a project that lives on an older Intel® Geti™ server,
+        that doesn't support the latest deployment mechanism yet.
+
+        :param output_folder: Path to a folder on local disk to which the Deployment
+            should be downloaded. If no path is specified, the deployment will not be
+            saved to disk directly. Note that it is always possible to save the
+            deployment once it has been created, using the `deployment.save` method.
+        :return: Deployment for the project
+        """
+        active_models = [
+            model
+            for model in self._model_client.get_all_active_models()
+            if model is not None
+        ]
+
+        configuration = self._configuration_client.get_full_configuration()
+        if len(active_models) != len(self.project.get_trainable_tasks()):
+            raise ValueError(
+                f"Project `{self.project.name}` does not have a trained model for each "
+                f"task in the project. Unable to create deployment, please ensure all "
+                f"tasks are trained first."
+            )
+        deployed_models: List[DeployedModel] = []
+        for model_index, model in enumerate(active_models):
+            model_config = configuration.task_chain[model_index]
+            optimized_models = model.optimized_models
+            optimization_types = [
+                op_model.optimization_type for op_model in optimized_models
+            ]
+            preferred_model = optimized_models[0]
+            for optimization_type in OptimizationType:
+                if optimization_type in optimization_types:
+                    preferred_model = optimized_models[
+                        optimization_types.index(optimization_type)
+                    ]
+                    break
+            deployed_model = DeployedModel.from_model_and_hypers(
+                model=preferred_model, hyper_parameters=model_config
+            )
+            logging.info(
+                f"Retrieving {preferred_model.optimization_type} model data for "
+                f"{self.project.get_trainable_tasks()[model_index].title}..."
+            )
+            deployed_model.get_data(source=self.session)
+            deployed_models.append(deployed_model)
+        deployment = Deployment(project=self.project, models=deployed_models)
+        if output_folder is not None:
+            deployment.save(output_folder)
+        return deployment
+
+    def _backend_deploy_project(
+        self,
+        output_folder: Optional[Union[str, os.PathLike]] = None,
+        models: Optional[Sequence[Union[Model, OptimizedModel]]] = None,
+    ) -> Deployment:
+        """
+        Create a deployment for a project, using the /code_deployment endpoint from the
+        backend.
+
+        :param output_folder: Path to a folder on local disk to which the Deployment
+            should be downloaded. If no path is specified, the deployment will not be
+            saved to disk directly. Note that it is always possible to save the
+            deployment once it has been created, using the `deployment.save` method.
+        :param models: Optional list of models to use in the deployment. If no list is
+            passed, this method will create a deployment using the currently active
+            model for each task in the project.
+        :return: Deployment for the project
+        """
         # Get the models to deploy
         tasks = self.project.get_trainable_tasks()
         if models is None:
@@ -299,33 +419,3 @@ class DeploymentClient:
             self._clean_up_temporary_resources(deployment_id=code_deployment.id)
             return deployment_from_disk
         return deployment
-
-    def _clean_up_temporary_resources(self, deployment_id: str) -> bool:
-        """
-        Clean up any temporary files that were used to create the deployment with id
-        `deployment_id`
-
-        Note that resources can only be removed by the same DeploymentClient instance
-        that created the deployment
-
-        :param deployment_id: ID of the deployment for which temporary resources
-            should be removed
-        :return True if all temporary resources were removed successfully, False
-            otherwise
-        """
-        if deployment_id not in self._deployment_resource_cache.keys():
-            return False
-        temp_dir = self._deployment_resource_cache[deployment_id]
-        if os.path.isdir(temp_dir):
-            shutil.rmtree(self._deployment_resource_cache[deployment_id])
-            return True
-        return False
-
-    def __del__(self):
-        """
-        Clean up the temporary directories created to store deployments. This
-        method is called when the DeploymentClient instance is deleted.
-        """
-        for deployment_id, temp_dir in self._deployment_resource_cache.items():
-            if os.path.isdir(temp_dir):
-                shutil.rmtree(temp_dir)
