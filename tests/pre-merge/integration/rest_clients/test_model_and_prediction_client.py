@@ -14,13 +14,13 @@
 import copy
 import os
 import time
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import pytest
 
 from geti_sdk.annotation_readers import DatumAnnotationReader
-from geti_sdk.data_models import Image, Project, TaskType
+from geti_sdk.data_models import Image, Prediction, Project, TaskType
 from geti_sdk.data_models.enums import JobState, PredictionMode
 from geti_sdk.demos import EXAMPLE_IMAGE_PATH
 from geti_sdk.http_session import GetiRequestException
@@ -222,19 +222,21 @@ class TestModelAndPredictionClient:
         types
         """
         prediction_client = fxt_project_service.prediction_client
-        sleep_time = 20 if fxt_test_mode != SdkTestMode.OFFLINE else 1
+        sleep_time = 10 if fxt_test_mode != SdkTestMode.OFFLINE else 1
+        attempts = 10
 
-        try:
-            prediction_file = prediction_client.predict_image(image=EXAMPLE_IMAGE_PATH)
-        except GetiRequestException as error:
-            if error.status_code == 503:
-                # Inference server is not ready yet, wait for a few seconds and retry
-                time.sleep(sleep_time)
+        prediction_file: Optional[Prediction] = None
+        n = 0
+        while prediction_file is None and n < attempts:
+            try:
                 prediction_file = prediction_client.predict_image(
                     image=EXAMPLE_IMAGE_PATH
                 )
-            else:
-                raise
+                break
+            except GetiRequestException as error:
+                if error.status_code != 503:
+                    raise error
+            time.sleep(sleep_time)
         prediction_numpy = prediction_client.predict_image(image=fxt_numpy_image)
         prediction_geti_image = prediction_client.predict_image(image=fxt_geti_image)
 
