@@ -577,7 +577,7 @@ class PredictionClient:
             )
 
         if image_data is None:
-            image_io = open(image, "rb")
+            image_io = open(image, "rb").read()
         else:
             image_io = io.BytesIO(cv2.imencode(".jpg", image_data)[1].tobytes())
             image_io.name = image_name
@@ -586,7 +586,7 @@ class PredictionClient:
         response = self.session.get_rest_response(
             url=f"{self._base_url}predict",
             method="POST",
-            contenttype="multipart",
-            data={"file": image_io},
+            contenttype="jpeg",
+            data=image_io,
         )
         return PredictionRESTConverter.from_dict(response)

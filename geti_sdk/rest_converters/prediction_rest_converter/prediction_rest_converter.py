@@ -47,9 +47,13 @@ class PredictionRESTConverter:
                 )
             else:
                 annotations.append(annotation)
-        media_identifier = AnnotationRESTConverter._media_identifier_from_dict(
-            prediction["media_identifier"]
-        )
+        media_identifier_dict = prediction.get("media_identifier", None)
+        if media_identifier_dict is not None:
+            media_identifier = AnnotationRESTConverter._media_identifier_from_dict(
+                prediction["media_identifier"]
+            )
+        else:
+            media_identifier = None
 
         result_media: List[ResultMedium] = []
         for result_medium in prediction["maps"]:

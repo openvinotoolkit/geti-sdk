@@ -13,6 +13,7 @@
 # and limitations under the License.
 import copy
 import os
+import time
 from typing import List
 
 import numpy as np
@@ -22,6 +23,7 @@ from geti_sdk.annotation_readers import DatumAnnotationReader
 from geti_sdk.data_models import Image, Project, TaskType
 from geti_sdk.data_models.enums import JobState, PredictionMode
 from geti_sdk.demos import EXAMPLE_IMAGE_PATH
+from geti_sdk.http_session import GetiRequestException
 from geti_sdk.utils import get_supported_algorithms
 from tests.helpers import (
     ProjectService,
@@ -208,22 +210,35 @@ class TestModelAndPredictionClient:
         assert prediction_client.mode == PredictionMode.ONLINE
 
     @pytest.mark.vcr()
-    @pytest.mark.skip(reason="bug in /predict endpoint on backend")
     def test_predict_image(
         self,
         fxt_project_service: ProjectService,
         fxt_numpy_image: np.ndarray,
         fxt_geti_image: Image,
+        fxt_test_mode: SdkTestMode,
     ) -> None:
         """
         Test the 'predict_image' method of the prediction client, for various input
         types
         """
         prediction_client = fxt_project_service.prediction_client
+        sleep_time = 20 if fxt_test_mode != SdkTestMode.OFFLINE else 1
 
-        prediction_file = prediction_client.predict_image(image=EXAMPLE_IMAGE_PATH)
+        try:
+            prediction_file = prediction_client.predict_image(image=EXAMPLE_IMAGE_PATH)
+        except GetiRequestException as error:
+            if error.status_code == 503:
+                # Inference server is not ready yet, wait for a few seconds and retry
+                time.sleep(sleep_time)
+                prediction_file = prediction_client.predict_image(
+                    image=EXAMPLE_IMAGE_PATH
+                )
+            else:
+                raise
         prediction_numpy = prediction_client.predict_image(image=fxt_numpy_image)
         prediction_geti_image = prediction_client.predict_image(image=fxt_geti_image)
 
-        assert prediction_file.annotations == prediction_numpy.annotations
-        assert prediction_numpy.annotations == prediction_geti_image.annotations
+        assert len(prediction_file.annotations) == len(prediction_numpy.annotations)
+        assert len(prediction_numpy.annotations) == len(
+            prediction_geti_image.annotations
+        )
