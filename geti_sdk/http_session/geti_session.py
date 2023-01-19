@@ -235,7 +235,7 @@ class GetiSession(requests.Session):
 
         requesturl = f"{self.config.base_url}{url}"
 
-        if method == "POST":
+        if method == "POST" or method == "PUT":
             if contenttype == "json":
                 kw_data_arg = {"json": data}
             elif contenttype == "multipart":
