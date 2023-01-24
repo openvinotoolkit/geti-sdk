@@ -1,3 +1,22 @@
+# v1.2 Intel® Geti™ SDK (24-01-2023)
+## What's Changed
+* Add `size` field to MediaInformation data model by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/133
+* Update available Geti versions by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/134
+* Update pillow requirement from ==9.3.* to ==9.4.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/131
+* Fix a mismatch in the data model for the Optimization Job by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/136
+* Add DeploymentClient to streamline deployment mechanism by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/135
+* Update prediction mechanism by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/137
+* Update ipython requirement from ==8.7.* to ==8.8.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/138
+* Bump openvino from 2022.2.0 to 2022.3.0 in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/130
+* Update various dependencies by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/140
+* Minor refactor in `Geti` class and fix in `predict_image` method by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/139
+* Make `maps` key optional when converting Predictions from dictionary input by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/141
+* Fix documentation workflow to deploy from build artifact by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/143
+* Make workaround for issue with detection prediction conversion by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/142
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.1.1...v1.2.0
+
 # v1.1.1 Intel® Geti™ SDK (20-12-2022)
 ## What's Changed
 * Fix issue with model to dictionary conversion by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/128
