@@ -27,7 +27,7 @@ from geti_sdk.data_models.utils import (
     str_to_datetime,
     str_to_enum_converter,
 )
-from geti_sdk.utils import deserialize_dictionary
+from geti_sdk.utils.serialization_helpers import deserialize_dictionary
 
 from .label import Label
 from .performance import Performance
