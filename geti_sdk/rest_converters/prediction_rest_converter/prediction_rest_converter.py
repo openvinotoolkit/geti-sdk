@@ -56,7 +56,7 @@ class PredictionRESTConverter:
             media_identifier = None
 
         result_media: List[ResultMedium] = []
-        for result_medium in prediction["maps"]:
+        for result_medium in prediction.get("maps", []):
             if not isinstance(result_medium, ResultMedium):
                 result_media.append(ResultMedium(**result_medium))
             else:
