@@ -51,6 +51,7 @@ class Deployment:
         self._is_single_task: bool = len(self.project.get_trainable_tasks()) == 1
         self._are_models_loaded: bool = False
         self._inference_converters: Dict[str, Any] = {}
+        self._alternate_inference_converters: Dict[str, Any] = {}
         self._empty_labels: Dict[str, Label] = {}
 
     @property
@@ -131,6 +132,7 @@ class Deployment:
         """
         try:
             from ote_sdk.usecases.exportable_code.prediction_to_annotation_converter import (
+                DetectionBoxToAnnotationConverter,
                 IPredictionToAnnotationConverter,
                 create_converter,
             )
@@ -159,6 +161,16 @@ class Deployment:
                 converter_type=task.type.to_ote_domain(), labels=model.ote_label_schema
             )
             inference_converters.update({task.title: inference_converter})
+
+            # This is a workaround for a backwards incompatible change in later ote
+            # versions
+            if task.type.is_detection:
+                alternate_inference_converter = DetectionBoxToAnnotationConverter(
+                    labels=model.ote_label_schema
+                )
+                self._alternate_inference_converters.update(
+                    {task.title: alternate_inference_converter}
+                )
             empty_label = next((label for label in task.labels if label.is_empty), None)
             empty_labels.update({task.title: empty_label})
 
@@ -274,9 +286,23 @@ class Deployment:
         height: int = image.shape[0]
 
         if len(postprocessing_results) != 0:
-            annotation_scene_entity = converter.convert_to_annotation(
-                predictions=postprocessing_results, metadata=metadata
-            )
+            # The try/except is a workaround to handle different detection inference
+            # results by different ote sdk versions
+            try:
+                annotation_scene_entity = converter.convert_to_annotation(
+                    predictions=postprocessing_results, metadata=metadata
+                )
+            except TypeError as error:
+                if task.type.is_detection:
+                    converter = self._alternate_inference_converters[task.title]
+                    annotation_scene_entity = converter.convert_to_annotation(
+                        predictions=postprocessing_results, metadata=metadata
+                    )
+                    # Make sure next time we get it right in one shot
+                    self._inference_converters.update({task.title: converter})
+                else:
+                    raise error
+
             prediction = Prediction.from_ote(
                 annotation_scene_entity, image_width=width, image_height=height
             )
