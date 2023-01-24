@@ -9,8 +9,22 @@ on:
     paths-ignore:
       - ".github/**" # Ignore changes towards the .github directory
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 jobs:
   build_docs:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: self-hosted
     steps:
       - name: Checkout repository
@@ -34,25 +48,32 @@ jobs:
           make html
           cd ..
 
-      - name: Commit documentation changes
+      - name: Clean up repo directory
         run: |
           mkdir -p /tmp/docs_build
           cp -r docs/build/html/* /tmp/docs_build
           rm -rf ./*
-          git fetch && git pull
-          git checkout gh-pages
+          # git fetch && git pull
+          # git checkout gh-pages
           cp -r /tmp/docs_build/* ./
           rm -rf /tmp/docs_build
           touch .nojekyll
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "Update documentation" -a || true
+          # git config --local user.email "action@github.com"
+          # git config --local user.name "GitHub Action"
+          # git add .
+          # git commit -m "Update documentation" -a || true
           # The above command will fail if no changes were present, so we ignore
           # the return code.
 
-      - name: Push changes
-        uses: ad-m/github-push-action@master
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
         with:
-          branch: gh-pages
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Upload entire repository
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
