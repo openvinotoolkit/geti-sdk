@@ -184,6 +184,9 @@ class Geti:
             workspace_id=workspace_id, session=self.session
         )
 
+        # Cache of deployment clients for projects in the workspace
+        self._deployment_clients: Dict[str, DeploymentClient] = {}
+
     @property
     def projects(self) -> List[Project]:
         """
@@ -1153,9 +1156,15 @@ class Geti:
         :return: Deployment for the project
         """
         project = self.get_project(project_name=project_name)
-        deployment_client = DeploymentClient(
-            workspace_id=self.workspace_id, session=self.session, project=project
-        )
+
+        deployment_client = self._deployment_clients.get(project.id, None)
+        if deployment_client is None:
+            # Create deployment client and add to cache.
+            deployment_client = DeploymentClient(
+                workspace_id=self.workspace_id, session=self.session, project=project
+            )
+            self._deployment_clients.update({project.id: deployment_client})
+
         deployment = deployment_client.deploy_project(
             output_folder=output_folder, models=models
         )

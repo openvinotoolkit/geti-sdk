@@ -285,7 +285,12 @@ class Deployment:
         width: int = image.shape[1]
         height: int = image.shape[0]
 
-        if len(postprocessing_results) != 0:
+        try:
+            n_outputs = len(postprocessing_results)
+        except TypeError:
+            n_outputs = 1
+
+        if n_outputs != 0:
             # The try/except is a workaround to handle different detection inference
             # results by different ote sdk versions
             try:
