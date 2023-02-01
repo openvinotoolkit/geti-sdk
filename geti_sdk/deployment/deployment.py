@@ -13,7 +13,9 @@
 # and limitations under the License.
 
 import json
+import logging
 import os
+import shutil
 from typing import Any, Dict, List, Optional, Union
 
 import attr
@@ -53,6 +55,8 @@ class Deployment:
         self._inference_converters: Dict[str, Any] = {}
         self._alternate_inference_converters: Dict[str, Any] = {}
         self._empty_labels: Dict[str, Label] = {}
+        self._path_to_temp_resources: Optional[str] = None
+        self._requires_resource_cleanup: bool = False
 
     @property
     def is_single_task(self) -> bool:
@@ -94,6 +98,10 @@ class Deployment:
             model_dir = os.path.join(deployment_folder, task.title)
             os.makedirs(model_dir, exist_ok=True, mode=0o770)
             model.save(model_dir)
+
+        # Clean up temp resources if needed
+        self._remove_temporary_resources()
+        self._requires_resource_cleanup = False
 
     @classmethod
     def from_folder(cls, path_to_folder: Union[str, os.PathLike]) -> "Deployment":
@@ -353,3 +361,24 @@ class Deployment:
                 f"{self.project.name}."
             ) from error
         return self.models[task_index]
+
+    def _remove_temporary_resources(self) -> None:
+        """
+        If necessary, clean up any temporary resources associated with the deployment.
+        """
+        if os.path.isdir(self._path_to_temp_resources):
+            shutil.rmtree(self._path_to_temp_resources)
+        else:
+            logging.debug(
+                f"Unable to clean up temporary resources for deployment {self}, "
+                f"because the resources were not found on the system. Possibly "
+                f"they were already deleted."
+            )
+
+    def __del__(self):
+        """
+        If necessary, clean up any temporary resources associated with the deployment.
+        This method is called when the Deployment instance is deleted.
+        """
+        if self._requires_resource_cleanup:
+            self._remove_temporary_resources()
