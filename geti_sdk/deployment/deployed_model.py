@@ -306,16 +306,22 @@ class DeployedModel(OptimizedModel):
             )
         os.makedirs(path_to_folder, exist_ok=True, mode=0o770)
 
+        new_model_data_path = os.path.join(path_to_folder, MODEL_DIR_NAME)
+        new_model_python_path = os.path.join(path_to_folder, PYTHON_DIR_NAME)
+
         shutil.copytree(
             src=self._model_data_path,
-            dst=os.path.join(path_to_folder, MODEL_DIR_NAME),
+            dst=new_model_data_path,
             dirs_exist_ok=True,
         )
         shutil.copytree(
             src=self._model_python_path,
-            dst=os.path.join(path_to_folder, PYTHON_DIR_NAME),
+            dst=new_model_python_path,
             dirs_exist_ok=True,
         )
+
+        self._model_data_path = new_model_data_path
+        self._model_python_path = new_model_python_path
 
         config_dict = ConfigurationRESTConverter.configuration_to_minimal_dict(
             self.hyper_parameters
