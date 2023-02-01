@@ -13,11 +13,10 @@
 # and limitations under the License.
 import logging
 import os
-import shutil
 import tempfile
 import time
 import zipfile
-from typing import Dict, List, Optional, Sequence, Union
+from typing import List, Optional, Sequence, Union
 
 from geti_sdk.data_models import Project
 from geti_sdk.data_models.code_deployment_info import (
@@ -47,7 +46,6 @@ class DeploymentClient:
         self.workspace_id = workspace_id
         self.base_url = f"workspaces/{workspace_id}/projects/{project.id}"
         self.supported_algos = get_supported_algorithms(session)
-        self._deployment_resource_cache: Dict[str, str] = {}
 
         self._model_client = ModelClient(
             workspace_id=workspace_id, project=project, session=session
@@ -132,7 +130,6 @@ class DeploymentClient:
                 f"retrieved when it is in state 'DONE'. "
             )
         deployment_tempdir = tempfile.mkdtemp()
-        self._deployment_resource_cache.update({deployment_id: deployment_tempdir})
         zipfile_path = os.path.join(deployment_tempdir, "deployment.zip")
         response = self.session.get_rest_response(
             url=self.code_deployment_url + f"/{deployment_id}/download",
@@ -150,9 +147,12 @@ class DeploymentClient:
         )
         if os.path.exists(zipfile_path):
             os.remove(zipfile_path)
-        return Deployment.from_folder(
+        deployment = Deployment.from_folder(
             path_to_folder=os.path.join(deployment_tempdir, "deployment")
         )
+        deployment._path_to_temp_resources = deployment_tempdir
+        deployment._requires_resource_cleanup = True
+        return deployment
 
     def deploy_project(
         self,
@@ -209,36 +209,6 @@ class DeploymentClient:
                 )
             logging.info("Creating project deployment using active model(s).")
             return self._legacy_deploy_project(output_folder=output_folder)
-
-    def _clean_up_temporary_resources(self, deployment_id: str) -> bool:
-        """
-        Clean up any temporary files that were used to create the deployment with id
-        `deployment_id`
-
-        Note that resources can only be removed by the same DeploymentClient instance
-        that created the deployment
-
-        :param deployment_id: ID of the deployment for which temporary resources
-            should be removed
-        :return True if all temporary resources were removed successfully, False
-            otherwise
-        """
-        if deployment_id not in self._deployment_resource_cache.keys():
-            return False
-        temp_dir = self._deployment_resource_cache[deployment_id]
-        if os.path.isdir(temp_dir):
-            shutil.rmtree(self._deployment_resource_cache[deployment_id])
-            return True
-        return False
-
-    def __del__(self):
-        """
-        Clean up the temporary directories created to store deployments. This
-        method is called when the DeploymentClient instance is deleted.
-        """
-        for deployment_id, temp_dir in self._deployment_resource_cache.items():
-            if os.path.isdir(temp_dir):
-                shutil.rmtree(temp_dir)
 
     def _legacy_deploy_project(
         self, output_folder: Optional[Union[str, os.PathLike]] = None
