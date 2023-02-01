@@ -1,4 +1,5 @@
 # Requirements for running the Jupyter notebooks
-jupyterlab>=3.5.2
+jupyterlab>=3.5.3
 jupyter-core>=4.11.2
 ipywidgets>=8.0.0
+mistune>=2.0.3
