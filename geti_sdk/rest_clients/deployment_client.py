@@ -381,11 +381,4 @@ class DeploymentClient:
         # Save the deployment, if needed
         if output_folder is not None:
             deployment.save(path_to_folder=output_folder)
-
-            # Reload the deployment, and remove any temporary files left behind
-            deployment_from_disk = Deployment.from_folder(
-                path_to_folder=os.path.join(output_folder, "deployment")
-            )
-            self._clean_up_temporary_resources(deployment_id=code_deployment.id)
-            return deployment_from_disk
         return deployment
