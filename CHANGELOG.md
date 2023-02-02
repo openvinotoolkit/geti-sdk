@@ -1,3 +1,13 @@
+# v1.2.1 Intel® Geti™ SDK (02-02-2023)
+## What's Changed
+* Fix issue with deployment for anomaly classification models by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/144
+* Require `mistune>=2.0.3` for notebooks by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/147
+* Update ipython requirement from ==8.8.* to ==8.9.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/145
+* Fix issue with temporary resource clean up for `Deployment`s by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/146
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.2.0...v1.2.1
+
 # v1.2 Intel® Geti™ SDK (24-01-2023)
 ## What's Changed
 * Add `size` field to MediaInformation data model by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/133
