@@ -28,11 +28,10 @@ from geti_sdk.data_models.model import Model, OptimizedModel
 from geti_sdk.deployment import DeployedModel, Deployment
 from geti_sdk.http_session import GetiSession
 from geti_sdk.platform_versions import GETI_11_VERSION
+from geti_sdk.rest_clients.configuration_client import ConfigurationClient
+from geti_sdk.rest_clients.model_client import ModelClient
+from geti_sdk.rest_clients.prediction_client import PredictionClient
 from geti_sdk.utils import deserialize_dictionary, get_supported_algorithms
-
-from .configuration_client import ConfigurationClient
-from .model_client import ModelClient
-from .prediction_client import PredictionClient
 
 
 class DeploymentClient:
@@ -158,6 +157,7 @@ class DeploymentClient:
         self,
         output_folder: Optional[Union[str, os.PathLike]] = None,
         models: Optional[Sequence[Union[Model, OptimizedModel]]] = None,
+        prepare_for_ovms: bool = False,
     ) -> Deployment:
         """
         Deploy a project by creating a Deployment instance. The Deployment contains
@@ -177,6 +177,13 @@ class DeploymentClient:
             used for its corresponding task and the method will resort to using the
             active model for the other task in the project.
 
+        Optionally, configuration files for deploying models to OpenVINO Model Server
+        (OVMS) can be generated. If you want this, make sure to pass
+        `prepare_for_ovms=True` as input parameter. In this case, you MUST specify an
+        `output_folder` to save the deployment and OVMS configuration files.
+        Note that this does not change the resulting deployment in itself, it can
+        still be used locally as well.
+
         :param output_folder: Path to a folder on local disk to which the Deployment
             should be downloaded. If no path is specified, the deployment will not be
             saved to disk directly. Note that it is always possible to save the
@@ -184,6 +191,10 @@ class DeploymentClient:
         :param models: Optional list of models to use in the deployment. If no list is
             passed, this method will create a deployment using the currently active
             model for each task in the project.
+        :param prepare_for_ovms: True to prepare the deployment to be hosted on a
+            OpenVINO model server (OVMS). Passing True will create OVMS configuration
+            files for the model(s) in the project and instructions with sample code
+            showing on how to launch an OVMS container including the deployed models.
         :return: Deployment for the project
         """
         if not self.ready_to_deploy:
@@ -192,8 +203,13 @@ class DeploymentClient:
                 f"make sure that each task in the project has at least one model "
                 f"trained before deploying the project."
             )
+        if prepare_for_ovms and output_folder is None:
+            raise ValueError(
+                "An `output_folder` must be specified when setting "
+                "`prepare_for_ovms=True`."
+            )
         if self.session.version >= GETI_11_VERSION:
-            return self._backend_deploy_project(
+            deployment = self._backend_deploy_project(
                 output_folder=output_folder, models=models
             )
         else:
@@ -208,7 +224,10 @@ class DeploymentClient:
                     "user interface."
                 )
             logging.info("Creating project deployment using active model(s).")
-            return self._legacy_deploy_project(output_folder=output_folder)
+            deployment = self._legacy_deploy_project(output_folder=output_folder)
+        if prepare_for_ovms:
+            deployment.generate_ovms_config(output_folder=output_folder)
+        return deployment
 
     def _legacy_deploy_project(
         self, output_folder: Optional[Union[str, os.PathLike]] = None

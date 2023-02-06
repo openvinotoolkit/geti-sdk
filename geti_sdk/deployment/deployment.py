@@ -32,8 +32,10 @@ from geti_sdk.data_models import (
 )
 from geti_sdk.data_models.shapes import Polygon, Rectangle, RotatedRectangle
 from geti_sdk.deployment.data_models import ROI, IntermediateInferenceResult
-from geti_sdk.deployment.deployed_model import DeployedModel
 from geti_sdk.rest_converters import ProjectRESTConverter
+
+from .deployed_model import DeployedModel
+from .utils import OVMS_README_PATH, OVMS_REQ_PATH, generate_ovms_model_name
 
 
 @attr.define(slots=False)
@@ -154,7 +156,7 @@ class Deployment:
         inference_converters: Dict[str, IPredictionToAnnotationConverter] = {}
         empty_labels: Dict[str, Label] = {}
         for model, task in zip(self.models, self.project.get_trainable_tasks()):
-            model.load_inference_model(device=device)
+            model.load_inference_model(device=device, project=self.project)
 
             # This is a workaround for a bug in the label schema for anomaly tasks
             if task.type.is_anomaly:
@@ -185,6 +187,7 @@ class Deployment:
         self._inference_converters = inference_converters
         self._empty_labels = empty_labels
         self._are_models_loaded = True
+        logging.info("Inference models loaded on device `{device}` successfully.")
 
     def infer(self, image: np.ndarray) -> Prediction:
         """
@@ -382,3 +385,64 @@ class Deployment:
         """
         if self._requires_resource_cleanup:
             self._remove_temporary_resources()
+
+    def generate_ovms_config(self, output_folder: Union[str, os.PathLike]) -> None:
+        """
+        Generate the configuration files needed to push the models for the
+        `Deployment` instance to OVMS.
+
+        :param output_folder: Target folder to save the configuration files to
+        """
+        # First prepare the model config list
+        if os.path.basename(output_folder) != "ovms_models":
+            ovms_models_dir = os.path.join(output_folder, "ovms_models")
+        else:
+            ovms_models_dir = output_folder
+            output_folder = os.path.dirname(ovms_models_dir)
+        os.makedirs(ovms_models_dir, exist_ok=True)
+
+        model_configs: List[Dict[str, Dict[str, Any]]] = []
+        for model in self.models:
+            # Create configuration entry for model
+            model_name = generate_ovms_model_name(
+                project=self.project, model=model, omit_version=True
+            )
+            config = {
+                "name": model_name,
+                "base_path": f"/models/{model_name}",
+                "shape": "auto",
+            }
+            model_configs.append({"config": config})
+
+            # Copy IR model files to the expected OVMS format
+            if model.version is not None:
+                model_version = str(model.version)
+            else:
+                # Fallback to version 1 if no version info is available
+                model_version = "1"
+
+            ovms_model_dir = os.path.join(ovms_models_dir, model_name, model_version)
+            source_model_dir = model.model_data_path
+            os.makedirs(ovms_model_dir, exist_ok=True)
+            for model_file in os.listdir(source_model_dir):
+                shutil.copy2(
+                    src=os.path.join(source_model_dir, model_file),
+                    dst=os.path.join(ovms_model_dir, model_file),
+                )
+
+        # Save model configurations
+        ovms_config_list = {"model_config_list": model_configs}
+        config_target_filepath = os.path.join(ovms_models_dir, "ovms_model_config.json")
+        with open(config_target_filepath, "w") as file:
+            json.dump(ovms_config_list, file)
+
+        # Copy resource files
+        shutil.copy2(OVMS_README_PATH, os.path.join(output_folder))
+        shutil.copy2(OVMS_REQ_PATH, os.path.join(output_folder))
+
+        logging.info(
+            f"Configuration files for OVMS model deployment have been generated in "
+            f"directory '{output_folder}'. This folder contains a `OVMS_README.md` "
+            f"file with instructions on how to launch OVMS, connect to it and run "
+            f"inference. Please follow the instructions outlined there to get started."
+        )
