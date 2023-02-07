@@ -19,7 +19,7 @@ import warnings
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
-from pathvalidate import validate_filepath
+from pathvalidate import sanitize_filepath
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -299,7 +299,7 @@ class Geti:
         if target_folder is None:
             target_folder = os.path.join(".", get_project_folder_name(project))
         else:
-            validate_filepath(target_folder, platform="auto")
+            sanitize_filepath(target_folder, platform="auto")
         os.makedirs(target_folder, exist_ok=True, mode=0o770)
 
         # Download project creation parameters:
@@ -1134,6 +1134,7 @@ class Geti:
         project_name: str,
         output_folder: Optional[Union[str, os.PathLike]] = None,
         models: Optional[Sequence[BaseModel]] = None,
+        prepare_ovms_config: bool = False,
     ) -> Deployment:
         """
         Deploy a project by creating a Deployment instance. The Deployment contains
@@ -1153,6 +1154,10 @@ class Geti:
             task no model is specified, the currently active model for that task will
             be used in the deployment. The order in which the models are passed does
             not matter
+        :param prepare_ovms_config: True to prepare the deployment to be hosted on a
+            OpenVINO model server (OVMS). Passing True will create OVMS configuration
+            files for the model(s) in the project and a README containing the steps to
+            launch an OVMS container serving the models.
         :return: Deployment for the project
         """
         project = self.get_project(project_name=project_name)
@@ -1166,7 +1171,9 @@ class Geti:
             self._deployment_clients.update({project.id: deployment_client})
 
         deployment = deployment_client.deploy_project(
-            output_folder=output_folder, models=models
+            output_folder=output_folder,
+            models=models,
+            prepare_for_ovms=prepare_ovms_config,
         )
         return deployment
 

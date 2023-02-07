@@ -11,11 +11,4 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
-# noqa: D104
-
-from .anomaly_helpers import get_mvtec_dataset
-from .coco_helpers import get_coco_dataset
-from .download_helpers import set_directory_permissions
-
-__all__ = ["get_coco_dataset", "get_mvtec_dataset", "set_directory_permissions"]
+"""Module containing various resources used in the deployment module"""

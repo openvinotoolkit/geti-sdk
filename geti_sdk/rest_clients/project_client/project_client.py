@@ -22,9 +22,9 @@ from geti_sdk.data_models import Project, Task, TaskType
 from geti_sdk.data_models.utils import remove_null_fields
 from geti_sdk.http_session import GetiRequestException, GetiSession
 from geti_sdk.rest_converters import ProjectRESTConverter
+from geti_sdk.utils.label_helpers import generate_unique_label_color
 from geti_sdk.utils.project_helpers import get_task_types_by_project_type
 
-from ...utils import generate_unique_label_color
 from .task_templates import (
     ANOMALY_CLASSIFICATION_TASK,
     ANOMALY_DETECTION_TASK,

@@ -29,9 +29,15 @@ from ote_sdk.entities.label import Domain as OTEDomain
 from ote_sdk.entities.label import LabelEntity
 from ote_sdk.entities.label_schema import LabelGroup, LabelGroupType, LabelSchemaEntity
 
-from geti_sdk.data_models import OptimizedModel, TaskConfiguration
+from geti_sdk.data_models import OptimizedModel, Project, TaskConfiguration
 from geti_sdk.http_session import GetiSession
 from geti_sdk.rest_converters import ConfigurationRESTConverter, ModelRESTConverter
+
+from .utils import (
+    generate_ovms_model_address,
+    generate_ovms_model_name,
+    target_device_is_ovms,
+)
 
 MODEL_DIR_NAME = "model"
 PYTHON_DIR_NAME = "python"
@@ -65,6 +71,20 @@ class DeployedModel(OptimizedModel):
         self._has_custom_model_wrappers: bool = False
         self._label_schema: Optional[LabelSchemaEntity] = None
         self.openvino_model_parameters: Optional[Dict[str, Any]] = None
+
+    @property
+    def model_data_path(self) -> str:
+        """
+        Return the path to the raw model data
+
+        :return: path to the directory containing the raw model data
+        """
+        if self._model_data_path is None:
+            raise ValueError(
+                "Model data path has not been set yet, location of binary model data "
+                "is unknown."
+            )
+        return self._model_data_path
 
     def get_data(self, source: Union[str, os.PathLike, GetiSession]):
         """
@@ -158,20 +178,27 @@ class DeployedModel(OptimizedModel):
                 shutil.rmtree(os.path.dirname(self._model_data_path))
 
     def load_inference_model(
-        self, device: str = "CPU", configuration: Optional[Dict[str, Any]] = None
-    ):
+        self,
+        device: str = "CPU",
+        configuration: Optional[Dict[str, Any]] = None,
+        project: Optional[Project] = None,
+    ) -> None:
         """
         Load the actual model weights to a specified device.
 
         :param device: Device (CPU or GPU) to load the model to. Defaults to 'CPU'
         :param configuration: Optional dictionary holding additional configuration
             parameters for the model
+        :param project: Optional project to which the model belongs.
+            This is only used when the model is run on OVMS, in that case the
+            project is needed to identify the correct model
         :return: OpenVino inference engine model that can be used to make predictions
             on images
         """
         try:
             from openvino.model_zoo.model_api.adapters import (
                 OpenvinoAdapter,
+                OVMSAdapter,
                 create_core,
             )
             from openvino.model_zoo.model_api.models import Model as OMZModel
@@ -182,14 +209,23 @@ class DeployedModel(OptimizedModel):
                 f"file `requirements-deployment.txt` have been installed. "
             ) from error
 
-        model_adapter = OpenvinoAdapter(
-            create_core(),
-            model_path=os.path.join(self._model_data_path, "model.xml"),
-            weights_path=os.path.join(self._model_data_path, "model.bin"),
-            device=device,
-            plugin_config=None,
-            max_num_requests=1,
-        )
+        if not target_device_is_ovms(device=device):
+            # Run the model locally
+            model_adapter = OpenvinoAdapter(
+                create_core(),
+                model_path=os.path.join(self._model_data_path, "model.xml"),
+                weights_path=os.path.join(self._model_data_path, "model.bin"),
+                device=device,
+                plugin_config=None,
+                max_num_requests=1,
+            )
+        else:
+            # Connect to an OpenVINO model server instance
+            model_name = generate_ovms_model_name(project=project, model=self)
+            model_address = generate_ovms_model_address(
+                ovms_address=device, model_name=model_name
+            )
+            model_adapter = OVMSAdapter(model_address)
 
         # Load model configuration
         config_path = os.path.join(self._model_data_path, "config.json")
