@@ -93,6 +93,6 @@ def target_device_is_ovms(device: str) -> bool:
     """
     # Check if 'device' has been specified as a URL or IP address.
     server_pattern = re.compile(
-        r"^((https?://)|(www.))(?:([a-zA-Z]+)|(\d+.\d+.\d+.\d+)):\d{1,5}?$"
+        r"^((https?://)|(www.))(?:([a-zA-Z]+)|(\d+\.\d+\.\d+\.\d+)):\d{1,5}?$"
     )
     return server_pattern.match(device) is not None

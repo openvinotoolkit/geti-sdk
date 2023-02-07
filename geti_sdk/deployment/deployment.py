@@ -187,7 +187,7 @@ class Deployment:
         self._inference_converters = inference_converters
         self._empty_labels = empty_labels
         self._are_models_loaded = True
-        logging.info("Inference models loaded on device `{device}` successfully.")
+        logging.info(f"Inference models loaded on device `{device}` successfully.")
 
     def infer(self, image: np.ndarray) -> Prediction:
         """

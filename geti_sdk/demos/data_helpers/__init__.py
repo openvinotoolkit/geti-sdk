@@ -16,5 +16,6 @@
 
 from .anomaly_helpers import get_mvtec_dataset
 from .coco_helpers import get_coco_dataset
+from .download_helpers import set_directory_permissions
 
-__all__ = ["get_coco_dataset", "get_mvtec_dataset"]
+__all__ = ["get_coco_dataset", "get_mvtec_dataset", "set_directory_permissions"]

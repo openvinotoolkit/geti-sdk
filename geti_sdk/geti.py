@@ -19,7 +19,7 @@ import warnings
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
-from pathvalidate import validate_filepath
+from pathvalidate import sanitize_filepath
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -299,7 +299,7 @@ class Geti:
         if target_folder is None:
             target_folder = os.path.join(".", get_project_folder_name(project))
         else:
-            validate_filepath(target_folder, platform="auto")
+            sanitize_filepath(target_folder, platform="auto")
         os.makedirs(target_folder, exist_ok=True, mode=0o770)
 
         # Download project creation parameters:
