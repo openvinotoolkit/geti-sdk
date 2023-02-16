@@ -19,7 +19,7 @@ from typing import Optional
 
 from geti_sdk.demos.constants import DEFAULT_DATA_PATH
 
-from .download_helpers import download_file, validate_hash
+from .download_helpers import download_file, set_directory_permissions, validate_hash
 
 DEFAULT_MVTEC_PATH = os.path.join(DEFAULT_DATA_PATH, "mvtec")
 
@@ -118,14 +118,7 @@ def get_mvtec_dataset_from_path(dataset_path: str = "data") -> str:
         )
 
     # Fix permissions on extracted files
-    os.chmod(transistor_dataset_path, 0o770)  # nosec: B103
-    for root, dirs, files in os.walk(transistor_dataset_path):
-        for file_name in files:
-            file_path = os.path.join(root, file_name)
-            os.chmod(file_path, 0o0660)
-        for dir_name in dirs:
-            dir_path = os.path.join(root, dir_name)
-            os.chmod(dir_path, 0o0770)  # nosec: B103
+    set_directory_permissions(transistor_dataset_path)
 
     logging.info("Cleaning up...")
     os.remove(archive_path)

@@ -61,7 +61,10 @@ class GetiVersion:
                 f"Unsupported comparison operation, {other} is not a GetiVersion."
             )
         if self.is_geti and other.is_geti:
-            return self.time_tag > other.time_tag
+            if self.version != other.version:
+                return self.version > other.version
+            else:
+                return self.time_tag > other.time_tag
         else:
             if self.is_geti and not other.is_geti:
                 return True
@@ -158,6 +161,14 @@ class GetiVersion:
         return self.version.major == 1 and self.version.minor == 1 and self.is_geti
 
     @property
+    def is_geti_1_2(self) -> bool:
+        """
+        Return True if the version corresponds to a platform on the Geti version 1.2 of
+        the software.
+        """
+        return self.version.major == 1 and self.version.minor == 2 and self.is_geti
+
+    @property
     def is_geti(self) -> bool:
         """
         Return True if the version corresponds to any version of the Geti platform.
@@ -173,4 +184,5 @@ class GetiVersion:
 SC_MVP_VERSION = GetiVersion("1.0.0-release-20220129184214")
 SC_11_VERSION = GetiVersion("1.1.0-release-20220624125113")
 GETI_10_VERSION = GetiVersion("1.0.0-release-20221005164936")
-GETI_11_VERSION = GetiVersion("1.1.0-latest-20221125121144")
+GETI_11_VERSION = GetiVersion("1.1.0-release-20221125121144")
+GETI_12_VERSION = GetiVersion("1.2.0-release-20230101120000")

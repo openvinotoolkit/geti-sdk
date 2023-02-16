@@ -397,8 +397,8 @@ class TestGeti:
         )
         assert os.path.isfile(video_filepath)
 
-        # Check that invalid project raises a ValueError
-        with pytest.raises(ValueError):
+        # Check that invalid project raises a KeyError
+        with pytest.raises(KeyError):
             fxt_geti.upload_and_predict_video(
                 project_name="invalid_project_name",
                 video=fxt_video_path_1_light_bulbs,

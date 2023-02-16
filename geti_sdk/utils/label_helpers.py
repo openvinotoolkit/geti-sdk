@@ -68,7 +68,7 @@ def generate_unique_label_color(label_colors: Sequence[str]) -> str:
 
         :return: RGB tuple of integers in [0, 255]
         """
-        return randint(0, 255), randint(0, 255), randint(0, 255)
+        return randint(0, 255), randint(0, 255), randint(0, 255)  # nosec B311
 
     def _calculate_rgb_distance(
         color_a: Tuple[int, int, int], color_b: Tuple[int, int, int]

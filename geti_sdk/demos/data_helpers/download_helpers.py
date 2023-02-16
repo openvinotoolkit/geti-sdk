@@ -120,3 +120,27 @@ def validate_hash(file_path: str, expected_hash: str) -> None:
         raise ValueError(
             f"Downloaded file {file_path} does not match the required hash."
         )
+
+
+def set_directory_permissions(
+    target_directory: str, file_permissions=0o660, dir_permissions=0o770
+) -> None:
+    """
+    Set read, write, execute permissions for user and user_group on a directory tree.
+
+    NOTE: Please use this method with caution, on temporary directories only
+
+    :param target_directory: path to the directory for which to set the permissions
+    :param file_permissions: Permissions to apply to all files found in the directory
+        tree
+    :param dir_permissions: Permissions to apply to all directories found in the
+        directory tree
+    """
+    os.chmod(target_directory, dir_permissions)  # nosec: B103
+    for root, dirs, files in os.walk(target_directory):
+        for file_name in files:
+            file_path = os.path.join(root, file_name)
+            os.chmod(file_path, file_permissions)
+        for dir_name in dirs:
+            dir_path = os.path.join(root, dir_name)
+            os.chmod(dir_path, dir_permissions)  # nosec: B103

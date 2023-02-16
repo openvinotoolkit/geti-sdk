@@ -27,9 +27,9 @@ from geti_sdk.data_models.utils import (
     str_to_datetime,
     str_to_enum_converter,
 )
-from geti_sdk.utils import deserialize_dictionary
+from geti_sdk.utils.serialization_helpers import deserialize_dictionary
 
-from . import Label
+from .label import Label
 from .performance import Performance
 
 
@@ -44,7 +44,7 @@ class OptimizationCapabilities:
     is_filter_pruning_supported: Optional[bool] = None
 
 
-@attr.define
+@attr.define(slots=False)
 class BaseModel:
     """
     Representation of the basic information for a Model or OptimizedModel in GETi

@@ -15,7 +15,7 @@
 from typing import Any, Dict, Optional, Type, TypeVar, cast
 
 from omegaconf import OmegaConf
-from omegaconf.errors import ConfigKeyError, MissingMandatoryValue
+from omegaconf.errors import ConfigKeyError, ConfigTypeError, MissingMandatoryValue
 
 OutputTypeVar = TypeVar("OutputTypeVar")
 
@@ -38,7 +38,7 @@ def deserialize_dictionary(
     try:
         values = OmegaConf.merge(schema, model_dict_config)
         output = cast(output_type, OmegaConf.to_object(values))
-    except (ConfigKeyError, MissingMandatoryValue) as error:
+    except (ConfigKeyError, MissingMandatoryValue, ConfigTypeError) as error:
         schema_error = DataModelMismatchException(
             input_dictionary=input_dictionary,
             output_data_model=output_type,

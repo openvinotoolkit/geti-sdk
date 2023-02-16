@@ -179,7 +179,7 @@ Instantiating the `Geti` class will establish the connection and perform authent
 
     - `include_active_model` -- Set to True to download the active model for the
       project, and any optimized models derived from it. If set to False, no models
-      are downloaded. True by default.
+      are downloaded. False by default.
 
   > **NOTE**: During project downloading the Geti SDK stores data on local disk. If
   > necessary, please apply additional security control to protect downloaded files

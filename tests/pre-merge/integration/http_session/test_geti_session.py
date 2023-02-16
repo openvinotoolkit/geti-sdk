@@ -34,6 +34,7 @@ class TestGetiSession:
             fxt_geti_session.version.is_sc_1_1,
             fxt_geti_session.version.is_geti_1_0,
             fxt_geti_session.version.is_geti_1_1,
+            fxt_geti_session.version.is_geti_1_2,
         ]
         assert sum(version_tests) == 1
 

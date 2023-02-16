@@ -17,6 +17,7 @@
 from .annotation_kind import AnnotationKind
 from .annotation_state import AnnotationState
 from .configuration_enums import ConfigurationEntityType
+from .deployment_state import DeploymentState
 from .domain import Domain
 from .job_state import JobState
 from .job_type import JobType
@@ -40,4 +41,5 @@ __all__ = [
     "OptimizationType",
     "JobType",
     "JobState",
+    "DeploymentState",
 ]

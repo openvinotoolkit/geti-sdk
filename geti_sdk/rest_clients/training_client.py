@@ -24,7 +24,7 @@ from geti_sdk.data_models import (
     TaskConfiguration,
 )
 from geti_sdk.data_models.containers import AlgorithmList
-from geti_sdk.data_models.enums import JobState
+from geti_sdk.data_models.enums import JobState, JobType
 from geti_sdk.data_models.project import Dataset
 from geti_sdk.http_session import GetiRequestException, GetiSession
 from geti_sdk.platform_versions import GETI_11_VERSION
@@ -143,6 +143,8 @@ class TrainingClient:
         enable_pot_optimization: bool = False,
         hyper_parameters: Optional[TaskConfiguration] = None,
         hpo_parameters: Optional[Dict[str, Any]] = None,
+        await_running_jobs: bool = True,
+        timeout: int = 3600,
     ) -> Job:
         """
         Start training of a specific task in the project.
@@ -162,6 +164,16 @@ class TrainingClient:
         :param hyper_parameters: Optional hyper parameters to use for training
         :param hpo_parameters: Optional set of parameters to use for automatic hyper
             parameter optimization. Only supported for version 1.1 and up
+        :param await_running_jobs: True to wait for currently running jobs to
+            complete. This will guarantee that the training request can be submitted
+            successfully. Setting this to False will cause an error to be raised when
+            a training request is submitted for a task for which a training job is
+            already in progress.
+        :param timeout: Timeout (in seconds) to wait for the Job to be created. If a
+            training request is submitted successfully, a training job should be
+            instantiated on the Geti server. If the Job does not appear on the server
+            job list within the `timeout`, an error will be raised. This parameter only
+            takes effect when `await_running_jobs` is set to True.
         :return: The training job that has been created
         """
         if isinstance(task, int):
@@ -196,6 +208,32 @@ class TrainingClient:
         else:
             data = {"training_parameters": [request_data]}
 
+        task_jobs = self.get_jobs_for_task(task=task)
+        task_training_jobs = [job for job in task_jobs if job.type == JobType.TRAIN]
+        log_warning_msg = ""
+        if len(task_training_jobs) >= 1:
+            if len(task_training_jobs) == 1:
+                msg_start = f"A training job for task '{task.title}' is"
+            else:
+                msg_start = f"Multiple training jobs for task '{task.title}' are"
+            log_warning_msg = msg_start + " already in progress on the server."
+
+        if len(task_training_jobs) >= 1:
+            if not await_running_jobs:
+                raise RuntimeError(
+                    log_warning_msg + " Unable to submit training request. Please "
+                    "wait for the current training job to finish or "
+                    "set the `await_running_jobs` parameter in this "
+                    "method to `True`."
+                )
+            else:
+                logging.info(
+                    log_warning_msg + f" Awaiting completion of currently running jobs "
+                    f"before a new train request can be submitted. "
+                    f"Maximum waiting time set to {timeout} seconds."
+                )
+                self.monitor_jobs(jobs=task_training_jobs, timeout=timeout)
+
         response = self.session.get_rest_response(
             url=f"{self.base_url}/train", method="POST", data=data
         )
@@ -210,16 +248,15 @@ class TrainingClient:
         if job is not None:
             logging.info(f"Training job with ID {job_id} submitted successfully.")
         else:
-            n_attempts = 0
-            while job is None and n_attempts < 5:
+            t_start = time.time()
+            while job is None and (time.time() - t_start < 10):
                 logging.info(
-                    "Training request was submitted but the training job status could "
-                    "not be retrieved from the platform yet. Re-attempting to fetch "
-                    "job status."
+                    f"Training request was submitted but the training job status could "
+                    f"not be retrieved from the platform yet. Re-attempting to fetch "
+                    f"job status. Looking for job with ID {job_id}"
                 )
-                time.sleep(1)
+                time.sleep(2)
                 job = self.get_job_by_id(job_id=job_id)
-                n_attempts += 1
             if job is None:
                 raise RuntimeError(
                     "Train request was submitted but the TrainingClient was unable to "
@@ -287,3 +324,25 @@ class TrainingClient:
                 f"Monitoring stopped after {t_elapsed:.1f} seconds due to timeout."
             )
         return jobs
+
+    def get_jobs_for_task(self, task: Task, running_only: bool = True) -> List[Job]:
+        """
+        Return a list of current jobs for the task, if any
+
+        :param task: Task to retrieve the jobs for
+        :param running_only: True to return only jobs that are currently running,
+            False to return all jobs (including cancelled, finished or errored jobs)
+        :return: List of Jobs running on the server for this particular task
+        """
+        project_jobs = self.get_jobs(project_only=True)
+        task_jobs: List[Job] = []
+        for job in project_jobs:
+            if job.metadata is not None:
+                if job.metadata.task is not None:
+                    if job.metadata.task.task_id == task.id:
+                        if running_only:
+                            if job.status.state == JobState.RUNNING:
+                                task_jobs.append(job)
+                        else:
+                            task_jobs.append(job)
+        return task_jobs

@@ -12,12 +12,15 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+import io
 import json
 import logging
 import os
 import time
 from typing import Any, Dict, List, Optional, Tuple, Union
 
+import cv2
+import numpy as np
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -535,3 +538,55 @@ class PredictionClient:
         if verbose:
             logging.info(msg)
         return t_elapsed
+
+    def predict_image(
+        self, image: Union[Image, np.ndarray, os.PathLike, str]
+    ) -> Prediction:
+        """
+        Push an image to the Intel® Geti™ project and receive a prediction for it.
+
+        Note that this method will not save the image to the project.
+
+        :param image: Image object, filepath to an image or numpy array containing an
+            image to get the prediction for
+        :return: Prediction for the image
+        """
+        # Get image pixel data from input
+        image_data: Optional[np.ndarray]
+        image_name: Optional[str]
+        if isinstance(image, Image):
+            image_data = image.numpy
+            if image_data is None:
+                raise ValueError(
+                    "An 'Image' object was passed for prediction, but the image does "
+                    "not contain any pixel data. Please make sure that the pixel data "
+                    "is loaded for the image by calling 'image.get_data()' with the "
+                    "appropriate Geti session."
+                )
+            image_name = image.name
+        elif isinstance(image, np.ndarray):
+            image_data = image
+            image_name = "numpy_image.jpg"
+        elif isinstance(image, (os.PathLike, str)):
+            image_data = None
+            image_name = None
+        else:
+            raise TypeError(
+                f"Received object 'image' of type {type(image)}, which is invalid. "
+                f"Please either pass an 'Image' object, a numpy array or a filepath."
+            )
+
+        if image_data is None:
+            image_io = open(image, "rb").read()
+        else:
+            image_io = io.BytesIO(cv2.imencode(".jpg", image_data)[1].tobytes())
+            image_io.name = image_name
+
+        # make POST request
+        response = self.session.get_rest_response(
+            url=f"{self._base_url}predict",
+            method="POST",
+            contenttype="jpeg",
+            data=image_io,
+        )
+        return PredictionRESTConverter.from_dict(response)

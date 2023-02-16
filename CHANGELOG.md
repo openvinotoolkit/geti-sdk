@@ -1,3 +1,65 @@
+# v1.2.1 Intel® Geti™ SDK (02-02-2023)
+## What's Changed
+* Fix issue with deployment for anomaly classification models by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/144
+* Require `mistune>=2.0.3` for notebooks by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/147
+* Update ipython requirement from ==8.8.* to ==8.9.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/145
+* Fix issue with temporary resource clean up for `Deployment`s by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/146
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.2.0...v1.2.1
+
+# v1.2 Intel® Geti™ SDK (24-01-2023)
+## What's Changed
+* Add `size` field to MediaInformation data model by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/133
+* Update available Geti versions by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/134
+* Update pillow requirement from ==9.3.* to ==9.4.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/131
+* Fix a mismatch in the data model for the Optimization Job by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/136
+* Add DeploymentClient to streamline deployment mechanism by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/135
+* Update prediction mechanism by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/137
+* Update ipython requirement from ==8.7.* to ==8.8.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/138
+* Bump openvino from 2022.2.0 to 2022.3.0 in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/130
+* Update various dependencies by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/140
+* Minor refactor in `Geti` class and fix in `predict_image` method by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/139
+* Make `maps` key optional when converting Predictions from dictionary input by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/141
+* Fix documentation workflow to deploy from build artifact by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/143
+* Make workaround for issue with detection prediction conversion by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/142
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.1.1...v1.2.0
+
+# v1.1.1 Intel® Geti™ SDK (20-12-2022)
+## What's Changed
+* Fix issue with model to dictionary conversion by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/128
+* Only submit train request once all running jobs for task have finished by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/129
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.1.0...v1.1.1
+
+# v1.1.0 Intel® Geti™ SDK (15-12-2022)
+## What's Changed
+* Minor fix in README.md by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/118
+* Fix and improve geti version comparison mechanism by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/117
+* Ignore some false positive bandit detections by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/119
+* Update datumaro requirement from ==0.3.* to ==0.4.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/121
+* Add ClamAV workflow by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/123
+* Update `jupyterlab` requirement for notebooks to >=3.5.1 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/124
+* Increase timeout for training job polling upon calling `train_task` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/125
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.0.4...v1.1.0
+
+# v1.0.4 Intel® Geti™ SDK (08-12-2022)
+## What's Changed
+* Update ipython requirement from ==8.6.* to ==8.7.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/112
+* Properly check for empty annotation before uploading by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/111
+* Update numpy version to 1.22.* in requirements by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/104
+* Minor update to README.md by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/114
+* Update training client to handle new /train endpoint response by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/113
+* Update `StatusSummary` datamodel by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/115
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.0.3...v1.0.4
+
 # v1.0.3 Intel® Geti™ SDK (25-11-2022)
 ## What's Changed
 * Add `ScoreMetadata` to represent the new `scores` field by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/106

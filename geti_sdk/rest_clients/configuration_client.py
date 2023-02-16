@@ -360,3 +360,17 @@ class ConfigurationClient:
                 f"Unable to set configuration."
             )
         self.apply_from_object(full_configuration)
+
+    def get_for_model(self, task_id: str, model_id: str) -> TaskConfiguration:
+        """
+        Get the hyper parameters for the model with id `model_id`. Note that the model
+        has to be trained within the task with id `task_id` in order for the
+        parameters to be retrieved successfully.
+
+        :param task_id: ID of the task to get configurations for
+        :param model_id: ID of the model to get the hyper parameters for
+        :return: TaskConfiguration holding all hyper parameters for the model
+        """
+        url = f"{self.base_url}/task_chain/{task_id}?model_id={model_id}"
+        config_data = self.session.get_rest_response(url=url, method="GET")
+        return ConfigurationRESTConverter.task_configuration_from_dict(config_data)

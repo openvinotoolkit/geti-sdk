@@ -234,10 +234,21 @@ class GetiSession(requests.Session):
             self.headers.update({"Content-Type": "application/zip"})
 
         requesturl = f"{self.config.base_url}{url}"
-        if contenttype == "json":
-            kw_data_arg = {"json": data}
+
+        if method == "POST" or method == "PUT":
+            if contenttype == "json":
+                kw_data_arg = {"json": data}
+            elif contenttype == "multipart":
+                kw_data_arg = {"files": data}
+            elif contenttype == "jpeg" or contenttype == "zip":
+                kw_data_arg = {"data": data}
+            else:
+                raise ValueError(
+                    f"Making a POST request with content of type {contenttype} is "
+                    f"currently not supported through the Geti SDK."
+                )
         else:
-            kw_data_arg = {"files": data}
+            kw_data_arg = {}
 
         request_params = {
             "method": method,

@@ -33,4 +33,13 @@ class JobRESTConverter:
             returned by the /jobs endpoints
         :return: Job instance, holding the job data contained in job_dict
         """
+        # There is an inconsistency in the REST API, the `scores` field was changed
+        # from array to object. Preprocess the data to account for that
+        if "metadata" in job_dict.keys():
+            metadata = job_dict["metadata"]
+            if "scores" in metadata.keys():
+                scores = metadata["scores"]
+                if not isinstance(scores, list):
+                    metadata["scores"] = [scores]
+
         return deserialize_dictionary(job_dict, output_type=Job)

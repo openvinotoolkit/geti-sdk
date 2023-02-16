@@ -19,7 +19,7 @@ import warnings
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
-from pathvalidate import validate_filepath
+from pathvalidate import sanitize_filepath
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -30,8 +30,8 @@ from .annotation_readers import (
 )
 from .data_models import Image, Prediction, Project, TaskType, Video, VideoFrame
 from .data_models.containers import MediaList
-from .data_models.enums import OptimizationType
-from .deployment import DeployedModel, Deployment
+from .data_models.model import BaseModel
+from .deployment import Deployment
 from .http_session import (
     GetiRequestException,
     GetiSession,
@@ -41,6 +41,7 @@ from .http_session import (
 from .rest_clients import (
     AnnotationClient,
     ConfigurationClient,
+    DeploymentClient,
     ImageClient,
     ModelClient,
     PredictionClient,
@@ -179,12 +180,41 @@ class Geti:
         if workspace_id is None:
             workspace_id = get_default_workspace_id(self.session)
         self.workspace_id = workspace_id
+        self.project_client = ProjectClient(
+            workspace_id=workspace_id, session=self.session
+        )
 
-    def logout(self) -> None:
+        # Cache of deployment clients for projects in the workspace
+        self._deployment_clients: Dict[str, DeploymentClient] = {}
+
+    @property
+    def projects(self) -> List[Project]:
         """
-        Log out of the Intel® Geti™ platform and end the HTTP session.
+        Return a list of projects that are currently available in the workspace on
+        the Intel® Geti™ server.
+
+        :return: List of projects in the workspace addressed by the current `Geti`
+            instance
         """
-        self.session.logout()
+        return self.project_client.get_all_projects()
+
+    def get_project(self, project_name: str) -> Project:
+        """
+        Return the Intel® Geti™ project named `project_name`, if any. If no project by
+        that name is found on the Intel® Geti™ server, this method will raise a
+        KeyError.
+
+        :param project_name: Name of the project to retrieve
+        :raises: KeyError if project named `project_name` is not found on the server
+        :return: Project identified by `project_name`
+        """
+        project = self.project_client.get_project_by_name(project_name=project_name)
+        if project is None:
+            raise KeyError(
+                f"Project '{project_name}' was not found in the current workspace on "
+                f"the Intel® Geti™ server."
+            )
+        return project
 
     def download_project(
         self,
@@ -263,20 +293,17 @@ class Geti:
             regarding the downloaded project
         """
         # Obtain project details from cluster
-        project_client = ProjectClient(
-            session=self.session, workspace_id=self.workspace_id
-        )
-        project = project_client.get_project_by_name(project_name)
+        project = self.get_project(project_name)
 
         # Validate or create target_folder
         if target_folder is None:
             target_folder = os.path.join(".", get_project_folder_name(project))
         else:
-            validate_filepath(target_folder, platform="auto")
+            sanitize_filepath(target_folder, platform="auto")
         os.makedirs(target_folder, exist_ok=True, mode=0o770)
 
         # Download project creation parameters:
-        project_client.download_project_info(
+        self.project_client.download_project_info(
             project_name=project_name, path_to_folder=target_folder
         )
 
@@ -398,10 +425,7 @@ class Geti:
         :return: Project object, holding information obtained from the cluster
             regarding the uploaded project
         """
-        project_client = ProjectClient(
-            session=self.session, workspace_id=self.workspace_id
-        )
-        project = project_client.create_project_from_folder(
+        project = self.project_client.create_project_from_folder(
             path_to_folder=target_folder, project_name=project_name
         )
 
@@ -562,10 +586,7 @@ class Geti:
                 labels = ["Normal", "Anomalous"]
 
         # Create project
-        project_client = ProjectClient(
-            session=self.session, workspace_id=self.workspace_id
-        )
-        project = project_client.create_project(
+        project = self.project_client.create_project(
             project_name=project_name, project_type=project_type, labels=[labels]
         )
         # Disable auto training
@@ -701,10 +722,7 @@ class Geti:
         )
 
         # Create project
-        project_client = ProjectClient(
-            session=self.session, workspace_id=self.workspace_id
-        )
-        project = project_client.create_project(
+        project = self.project_client.create_project(
             project_name=project_name, project_type=project_type, labels=labels_per_task
         )
         # Disable auto training
@@ -760,47 +778,6 @@ class Geti:
         configuration_client.set_project_auto_train(auto_train=enable_auto_train)
         return project
 
-    @staticmethod
-    def _check_unique_label_names(
-        labels_per_task: List[List[str]],
-        task_types: List[TaskType],
-        annotation_readers_per_task: List[AnnotationReader],
-    ):
-        """
-        Check that the names of all labels passed in `labels_per_task` are unique. If
-        they are not unique and there is a segmentation task in the task chain, this
-        method tries to generate segmentation labels in order to guarantee unique label
-        names
-
-        :param labels_per_task: Nested list of label names per task
-        :param task_types: List of TaskTypes for every trainable task in the project
-        :param annotation_readers_per_task: List of annotation readers for all
-            trainable tasks in the project
-        :raises ValueError: If the label names are not unique and this method is not
-            able to generate unique label names for this configuration
-        :return: List of labels per task with unique label names
-        """
-        # Check that label names are unique, try to generate segmentation labels if not
-        all_labels = [label for labels in labels_per_task for label in labels]
-        if len(set(all_labels)) != len(all_labels):
-            new_labels = []
-            new_labels_per_task = []
-            for index, task_type in enumerate(task_types):
-                reader = annotation_readers_per_task[index]
-                if task_type == TaskType.SEGMENTATION:
-                    if isinstance(reader, DatumAnnotationReader):
-                        reader.convert_labels_to_segmentation_names()
-                new_labels.extend(reader.get_all_label_names())
-                new_labels_per_task.append(reader.get_all_label_names())
-            if len(set(new_labels)) != len(new_labels):
-                raise ValueError(
-                    "Unable to create project. Label names must be unique!"
-                )
-            else:
-                return new_labels_per_task
-        else:
-            return labels_per_task
-
     def download_all_projects(
         self, target_folder: str, include_predictions: bool = True
     ) -> List[Project]:
@@ -818,10 +795,7 @@ class Geti:
             projects found on the Intel® Geti™ server
         """
         # Obtain project details from cluster
-        project_client = ProjectClient(
-            session=self.session, workspace_id=self.workspace_id
-        )
-        projects = project_client.get_all_projects()
+        projects = self.projects
 
         # Validate or create target_folder
         if target_folder is None:
@@ -926,11 +900,9 @@ class Geti:
             successfully downloaded. False otherwise
         """
         # Obtain project details from cluster
-        project_client = ProjectClient(
-            session=self.session, workspace_id=self.workspace_id
-        )
-        project = project_client.get_project_by_name(project_name=project_name)
-        if project is None:
+        try:
+            project = self.get_project(project_name=project_name)
+        except ValueError:
             logging.info(
                 f"Project '{project_name}' was not found on the cluster. Aborting "
                 f"media upload."
@@ -1017,13 +989,7 @@ class Geti:
             - Image object representing the image that was uploaded
             - Prediction for the image
         """
-        project_client = ProjectClient(self.session, workspace_id=self.workspace_id)
-        project = project_client.get_project_by_name(project_name)
-        if project is None:
-            raise ValueError(
-                f"Project '{project_name}' was not found on the cluster. Aborting "
-                f"image upload."
-            )
+        project = self.get_project(project_name=project_name)
 
         # Upload the image
         image_client = ImageClient(
@@ -1105,13 +1071,8 @@ class Geti:
               have been generated
             - List of Predictions for the Video
         """
-        project_client = ProjectClient(self.session, workspace_id=self.workspace_id)
-        project = project_client.get_project_by_name(project_name)
-        if project is None:
-            raise ValueError(
-                f"Project '{project_name}' was not found on the cluster. Aborting "
-                f"image upload."
-            )
+        project = self.get_project(project_name=project_name)
+
         # Upload the video
         video_client = VideoClient(
             session=self.session, workspace_id=self.workspace_id, project=project
@@ -1169,66 +1130,96 @@ class Geti:
         return uploaded_video, frames, predictions
 
     def deploy_project(
-        self, project_name: str, output_folder: Optional[Union[str, os.PathLike]] = None
+        self,
+        project_name: str,
+        output_folder: Optional[Union[str, os.PathLike]] = None,
+        models: Optional[Sequence[BaseModel]] = None,
+        prepare_ovms_config: bool = False,
     ) -> Deployment:
         """
         Deploy a project by creating a Deployment instance. The Deployment contains
-        the optimized active models for each task in the project, and can be loaded
+        the optimized models for each task in the project, and can be loaded
         with OpenVINO to run inference locally.
+
+        By default, this method creates a deployment using the current active model
+        for each task in the project. However, it is possible to specify a particular
+        model to use, by passing it in the list of `models` as input to this method.
 
         :param project_name: Name of the project to deploy
         :param output_folder: Path to a folder on local disk to which the Deployment
             should be downloaded. If no path is specified, the deployment will not be
             saved.
+        :param models: Optional list of models to use in the deployment. This must
+            contain at most one model for each task in the project. If for a certain
+            task no model is specified, the currently active model for that task will
+            be used in the deployment. The order in which the models are passed does
+            not matter
+        :param prepare_ovms_config: True to prepare the deployment to be hosted on a
+            OpenVINO model server (OVMS). Passing True will create OVMS configuration
+            files for the model(s) in the project and a README containing the steps to
+            launch an OVMS container serving the models.
         :return: Deployment for the project
         """
-        project_client = ProjectClient(self.session, workspace_id=self.workspace_id)
-        project = project_client.get_project_by_name(project_name)
-        if project is None:
-            raise ValueError(
-                f"Project '{project_name}' was not found on the cluster. Aborting "
-                f"project deployment."
+        project = self.get_project(project_name=project_name)
+
+        deployment_client = self._deployment_clients.get(project.id, None)
+        if deployment_client is None:
+            # Create deployment client and add to cache.
+            deployment_client = DeploymentClient(
+                workspace_id=self.workspace_id, session=self.session, project=project
             )
-        model_client = ModelClient(
-            session=self.session, workspace_id=self.workspace_id, project=project
+            self._deployment_clients.update({project.id: deployment_client})
+
+        deployment = deployment_client.deploy_project(
+            output_folder=output_folder,
+            models=models,
+            prepare_for_ovms=prepare_ovms_config,
         )
-        active_models = [
-            model for model in model_client.get_all_active_models() if model is not None
-        ]
-        configuration_client = ConfigurationClient(
-            session=self.session, workspace_id=self.workspace_id, project=project
-        )
-        configuration = configuration_client.get_full_configuration()
-        if len(active_models) != len(project.get_trainable_tasks()):
-            raise ValueError(
-                f"Project `{project.name}` does not have a trained model for each "
-                f"task in the project. Unable to create deployment, please ensure all "
-                f"tasks are trained first."
-            )
-        deployed_models: List[DeployedModel] = []
-        for model_index, model in enumerate(active_models):
-            model_config = configuration.task_chain[model_index]
-            optimized_models = model.optimized_models
-            optimization_types = [
-                op_model.optimization_type for op_model in optimized_models
-            ]
-            preferred_model = optimized_models[0]
-            for optimization_type in OptimizationType:
-                if optimization_type in optimization_types:
-                    preferred_model = optimized_models[
-                        optimization_types.index(optimization_type)
-                    ]
-                    break
-            deployed_model = DeployedModel.from_model_and_hypers(
-                model=preferred_model, hyper_parameters=model_config
-            )
-            logging.info(
-                f"Retrieving {preferred_model.optimization_type} model data for "
-                f"{project.get_trainable_tasks()[model_index].title}..."
-            )
-            deployed_model.get_data(source=self.session)
-            deployed_models.append(deployed_model)
-        deployment = Deployment(project=project, models=deployed_models)
-        if output_folder is not None:
-            deployment.save(output_folder)
         return deployment
+
+    def logout(self) -> None:
+        """
+        Log out of the Intel® Geti™ platform and end the HTTP session.
+        """
+        self.session.logout()
+
+    @staticmethod
+    def _check_unique_label_names(
+        labels_per_task: List[List[str]],
+        task_types: List[TaskType],
+        annotation_readers_per_task: List[AnnotationReader],
+    ):
+        """
+        Check that the names of all labels passed in `labels_per_task` are unique. If
+        they are not unique and there is a segmentation task in the task chain, this
+        method tries to generate segmentation labels in order to guarantee unique label
+        names
+
+        :param labels_per_task: Nested list of label names per task
+        :param task_types: List of TaskTypes for every trainable task in the project
+        :param annotation_readers_per_task: List of annotation readers for all
+            trainable tasks in the project
+        :raises ValueError: If the label names are not unique and this method is not
+            able to generate unique label names for this configuration
+        :return: List of labels per task with unique label names
+        """
+        # Check that label names are unique, try to generate segmentation labels if not
+        all_labels = [label for labels in labels_per_task for label in labels]
+        if len(set(all_labels)) != len(all_labels):
+            new_labels = []
+            new_labels_per_task = []
+            for index, task_type in enumerate(task_types):
+                reader = annotation_readers_per_task[index]
+                if task_type == TaskType.SEGMENTATION:
+                    if isinstance(reader, DatumAnnotationReader):
+                        reader.convert_labels_to_segmentation_names()
+                new_labels.extend(reader.get_all_label_names())
+                new_labels_per_task.append(reader.get_all_label_names())
+            if len(set(new_labels)) != len(new_labels):
+                raise ValueError(
+                    "Unable to create project. Label names must be unique!"
+                )
+            else:
+                return new_labels_per_task
+        else:
+            return labels_per_task

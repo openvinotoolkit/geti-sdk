@@ -13,7 +13,9 @@
 # and limitations under the License.
 
 import json
+import logging
 import os
+import shutil
 from typing import Any, Dict, List, Optional, Union
 
 import attr
@@ -30,8 +32,10 @@ from geti_sdk.data_models import (
 )
 from geti_sdk.data_models.shapes import Polygon, Rectangle, RotatedRectangle
 from geti_sdk.deployment.data_models import ROI, IntermediateInferenceResult
-from geti_sdk.deployment.deployed_model import DeployedModel
 from geti_sdk.rest_converters import ProjectRESTConverter
+
+from .deployed_model import DeployedModel
+from .utils import OVMS_README_PATH, OVMS_REQ_PATH, generate_ovms_model_name
 
 
 @attr.define(slots=False)
@@ -51,7 +55,10 @@ class Deployment:
         self._is_single_task: bool = len(self.project.get_trainable_tasks()) == 1
         self._are_models_loaded: bool = False
         self._inference_converters: Dict[str, Any] = {}
+        self._alternate_inference_converters: Dict[str, Any] = {}
         self._empty_labels: Dict[str, Label] = {}
+        self._path_to_temp_resources: Optional[str] = None
+        self._requires_resource_cleanup: bool = False
 
     @property
     def is_single_task(self) -> bool:
@@ -94,6 +101,10 @@ class Deployment:
             os.makedirs(model_dir, exist_ok=True, mode=0o770)
             model.save(model_dir)
 
+        # Clean up temp resources if needed
+        self._remove_temporary_resources()
+        self._requires_resource_cleanup = False
+
     @classmethod
     def from_folder(cls, path_to_folder: Union[str, os.PathLike]) -> "Deployment":
         """
@@ -131,6 +142,7 @@ class Deployment:
         """
         try:
             from ote_sdk.usecases.exportable_code.prediction_to_annotation_converter import (
+                DetectionBoxToAnnotationConverter,
                 IPredictionToAnnotationConverter,
                 create_converter,
             )
@@ -144,7 +156,7 @@ class Deployment:
         inference_converters: Dict[str, IPredictionToAnnotationConverter] = {}
         empty_labels: Dict[str, Label] = {}
         for model, task in zip(self.models, self.project.get_trainable_tasks()):
-            model.load_inference_model(device=device)
+            model.load_inference_model(device=device, project=self.project)
 
             # This is a workaround for a bug in the label schema for anomaly tasks
             if task.type.is_anomaly:
@@ -159,12 +171,23 @@ class Deployment:
                 converter_type=task.type.to_ote_domain(), labels=model.ote_label_schema
             )
             inference_converters.update({task.title: inference_converter})
+
+            # This is a workaround for a backwards incompatible change in later ote
+            # versions
+            if task.type.is_detection:
+                alternate_inference_converter = DetectionBoxToAnnotationConverter(
+                    labels=model.ote_label_schema
+                )
+                self._alternate_inference_converters.update(
+                    {task.title: alternate_inference_converter}
+                )
             empty_label = next((label for label in task.labels if label.is_empty), None)
             empty_labels.update({task.title: empty_label})
 
         self._inference_converters = inference_converters
         self._empty_labels = empty_labels
         self._are_models_loaded = True
+        logging.info(f"Inference models loaded on device `{device}` successfully.")
 
     def infer(self, image: np.ndarray) -> Prediction:
         """
@@ -273,12 +296,34 @@ class Deployment:
         width: int = image.shape[1]
         height: int = image.shape[0]
 
-        annotation_scene_entity = converter.convert_to_annotation(
-            predictions=postprocessing_results, metadata=metadata
-        )
-        prediction = Prediction.from_ote(
-            annotation_scene_entity, image_width=width, image_height=height
-        )
+        try:
+            n_outputs = len(postprocessing_results)
+        except TypeError:
+            n_outputs = 1
+
+        if n_outputs != 0:
+            # The try/except is a workaround to handle different detection inference
+            # results by different ote sdk versions
+            try:
+                annotation_scene_entity = converter.convert_to_annotation(
+                    predictions=postprocessing_results, metadata=metadata
+                )
+            except TypeError as error:
+                if task.type.is_detection:
+                    converter = self._alternate_inference_converters[task.title]
+                    annotation_scene_entity = converter.convert_to_annotation(
+                        predictions=postprocessing_results, metadata=metadata
+                    )
+                    # Make sure next time we get it right in one shot
+                    self._inference_converters.update({task.title: converter})
+                else:
+                    raise error
+
+            prediction = Prediction.from_ote(
+                annotation_scene_entity, image_width=width, image_height=height
+            )
+        else:
+            prediction = Prediction(annotations=[])
 
         # Empty label is not generated by OTE correctly, append it here if there are
         # no other predictions
@@ -319,3 +364,85 @@ class Deployment:
                 f"{self.project.name}."
             ) from error
         return self.models[task_index]
+
+    def _remove_temporary_resources(self) -> None:
+        """
+        If necessary, clean up any temporary resources associated with the deployment.
+        """
+        if os.path.isdir(self._path_to_temp_resources):
+            shutil.rmtree(self._path_to_temp_resources)
+        else:
+            logging.debug(
+                f"Unable to clean up temporary resources for deployment {self}, "
+                f"because the resources were not found on the system. Possibly "
+                f"they were already deleted."
+            )
+
+    def __del__(self):
+        """
+        If necessary, clean up any temporary resources associated with the deployment.
+        This method is called when the Deployment instance is deleted.
+        """
+        if self._requires_resource_cleanup:
+            self._remove_temporary_resources()
+
+    def generate_ovms_config(self, output_folder: Union[str, os.PathLike]) -> None:
+        """
+        Generate the configuration files needed to push the models for the
+        `Deployment` instance to OVMS.
+
+        :param output_folder: Target folder to save the configuration files to
+        """
+        # First prepare the model config list
+        if os.path.basename(output_folder) != "ovms_models":
+            ovms_models_dir = os.path.join(output_folder, "ovms_models")
+        else:
+            ovms_models_dir = output_folder
+            output_folder = os.path.dirname(ovms_models_dir)
+        os.makedirs(ovms_models_dir, exist_ok=True)
+
+        model_configs: List[Dict[str, Dict[str, Any]]] = []
+        for model in self.models:
+            # Create configuration entry for model
+            model_name = generate_ovms_model_name(
+                project=self.project, model=model, omit_version=True
+            )
+            config = {
+                "name": model_name,
+                "base_path": f"/models/{model_name}",
+                "shape": "auto",
+            }
+            model_configs.append({"config": config})
+
+            # Copy IR model files to the expected OVMS format
+            if model.version is not None:
+                model_version = str(model.version)
+            else:
+                # Fallback to version 1 if no version info is available
+                model_version = "1"
+
+            ovms_model_dir = os.path.join(ovms_models_dir, model_name, model_version)
+            source_model_dir = model.model_data_path
+            os.makedirs(ovms_model_dir, exist_ok=True)
+            for model_file in os.listdir(source_model_dir):
+                shutil.copy2(
+                    src=os.path.join(source_model_dir, model_file),
+                    dst=os.path.join(ovms_model_dir, model_file),
+                )
+
+        # Save model configurations
+        ovms_config_list = {"model_config_list": model_configs}
+        config_target_filepath = os.path.join(ovms_models_dir, "ovms_model_config.json")
+        with open(config_target_filepath, "w") as file:
+            json.dump(ovms_config_list, file)
+
+        # Copy resource files
+        shutil.copy2(OVMS_README_PATH, os.path.join(output_folder))
+        shutil.copy2(OVMS_REQ_PATH, os.path.join(output_folder))
+
+        logging.info(
+            f"Configuration files for OVMS model deployment have been generated in "
+            f"directory '{output_folder}'. This folder contains a `OVMS_README.md` "
+            f"file with instructions on how to launch OVMS, connect to it and run "
+            f"inference. Please follow the instructions outlined there to get started."
+        )
