@@ -410,7 +410,7 @@ class Deployment:
             config = {
                 "name": model_name,
                 "base_path": f"/models/{model_name}",
-                "shape": "auto",
+                "plugin_config": {"PERFORMANCE_HINT": "LATENCY"},
             }
             model_configs.append({"config": config})
 
