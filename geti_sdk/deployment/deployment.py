@@ -369,7 +369,9 @@ class Deployment:
         """
         If necessary, clean up any temporary resources associated with the deployment.
         """
-        if os.path.isdir(self._path_to_temp_resources):
+        if self._path_to_temp_resources is not None and os.path.isdir(
+            self._path_to_temp_resources
+        ):
             shutil.rmtree(self._path_to_temp_resources)
         else:
             logging.debug(
