@@ -457,6 +457,9 @@ class Geti:
         if len(videos) > 0:
             media_lists.append(videos)
 
+        # Short sleep to make sure all uploaded media is processed server side
+        time.sleep(5)
+
         # Upload annotations
         annotation_reader = GetiAnnotationReader(
             base_data_folder=os.path.join(target_folder, "annotations"),
