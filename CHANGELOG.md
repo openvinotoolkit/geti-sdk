@@ -1,3 +1,17 @@
+# v1.2.2 Intel® Geti™ SDK (28-02-2023)
+## What's Changed
+* Enable OVMS deployment by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/148
+* Minor fixes for notebook 010 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/149
+* Update ipython requirement from ==8.9.* to ==8.10.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/151
+* Add performance hint to the ovms config by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/152
+* Fix bug in deployment resource clean up method by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/153
+* Update python-dotenv requirement from ==0.21.* to ==1.0.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/156
+* Add a short sleep in `Geti.upload_project` after media upload by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/157
+* Add OVMS deployment resources to manifest by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/158
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.2.1...v1.2.2
+
 # v1.2.1 Intel® Geti™ SDK (02-02-2023)
 ## What's Changed
 * Fix issue with deployment for anomaly classification models by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/144

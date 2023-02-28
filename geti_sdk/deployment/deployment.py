@@ -369,7 +369,9 @@ class Deployment:
         """
         If necessary, clean up any temporary resources associated with the deployment.
         """
-        if os.path.isdir(self._path_to_temp_resources):
+        if self._path_to_temp_resources is not None and os.path.isdir(
+            self._path_to_temp_resources
+        ):
             shutil.rmtree(self._path_to_temp_resources)
         else:
             logging.debug(
@@ -410,7 +412,7 @@ class Deployment:
             config = {
                 "name": model_name,
                 "base_path": f"/models/{model_name}",
-                "shape": "auto",
+                "plugin_config": {"PERFORMANCE_HINT": "LATENCY"},
             }
             model_configs.append({"config": config})
 
