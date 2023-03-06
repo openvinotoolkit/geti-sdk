@@ -16,7 +16,7 @@ import os
 from typing import List
 from unittest.mock import patch
 
-import numpy
+import numpy as np
 
 from geti_sdk.data_models import AnnotationScene, Image, VideoFrame
 from geti_sdk.data_models.containers import MediaList
@@ -30,7 +30,7 @@ class TestPlotHelpers:
     def test_show_image_with_annotation_scene_cv2(
         self,
         fxt_annotation_scene: AnnotationScene,
-        fxt_numpy_image: numpy.ndarray,
+        fxt_numpy_image: np.ndarray,
         fxt_geti_image: Image,
         fxt_temp_directory: str,
     ):
@@ -71,7 +71,7 @@ class TestPlotHelpers:
     def test_show_image_with_annotation_scene_notebook(
         self,
         fxt_annotation_scene: AnnotationScene,
-        fxt_numpy_image: numpy.ndarray,
+        fxt_numpy_image: np.ndarray,
     ):
         # Act
         with patch("geti_sdk.utils.plot_helpers.display") as mock_display:
