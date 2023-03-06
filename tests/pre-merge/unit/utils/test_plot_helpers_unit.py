@@ -16,7 +16,7 @@ import os
 from typing import List
 from unittest.mock import patch
 
-import numpy as np
+import numpy
 
 from geti_sdk.data_models import AnnotationScene, Image, VideoFrame
 from geti_sdk.data_models.containers import MediaList
@@ -30,7 +30,7 @@ class TestPlotHelpers:
     def test_show_image_with_annotation_scene_cv2(
         self,
         fxt_annotation_scene: AnnotationScene,
-        fxt_numpy_image: np.ndarray,
+        fxt_numpy_image: numpy.ndarray,
         fxt_geti_image: Image,
         fxt_temp_directory: str,
     ):
@@ -40,9 +40,7 @@ class TestPlotHelpers:
         # Act
         with patch("cv2.imshow") as mock_imshow, patch(
             "cv2.waitKey"
-        ) as mock_waitkey, patch("cv2.destroyAllWindows") as mock_destroywindows, patch(
-            "cv2.imwrite"
-        ) as mock_imwrite:
+        ) as mock_waitkey, patch("cv2.destroyAllWindows") as mock_destroywindows:
             result = show_image_with_annotation_scene(
                 image=fxt_numpy_image, annotation_scene=fxt_annotation_scene
             )
@@ -64,16 +62,16 @@ class TestPlotHelpers:
         assert mock_imshow.call_count == 2
         assert mock_waitkey.call_count == 4
         assert mock_destroywindows.call_count == 2
-        mock_imwrite.assert_called_once()
         assert result.shape == fxt_numpy_image.shape
         assert result_geti.shape == fxt_numpy_image.shape
         assert results_no_show.shape == fxt_numpy_image.shape
         assert results_filepath.shape == fxt_numpy_image.shape
+        assert os.path.isfile(filepath)
 
     def test_show_image_with_annotation_scene_notebook(
         self,
         fxt_annotation_scene: AnnotationScene,
-        fxt_numpy_image: np.ndarray,
+        fxt_numpy_image: numpy.ndarray,
     ):
         # Act
         with patch("geti_sdk.utils.plot_helpers.display") as mock_display:

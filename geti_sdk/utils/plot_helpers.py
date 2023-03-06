@@ -91,7 +91,11 @@ def show_image_with_annotation_scene(
                 image = PILImage.fromarray(result)
                 display(image)
     else:
-        cv2.imwrite(filepath, result)
+        success, buffer = cv2.imencode(".jpg", result)
+        if success:
+            buffer.tofile(filepath)
+        else:
+            raise RuntimeError("Unable to encode output image to .jpg format.")
 
     return result
 
