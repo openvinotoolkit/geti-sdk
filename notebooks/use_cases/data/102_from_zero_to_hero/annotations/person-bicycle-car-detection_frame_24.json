@@ -1,0 +1,32 @@
+{
+    "annotations": [
+        {
+            "labels": [
+                {
+                    "probability": 1.0,
+                    "name": "person",
+                    "color": "#6462f5ff",
+                    "source": {
+                        "user_id": "admin@sc-project.intel.com"
+                    }
+                }
+            ],
+            "shape": {
+                "x": 517,
+                "y": 312,
+                "width": 67,
+                "height": 120,
+                "type": "RECTANGLE"
+            },
+            "labels_to_revisit": []
+        }
+    ],
+    "kind": "annotation",
+    "labels_to_revisit_full_scene": [],
+    "annotation_state_per_task": [
+        {
+            "task_id": "63fe0598f495bb253c2a33c5",
+            "state": "annotated"
+        }
+    ]
+}
