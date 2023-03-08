@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+import glob
 import logging
+import os
 import time
 from typing import Dict, List, Optional, Sequence, Tuple
 
@@ -205,6 +207,68 @@ class DatumaroDataset(object):
                 f"{len(self.dataset)} items."
             )
 
+    def __get_item_by_id_from_subsets(
+        self, datum_id: str, search_by_name: bool = False
+    ) -> Optional[DatasetItem]:
+        """
+        Search all subsets for the item with id `datum_id`
+
+        :param datum_id: Datumaro id of the item to retrieve
+        :param search_by_name: True to search for the image by filename as well, in
+            addition to searching within the datumaro dataset
+        :return: Dataset item with the given id, or None if the item was not found
+        """
+        ds_item: Optional[DatasetItem] = None
+        for subset_name in self._subset_names:
+            ds_item = self.dataset.get(id=datum_id, subset=subset_name)
+        if search_by_name and ds_item is None:
+            for subset_name in self._subset_names:
+                image_relative_path = self.__search_image_by_filename(
+                    image_filename=datum_id, subset_name=subset_name
+                )
+                if image_relative_path is not None:
+                    ds_item = self.dataset.get(
+                        id=image_relative_path, subset=subset_name
+                    )
+        return ds_item
+
+    def __search_image_by_filename(
+        self, image_filename: str, subset_name: str
+    ) -> Optional[str]:
+        """
+        Search for an image with name `image_filename` inside the directory tree in
+        the data path.
+
+        :param image_filename: Filename of the image to search for (without extension!)
+        :param subset_name: Name of the subset which the image is in
+        :return: Datumaro id (expressed as a relative unix-style path) for the image,
+            defined with respect to the subset it is in. If no matches are found for the
+            filename, this method returns None
+        """
+        matches = glob.glob(
+            os.path.join(
+                self.dataset_path,
+                "**",
+                "images",
+                subset_name,
+                "**",
+                f"{image_filename}.*",
+            )
+        )
+        if len(matches) > 1:
+            logging.warning(
+                f"Multiple images with filename '{image_filename}' found in dataset "
+                f"subset '{subset_name}', unable to uniquely identify dataset item"
+            )
+            return None
+        elif len(matches) == 0:
+            return None
+        relative_path = matches[0].split(f"{subset_name}{os.path.sep}")[-1]
+        path = os.path.normpath(relative_path)
+        path = os.path.splitext(path)[0]
+        path_components = path.split(os.path.sep)
+        return "/".join(path_components)
+
     def get_item_by_id(self, datum_id: str) -> DatasetItem:
         """
         Return the dataset item by its id.
@@ -213,11 +277,13 @@ class DatumaroDataset(object):
         :raises: ValueError if no item by that id was found.
         :return: DatasetItem with the given id
         """
-        ds_item: Optional[DatasetItem] = None
-        for subset_name in self._subset_names:
-            ds_item = self.dataset.get(id=datum_id, subset=subset_name)
+        ds_item = self.__get_item_by_id_from_subsets(
+            datum_id=datum_id, search_by_name=True
+        )
         if ds_item is None:
             raise ValueError(
-                f"Dataset item with id {datum_id} was not found in the dataset!"
+                f"Unable to identify dataset item with id {datum_id} in the dataset. "
+                f"Please try to simplify the internal filestructure of the dataset, "
+                f"and make sure that images names (within subsets) are unique."
             )
         return ds_item
