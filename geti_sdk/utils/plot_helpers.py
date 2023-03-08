@@ -82,14 +82,11 @@ def show_image_with_annotation_scene(
 
     if filepath is None:
         if show_results:
+            pil_image = PILImage.fromarray(result)
             if not show_in_notebook:
-                cv2.imshow(window_name, result)
-                cv2.waitKey(0)
-                cv2.destroyAllWindows()
-                cv2.waitKey(1)
+                pil_image.show(title=window_name)
             else:
-                image = PILImage.fromarray(result)
-                display(image)
+                display(pil_image)
     else:
         success, buffer = cv2.imencode(".jpg", result)
         if success:
