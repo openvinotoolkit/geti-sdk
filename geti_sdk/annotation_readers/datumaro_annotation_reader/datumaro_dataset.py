@@ -253,7 +253,8 @@ class DatumaroDataset(object):
                 subset_name,
                 "**",
                 f"{image_filename}.*",
-            )
+            ),
+            recursive=True,
         )
         if len(matches) > 1:
             logging.warning(
