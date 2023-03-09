@@ -24,7 +24,12 @@ Module contents
 
 """
 from .constants import DEFAULT_DATA_PATH, EXAMPLE_IMAGE_PATH
-from .data_helpers import get_coco_dataset, get_mvtec_dataset, set_directory_permissions
+from .data_helpers import (
+    get_coco_dataset,
+    get_mvtec_dataset,
+    get_person_car_bike_video,
+    set_directory_permissions,
+)
 from .demo_projects import (
     create_anomaly_classification_demo_project,
     create_classification_demo_project,
@@ -52,4 +57,5 @@ __all__ = [
     "get_coco_dataset",
     "get_mvtec_dataset",
     "set_directory_permissions",
+    "get_person_car_bike_video",
 ]

@@ -1,84 +1,21 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
+# Copyright (C) 2023 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
 import threading
 import time
-import urllib.parse
-import urllib.request
+from typing import Optional, Tuple
 
-import time
-import threading
 import cv2
-import queue
-import threading
-import time
-
-
-# ## Uploader
-# 
-# Upload images to Intel Geti Platform using threading.
-
-# In[ ]:
-
-class Uploader:
-    q = queue.Queue()
-    threads = []
-    run = True
-
-    #url = ''
-    headers = {'content-type': 'image/jpeg'}
-    #headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-
-    def __init__(self, num_worker_threads, image_client):
-        self.num_worker_threads = num_worker_threads
-        self.image_client = image_client
-
-        for i in range(num_worker_threads):
-            t = threading.Thread(target=self.worker)
-            t.start()
-            self.threads.append(t)
-
-    def upload_image(self, image):
-         try:
-            self.image_client.upload_image(image)
-         except:
-            print("Error: Not able to upload")
-
-    def worker(self):
-        process = True
-        while process:
-            if self.run:
-                item = self.q.get()
-                if item is None:
-                    process = False
-                else:
-                    self.upload_image(item)
-                    self.q.task_done()
-
-    def add_data(self, data):
-        self.q.put(data)
-
-    @property
-    def queue_length(self):
-        return self.q.qsize()
-
-    def stop(self):
-        # stop workers
-        for i in range(self.num_worker_threads):
-            self.q.put(None)
-        for t in self.threads:
-            t.join()
-
-# ## Videos
-
-# ### Video Player
-# 
-# Custom video player to fulfill FPS requirements. You can set target FPS and output size, flip the video horizontally or skip first N frames.
-
-# In[ ]:
 
 
 class VideoPlayer:
@@ -93,7 +30,14 @@ class VideoPlayer:
     :param skip_first_frames: Skip first N frames.
     """
 
-    def __init__(self, source, size=None, flip=False, fps=None, skip_first_frames=0):
+    def __init__(
+        self,
+        source,
+        size: Optional[Tuple[int, int]] = None,
+        flip: bool = False,
+        fps: Optional[int] = None,
+        skip_first_frames: int = 0,
+    ):
         self.__cap = cv2.VideoCapture(source)
         if not self.__cap.isOpened():
             raise RuntimeError(
@@ -102,16 +46,15 @@ class VideoPlayer:
         # skip first N frames
         self.__cap.set(cv2.CAP_PROP_POS_FRAMES, skip_first_frames)
         # fps of input file
-        self.__input_fps = self.__cap.get(cv2.CAP_PROP_FPS)
+        self.__input_fps: int = self.__cap.get(cv2.CAP_PROP_FPS)
         if self.__input_fps <= 0:
             self.__input_fps = 60
         # target fps given by user
-        self.__output_fps = fps if fps is not None else self.__input_fps
+        self.__output_fps: int = fps if fps is not None else self.__input_fps
         self.__flip = flip
-        self.__size = None
+        self.__size = size
         self.__interpolation = None
         if size is not None:
-            self.__size = size
             # AREA better for shrinking, LINEAR better for enlarging
             self.__interpolation = (
                 cv2.INTER_AREA
@@ -121,23 +64,21 @@ class VideoPlayer:
         # first frame
         _, self.__frame = self.__cap.read()
         self.__lock = threading.Lock()
-        self.__thread = None
-        self.__stop = False
-
-    """
-    Start playing.
-    """
+        self.__thread: Optional[threading.Thread] = None
+        self.__stop: bool = False
 
     def start(self):
+        """
+        Start playing.
+        """
         self.__stop = False
         self.__thread = threading.Thread(target=self.__run, daemon=True)
         self.__thread.start()
 
-    """
-    Stop playing and release resources.
-    """
-
     def stop(self):
+        """
+        Stop playing and release resources.
+        """
         self.__stop = True
         if self.__thread is not None:
             self.__thread.join()
@@ -166,11 +107,10 @@ class VideoPlayer:
 
         self.__frame = None
 
-    """
-    Get current frame.
-    """
-
     def next(self):
+        """
+        Get current frame.
+        """
         with self.__lock:
             if self.__frame is None:
                 return None
@@ -181,4 +121,3 @@ class VideoPlayer:
         if self.__flip:
             frame = cv2.flip(frame, 1)
         return frame
-    

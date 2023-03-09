@@ -15,9 +15,13 @@
 # and limitations under the License.
 
 
-from .image_utils import display_image_in_notebook, simulate_low_light_image
+from .image import display_image_in_notebook, simulate_low_light_image
+from .upload import Uploader
+from .video import VideoPlayer
 
 __all__ = [
     "simulate_low_light_image",
     "display_image_in_notebook",
+    "VideoPlayer",
+    "Uploader",
 ]
