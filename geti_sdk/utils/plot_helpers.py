@@ -17,7 +17,7 @@ from typing import List, Optional, Union
 import cv2
 import numpy as np
 from IPython.display import display
-from ote_sdk.usecases.exportable_code.visualizers import Visualizer
+from otx.api.usecases.exportable_code.visualizers import Visualizer
 from PIL import Image as PILImage
 
 from geti_sdk.data_models.annotation_scene import AnnotationScene

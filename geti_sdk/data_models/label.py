@@ -16,11 +16,11 @@ import copy
 from typing import ClassVar, List, Optional, Tuple
 
 import attr
-from ote_sdk.entities.color import Color
-from ote_sdk.entities.color import Color as OteColor
-from ote_sdk.entities.label import Domain as OteLabelDomain
-from ote_sdk.entities.label import LabelEntity
-from ote_sdk.entities.scored_label import ScoredLabel as OteScoredLabel
+from otx.api.entities.color import Color
+from otx.api.entities.color import Color as OteColor
+from otx.api.entities.label import Domain as OteLabelDomain
+from otx.api.entities.label import LabelEntity
+from otx.api.entities.scored_label import ScoredLabel as OteScoredLabel
 
 from geti_sdk.data_models.enums import TaskType
 
