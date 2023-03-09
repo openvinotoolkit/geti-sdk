@@ -193,7 +193,7 @@ class OptimizedModel(BaseModel):
         kw_only=True, converter=str_to_enum_converter(OptimizationType)
     )
     version: Optional[int] = attr.field(kw_only=True, default=None)
-    configurations: List[Dict[str, Any]] = attr.field(kw_only=True, factory=list)
+    configurations: list = attr.field(kw_only=True, factory=list)
 
 
 @attr.define(slots=False)

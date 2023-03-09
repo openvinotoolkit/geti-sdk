@@ -169,6 +169,22 @@ class GetiVersion:
         return self.version.major == 1 and self.version.minor == 2 and self.is_geti
 
     @property
+    def is_geti_1_3(self) -> bool:
+        """
+        Return True if the version corresponds to a platform on the Geti version 1.3 of
+        the software.
+        """
+        return self.version.major == 1 and self.version.minor == 3 and self.is_geti
+
+    @property
+    def is_geti_1_4(self) -> bool:
+        """
+        Return True if the version corresponds to a platform on the Geti version 1.4 of
+        the software.
+        """
+        return self.version.major == 1 and self.version.minor == 4 and self.is_geti
+
+    @property
     def is_geti(self) -> bool:
         """
         Return True if the version corresponds to any version of the Geti platform.
