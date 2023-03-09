@@ -44,6 +44,16 @@ class OptimizationCapabilities:
     is_filter_pruning_supported: Optional[bool] = None
 
 
+@attr.define
+class OptimizationConfigurationParameter:
+    """
+    Representation of a parameter for model optimization in Geti.
+    """
+
+    name: str
+    value: Any
+
+
 @attr.define(slots=False)
 class BaseModel:
     """
@@ -193,7 +203,7 @@ class OptimizedModel(BaseModel):
         kw_only=True, converter=str_to_enum_converter(OptimizationType)
     )
     version: Optional[int] = attr.field(kw_only=True, default=None)
-    configurations: Optional[List[Dict[str, Any]]] = attr.field(
+    configurations: Optional[List[OptimizationConfigurationParameter]] = attr.field(
         kw_only=True, default=None
     )  # Added in Geti v1.4
 
