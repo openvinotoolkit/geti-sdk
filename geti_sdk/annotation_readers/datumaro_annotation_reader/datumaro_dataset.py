@@ -18,8 +18,8 @@ from typing import Dict, List, Optional, Sequence, Tuple
 import numpy as np
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.dataset import Dataset
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
-from datumaro.components.extractor import DatasetItem
 
 from geti_sdk.data_models import TaskType
 from geti_sdk.utils import get_dict_key_from_value
