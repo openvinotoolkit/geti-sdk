@@ -193,7 +193,9 @@ class OptimizedModel(BaseModel):
         kw_only=True, converter=str_to_enum_converter(OptimizationType)
     )
     version: Optional[int] = attr.field(kw_only=True, default=None)
-    configurations: list = attr.field(kw_only=True, factory=list)
+    configurations: Optional[List[Dict[str, Any]]] = attr.field(
+        kw_only=True, default=None
+    )  # Added in Geti v1.4
 
 
 @attr.define(slots=False)
