@@ -38,7 +38,7 @@ class TestPlotHelpers:
         filepath = os.path.join(fxt_temp_directory, "dummy_results.jpg")
 
         # Act
-        with patch("geti_sdk.utils.plot_helpers.PILImage.show") as mock_imshow:
+        with patch("geti_sdk.utils.plot_helpers.PILImage.Image.show") as mock_imshow:
             result = show_image_with_annotation_scene(
                 image=fxt_numpy_image, annotation_scene=fxt_annotation_scene
             )
