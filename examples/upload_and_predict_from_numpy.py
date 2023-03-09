@@ -55,7 +55,8 @@ if __name__ == "__main__":
     # --------------------------------------------------
 
     # First, we load the image as a numpy array using opencv
-    numpy_image = cv2.imread(PATH_TO_IMAGE)
+    bgr_image = cv2.imread(PATH_TO_IMAGE)
+    numpy_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
 
     # Rotate the image by 20 degrees
     rotated_image = rotate_image(image=numpy_image, angle=20)
@@ -77,9 +78,7 @@ if __name__ == "__main__":
     )
     filepath = "example_prediction.jpg"
     # Save the result to a file
-    show_image_with_annotation_scene(
-        image=sc_image, annotation_scene=image_prediction, filepath=filepath
-    )
+    show_image_with_annotation_scene(image=sc_image, annotation_scene=image_prediction)
     print(f"Prediction for the example image was saved to file: '{filepath}'")
 
     # We can do the same with videos. For example, to investigate the effect image

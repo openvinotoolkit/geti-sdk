@@ -232,6 +232,8 @@ class Image(MediaItem):
         empty, it will download the data using the provided session. Otherwise it
         will return the cached data directly
 
+        NOTE: The pixel data will be returned in BGR channel order
+
         :param session: REST session to the Intel® Geti™ server on which the Image lives
         :raises ValueError: If the cache is empty and no data can be downloaded
             from the cluster

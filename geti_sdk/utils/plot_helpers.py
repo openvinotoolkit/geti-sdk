@@ -32,12 +32,12 @@ def show_image_with_annotation_scene(
     filepath: Optional[str] = None,
     show_in_notebook: bool = False,
     show_results: bool = True,
+    channel_order: str = "rgb",
 ) -> np.ndarray:
     """
     Display an image with an annotation_scene overlayed on top of it.
 
     :param image: Image to show prediction for.
-        NOTE: `image` is expected to have R,G,B channel ordering
     :param annotation_scene: Annotations or Predictions to overlay on the image
     :param filepath: Optional filepath to save the image with annotation overlay to.
         If left as None, the result will not be saved to file
@@ -49,6 +49,9 @@ def show_image_with_annotation_scene(
         `show_in_notebook` is False, a new opencv window will pop up. If
         `show_results` is set to False, the results will not be shown but will only
         be returned instead
+    :param channel_order: The channel order (R,G,B or B,G,R) used for the input image.
+        This parameter accepts either `rgb` or `bgr` as input values, and defaults to
+        `rgb`.
     """
     if type(annotation_scene) == AnnotationScene:
         plot_type = "Annotation"
@@ -78,17 +81,25 @@ def show_image_with_annotation_scene(
     else:
         numpy_image = image.numpy.copy()
 
-    result = visualizer.draw(image=numpy_image, annotation=ote_annotation_scene)
+    if channel_order == "bgr":
+        rgb_image = cv2.cvtColor(numpy_image, cv2.COLOR_BGR2RGB)
+    elif channel_order == "rgb":
+        rgb_image = numpy_image
+    else:
+        raise ValueError(
+            f"Invalid channel order '{channel_order}'. Please use either `rgb` or "
+            f"`bgr`."
+        )
+
+    result = visualizer.draw(image=rgb_image, annotation=ote_annotation_scene)
 
     if filepath is None:
         if show_results:
+            rgb_result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
+            image = PILImage.fromarray(rgb_result)
             if not show_in_notebook:
-                cv2.imshow(window_name, result)
-                cv2.waitKey(0)
-                cv2.destroyAllWindows()
-                cv2.waitKey(1)
+                image.show(title=window_name)
             else:
-                image = PILImage.fromarray(result)
                 display(image)
     else:
         success, buffer = cv2.imencode(".jpg", result)
