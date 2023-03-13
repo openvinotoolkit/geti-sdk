@@ -22,10 +22,10 @@ from geti_sdk.annotation_readers.base_annotation_reader import AnnotationReader
 from geti_sdk.data_models import Annotation as SCAnnotation
 from geti_sdk.data_models import TaskType
 from geti_sdk.data_models.enums.task_type import GLOBAL_TASK_TYPES
+from geti_sdk.data_models.media import MediaInformation
 from geti_sdk.rest_converters import AnnotationRESTConverter
 from geti_sdk.utils import generate_segmentation_labels, get_dict_key_from_value
 
-from ...data_models.media import MediaInformation
 from .datumaro_dataset import DatumaroDataset
 
 

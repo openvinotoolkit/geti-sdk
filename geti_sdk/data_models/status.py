@@ -125,6 +125,7 @@ class TaskStatus:
     status: StatusSummary
     title: str
     n_new_annotations: Optional[int] = None  # Added in Geti v1.1
+    ready_to_train: Optional[bool] = None  # Added in Geti v1.4
 
     def __attrs_post_init__(self):
         """

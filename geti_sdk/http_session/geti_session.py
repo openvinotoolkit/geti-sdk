@@ -117,6 +117,7 @@ class GetiSession(requests.Session):
                 method="POST",
                 data={"service_id": self.config.token},
                 contenttype="json",
+                allow_reauthentication=False,
             )
         except GetiRequestException as error:
             if error.status_code == 401:
@@ -208,7 +209,12 @@ class GetiSession(requests.Session):
         self.logged_in = True
 
     def get_rest_response(
-        self, url: str, method: str, contenttype: str = "json", data=None
+        self,
+        url: str,
+        method: str,
+        contenttype: str = "json",
+        data=None,
+        allow_reauthentication: bool = True,
     ) -> Union[Response, dict, list]:
         """
         Return the REST response from a request to `url` with `method`.
@@ -218,6 +224,9 @@ class GetiSession(requests.Session):
         :param contenttype: currently either 'json', 'jpeg', 'multipart', 'zip', or '',
             defaults to "json"
         :param data: the data to send in a post request, as json
+        :param allow_reauthentication: True to handle authentication errors
+            by attempting to re-authenticate. If set to False, such errors
+            will be raised instead.
         """
         if url.startswith(self.config.api_pattern):
             url = url[len(self.config.api_pattern) :]
@@ -277,6 +286,7 @@ class GetiSession(requests.Session):
                 response=response,
                 request_params=request_params,
                 request_data=kw_data_arg,
+                allow_reauthentication=allow_reauthentication,
             )
 
         if response.headers.get("Content-Type", None) == "application/json":
@@ -386,6 +396,7 @@ class GetiSession(requests.Session):
         response: Response,
         request_params: Dict[str, Any],
         request_data: Dict[str, Any],
+        allow_reauthentication: bool = True,
     ) -> Response:
         """
         Handle error responses from the server.
@@ -393,10 +404,13 @@ class GetiSession(requests.Session):
         :param response: The Response object received from the server
         :param request_params: Dictionary containing the original parameters of the
             request
+        :param allow_reauthentication: True to handle authentication errors
+            by attempting to re-authenticate. If set to False, such errors
+            will be raised instead.
         :raises: GetiRequestException in case the error cannot be handled
         :return: Response object resulting from the request
         """
-        if response.status_code in [200, 401, 403]:
+        if response.status_code in [200, 401, 403] and allow_reauthentication:
             # Authentication has likely expired, re-authenticate
             logging.info("Authentication may have expired, re-authenticating...")
             if not self.use_token:
