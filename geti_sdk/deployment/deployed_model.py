@@ -69,6 +69,7 @@ class DeployedModel(OptimizedModel):
         self._model_data_path: Optional[str] = None
         self._model_python_path: Optional[str] = None
         self._needs_tempdir_deletion: bool = False
+        self._tempdir_path: Optional[str] = None
         self._has_custom_model_wrappers: bool = False
         self._label_schema: Optional[LabelSchemaEntity] = None
         self.openvino_model_parameters: Optional[Dict[str, Any]] = None
@@ -106,6 +107,7 @@ class DeployedModel(OptimizedModel):
                 if self._model_data_path is None:
                     temp_dir = tempfile.mkdtemp()
                     self._needs_tempdir_deletion = True
+                    self._tempdir_path = temp_dir
                 else:
                     temp_dir = self._model_data_path
 
@@ -167,6 +169,7 @@ class DeployedModel(OptimizedModel):
                 f.write(response.content)
             self._model_data_path = model_dir
             self._needs_tempdir_deletion = True
+            self._tempdir_path = model_dir
             self.get_data(source=model_filepath)
 
     def __del__(self):
@@ -175,8 +178,8 @@ class DeployedModel(OptimizedModel):
         method is called when the OptimizedModel object is deleted.
         """
         if self._needs_tempdir_deletion:
-            if os.path.exists(self._model_data_path):
-                shutil.rmtree(os.path.dirname(self._model_data_path))
+            if self._tempdir_path is not None and os.path.exists(self._tempdir_path):
+                shutil.rmtree(self._tempdir_path)
 
     def load_inference_model(
         self,
