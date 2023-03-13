@@ -16,3 +16,4 @@ openmodelzoo-modelapi @ git+https://github.com/openvinotoolkit/open_model_zoo/@r
 certifi>=2022.12.7
 joblib>=1.1.1
 protobuf>=3.20.2
+ovmsclient>=2022.3
