@@ -1,0 +1,72 @@
+{
+    "annotations": [
+        {
+            "labels": [
+                {
+                    "probability": 1.0,
+                    "name": "car",
+                    "color": "#77be91ff",
+                    "source": {
+                        "user_id": "admin@sc-project.intel.com"
+                    }
+                }
+            ],
+            "shape": {
+                "x": 117,
+                "y": 69,
+                "width": 149,
+                "height": 172,
+                "type": "RECTANGLE"
+            },
+            "labels_to_revisit": []
+        },
+        {
+            "labels": [
+                {
+                    "probability": 1.0,
+                    "name": "bike",
+                    "color": "#91cbd2ff",
+                    "source": {
+                        "user_id": "admin@sc-project.intel.com"
+                    }
+                }
+            ],
+            "shape": {
+                "x": 549,
+                "y": 24,
+                "width": 74,
+                "height": 74,
+                "type": "RECTANGLE"
+            },
+            "labels_to_revisit": []
+        },
+        {
+            "labels": [
+                {
+                    "probability": 1.0,
+                    "name": "person",
+                    "color": "#6462f5ff",
+                    "source": {
+                        "user_id": "admin@sc-project.intel.com"
+                    }
+                }
+            ],
+            "shape": {
+                "x": 579,
+                "y": 1,
+                "width": 34,
+                "height": 61,
+                "type": "RECTANGLE"
+            },
+            "labels_to_revisit": []
+        }
+    ],
+    "kind": "annotation",
+    "labels_to_revisit_full_scene": [],
+    "annotation_state_per_task": [
+        {
+            "task_id": "63fe0598f495bb253c2a33c5",
+            "state": "annotated"
+        }
+    ]
+}
