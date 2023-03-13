@@ -81,29 +81,40 @@ class Deployment:
         """
         return self._are_models_loaded
 
-    def save(self, path_to_folder: Union[str, os.PathLike]):
+    def save(self, path_to_folder: Union[str, os.PathLike]) -> bool:
         """
         Save the Deployment instance to a folder on local disk.
 
         :param path_to_folder: Folder to save the deployment to
+        :return: True if the deployment was saved successfully, False otherwise
         """
         project_dict = ProjectRESTConverter.to_dict(self.project)
         deployment_folder = os.path.join(path_to_folder, "deployment")
 
         os.makedirs(deployment_folder, exist_ok=True, mode=0o770)
-        # Save project data
-        project_filepath = os.path.join(deployment_folder, "project.json")
-        with open(project_filepath, "w") as project_file:
-            json.dump(project_dict, project_file, indent=4)
+
         # Save model for each task
         for task, model in zip(self.project.get_trainable_tasks(), self.models):
             model_dir = os.path.join(deployment_folder, task.title)
             os.makedirs(model_dir, exist_ok=True, mode=0o770)
-            model.save(model_dir)
+            success = model.save(model_dir)
+            if not success:
+                logging.exception(
+                    f"Saving model '{model.name}' failed. Unable to save deployment."
+                )
+                return False
+
+        # Save project data
+        project_filepath = os.path.join(deployment_folder, "project.json")
+        with open(project_filepath, "w") as project_file:
+            json.dump(project_dict, project_file, indent=4)
 
         # Clean up temp resources if needed
-        self._remove_temporary_resources()
-        self._requires_resource_cleanup = False
+        if self._requires_resource_cleanup:
+            self._remove_temporary_resources()
+            self._requires_resource_cleanup = False
+
+        return True
 
     @classmethod
     def from_folder(cls, path_to_folder: Union[str, os.PathLike]) -> "Deployment":

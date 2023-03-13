@@ -15,6 +15,7 @@
 import datetime
 import importlib.util
 import json
+import logging
 import os
 import shutil
 import sys
@@ -329,11 +330,12 @@ class DeployedModel(OptimizedModel):
         deployed_model.get_data(source=path_to_folder)
         return deployed_model
 
-    def save(self, path_to_folder: Union[str, os.PathLike]):
+    def save(self, path_to_folder: Union[str, os.PathLike]) -> bool:
         """
         Save the DeployedModel instance to the designated folder.
 
         :param path_to_folder: Path to the folder to save the model to
+        :return: True if the model was saved successfully, False otherwise
         """
         if self._model_data_path is None:
             raise ValueError(
@@ -344,6 +346,16 @@ class DeployedModel(OptimizedModel):
 
         new_model_data_path = os.path.join(path_to_folder, MODEL_DIR_NAME)
         new_model_python_path = os.path.join(path_to_folder, PYTHON_DIR_NAME)
+
+        if (
+            new_model_python_path == self._model_python_path
+            or new_model_data_path == self._model_data_path
+        ):
+            logging.warning(
+                f"Model '{self.name}' already exist in target path {path_to_folder}, "
+                f"please save to a different location."
+            )
+            return False
 
         shutil.copytree(
             src=self._model_data_path,
