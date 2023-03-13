@@ -1,2 +1,0 @@
-# Requirements for running model inference through OpenVINO Model Server
-ovmsclient>=2022.2
