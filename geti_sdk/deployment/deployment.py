@@ -35,7 +35,7 @@ from geti_sdk.deployment.data_models import ROI, IntermediateInferenceResult
 from geti_sdk.rest_converters import ProjectRESTConverter
 
 from .deployed_model import DeployedModel
-from .utils import OVMS_README_PATH, OVMS_REQ_PATH, generate_ovms_model_name
+from .utils import OVMS_README_PATH, generate_ovms_model_name
 
 
 @attr.define(slots=False)
@@ -451,7 +451,6 @@ class Deployment:
 
         # Copy resource files
         shutil.copy2(OVMS_README_PATH, os.path.join(output_folder))
-        shutil.copy2(OVMS_REQ_PATH, os.path.join(output_folder))
 
         logging.info(
             f"Configuration files for OVMS model deployment have been generated in "

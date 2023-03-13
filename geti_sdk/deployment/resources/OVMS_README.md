@@ -16,18 +16,9 @@ setting up authentication, etc.).
 To be able to follow the steps in this example, make sure you have docker installed on
 your system. If you don't have Docker set up already, you can get it
 [here](https://docs.docker.com/get-docker/).
-### Python requirements
-Install the additional python dependencies for running model inference through
-OpenVINO Model Server by running
-```shell
-pip install -r requirements-ovms.txt
-```
 
-Please make sure to run this command in your python environment in which the Geti SDK
-is also installed.
-
-## Pulling the OVMS docker image
-Fetch the latest OVMS docker image by executing
+### OVMS docker image
+Fetch the latest OpenVINO Model Server docker image by executing
 ```shell
 docker pull openvino/model_server:latest
 ```
