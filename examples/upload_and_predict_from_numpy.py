@@ -78,7 +78,9 @@ if __name__ == "__main__":
     )
     filepath = "example_prediction.jpg"
     # Save the result to a file
-    show_image_with_annotation_scene(image=sc_image, annotation_scene=image_prediction)
+    show_image_with_annotation_scene(
+        image=sc_image, annotation_scene=image_prediction, filepath=filepath
+    )
     print(f"Prediction for the example image was saved to file: '{filepath}'")
 
     # We can do the same with videos. For example, to investigate the effect image
