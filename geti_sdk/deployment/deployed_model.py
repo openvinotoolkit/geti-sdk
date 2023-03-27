@@ -26,10 +26,10 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import attr
 import numpy as np
-from ote_sdk.entities.color import Color
-from ote_sdk.entities.label import Domain as OTEDomain
-from ote_sdk.entities.label import LabelEntity
-from ote_sdk.entities.label_schema import LabelGroup, LabelGroupType, LabelSchemaEntity
+from otx.api.entities.color import Color
+from otx.api.entities.label import Domain as OTEDomain
+from otx.api.entities.label import LabelEntity
+from otx.api.entities.label_schema import LabelGroup, LabelGroupType, LabelSchemaEntity
 
 from geti_sdk.data_models import OptimizedModel, Project, TaskConfiguration
 from geti_sdk.http_session import GetiSession

@@ -19,11 +19,11 @@ from typing import Any, Dict, List, Optional, TypeVar, Union
 import attr
 import cv2
 import numpy as np
-from ote_sdk.entities.shapes.ellipse import Ellipse as OteEllipse
-from ote_sdk.entities.shapes.polygon import Point as OtePoint
-from ote_sdk.entities.shapes.polygon import Polygon as OtePolygon
-from ote_sdk.entities.shapes.rectangle import Rectangle as OteRectangle
-from ote_sdk.entities.shapes.shape import ShapeType as OteShapeType
+from otx.api.entities.shapes.ellipse import Ellipse as OteEllipse
+from otx.api.entities.shapes.polygon import Point as OtePoint
+from otx.api.entities.shapes.polygon import Polygon as OtePolygon
+from otx.api.entities.shapes.rectangle import Rectangle as OteRectangle
+from otx.api.entities.shapes.shape import ShapeType as OteShapeType
 
 from geti_sdk.data_models.enums import ShapeType
 from geti_sdk.data_models.utils import round_to_n_digits, str_to_shape_type

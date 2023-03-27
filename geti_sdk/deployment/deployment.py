@@ -152,7 +152,7 @@ class Deployment:
         :param device: Device to load the inference models to
         """
         try:
-            from ote_sdk.usecases.exportable_code.prediction_to_annotation_converter import (
+            from otx.api.usecases.exportable_code.prediction_to_annotation_converter import (
                 DetectionBoxToAnnotationConverter,
                 IPredictionToAnnotationConverter,
                 create_converter,
