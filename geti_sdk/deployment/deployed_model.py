@@ -20,6 +20,7 @@ import os
 import shutil
 import sys
 import tempfile
+import time
 import zipfile
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -48,6 +49,8 @@ LABELS_CONFIG_KEY = "labels"
 LABEL_TREE_KEY = "label_tree"
 LABEL_GROUPS_KEY = "label_groups"
 ALL_LABELS_KEY = "all_labels"
+
+OVMS_TIMEOUT = 10  # Max time to wait for OVMS models to become available
 
 
 @attr.define
@@ -229,7 +232,16 @@ class DeployedModel(OptimizedModel):
             model_address = generate_ovms_model_address(
                 ovms_address=device, model_name=model_name
             )
-            model_adapter = OVMSAdapter(model_address)
+
+            ovms_connected = False
+            t_start = time.time()
+            while not ovms_connected and time.time() - t_start < OVMS_TIMEOUT:
+                # If OVMS has just started, model needs some time to initialize
+                try:
+                    model_adapter = OVMSAdapter(model_address)
+                    ovms_connected = True
+                except RuntimeError:
+                    time.sleep(0.5)
 
         # Load model configuration
         config_path = os.path.join(self._model_data_path, "config.json")
