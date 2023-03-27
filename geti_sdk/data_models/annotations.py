@@ -15,7 +15,7 @@
 from typing import ClassVar, List, Optional, Sequence, Union
 
 import attr
-from ote_sdk.entities.annotation import Annotation as OteAnnotation
+from otx.api.entities.annotation import Annotation as OteAnnotation
 
 from geti_sdk.data_models.label import Label, ScoredLabel
 from geti_sdk.data_models.shapes import (

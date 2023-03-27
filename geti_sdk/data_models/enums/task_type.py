@@ -14,7 +14,7 @@
 
 from enum import Enum
 
-from ote_sdk.entities.model_template import Domain as OteDomain
+from otx.api.entities.model_template import Domain as OteDomain
 
 
 class TaskType(Enum):

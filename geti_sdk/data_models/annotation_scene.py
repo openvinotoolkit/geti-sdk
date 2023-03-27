@@ -19,7 +19,7 @@ from typing import Any, ClassVar, Dict, List, Optional, Sequence, Tuple, Union
 import attr
 import cv2
 import numpy as np
-from ote_sdk.entities.annotation import AnnotationSceneEntity, AnnotationSceneKind
+from otx.api.entities.annotation import AnnotationSceneEntity, AnnotationSceneKind
 
 from geti_sdk.data_models.annotations import Annotation
 from geti_sdk.data_models.enums import AnnotationKind
