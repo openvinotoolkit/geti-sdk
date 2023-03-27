@@ -1,3 +1,12 @@
+# [Pre-release] v1.4.0 Intel® Geti™ SDK (27-03-2023)
+## What's Changed
+* Migrate from `ote_sdk` to `otx.api` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/166
+
+## Caution: Backwards incompatibility for project `Deployments`
+This release breaks backwards compatibility with `deployments` created by earlier versions of the Intel® Geti™ platform. Please only update to this version of the Geti SDK if you are sure that your Intel® Geti™ server is also on version 1.4 or later.
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.2.4...v1.4.0
+
 # v1.2.4 Intel® Geti™ SDK (27-03-2023)
 ## What's Changed
 * Update ipython requirement from ==8.10.* to ==8.11.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/172
