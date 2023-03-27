@@ -1,3 +1,12 @@
+# v1.2.4 Intel® Geti™ SDK (27-03-2023)
+## What's Changed
+* Update ipython requirement from ==8.10.* to ==8.11.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/172
+* Fix `upload_and_predict_from_numpy.py` example by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/173
+* Improve error handling for OVMS deployment by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/174
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.2.3...v1.2.4
+
 # v1.2.3 Intel® Geti™ SDK (13-03-2023)
 ## What's Changed
 * Fix saving images and annotations with non-ascii characters in their filename by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/160
