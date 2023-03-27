@@ -27,16 +27,6 @@ except AttributeError:
     with resources.path("geti_sdk.deployment.resources", "OVMS_README.md") as data_path:
         OVMS_README_PATH = str(data_path)
 
-try:
-    OVMS_REQ_PATH = str(
-        resources.files("geti_sdk.deployment.resources") / "requirements-ovms.txt"
-    )
-except AttributeError:
-    with resources.path(
-        "geti_sdk.deployment.resources", "requirements-ovms.txt"
-    ) as data_path:
-        OVMS_REQ_PATH = str(data_path)
-
 
 def generate_ovms_model_name(
     project: Project, model: OptimizedModel, omit_version: bool = True

@@ -9,10 +9,11 @@ tqdm==4.65.*
 Pillow==9.4.*
 pathvalidate>=2.5.0
 simplejson==3.18.*
-ipython==8.10.*
-otx==1.0.*
+ipython==8.11.*
+ote-sdk @ git+https://github.com/openvinotoolkit/training_extensions/@releases/v0.4.0-geti1.1.0#egg=ote-sdk&subdirectory=ote_sdk
 openvino==2022.3.0
 openmodelzoo-modelapi==2022.3.*
 certifi>=2022.12.7
 joblib>=1.1.1
 protobuf>=3.20.2
+ovmsclient>=2022.3

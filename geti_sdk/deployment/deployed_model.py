@@ -15,10 +15,12 @@
 import datetime
 import importlib.util
 import json
+import logging
 import os
 import shutil
 import sys
 import tempfile
+import time
 import zipfile
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -48,6 +50,8 @@ LABEL_TREE_KEY = "label_tree"
 LABEL_GROUPS_KEY = "label_groups"
 ALL_LABELS_KEY = "all_labels"
 
+OVMS_TIMEOUT = 10  # Max time to wait for OVMS models to become available
+
 
 @attr.define
 class DeployedModel(OptimizedModel):
@@ -68,6 +72,7 @@ class DeployedModel(OptimizedModel):
         self._model_data_path: Optional[str] = None
         self._model_python_path: Optional[str] = None
         self._needs_tempdir_deletion: bool = False
+        self._tempdir_path: Optional[str] = None
         self._has_custom_model_wrappers: bool = False
         self._label_schema: Optional[LabelSchemaEntity] = None
         self.openvino_model_parameters: Optional[Dict[str, Any]] = None
@@ -105,6 +110,7 @@ class DeployedModel(OptimizedModel):
                 if self._model_data_path is None:
                     temp_dir = tempfile.mkdtemp()
                     self._needs_tempdir_deletion = True
+                    self._tempdir_path = temp_dir
                 else:
                     temp_dir = self._model_data_path
 
@@ -166,6 +172,7 @@ class DeployedModel(OptimizedModel):
                 f.write(response.content)
             self._model_data_path = model_dir
             self._needs_tempdir_deletion = True
+            self._tempdir_path = model_dir
             self.get_data(source=model_filepath)
 
     def __del__(self):
@@ -174,8 +181,8 @@ class DeployedModel(OptimizedModel):
         method is called when the OptimizedModel object is deleted.
         """
         if self._needs_tempdir_deletion:
-            if os.path.exists(self._model_data_path):
-                shutil.rmtree(os.path.dirname(self._model_data_path))
+            if self._tempdir_path is not None and os.path.exists(self._tempdir_path):
+                shutil.rmtree(self._tempdir_path)
 
     def load_inference_model(
         self,
@@ -225,7 +232,16 @@ class DeployedModel(OptimizedModel):
             model_address = generate_ovms_model_address(
                 ovms_address=device, model_name=model_name
             )
-            model_adapter = OVMSAdapter(model_address)
+
+            ovms_connected = False
+            t_start = time.time()
+            while not ovms_connected and time.time() - t_start < OVMS_TIMEOUT:
+                # If OVMS has just started, model needs some time to initialize
+                try:
+                    model_adapter = OVMSAdapter(model_address)
+                    ovms_connected = True
+                except RuntimeError:
+                    time.sleep(0.5)
 
         # Load model configuration
         config_path = os.path.join(self._model_data_path, "config.json")
@@ -329,11 +345,12 @@ class DeployedModel(OptimizedModel):
         deployed_model.get_data(source=path_to_folder)
         return deployed_model
 
-    def save(self, path_to_folder: Union[str, os.PathLike]):
+    def save(self, path_to_folder: Union[str, os.PathLike]) -> bool:
         """
         Save the DeployedModel instance to the designated folder.
 
         :param path_to_folder: Path to the folder to save the model to
+        :return: True if the model was saved successfully, False otherwise
         """
         if self._model_data_path is None:
             raise ValueError(
@@ -344,6 +361,16 @@ class DeployedModel(OptimizedModel):
 
         new_model_data_path = os.path.join(path_to_folder, MODEL_DIR_NAME)
         new_model_python_path = os.path.join(path_to_folder, PYTHON_DIR_NAME)
+
+        if (
+            new_model_python_path == self._model_python_path
+            or new_model_data_path == self._model_data_path
+        ):
+            logging.warning(
+                f"Model '{self.name}' already exist in target path {path_to_folder}, "
+                f"please save to a different location."
+            )
+            return False
 
         shutil.copytree(
             src=self._model_data_path,

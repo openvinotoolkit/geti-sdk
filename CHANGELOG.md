@@ -1,3 +1,32 @@
+# v1.2.4 Intel® Geti™ SDK (27-03-2023)
+## What's Changed
+* Update ipython requirement from ==8.10.* to ==8.11.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/172
+* Fix `upload_and_predict_from_numpy.py` example by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/173
+* Improve error handling for OVMS deployment by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/174
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.2.3...v1.2.4
+
+# v1.2.3 Intel® Geti™ SDK (13-03-2023)
+## What's Changed
+* Fix saving images and annotations with non-ascii characters in their filename by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/160
+* Update tqdm requirement from ==4.64.* to ==4.65.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/161
+* Cvs-96625 Update image display method in `show_image_with_annotation_scene` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/164
+* Enable uploading data from nested subsets in DatumAnnotationReader by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/163
+* Update datumaro requirement from ==0.4.* to ==1.0.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/155
+* Update OptimizedModel and TaskStatus data models by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/165
+* Formatting images and cell - Notebook 102 suggestions by @paularamo in https://github.com/openvinotoolkit/geti-sdk/pull/167
+* Add notebook `102_from_zero_to_hero` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/159
+* Demo Zero to Hero in 9 steps by @paularamo in https://github.com/openvinotoolkit/geti-sdk/pull/154
+* Fix deployment saving mechanism and handle errors by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/170
+* Add ovmsclient to base requirements by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/169
+* Issue 168: Fix tempdir cleanup in `DeployedModel` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/171
+
+## New Contributors
+* @paularamo made their first contribution in https://github.com/openvinotoolkit/geti-sdk/pull/167
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.2.2...v1.2.3
+
 # v1.2.2 Intel® Geti™ SDK (28-02-2023)
 ## What's Changed
 * Enable OVMS deployment by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/148
