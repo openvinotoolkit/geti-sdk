@@ -1,3 +1,11 @@
+# [Pre-release] v1.4.1 Intel® Geti™ SDK (28-03-2023)
+## What's Changed
+* Update otx requirement to `otx==1.1.0` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/176
+* Make model wrapper module namespace unique by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/177
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.4.0...v1.4.1
+
 # [Pre-release] v1.4.0 Intel® Geti™ SDK (27-03-2023)
 ## What's Changed
 * Migrate from `ote_sdk` to `otx.api` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/166
