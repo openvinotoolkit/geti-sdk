@@ -269,7 +269,7 @@ class DeployedModel(OptimizedModel):
             wrapper_module_path = os.path.join(
                 self._model_python_path, WRAPPER_DIR_NAME
             )
-            module_name = WRAPPER_DIR_NAME
+            module_name = WRAPPER_DIR_NAME + "." + model_type.lower().replace(" ", "-")
             try:
                 spec = importlib.util.spec_from_file_location(
                     module_name, os.path.join(wrapper_module_path, "__init__.py")
