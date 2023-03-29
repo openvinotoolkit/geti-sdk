@@ -460,7 +460,5 @@ class ProjectService:
             f"{self.project.name}_set_auto_training_annotation_requirement.{CASSETTE_EXTENSION}"
         ):
             self.configuration_client.set_project_parameter(
-                parameter_name="required_images_auto_training",
-                value=required_images,
-                parameter_group_name="Annotation requirements",
+                parameter_name="required_images_auto_training", value=required_images
             )
