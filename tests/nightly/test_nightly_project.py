@@ -66,6 +66,7 @@ class TestNightlyProject:
             project_name=f"{PROJECT_PREFIX}_nightly_{self.PROJECT_TYPE}",
             enable_auto_train=True,
             learning_parameter_settings=fxt_learning_parameter_settings,
+            annotation_requirements_first_training=6,
         )
 
     def test_monitor_jobs(self, fxt_project_service_no_vcr: ProjectService):

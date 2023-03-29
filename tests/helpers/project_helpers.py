@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import logging
-from typing import List, Sequence
+from typing import List, Optional, Sequence
 
 from geti_sdk import Geti
 from geti_sdk.annotation_readers import AnnotationReader
@@ -30,6 +30,7 @@ def get_or_create_annotated_project_for_test_class(
     project_type: str = "detection",
     enable_auto_train: bool = False,
     learning_parameter_settings: str = "minimal",
+    annotation_requirements_first_training: Optional[int] = None,
 ):
     """
     This function returns an annotated project with `project_name` of type
@@ -66,6 +67,10 @@ def get_or_create_annotated_project_for_test_class(
             logging.info(
                 f"Invalid learning parameter settings '{learning_parameter_settings}' "
                 f"specified, continuing with default hyper parameters."
+            )
+        if annotation_requirements_first_training is not None:
+            project_service.set_auto_training_annotation_requirement(
+                required_images=annotation_requirements_first_training
             )
 
         project_service.add_annotated_media(
