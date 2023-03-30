@@ -445,3 +445,20 @@ class ProjectService:
                     )
                     task_hypers.batch_size.value = 1
                     self.configuration_client.set_configuration(task_hypers)
+
+    def set_auto_training_annotation_requirement(
+        self, required_images: int = 6
+    ) -> None:
+        """
+        Sets the 'Number of images required for auto-training' parameter for all
+        tasks in the project to `required_images`
+
+        :param required_images: Number of images required before starting a new round
+            of auto training for the task
+        """
+        with self.vcr_context(
+            f"{self.project.name}_set_auto_training_annotation_requirement.{CASSETTE_EXTENSION}"
+        ):
+            self.configuration_client.set_project_parameter(
+                parameter_name="required_images_auto_training", value=required_images
+            )
