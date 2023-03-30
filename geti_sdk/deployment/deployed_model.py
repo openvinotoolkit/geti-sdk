@@ -234,14 +234,23 @@ class DeployedModel(OptimizedModel):
             )
 
             ovms_connected = False
+            ovms_error: Optional[BaseException] = None
             t_start = time.time()
             while not ovms_connected and time.time() - t_start < OVMS_TIMEOUT:
                 # If OVMS has just started, model needs some time to initialize
                 try:
                     model_adapter = OVMSAdapter(model_address)
                     ovms_connected = True
-                except RuntimeError:
+                except RuntimeError as error:
                     time.sleep(0.5)
+                    ovms_error = error
+            if not ovms_connected:
+                if ovms_error is not None:
+                    raise RuntimeError("Unable to connect to OVMS") from ovms_error
+                else:
+                    raise RuntimeError(
+                        "Unknown error encountered while connecting to OVMS"
+                    )
 
         # Load model configuration
         config_path = os.path.join(self._model_data_path, "config.json")
@@ -292,6 +301,15 @@ class DeployedModel(OptimizedModel):
         )
         self.openvino_model_parameters = configuration
         self._inference_model = model
+
+        # TODO: This is a workaround to fix the issue that causes the output blob name
+        #  to be unset. Remove this once it has been fixed on OTX/ModelAPI side
+        output_names = list(self._inference_model.outputs.keys())
+        if hasattr(self._inference_model, "output_blob_name"):
+            if not self._inference_model.output_blob_name:
+                self._inference_model.output_blob_name = {
+                    name: name for name in output_names
+                }
 
     @classmethod
     def from_model_and_hypers(
