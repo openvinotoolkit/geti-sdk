@@ -225,8 +225,8 @@ class Deployment:
     def explain(self, image: np.ndarray) -> Prediction:
         """
         Run inference on an image for the full model chain in the deployment. The
-        resulting prediction will also contain a saliency map, feature vector and
-        active score for the input image.
+        resulting prediction will also contain saliency maps and the feature vector
+        for the input image.
 
         :param image: Image to run inference on, as a numpy array containing the pixel
             data. The image is expected to have dimensions [height x width x channels],
@@ -267,7 +267,7 @@ class Deployment:
         :param image: Image to run inference on
         :param task: Task to run inference for
         :param explain: True to get additional outputs for model explainability,
-            including saliency maps, the feature vector and active score for the image
+            including saliency maps and the feature vector for the image
         :return: Inference result
         """
         model = self._get_model_for_task(task)
@@ -278,9 +278,8 @@ class Deployment:
         # Optional output related to explainability
         saliency_map: Optional[np.ndarray] = None
         repr_vector: Optional[np.ndarray] = None
-        act_score: Optional[float] = None
         if explain:
-            saliency_map, repr_vector, act_score = model.postprocess_explain_outputs(
+            saliency_map, repr_vector = model.postprocess_explain_outputs(
                 inference_results=inference_results, metadata=metadata
             )
         converter = self._inference_converters[task.title]
@@ -343,10 +342,8 @@ class Deployment:
         # Add optional explainability outputs
         if explain:
             prediction.feature_vector = repr_vector
-            prediction.active_score = act_score
-            result_medium = ResultMedium(
-                name="saliency map", type="saliency map", data=saliency_map
-            )
+            result_medium = ResultMedium(name="saliency map", type="saliency map")
+            result_medium.data = saliency_map
             prediction.maps = [result_medium]
 
         return prediction
@@ -361,7 +358,7 @@ class Deployment:
 
         :param image: Image to run inference on
         :param explain: True to get additional outputs for model explainability,
-            including saliency maps, the feature vector and active score for the image
+            including saliency maps and the feature vector for the image
         :return: Inference result
         """
         previous_labels: Optional[List[Label]] = None

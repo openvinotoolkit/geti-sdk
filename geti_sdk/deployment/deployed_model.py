@@ -457,7 +457,7 @@ class DeployedModel(OptimizedModel):
         self,
         inference_results: Dict[str, np.ndarray],
         metadata: Optional[Dict[str, Any]] = None,
-    ) -> Tuple[np.ndarray, np.ndarray, float]:
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Postprocess the model outputs to obtain saliency maps, feature vectors and
         active scores.
@@ -467,15 +467,32 @@ class DeployedModel(OptimizedModel):
         :return: Tuple containing postprocessed outputs, formatted as follows:
             - Numpy array containing the saliency map
             - Numpy array containing the feature vector
-            - floating point number representing the active score
         """
-        (
-            _,
-            saliency_map,
-            repr_vector,
-            act_score,
-        ) = self._inference_model.postprocess_aux_outputs(inference_results, metadata)
-        return saliency_map, repr_vector, act_score
+        saliency_key = "saliency_map"
+        fvector_key = "feature_vector"
+        if hasattr(self._inference_model, "postprocess_aux_outputs"):
+            (
+                _,
+                saliency_map,
+                repr_vector,
+                _,
+            ) = self._inference_model.postprocess_aux_outputs(
+                inference_results, metadata
+            )
+        elif (
+            saliency_key in inference_results.keys()
+            and fvector_key in inference_results.keys()
+        ):
+            saliency_map = inference_results[saliency_key]
+            repr_vector = inference_results[fvector_key]
+        elif saliency_key in metadata.keys() and fvector_key in metadata.keys():
+            saliency_map = metadata[saliency_key]
+            repr_vector = metadata[fvector_key]
+        else:
+            logging.warning("No saliency map or feature vector found in model output")
+            saliency_map = None
+            repr_vector = None
+        return saliency_map, repr_vector
 
     def infer(self, preprocessed_image: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
         """

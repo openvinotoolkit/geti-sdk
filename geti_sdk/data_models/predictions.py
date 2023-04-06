@@ -125,8 +125,9 @@ class Prediction(AnnotationScene):
         kw_only=True,
     )
     maps: List[ResultMedium] = attr.field(factory=list, kw_only=True)
-    feature_vector: Optional[np.ndarray] = attr.field(kw_only=True, default=None)
-    active_score: Optional[float] = attr.field(kw_only=True, default=None)
+    feature_vector: Optional[np.ndarray] = attr.field(
+        kw_only=True, default=None, repr=False
+    )
 
     def resolve_labels_for_result_media(self, labels: List[Label]) -> None:
         """
