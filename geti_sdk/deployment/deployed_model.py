@@ -453,6 +453,30 @@ class DeployedModel(OptimizedModel):
         """
         return self._inference_model.postprocess(inference_results, metadata)
 
+    def postprocess_explain_outputs(
+        self,
+        inference_results: Dict[str, np.ndarray],
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Tuple[np.ndarray, np.ndarray, float]:
+        """
+        Postprocess the model outputs to obtain saliency maps, feature vectors and
+        active scores.
+
+        :param inference_results: Dictionary holding the results of inference
+        :param metadata: Dictionary holding metadata
+        :return: Tuple containing postprocessed outputs, formatted as follows:
+            - Numpy array containing the saliency map
+            - Numpy array containing the feature vector
+            - floating point number representing the active score
+        """
+        (
+            _,
+            saliency_map,
+            repr_vector,
+            act_score,
+        ) = self._inference_model.postprocess_aux_outputs(inference_results, metadata)
+        return saliency_map, repr_vector, act_score
+
     def infer(self, preprocessed_image: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
         """
         Run inference on an already preprocessed image.
