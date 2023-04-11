@@ -1,0 +1,16 @@
+name: Publish package [internal PyPI]
+
+on:
+  workflow_dispatch:
+
+  release:
+    types: [published]
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-package.yaml
+    secrets:
+      PYPI_USER: ${{ secrets.SCLAB_PYPI_USERNAME }}
+      PYPI_PASSWORD: ${{ secrets.SCLAB_PYPI_PASSWORD }}
+      PYPI_HOST: ${{ secrets.SCLAB_PYPI_HOSTNAME }}
+      PYPI_PORT: ${{ secrets.SCLAB_PYPI_PORT }}

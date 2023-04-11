@@ -1,4 +1,4 @@
-name: Publish package [internal PyPI]
+name: Publish package [TestPyPI]
 
 on:
   workflow_dispatch:
@@ -10,7 +10,6 @@ jobs:
   build:
     uses: ./.github/workflows/build-package.yaml
     secrets:
-      PYPI_USER: ${{ secrets.SCLAB_PYPI_USERNAME }}
-      PYPI_PASSWORD: ${{ secrets.SCLAB_PYPI_PASSWORD }}
-      PYPI_HOST: ${{ secrets.SCLAB_PYPI_HOSTNAME }}
-      PYPI_PORT: ${{ secrets.SCLAB_PYPI_PORT }}
+      PYPI_USER: ${{ secrets.TEST_PYPI_USERNAME }}
+      PYPI_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
+      PYPI_HOST: test.pypi.org

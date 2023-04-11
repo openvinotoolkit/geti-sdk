@@ -54,10 +54,12 @@ jobs:
 
       - name: Publish SDK package to pypi
         run: |
-          if [[ $PYPI_HOST != "pypi.org" ]]; then
+          if [[ $PYPI_HOST != "pypi.org" && $PYPI_HOST != "test.pypi.org" ]]; then
             export no_proxy=$PYPI_HOST
             export REPOSITORY_URL=http://$PYPI_HOST:$PYPI_PORT
             twine upload --repository-url $REPOSITORY_URL dist/* -u $PYPI_USER -p $PYPI_PASSWORD
+          elif [[ $PYPI_HOST = "test.pypi.org" ]]; then
+            twine upload -r testpypi dist/* -u $PYPI_USER -p $PYPI_PASSWORD
           else
             twine upload dist/* -u $PYPI_USER -p $PYPI_PASSWORD
           fi
