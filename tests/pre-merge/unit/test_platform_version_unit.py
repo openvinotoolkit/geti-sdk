@@ -33,7 +33,7 @@ class TestGetiVersion:
             and not SC_11_VERSION.is_geti
             and not SC_11_VERSION.is_sc_mvp
         )
-        assert GETI_10_VERSION.is_geti and GETI_10_VERSION.is_geti_1_0
+        assert GETI_10_VERSION.is_geti
 
         assert GETI_10_VERSION > SC_11_VERSION
         assert SC_11_VERSION > SC_MVP_VERSION
