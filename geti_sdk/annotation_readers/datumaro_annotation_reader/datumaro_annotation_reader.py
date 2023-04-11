@@ -175,7 +175,15 @@ class DatumAnnotationReader(AnnotationReader):
         image_size = ds_item.image.size
         annotation_list: List[SCAnnotation] = []
         labels = []
-        for annotation in ds_item.annotations:
+
+        # Remove duplicate annotations, datumaro does not check for this
+        datum_annotations = [
+            i
+            for n, i in enumerate(ds_item.annotations)
+            if i not in ds_item.annotations[:n]
+        ]
+
+        for annotation in datum_annotations:
             try:
                 label_name = self.datum_label_map[annotation.label]
             except KeyError:
