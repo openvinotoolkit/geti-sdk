@@ -20,10 +20,10 @@ import pytest
 @pytest.fixture()
 def fxt_hierarchical_classification_labels() -> List[Dict[str, str]]:
     yield [
-        {"name": "animal"},
-        {"name": "dog", "parent_id": "animal"},
-        {"name": "cat", "parent_id": "animal"},
-        {"name": "vehicle"},
+        {"name": "animal", "group": "animal"},
+        {"name": "dog", "parent_id": "animal", "group": "species"},
+        {"name": "cat", "parent_id": "animal", "group": "species"},
+        {"name": "vehicle", "group": "vehicle"},
         {"name": "car", "parent_id": "vehicle", "group": "vehicle type"},
         {"name": "taxi", "parent_id": "vehicle", "group": "vehicle type"},
         {"name": "truck", "parent_id": "vehicle", "group": "vehicle type"},
