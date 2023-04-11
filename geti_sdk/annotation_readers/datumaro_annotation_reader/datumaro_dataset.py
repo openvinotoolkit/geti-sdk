@@ -63,14 +63,20 @@ class DatumaroDataset(object):
             )
             logging.info("Annotations have been converted to boxes")
         elif task_type.is_segmentation:
-            new_dataset = self.dataset.transform(
+            converted_dataset = self.dataset.transform(
                 self.dataset.env.transforms.get("masks_to_polygons")
+            )
+            new_dataset = converted_dataset.filter(
+                '/item/annotation[type="polygon"]', filter_annotations=True
             )
             logging.info("Annotations have been converted to polygons")
         elif task_type.is_global:
             if previous_task_type is not None and previous_task_type.is_segmentation:
-                new_dataset = self.dataset.transform(
+                converted_dataset = self.dataset.transform(
                     self.dataset.env.transforms.get("masks_to_polygons")
+                )
+                new_dataset = converted_dataset.filter(
+                    '/item/annotation[type="polygon"]', filter_annotations=True
                 )
             else:
                 new_dataset = self.dataset.transform(
