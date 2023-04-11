@@ -34,6 +34,7 @@ from geti_sdk.data_models.shapes import Polygon, Rectangle, RotatedRectangle
 from geti_sdk.deployment.data_models import ROI, IntermediateInferenceResult
 from geti_sdk.rest_converters import ProjectRESTConverter
 
+from ..data_models.predictions import ResultMedium
 from .deployed_model import DeployedModel
 from .utils import OVMS_README_PATH, generate_ovms_model_name
 
@@ -209,16 +210,157 @@ class Deployment:
             with the channels in RGB order
         :return: inference results
         """
+        self._check_models_loaded()
+
+        # Single task inference
+        if self.is_single_task:
+            prediction = self._infer_task(
+                image, task=self.project.get_trainable_tasks()[0], explain=False
+            )
+        # Multi-task inference
+        else:
+            prediction = self._infer_pipeline(image=image, explain=False)
+        return prediction
+
+    def explain(self, image: np.ndarray) -> Prediction:
+        """
+        Run inference on an image for the full model chain in the deployment. The
+        resulting prediction will also contain saliency maps and the feature vector
+        for the input image.
+
+        :param image: Image to run inference on, as a numpy array containing the pixel
+            data. The image is expected to have dimensions [height x width x channels],
+            with the channels in RGB order
+        :return: inference results
+        """
+        self._check_models_loaded()
+
+        # Single task inference
+        if self.is_single_task:
+            prediction = self._infer_task(
+                image, task=self.project.get_trainable_tasks()[0], explain=True
+            )
+        # Multi-task inference
+        else:
+            prediction = self._infer_pipeline(image=image, explain=True)
+        return prediction
+
+    def _check_models_loaded(self) -> None:
+        """
+        Check if models are loaded and ready for inference.
+
+        :raises: ValueError in case models are not loaded
+        """
         if not self.are_models_loaded:
             raise ValueError(
                 f"Deployment '{self}' is not ready to infer, the inference models are "
                 f"not loaded. Please call 'load_inference_models' first."
             )
 
-        # Single task inference
-        if self.is_single_task:
-            return self._infer_task(image, task=self.project.get_trainable_tasks()[0])
+    def _infer_task(
+        self, image: np.ndarray, task: Task, explain: bool = False
+    ) -> Prediction:
+        """
+        Run pre-processing, inference, and post-processing on the input `image`, for
+        the model associated with the `task`.
 
+        :param image: Image to run inference on
+        :param task: Task to run inference for
+        :param explain: True to get additional outputs for model explainability,
+            including saliency maps and the feature vector for the image
+        :return: Inference result
+        """
+        model = self._get_model_for_task(task)
+        preprocessed_image, metadata = model.preprocess(image)
+        inference_results = model.infer(preprocessed_image)
+        postprocessing_results = model.postprocess(inference_results, metadata=metadata)
+
+        # Optional output related to explainability
+        saliency_map: Optional[np.ndarray] = None
+        repr_vector: Optional[np.ndarray] = None
+        if explain:
+            saliency_map, repr_vector = model.postprocess_explain_outputs(
+                inference_results=inference_results, metadata=metadata
+            )
+        converter = self._inference_converters[task.title]
+
+        width: int = image.shape[1]
+        height: int = image.shape[0]
+
+        try:
+            n_outputs = len(postprocessing_results)
+        except TypeError:
+            n_outputs = 1
+
+        if n_outputs != 0:
+            # The try/except is a workaround to handle different detection inference
+            # results by different ote sdk versions
+            try:
+                annotation_scene_entity = converter.convert_to_annotation(
+                    predictions=postprocessing_results, metadata=metadata
+                )
+            except TypeError as error:
+                if task.type.is_detection:
+                    converter = self._alternate_inference_converters[task.title]
+                    annotation_scene_entity = converter.convert_to_annotation(
+                        predictions=postprocessing_results, metadata=metadata
+                    )
+                    # Make sure next time we get it right in one shot
+                    self._inference_converters.update({task.title: converter})
+                else:
+                    raise error
+
+            prediction = Prediction.from_ote(
+                annotation_scene_entity, image_width=width, image_height=height
+            )
+        else:
+            prediction = Prediction(annotations=[])
+
+        # Empty label is not generated by OTE correctly, append it here if there are
+        # no other predictions
+        if len(prediction.annotations) == 0:
+            if self._empty_labels[task.title] is not None:
+                prediction.append(
+                    Annotation(
+                        shape=Rectangle(x=0, y=0, width=width, height=height),
+                        labels=[
+                            ScoredLabel.from_label(
+                                self._empty_labels[task.title], probability=1
+                            )
+                        ],
+                    )
+                )
+
+        # Rotated detection models produce Polygons, convert them here to
+        # RotatedRectangles
+        if task.type == TaskType.ROTATED_DETECTION:
+
+            for annotation in prediction.annotations:
+                if isinstance(annotation.shape, Polygon):
+                    annotation.shape = RotatedRectangle.from_polygon(annotation.shape)
+
+        # Add optional explainability outputs
+        if explain:
+            prediction.feature_vector = repr_vector
+            result_medium = ResultMedium(name="saliency map", type="saliency map")
+            result_medium.data = saliency_map
+            prediction.maps = [result_medium]
+
+        return prediction
+
+    def _infer_pipeline(self, image: np.ndarray, explain: bool = False) -> Prediction:
+        """
+        Run pre-processing, inference, and post-processing on the input `image`, for
+        all models in the task chain associated with the deployment.
+
+        Note: If `explain=True`, a saliency map, feature vector and active score for
+        the first task in the pipeline will be included in the prediction output
+
+        :param image: Image to run inference on
+        :param explain: True to get additional outputs for model explainability,
+            including saliency maps and the feature vector for the image
+        :return: Inference result
+        """
         previous_labels: Optional[List[Label]] = None
         intermediate_result: Optional[IntermediateInferenceResult] = None
         rois: Optional[List[ROI]] = None
@@ -229,7 +371,7 @@ class Deployment:
 
             # First task in the pipeline generates the initial result and ROIs
             if task.is_trainable and previous_labels is None:
-                task_prediction = self._infer_task(image, task=task)
+                task_prediction = self._infer_task(image, task=task, explain=explain)
                 rois: Optional[List[ROI]] = None
                 if not task.is_global:
                     rois = [
@@ -288,77 +430,6 @@ class Deployment:
                         f"project: Unsupported task type {task.type} found."
                     )
         return intermediate_result.prediction
-
-    def _infer_task(self, image: np.ndarray, task: Task) -> Prediction:
-        """
-        Run pre-processing, inference, and post-processing on the input `image`, for
-        the model associated with the `task`.
-
-        :param image: Image to run inference on
-        :param task: Task to run inference for
-        :return: Inference result
-        """
-        model = self._get_model_for_task(task)
-        preprocessed_image, metadata = model.preprocess(image)
-        inference_results = model.infer(preprocessed_image)
-        postprocessing_results = model.postprocess(inference_results, metadata=metadata)
-        converter = self._inference_converters[task.title]
-
-        width: int = image.shape[1]
-        height: int = image.shape[0]
-
-        try:
-            n_outputs = len(postprocessing_results)
-        except TypeError:
-            n_outputs = 1
-
-        if n_outputs != 0:
-            # The try/except is a workaround to handle different detection inference
-            # results by different ote sdk versions
-            try:
-                annotation_scene_entity = converter.convert_to_annotation(
-                    predictions=postprocessing_results, metadata=metadata
-                )
-            except TypeError as error:
-                if task.type.is_detection:
-                    converter = self._alternate_inference_converters[task.title]
-                    annotation_scene_entity = converter.convert_to_annotation(
-                        predictions=postprocessing_results, metadata=metadata
-                    )
-                    # Make sure next time we get it right in one shot
-                    self._inference_converters.update({task.title: converter})
-                else:
-                    raise error
-
-            prediction = Prediction.from_ote(
-                annotation_scene_entity, image_width=width, image_height=height
-            )
-        else:
-            prediction = Prediction(annotations=[])
-
-        # Empty label is not generated by OTE correctly, append it here if there are
-        # no other predictions
-        if len(prediction.annotations) == 0:
-            if self._empty_labels[task.title] is not None:
-                prediction.append(
-                    Annotation(
-                        shape=Rectangle(x=0, y=0, width=width, height=height),
-                        labels=[
-                            ScoredLabel.from_label(
-                                self._empty_labels[task.title], probability=1
-                            )
-                        ],
-                    )
-                )
-
-        # Rotated detection models produce Polygons, convert them here to
-        # RotatedRectangles
-        if task.type == TaskType.ROTATED_DETECTION:
-
-            for annotation in prediction.annotations:
-                if isinstance(annotation.shape, Polygon):
-                    annotation.shape = RotatedRectangle.from_polygon(annotation.shape)
-        return prediction
 
     def _get_model_for_task(self, task: Task) -> DeployedModel:
         """

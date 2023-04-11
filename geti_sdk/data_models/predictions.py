@@ -113,6 +113,10 @@ class Prediction(AnnotationScene):
         applies
     :var modified: Date and time at which this Prediction was last modified
     :var maps: List of additional result media belonging to this prediction
+    :var feature_vector: Optional feature vector (produced by the model) for the image
+        to which the prediction relates
+    :var active_score: Optional active score (produced by the model) for the image
+        to which the prediction relates
     """
 
     kind: str = attr.field(
@@ -121,6 +125,9 @@ class Prediction(AnnotationScene):
         kw_only=True,
     )
     maps: List[ResultMedium] = attr.field(factory=list, kw_only=True)
+    feature_vector: Optional[np.ndarray] = attr.field(
+        kw_only=True, default=None, repr=False
+    )
 
     def resolve_labels_for_result_media(self, labels: List[Label]) -> None:
         """
