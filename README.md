@@ -18,8 +18,9 @@ Intel® Geti™ server via the REST API. It provides functionality for:
 - Media upload and prediction
 
 This repository also contains a set of (tutorial style) Jupyter
-[notebooks](notebooks/README.md) that demonstrate how to use the SDK. We highly
-recommend checking them out to get a feeling for use cases for the package.
+[notebooks](https://github.com/openvinotoolkit/geti-sdk/tree/main/notebooks/README.md)
+that demonstrate how to use the SDK. We highly recommend checking them out to get a
+feeling for use cases for the package.
 
 # Getting started
 
@@ -258,16 +259,17 @@ The `deployment.save` method will save the deployment to the folder named
 `Deployment.from_folder('dummy_project')`.
 
 ### Example scripts
-The [examples](examples/README.md) folder contains example scripts, showing various
-use cases for the package. They can be run by navigating to the `examples` directory
-in your terminal, and simply running the scripts like any other python script.
+The [examples](https://github.com/openvinotoolkit/geti-sdk/tree/main/examples/README.md)
+folder contains example scripts, showing various use cases for the package. They can
+be run by navigating to the `examples` directory in your terminal, and simply running
+the scripts like any other python script.
 
 ### Jupyter Notebooks
-In addition, the [notebooks](notebooks/README.md) folder contains Jupyter notebooks
-with example use cases for the `geti_sdk`. To run the notebooks,
-make sure that the requirements for the notebooks are installed in your Python
-environment. If you have not installed these when you were installing the SDK, you can
-install them at any time using
+In addition, the [notebooks](https://github.com/openvinotoolkit/geti-sdk/tree/main/notebooks/README.md)
+folder contains Jupyter notebooks with example use cases for the `geti_sdk`. To run
+the notebooks, make sure that the requirements for the notebooks are installed in your
+Python environment. If you have not installed these when you were installing the SDK,
+you can install them at any time using
 `pip install -r requirements/requirements-notebooks.txt`
 
 Once the notebook requirements are installed, navigate to the `notebooks` directory in
