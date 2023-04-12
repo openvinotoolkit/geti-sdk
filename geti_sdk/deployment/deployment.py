@@ -334,7 +334,6 @@ class Deployment:
         # Rotated detection models produce Polygons, convert them here to
         # RotatedRectangles
         if task.type == TaskType.ROTATED_DETECTION:
-
             for annotation in prediction.annotations:
                 if isinstance(annotation.shape, Polygon):
                     annotation.shape = RotatedRectangle.from_polygon(annotation.shape)
@@ -368,7 +367,6 @@ class Deployment:
 
         # Pipeline inference
         for task in self.project.pipeline.tasks[1:]:
-
             # First task in the pipeline generates the initial result and ROIs
             if task.is_trainable and previous_labels is None:
                 task_prediction = self._infer_task(image, task=task, explain=explain)
