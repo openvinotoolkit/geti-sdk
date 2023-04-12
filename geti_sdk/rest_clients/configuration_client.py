@@ -233,7 +233,7 @@ class ConfigurationClient:
                 f"Structure of the configuration in: '{configuration}' does not match "
                 f"that of the project. Unable to set configuration"
             )
-        for (task, task_config) in zip(project_tasks, configuration.task_chain):
+        for task, task_config in zip(project_tasks, configuration.task_chain):
             current_task_config = self.get_task_configuration(task_id=task.id)
             model_storage_ids = [
                 config.entity_identifier.model_storage_id

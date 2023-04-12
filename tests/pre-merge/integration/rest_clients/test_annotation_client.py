@@ -16,7 +16,6 @@ from tests.helpers.project_service import ProjectService
 
 
 class TestAnnotationClient:
-
     sorted_frame_indices_video_1_light_bulbs_project = [
         0,
         29,

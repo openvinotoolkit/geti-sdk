@@ -311,7 +311,6 @@ class DeploymentClient:
         ]
 
         if len(models) < len(tasks):
-
             tasks_without_model = [
                 task for task in tasks if task not in tasks_with_model
             ]
