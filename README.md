@@ -116,7 +116,7 @@ Instantiating the `Geti` class will establish the connection and perform authent
     4. In the screen that follows, go through the steps to create a token.
     5. Make sure to copy the token value!
 
-   ![Personal access token menu](https://github.com/openvinotoolkit/geti-sdk/tree/main/docs/source/images/personal_access_token.png)
+   ![Personal access token menu](docs/source/images/personal_access_token.png)
 
   Once you created a personal access token, it can be passed to the `Geti` class as follows:
   ```python
@@ -280,7 +280,7 @@ the screenshot below).
 > **NOTE**: Both the example scripts and the notebooks require access to a server
 > running the Intel® Geti™ platform.
 
-![Jupyter lab landing page](https://github.com/openvinotoolkit/geti-sdk/tree/main/docs/source/images/jupyter_lab_landing_page.png)
+![Jupyter lab landing page](docs/source/images/jupyter_lab_landing_page.png)
 
 ## High level API reference
 The `Geti` class provides the following methods:
