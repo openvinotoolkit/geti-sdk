@@ -28,8 +28,7 @@ Using an environment manager such as
 [Anaconda](https://www.anaconda.com/products/individual) or
 [venv](https://docs.python.org/3/library/venv.html) to create a new
 Python environment before installing the Intel® Geti™ SDK and it's requirements is
-highly recommended. The SDK requires Python version 3.8, so make sure to use that
-version in your environment.
+highly recommended.
 
 > **NOTE**: If you have installed multiple versions of Python,
 > use `py -3.8 venv -m <env_name>` when creating your virtual environment to specify
@@ -37,10 +36,25 @@ version in your environment.
 > virtual environment <venv_path>/Scripts/activate, make sure to upgrade pip
 > to the latest version `python -m pip install --upgrade pip wheel setuptools`.
 
+### Python version compatibility
+Make sure to set up your environment using one of the supported Python versions for your
+operating system, as indicated in the table below.
+
+|             | Python <= 3.7 | Python 3.8         | Python 3.9         | Python 3.10        | Python 3.11 |
+|:------------|:-------------:|:------------------:|:------------------:|:------------------:|:-----------:|
+| **Linux**   | :x:           | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:         |
+| **Windows** | :x:           | :heavy_check_mark: | :heavy_check_mark: | :x:                | :x:         |
+| **MacOS**   | :x:           | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:         |
+
 Once you have created and activated a new environment, follow the steps below to install
 the package.
 
-### Local installation
+### Installing from PyPI
+Use `pip install geti-sdk` to install the SDK from the Python Package Index (PyPI). To
+install a specific version (for instance v1.5.0), use the command
+`pip install geti-sdk==1.5.0`
+
+### Installing from the Git repo
 1. Download or clone the repository and navigate to the root directory of the repo in
    your terminal.
 
@@ -63,10 +77,6 @@ the package.
      folder in this repository.
    - `docs` Install requirements to build the documentation for the SDK from source on
      your machine
-
-> **NOTE**: geti-sdk needs `python==3.8` to run. Python 3.9 will work on Linux
-> systems, but unfortunately not on Windows yet since not all required packages are
-> available for that version.
 
 ## Using the SDK
 The SDK contains example code in various forms to help you get familiar with the package.
