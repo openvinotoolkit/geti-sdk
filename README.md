@@ -18,7 +18,7 @@ Intel® Geti™ server via the REST API. It provides functionality for:
 - Media upload and prediction
 
 This repository also contains a set of (tutorial style) Jupyter
-[notebooks](https://github.com/openvinotoolkit/geti-sdk/tree/main/notebooks/README.md)
+[notebooks](https://github.com/openvinotoolkit/geti-sdk/tree/main/notebooks)
 that demonstrate how to use the SDK. We highly recommend checking them out to get a
 feeling for use cases for the package.
 
@@ -259,13 +259,13 @@ The `deployment.save` method will save the deployment to the folder named
 `Deployment.from_folder('dummy_project')`.
 
 ### Example scripts
-The [examples](https://github.com/openvinotoolkit/geti-sdk/tree/main/examples/README.md)
+The [examples](https://github.com/openvinotoolkit/geti-sdk/tree/main/examples)
 folder contains example scripts, showing various use cases for the package. They can
 be run by navigating to the `examples` directory in your terminal, and simply running
 the scripts like any other python script.
 
 ### Jupyter Notebooks
-In addition, the [notebooks](https://github.com/openvinotoolkit/geti-sdk/tree/main/notebooks/README.md)
+In addition, the [notebooks](https://github.com/openvinotoolkit/geti-sdk/tree/main/notebooks)
 folder contains Jupyter notebooks with example use cases for the `geti_sdk`. To run
 the notebooks, make sure that the requirements for the notebooks are installed in your
 Python environment. If you have not installed these when you were installing the SDK,
@@ -329,7 +329,7 @@ The `Geti` class provides the following methods:
 
 For further details regarding these methods, please refer to the method documentation,
 the [code snippets](#downloading-and-uploading-projects), and
-[example scripts](examples/README.md) provided in this repo.
+[example scripts](https://github.com/openvinotoolkit/geti-sdk/tree/main/examples) provided in this repo.
 
 Please visit the full documentation for a complete API reference.
 
