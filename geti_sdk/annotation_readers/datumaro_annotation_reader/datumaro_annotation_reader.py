@@ -16,6 +16,7 @@ import copy
 import logging
 from typing import Dict, List, Optional, Sequence, Union
 
+from datumaro import Image
 from datumaro.components.annotation import Bbox, Polygon
 
 from geti_sdk.annotation_readers.base_annotation_reader import AnnotationReader
@@ -172,7 +173,7 @@ class DatumAnnotationReader(AnnotationReader):
             dataset item.
         """
         ds_item = self.dataset.get_item_by_id(filename)
-        image_size = ds_item.image.size
+        image_size = ds_item.media_as(Image).size
         annotation_list: List[SCAnnotation] = []
         labels = []
 
