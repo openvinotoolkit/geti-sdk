@@ -167,7 +167,8 @@ class TestNightlyProject:
             )
 
             explain_prediction = deployment.explain(image_np)
-            assert explain_prediction.feature_vector is not None
+            if "anomaly" not in self.PROJECT_TYPE:
+                assert explain_prediction.feature_vector is not None
             assert len(explain_prediction.maps) > 0
 
             online_mask = online_prediction.as_mask(image.media_information)
