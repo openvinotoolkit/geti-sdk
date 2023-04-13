@@ -50,6 +50,11 @@ LABEL_TREE_KEY = "label_tree"
 LABEL_GROUPS_KEY = "label_groups"
 ALL_LABELS_KEY = "all_labels"
 
+SALIENCY_KEY = "saliency_map"
+ANOMALY_SALIENCY_KEY = "anomaly_map"
+SEGMENTATION_SALIENCY_KEY = "soft_prediction"
+FEATURE_VECTOR_KEY = "feature_vector"
+
 OVMS_TIMEOUT = 10  # Max time to wait for OVMS models to become available
 
 
@@ -75,6 +80,13 @@ class DeployedModel(OptimizedModel):
         self._tempdir_path: Optional[str] = None
         self._has_custom_model_wrappers: bool = False
         self._label_schema: Optional[LabelSchemaEntity] = None
+
+        # Attributes related to model explainability
+        self._saliency_key: Optional[str] = None
+        self._saliency_location: Optional[str] = None
+        self._feature_vector_key: Optional[str] = None
+        self._feature_vector_location: Optional[str] = None
+
         self.openvino_model_parameters: Optional[Dict[str, Any]] = None
 
     @property
@@ -468,39 +480,79 @@ class DeployedModel(OptimizedModel):
             - Numpy array containing the saliency map
             - Numpy array containing the feature vector
         """
-        saliency_key = "saliency_map"
-        anomaly_saliency_key = "anomaly_map"
-        segmentation_saliency_key = "soft_prediction"
-        fvector_key = "feature_vector"
+        if self._saliency_location is None and self._feature_vector_location is None:
+            # When running postprocessing for the first time, we need to determine the
+            # key and location of the saliency map and feature vector.
+            if hasattr(self._inference_model, "postprocess_aux_outputs"):
+                (
+                    _,
+                    saliency_map,
+                    repr_vector,
+                    _,
+                ) = self._inference_model.postprocess_aux_outputs(
+                    inference_results, metadata
+                )
+                self._saliency_location = "aux"
+                self._feature_vector_location = "aux"
+            else:
+                # Check all possible saliency map keys in outputs and metadata
+                if SALIENCY_KEY in inference_results.keys():
+                    saliency_map = inference_results[SALIENCY_KEY]
+                    self._saliency_location = "output"
+                    self._saliency_key = SALIENCY_KEY
+                elif SALIENCY_KEY in metadata.keys():
+                    saliency_map = metadata[SALIENCY_KEY]
+                    self._saliency_location = "meta"
+                    self._saliency_key = SALIENCY_KEY
+                elif ANOMALY_SALIENCY_KEY in metadata.keys():
+                    saliency_map = metadata[ANOMALY_SALIENCY_KEY]
+                    self._saliency_location = "meta"
+                    self._saliency_key = ANOMALY_SALIENCY_KEY
+                elif SEGMENTATION_SALIENCY_KEY in metadata.keys():
+                    saliency_map = metadata[SEGMENTATION_SALIENCY_KEY]
+                    self._saliency_location = "meta"
+                    self._saliency_key = SEGMENTATION_SALIENCY_KEY
+                else:
+                    logging.warning("No saliency map found in model output")
+                    saliency_map = None
 
-        if hasattr(self._inference_model, "postprocess_aux_outputs"):
-            (
-                _,
-                saliency_map,
-                repr_vector,
-                _,
-            ) = self._inference_model.postprocess_aux_outputs(
-                inference_results, metadata
-            )
+                # Check all possible feature vector keys in outputs and metadata
+                if FEATURE_VECTOR_KEY in inference_results.keys():
+                    repr_vector = inference_results[FEATURE_VECTOR_KEY]
+                    self._feature_vector_location = "output"
+                    self._feature_vector_key = FEATURE_VECTOR_KEY
+                elif FEATURE_VECTOR_KEY in metadata.keys():
+                    repr_vector = metadata[FEATURE_VECTOR_KEY]
+                    self._feature_vector_location = "meta"
+                    self._feature_vector_key = FEATURE_VECTOR_KEY
+                else:
+                    logging.warning("No feature vector found in model output")
+                    repr_vector = None
         else:
-            # Check all possible saliency map keys in outputs and metadata
-            if saliency_key in inference_results.keys():
-                saliency_map = inference_results[saliency_key]
-            elif saliency_key in metadata.keys():
-                saliency_map = metadata[saliency_key]
-            elif anomaly_saliency_key in metadata.keys():
-                saliency_map = metadata[anomaly_saliency_key]
-            elif segmentation_saliency_key in metadata.keys():
-                saliency_map = metadata[segmentation_saliency_key]
+            # If location of feature vector and saliency map are already known, we can
+            # use them directly
+            if self._saliency_location == "aux":
+                (
+                    _,
+                    saliency_map,
+                    repr_vector,
+                    _,
+                ) = self._inference_model.postprocess_aux_outputs(
+                    inference_results, metadata
+                )
+                return saliency_map, repr_vector
+            elif self._saliency_location == "meta":
+                saliency_map = metadata[self._saliency_key]
+            elif self._saliency_location == "output":
+                saliency_map = inference_results[self._saliency_key]
             else:
                 logging.warning("No saliency map found in model output")
                 saliency_map = None
+            if self._feature_vector_location == "meta":
+                repr_vector = metadata[self._feature_vector_key]
+            elif self._feature_vector_location == "output":
+                repr_vector = inference_results[self._feature_vector_key]
 
-            # Check all possible feature vector keys in outputs and metadata
-            if fvector_key in inference_results.keys():
-                repr_vector = inference_results[fvector_key]
-            elif fvector_key in metadata.keys():
-                repr_vector = metadata[fvector_key]
             else:
                 logging.warning("No feature vector found in model output")
                 repr_vector = None
