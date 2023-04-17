@@ -70,22 +70,48 @@ class TestProjectClient:
         fxt_project_service.reset_state()
 
     @pytest.mark.vcr()
-    def test_get_all_projects(self, fxt_geti: Geti):
+    def test_get_all_projects(self, request: FixtureRequest, fxt_geti: Geti):
         """
         Verifies that getting a list of all projects in the workspace works as expected
 
         Test steps:
         1. Initialize project client
-        2. Retrieve a list of projects
+        2. Fetch all the existing projects
         3. Verify that each entry in the list is a properly deserialized Project
             instance
+        4. Create a few other projects
+        5. Fetch all the projects using a small page size
+        6. Verify that all and only the expected projects are loaded
         """
         project_client = ProjectClient(
             session=fxt_geti.session, workspace_id=fxt_geti.workspace_id
         )
-        projects = project_client.get_all_projects()
-        for project in projects:
+
+        existing_projects = project_client.get_all_projects()
+
+        for project in existing_projects:
             assert isinstance(project, Project)
+
+        new_projects = []
+        new_projects_names = {"proj_A", "proj_B", "proj_C"}
+        for new_project_name in new_projects_names:
+            project = project_client.create_project(
+                project_name=new_project_name,
+                project_type="detection",
+                labels=[["lab1", "lab2"]],
+            )
+            new_projects.append(project)
+            request.addfinalizer(
+                lambda proj=project: project_client.delete_project(
+                    project=proj, requires_confirmation=False
+                )
+            )
+
+        all_projects = project_client.get_all_projects(request_page_size=2)
+        all_projects_names = {proj.name for proj in all_projects}
+
+        assert len(all_projects) == len(existing_projects) + len(new_projects)
+        assert new_projects_names.issubset(all_projects_names)
 
     @pytest.mark.vcr()
     def test_hierarchical_classification_project(
