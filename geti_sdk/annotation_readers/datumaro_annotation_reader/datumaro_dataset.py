@@ -46,6 +46,7 @@ class DatumaroDataset(object):
         self.dataset_path = dataset_path
         self.dataset, self.environment = self.create_datumaro_dataset()
         self._subset_names = self.dataset.subsets().keys()
+        self._filtered_categories = self.dataset.categories()[AnnotationType.label]
 
     def prepare_dataset(
         self, task_type: TaskType, previous_task_type: Optional[TaskType] = None
@@ -103,8 +104,7 @@ class DatumaroDataset(object):
         """
         Return the LabelCategories in the dataset.
         """
-        categories: LabelCategories = self.dataset.categories()[AnnotationType.label]
-        return categories
+        return self._filtered_categories
 
     @property
     def label_names(self) -> List[str]:
@@ -201,17 +201,18 @@ class DatumaroDataset(object):
                 label_key = get_dict_key_from_value(label_map, label)
                 new_labelmap[label_key] = label
             label_categories._indices = {v: k for k, v in new_labelmap.items()}
-            new_categories = {AnnotationType.label: label_categories}
+            new_categories = label_categories
             # Filter and create a new dataset to update the dataset categories
             self.dataset = Dataset.from_iterable(
                 self.dataset.select(lambda item: select_function(item, labels)),
-                categories=new_categories,
+                categories=self.dataset.categories(),
                 env=self.dataset.env,
             )
             logging.info(
                 f"After filtering, dataset with labels {labels} contains "
                 f"{len(self.dataset)} items."
             )
+            self._filtered_categories = new_categories
 
     def __get_item_by_id_from_subsets(
         self, datum_id: str, search_by_name: bool = False
