@@ -15,6 +15,7 @@ import time
 from typing import Tuple
 
 import pytest
+from _pytest.fixtures import FixtureRequest
 
 from geti_sdk import Geti
 from geti_sdk.data_models import Project
@@ -128,6 +129,7 @@ class TestDemoProjects:
 
     def test_ensure_trained_example_project(
         self,
+        request: FixtureRequest,
         fxt_geti_no_vcr: Geti,
         fxt_project_client_no_vcr: ProjectClient,
         fxt_detection_demo_project: Project,
@@ -175,6 +177,11 @@ class TestDemoProjects:
             geti=fxt_geti_no_vcr, project_name=DEMO_PROJECT_NAME
         )
 
+        request.addfinalizer(
+            lambda proj=project: fxt_project_client_no_vcr.delete_project(
+                project=proj, requires_confirmation=False
+            )
+        )
         prediction_client = PredictionClient(
             session=fxt_geti_no_vcr.session,
             workspace_id=fxt_geti_no_vcr.workspace_id,
