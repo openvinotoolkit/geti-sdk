@@ -70,7 +70,12 @@ class TestProjectClient:
         fxt_project_service.reset_state()
 
     @pytest.mark.vcr()
-    def test_get_all_projects(self, request: FixtureRequest, fxt_geti: Geti):
+    def test_get_all_projects(
+        self,
+        request: FixtureRequest,
+        fxt_geti: Geti,
+        fxt_existing_projects: List[Project],
+    ):
         """
         Verifies that getting a list of all projects in the workspace works as expected
 
@@ -87,9 +92,7 @@ class TestProjectClient:
             session=fxt_geti.session, workspace_id=fxt_geti.workspace_id
         )
 
-        existing_projects = project_client.get_all_projects()
-
-        for project in existing_projects:
+        for project in fxt_existing_projects:
             assert isinstance(project, Project)
 
         new_projects = []
@@ -110,7 +113,7 @@ class TestProjectClient:
         all_projects = project_client.get_all_projects(request_page_size=2)
         all_projects_names = {proj.name for proj in all_projects}
 
-        assert len(all_projects) == len(existing_projects) + len(new_projects)
+        assert len(all_projects) == len(fxt_existing_projects) + len(new_projects)
         assert new_projects_names.issubset(all_projects_names)
 
     @pytest.mark.vcr()
