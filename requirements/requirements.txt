@@ -2,7 +2,7 @@
 datumaro==1.1.*
 requests==2.28.*
 numpy==1.22.*
-omegaconf==2.1.*
+omegaconf==2.3.*
 opencv-python==4.5.*
 python-dotenv==1.0.*
 tqdm==4.65.*
