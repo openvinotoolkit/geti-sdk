@@ -61,24 +61,36 @@ class ProjectClient:
         self.workspace_id = workspace_id
         self.base_url = f"workspaces/{workspace_id}/"
 
-    def get_all_projects(self) -> List[Project]:
+    def get_all_projects(self, request_page_size: int = 50) -> List[Project]:
         """
         Return a list of projects found on the Intel® Geti™ server
 
+        :param request_page_size: Max number of projects to fetch in a single HTTP
+            request. Higher values may reduce the response time of this method when
+            there are many projects, but increase the chance of timeout.
         :return: List of Project objects, containing the project information for each
             project on the Intel® Geti™ server
         """
-        project_list = self.session.get_rest_response(
-            url=f"{self.base_url}projects",
-            method="GET",
-        )
         if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
             project_key = "items"
         else:
             project_key = "projects"
+        num_total_projects_key = "project_counts"
+
+        # The 'projects' endpoint uses pagination: multiple HTTP may be necessary to
+        # fetch the full list of projects
+        project_list: List[Dict] = []
+        while response := self.session.get_rest_response(
+            url=f"{self.base_url}projects?limit={request_page_size}&skip={len(project_list)}",
+            method="GET",
+        ):
+            project_list.extend(response[project_key])
+            if len(project_list) >= response[num_total_projects_key]:
+                break
+
         return [
             ProjectRESTConverter.from_dict(project_input=project)
-            for project in project_list[project_key]
+            for project in project_list
         ]
 
     def get_project_by_name(self, project_name: str) -> Optional[Project]:

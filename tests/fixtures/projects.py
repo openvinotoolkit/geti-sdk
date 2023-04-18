@@ -12,13 +12,16 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import Callable
+from typing import Callable, List
 
 import pytest
+from vcr import VCR
 
 from geti_sdk import Geti
+from geti_sdk.data_models import Project
 from geti_sdk.rest_clients import ProjectClient
 from tests.helpers import ProjectService, force_delete_project
+from tests.helpers.constants import CASSETTE_EXTENSION
 
 
 @pytest.fixture(scope="class")
@@ -99,3 +102,15 @@ def fxt_project_finalizer(fxt_project_client: ProjectClient) -> Callable[[str], 
         force_delete_project(project_name, fxt_project_client)
 
     return _project_finalizer
+
+
+@pytest.fixture(scope="function")
+def fxt_existing_projects(
+    fxt_vcr: VCR, fxt_project_client: ProjectClient
+) -> List[Project]:
+    """
+    This fixture returns a list of the projects that currently exist on the Geti server
+    """
+    with fxt_vcr.use_cassette(f"existing_projects.{CASSETTE_EXTENSION}"):
+        projects = fxt_project_client.get_all_projects()
+    return projects
