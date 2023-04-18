@@ -16,11 +16,12 @@ from typing import Dict, List
 
 import pytest
 from _pytest.fixtures import FixtureRequest
+from vcr import VCR
 
 from geti_sdk import Geti
 from geti_sdk.data_models import Project, Task, TaskType
 from geti_sdk.rest_clients import ProjectClient
-from tests.helpers.constants import PROJECT_PREFIX
+from tests.helpers.constants import CASSETTE_EXTENSION, PROJECT_PREFIX
 from tests.helpers.project_service import ProjectService
 
 
@@ -75,6 +76,7 @@ class TestProjectClient:
         request: FixtureRequest,
         fxt_geti: Geti,
         fxt_existing_projects: List[Project],
+        fxt_vcr: VCR,
     ):
         """
         Verifies that getting a list of all projects in the workspace works as expected
@@ -98,17 +100,20 @@ class TestProjectClient:
         new_projects = []
         new_projects_names = {"proj_A", "proj_B", "proj_C"}
         for new_project_name in new_projects_names:
-            project = project_client.create_project(
-                project_name=new_project_name,
-                project_type="detection",
-                labels=[["lab1", "lab2"]],
-            )
-            new_projects.append(project)
-            request.addfinalizer(
-                lambda proj=project: project_client.delete_project(
-                    project=proj, requires_confirmation=False
+            with fxt_vcr.use_cassette(
+                f"TestProjectClient.test_get_all_projects.{new_project_name}.{CASSETTE_EXTENSION}"
+            ):
+                project = project_client.create_project(
+                    project_name=new_project_name,
+                    project_type="detection",
+                    labels=[["lab1", "lab2"]],
                 )
-            )
+                new_projects.append(project)
+                request.addfinalizer(
+                    lambda proj=project: project_client.delete_project(
+                        project=proj, requires_confirmation=False
+                    )
+                )
 
         all_projects = project_client.get_all_projects(request_page_size=2)
         all_projects_names = {proj.name for proj in all_projects}
