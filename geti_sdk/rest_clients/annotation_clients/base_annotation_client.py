@@ -32,11 +32,13 @@ from geti_sdk.data_models import (
 )
 from geti_sdk.data_models.containers.media_list import MediaList
 from geti_sdk.data_models.media import MediaInformation
+from geti_sdk.data_models.project import Dataset
 from geti_sdk.http_session import GetiRequestException, GetiSession
 from geti_sdk.rest_converters import AnnotationRESTConverter
 from geti_sdk.rest_converters.annotation_rest_converter import (
     NormalizedAnnotationRESTConverter,
 )
+from geti_sdk.utils import refresh_datasets
 
 AnnotationReaderType = TypeVar("AnnotationReaderType", bound=AnnotationReader)
 MediaType = TypeVar("MediaType", Image, Video)
@@ -70,7 +72,30 @@ class BaseAnnotationClient:
         """
         Get a list holding all media entities of type `media_type` in the project.
 
+        :param media_type: Type of media item to retrieve. Can be 'Image' or 'Video'
         :return: MediaList holding all media of a certain type in the project
+        """
+        datasets = refresh_datasets(
+            session=self.session, workspace_id=self.workspace_id, project=self._project
+        )
+        media_list = MediaList[media_type]([])
+        for dataset in datasets:
+            media_list.extend(
+                self._get_all_media_in_dataset_by_type(
+                    media_type=media_type, dataset=dataset
+                )
+            )
+        return media_list
+
+    def _get_all_media_in_dataset_by_type(
+        self, media_type: Type[MediaType], dataset: Dataset
+    ) -> MediaList[MediaType]:
+        """
+        Return a list of all media items of type `media_type` in the dataset `dataset`
+
+        :param media_type: Type of media item to retrieve. Can be 'Image' or 'Video'
+        :param dataset: Dataset to retrieve media items for
+        :return: List of all media items of a certain media_type in the dataset
         """
         if media_type == Image:
             media_name = "images"
@@ -80,8 +105,8 @@ class BaseAnnotationClient:
             raise ValueError(f"Invalid media type specified: {media_type}.")
         get_media_url = (
             f"workspaces/{self.workspace_id}/projects/{self._project.id}"
-            f"/datasets/{self._project.datasets[0].id}/media/"
-            f"{media_name}?top=100000"
+            f"/datasets/{dataset.id}/media/"
+            f"{media_name}?top=500"
         )
         response = self.session.get_rest_response(url=get_media_url, method="GET")
         total_number_of_media: int = response["media_count"][media_name]
