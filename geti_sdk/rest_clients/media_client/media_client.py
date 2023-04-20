@@ -220,7 +220,9 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         uploaded_media: MediaList[MediaTypeVar] = MediaList[MediaTypeVar]([])
         upload_count = 0
         skip_count = 0
-        logging.info(f"Starting {self._MEDIA_TYPE} upload...")
+        logging.info(
+            f"Starting {self._MEDIA_TYPE} upload to dataset '{dataset.name}'..."
+        )
         tqdm_prefix = f"Uploading {self.plural_media_name}"
 
         t_start = time.time()

@@ -453,18 +453,20 @@ class Geti:
             images: MediaList[Image] = MediaList([])
             videos: MediaList[Video] = MediaList([])
             for dataset in project.datasets:
-                images.append(
+                images.extend(
                     image_client.upload_folder(
                         path_to_folder=os.path.join(
                             target_folder, "images", dataset.name
-                        )
+                        ),
+                        dataset=dataset,
                     )
                 )
-                videos.append(
+                videos.extend(
                     video_client.upload_folder(
                         path_to_folder=os.path.join(
                             target_folder, "videos", dataset.name
-                        )
+                        ),
+                        dataset=dataset,
                     )
                 )
 
