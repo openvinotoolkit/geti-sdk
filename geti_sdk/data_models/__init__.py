@@ -177,7 +177,7 @@ from .model import Model, OptimizedModel
 from .model_group import ModelGroup, ModelSummary
 from .performance import Performance
 from .predictions import Prediction
-from .project import Pipeline, Project
+from .project import Dataset, Pipeline, Project
 from .status import ProjectStatus
 from .task import Task
 
@@ -210,4 +210,5 @@ __all__ = [
     "ProjectStatus",
     "Job",
     "CodeDeploymentInformation",
+    "Dataset",
 ]

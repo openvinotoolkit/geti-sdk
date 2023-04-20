@@ -39,8 +39,8 @@ from geti_sdk.data_models.enums.media_type import (
 from geti_sdk.data_models.project import Dataset
 from geti_sdk.data_models.utils import numpy_from_buffer
 from geti_sdk.http_session import GetiRequestException, GetiSession
+from geti_sdk.rest_clients.dataset_client import DatasetClient
 from geti_sdk.rest_converters.media_rest_converter import MediaRESTConverter
-from geti_sdk.utils import refresh_datasets
 
 MEDIA_TYPE_MAPPING = {MediaType.IMAGE: Image, MediaType.VIDEO: Video}
 MEDIA_SUPPORTED_FORMAT_MAPPING = {
@@ -63,6 +63,9 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         self._base_url = f"workspaces/{workspace_id}/projects/{project.id}/datasets/"
         self._project = project
         self.__media_type: Type[MediaTypeVar] = self.__get_media_type(self._MEDIA_TYPE)
+        self._dataset_client = DatasetClient(
+            session=session, project=project, workspace_id=workspace_id
+        )
 
     def base_url(self, dataset: Dataset) -> str:
         """
@@ -310,9 +313,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
             '{filename}_{media_id}').
         :return:
         """
-        datasets = refresh_datasets(
-            session=self.session, project=self._project, workspace_id=self._workspace_id
-        )
+        datasets = self._dataset_client.get_all_datasets()
         if len(datasets) == 1:
             # 1 dataset in project, do not split media in separate folder per dataset
             path_to_media_folder = os.path.join(path_to_folder, self.plural_media_name)
@@ -326,7 +327,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
             # dataset
             for dataset in datasets:
                 path_to_media_folder = os.path.join(
-                    path_to_folder, dataset.name, self.plural_media_name
+                    path_to_folder, self.plural_media_name, dataset.name
                 )
                 self._download_dataset(
                     dataset=dataset,

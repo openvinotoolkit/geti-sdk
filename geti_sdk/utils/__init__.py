@@ -24,7 +24,6 @@ Module contents
 
 from .algorithm_helpers import get_supported_algorithms
 from .credentials_helpers import get_server_details_from_env
-from .dataset_helpers import create_dataset, refresh_datasets
 from .dictionary_helpers import get_dict_key_from_value
 from .label_helpers import (
     generate_classification_labels,
@@ -40,7 +39,6 @@ from .serialization_helpers import deserialize_dictionary
 from .workspace_helpers import get_default_workspace_id
 
 __all__ = [
-    "create_dataset",
     "get_default_workspace_id",
     "generate_classification_labels",
     "generate_segmentation_labels",
@@ -53,5 +51,4 @@ __all__ = [
     "get_server_details_from_env",
     "get_project_folder_name",
     "generate_unique_label_color",
-    "refresh_datasets",
 ]

@@ -59,6 +59,9 @@ Module contents
    :members:
    :undoc-members:
 
+.. autoclass:: geti_sdk.rest_clients.dataset_client.DatasetClient
+   :members:
+
 .. autoclass:: geti_sdk.rest_clients.media_client.image_client.ImageClient
    :members:
 
@@ -87,6 +90,7 @@ Module contents
 
 from .annotation_clients import AnnotationClient
 from .configuration_client import ConfigurationClient
+from .dataset_client import DatasetClient
 from .deployment_client import DeploymentClient
 from .media_client import ImageClient, VideoClient
 from .model_client import ModelClient
@@ -97,6 +101,7 @@ from .training_client import TrainingClient
 __all__ = [
     "AnnotationClient",
     "ConfigurationClient",
+    "DatasetClient",
     "ProjectClient",
     "VideoClient",
     "ImageClient",

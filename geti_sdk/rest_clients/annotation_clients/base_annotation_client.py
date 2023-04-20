@@ -34,11 +34,11 @@ from geti_sdk.data_models.containers.media_list import MediaList
 from geti_sdk.data_models.media import MediaInformation
 from geti_sdk.data_models.project import Dataset
 from geti_sdk.http_session import GetiRequestException, GetiSession
+from geti_sdk.rest_clients.dataset_client import DatasetClient
 from geti_sdk.rest_converters import AnnotationRESTConverter
 from geti_sdk.rest_converters.annotation_rest_converter import (
     NormalizedAnnotationRESTConverter,
 )
-from geti_sdk.utils import refresh_datasets
 
 AnnotationReaderType = TypeVar("AnnotationReaderType", bound=AnnotationReader)
 MediaType = TypeVar("MediaType", Image, Video)
@@ -65,6 +65,9 @@ class BaseAnnotationClient:
         else:
             label_mapping = self.__get_label_mapping(project)
         self._label_mapping = label_mapping
+        self._dataset_client = DatasetClient(
+            session=session, project=project, workspace_id=workspace_id
+        )
 
     def _get_all_media_by_type(
         self, media_type: Type[MediaType]
@@ -75,9 +78,7 @@ class BaseAnnotationClient:
         :param media_type: Type of media item to retrieve. Can be 'Image' or 'Video'
         :return: MediaList holding all media of a certain type in the project
         """
-        datasets = refresh_datasets(
-            session=self.session, workspace_id=self.workspace_id, project=self._project
-        )
+        datasets = self._dataset_client.get_all_datasets()
         media_list = MediaList[media_type]([])
         for dataset in datasets:
             media_list.extend(
