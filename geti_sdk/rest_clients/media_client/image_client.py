@@ -16,13 +16,14 @@ import datetime
 import glob
 import io
 import os
-from typing import List, Sequence, Union
+from typing import List, Optional, Sequence, Union
 
 import cv2
 import numpy as np
 
 from geti_sdk.data_models import Image, MediaType
 from geti_sdk.data_models.containers import MediaList
+from geti_sdk.data_models.project import Dataset
 from geti_sdk.rest_converters import MediaRESTConverter
 
 from .media_client import MEDIA_SUPPORTED_FORMAT_MAPPING, BaseMediaClient
@@ -35,29 +36,39 @@ class ImageClient(BaseMediaClient[Image]):
 
     _MEDIA_TYPE = MediaType.IMAGE
 
-    def get_all_images(self) -> MediaList[Image]:
+    def get_all_images(self, dataset: Optional[Dataset] = None) -> MediaList[Image]:
         """
-        Get the ID's and filenames of all images in the project.
+        Get the ID's and filenames of all images in the project, from a specific
+        dataset. If no dataset is passed, images from the training dataset will be
+        returned
 
-        :return: MediaList containing all Image entities in the project
+        :param dataset: Dataset for which to retrieve the images. If no dataset is
+            passed, images from the training dataset are returned.
+        :return: MediaList containing all Image entities in the dataset
         """
-        return self._get_all()
+        return self._get_all(dataset=dataset)
 
-    def upload_image(self, image: Union[np.ndarray, str, os.PathLike]) -> Image:
+    def upload_image(
+        self,
+        image: Union[np.ndarray, str, os.PathLike],
+        dataset: Optional[Dataset] = None,
+    ) -> Image:
         """
         Upload an image file to the server.
 
         :param image: full path to the image on disk, or numpy array representing the
             image
+        :param dataset: Dataset to which to upload the image. If no dataset is
+            passed, the image is uploaded to the training dataset
         :return: Image object representing the uploaded image on the server
         """
         if isinstance(image, (str, os.PathLike)):
-            image_dict = self._upload(image)
+            image_dict = self._upload(image, dataset=dataset)
         elif isinstance(image, np.ndarray):
             image_io = io.BytesIO(cv2.imencode(".jpg", image)[1].tobytes())
             time_now = datetime.datetime.now()
             image_io.name = f"numpy_{time_now.strftime('%Y-%m-%dT%H-%M-%S.%f')}.jpg"
-            image_dict = self._upload_bytes(image_io)
+            image_dict = self._upload_bytes(image_io, dataset=dataset)
         else:
             raise TypeError(f"Invalid image type: {type(image)}.")
         return MediaRESTConverter.from_dict(input_dict=image_dict, media_type=Image)
@@ -67,6 +78,7 @@ class ImageClient(BaseMediaClient[Image]):
         path_to_folder: str,
         n_images: int = -1,
         skip_if_filename_exists: bool = False,
+        dataset: Optional[Dataset] = None,
     ) -> MediaList[Image]:
         """
         Upload all images in a folder to the project. Returns a MediaList containing
@@ -77,12 +89,15 @@ class ImageClient(BaseMediaClient[Image]):
         :param skip_if_filename_exists: Set to True to skip uploading of an image
             if an image with the same filename already exists in the project.
             Defaults to False
+        :param dataset: Dataset to which to upload the images. If no dataset is
+            passed, the images are uploaded to the training dataset
         :return: MediaList containing all image's in the project
         """
         return self._upload_folder(
             path_to_folder=path_to_folder,
             n_media=n_images,
             skip_if_filename_exists=skip_if_filename_exists,
+            dataset=dataset,
         )
 
     def download_all(self, path_to_folder: str, append_image_uid: bool = False) -> None:
@@ -106,7 +121,8 @@ class ImageClient(BaseMediaClient[Image]):
         n_images: int = -1,
         skip_if_filename_exists: bool = False,
         image_names_as_full_paths: bool = False,
-    ):
+        dataset: Optional[Dataset] = None,
+    ) -> MediaList[Image]:
         """
         From a folder containing images `path_to_folder`, this method uploads only
         those images that have their filenames included in the `image_names` list.
@@ -122,9 +138,9 @@ class ImageClient(BaseMediaClient[Image]):
             Defaults to False
         :param image_names_as_full_paths: Set to True if the list of `image_names`
             contains full paths to the images, rather than just the filenames
-        :return: Dictionary containing a mapping between the ID's of the images and
-            their filenames (excluding extensions). NOTE: Filenames are used as keys,
-            ID's as values
+        :param dataset: Dataset to which to upload the images. If no dataset is
+            passed, the images are uploaded to the training dataset
+        :return: List of images that were uploaded
         """
         media_formats = MEDIA_SUPPORTED_FORMAT_MAPPING[self._MEDIA_TYPE]
 
@@ -170,7 +186,9 @@ class ImageClient(BaseMediaClient[Image]):
                     )
                 image_filepaths.append(matches[0])
         return self._upload_loop(
-            filepaths=image_filepaths, skip_if_filename_exists=skip_if_filename_exists
+            filepaths=image_filepaths,
+            skip_if_filename_exists=skip_if_filename_exists,
+            dataset=dataset,
         )
 
     def delete_images(self, images: Sequence[Image]) -> bool:

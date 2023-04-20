@@ -362,3 +362,12 @@ class Project:
                 f"{[label.name for label in labels]}\n"
             )
         return summary_str
+
+    @property
+    def training_dataset(self) -> Dataset:
+        """
+        Return the training dataset for the project.
+
+        :return: Training dataset for the project
+        """
+        return [dataset for dataset in self.datasets if dataset.use_for_training][0]
