@@ -21,6 +21,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from geti_sdk.data_models import Project, Task, TaskType
 from geti_sdk.data_models.utils import remove_null_fields
 from geti_sdk.http_session import GetiRequestException, GetiSession
+from geti_sdk.rest_clients.dataset_client import DatasetClient
 from geti_sdk.rest_converters import ProjectRESTConverter
 from geti_sdk.utils.label_helpers import generate_unique_label_color
 from geti_sdk.utils.project_helpers import get_task_types_by_project_type
@@ -304,7 +305,19 @@ class ProjectClient:
             f"configuration file at {path_to_project}."
         )
         project.prepare_for_post()
-        return self.get_or_create_project(**project.get_parameters())
+        datasets = project.datasets
+        created_project = self.get_or_create_project(**project.get_parameters())
+        if len(datasets) > 1:
+            # Create the additional datasets if needed
+            dataset_client = DatasetClient(
+                session=self.session,
+                workspace_id=self.workspace_id,
+                project=created_project,
+            )
+            for dataset in datasets:
+                if dataset.name not in [ds.name for ds in created_project.datasets]:
+                    dataset_client.create_dataset(name=dataset.name)
+        return created_project
 
     @staticmethod
     def is_project_dir(path_to_folder: str) -> bool:

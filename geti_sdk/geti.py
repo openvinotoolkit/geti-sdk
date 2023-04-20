@@ -342,18 +342,7 @@ class Geti:
         annotation_client = AnnotationClient(
             session=self.session, project=project, workspace_id=self.workspace_id
         )
-        if len(images) > 0:
-            annotation_client.download_annotations_for_images(
-                images=images,
-                path_to_folder=target_folder,
-                append_image_uid=images.has_duplicate_filenames,
-            )
-        if len(videos) > 0:
-            annotation_client.download_annotations_for_videos(
-                videos=videos,
-                path_to_folder=target_folder,
-                append_video_uid=videos.has_duplicate_filenames,
-            )
+        annotation_client.download_all_annotations(path_to_folder=target_folder)
 
         # Download predictions
         prediction_client = PredictionClient(
