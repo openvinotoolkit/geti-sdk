@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+import os
 from typing import List, Optional
 
 from geti_sdk.data_models import Dataset, Project
@@ -92,3 +93,40 @@ class DatasetClient:
                 f"'{self.project.name}'"
             )
         return dataset
+
+    def has_dataset_subfolders(self, path_to_folder: str) -> bool:
+        """
+        Check if a project folder has it's media folders organized according to the
+        datasets in the project
+
+        :param path_to_folder: Path to the project folder to check
+        :return: True if the media folders in the project folder tree are organized
+            according to the datasets in the project.
+        """
+        media_folder_names = ["images", "videos"]
+        result: bool = True
+        for folder_name in media_folder_names:
+            full_path = os.path.join(path_to_folder, folder_name)
+            if not os.path.exists(full_path):
+                continue
+            result *= self._media_folder_has_dataset_subfolders(full_path)
+        return result
+
+    def _media_folder_has_dataset_subfolders(self, path_to_folder: str) -> bool:
+        """
+        Check if a folder with media has subfolders organized according to the
+        projects' datasets
+
+        :param path_to_folder: Path to the media folder to check for dataset subfolders
+        :return: True if the folder contains subfolders named according to the
+            datasets in the project, False otherwise
+        """
+        if not os.path.isdir(path_to_folder):
+            return False
+        content = os.listdir(path_to_folder)
+        for dataset in self.project.datasets:
+            if dataset.name not in content:
+                return False
+            if not os.path.isdir(os.path.join(path_to_folder, dataset.name)):
+                return False
+        return True

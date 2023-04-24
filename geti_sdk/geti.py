@@ -440,7 +440,16 @@ class Geti:
         video_client = VideoClient(
             workspace_id=self.workspace_id, session=self.session, project=project
         )
-        if len(project.datasets) == 1:
+
+        # Check the media folders inside the project folder. If they are organized
+        # according to the projects datasets, upload the media into their corresponding
+        # dataset. Otherwise, upload all media into training dataset.
+        dataset_client = DatasetClient(
+            workspace_id=self.workspace_id, session=self.session, project=project
+        )
+        if len(project.datasets) == 1 or not dataset_client.has_dataset_subfolders(
+            target_folder
+        ):
             # Upload all media directly to the training dataset
             images = image_client.upload_folder(
                 path_to_folder=os.path.join(target_folder, "images")
@@ -469,12 +478,6 @@ class Geti:
                         dataset=dataset,
                     )
                 )
-
-        media_lists: List[Union[MediaList[Image], MediaList[Video]]] = []
-        if len(images) > 0:
-            media_lists.append(images)
-        if len(videos) > 0:
-            media_lists.append(videos)
 
         # Short sleep to make sure all uploaded media is processed server side
         time.sleep(5)
