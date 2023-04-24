@@ -26,7 +26,12 @@ from geti_sdk.annotation_readers import AnnotationReader, DatumAnnotationReader
 from geti_sdk.data_models import Prediction, Project
 from geti_sdk.deployment import Deployment
 from geti_sdk.http_session import GetiRequestException
-from geti_sdk.rest_clients import AnnotationClient, ImageClient, VideoClient
+from geti_sdk.rest_clients import (
+    AnnotationClient,
+    DatasetClient,
+    ImageClient,
+    VideoClient,
+)
 from geti_sdk.utils import show_video_frames_with_annotation_scenes
 from tests.helpers import (
     ProjectService,
@@ -354,6 +359,15 @@ class TestGeti:
                 jobs, timeout=timeout, interval=interval
             )
 
+        # Create a 'test' dataset in the project
+        dataset_client = DatasetClient(
+            session=fxt_geti.session,
+            workspace_id=fxt_geti.workspace_id,
+            project=project,
+        )
+        test_dataset_name = "test_dataset"
+        dataset_client.create_dataset(name=test_dataset_name)
+
         # Make several attempts to get the prediction, first attempts trigger the
         # inference server to start up but the requests may time out
         n_attempts = 2 if fxt_test_mode != SdkTestMode.OFFLINE else 1
@@ -365,6 +379,7 @@ class TestGeti:
                     image=fxt_image_path,
                     visualise_output=False,
                     delete_after_prediction=False,
+                    dataset_name=test_dataset_name,
                 )
             except GetiRequestException as error:
                 prediction = None

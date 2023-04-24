@@ -28,7 +28,15 @@ from .annotation_readers import (
     DatumAnnotationReader,
     GetiAnnotationReader,
 )
-from .data_models import Image, Prediction, Project, TaskType, Video, VideoFrame
+from .data_models import (
+    Dataset,
+    Image,
+    Prediction,
+    Project,
+    TaskType,
+    Video,
+    VideoFrame,
+)
 from .data_models.containers import MediaList
 from .data_models.model import BaseModel
 from .deployment import Deployment
@@ -41,6 +49,7 @@ from .http_session import (
 from .rest_clients import (
     AnnotationClient,
     ConfigurationClient,
+    DatasetClient,
     DeploymentClient,
     ImageClient,
     ModelClient,
@@ -333,18 +342,7 @@ class Geti:
         annotation_client = AnnotationClient(
             session=self.session, project=project, workspace_id=self.workspace_id
         )
-        if len(images) > 0:
-            annotation_client.download_annotations_for_images(
-                images=images,
-                path_to_folder=target_folder,
-                append_image_uid=images.has_duplicate_filenames,
-            )
-        if len(videos) > 0:
-            annotation_client.download_annotations_for_videos(
-                videos=videos,
-                path_to_folder=target_folder,
-                append_video_uid=videos.has_duplicate_filenames,
-            )
+        annotation_client.download_all_annotations(path_to_folder=target_folder)
 
         # Download predictions
         prediction_client = PredictionClient(
@@ -435,27 +433,51 @@ class Geti:
         )
         configuration_client.set_project_auto_train(auto_train=False)
 
-        # Upload images
+        # Upload media
         image_client = ImageClient(
             workspace_id=self.workspace_id, session=self.session, project=project
         )
-        images = image_client.upload_folder(
-            path_to_folder=os.path.join(target_folder, "images")
-        )
-
-        # Upload videos
         video_client = VideoClient(
             workspace_id=self.workspace_id, session=self.session, project=project
         )
-        videos = video_client.upload_folder(
-            path_to_folder=os.path.join(target_folder, "videos")
-        )
 
-        media_lists: List[Union[MediaList[Image], MediaList[Video]]] = []
-        if len(images) > 0:
-            media_lists.append(images)
-        if len(videos) > 0:
-            media_lists.append(videos)
+        # Check the media folders inside the project folder. If they are organized
+        # according to the projects datasets, upload the media into their corresponding
+        # dataset. Otherwise, upload all media into training dataset.
+        dataset_client = DatasetClient(
+            workspace_id=self.workspace_id, session=self.session, project=project
+        )
+        if len(project.datasets) == 1 or not dataset_client.has_dataset_subfolders(
+            target_folder
+        ):
+            # Upload all media directly to the training dataset
+            images = image_client.upload_folder(
+                path_to_folder=os.path.join(target_folder, "images")
+            )
+            videos = video_client.upload_folder(
+                path_to_folder=os.path.join(target_folder, "videos")
+            )
+        else:
+            # Make sure that media is uploaded to the correct dataset
+            images: MediaList[Image] = MediaList([])
+            videos: MediaList[Video] = MediaList([])
+            for dataset in project.datasets:
+                images.extend(
+                    image_client.upload_folder(
+                        path_to_folder=os.path.join(
+                            target_folder, "images", dataset.name
+                        ),
+                        dataset=dataset,
+                    )
+                )
+                videos.extend(
+                    video_client.upload_folder(
+                        path_to_folder=os.path.join(
+                            target_folder, "videos", dataset.name
+                        ),
+                        dataset=dataset,
+                    )
+                )
 
         # Short sleep to make sure all uploaded media is processed server side
         time.sleep(5)
@@ -975,6 +997,7 @@ class Geti:
         image: Union[np.ndarray, Image, VideoFrame, str, os.PathLike],
         visualise_output: bool = True,
         delete_after_prediction: bool = False,
+        dataset_name: Optional[str] = None,
     ) -> Tuple[Image, Prediction]:
         """
         Upload a single image to a project named `project_name` on the Intel® Geti™
@@ -987,12 +1010,22 @@ class Geti:
             the image
         :param delete_after_prediction: True to remove the image from the project
             once the prediction is received, False to keep the image in the project.
+        :param dataset_name: Optional name of the dataset to which to upload the
+            image. The dataset must already exist in the project
         :return: Tuple containing:
 
             - Image object representing the image that was uploaded
             - Prediction for the image
         """
         project = self.get_project(project_name=project_name)
+
+        # Get the dataset to upload to
+        dataset: Optional[Dataset] = None
+        if dataset_name is not None:
+            dataset_client = DatasetClient(
+                session=self.session, workspace_id=self.workspace_id, project=project
+            )
+            dataset = dataset_client.get_dataset_by_name(dataset_name=dataset_name)
 
         # Upload the image
         image_client = ImageClient(
@@ -1013,7 +1046,9 @@ class Geti:
                 raise ValueError(
                     f"Cannot upload entity {image}. No data available for upload."
                 )
-            uploaded_image = image_client.upload_image(image=image_data)
+            uploaded_image = image_client.upload_image(
+                image=image_data, dataset=dataset
+            )
         else:
             uploaded_image = image
 

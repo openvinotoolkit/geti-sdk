@@ -264,11 +264,15 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         video_list = self._get_all_media_by_type(media_type=Video)
         if len(image_list) > 0:
             self.download_annotations_for_images(
-                images=image_list, path_to_folder=path_to_folder
+                images=image_list,
+                path_to_folder=path_to_folder,
+                append_image_uid=image_list.has_duplicate_filenames,
             )
         if len(video_list) > 0:
             self.download_annotations_for_videos(
-                video_list, path_to_folder=path_to_folder
+                video_list,
+                path_to_folder=path_to_folder,
+                append_video_uid=video_list.has_duplicate_filenames,
             )
 
     def upload_annotations_for_all_media(self, append_annotations: bool = False):

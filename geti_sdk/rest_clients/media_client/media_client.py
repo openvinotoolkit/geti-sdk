@@ -15,7 +15,17 @@ import logging
 import os
 import time
 from glob import glob
-from typing import Any, BinaryIO, ClassVar, Dict, Generic, List, Sequence, Type
+from typing import (
+    Any,
+    BinaryIO,
+    ClassVar,
+    Dict,
+    Generic,
+    List,
+    Optional,
+    Sequence,
+    Type,
+)
 
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
@@ -26,8 +36,10 @@ from geti_sdk.data_models.enums.media_type import (
     SUPPORTED_IMAGE_FORMATS,
     SUPPORTED_VIDEO_FORMATS,
 )
+from geti_sdk.data_models.project import Dataset
 from geti_sdk.data_models.utils import numpy_from_buffer
 from geti_sdk.http_session import GetiRequestException, GetiSession
+from geti_sdk.rest_clients.dataset_client import DatasetClient
 from geti_sdk.rest_converters.media_rest_converter import MediaRESTConverter
 
 MEDIA_TYPE_MAPPING = {MediaType.IMAGE: Image, MediaType.VIDEO: Video}
@@ -47,23 +59,22 @@ class BaseMediaClient(Generic[MediaTypeVar]):
 
     def __init__(self, session: GetiSession, workspace_id: str, project: Project):
         self.session = session
-        project_id = project.id
-        dataset_id = project.datasets[0].id
-        self._base_url = (
-            f"workspaces/{workspace_id}/projects/{project_id}/datasets/"
-            f"{dataset_id}/media"
-        )
-        self._project_name = project.name
+        self._workspace_id = workspace_id
+        self._base_url = f"workspaces/{workspace_id}/projects/{project.id}/datasets/"
+        self._project = project
         self.__media_type: Type[MediaTypeVar] = self.__get_media_type(self._MEDIA_TYPE)
+        self._dataset_client = DatasetClient(
+            session=session, project=project, workspace_id=workspace_id
+        )
 
-    @property
-    def base_url(self) -> str:
+    def base_url(self, dataset: Dataset) -> str:
         """
         Return the base url for the media endpoint.
 
+        :param dataset: Dataset to retrieve the base url for
         :return: string containing the base url
         """
-        return f"{self._base_url}/{self.plural_media_name}"
+        return f"{self._base_url}/{dataset.id}/media/{self.plural_media_name}"
 
     @property
     def plural_media_name(self) -> str:
@@ -87,14 +98,19 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         """
         return MEDIA_TYPE_MAPPING[media_type]
 
-    def _get_all(self) -> MediaList[MediaTypeVar]:
+    def _get_all(self, dataset: Optional[Dataset] = None) -> MediaList[MediaTypeVar]:
         """
         Get a list holding all media entities of a certain type in the project.
 
+        :param dataset: Optional dataset to retrieve the media for. If no dataset is
+            specified, only media from the training dataset will be returned
         :return: MediaList holding all media of a certain type in the project
         """
+        if dataset is None:
+            dataset = self._project.training_dataset
+
         response = self.session.get_rest_response(
-            url=f"{self.base_url}?top=500", method="GET"
+            url=f"{self.base_url(dataset=dataset)}?top=500", method="GET"
         )
         total_number_of_media: int = response["media_count"][self.plural_media_name]
         raw_media_list: List[Dict[str, Any]] = []
@@ -123,7 +139,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
             raise ValueError("Unable to delete individual video frames.")
         logging.info(
             f"Deleting {len(media_list)} {self.plural_media_name} from project "
-            f"'{self._project_name}'..."
+            f"'{self._project.name}'..."
         )
         for media_item in media_list:
             try:
@@ -131,7 +147,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
             except GetiRequestException as error:
                 if error.status_code == 409:
                     logging.info(
-                        f"Project '{self._project_name}' is locked for deletion, "
+                        f"Project '{self._project.name}' is locked for deletion, "
                         f"unable to delete media. Aborting deletion."
                     )
                     return False
@@ -141,37 +157,48 @@ class BaseMediaClient(Generic[MediaTypeVar]):
                     continue
         return True
 
-    def _upload_bytes(self, buffer: BinaryIO) -> Dict[str, Any]:
+    def _upload_bytes(
+        self, buffer: BinaryIO, dataset: Optional[Dataset] = None
+    ) -> Dict[str, Any]:
         """
         Upload a buffer representing a media file to the server.
 
         :param buffer: BinaryIO object representing a media file
+        :param dataset: Dataset to upload the media to. If no dataset is passed, the
+            media will be uploaded into the default (training) dataset
         :return: Dictionary containing the response of the Intel® Geti™ server, which
             holds the details of the uploaded entity
         """
+        if dataset is None:
+            dataset = self._project.training_dataset
         response = self.session.get_rest_response(
-            url=f"{self.base_url}",
+            url=f"{self.base_url(dataset)}",
             method="POST",
             contenttype="multipart",
             data={"file": buffer},
         )
         return response
 
-    def _upload(self, filepath: str) -> Dict[str, Any]:
+    def _upload(
+        self, filepath: str, dataset: Optional[Dataset] = None
+    ) -> Dict[str, Any]:
         """
         Upload a media file to the server.
 
         :param filepath: full path to the media file on disk
+        :param dataset: Dataset to upload the media to. If no dataset is passed, the
+            media will be uploaded into the default (training) dataset
         :return: Dictionary containing the response of the Intel® Geti™ server, which
             holds the details of the uploaded entity
         """
         media_bytes = open(filepath, "rb")
-        return self._upload_bytes(media_bytes)
+        return self._upload_bytes(media_bytes, dataset=dataset)
 
     def _upload_loop(
         self,
         filepaths: List[str],
         skip_if_filename_exists: bool = False,
+        dataset: Optional[Dataset] = None,
     ) -> MediaList[MediaTypeVar]:
         """
         Upload media from a list of filepaths. Also checks if media items with the same
@@ -180,16 +207,22 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         :param filepaths: List of full filepaths for media that should be
             uploaded
         :param skip_if_filename_exists: Set to True to skip uploading of a media item
-            if a media item with the same filename already exists in the project.
+            if a media item with the same filename already exists in the dataset.
             Defaults to False
+        :param dataset: Dataset to upload the media to. If no dataset is passed, the
+            media will be uploaded into the default (training) dataset
         :return: MediaList containing a list of all media entities that were uploaded
             to the project
         """
-        media_in_project = self._get_all()
+        if dataset is None:
+            dataset = self._project.training_dataset
+        media_in_project = self._get_all(dataset=dataset)
         uploaded_media: MediaList[MediaTypeVar] = MediaList[MediaTypeVar]([])
         upload_count = 0
         skip_count = 0
-        logging.info(f"Starting {self._MEDIA_TYPE} upload...")
+        logging.info(
+            f"Starting {self._MEDIA_TYPE} upload to dataset '{dataset.name}'..."
+        )
         tqdm_prefix = f"Uploading {self.plural_media_name}"
 
         t_start = time.time()
@@ -199,7 +232,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
                 if name in media_in_project.names and skip_if_filename_exists:
                     skip_count += 1
                     continue
-                media_dict = self._upload(filepath=filepath)
+                media_dict = self._upload(filepath=filepath, dataset=dataset)
                 media_item = MediaRESTConverter.from_dict(
                     input_dict=media_dict, media_type=self.__media_type
                 )
@@ -231,6 +264,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         path_to_folder: str,
         n_media: int = -1,
         skip_if_filename_exists: bool = False,
+        dataset: Optional[Dataset] = None,
     ) -> MediaList[MediaTypeVar]:
         """
         Upload all media in a folder to the project. Returns the mapping of filenames
@@ -241,6 +275,8 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         :param skip_if_filename_exists: Set to True to skip uploading of a media item
             if a media item with the same filename already exists in the project.
             Defaults to False
+        :param dataset: Dataset to upload the media to. If no dataset is passed, the
+            media will be uploaded into the default (training) dataset
         :return: MediaList containing a list of all media entities that were uploaded
             to the project
         """
@@ -264,6 +300,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         return self._upload_loop(
             filepaths=filepaths[0:n_to_upload],
             skip_if_filename_exists=skip_if_filename_exists,
+            dataset=dataset,
         )
 
     def _download_all(
@@ -278,12 +315,50 @@ class BaseMediaClient(Generic[MediaTypeVar]):
             '{filename}_{media_id}').
         :return:
         """
-        media_list = self._get_all()
-        path_to_media_folder = os.path.join(path_to_folder, self.plural_media_name)
+        datasets = self._dataset_client.get_all_datasets()
+        if len(datasets) == 1:
+            # 1 dataset in project, do not split media in separate folder per dataset
+            path_to_media_folder = os.path.join(path_to_folder, self.plural_media_name)
+            self._download_dataset(
+                dataset=datasets[0],
+                path_to_media_folder=path_to_media_folder,
+                append_media_uid=append_media_uid,
+            )
+        else:
+            # Multiple datasets in the project, create a subfolder for media in each
+            # dataset
+            for dataset in datasets:
+                path_to_media_folder = os.path.join(
+                    path_to_folder, self.plural_media_name, dataset.name
+                )
+                self._download_dataset(
+                    dataset=dataset,
+                    path_to_media_folder=path_to_media_folder,
+                    append_media_uid=append_media_uid,
+                )
+
+    def _download_dataset(
+        self,
+        dataset: Dataset,
+        path_to_media_folder: str,
+        append_media_uid: bool = False,
+    ):
+        """
+        Download all media items of a single type in the dataset to a folder on disk
+
+        :param dataset: Dataset to download the media for
+        :param path_to_media_folder: path to the folder in which the media should be
+            saved
+        :param append_media_uid: True to append the UID of a media item to the
+            filename (separated from the original filename by an underscore, i.e.
+            '{filename}_{media_id}').
+        """
+        media_list = self._get_all(dataset=dataset)
         os.makedirs(path_to_media_folder, exist_ok=True, mode=0o770)
         logging.info(
             f"Downloading {len(media_list)} {self.plural_media_name} from project "
-            f"'{self._project_name}' to folder {path_to_media_folder}..."
+            f"'{self._project.name}' and dataset '{dataset.name}' to folder "
+            f"{path_to_media_folder}..."
         )
         t_start = time.time()
         download_count = 0
