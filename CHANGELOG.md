@@ -1,3 +1,34 @@
+# v1.5.0 Intel® Geti™ SDK (24-04-2023)
+## What's Changed
+* Pin orjson version to 3.8.8 to avoid installation error by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/178
+* Fix nightly tests for classification project by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/179
+* Add workaround to set output blob name if not set by model adapter by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/180
+* Add workflow to publish to TestPyPI by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/185
+* Filter on polygons when setting Datum segmentation dataset by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/184
+* Add `explain` method for deployment by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/183
+* Remove duplicate annotations for datumaro dataset items by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/186
+* Remove specific geti version tests by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/187
+* Add python version compatibility table to README by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/189
+* Add test for python 3.10 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/188
+* Use absolute URLs for links in readme by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/190
+* Fix explain for segmentation and anomaly models by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/191
+* Replace the deprecated `DatasetItem.image()` in DatumAnnotationReader by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/192
+* Update datumaro requirement from ==1.0.* to ==1.1.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/175
+* Update pillow requirement from ==9.4.* to ==9.5.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/182
+* Pagination for project fetching by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/197
+* Use pagination when fetching all the projects by @leoll2 in https://github.com/openvinotoolkit/geti-sdk/pull/193
+* Fix dataset filtering issue for Datumaro annotation reader by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/194
+* Update simplejson requirement from ==3.18.* to ==3.19.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/196
+* Bump otx from 1.1.0 to 1.1.2 in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/195
+* Update omegaconf requirement from ==2.1.* to ==2.3.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/120
+* Add finalizer to remove demo project after nightly test by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/198
+* Add support for additional datasets in project by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/199
+
+## New Contributors
+* @leoll2 made their first contribution in https://github.com/openvinotoolkit/geti-sdk/pull/193
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.4.1...v1.5.0
+
 # [Pre-release] v1.4.1 Intel® Geti™ SDK (28-03-2023)
 ## What's Changed
 * Update otx requirement to `otx==1.1.0` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/176
