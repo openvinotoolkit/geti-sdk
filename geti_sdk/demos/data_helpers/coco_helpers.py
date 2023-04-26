@@ -77,8 +77,8 @@ class COCOSubset(Enum):
         """
         if self == COCOSubset.VAL2017:
             return (
-                "4f7e2ccb2866ec5041993c9cf2a952bbed69647b115d0f74da7ce8f4bef82f05",
-                "113a836d90195ee1f884e704da6304dfaaecff1f023f49b6ca93c4aaae470268",
+                "9ea554bcf9e6f88876b1157ab38247eb7c1c57564c05c7345a06ac479c6e7a3b9c3825150c189d7d3f2e807c95fd0e07fe90161c563591038e697c846ac76007",
+                "3f00c90323ee745b37a9ac040d00f170d49695ed9ffc1d8e0fbd4c5e2d8e9c697fd822b2022df552da5f1892dbcaeb68788416a347b05a20035ed0686f0e1f66",
             )
         else:
             return None, None

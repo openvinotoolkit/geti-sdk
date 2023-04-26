@@ -102,7 +102,7 @@ def get_mvtec_dataset_from_path(dataset_path: str = "data") -> str:
     archive_path = os.path.join(dataset_path, archive_name)
     validate_hash(
         file_path=archive_path,
-        expected_hash="146b2166c35a1d0cf37ded091366ac01a50338b4ac704632f1239890eaca4449",
+        expected_hash="f9c14ab6c802e69899b529da8b9417b319fa39027a0602ec2beeaf2c3a51e5d527248dfdd3c977a0066fb0ed284c6cdb7236e9cc11d06e927e07072496408be3",
     )
 
     logging.info(f"Extracting the '{dataset_name}' dataset at path {archive_path}...")
