@@ -1,3 +1,12 @@
+# v1.5.1 Intel® Geti™ SDK (26-04-2023)
+## What's Changed
+* Update hashing algorithm to `sha3_512` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/204
+* Bump otx from 1.1.2 to 1.2.0 in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/203
+* Update ipython requirement from ==8.11.* to ==8.12.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/202
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.5.0...v1.5.1
+
 # v1.5.0 Intel® Geti™ SDK (24-04-2023)
 ## What's Changed
 * Pin orjson version to 3.8.8 to avoid installation error by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/178
