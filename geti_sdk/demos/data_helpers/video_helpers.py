@@ -45,6 +45,6 @@ def get_person_car_bike_video(
         )
 
     # Compare hashes
-    expected_hash = "452b11b7e0efbd019f1d9570d0c790e90416ad4ad29eec6003872d08443140ef"
+    expected_hash = "7eafb94b3491e7554d92637596ddaaf1c69fdb8421c3d49eb09df4b7d05788c76391cb791cc2c8197e66d352306328d09c8d72e42733b1f1a311cd1e35ee1cce"
     validate_hash(file_path=video_file_path, expected_hash=expected_hash)
     return video_file_path
