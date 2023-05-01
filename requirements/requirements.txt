@@ -1,5 +1,5 @@
 # Base requirements
-datumaro==1.1.*
+datumaro==1.2.*
 requests==2.28.*
 numpy==1.22.*
 omegaconf==2.3.*
