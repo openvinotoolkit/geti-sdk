@@ -224,8 +224,8 @@ class DeployedModel(OptimizedModel):
         except ImportError as error:
             raise ValueError(
                 f"Unable to load inference model for {self}. Relevant OpenVINO "
-                f"packages were not found. Please make sure that all packages from the "
-                f"file `requirements-deployment.txt` have been installed. "
+                f"packages were not found. Please make sure that OpenVINO is installed "
+                f"correctly."
             ) from error
 
         if not target_device_is_ovms(device=device):

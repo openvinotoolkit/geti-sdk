@@ -206,6 +206,8 @@ class OptimizedModel(BaseModel):
     configurations: Optional[List[OptimizationConfigurationParameter]] = attr.field(
         kw_only=True, default=None
     )  # Added in Geti v1.4
+    model_format: Optional[str] = None  # Added in Geti v1.5
+    has_xai_head: bool = False  # Added in Geti v1.5
 
 
 @attr.define(slots=False)
