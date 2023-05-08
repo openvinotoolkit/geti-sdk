@@ -188,5 +188,8 @@ class ProjectStatus:
             )
             if task.is_training or task.status.progress != -1.0:
                 summary_str += f"      Progress: {task.status.progress:.1f}%\n"
-        summary_str += f"  Latest score: {self.project_performance.score*100:.1f}%\n"
+        if self.project_performance.score is not None:
+            summary_str += (
+                f"  Latest score: {self.project_performance.score*100:.1f}%\n"
+            )
         return summary_str
