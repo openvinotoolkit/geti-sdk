@@ -1,3 +1,14 @@
+# v1.5.2 Intel® Geti™ SDK (08-05-2023)
+## What's Changed
+* Add score NoneType check in summary function of ProjectStatus by @harimkang in https://github.com/openvinotoolkit/geti-sdk/pull/208
+* Update `OptimizedModel` data model by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/209
+* Update datumaro requirement from ==1.1.* to ==1.2.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/206
+
+## New Contributors
+* @harimkang made their first contribution in https://github.com/openvinotoolkit/geti-sdk/pull/208
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.5.1...v1.5.2
+
 # v1.5.1 Intel® Geti™ SDK (26-04-2023)
 ## What's Changed
 * Update hashing algorithm to `sha3_512` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/204
