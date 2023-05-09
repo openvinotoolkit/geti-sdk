@@ -23,6 +23,7 @@ class OptimizationType(Enum):
     NNCF = "NNCF"
     POT = "POT"
     MO = "MO"
+    ONNX = "ONNX"
 
     def __str__(self) -> str:
         """
