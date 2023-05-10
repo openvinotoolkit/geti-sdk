@@ -1,3 +1,13 @@
+# v1.5.3 Intel® Geti™ SDK (10-05-2023)
+## What's Changed
+* Add `ONNX` as optimization type by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/212
+* Remove trailing slash from the base url in the media rest client by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/214
+* Update pytest requirement from ==7.2.* to ==7.3.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/211
+* Fix nightly tests by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/213
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.5.2...v1.5.3
+
 # v1.5.2 Intel® Geti™ SDK (08-05-2023)
 ## What's Changed
 * Add score NoneType check in summary function of ProjectStatus by @harimkang in https://github.com/openvinotoolkit/geti-sdk/pull/208
