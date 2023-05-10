@@ -24,6 +24,7 @@ from geti_sdk.data_models import Image, Prediction, Project, TaskType
 from geti_sdk.data_models.enums import JobState, PredictionMode
 from geti_sdk.demos import EXAMPLE_IMAGE_PATH
 from geti_sdk.http_session import GetiRequestException
+from geti_sdk.platform_versions import GETI_15_VERSION
 from geti_sdk.utils import get_supported_algorithms
 from tests.helpers import (
     ProjectService,
@@ -194,8 +195,13 @@ class TestModelAndPredictionClient:
 
         assert len(models_content) >= 3
         assert f"{algorithm.algorithm_name}_base.zip" in models_content
-        assert f"{algorithm.algorithm_name} OpenVINO_MO_optimized.zip" in models_content
         assert f"{task.type}_model_details.json" in models_content
+
+        if fxt_project_service.session.version < GETI_15_VERSION:
+            mo_model_name = f"{algorithm.algorithm_name} OpenVINO_MO_optimized.zip"
+        else:
+            mo_model_name = f"{algorithm.algorithm_name} OpenVINO FP16_MO_optimized.zip"
+        assert mo_model_name in models_content
 
     def test_prediction_client_set_mode(
         self, fxt_project_service: ProjectService
