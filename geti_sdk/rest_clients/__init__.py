@@ -88,6 +88,7 @@ Module contents
 
 """
 
+from .active_learning_client import ActiveLearningClient
 from .annotation_clients import AnnotationClient
 from .configuration_client import ConfigurationClient
 from .dataset_client import DatasetClient
@@ -109,4 +110,5 @@ __all__ = [
     "ModelClient",
     "TrainingClient",
     "DeploymentClient",
+    "ActiveLearningClient",
 ]
