@@ -60,7 +60,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
     def __init__(self, session: GetiSession, workspace_id: str, project: Project):
         self.session = session
         self._workspace_id = workspace_id
-        self._base_url = f"workspaces/{workspace_id}/projects/{project.id}/datasets/"
+        self._base_url = f"workspaces/{workspace_id}/projects/{project.id}/datasets"
         self._project = project
         self.__media_type: Type[MediaTypeVar] = self.__get_media_type(self._MEDIA_TYPE)
         self._dataset_client = DatasetClient(
