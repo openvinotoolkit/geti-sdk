@@ -546,7 +546,7 @@ class Geti:
         project_type: str,
         path_to_images: str,
         annotation_reader: AnnotationReader,
-        labels: Optional[List[str]] = None,
+        labels: Optional[List[Union[str, dict]]] = None,
         number_of_images_to_upload: int = -1,
         number_of_images_to_annotate: int = -1,
         enable_auto_train: bool = True,
@@ -599,7 +599,9 @@ class Geti:
         if labels is None:
             labels = annotation_reader.get_all_label_names()
         else:
-            if project_type == "classification":
+            if project_type == "classification" and not all(
+                [isinstance(item, dict) for item in labels]
+            ):
                 # Handle label generation for classification case
                 filter_settings = annotation_reader.applied_filters
                 criterion = filter_settings[0]["criterion"]
