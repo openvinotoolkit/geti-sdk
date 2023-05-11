@@ -122,6 +122,22 @@ class GetiVersion:
             )
         return self.version == other.version
 
+    def __str__(self) -> str:
+        """
+        Return the Intel Geti version as a string
+
+        :return: String containing the version
+        """
+        return f"{self.version}-{self.build_tag}-{self.time_tag}"
+
+    def __repr__(self) -> str:
+        """
+        Return the string representation of the Intel Geti version
+
+        :return: String representing the version
+        """
+        return f"GetiVersion({self.version}-{self.build_tag}-{self.time_tag})"
+
     @property
     def is_sc_mvp(self) -> bool:
         """
