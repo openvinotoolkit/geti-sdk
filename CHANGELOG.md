@@ -1,3 +1,12 @@
+# v1.5.4 Intel® Geti™ SDK (11-05-2023)
+## What's Changed
+* Add active learning client for retrieving the active set by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/215
+* Allow passing label dictionaries to `Geti.create_single_task_project_from_dataset` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/216
+* Add string representation for `GetiVersion` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/217
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.5.3...v1.5.4
+
 # v1.5.3 Intel® Geti™ SDK (10-05-2023)
 ## What's Changed
 * Add `ONNX` as optimization type by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/212
