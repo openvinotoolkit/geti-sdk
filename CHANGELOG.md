@@ -1,3 +1,10 @@
+# v1.5.5 Intel® Geti™ SDK (15-05-2023)
+## What's Changed
+* Add param to disable certificate validation for data download helpers by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/218
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.5.4...v1.5.5
+
 # v1.5.4 Intel® Geti™ SDK (11-05-2023)
 ## What's Changed
 * Add active learning client for retrieving the active set by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/215
