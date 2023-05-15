@@ -23,17 +23,18 @@ import requests
 from tqdm import tqdm
 
 
-def get_proxies(url: str = "") -> Dict[str, str]:
+def get_proxies(url: str = "", verify_cert: bool = True) -> Dict[str, str]:
     """
     Determine whether or not to use proxies to attempt to reach a certain url.
 
     :param url: URL that should be resolved
+    :param verify_cert: False to disable SSL certificate validation
     :return:
     """
     logging.info(f"Connecting to url {url}...")
     proxies: Dict[str, str] = {}
     try:
-        requests.head(url=url, proxies=proxies, timeout=10)
+        requests.head(url=url, proxies=proxies, timeout=10, verify=verify_cert)
         return proxies
     except requests.exceptions.ConnectionError:
         logging.info("Unable to reach URL, attempting to connect via proxy...")
@@ -42,7 +43,7 @@ def get_proxies(url: str = "") -> Dict[str, str]:
         "https": "http://proxy-mu.intel.com:912",
     }
     try:
-        requests.head(url=url, proxies=proxies)
+        requests.head(url=url, proxies=proxies, verify=verify_cert)
         logging.info("Connection succeeded.")
     except requests.exceptions.ConnectionError as error:
         raise ValueError(
@@ -53,7 +54,10 @@ def get_proxies(url: str = "") -> Dict[str, str]:
 
 
 def download_file(
-    url: str, target_folder: Optional[str], check_valid_archive: bool = False
+    url: str,
+    target_folder: Optional[str],
+    check_valid_archive: bool = False,
+    verify_cert: bool = True,
 ) -> str:
     """
     Download a file from `url` to a folder on local disk `target_folder`.
@@ -65,6 +69,8 @@ def download_file(
 
     :param url:
     :param target_folder:
+    :param check_valid_archive: Check if the target file is a valid zip archive
+    :param verify_cert: False to disable SSL certificate validation
     :return: path to the downloaded file
     """
     filename = url.split("/")[-1]
@@ -93,7 +99,7 @@ def download_file(
 
     proxies = get_proxies(url)
     logging.info(f"Downloading {filename}...")
-    with requests.get(url, stream=True, proxies=proxies) as r:
+    with requests.get(url, stream=True, proxies=proxies, verify=verify_cert) as r:
         if r.status_code != 200:
             r.raise_for_status()
             raise RuntimeError(
