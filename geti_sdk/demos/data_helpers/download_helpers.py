@@ -97,7 +97,7 @@ def download_file(
         )
         return path_to_file
 
-    proxies = get_proxies(url)
+    proxies = get_proxies(url, verify_cert=verify_cert)
     logging.info(f"Downloading {filename}...")
     with requests.get(url, stream=True, proxies=proxies, verify=verify_cert) as r:
         if r.status_code != 200:
