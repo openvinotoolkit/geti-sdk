@@ -69,16 +69,17 @@ class TestingClient:
                 )
             test_data.update({"metric": metric})
 
-        logging.info("Starting model testing job...")
         response = self.session.get_rest_response(
             url=self.base_url, method="POST", data=test_data
         )
-        return get_job_with_timeout(
+        job = get_job_with_timeout(
             job_id=response["job_ids"][0],
             session=self.session,
             workspace_id=self.workspace_id,
             job_type="testing",
         )
+        logging.info(f"Testing job with id {job.id} submitted successfully.")
+        return job
 
     def get_test_result(self, job: Job) -> TestResult:
         """

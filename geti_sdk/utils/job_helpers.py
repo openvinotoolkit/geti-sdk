@@ -66,13 +66,13 @@ def get_job_with_timeout(
     """
     job = get_job_by_id(job_id=job_id, session=session, workspace_id=workspace_id)
     if job is not None:
-        logging.info(
-            f"{job_type.capitalize()} job with ID {job_id} retrieved successfully."
+        logging.debug(
+            f"{job_type.capitalize()} job with ID {job_id} retrieved from the platform."
         )
     else:
         t_start = time.time()
         while job is None and (time.time() - t_start < timeout):
-            logging.info(
+            logging.debug(
                 f"{job_type.capitalize()} job status could not be retrieved from the "
                 f"platform yet. Re-attempting to fetch job status. Looking for job "
                 f"with ID {job_id}"

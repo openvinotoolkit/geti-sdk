@@ -235,6 +235,7 @@ class TrainingClient:
                 "Training job was submitted, but the TrainingClient was unable to "
                 "find the resulting job on the platform."
             )
+        logging.info(f"Training job with id {job.id} submitted successfully.")
         return job
 
     def monitor_jobs(
