@@ -180,6 +180,7 @@ from .predictions import Prediction
 from .project import Dataset, Pipeline, Project
 from .status import ProjectStatus
 from .task import Task
+from .test_result import Score, TestResult
 
 __all__ = [
     "TaskType",
@@ -211,4 +212,6 @@ __all__ = [
     "Job",
     "CodeDeploymentInformation",
     "Dataset",
+    "TestResult",
+    "Score",
 ]

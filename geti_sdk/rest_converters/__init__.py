@@ -50,6 +50,8 @@ Module contents
 .. autoclass:: JobRESTConverter
    :members:
 
+.. autoclass:: TestResultRESTConverter
+   :members:
 """
 from .annotation_rest_converter import AnnotationRESTConverter
 from .configuration_rest_converter import ConfigurationRESTConverter
@@ -59,6 +61,7 @@ from .model_rest_converter import ModelRESTConverter
 from .prediction_rest_converter import PredictionRESTConverter
 from .project_rest_converter import ProjectRESTConverter
 from .status_rest_converter import StatusRESTConverter
+from .test_result_rest_converter import TestResultRESTConverter
 
 __all__ = [
     "ProjectRESTConverter",
@@ -69,4 +72,5 @@ __all__ = [
     "ModelRESTConverter",
     "StatusRESTConverter",
     "JobRESTConverter",
+    "TestResultRESTConverter",
 ]

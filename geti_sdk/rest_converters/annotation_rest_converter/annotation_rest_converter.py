@@ -18,8 +18,10 @@ from typing import Any, Dict, List, cast
 import attr
 from omegaconf import OmegaConf
 
-from geti_sdk.data_models import Annotation, AnnotationScene, MediaType, ScoredLabel
+from geti_sdk.data_models import Annotation, AnnotationScene
 from geti_sdk.data_models.enums import ShapeType
+from geti_sdk.data_models.label import ScoredLabel
+from geti_sdk.data_models.media import MediaType
 from geti_sdk.data_models.media_identifiers import (
     ImageIdentifier,
     MediaIdentifier,
