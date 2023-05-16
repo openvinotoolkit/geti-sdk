@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+import logging
 from typing import List, Optional, Sequence
 
 from geti_sdk.data_models import Dataset, Job, Model, Project, TestResult
@@ -51,10 +52,7 @@ class TestingClient:
         :return: Job object representing the testing job
         """
         if name is None:
-            name = (
-                f"Testing job for model `{model.name}` on datasets "
-                f"`{[ds.name for ds in datasets]}`"
-            )
+            name = f"Test_{model.name}_{model.version}"
         dataset_ids = [ds.id for ds in datasets]
 
         test_data = {
@@ -71,6 +69,7 @@ class TestingClient:
                 )
             test_data.update({"metric": metric})
 
+        logging.info("Starting model testing job...")
         response = self.session.get_rest_response(
             url=self.base_url, method="POST", data=test_data
         )
@@ -81,18 +80,28 @@ class TestingClient:
             job_type="testing",
         )
 
-    def get_test_result(self, test_id: str) -> TestResult:
+    def get_test_result(self, job: Job) -> TestResult:
         """
-        Retrieve the result of the model test with id `test_id` from the Intel® Geti™
+        Retrieve the result of the model testing job from the Intel® Geti™
         server
 
-        :param test_id: Unique ID of the test to fetch the results for
+        :param job: Job instance representing the model testing job
         :return: TestResult instance containing the test results
         """
-        response = self.session.get_rest_response(
-            url=self.base_url + "/" + test_id, method="GET"
+        response = self.session.get_rest_response(url=self.base_url, method="GET")
+        test_results = [
+            TestResultRESTConverter.from_dict(result)
+            for result in response["test_results"]
+        ]
+        result_for_job = next(
+            (result for result in test_results if result.job_info.id == job.id), None
         )
-        return TestResultRESTConverter.from_dict(response)
+        if result_for_job is None:
+            raise ValueError(
+                f"Unable to find test result for job `{job.name}`, please make sure "
+                f"that a valid testing job was passed."
+            )
+        return result_for_job
 
     def monitor_jobs(
         self, jobs: List[Job], timeout: int = 10000, interval: int = 15

@@ -33,4 +33,7 @@ class TestResultRESTConverter:
             server, as returned by the /tests endpoints
         :return: TestResult instance, holding the result data contained in result_dict
         """
+        # Need to convert task type to lower case
+        task_type = result_dict["model_info"]["task_type"]
+        result_dict["model_info"]["task_type"] = task_type.lower()
         return deserialize_dictionary(result_dict, output_type=TestResult)
