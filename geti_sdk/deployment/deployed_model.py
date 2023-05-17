@@ -26,6 +26,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import attr
 import numpy as np
+from otx.algorithms.classification.utils import get_cls_inferencer_configuration
 from otx.api.entities.color import Color
 from otx.api.entities.label import Domain as OTEDomain
 from otx.api.entities.label import LabelEntity
@@ -304,6 +305,9 @@ class DeployedModel(OptimizedModel):
                     f"is required, but could not be found at path "
                     f"{wrapper_module_path}."
                 ) from ex
+
+        if model_type == "otx_classification":
+            configuration = get_cls_inferencer_configuration(self.ote_label_schema)
 
         model = OMZModel.create_model(
             name=model_type,
