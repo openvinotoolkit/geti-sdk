@@ -17,8 +17,9 @@ from typing import Any, Dict, List
 
 import attr
 
-from geti_sdk.data_models import Annotation, AnnotationScene, ScoredLabel
+from geti_sdk.data_models import Annotation, AnnotationScene
 from geti_sdk.data_models.enums import ShapeType
+from geti_sdk.data_models.label import ScoredLabel
 from geti_sdk.data_models.shapes import Shape
 from geti_sdk.data_models.utils import (
     attr_value_serializer,

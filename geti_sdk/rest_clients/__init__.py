@@ -97,6 +97,7 @@ from .media_client import ImageClient, VideoClient
 from .model_client import ModelClient
 from .prediction_client import PredictionClient
 from .project_client import ProjectClient
+from .testing_client import TestingClient
 from .training_client import TrainingClient
 
 __all__ = [
@@ -111,4 +112,5 @@ __all__ = [
     "TrainingClient",
     "DeploymentClient",
     "ActiveLearningClient",
+    "TestingClient",
 ]

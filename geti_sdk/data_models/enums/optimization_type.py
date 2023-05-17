@@ -24,6 +24,7 @@ class OptimizationType(Enum):
     POT = "POT"
     MO = "MO"
     ONNX = "ONNX"
+    NONE = "NONE"
 
     def __str__(self) -> str:
         """

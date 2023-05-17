@@ -14,7 +14,8 @@
 
 from typing import Any, Dict
 
-from geti_sdk.data_models import Model, ModelGroup, OptimizedModel
+from geti_sdk.data_models.model import Model, OptimizedModel
+from geti_sdk.data_models.model_group import ModelGroup
 from geti_sdk.utils import deserialize_dictionary
 
 

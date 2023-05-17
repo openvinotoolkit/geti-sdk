@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import logging
-import time
 from typing import Any, Dict, List, Optional, Union
 
 from geti_sdk.data_models import (
@@ -26,7 +25,7 @@ from geti_sdk.data_models import (
 from geti_sdk.data_models.containers import AlgorithmList
 from geti_sdk.data_models.enums import JobState, JobType
 from geti_sdk.data_models.project import Dataset
-from geti_sdk.http_session import GetiRequestException, GetiSession
+from geti_sdk.http_session import GetiSession
 from geti_sdk.platform_versions import GETI_11_VERSION
 from geti_sdk.rest_converters import (
     ConfigurationRESTConverter,
@@ -34,11 +33,12 @@ from geti_sdk.rest_converters import (
     StatusRESTConverter,
 )
 from geti_sdk.utils import get_supported_algorithms
+from geti_sdk.utils.job_helpers import get_job_with_timeout, monitor_jobs
 
 
 class TrainingClient:
     """
-    Class to manage training jobs for a certain project.
+    Class to manage training jobs for a certain Intel® Geti™ project.
     """
 
     def __init__(self, workspace_id: str, project: Project, session: GetiSession):
@@ -95,26 +95,6 @@ class TrainingClient:
             ]
         else:
             return job_list
-
-    def get_job_by_id(self, job_id: str) -> Optional[Job]:
-        """
-        Return the details of a Job by its `job_id`.
-
-        :param job_id: ID of the job to retrieve
-        :return: Job instance containing detailed information and status of the job.
-            If no job by the specified ID is found on the Intel® Geti™ platform, this
-            method returns None
-        """
-        try:
-            response = self.session.get_rest_response(
-                url=f"workspaces/{self.workspace_id}/jobs/{job_id}", method="GET"
-            )
-        except GetiRequestException as error:
-            if error.status_code == 404:
-                return None
-            else:
-                raise error
-        return JobRESTConverter.from_dict(response)
 
     def get_algorithms_for_task(self, task: Union[Task, int]) -> AlgorithmList:
         """
@@ -243,26 +223,19 @@ class TrainingClient:
             job_id = job.id
         else:
             job_id = response["job_ids"][0]
-            job = self.get_job_by_id(job_id=job_id)
-
-        if job is not None:
-            logging.info(f"Training job with ID {job_id} submitted successfully.")
-        else:
-            t_start = time.time()
-            while job is None and (time.time() - t_start < 10):
-                logging.info(
-                    f"Training request was submitted but the training job status could "
-                    f"not be retrieved from the platform yet. Re-attempting to fetch "
-                    f"job status. Looking for job with ID {job_id}"
-                )
-                time.sleep(2)
-                job = self.get_job_by_id(job_id=job_id)
-            if job is None:
-                raise RuntimeError(
-                    "Train request was submitted but the TrainingClient was unable to "
-                    "find the resulting training job on the Intel® Geti™ server."
-                )
-        job.workspace_id = self.workspace_id
+        try:
+            job = get_job_with_timeout(
+                job_id=job_id,
+                session=self.session,
+                workspace_id=self.workspace_id,
+                job_type="training",
+            )
+        except RuntimeError:
+            raise RuntimeError(
+                "Training job was submitted, but the TrainingClient was unable to "
+                "find the resulting job on the platform."
+            )
+        logging.info(f"Training job with id {job.id} submitted successfully.")
         return job
 
     def monitor_jobs(
@@ -280,50 +253,9 @@ class TrainingClient:
             the server to update the status of the jobs. Defaults to 15 seconds
         :return: List of finished (or failed) jobs with their status updated
         """
-        monitoring = True
-        completed_states = [
-            JobState.FINISHED,
-            JobState.CANCELLED,
-            JobState.FAILED,
-            JobState.ERROR,
-        ]
-        logging.info("---------------- Monitoring progress -------------------")
-        jobs_to_monitor = [
-            job for job in jobs if job.status.state not in completed_states
-        ]
-        try:
-            t_start = time.time()
-            t_elapsed = 0
-            while monitoring and t_elapsed < timeout:
-                msg = ""
-                complete_count = 0
-                for job in jobs_to_monitor:
-                    job.update(self.session)
-                    msg += (
-                        f"{job.name}  -- "
-                        f"  Phase: {job.status.user_friendly_message} "
-                        f"  State: {job.status.state} "
-                        f"  Progress: {job.status.progress:.1f}%"
-                    )
-                    if job.status.state in completed_states:
-                        complete_count += 1
-                if complete_count == len(jobs_to_monitor):
-                    monitoring = False
-                logging.info(msg)
-                time.sleep(interval)
-                t_elapsed = time.time() - t_start
-        except KeyboardInterrupt:
-            logging.info("Job monitoring interrupted, stopping...")
-            for job in jobs:
-                job.update(self.session)
-            return jobs
-        if t_elapsed < timeout:
-            logging.info("All jobs completed, monitoring stopped.")
-        else:
-            logging.info(
-                f"Monitoring stopped after {t_elapsed:.1f} seconds due to timeout."
-            )
-        return jobs
+        return monitor_jobs(
+            session=self.session, jobs=jobs, timeout=timeout, interval=interval
+        )
 
     def get_jobs_for_task(self, task: Task, running_only: bool = True) -> List[Job]:
         """
