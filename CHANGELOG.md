@@ -1,3 +1,13 @@
+# v1.5.6 Intel® Geti™ SDK (23-05-2023)
+## What's Changed
+* Add `group` key to hierarchical label definition in notebook 001 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/220
+* Add `TestingClient` to perform model tests by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/221
+* Wait for a project to become ready after it is created by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/223
+* Update requests requirement from ==2.28.* to ==2.31.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/222
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.5.5...v1.5.6
+
 # v1.5.5 Intel® Geti™ SDK (15-05-2023)
 ## What's Changed
 * Add param to disable certificate validation for data download helpers by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/218
