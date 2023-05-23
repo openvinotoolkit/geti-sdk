@@ -16,6 +16,7 @@ import copy
 import json
 import logging
 import os
+import time
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from geti_sdk.data_models import Project, Task, TaskType
@@ -170,6 +171,7 @@ class ProjectClient:
             )
             logging.info("Project created successfully.")
             project = ProjectRESTConverter.from_dict(project)
+            self._await_project_created_and_ready(project=project)
         return project
 
     def download_project_info(self, project_name: str, path_to_folder: str) -> None:
@@ -588,3 +590,32 @@ class ProjectClient:
             url=f"{self.base_url}projects/{project.id}", method="PUT", data=project_data
         )
         return ProjectRESTConverter.from_dict(response)
+
+    def _await_project_ready(
+        self, project: Project, timeout: int = 5, interval: int = 1
+    ) -> None:
+        """
+        Await the completion of the project creation process on the Intel® Geti™ server
+
+        :param project: Project object representing the project
+        :param timeout: Time (in seconds) after which the method will time out and
+            raise an error
+        :param interval: Interval (in seconds) between status checks of the project
+        :raises: TimeoutError if the project does not become ready after the specified
+            timeout
+        """
+        t_start = time.time()
+        error: Optional[BaseException] = None
+        while time.time() - t_start < timeout:
+            try:
+                self.session.get_rest_response(
+                    url=f"{self.base_url}projects/{project.id}/status", method="GET"
+                )
+                return
+            except GetiRequestException as latest_error:
+                time.sleep(interval)
+                error = latest_error
+        raise TimeoutError(
+            f"Project has not become ready within the specified timeout ({timeout} "
+            f"seconds)."
+        ) from error
