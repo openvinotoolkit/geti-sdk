@@ -171,7 +171,7 @@ class ProjectClient:
             )
             logging.info("Project created successfully.")
             project = ProjectRESTConverter.from_dict(project)
-            self._await_project_created_and_ready(project=project)
+            self._await_project_ready(project=project)
         return project
 
     def download_project_info(self, project_name: str, path_to_folder: str) -> None:
