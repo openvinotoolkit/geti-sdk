@@ -20,6 +20,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import attr
 import numpy as np
+import otx
 
 from geti_sdk.data_models import (
     Annotation,
@@ -30,11 +31,11 @@ from geti_sdk.data_models import (
     Task,
     TaskType,
 )
+from geti_sdk.data_models.predictions import ResultMedium
 from geti_sdk.data_models.shapes import Polygon, Rectangle, RotatedRectangle
 from geti_sdk.deployment.data_models import ROI, IntermediateInferenceResult
 from geti_sdk.rest_converters import ProjectRESTConverter
 
-from ..data_models.predictions import ResultMedium
 from .deployed_model import DeployedModel
 from .utils import OVMS_README_PATH, generate_ovms_model_name
 
@@ -179,8 +180,17 @@ class Deployment:
                     if label.name == "Anomalous":
                         label.is_anomalous = True
 
+            if otx.__version__ > "1.2.1":
+                configuration = model.openvino_model_parameters
+                converter_args = {
+                    "labels": model.ote_label_schema,
+                    "configuration": configuration,
+                }
+            else:
+                converter_args = {"labels": model.ote_label_schema}
+
             inference_converter = create_converter(
-                converter_type=task.type.to_ote_domain(), labels=model.ote_label_schema
+                converter_type=task.type.to_ote_domain(), **converter_args
             )
             inference_converters.update({task.title: inference_converter})
 
@@ -188,7 +198,7 @@ class Deployment:
             # versions
             if task.type.is_detection:
                 alternate_inference_converter = DetectionBoxToAnnotationConverter(
-                    labels=model.ote_label_schema
+                    **converter_args
                 )
                 self._alternate_inference_converters.update(
                     {task.title: alternate_inference_converter}
