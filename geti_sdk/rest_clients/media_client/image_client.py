@@ -15,6 +15,7 @@
 import datetime
 import glob
 import io
+import logging
 import os
 from typing import List, Optional, Sequence, Union
 
@@ -158,19 +159,24 @@ class ImageClient(BaseMediaClient[Image]):
                     for media_extension in media_formats:
                         if os.path.isfile(image_name + media_extension):
                             image_filepaths.append(image_name + media_extension)
+                            break
             image_filepaths = image_filepaths[0:n_to_upload]
 
         else:
+            logging.debug("Retrieving full filepaths for image upload...")
             for image_name in image_names[0:n_to_upload]:
                 if not extension_included:
                     matches: List[str] = []
                     for media_extension in media_formats:
-                        matches += glob.glob(
+                        match_for_item = glob.glob(
                             os.path.join(
                                 path_to_folder, "**", f"{image_name}{media_extension}"
                             ),
                             recursive=True,
                         )
+                        if len(match_for_item) > 0:
+                            matches += match_for_item
+                            break
                 else:
                     matches = glob.glob(
                         os.path.join(path_to_folder, "**", image_name), recursive=True
