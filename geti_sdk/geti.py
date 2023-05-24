@@ -627,11 +627,19 @@ class Geti:
             session=self.session, workspace_id=self.workspace_id, project=project
         )
         if isinstance(annotation_reader, DatumAnnotationReader):
-            images = image_client.upload_from_list(
-                path_to_folder=path_to_images,
-                image_names=annotation_reader.get_all_image_names(),
-                n_images=number_of_images_to_upload,
-            )
+            if hasattr(annotation_reader, "get_all_image_filepaths"):
+                images = image_client.upload_from_list(
+                    path_to_folder=path_to_images,
+                    image_names=annotation_reader.get_all_image_filepaths(),
+                    n_images=number_of_images_to_upload,
+                    image_names_as_full_paths=True,
+                )
+            else:
+                images = image_client.upload_from_list(
+                    path_to_folder=path_to_images,
+                    image_names=annotation_reader.get_all_image_names(),
+                    n_images=number_of_images_to_upload,
+                )
         else:
             images = image_client.upload_folder(
                 path_to_images, n_images=number_of_images_to_upload
