@@ -109,7 +109,6 @@ if __name__ == "__main__":
         total=num_frames, desc="Predicting"
     ) as progress_bar:
         while cap.isOpened():
-
             ret, frame = cap.read()
             if ret is True:
                 rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
