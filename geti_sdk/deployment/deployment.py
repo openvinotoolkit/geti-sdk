@@ -180,7 +180,7 @@ class Deployment:
                     if label.name == "Anomalous":
                         label.is_anomalous = True
 
-            if otx.__version__ > "1.2.1":
+            if otx.__version__ > "1.2.0":
                 configuration = model.openvino_model_parameters
                 converter_args = {
                     "labels": model.ote_label_schema,
