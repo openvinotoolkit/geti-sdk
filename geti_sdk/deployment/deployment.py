@@ -182,6 +182,8 @@ class Deployment:
 
             if otx.__version__ > "1.2.0":
                 configuration = model.openvino_model_parameters
+                if "use_ellipse_shapes" not in configuration.keys():
+                    configuration.update({"use_ellipse_shapes": False})
                 converter_args = {
                     "labels": model.ote_label_schema,
                     "configuration": configuration,
