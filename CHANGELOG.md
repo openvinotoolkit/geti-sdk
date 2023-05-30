@@ -1,3 +1,11 @@
+# v1.5.7 Intel® Geti™ SDK (30-05-2023)
+## What's Changed
+* Allow more efficient image uploading for datumaro annotation readers by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/224
+* Fix deployment for `otx v1.2.2` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/225
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.5.6...v1.5.7
+
 # v1.5.6 Intel® Geti™ SDK (23-05-2023)
 ## What's Changed
 * Add `group` key to hierarchical label definition in notebook 001 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/220
