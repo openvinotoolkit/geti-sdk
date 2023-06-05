@@ -256,3 +256,10 @@ class Job:
         :return:
         """
         return attr.asdict(self, recurse=True, value_serializer=attr_value_serializer)
+
+    @property
+    def is_finished(self) -> bool:
+        """
+        Return True if the job finished successfully, False otherwise
+        """
+        return self.status.state == JobState.FINISHED
