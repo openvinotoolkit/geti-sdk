@@ -1,0 +1,26 @@
+{
+   "id": "646ffe9eb54608068c885164",
+   "name": "ATSS OpenVINO FP16",
+   "version": 8,
+   "creation_date": "2023-05-26T00:34:38.429000+00:00",
+   "model_format": "OpenVINO",
+   "precision": [
+      "FP16"
+   ],
+   "has_xai_head": false,
+   "target_device": "CPU",
+   "target_device_type": null,
+   "performance": {
+      "score": 0.9281045751633985
+   },
+   "size": 15264525,
+   "latency": 0,
+   "fps_throughput": 0,
+   "optimization_type": "MO",
+   "optimization_objectives": {},
+   "model_status": "SUCCESS",
+   "configurations": [],
+   "previous_revision_id": "646ffe9eb54608068c885161",
+   "previous_trained_revision_id": "646ffe9eb54608068c885161",
+   "optimization_methods": []
+}

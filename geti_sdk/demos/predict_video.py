@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-import argparse
 import logging
 import os
 import tempfile
@@ -20,7 +19,7 @@ import time
 from typing import Optional, Union
 
 import cv2
-import moviepy.editor as mpe
+import ffmpeg
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -28,7 +27,7 @@ from geti_sdk.deployment import Deployment
 from geti_sdk.utils import show_image_with_annotation_scene
 
 
-def predict_video(
+def predict_video_on_local(
     video_path: Union[str, os.PathLike],
     deployment: Union[Deployment, str, os.PathLike],
     device: str = "CPU",
@@ -50,6 +49,8 @@ def predict_video(
     # prepare deployment for running inference
     if isinstance(deployment, (str, os.PathLike)):
         deployment = Deployment.from_folder(deployment)
+    elif not isinstance(deployment, Deployment):
+        raise ValueError(f"Unable to read deployment {deployment}")
 
     logging.info("Load inference models")
     deployment.load_inference_models(device=device)
@@ -128,17 +129,15 @@ def predict_video(
             if preserve_audio is True:
                 # restore sound
                 logging.info("Restoring all audio in the original input video")
-                original = mpe.VideoFileClip(video_path)
-                overlaid = mpe.VideoFileClip(file_out.name)
-                final = overlaid.set_audio(original.audio)
-                final.write_videofile(output_video_path, logger=None)
-                original.close()
-                overlaid.close()
-                final.close()
+                audio = ffmpeg.input(video_path).audio
+                video = ffmpeg.input(file_out.name).video
+                out = ffmpeg.output(video, audio, output_video_path)
+                out.run(overwrite_output=True, quiet=True)
             else:
-                overlaid = mpe.VideoFileClip(file_out.name)
-                overlaid.write_videofile(output_video_path, logger=None)
-                overlaid.close()
+                stream = ffmpeg.input(file_out.name)
+                stream = ffmpeg.output(stream, output_video_path)
+                ffmpeg.run(stream, overwrite_output=True, quiet=True)
+
             retval = output_video_path
             t_reconstruction = time.time() - t_prediction - t_start
             logging.info(
@@ -149,26 +148,3 @@ def predict_video(
         file_out.close()
 
     return retval
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("video_path", type=str)
-    parser.add_argument("deployment_path", type=str)
-    parser.add_argument("--device", choices=["CPU", "GPU"], default="CPU")
-    parser.add_argument("--preserve_audio", type=bool, default=True)
-    parser.add_argument("--log_level", choices=["warning", "info"], default="warning")
-
-    args = parser.parse_args()
-
-    level_config = {"warning": logging.WARNING, "info": logging.INFO}
-    log_level = level_config[args.log_level.lower()]
-    logging.basicConfig(level=log_level)
-
-    video_path = args.video_path
-    deployment_path = args.deployment_path
-    device = args.device
-    preserve_audio = args.preserve_audio
-    predict_video(
-        video_path, deployment_path, device=device, preserve_audio=preserve_audio
-    )
