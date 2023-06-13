@@ -144,7 +144,8 @@ This code sample shows how to get a deployment from the server.
 > deployment.save(PATH_TO_DEPLOYMENT)
 > ```
 
-> **NOTE**: To run these examples, FFmpeg must be installed and accessible via the `$PATH` environment variable.
+> **NOTE**: To preserve audio in the video,
+> FFmpeg must be installed and accessible via the `$PATH` environment variable.
 >
 > To install FFmpeg, refer the [official download links](https://ffmpeg.org/download.html),
 > or use your package manager of choice. (e.g. `sudo apt install ffmpeg` on Debian/Ubuntu).

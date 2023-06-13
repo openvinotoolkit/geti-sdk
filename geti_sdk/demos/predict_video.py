@@ -14,6 +14,7 @@
 
 import logging
 import os
+import shutil
 import tempfile
 import time
 from typing import Optional, Union
@@ -42,6 +43,7 @@ def predict_video_on_local(
     :param deployment: Path to the folder containing the Deployment data, or Deployment instance
     :param device: Device (CPU or GPU) to load the model to. Defaults to 'CPU'
     :param preserve_audio: True to preserve all audio in the original input video. Defaults to True.
+        If ffmpeg isn't installed, this option is ignored and no audio would be preserved.
     :return: The file path of the output video if generated successfully. Otherwise None.
     """
     retval = None
@@ -98,15 +100,18 @@ def predict_video_on_local(
             f"Prediction completed successfully in {t_prediction:.1f} seconds. "
         )
 
+        # Determine the output video path
+        fname, ext = os.path.splitext(video_path)
+        output_video_path = os.path.abspath(fname + "_reconstructed" + ext)
+
         # Create a video writer to be able to save the reconstructed video
-        file_out = tempfile.NamedTemporaryFile(suffix=".avi")
-        logging.info(f"temp video file path is {file_out.name}")
-        temp_video = cv2.VideoWriter(
-            filename=file_out.name,
-            fourcc=cv2.VideoWriter_fourcc("M", "J", "P", "G"),
+        out_video = cv2.VideoWriter(
+            filename=output_video_path,
+            fourcc=cv2.VideoWriter_fourcc(*"mp4v"),
             fps=fps,
             frameSize=(frame_width, frame_height),
         )
+
         count = 0
         logging.info("Running video reconstruction... ")
         with logging_redirect_tqdm(tqdm_class=tqdm), tqdm(
@@ -116,35 +121,27 @@ def predict_video_on_local(
                 output_frame = show_image_with_annotation_scene(
                     image=rgb_frame, annotation_scene=prediction, show_results=False
                 )
-                temp_video.write(output_frame)
+                out_video.write(output_frame)
                 count += 1
                 progress_bar.update(1)
-        temp_video.release()
+        out_video.release()
 
-        if count == num_frames:
-            # Determine the output video path
-            fname, ext = os.path.splitext(video_path)
-            output_video_path = os.path.abspath(fname + "_reconstructed" + ext)
+        if shutil.which("ffmpeg") is not None and preserve_audio is True:
+            # restore sound
+            logging.info("Restoring all audio in the original input video")
+            audio = ffmpeg.input(video_path).audio
+            video = ffmpeg.input(output_video_path).video
+            # ffmpeg can't use same input/output video file.
+            temp = tempfile.NamedTemporaryFile(suffix=ext, delete=False)
+            out = ffmpeg.output(video, audio, temp.name)
+            out.run(overwrite_output=True, quiet=True)
+            shutil.move(temp.name, output_video_path)
 
-            if preserve_audio is True:
-                # restore sound
-                logging.info("Restoring all audio in the original input video")
-                audio = ffmpeg.input(video_path).audio
-                video = ffmpeg.input(file_out.name).video
-                out = ffmpeg.output(video, audio, output_video_path)
-                out.run(overwrite_output=True, quiet=True)
-            else:
-                stream = ffmpeg.input(file_out.name)
-                stream = ffmpeg.output(stream, output_video_path)
-                ffmpeg.run(stream, overwrite_output=True, quiet=True)
-
-            retval = output_video_path
-            t_reconstruction = time.time() - t_prediction - t_start
-            logging.info(
-                f"Reconstruction completed successfully in {t_reconstruction:.1f} seconds."
-            )
-            logging.info(f"Output video saved to `{output_video_path}`")
-
-        file_out.close()
+        retval = output_video_path
+        t_reconstruction = time.time() - t_prediction - t_start
+        logging.info(
+            f"Reconstruction completed successfully in {t_reconstruction:.1f} seconds."
+        )
+        logging.info(f"Output video saved to `{output_video_path}`")
 
     return retval

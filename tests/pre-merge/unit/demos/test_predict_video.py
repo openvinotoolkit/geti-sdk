@@ -13,6 +13,7 @@
 # and limitations under the License.
 
 import os
+import shutil
 import sys
 
 import cv2
@@ -30,7 +31,6 @@ class TestPredictVideo:
         fxt_deployment_path_dice: str,
         preserve_audio: bool,
     ) -> None:
-
         # Act
         result_filepath = predict_video_on_local(
             video_path=fxt_video_path_dice,
@@ -64,7 +64,7 @@ class TestPredictVideo:
         cap_src.release()
         cap_dst.release()
 
-        if preserve_audio:
+        if preserve_audio and shutil.which("ffmpeg") is not None:
             # original audio should be preserved.
             probe_src = ffmpeg.probe(fxt_video_path_dice, select_streams="a")
             probe_dst = ffmpeg.probe(result_filepath, select_streams="a")
