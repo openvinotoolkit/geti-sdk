@@ -123,3 +123,35 @@ The example scripts `upload_and_predict_from_numpy.py` and
 `upload_and_predict_media_from_folder.py` show how to upload either a single media
 item directly from memory, or upload an entire folder of media items and
 get predictions for the media from the cluster.
+
+## Predict a video on local environment
+Once you download(deploy) a model from the server, you can get predictions on the local environment.
+The example script `predict_video_on_local.py` shows how to reconstruct a video with overlaid predictions without uploading the file to server.
+
+This code sample shows how to get a deployment from the server.
+
+> ```shell
+> # Get the server configuration from .env file
+> server_config = get_server_details_from_env()
+>
+> # Set up the Geti instance with the server configuration details
+> geti = Geti(server_config=server_config)
+>
+> # Create deployment for the project, and prepare it for running inference
+> deployment = geti.deploy_project(PROJECT_NAME)
+>
+> # Save deployment on local
+> deployment.save(PATH_TO_DEPLOYMENT)
+> ```
+
+> **NOTE**: To run these examples, FFmpeg must be installed and accessible via the `$PATH` environment variable.
+>
+> To install FFmpeg, refer the [official download links](https://ffmpeg.org/download.html),
+> or use your package manager of choice. (e.g. `sudo apt install ffmpeg` on Debian/Ubuntu).
+>
+> You can check if your environment path is set correctly by running the `ffmpeg -version` command from the terminal,
+> in which case the version information should appear.
+>
+> ```shell
+> $ ffmpeg -version
+> ```
