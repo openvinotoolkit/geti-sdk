@@ -147,6 +147,9 @@ class ConfigurableFloat(ConfigurableParameter):
     value: float = attr.field(kw_only=True)
     min_value: float = attr.field(kw_only=True)
     max_value: float = attr.field(kw_only=True)
+    step_size: Optional[float] = attr.field(
+        kw_only=True, default=None
+    )  # Added in Geti v1.6
 
 
 @attr.define
