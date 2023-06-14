@@ -38,55 +38,10 @@
             "all_labels": {
                 "646da53175eff9a69e8c0147": {
                     "_id": "646da53175eff9a69e8c0147",
-                    "name": "dice 1",
+                    "name": "dice 4",
                     "color": {
                         "red": 37,
                         "green": 161,
-                        "blue": 142,
-                        "alpha": 255
-                    },
-                    "hotkey": "1",
-                    "domain": "DETECTION",
-                    "creation_date": "2023-05-24T05:48:33.113000",
-                    "is_empty": false,
-                    "is_anomalous": false
-                },
-                "646da53175eff9a69e8c0148": {
-                    "_id": "646da53175eff9a69e8c0148",
-                    "name": "dice 2",
-                    "color": {
-                        "red": 201,
-                        "green": 230,
-                        "blue": 73,
-                        "alpha": 255
-                    },
-                    "hotkey": "2",
-                    "domain": "DETECTION",
-                    "creation_date": "2023-05-24T05:48:33.113000",
-                    "is_empty": false,
-                    "is_anomalous": false
-                },
-                "646da53175eff9a69e8c0149": {
-                    "_id": "646da53175eff9a69e8c0149",
-                    "name": "dice 3",
-                    "color": {
-                        "red": 215,
-                        "green": 188,
-                        "blue": 94,
-                        "alpha": 255
-                    },
-                    "hotkey": "3",
-                    "domain": "DETECTION",
-                    "creation_date": "2023-05-24T05:48:33.113000",
-                    "is_empty": false,
-                    "is_anomalous": false
-                },
-                "646da53175eff9a69e8c014a": {
-                    "_id": "646da53175eff9a69e8c014a",
-                    "name": "dice 4",
-                    "color": {
-                        "red": 38,
-                        "green": 81,
                         "blue": 142,
                         "alpha": 255
                     },
@@ -96,13 +51,13 @@
                     "is_empty": false,
                     "is_anomalous": false
                 },
-                "646da53175eff9a69e8c014b": {
-                    "_id": "646da53175eff9a69e8c014b",
+                "646da53175eff9a69e8c0148": {
+                    "_id": "646da53175eff9a69e8c0148",
                     "name": "dice 5",
                     "color": {
-                        "red": 233,
-                        "green": 97,
-                        "blue": 21,
+                        "red": 201,
+                        "green": 230,
+                        "blue": 73,
                         "alpha": 255
                     },
                     "hotkey": "5",
@@ -111,16 +66,61 @@
                     "is_empty": false,
                     "is_anomalous": false
                 },
+                "646da53175eff9a69e8c0149": {
+                    "_id": "646da53175eff9a69e8c0149",
+                    "name": "dice 6",
+                    "color": {
+                        "red": 215,
+                        "green": 188,
+                        "blue": 94,
+                        "alpha": 255
+                    },
+                    "hotkey": "6",
+                    "domain": "DETECTION",
+                    "creation_date": "2023-05-24T05:48:33.113000",
+                    "is_empty": false,
+                    "is_anomalous": false
+                },
+                "646da53175eff9a69e8c014a": {
+                    "_id": "646da53175eff9a69e8c014a",
+                    "name": "dice 1",
+                    "color": {
+                        "red": 38,
+                        "green": 81,
+                        "blue": 142,
+                        "alpha": 255
+                    },
+                    "hotkey": "1",
+                    "domain": "DETECTION",
+                    "creation_date": "2023-05-24T05:48:33.113000",
+                    "is_empty": false,
+                    "is_anomalous": false
+                },
+                "646da53175eff9a69e8c014b": {
+                    "_id": "646da53175eff9a69e8c014b",
+                    "name": "dice 2",
+                    "color": {
+                        "red": 233,
+                        "green": 97,
+                        "blue": 21,
+                        "alpha": 255
+                    },
+                    "hotkey": "2",
+                    "domain": "DETECTION",
+                    "creation_date": "2023-05-24T05:48:33.113000",
+                    "is_empty": false,
+                    "is_anomalous": false
+                },
                 "646da53175eff9a69e8c014c": {
                     "_id": "646da53175eff9a69e8c014c",
-                    "name": "dice 6",
+                    "name": "dice 3",
                     "color": {
                         "red": 7,
                         "green": 105,
                         "blue": 132,
                         "alpha": 255
                     },
-                    "hotkey": "6",
+                    "hotkey": "3",
                     "domain": "DETECTION",
                     "creation_date": "2023-05-24T05:48:33.113000",
                     "is_empty": false,
