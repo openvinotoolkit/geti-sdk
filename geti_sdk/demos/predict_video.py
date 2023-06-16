@@ -17,7 +17,7 @@ import os
 import shutil
 import tempfile
 import time
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 import cv2
 import ffmpeg
