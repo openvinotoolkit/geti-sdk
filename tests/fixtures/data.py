@@ -13,6 +13,7 @@
 # and limitations under the License.
 import json
 import os
+import shutil
 from typing import Callable, List
 
 import pytest
@@ -213,7 +214,11 @@ def fxt_deployment_path_dice(fxt_dice_dataset) -> str:
     """
     This fixture returns the path to the deployment folder for video prediction
     """
-    yield os.path.join(fxt_dice_dataset, "deployment")
+    deployment_path = os.path.join(fxt_dice_dataset, "deployment")
+    deployment_file = os.path.join(fxt_dice_dataset, "deployment.zip")
+    shutil.unpack_archive(deployment_file, deployment_path)
+    yield deployment_path
+    shutil.rmtree(deployment_path)
 
 
 @pytest.fixture(scope="session")
