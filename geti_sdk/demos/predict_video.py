@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import ffmpeg
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
+from geti_sdk.data_models import Prediction
 from geti_sdk.deployment import Deployment
 from geti_sdk.utils import show_image_with_annotation_scene
 
@@ -77,7 +78,7 @@ def predict_video_on_local(
 
     t_start = time.time()
 
-    predictions = list()
+    predictions: List[Prediction] = []
     logging.info("Running video prediction... ")
     with logging_redirect_tqdm(tqdm_class=tqdm), tqdm(
         total=num_frames, desc="Predicting"
