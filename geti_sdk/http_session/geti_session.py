@@ -404,6 +404,8 @@ class GetiSession(requests.Session):
         :raises: GetiRequestException in case the error cannot be handled
         :return: Response object resulting from the request
         """
+        retry_request = False
+
         if response.status_code in [200, 401, 403] and allow_reauthentication:
             # Authentication has likely expired, re-authenticate
             logging.info("Authentication may have expired, re-authenticating...")
@@ -416,19 +418,25 @@ class GetiSession(requests.Session):
                 logging.info("New bearer token obtained.")
                 self.headers.update({"Authorization": f"Bearer {access_token}"})
 
-            # We make one attempt to do the request again. If it fails again, a
-            # GetiRequestException will be raised holding further details of the
-            # reason for failure.
-            self._update_headers_for_content_type(content_type=content_type)
-            response = self.request(**request_params, **self._proxies)
-            if response.status_code in SUCCESS_STATUS_CODES:
-                return response
+            retry_request = True
 
         elif response.status_code == 503:
             # In case of Service Unavailable, wait some time and try again. If it
             # still doesn't work, raise exception
             time.sleep(1)
+            retry_request = True
+
+        # We make one attempt to do the request again. If it fails again, a
+        # GetiRequestException will be raised holding further details of the
+        # reason for failure.
+        if retry_request:
             self._update_headers_for_content_type(content_type=content_type)
+            # Reset any file buffers that were included in the request data, so that we
+            # can attempt to upload them again.
+            if content_type == "multipart":
+                for file_name, file_buffer in request_params["files"].items():
+                    file_buffer.seek(0, 0)
+
             response = self.request(**request_params, **self._proxies)
 
             if response.status_code in SUCCESS_STATUS_CODES:
