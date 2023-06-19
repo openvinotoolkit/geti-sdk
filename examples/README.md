@@ -126,7 +126,7 @@ get predictions for the media from the cluster.
 
 ## Predict a video on local environment
 Once you download(deploy) a model from the server, you can get predictions on the local environment.
-The example script `predict_video_on_local.py` shows how to reconstruct a video with overlaid predictions without uploading the file to server.
+The example script `predict_video_locally.py` shows how to reconstruct a video with overlaid predictions without uploading the file to server.
 
 This code sample shows how to get a deployment from the server.
 
@@ -142,17 +142,4 @@ This code sample shows how to get a deployment from the server.
 >
 > # Save deployment on local
 > deployment.save(PATH_TO_DEPLOYMENT)
-> ```
-
-> **NOTE**: To preserve audio in the video,
-> FFmpeg must be installed and accessible via the `$PATH` environment variable.
->
-> To install FFmpeg, refer the [official download links](https://ffmpeg.org/download.html),
-> or use your package manager of choice. (e.g. `sudo apt install ffmpeg` on Debian/Ubuntu).
->
-> You can check if your environment path is set correctly by running the `ffmpeg -version` command from the terminal,
-> in which case the version information should appear.
->
-> ```shell
-> $ ffmpeg -version
 > ```

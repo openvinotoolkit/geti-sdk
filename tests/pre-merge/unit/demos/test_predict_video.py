@@ -13,26 +13,27 @@
 # and limitations under the License.
 
 import os
-import shutil
+import re
+import subprocess
 import sys
 
 import cv2
-import ffmpeg
+import imageio_ffmpeg
 import pytest
 
-from geti_sdk.demos import predict_video_on_local
+from geti_sdk.demos import predict_video_from_deployment
 
 
 class TestPredictVideo:
     @pytest.mark.parametrize("preserve_audio", [True, False])
-    def test_predict_video_on_local(
+    def test_predict_video_from_deployment(
         self,
         fxt_video_path_dice: str,
         fxt_deployment_path_dice: str,
         preserve_audio: bool,
     ) -> None:
         # Act
-        result_filepath = predict_video_on_local(
+        result_filepath = predict_video_from_deployment(
             video_path=fxt_video_path_dice,
             deployment=fxt_deployment_path_dice,
             preserve_audio=preserve_audio,
@@ -64,31 +65,51 @@ class TestPredictVideo:
         cap_src.release()
         cap_dst.release()
 
-        if preserve_audio and shutil.which("ffmpeg") is not None:
-            # original audio should be preserved.
-            probe_src = ffmpeg.probe(fxt_video_path_dice, select_streams="a")
-            probe_dst = ffmpeg.probe(result_filepath, select_streams="a")
-            if probe_src["streams"]:
-                assert probe_dst["streams"]
+        if preserve_audio is True:
+            try:
+                FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
+                cmd = [
+                    FFMPEG,
+                    "-i",
+                    result_filepath,
+                    "-map",
+                    "0:a?",
+                    "-c",
+                    "copy",
+                    "-f",
+                    "null",
+                    "-",
+                ]
+                out = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+                audio_kb: int = 0
+                for line in reversed(out.splitlines()):
+                    if line.startswith(b"video:"):
+                        line = line.decode(errors="ignore")
+                        p = re.search("audio:([0-9]+)kB", line)
+                        if p is not None:
+                            audio_kb = int(p.group(1))
+                assert audio_kb > 0
+            except RuntimeError:
+                pass  # ignore audio check when FFMPEG binary could not be found.
 
         # delete output video
         os.remove(result_filepath)
 
         # Act and assert
         with pytest.raises(ValueError):
-            predict_video_on_local(
+            predict_video_from_deployment(
                 video_path=None,
                 deployment=fxt_deployment_path_dice,
                 preserve_audio=preserve_audio,
             )
         with pytest.raises(ValueError):
-            predict_video_on_local(
+            predict_video_from_deployment(
                 video_path=fxt_video_path_dice,
                 deployment=None,
                 preserve_audio=preserve_audio,
             )
         with pytest.raises(ValueError):
-            predict_video_on_local(
+            predict_video_from_deployment(
                 video_path=fxt_video_path_dice,
                 deployment=fxt_deployment_path_dice + "/",
                 preserve_audio=preserve_audio,

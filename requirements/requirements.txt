@@ -18,4 +18,4 @@ joblib>=1.1.1
 protobuf>=3.20.2
 ovmsclient>=2022.3
 orjson==3.8.8
-ffmpeg-python==0.2.0
+imageio-ffmpeg==0.4.8

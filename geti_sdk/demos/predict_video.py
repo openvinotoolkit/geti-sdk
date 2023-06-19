@@ -15,12 +15,13 @@
 import logging
 import os
 import shutil
+import subprocess
 import tempfile
 import time
 from typing import List, Optional, Union
 
 import cv2
-import ffmpeg
+import imageio_ffmpeg
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -29,12 +30,12 @@ from geti_sdk.deployment import Deployment
 from geti_sdk.utils import show_image_with_annotation_scene
 
 
-def predict_video_on_local(
+def predict_video_from_deployment(
     video_path: Union[str, os.PathLike],
     deployment: Union[Deployment, str, os.PathLike],
     device: str = "CPU",
     preserve_audio: Optional[bool] = True,
-) -> str:
+) -> Optional[str]:
     """
     Create a video reconstruction with overlaid model predictions.
     This function runs inference on the local machine for every frame in the video.
@@ -44,10 +45,10 @@ def predict_video_on_local(
     :param deployment: Path to the folder containing the Deployment data, or Deployment instance
     :param device: Device (CPU or GPU) to load the model to. Defaults to 'CPU'
     :param preserve_audio: True to preserve all audio in the original input video. Defaults to True.
-        If ffmpeg isn't installed, this option is ignored and no audio would be preserved.
+        If ffmpeg could not be found, this option is ignored and no audio would be preserved.
     :return: The file path of the output video if generated successfully. Otherwise None.
     """
-    retval = None
+    retval: Optional[str] = None
 
     # prepare deployment for running inference
     if isinstance(deployment, (str, os.PathLike)):
@@ -127,16 +128,51 @@ def predict_video_on_local(
                 progress_bar.update(1)
         out_video.release()
 
-        if shutil.which("ffmpeg") is not None and preserve_audio is True:
-            # restore sound
-            logging.info("Restoring all audio in the original input video")
-            audio = ffmpeg.input(video_path).audio
-            video = ffmpeg.input(output_video_path).video
-            # ffmpeg can't use same input/output video file.
-            temp = tempfile.NamedTemporaryFile(suffix=ext, delete=False)
-            out = ffmpeg.output(video, audio, temp.name)
-            out.run(overwrite_output=True, quiet=True)
-            shutil.move(temp.name, output_video_path)
+        if preserve_audio is True:
+            try:
+                # audio = ffmpeg.input(video_path).audio
+                # video = ffmpeg.input(output_video_path).video
+                # # ffmpeg can't use same input/output video file.
+                # temp = tempfile.NamedTemporaryFile(suffix=ext, delete=False)
+                # out = ffmpeg.output(video, audio, temp.name)
+                # out.run(overwrite_output=True, quiet=True)
+                # shutil.move(temp.name, output_video_path)
+                FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
+                logging.info("Restoring all audio in the original input video")
+                # ffmpeg can't use same input/output video file.
+                with tempfile.NamedTemporaryFile(suffix=ext) as temp:
+                    cmd = [
+                        FFMPEG,
+                        "-i",
+                        output_video_path,  # 1st input
+                        "-i",
+                        video_path,  # 2nd input
+                        "-map",
+                        "0:v",  # video from the 1st input(output_video_path)
+                        "-map",
+                        "1:a?",  # audio from the 2nd input(video_path). '?' to ignore if no audio exists.
+                        "-c",
+                        "copy",
+                        "-y",
+                        temp.name,
+                    ]
+                    p = subprocess.run(
+                        cmd,
+                        stdin=subprocess.PIPE,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                    )
+                    if p.returncode == 0:
+                        shutil.copy(temp.name, output_video_path)
+                    else:
+                        logging.warning(
+                            "Error occurred while processing audio. No audio would be preserved."
+                        )
+
+            except RuntimeError:  # FFMPEG binary could not be found.
+                logging.warning(
+                    "ffmpeg could not be found on your system. No audio would be preserved."
+                )
 
         retval = output_video_path
         t_reconstruction = time.time() - t_prediction - t_start
@@ -144,5 +180,7 @@ def predict_video_on_local(
             f"Reconstruction completed successfully in {t_reconstruction:.1f} seconds."
         )
         logging.info(f"Output video saved to `{output_video_path}`")
+    else:
+        logging.warning("Prediction process failed. ")
 
     return retval
