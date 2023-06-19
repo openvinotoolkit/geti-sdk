@@ -231,16 +231,7 @@ class GetiSession(requests.Session):
         if url.startswith(self.config.api_pattern):
             url = url[len(self.config.api_pattern) :]
 
-        if contenttype == "json":
-            self.headers.update({"Content-Type": "application/json"})
-        elif contenttype == "jpeg":
-            self.headers.update({"Content-Type": "image/jpeg"})
-        elif contenttype == "multipart":
-            self.headers.pop("Content-Type", None)
-        elif contenttype == "":
-            self.headers.pop("Content-Type", None)
-        elif contenttype == "zip":
-            self.headers.update({"Content-Type": "application/zip"})
+        self._update_headers_for_content_type(content_type=contenttype)
 
         requesturl = f"{self.config.base_url}{url}"
 
@@ -287,6 +278,7 @@ class GetiSession(requests.Session):
                 request_params=request_params,
                 request_data=kw_data_arg,
                 allow_reauthentication=allow_reauthentication,
+                content_type=contenttype,
             )
 
         if response.headers.get("Content-Type", None) == "application/json":
@@ -397,6 +389,7 @@ class GetiSession(requests.Session):
         request_params: Dict[str, Any],
         request_data: Dict[str, Any],
         allow_reauthentication: bool = True,
+        content_type: str = "json",
     ) -> Response:
         """
         Handle error responses from the server.
@@ -407,9 +400,12 @@ class GetiSession(requests.Session):
         :param allow_reauthentication: True to handle authentication errors
             by attempting to re-authenticate. If set to False, such errors
             will be raised instead.
+        :param content_type: The content type of the original request
         :raises: GetiRequestException in case the error cannot be handled
         :return: Response object resulting from the request
         """
+        retry_request = False
+
         if response.status_code in [200, 401, 403] and allow_reauthentication:
             # Authentication has likely expired, re-authenticate
             logging.info("Authentication may have expired, re-authenticating...")
@@ -422,17 +418,25 @@ class GetiSession(requests.Session):
                 logging.info("New bearer token obtained.")
                 self.headers.update({"Authorization": f"Bearer {access_token}"})
 
-            # We make one attempt to do the request again. If it fails again, a
-            # GetiRequestException will be raised holding further details of the
-            # reason for failure.
-            response = self.request(**request_params, **self._proxies)
-            if response.status_code in SUCCESS_STATUS_CODES:
-                return response
+            retry_request = True
 
         elif response.status_code == 503:
             # In case of Service Unavailable, wait some time and try again. If it
             # still doesn't work, raise exception
             time.sleep(1)
+            retry_request = True
+
+        # We make one attempt to do the request again. If it fails again, a
+        # GetiRequestException will be raised holding further details of the
+        # reason for failure.
+        if retry_request:
+            self._update_headers_for_content_type(content_type=content_type)
+            # Reset any file buffers that were included in the request data, so that we
+            # can attempt to upload them again.
+            if content_type == "multipart":
+                for file_name, file_buffer in request_params["files"].items():
+                    file_buffer.seek(0, 0)
+
             response = self.request(**request_params, **self._proxies)
 
             if response.status_code in SUCCESS_STATUS_CODES:
@@ -450,3 +454,20 @@ class GetiSession(requests.Session):
             request_data=request_data,
             response_data=response_data,
         )
+
+    def _update_headers_for_content_type(self, content_type: str) -> None:
+        """
+        Update the session headers to contain the correct content type
+
+        :param content_type: content type for the request
+        """
+        if content_type == "json":
+            self.headers.update({"Content-Type": "application/json"})
+        elif content_type == "jpeg":
+            self.headers.update({"Content-Type": "image/jpeg"})
+        elif content_type == "multipart":
+            self.headers.pop("Content-Type", None)
+        elif content_type == "":
+            self.headers.pop("Content-Type", None)
+        elif content_type == "zip":
+            self.headers.update({"Content-Type": "application/zip"})
