@@ -1,3 +1,19 @@
+# v1.5.8 Intel® Geti™ SDK (19-06-2023)
+## What's Changed
+* Update vcrpy requirement from ==4.2.* to ==4.3.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/227
+* Specify correct project name in notebook 009 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/229
+* Fix name of project to download in notebook 009 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/233
+* Update pytest-cov requirement from ==4.0.* to ==4.1.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/231
+* upgrate isort to 5.12.0 to avoid runtime error in pre-commit in python 3.8 by @jihyeonyi in https://github.com/openvinotoolkit/geti-sdk/pull/235
+* Update all pre-commit hooks to latest versions by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/237
+* Add `step_size` field to configurable floats by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/241
+* Handle re-authentication during media upload robustly by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/244
+
+## New Contributors
+* @jihyeonyi made their first contribution in https://github.com/openvinotoolkit/geti-sdk/pull/235
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.5.7...v1.5.8
+
 # v1.5.7 Intel® Geti™ SDK (30-05-2023)
 ## What's Changed
 * Allow more efficient image uploading for datumaro annotation readers by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/224
