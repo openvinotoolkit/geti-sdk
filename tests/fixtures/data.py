@@ -13,6 +13,7 @@
 # and limitations under the License.
 import json
 import os
+import shutil
 from typing import Callable, List
 
 import pytest
@@ -198,3 +199,31 @@ def fxt_classification_to_detection_annotation_readers(
     `classification_to_detection` project, for the `blocks` dataset.
     """
     yield [fxt_annotation_reader_grouped, fxt_annotation_reader]
+
+
+@pytest.fixture(scope="session")
+def fxt_dice_dataset(fxt_base_test_path) -> str:
+    """
+    This fixture returns the path to the 'dice' dataset for video prediction
+    """
+    yield os.path.join(fxt_base_test_path, "data", "dice")
+
+
+@pytest.fixture(scope="session")
+def fxt_deployment_path_dice(fxt_dice_dataset) -> str:
+    """
+    This fixture returns the path to the deployment folder for video prediction
+    """
+    deployment_path = os.path.join(fxt_dice_dataset, "deployment")
+    deployment_file = os.path.join(fxt_dice_dataset, "deployment.zip")
+    shutil.unpack_archive(deployment_file, deployment_path)
+    yield deployment_path
+    shutil.rmtree(deployment_path)
+
+
+@pytest.fixture(scope="session")
+def fxt_video_path_dice(fxt_dice_dataset) -> str:
+    """
+    This fixture returns the path to a sample video for video prediction
+    """
+    yield os.path.join(fxt_dice_dataset, "dice_rolling_with_sound.mp4")

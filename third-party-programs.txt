@@ -95,6 +95,7 @@ babel
 docutils
 enum34
 idna
+imageio-ffmpeg
 ipykernel
 ipython
 ipython-genutils
