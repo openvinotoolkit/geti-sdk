@@ -17,5 +17,5 @@ certifi>=2022.12.7
 joblib>=1.1.1
 protobuf>=3.20.2
 ovmsclient>=2022.3
-orjson==3.8.8
+orjson==3.9.1
 imageio-ffmpeg==0.4.8
