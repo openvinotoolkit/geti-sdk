@@ -16,10 +16,19 @@
 
 
 from .image import display_image_in_notebook, simulate_low_light_image
+from .image import TransformImages, extract_features_from_imageclient, get_image_paths, extract_features_from_img_folder
+from .image import display_sample_images_in_folder
+from .ood_detect import show_top_n_misclassifications
 from .upload import Uploader
 from .video import VideoPlayer
 
 __all__ = [
+    "get_image_paths",
+    "show_top_n_misclassifications",
+    "extract_features_from_imageclient",
+    "display_sample_images_in_folder",
+    "extract_features_from_img_folder",
+    "TransformImages",
     "simulate_low_light_image",
     "display_image_in_notebook",
     "VideoPlayer",
