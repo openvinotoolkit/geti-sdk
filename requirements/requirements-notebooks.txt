@@ -4,6 +4,6 @@ jupyter-core>=4.11.2
 ipywidgets>=8.0.0
 mistune>=2.0.3
 imgaug>=0.4.0
-splitfolders>=0.5.1
+split-folders>=0.5.1
 scikit-learn>=1.1.2
 matplotlib>=3.6.0
