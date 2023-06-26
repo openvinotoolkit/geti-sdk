@@ -24,7 +24,6 @@ from geti_sdk.rest_clients import ImageClient
 from geti_sdk.http_session import GetiSession
 import os
 from tqdm import tqdm
-import albumentations
 import imgaug.augmenters as iaa
 import matplotlib.pyplot as plt
 from math import sqrt
