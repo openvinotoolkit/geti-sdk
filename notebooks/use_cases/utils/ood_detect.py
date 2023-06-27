@@ -12,17 +12,18 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-import cv2
-from .image import get_image_paths, get_grid_arrangement
+
+from .image import get_grid_arrangement, get_image_paths
 
 
 def show_top_n_misclassifications(
-        images_dir: str,
-        scores: np.ndarray,
-        type_of_samples: str,
-        n_images: int = 9,
+    images_dir: str,
+    scores: np.ndarray,
+    type_of_samples: str,
+    n_images: int = 9,
 ):
     """
     Show top n misclassified images based on their OOD scores
@@ -39,7 +40,9 @@ def show_top_n_misclassifications(
     elif type_of_samples == "ood":
         score_sort_inds = np.argsort(scores)[::-1]
     else:
-        raise ValueError(f"type_of_samples must be one of ['id', 'ood'], got {type_of_samples}")
+        raise ValueError(
+            f"type_of_samples must be one of ['id', 'ood'], got {type_of_samples}"
+        )
 
     images_paths = list(images_paths_and_labels.keys())
     image_paths_sorted_by_score = [images_paths[k] for k in score_sort_inds]
@@ -52,10 +55,13 @@ def show_top_n_misclassifications(
         image = cv2.resize(image, (480, 480))
         ax.imshow(image)
         label = images_paths_and_labels[image_paths_sorted_by_score[i]]
-        ax.set_title(f"Label: {label} \n (Sore : {scores[score_sort_inds[i]]:.2f})",
-                     color='#0068b5',
-                     fontsize=11, wrap=True)
-        ax.axis('off')
+        ax.set_title(
+            f"Label: {label} \n (Sore : {scores[score_sort_inds[i]]:.2f})",
+            color="#0068b5",
+            fontsize=11,
+            wrap=True,
+        )
+        ax.axis("off")
     fig.suptitle(f"Top {n_images} misclassified {type_of_samples} images", fontsize=16)
     plt.tight_layout()
     plt.show()
