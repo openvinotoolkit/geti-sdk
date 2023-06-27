@@ -5,5 +5,5 @@ ipywidgets>=8.0.0
 mistune>=2.0.3
 imgaug>=0.4.0
 split-folders>=0.5.1
-scikit-learn>=0.24.*
+scikit-learn>=0.24.2
 matplotlib>=3.6.0
