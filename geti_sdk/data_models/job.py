@@ -25,6 +25,7 @@ from geti_sdk.data_models.utils import (
     attr_value_serializer,
     str_to_datetime,
     str_to_enum_converter,
+    str_to_optional_enum_converter,
 )
 from geti_sdk.http_session import GetiRequestException, GetiSession
 
@@ -203,7 +204,7 @@ class Job:
     author: Optional[User] = None  # Added in Geti v1.7
     cancellation_info: Optional[JobCancellationInfo] = None  # Added in Geti v1.7
     state: Optional[str] = attr.field(
-        converter=str_to_enum_converter(JobState), default=None
+        converter=str_to_optional_enum_converter(JobState), default=None
     )  # Added in Geti v1.7
     steps: Optional[List[dict]] = None  # Added in Geti v1.7
 
