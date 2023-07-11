@@ -29,6 +29,7 @@ class JobState(Enum):
     FAILED = "failed"
     CANCELLED = "cancelled"
     INACTIVE = "inactive"
+    SCHEDULED = "scheduled"
 
     def __str__(self) -> str:
         """

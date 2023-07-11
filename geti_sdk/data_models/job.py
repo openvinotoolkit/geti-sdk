@@ -20,6 +20,7 @@ import attr
 from geti_sdk.data_models.enums import JobState, JobType
 from geti_sdk.data_models.project import Dataset
 from geti_sdk.data_models.status import StatusSummary
+from geti_sdk.data_models.user import User
 from geti_sdk.data_models.utils import (
     attr_value_serializer,
     str_to_datetime,
@@ -102,6 +103,19 @@ class ProjectMetadata:
 
 
 @attr.define
+class ModelMetadata:
+    """
+    Metadata for a Job related to a model on the GETi cluster.
+
+    :var model_storage_id: ID of the model storage in which the model lives
+    :var model_id: ID of the model
+    """
+
+    model_storage_id: str
+    model_id: str
+
+
+@attr.define
 class ScoreMetadata:
     """
     Metadata element containing scores for the tasks in the project
@@ -140,6 +154,22 @@ class JobMetadata:
     optimization_type: Optional[str] = None
     optimized_model_id: Optional[str] = None
     scores: Optional[List[ScoreMetadata]] = None
+    trained_model: Optional[ModelMetadata] = None  # Added in Geti v1.7
+
+
+@attr.define
+class JobCancellationInfo:
+    """
+    Information relating to the cancellation of a Job in Intel Geti
+
+    :var is_cancelled: True if the job is cancelled, False otherwise
+    :var user_uid: Unique ID of the User who cancelled the Job
+    :var cancel_time: Time at which the Job was cancelled
+    """
+
+    is_cancelled: bool = False
+    user_uid: Optional[str] = None
+    cancel_time: Optional[str] = attr.field(converter=str_to_datetime, default=None)
 
 
 @attr.define(slots=False)
@@ -164,6 +194,18 @@ class Job:
     metadata: JobMetadata
     project_id: Optional[str] = None
     creation_time: Optional[str] = attr.field(converter=str_to_datetime, default=None)
+    start_time: Optional[str] = attr.field(
+        converter=str_to_datetime, default=None
+    )  # Added in Geti v1.7
+    end_time: Optional[str] = attr.field(
+        converter=str_to_datetime, default=None
+    )  # Added in Geti v1.7
+    author: Optional[User] = None  # Added in Geti v1.7
+    cancellation_info: Optional[JobCancellationInfo] = None  # Added in Geti v1.7
+    state: Optional[str] = attr.field(
+        converter=str_to_enum_converter(JobState), default=None
+    )  # Added in Geti v1.7
+    steps: Optional[List[dict]] = None  # Added in Geti v1.7
 
     def __attrs_post_init__(self):
         """
@@ -217,6 +259,7 @@ class Job:
         response = session.get_rest_response(url=self.relative_url, method="GET")
         updated_status = JobStatus.from_dict(response["status"])
         self.status = updated_status
+        self.state = updated_status.state
         return self
 
     def cancel(self, session: GetiSession) -> "Job":

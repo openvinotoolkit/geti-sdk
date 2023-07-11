@@ -181,6 +181,7 @@ from .project import Dataset, Pipeline, Project
 from .status import ProjectStatus
 from .task import Task
 from .test_result import Score, TestResult
+from .user import User
 
 __all__ = [
     "TaskType",
@@ -214,4 +215,5 @@ __all__ = [
     "Dataset",
     "TestResult",
     "Score",
+    "User",
 ]
