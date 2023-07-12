@@ -36,7 +36,10 @@ class GetiVersion:
             build_tag = version_parts[1]
             time_tag = version_parts[2]
         elif len(version_parts) == 4:
-            base_version = Version(version_parts[0] + "-" + version_parts[1])
+            try:
+                base_version = Version(version_parts[0] + "-" + version_parts[1])
+            except InvalidVersion:
+                base_version = Version(version_parts[0])
             build_tag = version_parts[2]
             time_tag = version_parts[3]
         else:
