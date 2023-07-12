@@ -88,6 +88,7 @@ class TestMetadata:
     model_architecture: str
     model_template_id: str
     datasets: List[Dataset]
+    model: Optional[dict] = None  # Added in Geti v1.7
 
 
 @attr.define
