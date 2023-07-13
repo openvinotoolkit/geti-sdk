@@ -75,7 +75,7 @@ class TestNightlyProject:
         are finished
         """
         training_client = fxt_project_service_no_vcr.training_client
-        max_attempts = 3
+        max_attempts = 10
         jobs: List[Job] = []
         n = 0
         while len(jobs) == 0 and n < max_attempts:
