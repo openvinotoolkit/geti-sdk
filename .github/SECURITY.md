@@ -5,7 +5,7 @@ Intel is committed to rapidly addressing security vulnerabilities affecting our 
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.8.x   | :white_check_mark  |
+| 1.8.x   | :white_check_mark: |
 | 1.5.x   | :white_check_mark: |
 | 1.2.x   | :white_check_mark: |
 | 1.1.x   | :x:                |
