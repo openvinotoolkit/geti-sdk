@@ -1,3 +1,18 @@
+# [pre-release] v1.8.0rc1 Intel® Geti™ SDK (19-07-2023)
+## What's Changed
+* Predict video on local by @jihyeonyi in https://github.com/openvinotoolkit/geti-sdk/pull/243
+* Update job datamodel for new job scheduler by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/251
+* Add `model` key to TestMetaData by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/252
+* Improve error handling for version parsing by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/253
+* Update SECURITY.md by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/256
+* Add `nosec` for safe subprocess use in `predict_video.py` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/257
+* Update openvino to 2023.0 and OTX to v1.4 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/255
+* Update opencv-python requirement from ==4.5.* to ==4.8.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/249
+* Bump orjson from 3.8.8 to 3.9.2 in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/250
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.5.8...v1.8.0rc1
+
 # v1.5.8 Intel® Geti™ SDK (19-06-2023)
 ## What's Changed
 * Update vcrpy requirement from ==4.2.* to ==4.3.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/227

@@ -78,6 +78,6 @@ Module contents
 
 from .geti import Geti
 
-__version__ = "1.5.8"
+__version__ = "1.8.0rc1"
 
 __all__ = ["Geti"]
