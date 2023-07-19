@@ -15,7 +15,7 @@
 import logging
 import os
 import shutil
-import subprocess
+import subprocess  # nosec B404
 import tempfile
 import time
 from typing import List, Optional, Union
@@ -156,7 +156,7 @@ def predict_video_from_deployment(
                         "-y",
                         temp.name,
                     ]
-                    p = subprocess.run(
+                    p = subprocess.run(  # nosec B603
                         cmd,
                         stdin=subprocess.PIPE,
                         stdout=subprocess.PIPE,
