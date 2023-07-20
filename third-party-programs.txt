@@ -1,4 +1,4 @@
-Sonoma Creek SDK Third Party Programs File
+Intel Geti SDK Third Party Programs File
 
 This file contains the list of third party software ("third party programs")
 contained in the Intel software and their required notices and/or license
@@ -19,7 +19,7 @@ importlib-metadata
 json5
 openmodelzoo-modelapi
 openvino
-OTE-SDK
+OTX-API
 pymongo
 websocket-client
 orjson
@@ -76,6 +76,8 @@ stack-data
 tensorboardX
 virtualenv
 sniffio
+imgaug
+split-folders
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
 SPDX-License-Identifier: 0BSD
@@ -95,7 +97,6 @@ babel
 docutils
 enum34
 idna
-imageio-ffmpeg
 ipykernel
 ipython
 ipython-genutils
@@ -126,6 +127,7 @@ MarkupSafe
 pandocfilters
 scandir
 snowballstemmer
+imageio-ffmpeg
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
 SPDX-License-Identifier: BSD-3-Clause
@@ -154,6 +156,7 @@ scipy
 Shapely
 threadpoolctl
 tinycss2
+scikit-learn
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
 SPDX-License-Identifier: ISC
@@ -200,6 +203,9 @@ chardet
 SPDX-License-Identifier: Unlicense
 filelock
 
+-------------------------------------------------------------------------------------------------------------------------------------------------
+MATPLOTLIB License 1.3.0 or Later
+matplotlib
 -------------------------------------------------------------------------------------------------------------------------------------------------
 
 * Other names and brands may be claimed as the property of others.
