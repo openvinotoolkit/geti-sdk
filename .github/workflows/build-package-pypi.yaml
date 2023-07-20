@@ -6,6 +6,8 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/build-package.yaml
+    with:
+      enable_dev_dependencies: 0
     secrets:
       PYPI_USER: ${{ secrets.PYPI_USERNAME }}
       PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}

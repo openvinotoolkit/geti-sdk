@@ -6,6 +6,9 @@ on:
       learning_parameter_settings:
         required: false
         type: string
+      enable_dev_dependencies:
+        required: false
+        type: string
     secrets:
       GETI_HOST:
         required: true
@@ -25,6 +28,7 @@ env:
   TEST_MODE: "ONLINE"
   CLEAR_EXISTING_TEST_PROJECTS: 1
   LEARNING_PARAMETER_SETTINGS: ${{ inputs.learning_parameter_settings }}
+  ENABLE_DEV_DEPENDENCIES: ${{ inputs.enable_dev_dependencies }}
   # Artifacts and test reports
   ARTIFACT_DIRECTORY: artifacts
   REPORT_DIRECTORY: reports
@@ -68,7 +72,11 @@ jobs:
 
           python -m pip install --upgrade pip
 
+          if [[ $ENABLE_DEV_DEPENDENCIES = 1 ]]; then
+          pip install ".[dev]" --pre
+          else;
           pip install ".[dev]"
+          fi
 
       - name: Create artifact directories
         # Creates the temporary directories that are used to store the test
