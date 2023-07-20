@@ -11,6 +11,7 @@ jobs:
     uses: ./.github/workflows/nightly-tests.yaml
     with:
       learning_parameter_settings: default
+      enable_dev_dependencies: 0
     secrets:
       GETI_HOST: ${{ secrets.GETI_MVP_HOST }}
       GETI_USERNAME: ${{ secrets.GETI_USERNAME }}

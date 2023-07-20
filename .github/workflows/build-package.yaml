@@ -2,6 +2,10 @@ name: Build and publish package
 
 on:
   workflow_call: # Make workflow reusable
+    inputs:
+      enable_dev_dependencies:
+        required: false
+        type: string
     secrets:
       PYPI_USER:
         required: true
@@ -17,6 +21,7 @@ env:
   PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
   PYPI_HOST: ${{ secrets.PYPI_HOST }}
   PYPI_PORT: ${{ secrets.PYPI_PORT }}
+  ENABLE_DEV_DEPENDENCIES: ${{ inputs.enable_dev_dependencies }}
 
 jobs:
   build_sdk:
@@ -33,7 +38,12 @@ jobs:
       - name: Install package with dev and notebook requirements
         run: |
           python -m pip install --upgrade pip
+
+          if [[ $ENABLE_DEV_DEPENDENCIES = 1 ]]; then
+          pip install ".[dev,notebooks]" --pre
+          else
           pip install ".[dev,notebooks]"
+          fi
 
       - name: Install build tools
         run: pip install build twine
