@@ -11,6 +11,7 @@ jobs:
     uses: ./.github/workflows/nightly-tests.yaml
     with:
       learning_parameter_settings: reduced_mem
+      enable_dev_dependencies: 1
     secrets:
       GETI_HOST: ${{ secrets.GETI_DEVELOP_HOST }}
       GETI_USERNAME: ${{ secrets.GETI_USERNAME }}
