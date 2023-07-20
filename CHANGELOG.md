@@ -1,4 +1,4 @@
-# [pre-release] v1.8.0rc1 Intel® Geti™ SDK (19-07-2023)
+# v1.8.0 Intel® Geti™ SDK (20-07-2023)
 ## What's Changed
 * Predict video on local by @jihyeonyi in https://github.com/openvinotoolkit/geti-sdk/pull/243
 * Update job datamodel for new job scheduler by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/251
@@ -9,9 +9,12 @@
 * Update openvino to 2023.0 and OTX to v1.4 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/255
 * Update opencv-python requirement from ==4.5.* to ==4.8.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/249
 * Bump orjson from 3.8.8 to 3.9.2 in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/250
+* Enable using pre-production dependencies in test builds by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/258
+* Update the list of third party programs by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/259
+* Require `cryptography>=41.0.2` for security reasons by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/260
 
 
-**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.5.8...v1.8.0rc1
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.5.8...v.1.8.0
 
 # v1.5.8 Intel® Geti™ SDK (19-06-2023)
 ## What's Changed
