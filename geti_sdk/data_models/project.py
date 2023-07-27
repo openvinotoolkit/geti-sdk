@@ -197,6 +197,7 @@ class Project:
     :var datasets: List of datasets belonging to the project
     :var score: Score achieved by the AI assistant for the project
     :var thumbnail: URL at which a thumbnail for the project can be obtained
+    :var storage_info: Storage information for the project can be obtained
     """
 
     _identifier_fields: ClassVar[List[str]] = [
@@ -222,6 +223,7 @@ class Project:
     id: Optional[str] = None
     thumbnail: Optional[str] = None
     creator_id: Optional[str] = None
+    storage_info: Optional[Dict] = None
 
     def get_trainable_tasks(self) -> List[Task]:
         """
