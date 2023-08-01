@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,12 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+
 import os
 from math import sqrt
 from typing import Union
 
 import cv2
-import imgaug.augmenters as iaa
 import matplotlib.pyplot as plt
 import numpy as np
 from IPython.display import display
@@ -25,8 +25,6 @@ from tqdm import tqdm
 
 from geti_sdk.data_models import Image
 from geti_sdk.deployment import Deployment
-from geti_sdk.http_session import GetiSession
-from geti_sdk.rest_clients import ImageClient
 
 
 def simulate_low_light_image(
@@ -69,7 +67,7 @@ def display_image_in_notebook(image: Union[np.ndarray, Image], bgr: bool = True)
     :param bgr: True if the image has its channels in BGR order, False if it
         is in RGB order. Defaults to True
     """
-    new_image = _image_to_np(image)
+    new_image = image_to_np(image)
     if bgr:
         result = cv2.cvtColor(new_image, cv2.COLOR_BGR2RGB)
     else:
@@ -78,7 +76,7 @@ def display_image_in_notebook(image: Union[np.ndarray, Image], bgr: bool = True)
     display(img)
 
 
-def _image_to_np(
+def image_to_np(
     image: Union[np.ndarray, Image],
 ) -> np.ndarray:
     """
@@ -91,259 +89,6 @@ def _image_to_np(
     else:
         raise TypeError(f"Unsupported image type '{type(image)}'")
     return new_image
-
-
-class TransformImages:
-    """
-    Class for applying corruptions/augmentations to images and datasets
-    """
-
-    def __init__(
-        self,
-        corruption_type: str = "motion_blur",
-    ):
-        """
-        :param corruption_type: The type of corruption to apply.
-
-        """
-        self.corruption_type = corruption_type
-        self._SEED = 117
-        self._SUPPORTED_CORRUPTIONS = [
-            "motion_blur",
-            "gaussian_blur",
-            "cut_out",
-            "fake_snow",
-            "poisson_noise",
-        ]
-        if self.corruption_type not in self._SUPPORTED_CORRUPTIONS:
-            raise ValueError(
-                f"Unsupported corruption type '{self.corruption_type}, "
-                f"supported corruption types are {self._SUPPORTED_CORRUPTIONS}"
-            )
-
-        self._corruption_strength_range = (1, 300)
-        if self.corruption_type in ["cut_out", "fake_snow"]:
-            self._corruption_strength_range = (0.001, 1)
-        elif self.corruption_type == "poisson_noise":
-            self._corruption_strength_range = (
-                1,
-                110,
-            )  # Increase this if the desired accuracy is not reached
-        elif self.corruption_type == "gaussian_blur":
-            self._corruption_strength_range = (
-                1,
-                8,
-            )  # Increase this if the desired accuracy is not reached
-        elif self.corruption_type == "motion_blur":
-            self._corruption_strength_range = (
-                1,
-                110,
-            )  # Increase this if the desired accuracy is not reached
-
-    def _compose_imgaug_corruption(self, corruption_strength: Union[float, int]):
-        transform = None
-        if self.corruption_type == "motion_blur":
-            transform = iaa.MotionBlur(
-                k=int(round(corruption_strength)),
-                angle=45,
-                direction=0.5,
-                seed=self._SEED,
-            )
-
-        elif self.corruption_type == "gaussian_blur":
-            transform = iaa.GaussianBlur(sigma=corruption_strength, seed=self._SEED)
-
-        elif self.corruption_type == "cut_out":
-            transform = iaa.Cutout(
-                nb_iterations=2,  # No. of boxes per image
-                size=corruption_strength,
-                squared=False,
-                seed=self._SEED,
-                position="uniform",  # "uniform" - random, "normal" - center of the image
-                fill_mode="constant",
-                cval=0,
-            )  # fill with black boxes
-
-        elif self.corruption_type == "fake_snow":
-            # SnowFlakes from ImgAug can give error depending on the numpy version you have.
-            transform = iaa.Snowflakes(
-                density=0.075,
-                density_uniformity=1.0,
-                flake_size=corruption_strength,
-                flake_size_uniformity=0.5,
-                angle=45,
-                speed=0.025,
-                seed=self._SEED,
-            )
-
-        elif self.corruption_type == "poisson_noise":
-            transform = iaa.AdditivePoissonNoise(
-                lam=corruption_strength, per_channel=True, seed=self._SEED
-            )
-
-        return transform
-
-    def _apply_corruption_on_image(
-        self,
-        image: Union[np.ndarray, Image],
-        corruption_strength: Union[float, int] = 0.5,
-    ) -> np.ndarray:
-        """
-        Apply a corruption to an image.
-        :param image: Original image
-        :param corruption_strength: The strength of the corruption. Ignored if corruption_type
-        is an albumentations.Compose object.
-        :return: Copy of the image with augmentation/corruption applied.
-        """
-        input_image = _image_to_np(image)
-        transformation = self._compose_imgaug_corruption(
-            corruption_strength=corruption_strength
-        )
-        transformed_image = transformation(image=input_image)
-        return transformed_image
-
-    def apply_corruption_on_folder(
-        self,
-        source_path: str,
-        dest_path: str,
-        corruption_strength: Union[float, int],
-        show_progress: bool = True,
-    ) -> str:
-        """
-        Apply a corruption to all images in a folder.
-        :param source_path: Path to the folder containing the images (dataset format).
-        :param dest_path: Path to the folder where the transformed images will be saved.
-        :param corruption_strength: The strength of the corruption to apply. Range depends on the corruption type.
-        :param show_progress: Whether to show a progress bar or not.
-        """
-        if not os.path.exists(source_path):
-            raise FileNotFoundError(f"Source path '{source_path}' does not exist")
-        if not os.path.exists(dest_path):
-            os.makedirs(dest_path)
-        for folder_name in tqdm(
-            os.listdir(source_path),
-            disable=not show_progress,
-            desc="Applying Corruption",
-        ):
-            class_folder_path = os.path.join(source_path, folder_name)
-            # loop through images in each class folder
-            for image_name in os.listdir(class_folder_path):
-                image = cv2.imread(os.path.join(class_folder_path, image_name))
-                dest_folder = os.path.join(dest_path, folder_name)
-                if not os.path.exists(dest_folder):
-                    os.makedirs(dest_folder)
-
-                transformed_image = self._apply_corruption_on_image(
-                    image, corruption_strength=corruption_strength
-                )
-                # Save the transformed image to the destination folder
-                cv2.imwrite(os.path.join(dest_folder, image_name), transformed_image)
-        return dest_path
-
-    def generate_ood_dataset_by_corruption(
-        self,
-        geti_deployment: Deployment,
-        source_path: str,
-        dest_path: str = None,
-        desired_accuracy: float = 50,
-        desired_accuracy_tol=3.0,
-        show_progress: bool = True,
-    ) -> str:
-        """
-        Generate a dataset of corrupted images from a source dataset of clean images.
-        The corruption is applied until the classification accuracy (tp/tp+fp) on the generated dataset reached
-        the desired accuracy.
-
-        :geti_deployment: The trained geti deployment (model) to use for classification.
-        :source_path: The path to the source dataset of clean images. The dataset is required to have the following structure:
-            source_path/
-                class_1/
-                    image_1.jpg
-                    image_2.jpg
-                    ...
-                class_2/
-                    image_1.jpg
-                    image_2.jpg
-                    ...
-                ...
-
-        :corruption_to_apply: The type of corruption to apply. Currently supported corruptions
-            are: self._SUPPORTED_CORRUPTIONS
-        :desired_accuracy: The desired classification accuracy in percentage on the generated dataset.
-            A 50% accuracy means that the model is not able to correctly classify half of the
-            images in the dataset.
-        :show_progress: If True, a progress bar will be displayed.
-        :return: The path to the generated dataset.
-        """
-        print(
-            f"Generating OOD dataset by applying {self.corruption_type} corruption on {source_path}"
-        )
-        dataset_folder_name = os.path.basename(source_path)
-
-        if dest_path is None:
-            dest_path = os.path.join(
-                os.path.dirname(source_path),
-                f"{dataset_folder_name}_{self.corruption_type}_{desired_accuracy:.0f}",
-            )
-
-        accuracy = calc_classification_accuracy(
-            dataset_path=source_path,
-            deployment=geti_deployment,
-            show_progress=show_progress,
-        )
-        if accuracy < desired_accuracy:
-            print(f"Maximum possible accuracy : {accuracy:.2f} %")
-            print(f"Can not reach desired accuracy of {desired_accuracy:.2f} %")
-            return source_path
-        if show_progress:
-            print(f"Accuracy without any corruptions applied : {accuracy:.2f} %")
-        corruption_strength = self._corruption_strength_range[0]
-        while abs(accuracy - desired_accuracy) > desired_accuracy_tol:
-            corruption_strength = self._update_corruption_strength(
-                desired_accuracy=desired_accuracy,
-                current_accuracy=accuracy,
-                current_strength=corruption_strength,
-            )
-            self.apply_corruption_on_folder(
-                source_path=source_path,
-                dest_path=dest_path,
-                corruption_strength=corruption_strength,
-                show_progress=show_progress,
-            )
-            accuracy = calc_classification_accuracy(
-                dataset_path=dest_path,
-                deployment=geti_deployment,
-                show_progress=show_progress,
-            )
-            if show_progress:
-                print(f"Current accuracy: {accuracy:.2f}")
-
-        if abs(accuracy - desired_accuracy) < desired_accuracy_tol:
-            print(f"Corrupted dataset generated with accuracy {accuracy:.2f} %")
-        return dest_path
-
-    def _update_corruption_strength(
-        self,
-        desired_accuracy: float,
-        current_accuracy: float,
-        current_strength: float,
-    ) -> float:
-        """
-        Update the corruption strength based on the current accuracy and the desired accuracy.
-        """
-        # The weight is used to control the speed of the corruption strength update.
-        # If the current accuracy is close to the desired accuracy, a smaller weight is used to prevent overshoot.
-        weight = 1.0 if abs(int((current_accuracy - desired_accuracy))) > 10 else 0.7
-
-        limit = self._corruption_strength_range
-
-        accuracy_diff = ((current_accuracy - desired_accuracy) / 100) * (
-            limit[1] - limit[0]
-        )
-        updated_parameter = current_strength + accuracy_diff * weight
-
-        updated_parameter = max(limit[0], min(limit[1], updated_parameter))
-        return updated_parameter
 
 
 def calc_classification_accuracy(
@@ -405,50 +150,6 @@ def get_image_paths(src_dir, images_dict=None, label=None):
         else:
             images_dict[img_path] = label
     return images_dict
-
-
-def extract_features_from_imageclient(
-    deployment: Deployment,
-    image_client: ImageClient,
-    geti_session: GetiSession,
-    n_images: int = -1,
-    normalise_feats: bool = True,
-):
-    """
-    Extract feature embeddings from a Geti deployment model for a given number of images in a geti image_client
-    :param deployment: The trained Geti deployment (model) to use for feature extraction.
-    :param image_client: The Geti ImageClient object containing the images to extract features from.
-    :param geti_session: The GetiSession object.
-    :param n_images: The number of images to extract features from.
-        If -1, all images in the image_client will be used.
-    :param normalise_feats: If True, the feature embeddings are normalised by dividing each feature
-        embedding vector by its respective 2nd-order vector norm (vector Euclidean norm)
-    :return: A numpy array containing the extracted feature embeddings of shape (n_images, feature_len)
-    """
-    print("Retrieving the list of images from the project ...")
-    images_in_client = image_client.get_all_images()
-    total_n_images = len(images_in_client)  # total number of images in the project
-    if n_images == -1:
-        n_images = total_n_images
-
-    n_images = min(n_images, total_n_images)
-    sample_image = images_in_client[0].get_data(session=geti_session)
-    prediction = deployment.explain(sample_image)
-    feature_len = prediction.feature_vector.shape[0]
-    # pick random images - Stratified sampling not possible yet as we don't have labels in image_client
-    random_indices = np.random.choice(total_n_images, n_images, replace=False)
-    features = np.zeros((n_images, feature_len))
-    for i, k in tqdm(
-        enumerate(random_indices), total=n_images, desc="Extracting features"
-    ):
-        image_numpy = images_in_client[k].get_data(session=geti_session)
-        prediction = deployment.explain(image_numpy)
-        features[i] = prediction.feature_vector
-
-    if normalise_feats:
-        features = features / np.linalg.norm(features, axis=1, keepdims=True)
-
-    return features
 
 
 def extract_features_from_img_folder(

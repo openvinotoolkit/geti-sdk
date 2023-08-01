@@ -1,6 +1,6 @@
 # noqa: D104
 
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,22 +15,26 @@
 # and limitations under the License.
 
 
+from .augmentations import TransformImages
 from .image import (
-    TransformImages,
     display_image_in_notebook,
     display_sample_images_in_folder,
-    extract_features_from_imageclient,
     extract_features_from_img_folder,
     get_image_paths,
     simulate_low_light_image,
 )
-from .ood_detect import show_top_n_misclassifications
+from .ood_detect import (
+    extract_features_from_imageclient,
+    generate_ood_dataset_by_corruption,
+    show_top_n_misclassifications,
+)
 from .upload import Uploader
 from .video import VideoPlayer
 
 __all__ = [
     "get_image_paths",
     "show_top_n_misclassifications",
+    "generate_ood_dataset_by_corruption",
     "extract_features_from_imageclient",
     "display_sample_images_in_folder",
     "extract_features_from_img_folder",
