@@ -13,17 +13,19 @@
 # and limitations under the License.
 
 
-from .image import get_grid_arrangement, get_image_paths, calc_classification_accuracy
-from .augmentations import TransformImages
-
 import os
+
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
+
 from geti_sdk.deployment import Deployment
 from geti_sdk.http_session import GetiSession
 from geti_sdk.rest_clients import ImageClient
+
+from .augmentations import TransformImages
+from .image import calc_classification_accuracy, get_grid_arrangement, get_image_paths
 
 
 def show_top_n_misclassifications(

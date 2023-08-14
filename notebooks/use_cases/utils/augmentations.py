@@ -4,9 +4,10 @@ from typing import Union
 import cv2
 import imgaug.augmenters as iaa
 import numpy as np
-
 from tqdm import tqdm
+
 from geti_sdk.data_models import Image
+
 from .image import image_to_np
 
 
