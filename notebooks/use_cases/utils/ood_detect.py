@@ -13,11 +13,7 @@
 # and limitations under the License.
 
 
-from .image import (
-    get_grid_arrangement,
-    get_image_paths,
-    calc_classification_accuracy
-)
+from .image import get_grid_arrangement, get_image_paths, calc_classification_accuracy
 from .augmentations import TransformImages
 
 import os
@@ -31,10 +27,10 @@ from geti_sdk.rest_clients import ImageClient
 
 
 def show_top_n_misclassifications(
-        images_dir: str,
-        scores: np.ndarray,
-        type_of_samples: str,
-        n_images: int = 9,
+    images_dir: str,
+    scores: np.ndarray,
+    type_of_samples: str,
+    n_images: int = 9,
 ):
     """
     Show top n misclassified images based on their OOD scores
@@ -79,13 +75,13 @@ def show_top_n_misclassifications(
 
 
 def generate_ood_dataset_by_corruption(
-        geti_deployment: Deployment,
-        source_path: str,
-        corruption_type: str,
-        dest_path: str = None,
-        desired_accuracy: float = 50,
-        desired_accuracy_tol=3.0,
-        show_progress: bool = True,
+    geti_deployment: Deployment,
+    source_path: str,
+    corruption_type: str,
+    dest_path: str = None,
+    desired_accuracy: float = 50,
+    desired_accuracy_tol=3.0,
+    show_progress: bool = True,
 ) -> str:
     """
     Generate a dataset of corrupted images from a source dataset of clean images.
@@ -135,9 +131,11 @@ def generate_ood_dataset_by_corruption(
         print(f"Accuracy without any corruptions applied : {accuracy:.2f} %")
     corruption_strength = transform_images.corruption_strength_range[0]
     while abs(accuracy - desired_accuracy) > desired_accuracy_tol:
-        corruption_strength = transform_images.update_corruption_strength(desired_accuracy=desired_accuracy,
-                                                                          current_accuracy=accuracy,
-                                                                          current_strength=corruption_strength)
+        corruption_strength = transform_images.update_corruption_strength(
+            desired_accuracy=desired_accuracy,
+            current_accuracy=accuracy,
+            current_strength=corruption_strength,
+        )
         transform_images.apply_corruption_on_folder(
             source_path=source_path,
             dest_path=dest_path,
@@ -157,11 +155,11 @@ def generate_ood_dataset_by_corruption(
 
 
 def extract_features_from_imageclient(
-        deployment: Deployment,
-        image_client: ImageClient,
-        geti_session: GetiSession,
-        n_images: int = -1,
-        normalise_feats: bool = True,
+    deployment: Deployment,
+    image_client: ImageClient,
+    geti_session: GetiSession,
+    n_images: int = -1,
+    normalise_feats: bool = True,
 ):
     """
     Extract feature embeddings from a Geti deployment model for a given number of images in a geti image_client
@@ -188,7 +186,7 @@ def extract_features_from_imageclient(
     random_indices = np.random.choice(total_n_images, n_images, replace=False)
     features = np.zeros((n_images, feature_len))
     for i, k in tqdm(
-            enumerate(random_indices), total=n_images, desc="Extracting features"
+        enumerate(random_indices), total=n_images, desc="Extracting features"
     ):
         image_numpy = images_in_client[k].get_data(session=geti_session)
         prediction = deployment.explain(image_numpy)

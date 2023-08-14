@@ -16,8 +16,8 @@ class TransformImages:
     """
 
     def __init__(
-            self,
-            corruption_type: str = "motion_blur",
+        self,
+        corruption_type: str = "motion_blur",
     ):
         """
         :param corruption_type: The type of corruption to apply.
@@ -101,9 +101,9 @@ class TransformImages:
         return transform
 
     def _apply_corruption_on_image(
-            self,
-            image: Union[np.ndarray, Image],
-            corruption_strength: Union[float, int] = 0.5,
+        self,
+        image: Union[np.ndarray, Image],
+        corruption_strength: Union[float, int] = 0.5,
     ) -> np.ndarray:
         """
         Apply a corruption to an image.
@@ -120,11 +120,11 @@ class TransformImages:
         return transformed_image
 
     def apply_corruption_on_folder(
-            self,
-            source_path: str,
-            dest_path: str,
-            corruption_strength: Union[float, int],
-            show_progress: bool = True,
+        self,
+        source_path: str,
+        dest_path: str,
+        corruption_strength: Union[float, int],
+        show_progress: bool = True,
     ) -> str:
         """
         Apply a corruption to all images in a folder.
@@ -138,9 +138,9 @@ class TransformImages:
         if not os.path.exists(dest_path):
             os.makedirs(dest_path)
         for folder_name in tqdm(
-                os.listdir(source_path),
-                disable=not show_progress,
-                desc="Applying Corruption",
+            os.listdir(source_path),
+            disable=not show_progress,
+            desc="Applying Corruption",
         ):
             class_folder_path = os.path.join(source_path, folder_name)
             # loop through images in each class folder
@@ -158,10 +158,10 @@ class TransformImages:
         return dest_path
 
     def update_corruption_strength(
-            self,
-            desired_accuracy: float,
-            current_accuracy: float,
-            current_strength: float,
+        self,
+        desired_accuracy: float,
+        current_accuracy: float,
+        current_strength: float,
     ) -> float:
         """
         Heuristic to update the corruption strength based on the current accuracy and the desired accuracy.
@@ -173,7 +173,7 @@ class TransformImages:
         limit = self.corruption_strength_range
 
         accuracy_diff = ((current_accuracy - desired_accuracy) / 100) * (
-                limit[1] - limit[0]
+            limit[1] - limit[0]
         )
         updated_parameter = current_strength + accuracy_diff * weight
 
