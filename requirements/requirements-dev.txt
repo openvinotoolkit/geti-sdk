@@ -8,7 +8,7 @@ pytest-html==3.2.*
 flake8>=4.0
 pydocstyle>=6.1
 black>=22.6
-isort>=5.10
+isort>=5.12
 pre-commit>=2.20.0
 nbqa>=1.4.0
 pytest-mock>=3.10.0
