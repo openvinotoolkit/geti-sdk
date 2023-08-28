@@ -21,6 +21,7 @@ from typing import Any, Dict, List, Optional, Union
 import attr
 import numpy as np
 import otx
+from otx.api.utils.detection_utils import detection2array
 
 from geti_sdk.data_models import (
     Annotation,
@@ -288,10 +289,32 @@ class Deployment:
         width: int = image.shape[1]
         height: int = image.shape[0]
 
-        try:
-            n_outputs = len(postprocessing_results)
-        except TypeError:
-            n_outputs = 1
+        # Handle empty annotations
+        if isinstance(postprocessing_results, (np.ndarray, list)):
+            try:
+                n_outputs = len(postprocessing_results)
+            except TypeError:
+                n_outputs = 1
+        else:
+            # Handle the new modelAPI output formats for detection and instance
+            # segmentation models
+            if (
+                hasattr(postprocessing_results, "objects")
+                and task.type == TaskType.DETECTION
+            ):
+                n_outputs = len(postprocessing_results.objects)
+                postprocessing_results = detection2array(postprocessing_results.objects)
+            elif hasattr(postprocessing_results, "segmentedObjects") and task.type in [
+                TaskType.INSTANCE_SEGMENTATION,
+                TaskType.ROTATED_DETECTION,
+            ]:
+                n_outputs = len(postprocessing_results.segmentedObjects)
+                postprocessing_results = postprocessing_results.segmentedObjects
+            else:
+                raise ValueError(
+                    f"Unknown postprocessing output of type "
+                    f"`{type(postprocessing_results)}` for task `{task.title}`."
+                )
 
         if n_outputs != 0:
             annotation_scene_entity = converter.convert_to_annotation(
