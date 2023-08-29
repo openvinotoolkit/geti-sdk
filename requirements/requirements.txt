@@ -20,3 +20,4 @@ ovmsclient>=2022.3
 orjson==3.9.2
 imageio-ffmpeg==0.4.8
 cryptography>=41.0.2
+semver>=3.0.1
