@@ -21,6 +21,7 @@ from typing import Any, Dict, List, Optional, Union
 import attr
 import numpy as np
 import otx
+from otx.api.utils.detection_utils import detection2array
 
 from geti_sdk.data_models import (
     Annotation,
@@ -57,7 +58,6 @@ class Deployment:
         self._is_single_task: bool = len(self.project.get_trainable_tasks()) == 1
         self._are_models_loaded: bool = False
         self._inference_converters: Dict[str, Any] = {}
-        self._alternate_inference_converters: Dict[str, Any] = {}
         self._empty_labels: Dict[str, Label] = {}
         self._path_to_temp_resources: Optional[str] = None
         self._requires_resource_cleanup: bool = False
@@ -155,7 +155,6 @@ class Deployment:
         """
         try:
             from otx.api.usecases.exportable_code.prediction_to_annotation_converter import (
-                DetectionBoxToAnnotationConverter,
                 IPredictionToAnnotationConverter,
                 create_converter,
             )
@@ -196,15 +195,6 @@ class Deployment:
             )
             inference_converters.update({task.title: inference_converter})
 
-            # This is a workaround for a backwards incompatible change in later ote
-            # versions
-            if task.type.is_detection:
-                alternate_inference_converter = DetectionBoxToAnnotationConverter(
-                    labels=model.ote_label_schema
-                )
-                self._alternate_inference_converters.update(
-                    {task.title: alternate_inference_converter}
-                )
             empty_label = next((label for label in task.labels if label.is_empty), None)
             empty_labels.update({task.title: empty_label})
 
@@ -299,29 +289,37 @@ class Deployment:
         width: int = image.shape[1]
         height: int = image.shape[0]
 
-        try:
-            n_outputs = len(postprocessing_results)
-        except TypeError:
-            n_outputs = 1
+        # Handle empty annotations
+        if isinstance(postprocessing_results, (np.ndarray, list)):
+            try:
+                n_outputs = len(postprocessing_results)
+            except TypeError:
+                n_outputs = 1
+        else:
+            # Handle the new modelAPI output formats for detection and instance
+            # segmentation models
+            if (
+                hasattr(postprocessing_results, "objects")
+                and task.type == TaskType.DETECTION
+            ):
+                n_outputs = len(postprocessing_results.objects)
+                postprocessing_results = detection2array(postprocessing_results.objects)
+            elif hasattr(postprocessing_results, "segmentedObjects") and task.type in [
+                TaskType.INSTANCE_SEGMENTATION,
+                TaskType.ROTATED_DETECTION,
+            ]:
+                n_outputs = len(postprocessing_results.segmentedObjects)
+                postprocessing_results = postprocessing_results.segmentedObjects
+            else:
+                raise ValueError(
+                    f"Unknown postprocessing output of type "
+                    f"`{type(postprocessing_results)}` for task `{task.title}`."
+                )
 
         if n_outputs != 0:
-            # The try/except is a workaround to handle different detection inference
-            # results by different ote sdk versions
-            try:
-                annotation_scene_entity = converter.convert_to_annotation(
-                    predictions=postprocessing_results, metadata=metadata
-                )
-            except TypeError as error:
-                if task.type.is_detection:
-                    converter = self._alternate_inference_converters[task.title]
-                    annotation_scene_entity = converter.convert_to_annotation(
-                        predictions=postprocessing_results, metadata=metadata
-                    )
-                    # Make sure next time we get it right in one shot
-                    self._inference_converters.update({task.title: converter})
-                else:
-                    raise error
-
+            annotation_scene_entity = converter.convert_to_annotation(
+                predictions=postprocessing_results, metadata=metadata
+            )
             prediction = Prediction.from_ote(
                 annotation_scene_entity, image_width=width, image_height=height
             )

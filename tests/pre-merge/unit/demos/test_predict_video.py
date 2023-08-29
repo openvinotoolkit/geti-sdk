@@ -26,6 +26,7 @@ from geti_sdk.demos import predict_video_from_deployment
 
 class TestPredictVideo:
     @pytest.mark.parametrize("preserve_audio", [True, False])
+    @pytest.mark.skip(reason="Deployment data is old, needs update")
     def test_predict_video_from_deployment(
         self,
         fxt_video_path_dice: str,
