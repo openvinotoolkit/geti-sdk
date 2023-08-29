@@ -216,12 +216,12 @@ class DeployedModel(OptimizedModel):
             on images
         """
         try:
-            from openvino.model_zoo.model_api.adapters import (
+            from openvino.model_api.adapters import (
                 OpenvinoAdapter,
                 OVMSAdapter,
                 create_core,
             )
-            from openvino.model_zoo.model_api.models import Model as OMZModel
+            from openvino.model_api.models import Model as OMZModel
         except ImportError as error:
             raise ValueError(
                 f"Unable to load inference model for {self}. Relevant OpenVINO "
@@ -233,7 +233,7 @@ class DeployedModel(OptimizedModel):
             # Run the model locally
             model_adapter = OpenvinoAdapter(
                 create_core(),
-                model_path=os.path.join(self._model_data_path, "model.xml"),
+                model=os.path.join(self._model_data_path, "model.xml"),
                 weights_path=os.path.join(self._model_data_path, "model.bin"),
                 device=device,
                 plugin_config=None,
@@ -310,8 +310,8 @@ class DeployedModel(OptimizedModel):
             configuration = get_cls_inferencer_configuration(self.ote_label_schema)
 
         model = OMZModel.create_model(
-            name=model_type,
-            model_adapter=model_adapter,
+            model=model_adapter,
+            model_type=model_type,
             configuration=configuration,
             preload=True,
         )

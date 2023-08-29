@@ -25,7 +25,7 @@ env:
 
 jobs:
   build_sdk:
-    runs-on: self-hosted
+    runs-on: [self-hosted, sdk-runner]
     steps:
       - name: Checkout code with caching for Git LFS
         uses: nschloe/action-cached-lfs-checkout@v1.2.0

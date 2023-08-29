@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-from packaging.version import InvalidVersion, Version
+
+from packaging.version import Version
+from semver import Version as SemVersion
 
 
 class GetiVersion:
@@ -31,21 +33,15 @@ class GetiVersion:
             the Geti platform
         """
         version_parts = version_string.split("-")
-        if len(version_parts) == 3:
-            base_version = Version(version_parts[0])
-            build_tag = version_parts[1]
-            time_tag = version_parts[2]
-        elif len(version_parts) == 4:
-            try:
-                base_version = Version(version_parts[0] + "-" + version_parts[1])
-            except InvalidVersion:
-                base_version = Version(version_parts[0])
-            build_tag = version_parts[2]
-            time_tag = version_parts[3]
-        else:
-            raise InvalidVersion(
-                f"Unable to parse full platform version. Received '{version_string}'"
-            )
+
+        sem_version = SemVersion.parse(version_string)
+
+        time_tag = version_parts[-1]
+        base_version = Version(
+            f"{sem_version.major}.{sem_version.minor}.{sem_version.patch}"
+        )
+        build_tag = sem_version.prerelease.replace(f"-{time_tag}", "")
+
         self.version = base_version
         self.build_tag = build_tag
         self.time_tag = time_tag
