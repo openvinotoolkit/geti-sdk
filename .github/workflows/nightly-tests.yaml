@@ -39,7 +39,7 @@ env:
 
 jobs:
   nightly_tests:
-    runs-on: self-hosted
+    runs-on: [self-hosted, sdk-runner]
 
     steps:
 
