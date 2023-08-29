@@ -12,6 +12,11 @@
 * Enable using pre-production dependencies in test builds by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/258
 * Update the list of third party programs by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/259
 * Require `cryptography>=41.0.2` for security reasons by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/260
+* Fix for responding to Project Key values in the REST API by @harimkang in https://github.com/openvinotoolkit/geti-sdk/pull/264
+* Disable parallel execution on pre-merge tests by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/270
+* Fix model_api import and model creation for deployments by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/268
+* CVS-116946 Make platform version parsing robust by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/269
+* Update Performance attribute interfaces by @harimkang in https://github.com/openvinotoolkit/geti-sdk/pull/271
 
 
 **Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.5.8...v.1.8.0
