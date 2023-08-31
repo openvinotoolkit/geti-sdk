@@ -290,7 +290,7 @@ class Deployment:
         height: int = image.shape[0]
 
         # Handle empty annotations
-        if isinstance(postprocessing_results, (np.ndarray, list, tuple)):
+        if isinstance(postprocessing_results, (np.ndarray, list)):
             try:
                 n_outputs = len(postprocessing_results)
             except TypeError:
@@ -310,6 +310,11 @@ class Deployment:
             ]:
                 n_outputs = len(postprocessing_results.segmentedObjects)
                 postprocessing_results = postprocessing_results.segmentedObjects
+            elif isinstance(postprocessing_results, tuple):
+                try:
+                    n_outputs = len(postprocessing_results)
+                except TypeError:
+                    n_outputs = 1
             else:
                 raise ValueError(
                     f"Unknown postprocessing output of type "
