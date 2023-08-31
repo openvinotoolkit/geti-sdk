@@ -290,7 +290,7 @@ class Deployment:
         height: int = image.shape[0]
 
         # Handle empty annotations
-        if isinstance(postprocessing_results, (np.ndarray, list)):
+        if isinstance(postprocessing_results, (np.ndarray, list, tuple)):
             try:
                 n_outputs = len(postprocessing_results)
             except TypeError:
