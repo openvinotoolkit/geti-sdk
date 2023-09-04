@@ -17,7 +17,8 @@
 * Fix model_api import and model creation for deployments by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/268
 * CVS-116946 Make platform version parsing robust by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/269
 * Update Performance attribute interfaces by @harimkang in https://github.com/openvinotoolkit/geti-sdk/pull/271
-
+* CVS-118292 Update ATSS algo name by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/272
+* Fix deployment postprocessing by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/273
 
 **Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.5.8...v.1.8.0
 
