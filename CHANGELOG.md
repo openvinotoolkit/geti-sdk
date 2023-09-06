@@ -1,4 +1,4 @@
-# v1.8.0 Intel® Geti™ SDK (20-07-2023)
+# v1.8.0 Intel® Geti™ SDK (06-09-2023)
 ## What's Changed
 * Predict video on local by @jihyeonyi in https://github.com/openvinotoolkit/geti-sdk/pull/243
 * Update job datamodel for new job scheduler by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/251
