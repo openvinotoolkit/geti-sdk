@@ -39,6 +39,9 @@ class Algorithm:
         default=None, converter=str_to_optional_enum_converter(TaskType)
     )
     supports_auto_hpo: Optional[bool] = None
+    recommended_choice: Optional[bool] = None  # Added in Geti v1.9
+    performance_category: Optional[str] = None  # Added in Geti v1.9
+    lifecycle_stage: Optional[str] = None  # Added in Geti v1.9
 
     def __attrs_post_init__(self):
         """
