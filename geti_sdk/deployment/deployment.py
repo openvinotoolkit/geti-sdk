@@ -151,7 +151,10 @@ class Deployment:
         """
         Load the inference models for the deployment to the specified device.
 
-        :param device: Device to load the inference models to
+        Note: For a list of devices that are supported for OpenVINO inference, please see:
+        https://docs.openvino.ai/latest/openvino_docs_OV_UG_supported_plugins_Supported_Devices.html
+
+        :param device: Device to load the inference models to (e.g. 'CPU', 'GPU', 'AUTO', etc)
         """
         try:
             from otx.api.usecases.exportable_code.prediction_to_annotation_converter import (
