@@ -60,6 +60,7 @@ class HyperParameterGroupIdentifier(EntityIdentifier):
 
     group_name: str = attr.field(kw_only=True)
     model_storage_id: Optional[str] = None
+    project_id: Optional[str] = None
     algorithm_name: Optional[str] = attr.field(repr=False, default=None)
     model_template_id: Optional[str] = attr.field(repr=False, default=None)
 
