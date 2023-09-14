@@ -69,7 +69,7 @@ is installed, you can follow the steps below to set up the notebooks.
 > VERIFY_CERT=0
 > ```
 
-# Available notebooks
+## Available notebooks
 The following notebooks are currently provided:
 
 - [001 create_project](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/001_create_project.ipynb)
