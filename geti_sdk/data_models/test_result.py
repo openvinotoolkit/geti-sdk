@@ -71,6 +71,7 @@ class ModelInfo:
         converter=str_to_enum_converter(OptimizationType)
     )
     version: int
+    precision: Optional[List[str]] = None  # Added in Geti v1.9
 
 
 @attr.define()
