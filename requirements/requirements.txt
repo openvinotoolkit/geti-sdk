@@ -1,7 +1,7 @@
 # Base requirements
 datumaro==1.4.*
 requests==2.31.*
-numpy==1.22.*
+numpy==1.26.*
 omegaconf==2.3.*
 opencv-python==4.8.*
 python-dotenv==1.0.*
