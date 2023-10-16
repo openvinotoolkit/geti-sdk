@@ -90,7 +90,7 @@ def generate_unique_label_color(label_colors: Sequence[str]) -> str:
     t_start = time.time()
     new_color = _generate_random_rgb_tuple()
     distance_threshold = 30 if len(label_colors) < 100 else 10
-    while not success or time.time() - t_start > 100:
+    while not success and (time.time() - t_start < 100):
         new_color = _generate_random_rgb_tuple()
         min_distance = min(
             [_calculate_rgb_distance(color, new_color) for color in existing_colors]
