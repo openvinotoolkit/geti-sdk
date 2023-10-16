@@ -1,4 +1,4 @@
-# v1.8.0 Intel® Geti™ SDK (06-09-2023)
+# v1.8.0 Intel® Geti™ SDK (16-10-2023)
 ## What's Changed
 * Predict video on local by @jihyeonyi in https://github.com/openvinotoolkit/geti-sdk/pull/243
 * Update job datamodel for new job scheduler by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/251
@@ -19,6 +19,13 @@
 * Update Performance attribute interfaces by @harimkang in https://github.com/openvinotoolkit/geti-sdk/pull/271
 * CVS-118292 Update ATSS algo name by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/272
 * Fix deployment postprocessing by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/273
+* Fix OVMS configuration generation for Geti v1.8 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/276
+* Update data model for `Algorithm` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/278
+* Update configurable parameter data model by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/279
+* correct H1 level heading by @adamczap in https://github.com/openvinotoolkit/geti-sdk/pull/280
+* Update `TestResult` data model by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/281
+* Fix a potential infinite loop in the label helpers by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/285
+
 
 **Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.5.8...v.1.8.0
 
