@@ -46,6 +46,41 @@
             }
           },
           {
+            "name": "IDC-092/\nIntel® Xeon® Platinum 8480+ Processor (Sapphire Rapids)",
+            "defines": {
+              "NODE": "idc092"
+            },
+            "controls": {
+              "Target_arch": [
+                "Intel® Xeon® Platinum 8480+ CPU"
+              ]
+            }
+          },
+          {
+            "name": "IDC-097/\nIntel® Core™ i7-13700 with Intel® Arc™ A770 Graphics (Alchemist)",
+            "defines": {
+              "NODE": "idc097"
+            },
+            "controls": {
+              "Target_arch": [
+                "Intel® Arc™ A770 Graphics (8GB) GPU",
+                "Intel® Core™ i7-13700 CPU"
+              ]
+            }
+          },
+          {
+            "name": "IDC-082/\nIntel® Xeon® D-2712T with GPU Flex 140 (Arctic Sound)",
+            "defines": {
+              "NODE": "idc082"
+            },
+            "controls": {
+              "Target_arch": [
+                "Intel® Data Center Flex 140 GPU",
+                "Intel® Xeon® D-2712T CPU"
+              ]
+            }
+          },
+          {
             "name": "IDC-001SKL/\nIntel Core i5 6500TE Processor",
             "defines": {
               "NODE": "idc001skl"
@@ -71,6 +106,36 @@
           {
             "name": "Select Architecture",
             "dummy": "True"
+          },
+          {
+            "name": "Intel® Xeon® Platinum 8480+ CPU",
+            "defines": {
+              "TARGET": "CPU"
+            }
+          },
+          {
+            "name": "Intel® Arc™ A770 Graphics (8GB) GPU",
+            "defines": {
+              "TARGET": "GPU.1"
+            }
+          },
+          {
+            "name": "Intel® Core™ i7-13700 CPU",
+            "defines": {
+              "TARGET": "CPU"
+            }
+          },
+          {
+            "name": "Intel® Data Center Flex 140 GPU",
+            "defines": {
+              "TARGET": "GPU"
+            }
+          },
+          {
+            "name": "Intel® Xeon® D-2712T CPU",
+            "defines": {
+              "TARGET": "CPU"
+            }
           },
           {
             "name": "Intel Core i5 6500TE Processor CPU",
