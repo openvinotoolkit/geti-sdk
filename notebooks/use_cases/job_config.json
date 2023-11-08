@@ -1,0 +1,85 @@
+{
+  "job": {
+    "command": "qsub run_offline_project.sh -l nodes=1:NODE -F \"RESULTS TARGET\" -v VENV_PATH",
+    "output_type": "live",
+    "results_path": "results/",
+    "results_defines": "RESULTS",
+    "control_widgets": [
+      "telemetry"
+    ],
+    "plots": [
+      {
+        "title": "Avg frames per second",
+        "type": "fps",
+        "ylabel": "Number of frames per second",
+        "xlabel": "Architectures",
+        "selector": [
+          "Target architecture"
+        ]
+      },
+      {
+        "title": "Avg inference processing time",
+        "type": "time",
+        "ylabel": "Time in seconds",
+        "xlabel": "Architectures",
+        "selector": [
+          "Target architecture"
+        ]
+      }
+    ]
+  },
+  "inputs": [
+    {
+      "Target_node": {
+        "display_name": "Target node",
+        "type": "select",
+        "default": " ",
+        "defines": [
+          "NODE"
+        ],
+        "options": [
+          {
+            "name": "Select Node",
+            "dummy": "True",
+            "controls": {
+              "Target_arch": []
+            }
+          },
+          {
+            "name": "IDC-001SKL/\nIntel Core i5 6500TE Processor",
+            "defines": {
+              "NODE": "idc001skl"
+            },
+            "controls": {
+              "Target_arch": [
+                "Intel Core i5 6500TE Processor CPU"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "Target_arch": {
+        "display_name": "Target architecture",
+        "type": "select",
+        "default": " ",
+        "defines": [
+          "TARGET"
+        ],
+        "options": [
+          {
+            "name": "Select Architecture",
+            "dummy": "True"
+          },
+          {
+            "name": "Intel Core i5 6500TE Processor CPU",
+            "defines": {
+              "TARGET": "CPU"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
