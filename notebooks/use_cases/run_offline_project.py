@@ -141,7 +141,7 @@ def run_object_detection(source=0, flip=False, use_popup=False, skip_first_frame
             cv2.destroyAllWindows()
         if len(processing_times) > 0 and len(processing_fps) > 0:
             avg_processing_time = np.mean(processing_times) * 1000
-            avg_processing_fps = np.mean(processing_times) * 1000
+            avg_processing_fps = np.mean(processing_fps) * 1000
             
             # Data to be written
             results = {
