@@ -1,6 +1,6 @@
 {
   "job": {
-    "command": "qsub run_offline_project.sh -l nodes=1:NODE -F \"RESULTS TARGET\" -v VENV_PATH",
+    "command": "qsub job.sh -l nodes=1:NODE -F \"RESULTS TARGET\" -v VENV_PATH",
     "output_type": "live",
     "results_path": "results/",
     "results_defines": "RESULTS",
