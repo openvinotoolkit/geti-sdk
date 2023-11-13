@@ -90,7 +90,19 @@
                 "Intel Core i5 6500TE Processor CPU"
               ]
             }
-          }
+          },
+          {
+						"name": "IDC-090/\nIntel® Core™ i3-N305 (Alder Lake-N)",
+						"defines": {
+							"NODE": "idc090"
+						},
+						"controls": {
+							"Target_arch": [
+								"Intel® Core™ i3-N305 CPU",
+								"Intel® UHD Graphics GPU"
+							]
+						}
+					}
         ]
       }
     },
@@ -142,7 +154,19 @@
             "defines": {
               "TARGET": "CPU"
             }
-          }
+          },
+          {
+						"name": "Intel® Core™ i3-N305 CPU",
+						"defines": {
+							"TARGET": "CPU"
+						}
+					},
+          {
+						"name": "Intel® UHD Graphics GPU",
+						"defines": {
+							"TARGET": "GPU"
+						}
+					}
         ]
       }
     }
