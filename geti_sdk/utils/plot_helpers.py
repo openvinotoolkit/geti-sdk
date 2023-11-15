@@ -53,9 +53,9 @@ def show_image_with_annotation_scene(
         This parameter accepts either `rgb` or `bgr` as input values, and defaults to
         `rgb`.
     """
-    if type(annotation_scene) == AnnotationScene:
+    if isinstance(annotation_scene, AnnotationScene):
         plot_type = "Annotation"
-    elif type(annotation_scene) == Prediction:
+    elif isinstance(annotation_scene, Prediction):
         plot_type = "Prediction"
     else:
         raise ValueError(
@@ -143,9 +143,9 @@ def show_video_frames_with_annotation_scenes(
         )
 
     for frame, annotation_scene in zip(video_frames, annotation_scenes):
-        if type(annotation_scene) == AnnotationScene:
+        if isinstance(annotation_scene, AnnotationScene):
             name = "Annotation"
-        elif type(annotation_scene) == Prediction:
+        elif isinstance(annotation_scene, Prediction):
             name = "Prediction"
         else:
             raise ValueError(

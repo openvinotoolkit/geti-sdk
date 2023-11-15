@@ -43,3 +43,6 @@ dist
 /tests/artifacts
 /tests/htmlcov/
 /tests/report*
+
+# Downloaded datasets 
+/notebooks/use_cases/data/ood_detection
