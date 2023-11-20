@@ -1,12 +1,12 @@
 # Base requirements
 datumaro==1.4.*
 requests==2.31.*
-numpy==1.22.*
+numpy==1.23.*
 omegaconf==2.3.*
 opencv-python==4.8.*
 python-dotenv==1.0.*
 tqdm==4.65.*
-Pillow==9.5.*
+Pillow==10.1.*
 pathvalidate>=2.5.0
 simplejson==3.19.*
 ipython==8.12.*
