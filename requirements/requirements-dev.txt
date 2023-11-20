@@ -1,5 +1,5 @@
 # Requirements for running the tests
-vcrpy==5.1.*
+vcrpy==5.0.*
 pytest==7.4.*
 pytest-recording==0.12.*
 pytest-cov==4.1.*
