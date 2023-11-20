@@ -5,7 +5,7 @@ pytest-recording==0.12.*
 pytest-cov==4.1.*
 pytest-env==1.0.*
 pytest-html==3.2.*
-flake8==6.0.*
+flake8==6.1.*
 pydocstyle>=6.1
 black>=22.6
 isort>=5.12
