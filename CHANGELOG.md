@@ -1,3 +1,12 @@
+# v1.8.1 Intel® Geti™ SDK (20-11-2023)
+## What's Changed
+* Update pytest requirement from ==7.3.* to ==7.4.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/261
+* Update pytest-env requirement from ==0.8.* to ==1.0.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/275
+* Update various dependencies by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/288
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v.1.8.0...v.1.8.1
+
 # v1.8.0 Intel® Geti™ SDK (16-10-2023)
 ## What's Changed
 * Predict video on local by @jihyeonyi in https://github.com/openvinotoolkit/geti-sdk/pull/243
