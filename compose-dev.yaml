@@ -1,0 +1,16 @@
+name: geti-sdk
+
+services:
+  geti-sdk:
+    entrypoint:
+    - sleep
+    - infinity
+    build:
+      context: .
+      target: development
+    image: geti-sdk:development
+    init: true
+    volumes:
+    - type: bind
+      source: /var/run/docker.sock
+      target: /var/run/docker.sock
