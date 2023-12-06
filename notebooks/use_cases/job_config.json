@@ -33,73 +33,173 @@
       "Target_node": {
         "display_name": "Target node",
         "type": "select",
-        "default": " ",
+        "default": "Intel® Xeon® Platinum 8480+ Processor",
         "defines": [
           "NODE"
         ],
         "options": [
           {
-            "name": "Select Node",
-            "dummy": "True",
-            "controls": {
-              "Target_arch": []
-            }
-          },
-          {
-            "name": "IDC-092/\nIntel® Xeon® Platinum 8480+ Processor (Sapphire Rapids)",
+            "name": "Intel® Xeon® Platinum 8480+ Processor",
             "defines": {
               "NODE": "idc092"
             },
             "controls": {
               "Target_arch": [
-                "Intel® Xeon® Platinum 8480+ CPU"
+                "Intel® Xeon® Platinum 8480+ Processor"
               ]
             }
           },
           {
-            "name": "IDC-097/\nIntel® Core™ i7-13700 with Intel® Arc™ A770 Graphics (Alchemist)",
+            "name": "Intel® Xeon® Gold 6448Y Processor",
             "defines": {
-              "NODE": "idc097"
+              "NODE": "idc091"
             },
             "controls": {
               "Target_arch": [
-                "Intel® Arc™ A770 Graphics (8GB) GPU",
-                "Intel® Core™ i7-13700 CPU"
+                "Intel® Xeon® Gold 6448Y Processor"
               ]
             }
           },
           {
-            "name": "IDC-082/\nIntel® Xeon® D-2712T with GPU Flex 140 (Arctic Sound)",
+            "name": "Intel® Xeon® Bronze 3206R Processor",
+            "defines": {
+              "NODE": "idc026"
+            },
+            "controls": {
+              "Target_arch": [
+                "Intel® Xeon® Bronze 3206R Processor"
+              ]
+            }
+          },
+          {
+            "name": "Intel® Xeon® W-1290TE Processor",
+            "defines": {
+              "NODE": "idc063"
+            },
+            "controls": {
+              "Target_arch": [
+                "Intel® Xeon® W-1290TE Processor",
+                "Intel® UHD Graphics 630"
+              ]
+            }
+          },
+          {
+            "name": "Intel® Xeon® E-2286M Processor",
+            "defines": {
+              "NODE": "idc033"
+            },
+            "controls": {
+              "Target_arch": [
+                "Intel® Xeon® E-2286M Processor",
+                "Intel® UHD Graphics P630"
+              ]
+            }
+          },
+          {
+            "name": "Intel® Xeon® D-2796NT Processor",
+            "defines": {
+              "NODE": "idc084"
+            },
+            "controls": {
+              "Target_arch": [
+                "Intel® Xeon® D-2796NT Processor",
+                "Intel® Data Center GPU Flex 140"
+              ]
+            }
+          },
+          {
+            "name": "Intel® Xeon® D-2712T Processor",
             "defines": {
               "NODE": "idc082"
             },
             "controls": {
               "Target_arch": [
-                "Intel® Data Center Flex 140 GPU",
-                "Intel® Xeon® D-2712T CPU"
+                "Intel® Xeon® D-2712T Processor",
+                "Intel® Data Center GPU Flex 170"
               ]
             }
           },
           {
-            "name": "IDC-001SKL/\nIntel Core i5 6500TE Processor",
+            "name": "Intel® Core™ i9-13900TE Processor",
             "defines": {
-              "NODE": "idc001skl"
+              "NODE": "idc086"
             },
             "controls": {
               "Target_arch": [
-                "Intel Core i5 6500TE Processor CPU"
+                "Intel® Core™ i9-13900TE Processor",
+                "Intel® UHD Graphics 770"
               ]
             }
           },
           {
-            "name": "IDC-090/\nIntel® Core™ i3-N305 (Alder Lake-N)",
+            "name": "Intel® Core™ i7-1370PE Processor",
             "defines": {
-              "NODE": "idc090"
+              "NODE": "idc098"
             },
             "controls": {
               "Target_arch": [
-                "Intel® Core™ i3-N305 CPU",
-                "Intel® UHD Graphics GPU"
+                "Intel® Core™ i7-1370PE Processor",
+                "Intel® Iris® Xe Graphics"
+              ]
+            }
+          },
+          {
+            "name": "Intel® Core™ i7-13700 Processor",
+            "defines": {
+              "NODE": "idc097"
+            },
+            "controls": {
+              "Target_arch": [
+                "Intel® Core™ i7-13700 Processor",
+                "Intel® UHD Graphics 770"
+              ]
+            }
+          },
+          {
+            "name": "Intel® Core™ i7-13700TE Processor",
+            "defines": {
+              "NODE": "idc087"
+            },
+            "controls": {
+              "Target_arch": [
+                "Intel® Core™ i7-13700TE Processor",
+                "Intel® UHD Graphics 770"
+              ]
+            }
+          },
+          {
+            "name": "Intel® Core™ i5-1250PE Processor",
+            "defines": {
+              "NODE": "idc085"
+            },
+            "controls": {
+              "Target_arch": [
+                "Intel® Core™ i5-1250PE Processor",
+                "Intel® Iris® Xe Graphics"
+              ]
+            }
+          },
+          {
+            "name": "Intel® Core™ i5-12500TE Processor",
+            "defines": {
+              "NODE": "idc073"
+            },
+            "controls": {
+              "Target_arch": [
+                "Intel® Core™ i5-12500TE Processor",
+                "Intel® UHD Graphics 770"
+              ]
+            }
+          },
+          {
+            "name": "Intel® Core™ i3-12300HL Processor",
+            "defines": {
+              "NODE": "idc093"
+            },
+            "controls": {
+              "Target_arch": [
+                "Intel® Core™ i3-12300HL Processor",
+                "Intel® UHD Graphics 730"
               ]
             }
           }
@@ -110,59 +210,133 @@
       "Target_arch": {
         "display_name": "Target architecture",
         "type": "select",
-        "default": " ",
+        "default": "Intel® Xeon® Platinum 8480+ Processor",
         "defines": [
           "TARGET"
         ],
         "options": [
           {
-            "name": "Select Architecture",
-            "dummy": "True"
-          },
-          {
-            "name": "Intel® Xeon® Platinum 8480+ CPU",
+            "name": "Intel® Xeon® Platinum 8480+ Processor",
             "defines": {
               "TARGET": "CPU"
             }
           },
           {
-            "name": "Intel® Arc™ A770 Graphics (8GB) GPU",
-            "defines": {
-              "TARGET": "GPU.1"
-            }
-          },
-          {
-            "name": "Intel® Core™ i7-13700 CPU",
+            "name": "Intel® Xeon® Gold 6448Y Processor",
             "defines": {
               "TARGET": "CPU"
             }
           },
           {
-            "name": "Intel® Data Center Flex 140 GPU",
+            "name": "Intel® Xeon® Bronze 3206R Processor",
+            "defines": {
+              "TARGET": "CPU"
+            }
+          },
+          {
+            "name": "Intel® Xeon® W-1290TE Processor",
+            "defines": {
+              "TARGET": "CPU"
+            }
+          },
+          {
+            "name": "Intel® Xeon® E-2286M Processor",
+            "defines": {
+              "TARGET": "CPU"
+            }
+          },
+          {
+            "name": "Intel® Xeon® D-2796NT Processor",
+            "defines": {
+              "TARGET": "CPU"
+            }
+          },
+          {
+            "name": "Intel® Xeon® D-2712T Processor",
+            "defines": {
+              "TARGET": "CPU"
+            }
+          },
+          {
+            "name": "Intel® Core™ i9-13900TE Processor",
+            "defines": {
+              "TARGET": "CPU"
+            }
+          },
+          {
+            "name": "Intel® Core™ i7-1370PE Processor",
+            "defines": {
+              "TARGET": "CPU"
+            }
+          },
+          {
+            "name": "Intel® Core™ i7-13700 Processor",
+            "defines": {
+              "TARGET": "CPU"
+            }
+          },
+          {
+            "name": "Intel® Core™ i7-13700TE Processor",
+            "defines": {
+              "TARGET": "CPU"
+            }
+          },
+          {
+            "name": "Intel® Core™ i5-1250PE Processor",
+            "defines": {
+              "TARGET": "CPU"
+            }
+          },
+          {
+            "name": "Intel® Core™ i5-12500TE Processor",
+            "defines": {
+              "TARGET": "CPU"
+            }
+          },
+          {
+            "name": "Intel® Core™ i3-12300HL Processor",
+            "defines": {
+              "TARGET": "CPU"
+            }
+          },
+          {
+            "name": "Intel® UHD Graphics P630",
             "defines": {
               "TARGET": "GPU"
             }
           },
           {
-            "name": "Intel® Xeon® D-2712T CPU",
+            "name": "Intel® UHD Graphics 630",
             "defines": {
-              "TARGET": "CPU"
+              "TARGET": "GPU"
             }
           },
           {
-            "name": "Intel Core i5 6500TE Processor CPU",
+            "name": "Intel® Data Center GPU Flex 140",
             "defines": {
-              "TARGET": "CPU"
+              "TARGET": "GPU"
             }
           },
           {
-            "name": "Intel® Core™ i3-N305 CPU",
+            "name": "Intel® Data Center GPU Flex 170",
             "defines": {
-              "TARGET": "CPU"
+              "TARGET": "GPU"
             }
           },
           {
-            "name": "Intel® UHD Graphics GPU",
+            "name": "Intel® UHD Graphics 770",
+            "defines": {
+              "TARGET": "GPU"
+            }
+          },
+          {
+            "name": "Intel® UHD Graphics 730",
+            "defines": {
+              "TARGET": "GPU"
+            }
+          },
+          {
+            "name": "Intel® Iris® Xe Graphics",
             "defines": {
               "TARGET": "GPU"
             }
