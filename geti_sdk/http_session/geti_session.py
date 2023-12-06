@@ -25,7 +25,7 @@ from requests.exceptions import RequestException
 from requests.structures import CaseInsensitiveDict
 from urllib3.exceptions import InsecureRequestWarning
 
-from geti_sdk.platform_versions import GetiVersion
+from geti_sdk.platform_versions import GETI_18_VERSION, GetiVersion
 
 from .exception import GetiRequestException
 from .server_config import LEGACY_API_VERSION, ServerCredentialConfig, ServerTokenConfig
@@ -118,6 +118,7 @@ class GetiSession(requests.Session):
                 data={"service_id": self.config.token},
                 contenttype="json",
                 allow_reauthentication=False,
+                include_organization_id=False,
             )
         except GetiRequestException as error:
             if error.status_code == 401:
@@ -141,7 +142,9 @@ class GetiSession(requests.Session):
             redirect_url = response.next.url
             redirected = self.get(redirect_url, allow_redirects=False, **self._proxies)
             proxy_csrf = redirected.cookies.get(CSRF_COOKIE_NAME, None)
-            if proxy_csrf:
+            if proxy_csrf is None:
+                proxy_csrf = response.cookies.get(CSRF_COOKIE_NAME, None)
+            if proxy_csrf is not None:
                 self._cookies[CSRF_COOKIE_NAME] = proxy_csrf
             return self._follow_login_redirects(redirected)
         else:
@@ -164,6 +167,9 @@ class GetiSession(requests.Session):
 
         :param verbose: True to print progress output, False to suppress output
         """
+        if self.logged_in:
+            logging.info("Already logged in, authentication is skipped")
+            return
         try:
             login_path = self._get_initial_login_url()
         except requests.exceptions.SSLError as error:
@@ -202,8 +208,12 @@ class GetiSession(requests.Session):
                 "The cluster responded to the request, but authentication failed. "
                 "Please verify that you have provided correct credentials."
             )
-        cookie = {PROXY_COOKIE_NAME: previous_response.cookies.get(PROXY_COOKIE_NAME)}
-        self._cookies.update(cookie)
+        proxy_cookie = previous_response.cookies.get(PROXY_COOKIE_NAME)
+        if proxy_cookie is not None:
+            cookie = {PROXY_COOKIE_NAME: proxy_cookie}
+            self._cookies.update(cookie)
+        else:
+            raise RuntimeError("Authentication failed! Unable to obtain oauth cookie")
         if verbose:
             logging.info("Authentication successful. Cookie received.")
         self.logged_in = True
@@ -215,6 +225,7 @@ class GetiSession(requests.Session):
         contenttype: str = "json",
         data=None,
         allow_reauthentication: bool = True,
+        include_organization_id: bool = True,
     ) -> Union[Response, dict, list]:
         """
         Return the REST response from a request to `url` with `method`.
@@ -227,13 +238,19 @@ class GetiSession(requests.Session):
         :param allow_reauthentication: True to handle authentication errors
             by attempting to re-authenticate. If set to False, such errors
             will be raised instead.
+        :param include_organization_id: True to include the organization ID in the base
+            URL. Can be set to False for accessing certain internal endpoints that do
+            not require an organization ID, but do require error handling.
         """
         if url.startswith(self.config.api_pattern):
             url = url[len(self.config.api_pattern) :]
 
         self._update_headers_for_content_type(content_type=contenttype)
 
-        requesturl = f"{self.config.base_url}{url}"
+        if not include_organization_id:
+            requesturl = f"{self.config.base_url}{url}"
+        else:
+            requesturl = f"{self.base_url}/{url}"
 
         if method == "POST" or method == "PUT":
             if contenttype == "json":
@@ -353,10 +370,14 @@ class GetiSession(requests.Session):
         :return: Dictionary containing the product info.
         """
         try:
-            product_info = self.get_rest_response("product_info", "GET")
+            product_info = self.get_rest_response(
+                "product_info", "GET", include_organization_id=False
+            )
         except GetiRequestException:
             self.config.api_version = LEGACY_API_VERSION
-            product_info = self.get_rest_response("product_info", "GET")
+            product_info = self.get_rest_response(
+                "product_info", "GET", include_organization_id=False
+            )
         return product_info
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -409,6 +430,7 @@ class GetiSession(requests.Session):
         if response.status_code in [200, 401, 403] and allow_reauthentication:
             # Authentication has likely expired, re-authenticate
             logging.info("Authentication may have expired, re-authenticating...")
+            self.logged_in = False
             if not self.use_token:
                 self.authenticate(verbose=False)
                 logging.info("Authentication complete.")
@@ -471,3 +493,23 @@ class GetiSession(requests.Session):
             self.headers.pop("Content-Type", None)
         elif content_type == "zip":
             self.headers.update({"Content-Type": "application/zip"})
+
+    @property
+    def base_url(self) -> str:
+        """
+        Return the base URL to the Intel Geti server. If the server is running
+        Geti v1.9 or later, the organization ID will be included in the URL
+        """
+        if self.version <= GETI_18_VERSION:
+            return self.config.base_url
+        else:
+            org_id = self.get_organization_id()
+            return f"{self.config.base_url}organizations/{org_id}"
+
+    def get_organization_id(self) -> str:
+        """
+        Return the organization ID associated with the user and host information configured
+        in this Session
+        """
+        default_org_id = "000000000000000000000001"
+        return default_org_id
