@@ -78,8 +78,7 @@
             },
             "controls": {
               "Target_arch": [
-                "Intel® Xeon® W-1290TE Processor",
-                "Intel® UHD Graphics 630"
+                "Intel® Xeon® W-1290TE Processor"
               ]
             }
           },
@@ -90,8 +89,7 @@
             },
             "controls": {
               "Target_arch": [
-                "Intel® Xeon® E-2286M Processor",
-                "Intel® UHD Graphics P630"
+                "Intel® Xeon® E-2286M Processor"
               ]
             }
           },
@@ -102,8 +100,7 @@
             },
             "controls": {
               "Target_arch": [
-                "Intel® Xeon® D-2796NT Processor",
-                "Intel® Data Center GPU Flex 140"
+                "Intel® Xeon® D-2796NT Processor"
               ]
             }
           },
@@ -114,8 +111,7 @@
             },
             "controls": {
               "Target_arch": [
-                "Intel® Xeon® D-2712T Processor",
-                "Intel® Data Center GPU Flex 170"
+                "Intel® Xeon® D-2712T Processor"
               ]
             }
           },
@@ -126,8 +122,7 @@
             },
             "controls": {
               "Target_arch": [
-                "Intel® Core™ i9-13900TE Processor",
-                "Intel® UHD Graphics 770"
+                "Intel® Core™ i9-13900TE Processor"
               ]
             }
           },
@@ -138,8 +133,7 @@
             },
             "controls": {
               "Target_arch": [
-                "Intel® Core™ i7-1370PE Processor",
-                "Intel® Iris® Xe Graphics"
+                "Intel® Core™ i7-1370PE Processor"
               ]
             }
           },
@@ -150,8 +144,7 @@
             },
             "controls": {
               "Target_arch": [
-                "Intel® Core™ i7-13700 Processor",
-                "Intel® UHD Graphics 770"
+                "Intel® Core™ i7-13700 Processor"
               ]
             }
           },
@@ -162,8 +155,7 @@
             },
             "controls": {
               "Target_arch": [
-                "Intel® Core™ i7-13700TE Processor",
-                "Intel® UHD Graphics 770"
+                "Intel® Core™ i7-13700TE Processor"
               ]
             }
           },
@@ -174,8 +166,7 @@
             },
             "controls": {
               "Target_arch": [
-                "Intel® Core™ i5-1250PE Processor",
-                "Intel® Iris® Xe Graphics"
+                "Intel® Core™ i5-1250PE Processor"
               ]
             }
           },
@@ -186,8 +177,7 @@
             },
             "controls": {
               "Target_arch": [
-                "Intel® Core™ i5-12500TE Processor",
-                "Intel® UHD Graphics 770"
+                "Intel® Core™ i5-12500TE Processor"
               ]
             }
           },
@@ -198,8 +188,7 @@
             },
             "controls": {
               "Target_arch": [
-                "Intel® Core™ i3-12300HL Processor",
-                "Intel® UHD Graphics 730"
+                "Intel® Core™ i3-12300HL Processor"
               ]
             }
           }
@@ -297,48 +286,6 @@
             "name": "Intel® Core™ i3-12300HL Processor",
             "defines": {
               "TARGET": "CPU"
-            }
-          },
-          {
-            "name": "Intel® UHD Graphics P630",
-            "defines": {
-              "TARGET": "GPU"
-            }
-          },
-          {
-            "name": "Intel® UHD Graphics 630",
-            "defines": {
-              "TARGET": "GPU"
-            }
-          },
-          {
-            "name": "Intel® Data Center GPU Flex 140",
-            "defines": {
-              "TARGET": "GPU"
-            }
-          },
-          {
-            "name": "Intel® Data Center GPU Flex 170",
-            "defines": {
-              "TARGET": "GPU"
-            }
-          },
-          {
-            "name": "Intel® UHD Graphics 770",
-            "defines": {
-              "TARGET": "GPU"
-            }
-          },
-          {
-            "name": "Intel® UHD Graphics 730",
-            "defines": {
-              "TARGET": "GPU"
-            }
-          },
-          {
-            "name": "Intel® Iris® Xe Graphics",
-            "defines": {
-              "TARGET": "GPU"
             }
           }
         ]
