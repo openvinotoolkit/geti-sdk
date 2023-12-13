@@ -33,7 +33,8 @@ from .server_config import LEGACY_API_VERSION, ServerCredentialConfig, ServerTok
 CSRF_COOKIE_NAME = "_oauth2_proxy_csrf"
 PROXY_COOKIE_NAME = "_oauth2_proxy"
 
-INITIAL_HEADERS = {"Connection": "keep-alive", "Upgrade-Insecure-Requests": "1"}
+# INITIAL_HEADERS = {"Connection": "keep-alive", "Upgrade-Insecure-Requests": "1"}
+INITIAL_HEADERS = {"Upgrade-Insecure-Requests": "1"}
 SUCCESS_STATUS_CODES = [200, 201]
 
 
@@ -170,6 +171,7 @@ class GetiSession(requests.Session):
         if self.logged_in:
             logging.info("Already logged in, authentication is skipped")
             return
+        self.cookies.clear()
         try:
             login_path = self._get_initial_login_url()
         except requests.exceptions.SSLError as error:
@@ -213,7 +215,11 @@ class GetiSession(requests.Session):
             cookie = {PROXY_COOKIE_NAME: proxy_cookie}
             self._cookies.update(cookie)
         else:
-            raise RuntimeError("Authentication failed! Unable to obtain oauth cookie")
+            logging.warning(
+                f"Authentication appears to have failed! No valid oauth cookie "
+                f"obtained. Invalid response received from server. Status code: "
+                f"{response.status_code}"
+            )
         if verbose:
             logging.info("Authentication successful. Cookie received.")
         self.logged_in = True
@@ -226,6 +232,7 @@ class GetiSession(requests.Session):
         data=None,
         allow_reauthentication: bool = True,
         include_organization_id: bool = True,
+        allow_text_response: bool = False,
     ) -> Union[Response, dict, list]:
         """
         Return the REST response from a request to `url` with `method`.
@@ -241,6 +248,11 @@ class GetiSession(requests.Session):
         :param include_organization_id: True to include the organization ID in the base
             URL. Can be set to False for accessing certain internal endpoints that do
             not require an organization ID, but do require error handling.
+        :param allow_text_response: False to trigger error handling when the server
+            returns a response with text/html content. This can happen in some cases
+            when authentication has expired. However, some endpoints are designed to
+            return text responses, for those endpoints this parameter should be set to
+            True
         """
         if url.startswith(self.config.api_pattern):
             url = url[len(self.config.api_pattern) :]
@@ -250,7 +262,7 @@ class GetiSession(requests.Session):
         if not include_organization_id:
             requesturl = f"{self.config.base_url}{url}"
         else:
-            requesturl = f"{self.base_url}/{url}"
+            requesturl = f"{self.base_url}{url}"
 
         if method == "POST" or method == "PUT":
             if contenttype == "json":
@@ -286,17 +298,19 @@ class GetiSession(requests.Session):
                 f"be verified. \n Full error description: {error.args[-1]}"
             )
 
+        response_content_type = response.headers.get("Content-Type", [])
         if (
             response.status_code not in SUCCESS_STATUS_CODES
-            or "text/html" in response.headers.get("Content-Type", [])
+            or "text/html" in response_content_type
         ):
-            response = self._handle_error_response(
-                response=response,
-                request_params=request_params,
-                request_data=kw_data_arg,
-                allow_reauthentication=allow_reauthentication,
-                content_type=contenttype,
-            )
+            if not ("text/html" in response_content_type and allow_text_response):
+                response = self._handle_error_response(
+                    response=response,
+                    request_params=request_params,
+                    request_data=kw_data_arg,
+                    allow_reauthentication=allow_reauthentication,
+                    content_type=contenttype,
+                )
 
         if response.headers.get("Content-Type", None) == "application/json":
             result = response.json()
@@ -504,7 +518,7 @@ class GetiSession(requests.Session):
             return self.config.base_url
         else:
             org_id = self.get_organization_id()
-            return f"{self.config.base_url}organizations/{org_id}"
+            return f"{self.config.base_url}organizations/{org_id}/"
 
     def get_organization_id(self) -> str:
         """
