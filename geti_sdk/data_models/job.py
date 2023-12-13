@@ -273,7 +273,9 @@ class Job:
         :return: Job with updated status
         """
         try:
-            session.get_rest_response(url=self.relative_url, method="DELETE")
+            session.get_rest_response(
+                url=self.relative_url, method="DELETE", allow_text_response=True
+            )
             self.status.state = JobState.CANCELLED
         except GetiRequestException as error:
             if error.status_code == 404:
