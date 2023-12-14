@@ -135,7 +135,7 @@ def monitor_jobs(
         JobState.ERROR,
     ]
     jobs_to_monitor = [job for job in jobs if job.status.state not in completed_states]
-    logging.info(f"Found {len(jobs_to_monitor)} jobs for which to monitor progress.")
+    logging.info(f"Monitoring progress for {len(jobs_to_monitor)} jobs...")
     outer_bars = []
     inner_bars = []
     descriptions = []
@@ -147,10 +147,11 @@ def monitor_jobs(
         warnings.filterwarnings("ignore", category=TqdmWarning)
         for index, job in enumerate(jobs_to_monitor):
             inner_description = job.status.message.split("(Step")[0].strip()
+            outer_description = f"Project `{job.metadata.project.name}` - {job.name}"
             outer_bars.append(
                 tqdm(
                     total=job.total_steps,
-                    desc=f"Project `{job.metadata.project.name}` - {job.name}",
+                    desc=outer_description,
                     position=2 * index,
                     unit="step",
                     initial=job.current_step,
@@ -159,16 +160,21 @@ def monitor_jobs(
                     miniters=0,
                 )
             )
-            inner_bars.append(
-                tqdm(
-                    total=100,
-                    desc=inner_description,
-                    unit="%",
-                    bar_format="{l_bar}{bar}| [{elapsed}<{remaining}, {rate_fmt}{postfix}]",
-                    position=2 * index + 1,
-                    leave=True,
-                )
+            inner_bar_format_string = (
+                "{desc:>"
+                + str(len(outer_description) + 2)
+                + "}"
+                + "{percentage:7.0f}% |{bar}| [{elapsed}<{remaining}, {rate_fmt}]"
             )
+            inner_bar = tqdm(
+                total=100,
+                unit="%",
+                bar_format=inner_bar_format_string,
+                position=2 * index + 1,
+                leave=True,
+            )
+            inner_bar.set_description(inner_description)
+            inner_bars.append(inner_bar)
             descriptions.append(inner_description)
             progress_values.append(0)
             job_steps.append(job.current_step)
@@ -261,10 +267,10 @@ def monitor_job(
     ]
     try:
         logging.info(
-            f"`{job.name}` job for project `{job.metadata.project.name}`: {job.metadata.task.name}"
+            f"Monitoring `{job.name}` job for project `{job.metadata.project.name}`: {job.metadata.task.name}"
         )
     except AttributeError:
-        logging.info(f"`{job.name}` with id {job.id}")
+        logging.info(f"Monitoring `{job.name}` with id {job.id}")
     job.update(session)
     if job.status.state in completed_states:
         logging.info(
@@ -276,15 +282,17 @@ def monitor_job(
     t_start = time.time()
     t_elapsed = 0
 
-    try:
-        previous_progress = 0
-        previous_message = job.status.message.split("(Step")[0].strip()
-        current_step = job.current_step
-        with logging_redirect_tqdm(tqdm_class=tqdm), warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=TqdmWarning)
+    with logging_redirect_tqdm(tqdm_class=tqdm), warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=TqdmWarning)
+        try:
+            previous_progress = 0
+            previous_message = job.status.message.split("(Step")[0].strip()
+            current_step = job.current_step
+            outer_description = f"Project `{job.metadata.project.name}` - {job.name}"
+            total_steps = job.total_steps
             outer_bar = tqdm(
-                total=job.total_steps,
-                desc=f"Project `{job.metadata.project.name}` - {job.name}",
+                total=total_steps,
+                desc=outer_description,
                 position=0,
                 unit="step",
                 initial=current_step,
@@ -292,22 +300,29 @@ def monitor_job(
                 bar_format="{desc}: Step {n_fmt}/{total_fmt} |{bar}| [Total time elapsed: {elapsed}]",
                 miniters=0,
             )
+            inner_bar_format_string = (
+                "{desc:>"
+                + str(len(outer_description) + 2)
+                + "}"
+                + "{percentage:7.0f}% |{bar}| [{elapsed}<{remaining}, {rate_fmt}]"
+            )
             inner_bar = tqdm(
                 total=100,
-                desc=previous_message,
                 unit="%",
-                bar_format="{l_bar}{bar}| [{elapsed}<{remaining}, {rate_fmt}{postfix}]",
+                bar_format=inner_bar_format_string,
                 position=1,
                 leave=False,
             )
+            inner_bar.set_description(previous_message)
             while monitoring and t_elapsed < timeout:
                 job.update(session)
                 if job.status.state in completed_states:
+                    outer_bar.update(total_steps - current_step)
                     break
                 no_step_message = job.status.message.split("(Step")[0].strip()
                 if no_step_message != previous_message:
                     # Next phase of the job, reset progress bar
-                    inner_bar.set_description(no_step_message, refresh=True)
+                    inner_bar.set_description(f"{no_step_message}", refresh=True)
                     inner_bar.reset(total=100)
                     previous_message = no_step_message
                     previous_progress = 0
@@ -323,20 +338,20 @@ def monitor_job(
                 t_elapsed = time.time() - t_start
             inner_bar.close()
             outer_bar.close()
-    except KeyboardInterrupt:
-        logging.info("Job monitoring interrupted, stopping...")
-        job.update(session)
-        inner_bar.close()
-        outer_bar.close()
-        return job
-    if t_elapsed < timeout:
-        logging.info(
-            f"Job `{job.name}` finished, monitoring stopped. Total time elapsed: "
-            f"{t_elapsed:.1f} seconds"
-        )
-    else:
-        logging.info(
-            f"Monitoring stopped after {t_elapsed:.1f} seconds due to timeout. Current "
-            f"job state: {job.status.state}"
-        )
+        except KeyboardInterrupt:
+            logging.info("Job monitoring interrupted, stopping...")
+            job.update(session)
+            inner_bar.close()
+            outer_bar.close()
+            return job
+        if t_elapsed < timeout:
+            logging.info(
+                f"Job `{job.name}` finished, monitoring stopped. Total time elapsed: "
+                f"{t_elapsed:.1f} seconds"
+            )
+        else:
+            logging.info(
+                f"Monitoring stopped after {t_elapsed:.1f} seconds due to timeout. Current "
+                f"job state: {job.status.state}"
+            )
     return job
