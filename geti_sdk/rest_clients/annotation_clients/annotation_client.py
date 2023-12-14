@@ -218,6 +218,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
             media_list=images,
             path_to_folder=path_to_folder,
             append_media_uid=append_image_uid,
+            verbose=False,
         )
 
     def download_annotations_for_videos(
