@@ -13,12 +13,33 @@
 # and limitations under the License.
 import logging
 import time
+import warnings
 from typing import List, Optional
+
+from tqdm import TqdmWarning
+from tqdm.auto import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
 
 from geti_sdk.data_models.enums.job_state import JobState
 from geti_sdk.data_models.job import Job
 from geti_sdk.http_session import GetiRequestException, GetiSession
 from geti_sdk.rest_converters.job_rest_converter import JobRESTConverter
+
+
+def restrict(value: float, min: float = 0, max: float = 1) -> float:
+    """
+    Restrict the input `value` to a certain range such that `min` < `value` < `max`
+
+    :param value: Variable to restrict
+    :param min: Minimum allowed value. Defaults to zero
+    :param max: Maximally allowed value. Defaults to one
+    :return: The value constrained to the specified range
+    """
+    if value < min:
+        return min
+    if value > max:
+        return max
+    return value
 
 
 def get_job_by_id(
@@ -113,38 +134,209 @@ def monitor_jobs(
         JobState.FAILED,
         JobState.ERROR,
     ]
-    logging.info("---------------- Monitoring progress -------------------")
     jobs_to_monitor = [job for job in jobs if job.status.state not in completed_states]
-    try:
-        t_start = time.time()
-        t_elapsed = 0
-        while monitoring and t_elapsed < timeout:
-            msg = ""
-            complete_count = 0
-            for job in jobs_to_monitor:
-                job.update(session)
-                msg += (
-                    f"{job.name}  -- "
-                    f"  Phase: {job.status.user_friendly_message} "
-                    f"  State: {job.status.state} "
-                    f"  Progress: {job.status.progress:.1f}%"
+    logging.info(f"Found {len(jobs_to_monitor)} jobs for which to monitor progress.")
+    outer_bars = []
+    inner_bars = []
+    descriptions = []
+    progress_values = []
+    job_steps = []
+    total_job_steps = []
+    finished_jobs: List[Job] = []
+    with warnings.catch_warnings(), logging_redirect_tqdm(tqdm_class=tqdm):
+        warnings.filterwarnings("ignore", category=TqdmWarning)
+        for index, job in enumerate(jobs_to_monitor):
+            inner_description = job.status.message.split("(Step")[0].strip()
+            outer_bars.append(
+                tqdm(
+                    total=job.total_steps,
+                    desc=f"Project `{job.metadata.project.name}` - {job.name}",
+                    position=2 * index,
+                    unit="step",
+                    initial=job.current_step,
+                    leave=True,
+                    bar_format="{desc}: Step {n_fmt}/{total_fmt} |{bar}| [Total time elapsed: {elapsed}]",
+                    miniters=0,
                 )
+            )
+            inner_bars.append(
+                tqdm(
+                    total=100,
+                    desc=inner_description,
+                    unit="%",
+                    bar_format="{l_bar}{bar}| [{elapsed}<{remaining}, {rate_fmt}{postfix}]",
+                    position=2 * index + 1,
+                    leave=True,
+                )
+            )
+            descriptions.append(inner_description)
+            progress_values.append(0)
+            job_steps.append(job.current_step)
+            total_job_steps.append(job.total_steps)
+        try:
+            t_start = time.time()
+            t_elapsed = 0
+            complete_count = 0
+            while monitoring and t_elapsed < timeout:
+                for index, job in enumerate(jobs_to_monitor):
+                    if job in finished_jobs:
+                        # Job has completed some time ago, skip further updates
+                        continue
+
+                    job.update(session)
+                    if job.status.state in completed_states:
+                        # Job has just completed, update progress bars to final state
+                        complete_count += 1
+                        finished_jobs.append(job)
+                        inner_bars[index].set_description(
+                            f"Job completed with state `{job.status.message}`",
+                            refresh=True,
+                        )
+                        inner_bars[index].update(110)
+                        outer_bars[index].update(
+                            total_job_steps[index] - job_steps[index]
+                        )
+                        continue
+
+                    no_step_message = job.status.message.split("(Step")[0].strip()
+                    if no_step_message != descriptions[index]:
+                        # Next phase of the job, reset progress bar
+                        inner_bars[index].set_description(no_step_message, refresh=True)
+                        inner_bars[index].reset(total=100)
+                        descriptions[index] = no_step_message
+                        progress_values[index] = 0
+                        outer_bars[index].update(job.current_step - job_steps[index])
+                        job_steps[index] = job.current_step
+
+                    incremental_progress = job.status.progress - progress_values[index]
+                    restrict(incremental_progress, min=0, max=100)
+                    inner_bars[index].update(incremental_progress)
+                    progress_values[index] = job.status.progress
+                    outer_bars[index].update(0)
+
+                if complete_count == len(jobs_to_monitor):
+                    break
+                time.sleep(interval)
+                t_elapsed = time.time() - t_start
+        except KeyboardInterrupt:
+            logging.info("Job monitoring interrupted, stopping...")
+            for ib, ob in zip(inner_bars, outer_bars):
+                ib.close()
+                ob.close()
+            return jobs
+        if t_elapsed < timeout:
+            logging.info("All jobs completed, monitoring stopped.")
+        else:
+            logging.info(
+                f"Monitoring stopped after {t_elapsed:.1f} seconds due to timeout."
+            )
+        for ib, ob in zip(inner_bars, outer_bars):
+            ib.close()
+            ob.close()
+    return jobs
+
+
+def monitor_job(
+    session: GetiSession, job: Job, timeout: int = 10000, interval: int = 15
+) -> List[Job]:
+    """
+    Monitor and print the progress of a single `job`. Execution is
+    halted until the job has either finished, failed or was cancelled.
+
+    Progress will be reported in 15s intervals
+
+    :param session: GetiSession instance addressing the Intel® Geti™ platform
+    :param job: Job to monitor
+    :param timeout: Timeout (in seconds) after which to stop the monitoring
+    :param interval: Time interval (in seconds) at which the TrainingClient polls
+        the server to update the status of the job. Defaults to 15 seconds
+    :return: The finished (or failed) job with it's status updated
+    """
+    monitoring = True
+    completed_states = [
+        JobState.FINISHED,
+        JobState.CANCELLED,
+        JobState.FAILED,
+        JobState.ERROR,
+    ]
+    try:
+        logging.info(
+            f"`{job.name}` job for project `{job.metadata.project.name}`: {job.metadata.task.name}"
+        )
+    except AttributeError:
+        logging.info(f"`{job.name}` with id {job.id}")
+    job.update(session)
+    if job.status.state in completed_states:
+        logging.info(
+            f"Job `{job.name}` has already finished with status "
+            f"{str(job.status.state)}, monitoring stopped"
+        )
+        return job
+
+    t_start = time.time()
+    t_elapsed = 0
+
+    try:
+        previous_progress = 0
+        previous_message = job.status.message.split("(Step")[0].strip()
+        current_step = job.current_step
+        with logging_redirect_tqdm(tqdm_class=tqdm), warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=TqdmWarning)
+            outer_bar = tqdm(
+                total=job.total_steps,
+                desc=f"Project `{job.metadata.project.name}` - {job.name}",
+                position=0,
+                unit="step",
+                initial=current_step,
+                leave=True,
+                bar_format="{desc}: Step {n_fmt}/{total_fmt} |{bar}| [Total time elapsed: {elapsed}]",
+                miniters=0,
+            )
+            inner_bar = tqdm(
+                total=100,
+                desc=previous_message,
+                unit="%",
+                bar_format="{l_bar}{bar}| [{elapsed}<{remaining}, {rate_fmt}{postfix}]",
+                position=1,
+                leave=False,
+            )
+            while monitoring and t_elapsed < timeout:
+                job.update(session)
                 if job.status.state in completed_states:
-                    complete_count += 1
-            if complete_count == len(jobs_to_monitor):
-                break
-            logging.info(msg)
-            time.sleep(interval)
-            t_elapsed = time.time() - t_start
+                    break
+                no_step_message = job.status.message.split("(Step")[0].strip()
+                if no_step_message != previous_message:
+                    # Next phase of the job, reset progress bar
+                    inner_bar.set_description(no_step_message, refresh=True)
+                    inner_bar.reset(total=100)
+                    previous_message = no_step_message
+                    previous_progress = 0
+                    outer_bar.update(job.current_step - current_step)
+                    current_step = job.current_step
+
+                incremental_progress = job.status.progress - previous_progress
+                restrict(incremental_progress, min=0, max=100)
+                inner_bar.update(incremental_progress)
+                outer_bar.update(0)
+                previous_progress = job.status.progress
+                time.sleep(interval)
+                t_elapsed = time.time() - t_start
+            inner_bar.close()
+            outer_bar.close()
     except KeyboardInterrupt:
         logging.info("Job monitoring interrupted, stopping...")
-        for job in jobs:
-            job.update(session)
-        return jobs
+        job.update(session)
+        inner_bar.close()
+        outer_bar.close()
+        return job
     if t_elapsed < timeout:
-        logging.info("All jobs completed, monitoring stopped.")
+        logging.info(
+            f"Job `{job.name}` finished, monitoring stopped. Total time elapsed: "
+            f"{t_elapsed:.1f} seconds"
+        )
     else:
         logging.info(
-            f"Monitoring stopped after {t_elapsed:.1f} seconds due to timeout."
+            f"Monitoring stopped after {t_elapsed:.1f} seconds due to timeout. Current "
+            f"job state: {job.status.state}"
         )
-    return jobs
+    return job
