@@ -26,7 +26,7 @@ from geti_sdk.data_models import (
     Project,
     Task,
 )
-from geti_sdk.data_models.enums import JobState, JobType
+from geti_sdk.data_models.enums import JobState, JobType, OptimizationType
 from geti_sdk.http_session import GetiSession
 from geti_sdk.rest_converters import ModelRESTConverter
 from geti_sdk.utils import get_supported_algorithms
@@ -92,6 +92,98 @@ class ModelClient:
             ),
             None,
         )
+
+    def get_latest_model_by_algo_name(self, algorithm_name: str) -> Optional[Model]:
+        """
+        Return the latest model for a specific algorithm. If no model has been trained
+        for the algorithm, this method returns None.
+
+        :param algorithm_name: Name fo the algorithm for which to return the model
+        :return: Model object respresenting the model.
+        """
+        model_group = self.get_model_group_by_algo_name(algorithm_name)
+        if model_group:
+            model_summary = model_group.get_latest_model()
+            return self._get_model_detail(
+                group_id=model_group.id, model_id=model_summary.id
+            )
+        else:
+            return None
+
+    def get_latest_optimized_model(
+        self,
+        algorithm_name: str,
+        optimization_type: str = "MO",
+        precision: str = "FP16",
+        require_xai: bool = False,
+    ) -> OptimizedModel:
+        """
+        Return the optimized model for the latest trained model for a specified
+        algorithm. Additional parameters allow filtering on the optimization type
+        (e.g. 'nncf', 'pot', 'mo', 'onnx'), precision ('int8', 'fp16', 'fp32') and
+        whether or not the model includes an XAI head for saliency map generation.
+
+        If no optimized model for the specified criteria can be found, this method
+        raises an error
+
+        :param algorithm_name: Name of the algorithm to retrieve the model for
+        :param optimization_type: Optimization type to select. Options are 'mo',
+            'nncf', 'pot', 'onnx'. Case insensitive. Defaults to 'MO'
+        :param precision: Model precision to select. Options are 'INT8', 'FP16', 'FP32'.
+            Defaults to 'FP16'
+        :param require_xai: If True, only select models that include an XAI head.
+            Defaults to False
+        """
+        base_model = self.get_latest_model_by_algo_name(algorithm_name=algorithm_name)
+        if base_model is None:
+            raise RuntimeError(
+                f"No trained model was found for algorithm `{algorithm_name}`"
+            )
+        n_optimized_models = len(base_model.optimized_models)
+        logging.info(
+            f"{n_optimized_models} optimized models were found for algorithm "
+            f"`{algorithm_name}`. Finding the most recent optimized model with "
+            f"precision {precision} and optimization type {optimization_type}."
+        )
+        if require_xai:
+            opt_models = [m for m in base_model.optimized_models if m.has_xai_head]
+        else:
+            opt_models = base_model.optimized_models
+        if n_optimized_models != 0 and len(opt_models) == 0:
+            raise RuntimeError(
+                f"Algorithm {algorithm_name} has a trained base model and "
+                f"{n_optimized_models} optimized models, but no optimized model with "
+                f"XAI head was found."
+            )
+        cap_prec = precision.upper()
+        supported_precisions = ["FP32", "FP16", "INT8"]
+        if cap_prec not in supported_precisions:
+            raise ValueError(
+                f"Invalid target precision specified: {precision}. Supported options "
+                f"are: {supported_precisions}"
+            )
+        opt_models_precision = [om for om in opt_models if cap_prec in om.name]
+        cap_opt_type = optimization_type.upper()
+        opt_type = OptimizationType(cap_opt_type)
+        opt_models_prec_type = [
+            om for om in opt_models_precision if om.optimization_type == opt_type
+        ]
+        if len(opt_models_prec_type) == 0:
+            raise RuntimeError(
+                f"Algorithm {algorithm_name} has a trained base model and "
+                f"{n_optimized_models} optimized models, but no optimized model "
+                f"matches the required optimization type and precision."
+            )
+        elif len(opt_models_prec_type) == 1:
+            return opt_models_prec_type[0]
+        else:
+            logging.info(
+                f"Found {len(opt_models_prec_type)} models that match the selection "
+                f"criteria. Returning the most recently created matching model."
+            )
+            creation_dates = [om.creation_date for om in opt_models_prec_type]
+            max_index = creation_dates.index(max(creation_dates))
+            return opt_models_prec_type[max_index]
 
     def get_model_by_algorithm_task_and_version(
         self,
