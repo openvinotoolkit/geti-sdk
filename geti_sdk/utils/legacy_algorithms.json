@@ -1,0 +1,227 @@
+{{
+  "default_algorithms": [
+    {
+      "model_template_id": "ote_anomaly_detection_padim",
+      "task_type": "anomaly_detection"
+    },
+    {
+      "model_template_id": "Custom_Image_Classification_EfficinetNet-B0",
+      "task_type": "classification"
+    },
+    {
+      "model_template_id": "Custom_Rotated_Detection_via_Instance_Segmentation_MaskRCNN_ResNet50",
+      "task_type": "rotated_detection"
+    },
+    {
+      "model_template_id": "ote_anomaly_classification_padim",
+      "task_type": "anomaly_classification"
+    },
+    {
+      "model_template_id": "Custom_Counting_Instance_Segmentation_MaskRCNN_ResNet50",
+      "task_type": "instance_segmentation"
+    },
+    {
+      "model_template_id": "Custom_Object_Detection_Gen3_ATSS",
+      "task_type": "detection"
+    },
+    {
+      "model_template_id": "ote_anomaly_segmentation_padim",
+      "task_type": "anomaly_segmentation"
+    },
+    {
+      "model_template_id": "Custom_Semantic_Segmentation_Lite-HRNet-18-mod2_OCR",
+      "task_type": "segmentation"
+    }
+  ],
+  "supported_algorithms": [
+    {
+      "algorithm_name": "STFPM",
+      "gigaflops": 5.6,
+      "model_size": 21.1,
+      "model_template_id": "ote_anomaly_segmentation_stfpm",
+      "summary": "Use this model when the position of the objects in the image frame might differ between images.",
+      "supports_auto_hpo": true,
+      "task_type": "anomaly_segmentation"
+    },
+    {
+      "algorithm_name": "PADIM",
+      "gigaflops": 3.9,
+      "model_size": 168.4,
+      "model_template_id": "ote_anomaly_segmentation_padim",
+      "summary": "This model is faster and in many cases more accurate, but it requires a fixed position of the objects within the image.",
+      "supports_auto_hpo": false,
+      "task_type": "anomaly_segmentation"
+    },
+    {
+      "algorithm_name": "STFPM",
+      "gigaflops": 5.6,
+      "model_size": 21.1,
+      "model_template_id": "ote_anomaly_detection_stfpm",
+      "summary": "Use this model when the position of the objects in the image frame might differ between images.",
+      "supports_auto_hpo": true,
+      "task_type": "anomaly_detection"
+    },
+    {
+      "algorithm_name": "PADIM",
+      "gigaflops": 3.9,
+      "model_size": 168.4,
+      "model_template_id": "ote_anomaly_detection_padim",
+      "summary": "This model is faster and in many cases more accurate, but it requires a fixed position of the objects within the image.",
+      "supports_auto_hpo": false,
+      "task_type": "anomaly_detection"
+    },
+    {
+      "algorithm_name": "STFPM",
+      "gigaflops": 5.6,
+      "model_size": 21.1,
+      "model_template_id": "ote_anomaly_classification_stfpm",
+      "summary": "Use this model when the position of the objects in the image frame might differ between images.",
+      "supports_auto_hpo": true,
+      "task_type": "anomaly_classification"
+    },
+    {
+      "algorithm_name": "PADIM",
+      "gigaflops": 3.9,
+      "model_size": 168.4,
+      "model_template_id": "ote_anomaly_classification_padim",
+      "summary": "This model is faster and in many cases more accurate, but it requires a fixed position of the objects within the image.",
+      "supports_auto_hpo": false,
+      "task_type": "anomaly_classification"
+    },
+    {
+      "algorithm_name": "Lite-HRNet-18-mod2",
+      "gigaflops": 3.63,
+      "model_size": 4.8,
+      "model_template_id": "Custom_Semantic_Segmentation_Lite-HRNet-18-mod2_OCR",
+      "summary": "Class-Incremental Semantic Segmentation with middle-sized architecture which based on the Lite-HRNet backbone for the balance between the fast inference and long training.",
+      "supports_auto_hpo": true,
+      "task_type": "segmentation"
+    },
+    {
+      "algorithm_name": "Lite-HRNet-x-mod3",
+      "gigaflops": 13.97,
+      "model_size": 6.4,
+      "model_template_id": "Custom_Semantic_Segmentation_Lite-HRNet-x-mod3_OCR",
+      "summary": "Class-Incremental Semantic Segmentation with heavy-size architecture which based on the Lite-HRNet backbone for the accurate predictions but long training.",
+      "supports_auto_hpo": true,
+      "task_type": "segmentation"
+    },
+    {
+      "algorithm_name": "Lite-HRNet-s-mod2",
+      "gigaflops": 1.82,
+      "model_size": 3.5,
+      "model_template_id": "Custom_Semantic_Segmentation_Lite-HRNet-s-mod2_OCR",
+      "summary": "Class-Incremental Semantic Segmentation with lightweight architecture which based on the Lite-HRNet backbone for the fast inference and training on the limited amount of data.",
+      "supports_auto_hpo": true,
+      "task_type": "segmentation"
+    },
+    {
+      "algorithm_name": "Lite-HRNet-18",
+      "gigaflops": 3.45,
+      "model_size": 4.5,
+      "model_template_id": "Custom_Semantic_Segmentation_Lite-HRNet-18_OCR",
+      "summary": "Class-Incremental Semantic Segmentation with middle-sized architecture which based on the Lite-HRNet backbone for the balance between the fast inference and long training. (deprecated in next version)",
+      "supports_auto_hpo": true,
+      "task_type": "segmentation"
+    },
+    {
+      "algorithm_name": "MaskRCNN-ResNet50",
+      "gigaflops": 533.8,
+      "model_size": 177.9,
+      "model_template_id": "Custom_Rotated_Detection_via_Instance_Segmentation_MaskRCNN_ResNet50",
+      "summary": "Class-Incremental Rotated object detection for MaskRCNN-ResNet50",
+      "supports_auto_hpo": true,
+      "task_type": "rotated_detection"
+    },
+    {
+      "algorithm_name": "MaskRCNN-EfficientNetB2B",
+      "gigaflops": 68.48,
+      "model_size": 13.27,
+      "model_template_id": "Custom_Rotated_Detection_via_Instance_Segmentation_MaskRCNN_EfficientNetB2B",
+      "summary": "Class-Incremental Rotated object detection for MaskRCNN-EfficientNetB2B",
+      "supports_auto_hpo": true,
+      "task_type": "rotated_detection"
+    },
+    {
+      "algorithm_name": "YOLOX",
+      "gigaflops": 6.5,
+      "model_size": 20.4,
+      "model_template_id": "Custom_Object_Detection_YOLOX",
+      "summary": "Class-Incremental Object Detection for YOLOX",
+      "supports_auto_hpo": true,
+      "task_type": "detection"
+    },
+    {
+      "algorithm_name": "MobileNetV2-ATSS",
+      "gigaflops": 20.6,
+      "model_size": 9.1,
+      "model_template_id": "Custom_Object_Detection_Gen3_ATSS",
+      "summary": "Class-Incremental Object Detection for MobileNetV2-ATSS",
+      "supports_auto_hpo": true,
+      "task_type": "detection"
+    },
+    {
+      "algorithm_name": "SSD",
+      "gigaflops": 9.4,
+      "model_size": 7.6,
+      "model_template_id": "Custom_Object_Detection_Gen3_SSD",
+      "summary": "Class-Incremental Object Detection for SSD",
+      "supports_auto_hpo": true,
+      "task_type": "detection"
+    },
+    {
+      "algorithm_name": "MaskRCNN-ResNet50",
+      "gigaflops": 533.8,
+      "model_size": 177.9,
+      "model_template_id": "Custom_Counting_Instance_Segmentation_MaskRCNN_ResNet50",
+      "summary": "Class-Incremental Instance Segmentation for MaskRCNN-ResNet50",
+      "supports_auto_hpo": true,
+      "task_type": "instance_segmentation"
+    },
+    {
+      "algorithm_name": "MaskRCNN-EfficientNetB2B",
+      "gigaflops": 68.48,
+      "model_size": 13.27,
+      "model_template_id": "Custom_Counting_Instance_Segmentation_MaskRCNN_EfficientNetB2B",
+      "summary": "Class-Incremental Instance Segmentation for MaskRCNN-EfficientNetB2B",
+      "supports_auto_hpo": true,
+      "task_type": "instance_segmentation"
+    },
+    {
+      "algorithm_name": "EfficientNet-V2-S",
+      "gigaflops": 5.76,
+      "model_size": 20.23,
+      "model_template_id": "Custom_Image_Classification_EfficientNet-V2-S",
+      "summary": "Class-Incremental Image Classification for EfficientNet-V2-S",
+      "supports_auto_hpo": true,
+      "task_type": "classification"
+    },
+    {
+      "algorithm_name": "EfficientNet-B0",
+      "gigaflops": 0.81,
+      "model_size": 4.09,
+      "model_template_id": "Custom_Image_Classification_EfficinetNet-B0",
+      "summary": "Class-Incremental Image Classification for EfficientNet-B0",
+      "supports_auto_hpo": true,
+      "task_type": "classification"
+    },
+    {
+      "algorithm_name": "DeiT-Tiny",
+      "gigaflops": 1.26,
+      "model_size": 5.72,
+      "model_template_id": "Custom_Image_Classification_DeiT-Tiny",
+      "summary": "Custom Image Classification for DeiT-Tiny",
+      "supports_auto_hpo": true,
+      "task_type": "classification"
+    },
+    {
+      "algorithm_name": "MobileNet-V3-large-1x",
+      "gigaflops": 0.44,
+      "model_size": 4.29,
+      "model_template_id": "Custom_Image_Classification_MobileNet-V3-large-1x",
+      "summary": "Class-Incremental Image Classification for MobileNet-V3-large-1x",
+      "supports_auto_hpo": true,
+      "task_type": "classification"
+    }
+  ]
+}}
