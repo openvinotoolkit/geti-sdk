@@ -616,6 +616,26 @@ class Benchmarker:
                     )
 
                 if success:
+                    try:
+                        # Warm-up for the model
+                        deployment.infer(benchmark_frames[0])
+
+                        # Estimate time to completion
+                        t_single_start = time.time()
+                        deployment.infer(benchmark_frames[0])
+                        single_inf_time = time.time() - t_single_start
+                        logging.info(
+                            f"Inference model(s) for deployment `{deployment_folder}` "
+                            f"loaded. Starting benchmark run. Estimated time required: "
+                            f"{repeats*frames*single_inf_time:.0f} seconds"
+                        )
+                    except Exception as e:
+                        success = False
+                        logging.info(
+                            f"Failed to run inference on frame number 0. Marking "
+                            f"benchmark run for deployment `{deployment_folder}` as "
+                            f"failed. Inference failed with error: `{e}`"
+                        )
                     t_start = time.time()
                     for run in range(repeats):
                         for frame in benchmark_frames:
@@ -659,7 +679,7 @@ class Benchmarker:
                     result_row["model 2 score"] = f"{model_scores[1]:.2f}"
                 result_row["success"] = str(int(success))
                 result_row["fps"] = f"{fps:.2f}"
-                result_row["total frames"] = frames * repeats
+                result_row["total frames"] = f"{frames * repeats}"
                 result_row["source"] = deployment_folder
                 result_row.update(get_system_info(device=target_device))
                 results.append(result_row)
