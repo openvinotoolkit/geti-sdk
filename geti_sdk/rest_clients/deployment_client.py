@@ -379,6 +379,7 @@ class DeploymentClient:
         stop_polling = False
         logging.info("Waiting for the deployment to be created...")
         while not stop_polling:
+            time.sleep(1)
             code_deployment = self._get_deployment_status(code_deployment.id)
             if code_deployment.state == DeploymentState.DONE:
                 stop_polling = True
@@ -387,7 +388,6 @@ class DeploymentClient:
                     f"The Intel® Geti™ server failed to create deployment for "
                     f"project '{self.project.name}'."
                 )
-            time.sleep(1)
 
         # Fetch the deployment package
         deployment = self._fetch_deployment(deployment_id=code_deployment.id)
