@@ -390,20 +390,26 @@ class BaseAnnotationClient:
                     media_item
                 )
                 if annotation_scene is None:
+                    log_msg = (
+                        f"Unable to retrieve latest annotation for {media_name} "
+                        f"{media_item.name}. Skipping this {media_name}"
+                    )
                     if verbose:
-                        logging.info(
-                            f"Unable to retrieve latest annotation for {media_name} "
-                            f"{media_item.name}. Skipping this {media_name}"
-                        )
+                        logging.info(log_msg)
+                    else:
+                        logging.debug(log_msg)
                     skip_count += 1
                     continue
                 kind = annotation_scene.kind
                 if kind != AnnotationKind.ANNOTATION:
+                    log_msg = (
+                        f"Received invalid annotation of kind {kind} for "
+                        f"{media_name} with name{media_item.name}"
+                    )
                     if verbose:
-                        logging.info(
-                            f"Received invalid annotation of kind {kind} for {media_name} "
-                            f"with name{media_item.name}"
-                        )
+                        logging.info(log_msg)
+                    else:
+                        logging.debug(log_msg)
                     skip_count += 1
                     continue
                 export_data = AnnotationRESTConverter.to_dict(annotation_scene)

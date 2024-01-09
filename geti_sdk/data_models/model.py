@@ -14,6 +14,7 @@
 
 import copy
 import json
+import logging
 from pprint import pformat
 from typing import Any, ClassVar, Dict, List, Optional
 
@@ -267,3 +268,88 @@ class Model(BaseModel):
         with open(filepath, "r") as file:
             model_dict = json.load(file)
         return cls.from_dict(model_dict=model_dict)
+
+    def get_optimized_model(
+        self,
+        optimization_type: Optional[str] = None,
+        precision: Optional[str] = None,
+        require_xai: bool = False,
+    ) -> Optional[OptimizedModel]:
+        """
+        Return the OptimizedModel of the specified `optimization_type` or `precision`.
+        The following optimization types are supported: 'nncf', 'pot', 'onnx', 'mo',
+        `openvino`
+        (case insensitive). The supported precision levels are `FP32`, `FP16`, `INT8`.
+        Precision, optimization type or both can be specified.
+
+        :param optimization_type: Optimization type for which to return the model
+        :param precision: Precision level for which to return the model. Can be `FP32`,
+            `FP16` or `INT8`
+        :param require_xai: If True, only include models that have an XAI head for
+            saliency map generation. Defaults to False
+        :return: OptimizedModel object representing the optimized model
+        """
+        if optimization_type is None and precision is None:
+            raise ValueError("Please specify optimization_type or precision, or both")
+        optimized_models: List[OptimizedModel] = None
+        if optimization_type is not None:
+            capitalized_ot = optimization_type.upper()
+            if capitalized_ot == "OPENVINO":
+                optimized_models = [
+                    model for model in self.optimized_models if "ONNX" not in model.name
+                ]
+            else:
+                allowed_types = [item.name for item in OptimizationType]
+                if capitalized_ot not in allowed_types:
+                    raise ValueError(
+                        f"Invalid optimization type passed, supported values are "
+                        f"{allowed_types} or `openvino`"
+                    )
+                optim_type = OptimizationType(capitalized_ot)
+                optimized_models = [
+                    model
+                    for model in self.optimized_models
+                    if model.optimization_type == optim_type
+                ]
+
+        if precision is not None:
+            if optimized_models is None:
+                models_to_search = self.optimized_models
+            else:
+                models_to_search = optimized_models
+            optimized_models = [
+                model for model in models_to_search if precision in model.name
+            ]
+
+        if len(optimized_models) == 0:
+            logging.info(
+                "No optimized model meeting the optimization criteria was found."
+            )
+            return None
+        elif len(optimized_models) == 1:
+            if not require_xai:
+                return optimized_models[0]
+            else:
+                if optimized_models[0].has_xai_head:
+                    return optimized_models[0]
+                logging.info(
+                    f"An optimized model of type {optim_type} was found, but it does "
+                    f"not include an XAI head. Method `get_optimized_model` returned "
+                    f"None."
+                )
+                return None
+        else:
+            if not require_xai:
+                models_to_check = optimized_models
+            else:
+                models_to_check = [m for m in optimized_models if m.has_xai_head]
+            if len(models_to_check) == 0:
+                logging.info(
+                    f"An optimized model of type {optim_type} was found, but it does "
+                    f"not include an XAI head. Method `get_optimized_model` returned "
+                    f"None."
+                )
+                return None
+            creation_dates = [om.creation_date for om in models_to_check]
+            max_index = creation_dates.index(max(creation_dates))
+            return models_to_check[max_index]

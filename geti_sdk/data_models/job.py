@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import logging
+import re
 from pprint import pformat
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import attr
 
@@ -273,7 +274,9 @@ class Job:
         :return: Job with updated status
         """
         try:
-            session.get_rest_response(url=self.relative_url, method="DELETE")
+            session.get_rest_response(
+                url=self.relative_url, method="DELETE", allow_text_response=True
+            )
             self.status.state = JobState.CANCELLED
         except GetiRequestException as error:
             if error.status_code == 404:
@@ -308,3 +311,33 @@ class Job:
         Return True if the job finished successfully, False otherwise
         """
         return self.status.state == JobState.FINISHED
+
+    def _get_step_information(self) -> Tuple[int, int]:
+        """
+        Return the current step and the total number of steps in the job
+        """
+        status_message = self.status.message
+        step_pattern = re.compile(r"\(Step \d\/\d\)", re.IGNORECASE)
+        results = re.findall(step_pattern, status_message)
+        if len(results) != 1:
+            return 1, 1
+        result_string = results[0].strip("(").strip(")").split("Step")[-1]
+        result_string = result_string.strip()
+        result_nums = result_string.split("/")
+        current = int(result_nums[0])
+        total = int(result_nums[1])
+        return current, total
+
+    @property
+    def total_steps(self) -> int:
+        """
+        Return the total number of steps in the job
+        """
+        return self._get_step_information()[1]
+
+    @property
+    def current_step(self) -> int:
+        """
+        Return the current step for the job
+        """
+        return self._get_step_information()[0]

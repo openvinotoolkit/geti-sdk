@@ -2,3 +2,4 @@ graft requirements*
 include geti_sdk/demos/data/example/dogs.png
 include geti_sdk/deployment/resources/OVMS_README.md
 include geti_sdk/deployment/resources/requirements-ovms.txt
+include geti_sdk/utils/legacy_algorithms.json

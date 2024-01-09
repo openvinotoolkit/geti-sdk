@@ -22,14 +22,16 @@ from geti_sdk.data_models import (
     Job,
     Model,
     ModelGroup,
+    ModelSummary,
     OptimizedModel,
     Project,
     Task,
 )
-from geti_sdk.data_models.enums import JobState, JobType
+from geti_sdk.data_models.enums import JobState, JobType, OptimizationType
 from geti_sdk.http_session import GetiSession
 from geti_sdk.rest_converters import ModelRESTConverter
 from geti_sdk.utils import get_supported_algorithms
+from geti_sdk.utils.job_helpers import get_job_with_timeout, monitor_job
 
 ModelType = TypeVar("ModelType", Model, OptimizedModel)
 
@@ -74,6 +76,21 @@ class ModelClient:
             )
         return model_groups
 
+    def get_latest_model_for_all_model_groups(self) -> List[Model]:
+        """
+        Return the latest trained models for each model group in the project.
+
+        :return: List of models, one for each trained algorithm in the project.
+        """
+        model_groups = self.get_all_model_groups()
+        latest_models: List[Model] = []
+        for model_group in model_groups:
+            lm = model_group.get_latest_model()
+            latest_models.append(
+                self._get_model_detail(group_id=model_group.id, model_id=lm.id)
+            )
+        return latest_models
+
     def get_model_group_by_algo_name(self, algorithm_name: str) -> Optional[ModelGroup]:
         """
         Return the model group for the algorithm named `algorithm_name`, if any. If
@@ -92,6 +109,98 @@ class ModelClient:
             ),
             None,
         )
+
+    def get_latest_model_by_algo_name(self, algorithm_name: str) -> Optional[Model]:
+        """
+        Return the latest model for a specific algorithm. If no model has been trained
+        for the algorithm, this method returns None.
+
+        :param algorithm_name: Name fo the algorithm for which to return the model
+        :return: Model object respresenting the model.
+        """
+        model_group = self.get_model_group_by_algo_name(algorithm_name)
+        if model_group:
+            model_summary = model_group.get_latest_model()
+            return self._get_model_detail(
+                group_id=model_group.id, model_id=model_summary.id
+            )
+        else:
+            return None
+
+    def get_latest_optimized_model(
+        self,
+        algorithm_name: str,
+        optimization_type: str = "MO",
+        precision: str = "FP16",
+        require_xai: bool = False,
+    ) -> OptimizedModel:
+        """
+        Return the optimized model for the latest trained model for a specified
+        algorithm. Additional parameters allow filtering on the optimization type
+        (e.g. 'nncf', 'pot', 'mo', 'onnx'), precision ('int8', 'fp16', 'fp32') and
+        whether or not the model includes an XAI head for saliency map generation.
+
+        If no optimized model for the specified criteria can be found, this method
+        raises an error
+
+        :param algorithm_name: Name of the algorithm to retrieve the model for
+        :param optimization_type: Optimization type to select. Options are 'mo',
+            'nncf', 'pot', 'onnx'. Case insensitive. Defaults to 'MO'
+        :param precision: Model precision to select. Options are 'INT8', 'FP16', 'FP32'.
+            Defaults to 'FP16'
+        :param require_xai: If True, only select models that include an XAI head.
+            Defaults to False
+        """
+        base_model = self.get_latest_model_by_algo_name(algorithm_name=algorithm_name)
+        if base_model is None:
+            raise RuntimeError(
+                f"No trained model was found for algorithm `{algorithm_name}`"
+            )
+        n_optimized_models = len(base_model.optimized_models)
+        logging.info(
+            f"{n_optimized_models} optimized models were found for algorithm "
+            f"`{algorithm_name}`. Finding the most recent optimized model with "
+            f"precision {precision} and optimization type {optimization_type}."
+        )
+        if require_xai:
+            opt_models = [m for m in base_model.optimized_models if m.has_xai_head]
+        else:
+            opt_models = base_model.optimized_models
+        if n_optimized_models != 0 and len(opt_models) == 0:
+            raise RuntimeError(
+                f"Algorithm {algorithm_name} has a trained base model and "
+                f"{n_optimized_models} optimized models, but no optimized model with "
+                f"XAI head was found."
+            )
+        cap_prec = precision.upper()
+        supported_precisions = ["FP32", "FP16", "INT8"]
+        if cap_prec not in supported_precisions:
+            raise ValueError(
+                f"Invalid target precision specified: {precision}. Supported options "
+                f"are: {supported_precisions}"
+            )
+        opt_models_precision = [om for om in opt_models if cap_prec in om.name]
+        cap_opt_type = optimization_type.upper()
+        opt_type = OptimizationType(cap_opt_type)
+        opt_models_prec_type = [
+            om for om in opt_models_precision if om.optimization_type == opt_type
+        ]
+        if len(opt_models_prec_type) == 0:
+            raise RuntimeError(
+                f"Algorithm {algorithm_name} has a trained base model and "
+                f"{n_optimized_models} optimized models, but no optimized model "
+                f"matches the required optimization type and precision."
+            )
+        elif len(opt_models_prec_type) == 1:
+            return opt_models_prec_type[0]
+        else:
+            logging.info(
+                f"Found {len(opt_models_prec_type)} models that match the selection "
+                f"criteria. Returning the most recently created matching model."
+            )
+            creation_dates = [om.creation_date for om in opt_models_prec_type]
+            max_index = creation_dates.index(max(creation_dates))
+            return opt_models_prec_type[max_index]
 
     def get_model_by_algorithm_task_and_version(
         self,
@@ -161,6 +270,31 @@ class ModelClient:
         model.model_group_id = group_id
         model.base_url = self.base_url
         return model
+
+    def update_model_detail(self, model: Union[Model, ModelSummary]) -> Model:
+        """
+        Update the model such that its details are up to date. This includes updating
+        the list of available optimized models for the model.
+
+        :param model: Model or ModelSummary object, representing the model to update
+        :return: Model object containing the up to date details of the model
+        """
+        if isinstance(model, ModelSummary):
+            group_id = model.model_storage_id
+        elif isinstance(model, Model):
+            group_id = model.model_group_id
+        else:
+            raise TypeError(
+                f"Invalid type {type(model)}. Argument `model` must be either a "
+                f"Model or ModelSummary object"
+            )
+        model_detail = self.session.get_rest_response(
+            url=f"{self.base_url}/{group_id}/models/{model.id}", method="GET"
+        )
+        updated_model = ModelRESTConverter.model_from_dict(model_detail)
+        updated_model.model_group_id = group_id
+        updated_model.base_url = self.base_url
+        return updated_model
 
     def get_active_model_for_task(self, task: Task) -> Optional[Model]:
         """
@@ -419,3 +553,59 @@ class ModelClient:
             )
         else:
             return model_task
+
+    def optimize_model(self, model: Model, optimization_type: str = "pot") -> Job:
+        """
+        Start an optimization job for the specified `model`.
+
+        :param model: Model to optimize
+        :param optimization_type: Type of optimization to run. Currently supported
+            values: ["pot", "nncf"]. Case insensitive. Defaults to "pot"
+        :return: Job object referring to the optimization job running on the
+            Intel® Geti™ server.
+        """
+        if isinstance(model, OptimizedModel):
+            raise ValueError(
+                f"Model {model.name} is already optimized, please specify a base "
+                f"model for optimization instead."
+            )
+        valid_optimization_types = ["pot", "nncf"]
+        optimization_type = optimization_type.lower()
+        if optimization_type not in valid_optimization_types:
+            raise ValueError(
+                f"Invalid optimization type specified: `{optimization_type}`. Valid "
+                f"options are: {valid_optimization_types}"
+            )
+        optimize_model_url = model.base_url + "/optimize"
+        payload = {
+            "enable_nncf_optimization": optimization_type == "nncf",
+            "enable_pot_optimization": optimization_type == "pot",
+        }
+        response = self.session.get_rest_response(
+            url=optimize_model_url, method="POST", data=payload
+        )
+        job_id = response["job_ids"][0]
+        job = get_job_with_timeout(
+            job_id=job_id,
+            session=self.session,
+            workspace_id=self.workspace_id,
+            job_type="optimization",
+        )
+        return job
+
+    def monitor_job(self, job: Job, timeout: int = 10000, interval: int = 15) -> Job:
+        """
+        Monitor and print the progress of a `job`. Program execution is
+        halted until the job has either finished, failed or was cancelled.
+
+        Progress will be reported in 15s intervals
+
+        :param job: job to monitor
+        :param timeout: Timeout (in seconds) after which to stop the monitoring
+        :param interval: Time interval (in seconds) at which the ModelClient polls
+            the server to update the status of the jobs. Defaults to 15 seconds
+        :return: job with it's status updated
+        """
+        return monitor_job(
+            session=self.session, job=job, timeout=timeout, interval=interval
+        )
