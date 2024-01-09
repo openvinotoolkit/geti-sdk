@@ -28,6 +28,7 @@ dist
 .ipynb_checkpoints/
 /notebooks/deployments
 /notebooks/projects
+/notebooks/benchmarks
 
 # Documentation builds
 /docs/build
