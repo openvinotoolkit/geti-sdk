@@ -311,7 +311,9 @@ class BaseAnnotationClient:
         """
         try:
             response = self.session.get_rest_response(
-                url=f"{media_item.base_url}/annotations/latest", method="GET"
+                url=f"{media_item.base_url}/annotations/latest",
+                method="GET",
+                include_organization_id=False,
             )
         except GetiRequestException as error:
             if error.status_code in [204, 404]:
