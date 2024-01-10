@@ -1,4 +1,4 @@
-{{
+{
   "default_algorithms": [
     {
       "model_template_id": "ote_anomaly_detection_padim",
@@ -224,4 +224,4 @@
       "task_type": "classification"
     }
   ]
-}}
+}
