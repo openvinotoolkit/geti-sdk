@@ -217,7 +217,10 @@ class BaseAnnotationClient:
                 )
             rest_data.pop("kind")
             self.session.get_rest_response(
-                url=f"{media_item.base_url}/annotations", method="POST", data=rest_data
+                url=f"{media_item.base_url}/annotations",
+                method="POST",
+                data=rest_data,
+                include_organization_id=False,
             )
         return scene_to_upload
 
@@ -287,7 +290,10 @@ class BaseAnnotationClient:
             rest_data.pop("annotation_state_per_task", None)
             rest_data.pop("id", None)
             response = self.session.get_rest_response(
-                url=f"{media_item.base_url}/annotations", method="POST", data=rest_data
+                url=f"{media_item.base_url}/annotations",
+                method="POST",
+                data=rest_data,
+                include_organization_id=False,
             )
             return AnnotationRESTConverter.from_dict(response)
         else:
