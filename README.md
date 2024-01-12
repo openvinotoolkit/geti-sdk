@@ -28,7 +28,7 @@ feeling for use cases for the package.
 Using an environment manager such as
 [Anaconda](https://www.anaconda.com/products/individual) or
 [venv](https://docs.python.org/3/library/venv.html) to create a new
-Python environment before installing the Intel® Geti™ SDK and it's requirements is
+Python environment before installing the Intel® Geti™ SDK and its requirements is
 highly recommended.
 
 > **NOTE**: If you have installed multiple versions of Python,
