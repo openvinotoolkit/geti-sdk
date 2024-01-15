@@ -21,7 +21,6 @@ import attr
 from geti_sdk.data_models.enums import JobState, JobType
 from geti_sdk.data_models.project import Dataset
 from geti_sdk.data_models.status import StatusSummary
-from geti_sdk.data_models.user import User
 from geti_sdk.data_models.utils import (
     attr_value_serializer,
     str_to_datetime,
@@ -158,6 +157,11 @@ class JobMetadata:
     optimized_model_id: Optional[str] = None
     scores: Optional[List[ScoreMetadata]] = None
     trained_model: Optional[ModelMetadata] = None  # Added in Geti v1.7
+    warnings: Optional[List[dict]] = None  # Added in Geti v1.13 for dataset import jobs
+    supported_project_types: Optional[
+        List[dict]
+    ] = None  # Added in Geti v1.13 for dataset import jobs
+    project_id: Optional[str] = None  # Added in Geti v1.13 for dataset import jobs
 
 
 @attr.define
@@ -203,7 +207,7 @@ class Job:
     end_time: Optional[str] = attr.field(
         converter=str_to_datetime, default=None
     )  # Added in Geti v1.7
-    author: Optional[User] = None  # Added in Geti v1.7
+    author: Optional[str] = None  # Added in Geti v1.7
     cancellation_info: Optional[JobCancellationInfo] = None  # Added in Geti v1.7
     state: Optional[str] = attr.field(
         converter=str_to_optional_enum_converter(JobState), default=None
@@ -316,16 +320,27 @@ class Job:
         """
         Return the current step and the total number of steps in the job
         """
-        status_message = self.status.message
-        step_pattern = re.compile(r"\(Step \d\/\d\)", re.IGNORECASE)
-        results = re.findall(step_pattern, status_message)
-        if len(results) != 1:
-            return 1, 1
-        result_string = results[0].strip("(").strip(")").split("Step")[-1]
-        result_string = result_string.strip()
-        result_nums = result_string.split("/")
-        current = int(result_nums[0])
-        total = int(result_nums[1])
+        if self.steps is not None and len(self.steps) != 0:
+            # Job is split in steps, valid from Geti v1.10
+            total = len(self.steps)
+            steps_complete = 0
+            for step in self.steps:
+                progress = step.get("progress", 0)
+                if progress == 100:
+                    steps_complete += 1
+            current = steps_complete + 1
+        else:
+            # The old method, use job status message to find step number
+            status_message = self.status.message
+            step_pattern = re.compile(r"\(Step \d\/\d\)", re.IGNORECASE)
+            results = re.findall(step_pattern, status_message)
+            if len(results) != 1:
+                return 1, 1
+            result_string = results[0].strip("(").strip(")").split("Step")[-1]
+            result_string = result_string.strip()
+            result_nums = result_string.split("/")
+            current = int(result_nums[0])
+            total = int(result_nums[1])
         return current, total
 
     @property

@@ -23,7 +23,11 @@ from geti_sdk.data_models.annotations import Annotation
 from geti_sdk.data_models.enums import AnnotationKind
 from geti_sdk.data_models.label import Label
 from geti_sdk.data_models.media import MediaInformation
-from geti_sdk.data_models.utils import deidentify, str_to_annotation_kind
+from geti_sdk.data_models.utils import (
+    deidentify,
+    str_to_annotation_kind,
+    str_to_datetime,
+)
 from geti_sdk.http_session import GetiSession
 
 
@@ -128,6 +132,7 @@ class Prediction(AnnotationScene):
     feature_vector: Optional[np.ndarray] = attr.field(
         kw_only=True, default=None, repr=False
     )
+    created: Optional[str] = attr.field(converter=str_to_datetime, default=None)
 
     def resolve_labels_for_result_media(self, labels: List[Label]) -> None:
         """

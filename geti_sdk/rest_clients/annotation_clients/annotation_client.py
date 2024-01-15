@@ -42,7 +42,9 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         """
         try:
             response = self.session.get_rest_response(
-                url=f"{video.base_url}/annotations/latest", method="GET"
+                url=f"{video.base_url}/annotations/latest",
+                method="GET",
+                include_organization_id=False,
             )
         except GetiRequestException as error:
             if error.status_code == 204:

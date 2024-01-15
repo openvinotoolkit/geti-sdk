@@ -93,6 +93,7 @@ class GetiSession(requests.Session):
 
         # Get server version
         self._product_info = self._get_product_info_and_set_api_version()
+        self._organization_id: Optional[str] = self._get_organization_id()
 
     @property
     def version(self) -> GetiVersion:
@@ -106,6 +107,15 @@ class GetiSession(requests.Session):
         else:
             version_string = self._product_info.get("product-version")
         return GetiVersion(version_string)
+
+    @property
+    def organization_id(self) -> str:
+        """
+        Return the organization id for the user who is associated with the GetiSession
+        """
+        if self._organization_id is None:
+            self._organization_id = self._get_organization_id()
+        return self._organization_id
 
     def _acquire_access_token(self) -> str:
         """
@@ -259,7 +269,9 @@ class GetiSession(requests.Session):
 
         self._update_headers_for_content_type(content_type=contenttype)
 
-        if not include_organization_id:
+        if not include_organization_id or url.startswith(
+            f"organizations/{self.organization_id}/"
+        ):
             requesturl = f"{self.config.base_url}{url}"
         else:
             requesturl = f"{self.base_url}{url}"
@@ -312,7 +324,7 @@ class GetiSession(requests.Session):
                     content_type=contenttype,
                 )
 
-        if response.headers.get("Content-Type", None) == "application/json":
+        if response.headers.get("Content-Type", "").startswith("application/json"):
             result = response.json()
         else:
             result = response
@@ -517,10 +529,9 @@ class GetiSession(requests.Session):
         if self.version <= GETI_18_VERSION:
             return self.config.base_url
         else:
-            org_id = self.get_organization_id()
-            return f"{self.config.base_url}organizations/{org_id}/"
+            return f"{self.config.base_url}organizations/{self.organization_id}/"
 
-    def get_organization_id(self) -> str:
+    def _get_organization_id(self) -> str:
         """
         Return the organization ID associated with the user and host information configured
         in this Session

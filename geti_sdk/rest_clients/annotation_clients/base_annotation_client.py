@@ -117,7 +117,9 @@ class BaseAnnotationClient:
                 raw_media_list.append(media_item_dict)
             if "next_page" in response.keys():
                 response = self.session.get_rest_response(
-                    url=response["next_page"], method="GET"
+                    url=response["next_page"],
+                    method="GET",
+                    include_organization_id=False,
                 )
         return MediaList.from_rest_list(
             rest_input=raw_media_list, media_type=media_type
@@ -217,7 +219,10 @@ class BaseAnnotationClient:
                 )
             rest_data.pop("kind")
             self.session.get_rest_response(
-                url=f"{media_item.base_url}/annotations", method="POST", data=rest_data
+                url=f"{media_item.base_url}/annotations",
+                method="POST",
+                data=rest_data,
+                include_organization_id=False,
             )
         return scene_to_upload
 
@@ -287,7 +292,10 @@ class BaseAnnotationClient:
             rest_data.pop("annotation_state_per_task", None)
             rest_data.pop("id", None)
             response = self.session.get_rest_response(
-                url=f"{media_item.base_url}/annotations", method="POST", data=rest_data
+                url=f"{media_item.base_url}/annotations",
+                method="POST",
+                data=rest_data,
+                include_organization_id=False,
             )
             return AnnotationRESTConverter.from_dict(response)
         else:
@@ -305,7 +313,9 @@ class BaseAnnotationClient:
         """
         try:
             response = self.session.get_rest_response(
-                url=f"{media_item.base_url}/annotations/latest", method="GET"
+                url=f"{media_item.base_url}/annotations/latest",
+                method="GET",
+                include_organization_id=False,
             )
         except GetiRequestException as error:
             if error.status_code in [204, 404]:
