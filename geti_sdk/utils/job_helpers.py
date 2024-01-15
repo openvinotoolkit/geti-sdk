@@ -23,6 +23,7 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 from geti_sdk.data_models.enums.job_state import JobState
 from geti_sdk.data_models.job import Job
 from geti_sdk.http_session import GetiRequestException, GetiSession
+from geti_sdk.platform_versions import GETI_18_VERSION
 from geti_sdk.rest_converters.job_rest_converter import JobRESTConverter
 
 
@@ -203,8 +204,12 @@ def monitor_jobs(
                             total_job_steps[index] - job_steps[index]
                         )
                         continue
-
-                    no_step_message = job.status.message.split("(Step")[0].strip()
+                    if session.version <= GETI_18_VERSION:
+                        no_step_message = job.status.message.split("(Step")[0].strip()
+                    else:
+                        no_step_message = job.steps[job.current_step - 1].get(
+                            "step_name", ""
+                        )
                     if no_step_message != descriptions[index]:
                         # Next phase of the job, reset progress bar
                         inner_bars[index].set_description(no_step_message, refresh=True)

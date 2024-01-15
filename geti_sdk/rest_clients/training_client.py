@@ -90,9 +90,16 @@ class TrainingClient:
         ):
             return [job for job in job_list if job.project_id == self.project.id]
         elif project_only and self.session.version.is_geti:
-            return [
-                job for job in job_list if job.metadata.project.id == self.project.id
-            ]
+            project_jobs: List[Job] = []
+            for job in job_list:
+                project = job.metadata.project
+                if project is not None:
+                    if project.id == self.project.id:
+                        project_jobs.append(job)
+                        continue
+                if job.metadata.project_id == self.project.id:
+                    project_jobs.append(job)
+            return project_jobs
         else:
             return job_list
 

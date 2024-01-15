@@ -40,7 +40,11 @@ class PredictionRESTConverter:
         """
         input_copy = copy.deepcopy(prediction)
         annotations: List[Annotation] = []
-        for annotation in prediction["annotations"]:
+        prediction_dicts = input_copy.pop("predictions", None)
+        if prediction_dicts is None:
+            # Geti versions lower than 1.13 still use 'annotations' as key
+            prediction_dicts = prediction.get("annotations")
+        for annotation in prediction_dicts:
             if not isinstance(annotation, Annotation):
                 annotations.append(
                     AnnotationRESTConverter.annotation_from_dict(annotation)

@@ -139,9 +139,9 @@ class TestGeti:
                     test_mode=fxt_test_mode,
                 )
 
-        # Wait a few secs to check whether the project is training
+        # Wait a minute to check whether the project is training
         if fxt_test_mode != SdkTestMode.OFFLINE:
-            time.sleep(20)
+            time.sleep(60)
 
         assert lazy_fxt_project_service.is_training
 

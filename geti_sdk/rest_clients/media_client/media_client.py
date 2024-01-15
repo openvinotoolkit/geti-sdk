@@ -119,7 +119,9 @@ class BaseMediaClient(Generic[MediaTypeVar]):
                 raw_media_list.append(media_item_dict)
             if "next_page" in response.keys():
                 response = self.session.get_rest_response(
-                    url=response["next_page"], method="GET"
+                    url=response["next_page"],
+                    method="GET",
+                    include_organization_id=False,
                 )
         return MediaList.from_rest_list(
             rest_input=raw_media_list, media_type=self.__media_type
@@ -379,7 +381,10 @@ class BaseMediaClient(Generic[MediaTypeVar]):
                     existing_count += 1
                     continue
                 response = self.session.get_rest_response(
-                    url=media_item.download_url, method="GET", contenttype="jpeg"
+                    url=media_item.download_url,
+                    method="GET",
+                    contenttype="jpeg",
+                    include_organization_id=False,
                 )
 
                 with open(media_filepath, "wb") as f:

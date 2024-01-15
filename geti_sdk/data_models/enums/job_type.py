@@ -27,6 +27,8 @@ class JobType(Enum):
     EVALUATE = "evaluate"
     OPTIMIZATION = "optimization"
     TEST = "test"
+    PREPARE_IMPORT_TO_NEW_PROJECT = "prepare_import_to_new_project"
+    PERFORM_IMPORT_TO_NEW_PROJECT = "perform_import_to_new_project"
 
     def __str__(self) -> str:
         """
