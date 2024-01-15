@@ -320,7 +320,7 @@ class Job:
         """
         Return the current step and the total number of steps in the job
         """
-        if len(self.steps) != 0:
+        if self.steps is not None and len(self.steps) != 0:
             # Job is split in steps, valid from Geti v1.10
             total = len(self.steps)
             steps_complete = 0
