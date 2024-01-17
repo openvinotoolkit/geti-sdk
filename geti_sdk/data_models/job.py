@@ -267,7 +267,7 @@ class Job:
         updated_status = JobStatus.from_dict(response["status"])
         self.status = updated_status
         self.state = updated_status.state
-        self.steps = response["steps"]
+        self.steps = response.get("steps", None)
         return self
 
     def cancel(self, session: GetiSession) -> "Job":
