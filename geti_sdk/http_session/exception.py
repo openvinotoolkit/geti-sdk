@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import logging
 from typing import BinaryIO, Dict, Optional, Union
 
 
@@ -47,8 +47,17 @@ class GetiRequestException(Exception):
         self.response_error_code: Optional[str] = None
 
         if response_data:
-            self.response_message = response_data.get("message", None)
-            self.response_error_code = response_data.get("error_code", None)
+            if isinstance(response_data, dict):
+                self.response_message = response_data.get("message", None)
+                self.response_error_code = response_data.get("error_code", None)
+            elif isinstance(response_data, str):
+                self.response_message = response_data
+                self.response_error_code = self.status_code
+            else:
+                logging.warning(
+                    f"Received unexpected response type `{type(response_data)}` from "
+                    f"server. Response: {response_data}"
+                )
 
     def __str__(self) -> str:
         """

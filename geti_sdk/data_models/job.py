@@ -267,6 +267,7 @@ class Job:
         updated_status = JobStatus.from_dict(response["status"])
         self.status = updated_status
         self.state = updated_status.state
+        self.steps = response["steps"]
         return self
 
     def cancel(self, session: GetiSession) -> "Job":
@@ -332,8 +333,8 @@ class Job:
             total = len(self.steps)
             steps_complete = 0
             for step in self.steps:
-                progress = step.get("progress", 0)
-                if progress == 100:
+                step_state = step.get("state", "waiting")
+                if step_state == "finished":
                     steps_complete += 1
             current = steps_complete + 1
         else:

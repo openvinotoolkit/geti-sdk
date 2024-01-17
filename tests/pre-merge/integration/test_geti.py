@@ -23,7 +23,7 @@ from vcr import VCR
 
 from geti_sdk import Geti
 from geti_sdk.annotation_readers import AnnotationReader, DatumAnnotationReader
-from geti_sdk.data_models import Prediction, Project
+from geti_sdk.data_models import Job, Prediction, Project
 from geti_sdk.deployment import Deployment
 from geti_sdk.http_session import GetiRequestException
 from geti_sdk.rest_clients import (
@@ -132,22 +132,23 @@ class TestGeti:
         with fxt_vcr.use_cassette(
             f"{project.name}_setup_training.{CASSETTE_EXTENSION}"
         ):
+            jobs: List[Job] = []
             for task in project.get_trainable_tasks():
-                attempt_to_train_task(
-                    training_client=lazy_fxt_project_service.training_client,
-                    task=task,
-                    test_mode=fxt_test_mode,
+                jobs.append(
+                    attempt_to_train_task(
+                        training_client=lazy_fxt_project_service.training_client,
+                        task=task,
+                        test_mode=fxt_test_mode,
+                    )
                 )
 
-        # Wait to check whether the project is training
+        # Check whether the project is training
         if fxt_test_mode != SdkTestMode.OFFLINE:
             t_start = time.time()
             timeout = 300
-            time.sleep(20)
-            while (
-                not lazy_fxt_project_service.is_training
-                and time.time() - t_start < timeout
-            ):
+            is_training = lazy_fxt_project_service.training_client.is_training()
+            while not is_training and time.time() - t_start < timeout:
+                is_training = lazy_fxt_project_service.training_client.is_training()
                 time.sleep(10)
 
         assert lazy_fxt_project_service.is_training
@@ -357,14 +358,15 @@ class TestGeti:
         """
         lazy_fxt_project_service = request.getfixturevalue(project_service)
         project = lazy_fxt_project_service.project
+
         # If training is not ready yet, monitor progress until job completes
-        if not lazy_fxt_project_service.prediction_client.ready_to_predict:
-            timeout = 300 if fxt_test_mode != SdkTestMode.OFFLINE else 1
-            interval = 5 if fxt_test_mode != SdkTestMode.OFFLINE else 1
-            jobs = lazy_fxt_project_service.training_client.get_jobs(project_only=True)
-            lazy_fxt_project_service.training_client.monitor_jobs(
-                jobs, timeout=timeout, interval=interval
-            )
+        if fxt_test_mode != SdkTestMode.OFFLINE:
+            timeout = 300
+            t_start = time.time()
+            training = lazy_fxt_project_service.training_client.is_training()
+            while training and time.time() - t_start < timeout:
+                training = lazy_fxt_project_service.training_client.is_training()
+                time.sleep(10)
 
         # Create a 'test' dataset in the project
         dataset_client = DatasetClient(
@@ -500,18 +502,6 @@ class TestGeti:
         lazy_fxt_project_service = request.getfixturevalue(project_service)
         project = lazy_fxt_project_service.project
         deployment_folder = os.path.join(fxt_temp_directory, project.name)
-
-        if (
-            lazy_fxt_project_service.is_training
-            and fxt_test_mode != SdkTestMode.OFFLINE
-        ):
-            # Wait for training to complete, if needed
-            t_start = time.time()
-            timeout = 300
-            while (
-                lazy_fxt_project_service.is_training and time.time() - t_start < timeout
-            ):
-                time.sleep(10)
 
         deployment = fxt_geti.deploy_project(
             project.name, output_folder=deployment_folder

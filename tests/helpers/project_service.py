@@ -326,8 +326,7 @@ class ProjectService:
         if not self.has_project:
             return False
         with self.vcr_context(f"{self.project.name}_is_training.{CASSETTE_EXTENSION}"):
-            jobs = self.training_client.get_jobs(project_only=True, running_only=True)
-            return len(jobs) > 0
+            return self.training_client.is_training()
 
     def delete_project(self):
         """Deletes the project from the server"""

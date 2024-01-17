@@ -59,6 +59,12 @@ class TrainingClient:
         )
         return StatusRESTConverter.from_dict(response)
 
+    def is_training(self) -> bool:
+        """
+        Request the project status and return True if the project is training
+        """
+        return self.get_status().is_training
+
     def get_jobs(
         self, project_only: bool = True, running_only: bool = False
     ) -> List[Job]:
