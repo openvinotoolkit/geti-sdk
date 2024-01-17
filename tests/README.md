@@ -20,6 +20,7 @@ in offline mode, meaning that no actual Intel® Geti™ server is needed and no 
 http requests are being made during testing. All requests are intercepted, and a
 previously recorded response is returned. The recorded interactions can be found in
 [fixtures/cassettes](fixtures/cassettes).
+> **_NOTE:_**  You may need to fetch and checkout VCR cassette data using [Git Large File Storage (LFS)](https://git-lfs.com/). Make sure that you have the **git-lfs** package installed and run `git lfs pull` from the root repo directory to download the HTTP requests records.
 
 ## Unit tests
 The SDK unit tests are defined in the [pre-merge/unit](pre-merge/unit) directory. The
