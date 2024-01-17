@@ -134,6 +134,21 @@ class Prediction(AnnotationScene):
     )
     created: Optional[str] = attr.field(converter=str_to_datetime, default=None)
 
+    def resolve_label_names_and_colors(self, labels: List[Label]) -> None:
+        """
+        Add label names and colors to all predictions, based on a list of available
+        labels.
+
+        :param labels: List of labels for the project, serving as a reference point
+            for label names and colors
+        """
+        name_map = {label.id: label.name for label in labels}
+        color_map = {label.id: label.color for label in labels}
+        for annotation in self.annotations:
+            for label in annotation.labels:
+                label.name = name_map[label.id]
+                label.color = color_map[label.id]
+
     def resolve_labels_for_result_media(self, labels: List[Label]) -> None:
         """
         Resolve the label names for all result media available with this Prediction.

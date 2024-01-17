@@ -35,7 +35,7 @@ PROXY_COOKIE_NAME = "_oauth2_proxy"
 
 # INITIAL_HEADERS = {"Connection": "keep-alive", "Upgrade-Insecure-Requests": "1"}
 INITIAL_HEADERS = {"Upgrade-Insecure-Requests": "1"}
-SUCCESS_STATUS_CODES = [200, 201]
+SUCCESS_STATUS_CODES = [200, 201, 202]
 
 
 class GetiSession(requests.Session):

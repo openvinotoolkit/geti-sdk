@@ -242,6 +242,8 @@ class TestModelAndPredictionClient:
             except GetiRequestException as error:
                 if error.status_code != 503:
                     raise error
+            except TimeoutError:
+                pass
             time.sleep(sleep_time)
         prediction_numpy = prediction_client.predict_image(image=fxt_numpy_image)
         prediction_geti_image = prediction_client.predict_image(image=fxt_geti_image)

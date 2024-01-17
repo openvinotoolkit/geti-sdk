@@ -27,7 +27,7 @@ from geti_sdk.data_models.enums import DeploymentState, OptimizationType
 from geti_sdk.data_models.model import Model, OptimizedModel
 from geti_sdk.deployment import DeployedModel, Deployment
 from geti_sdk.http_session import GetiSession
-from geti_sdk.platform_versions import GETI_11_VERSION
+from geti_sdk.platform_versions import GETI_11_VERSION, GETI_18_VERSION
 from geti_sdk.rest_clients.configuration_client import ConfigurationClient
 from geti_sdk.rest_clients.model_client import ModelClient
 from geti_sdk.rest_clients.prediction_client import PredictionClient
@@ -75,7 +75,16 @@ class DeploymentClient:
 
         :return: True when the project is ready for deployment, False otherwise
         """
-        return self._prediction_client.ready_to_predict
+        ready = False
+        if self._prediction_client.ready_to_predict:
+            ready = True
+            if self.session.version > GETI_18_VERSION:
+                # Check that all tasks have a trained model
+                models = self._model_client.get_all_active_models()
+                for model in models:
+                    if model is None:
+                        ready = False
+        return ready
 
     def _request_deployment(
         self, model_identifiers: Sequence[DeploymentModelIdentifier]
