@@ -316,6 +316,13 @@ class Job:
         """
         return self.status.state == JobState.FINISHED
 
+    @property
+    def is_running(self) -> bool:
+        """
+        Return True if the job is currently running, False otherwise
+        """
+        return self.status.state == JobState.RUNNING
+
     def _get_step_information(self) -> Tuple[int, int]:
         """
         Return the current step and the total number of steps in the job

@@ -207,9 +207,12 @@ def monitor_jobs(
                     if session.version <= GETI_18_VERSION:
                         no_step_message = job.status.message.split("(Step")[0].strip()
                     else:
-                        no_step_message = job.steps[job.current_step - 1].get(
-                            "step_name", ""
-                        )
+                        if job.state != JobState.SCHEDULED and len(job.steps) > 0:
+                            no_step_message = job.steps[job.current_step - 1].get(
+                                "step_name", ""
+                            )
+                        else:
+                            no_step_message = "Awaiting job execution"
                     if no_step_message != descriptions[index]:
                         # Next phase of the job, reset progress bar
                         inner_bars[index].set_description(no_step_message, refresh=True)

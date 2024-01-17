@@ -139,9 +139,16 @@ class TestGeti:
                     test_mode=fxt_test_mode,
                 )
 
-        # Wait a minute to check whether the project is training
+        # Wait to check whether the project is training
         if fxt_test_mode != SdkTestMode.OFFLINE:
-            time.sleep(60)
+            t_start = time.time()
+            timeout = 300
+            time.sleep(20)
+            while (
+                not lazy_fxt_project_service.is_training
+                and time.time() - t_start < timeout
+            ):
+                time.sleep(10)
 
         assert lazy_fxt_project_service.is_training
 
@@ -485,6 +492,7 @@ class TestGeti:
         fxt_geti: Geti,
         fxt_image_path: str,
         fxt_temp_directory: str,
+        fxt_test_mode: SdkTestMode,
     ) -> None:
         """
         Verifies that deploying a project works
@@ -492,6 +500,19 @@ class TestGeti:
         lazy_fxt_project_service = request.getfixturevalue(project_service)
         project = lazy_fxt_project_service.project
         deployment_folder = os.path.join(fxt_temp_directory, project.name)
+
+        if (
+            lazy_fxt_project_service.is_training
+            and fxt_test_mode != SdkTestMode.OFFLINE
+        ):
+            # Wait for training to complete, if needed
+            t_start = time.time()
+            timeout = 300
+            while (
+                lazy_fxt_project_service.is_training and time.time() - t_start < timeout
+            ):
+                time.sleep(10)
+
         deployment = fxt_geti.deploy_project(
             project.name, output_folder=deployment_folder
         )

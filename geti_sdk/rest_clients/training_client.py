@@ -59,7 +59,9 @@ class TrainingClient:
         )
         return StatusRESTConverter.from_dict(response)
 
-    def get_jobs(self, project_only: bool = True) -> List[Job]:
+    def get_jobs(
+        self, project_only: bool = True, running_only: bool = False
+    ) -> List[Job]:
         """
         Return a list of all jobs on the Intel® Geti™ server.
 
@@ -70,6 +72,8 @@ class TrainingClient:
         :param project_only: True to return only those jobs pertaining to the project
             for which the TrainingClient is active. False to return all jobs in the
             Intel® Geti™ workspace.
+        :param running_only: If set to True, only return those jobs that are still
+            running. Completed or Scheduled jobs will not be included in that case
         :return: List of Jobs
         """
         response = self.session.get_rest_response(
@@ -82,6 +86,8 @@ class TrainingClient:
             response_list_key = "jobs"
         for job_dict in response[response_list_key]:
             job = JobRESTConverter.from_dict(job_dict)
+            if running_only and not job.is_running:
+                continue
             job.workspace_id = self.workspace_id
             job_list.append(job)
 
