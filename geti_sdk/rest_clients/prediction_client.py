@@ -271,7 +271,7 @@ class PredictionClient:
                     )
                 else:
                     result = PredictionRESTConverter.from_dict(response)
-                if include_explanation:
+                if include_explanation and self.session.version > GETI_18_VERSION:
                     maps: List[ResultMedium] = []
                     for map_dict in explain_response.get("maps", []):
                         map = ResultMedium(
@@ -300,7 +300,10 @@ class PredictionClient:
                     for ind, prediction in enumerate(response["video_predictions"]):
                         pred_object = PredictionRESTConverter.from_dict(prediction)
                         pred_object.resolve_label_names_and_colors(labels=self._labels)
-                        if include_explanation:
+                        if (
+                            include_explanation
+                            and self.session.version > GETI_18_VERSION
+                        ):
                             maps: List[ResultMedium] = []
                             for map_dict in explain_response["explanations"][ind].get(
                                 "maps", []
