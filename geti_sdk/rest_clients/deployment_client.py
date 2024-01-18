@@ -44,7 +44,9 @@ class DeploymentClient:
         self.project = project
         self.workspace_id = workspace_id
         self.base_url = f"workspaces/{workspace_id}/projects/{project.id}"
-        self.supported_algos = get_supported_algorithms(session)
+        self.supported_algos = get_supported_algorithms(
+            rest_session=session, project=project, workspace_id=workspace_id
+        )
 
         self._model_client = ModelClient(
             workspace_id=workspace_id, project=project, session=session

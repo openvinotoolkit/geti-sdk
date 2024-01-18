@@ -16,13 +16,24 @@ import os
 import pytest
 
 from geti_sdk.data_models import Algorithm, TaskType
+from geti_sdk.http_session import GetiSession
 from geti_sdk.utils import get_server_details_from_env, get_supported_algorithms
-from tests.helpers.constants import DUMMY_HOST, DUMMY_PASSWORD, DUMMY_USER
+from tests.helpers import ProjectService
+from tests.helpers.constants import (
+    DUMMY_HOST,
+    DUMMY_PASSWORD,
+    DUMMY_USER,
+    PROJECT_PREFIX,
+)
 
 
 class TestUtils:
     @pytest.mark.vcr()
-    def test_get_supported_algorithms(self, fxt_geti_session):
+    def test_get_supported_algorithms(
+        self,
+        fxt_geti_session: GetiSession,
+        fxt_project_service: ProjectService,
+    ):
         """
         Verifies that getting the list of supported algorithms from the server works
         as expected
@@ -37,7 +48,16 @@ class TestUtils:
         5. Assert that the list of classification algorithms is not empty and that
             each algorithm in it has the proper task type
         """
-        algorithms = get_supported_algorithms(fxt_geti_session)
+        project = fxt_project_service.create_project(
+            project_name=f"{PROJECT_PREFIX}_test_supported_algos",
+            project_type="detection_to_classification",
+            labels=[["a"], ["b", "c"]],
+        )
+        algorithms = get_supported_algorithms(
+            rest_session=fxt_geti_session,
+            project=project,
+            workspace_id=fxt_project_service.workspace_id,
+        )
 
         assert len(algorithms) > 0
         for algorithm in algorithms:

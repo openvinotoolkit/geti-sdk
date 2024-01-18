@@ -12,12 +12,15 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import Optional
+from pprint import pformat
+from typing import Any, Dict, Optional
 
 import attr
 
 from geti_sdk.data_models.enums import Domain, TaskType
 from geti_sdk.data_models.utils import str_to_optional_enum_converter
+
+from .utils import attr_value_serializer, remove_null_fields
 
 
 @attr.define
@@ -51,3 +54,23 @@ class Algorithm:
         if self.domain is not None and self.task_type is None:
             self.task_type = TaskType.from_domain(self.domain)
             self.domain = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert the Algorithm to a dictionary representation.
+
+        :return: Dictionary holding the algorithm data
+        """
+        output_dict = attr.asdict(self, value_serializer=attr_value_serializer)
+        return output_dict
+
+    @property
+    def overview(self) -> str:
+        """
+        Return a string that shows an overview of the Algorithm properties.
+
+        :return: String holding an overview of the algorithm
+        """
+        overview_dict = self.to_dict()
+        remove_null_fields(overview_dict)
+        return pformat(overview_dict)

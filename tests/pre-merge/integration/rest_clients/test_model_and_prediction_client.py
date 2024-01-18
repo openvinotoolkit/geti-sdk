@@ -20,12 +20,11 @@ import numpy as np
 import pytest
 
 from geti_sdk.annotation_readers import DatumAnnotationReader
-from geti_sdk.data_models import Image, Prediction, Project, TaskType
+from geti_sdk.data_models import Image, Prediction, Project
 from geti_sdk.data_models.enums import JobState, PredictionMode
 from geti_sdk.demos import EXAMPLE_IMAGE_PATH
 from geti_sdk.http_session import GetiRequestException
 from geti_sdk.platform_versions import GETI_15_VERSION
-from geti_sdk.utils import get_supported_algorithms
 from tests.helpers import (
     ProjectService,
     SdkTestMode,
@@ -130,10 +129,6 @@ class TestModelAndPredictionClient:
         task = project.get_trainable_tasks()[0]
         algorithm = model_client.supported_algos.get_default_for_task_type(task.type)
 
-        unsupported_algo = get_supported_algorithms(
-            fxt_project_service.session, task_type=TaskType.SEGMENTATION
-        )[0]
-
         untrained_algos = copy.deepcopy(
             model_client.supported_algos.get_by_task_type(task.type)
         )
@@ -165,11 +160,6 @@ class TestModelAndPredictionClient:
         assert latest_model == model_no_task
         assert model_not_trained is None
         assert model_invalid_version is None
-
-        with pytest.raises(ValueError):
-            model_client.get_model_by_algorithm_task_and_version(
-                algorithm=unsupported_algo, task=task
-            )
 
     @pytest.mark.vcr()
     def test_download_active_model_for_task(
