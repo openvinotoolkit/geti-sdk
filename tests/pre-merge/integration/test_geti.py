@@ -37,6 +37,7 @@ from tests.helpers import (
     ProjectService,
     SdkTestMode,
     attempt_to_train_task,
+    await_training_start,
     get_or_create_annotated_project_for_test_class,
 )
 from tests.helpers.constants import CASSETTE_EXTENSION, PROJECT_PREFIX
@@ -142,14 +143,7 @@ class TestGeti:
                     )
                 )
 
-        # Check whether the project is training
-        if fxt_test_mode != SdkTestMode.OFFLINE:
-            t_start = time.time()
-            timeout = 300
-            is_training = lazy_fxt_project_service.training_client.is_training()
-            while not is_training and time.time() - t_start < timeout:
-                is_training = lazy_fxt_project_service.training_client.is_training()
-                time.sleep(10)
+        await_training_start(fxt_test_mode, lazy_fxt_project_service.training_client)
 
         assert lazy_fxt_project_service.is_training
 

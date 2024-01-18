@@ -22,6 +22,7 @@ from tests.helpers import (
     ProjectService,
     SdkTestMode,
     attempt_to_train_task,
+    await_training_start,
     get_or_create_annotated_project_for_test_class,
 )
 from tests.helpers.constants import PROJECT_PREFIX
@@ -61,6 +62,8 @@ class TestTrainingClient:
             test_mode=fxt_test_mode,
         )
         assert isinstance(job, Job)
+
+        await_training_start(fxt_test_mode, fxt_project_service.training_client)
 
         jobs = fxt_project_service.training_client.get_jobs(project_only=True)
         assert job.id in [project_job.id for project_job in jobs]
