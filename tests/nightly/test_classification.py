@@ -29,7 +29,7 @@ class TestClassification(TestNightlyProject):
     PROJECT_TYPE = "classification"
     __test__ = True
 
-    def test_deployment(
+    def test_benchmarking(
         self,
         fxt_project_service_no_vcr: project_service,
         fxt_geti_no_vcr: Geti,
