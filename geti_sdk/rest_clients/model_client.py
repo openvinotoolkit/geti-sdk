@@ -48,7 +48,9 @@ class ModelClient:
         self.workspace_id = workspace_id
         self.task_ids = [task.id for task in project.get_trainable_tasks()]
         self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/model_groups"
-        self.supported_algos = get_supported_algorithms(self.session)
+        self.supported_algos = get_supported_algorithms(
+            rest_session=self.session, project=project, workspace_id=workspace_id
+        )
 
     def get_all_model_groups(self) -> List[ModelGroup]:
         """

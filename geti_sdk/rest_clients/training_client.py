@@ -26,7 +26,7 @@ from geti_sdk.data_models.containers import AlgorithmList
 from geti_sdk.data_models.enums import JobState, JobType
 from geti_sdk.data_models.project import Dataset
 from geti_sdk.http_session import GetiSession
-from geti_sdk.platform_versions import GETI_11_VERSION
+from geti_sdk.platform_versions import GETI_11_VERSION, GETI_18_VERSION
 from geti_sdk.rest_converters import (
     ConfigurationRESTConverter,
     JobRESTConverter,
@@ -46,7 +46,9 @@ class TrainingClient:
         self.project = project
         self.workspace_id = workspace_id
         self.base_url = f"workspaces/{workspace_id}/projects/{project.id}"
-        self.supported_algos = get_supported_algorithms(session)
+        self.supported_algos = get_supported_algorithms(
+            rest_session=session, project=project, workspace_id=workspace_id
+        )
 
     def get_status(self) -> ProjectStatus:
         """
@@ -82,36 +84,71 @@ class TrainingClient:
             running. Completed or Scheduled jobs will not be included in that case
         :return: List of Jobs
         """
-        response = self.session.get_rest_response(
-            url=f"workspaces/{self.workspace_id}/jobs", method="GET"
-        )
-        job_list: List[Job] = []
+        if self.session.version > GETI_18_VERSION:
+            query = "?limit=100"
+            if project_only:
+                query += f"&project_id={self.project.id}"
+            if running_only:
+                query += "&state=running"
+            use_pagination = True
+            use_querying = True
+        else:
+            query = ""
+            use_pagination = False
+            use_querying = False
+
         if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
             response_list_key = "items"
         else:
             response_list_key = "jobs"
-        for job_dict in response[response_list_key]:
+
+        job_rest_list: List[dict] = []
+        if not use_pagination:
+            response = self.session.get_rest_response(
+                url=f"workspaces/{self.workspace_id}/jobs{query}", method="GET"
+            )
+            job_rest_list = response[response_list_key]
+        else:
+            while response := self.session.get_rest_response(
+                url=f"workspaces/{self.workspace_id}/jobs{query}&skip={len(job_rest_list)}",
+                method="GET",
+            ):
+                job_rest_list.extend(response[response_list_key])
+                job_count_dict = response["jobs_count"]
+                total_job_count = (
+                    job_count_dict.get("n_running_jobs", 0)
+                    + job_count_dict.get("n_finished_jobs", 0)
+                    + job_count_dict.get("n_failed_jobs", 0)
+                    + job_count_dict.get("n_cancelled_jobs", 0)
+                )
+                if len(job_rest_list) >= total_job_count:
+                    break
+
+        job_list: List[Job] = []
+        for job_dict in job_rest_list:
             job = JobRESTConverter.from_dict(job_dict)
             if running_only and not job.is_running:
                 continue
             job.workspace_id = self.workspace_id
             job_list.append(job)
 
-        if project_only and (
-            self.session.version.is_sc_mvp or self.session.version.is_sc_1_1
-        ):
-            return [job for job in job_list if job.project_id == self.project.id]
-        elif project_only and self.session.version.is_geti:
-            project_jobs: List[Job] = []
-            for job in job_list:
-                project = job.metadata.project
-                if project is not None:
-                    if project.id == self.project.id:
+        if not use_querying:
+            # In this case we have to filter manually
+            if project_only and (
+                self.session.version.is_sc_mvp or self.session.version.is_sc_1_1
+            ):
+                return [job for job in job_list if job.project_id == self.project.id]
+            elif project_only and self.session.version <= GETI_18_VERSION:
+                project_jobs: List[Job] = []
+                for job in job_list:
+                    project = job.metadata.project
+                    if project is not None:
+                        if project.id == self.project.id:
+                            project_jobs.append(job)
+                            continue
+                    if job.metadata.project_id == self.project.id:
                         project_jobs.append(job)
-                        continue
-                if job.metadata.project_id == self.project.id:
-                    project_jobs.append(job)
-            return project_jobs
+                return project_jobs
         else:
             return job_list
 
