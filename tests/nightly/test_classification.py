@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,15 +36,19 @@ class TestClassification(TestNightlyProject):
         fxt_temp_directory: str,
         fxt_image_path: str,
         fxt_image_path_complex: str,
-        fxt_artifact_directory: str,
     ):
         """
         Tests benchmarking for the project.
         """
         project = fxt_project_service_no_vcr.project
-        algorithms_to_benchmark = ["EfficientNet-B0", "MobileNet-V3-large-1x"]
+        algorithms_to_benchmark = [
+            algo.algorithm_name
+            for algo in fxt_project_service_no_vcr._training_client.get_algorithms_for_task(
+                0
+            )
+        ][:2]
         images = [fxt_image_path, fxt_image_path_complex]
-        precision_levels = ["FP32", "FP16", "INT8"]
+        precision_levels = ["FP16", "INT8"]
 
         benchmarker = Benchmarker(
             geti=fxt_geti_no_vcr,

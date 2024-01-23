@@ -148,7 +148,6 @@ class TestBenchmarker:
         fxt_benchmarker_task_chain.set_task_chain_models(models_task_1, models_task_2)
 
         # Assert
-        # raise Exception(fxt_benchmarker_task_chain._task_chain_models)
         assert fxt_benchmarker_task_chain._are_models_specified
         assert fxt_benchmarker_task_chain._task_chain_models == [
             [models_task_1[0], models_task_2[0]],
