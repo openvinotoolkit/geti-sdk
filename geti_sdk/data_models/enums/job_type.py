@@ -26,6 +26,8 @@ class JobType(Enum):
     RECONSTRUCT_VIDEO = "reconstruct_video"
     EVALUATE = "evaluate"
     OPTIMIZATION = "optimization"
+    OPTIMIZE_POT = "optimize_pot"
+    OPTIMIZE_NNCF = "optimize_nncf"
     TEST = "test"
     PREPARE_IMPORT_TO_NEW_PROJECT = "prepare_import_to_new_project"
     PERFORM_IMPORT_TO_NEW_PROJECT = "perform_import_to_new_project"
