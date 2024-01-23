@@ -104,7 +104,7 @@ def str_to_optional_enum_converter(
 
 
 def str_to_enum_converter_by_name_or_value(
-    enum: Type[EnumType],
+    enum: Type[EnumType], allow_none: bool = False
 ) -> Callable[[Union[str, EnumType]], EnumType]:
     """
     Construct a converter function to convert an input value into an instance of the
@@ -113,6 +113,7 @@ def str_to_enum_converter_by_name_or_value(
     This method attempts to convert both from the Enum value as well as it's name
 
     :param enum: type of the Enum to which the converter should convert
+    :param allow_none: True to allow `None` as input value, i.e. for optional parameters
     :return: Converter function that takes an input value and attempts to convert it
         into an instance of `enum`
     """
@@ -131,6 +132,8 @@ def str_to_enum_converter_by_name_or_value(
                 return enum[input_value]
         elif isinstance(input_value, enum):
             return input_value
+        if (input_value is None) and allow_none:
+            return None
         else:
             raise ValueError(
                 f"Invalid argument! Cannot convert value {input_value} to Enum "
