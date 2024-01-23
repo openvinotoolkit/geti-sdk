@@ -27,5 +27,8 @@ class TaskAnnotationState:
 
     task_id: str
     state: str = attr.field(
-        converter=str_to_enum_converter_by_name_or_value(AnnotationState)
+        converter=str_to_enum_converter_by_name_or_value(
+            AnnotationState, allow_none=True
+        ),
+        default=None,
     )
