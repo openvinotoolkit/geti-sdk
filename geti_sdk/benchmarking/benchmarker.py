@@ -595,11 +595,9 @@ class Benchmarker:
             f"Benchmarking inference rate for synchronous inference on {frames} frames "
             f"with {repeats} repeats"
         )
-        with logging_redirect_tqdm(tqdm_class=tqdm), open(
-            results_file, "w", newline=""
-        ) as csvfile:
+        with logging_redirect_tqdm(tqdm_class=tqdm):
             results: List[Dict[str, str]] = []
-            for index, deployment_folder in enumerate(
+            for deployment_index, deployment_folder in enumerate(
                 tqdm(self._deployment_folders, desc="Benchmarking")
             ):
                 success = True
@@ -667,7 +665,7 @@ class Benchmarker:
 
                 # Update result list
                 result_row: Dict[str, str] = {}
-                result_row["name"] = f"Deployment {index}"
+                result_row["name"] = f"Deployment {deployment_index}"
                 result_row["project_name"] = self.project.name
                 result_row["target_device"] = target_device
                 result_row["task 1"] = self.project.get_trainable_tasks()[0].title
@@ -684,11 +682,12 @@ class Benchmarker:
                 result_row.update(get_system_info(device=target_device))
                 results.append(result_row)
 
-                # Write results to file
-                if index == 0:
-                    fieldnames = list(result_row.keys())
-                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                    writer.writeheader()
+        # Write results to file
+        with open(results_file, "w", newline="") as csvfile:
+            fieldnames = list(results[0].keys())
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for result_row in results:
                 writer.writerow(result_row)
 
         return results
