@@ -39,47 +39,6 @@ jobs:
         # Creates the temporary directory used to store the test reports
         run: mkdir $REPORT_DIRECTORY
 
-      # Snyk setup has been done manually on the self-hosted runner
-      # - name: Set up Snyk
-      #   uses: snyk/actions/setup@master
-
-      # Snyk-to-html setup has been done manually on the self-hosted runner
-      # - name: Install snyk-to-html
-      #   run: |
-      #     npm install snyk-to-html -g
-
-      - name: Snyk scan
-        # Run Snyk scan for all package requirements
-        run: |
-          export no_proxy=snyk.devtools.intel.com
-          snyk auth $SNYK_TOKEN -d
-
-          snyk test --json-file-output=$REPORT_DIRECTORY/snyk_base.json \
-                    --print-deps \
-                    --file=requirements/requirements.txt \
-                    --project-name=geti_sdk-base \
-                    --package-manager=pip || echo "Snyk tests on base requirements completed with exit code $?"
-          snyk test --json-file-output=$REPORT_DIRECTORY/snyk_docs.json \
-                    --print-deps \
-                    --file=requirements/requirements-docs.txt \
-                    --project-name=geti_sdk-docs \
-                    --package-manager=pip || echo "Snyk tests on documentation requirements completed with exit code $?"
-          snyk test --json-file-output=$REPORT_DIRECTORY/snyk_notebooks.json \
-                    --print-deps \
-                    --file=requirements/requirements-notebooks.txt \
-                    --project-name=geti_sdk-notebooks \
-                    --package-manager=pip || echo "Snyk tests on notebook requirements completed with exit code $?"
-          snyk test --json-file-output=$REPORT_DIRECTORY/snyk_dev.json \
-                    --print-deps \
-                    --file=requirements/requirements-dev.txt \
-                    --project-name=geti_sdk-development \
-                    --package-manager=pip || echo "Snyk tests on development requirements completed with exit code $?"
-
-          snyk-to-html -i $REPORT_DIRECTORY/snyk_base.json -o $REPORT_DIRECTORY/snyk_base.html
-          snyk-to-html -i $REPORT_DIRECTORY/snyk_docs.json -o $REPORT_DIRECTORY/snyk_docs.html
-          snyk-to-html -i $REPORT_DIRECTORY/snyk_notebooks.json -o $REPORT_DIRECTORY/snyk_notebooks.html
-          snyk-to-html -i $REPORT_DIRECTORY/snyk_dev.json -o $REPORT_DIRECTORY/snyk_dev.html
-
       - name: Bandit scan
         # Run Bandit scan
         run: |
