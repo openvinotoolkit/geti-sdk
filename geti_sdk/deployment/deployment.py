@@ -127,6 +127,8 @@ class Deployment:
         :return: Deployment instance corresponding to the deployment data in the folder
         """
         deployment_folder = path_to_folder
+        if not isinstance(path_to_folder, str):
+            path_to_folder = str(path_to_folder)
         if not path_to_folder.endswith("deployment"):
             if "deployment" in os.listdir(path_to_folder):
                 deployment_folder = os.path.join(path_to_folder, "deployment")
