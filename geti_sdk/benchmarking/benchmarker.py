@@ -35,7 +35,11 @@ from geti_sdk.data_models import (
 from geti_sdk.deployment import Deployment
 from geti_sdk.rest_clients import ImageClient, ModelClient, TrainingClient, VideoClient
 from geti_sdk.rest_clients.prediction_client import PredictionClient
-from geti_sdk.utils.plot_helpers import show_image_with_annotation_scene
+from geti_sdk.utils.plot_helpers import (
+    concat_prediction_results,
+    pad_image_and_put_caption,
+    show_image_with_annotation_scene,
+)
 
 from .utils import get_system_info, load_benchmark_media, suppress_log_output
 
@@ -733,106 +737,6 @@ class Benchmarker:
             result["model_2_score"] = active_models[1].performance.score
         return result
 
-    def _pad_image_and_put_caption(
-        self,
-        image: np.ndarray,
-        run_name: int,
-        model_1: str,
-        model_1_score: str,
-        model_2: Optional[str] = None,
-        model_2_score: Optional[str] = None,
-        fps: Optional[int] = None,
-    ) -> np.ndarray:
-        """
-        Pad the image with white and put the caption on it.
-
-        :param image: Numpy array containing the image to be padded.
-        :param run_name: Experiment description.
-        :param model_1: Name of the model 1.
-        :param model_1_score: Score of the model 1.
-        :param model_2: Name of the model 2.
-        :param model_2_score: Score of the model 2.
-        :param fps: FPS of the inference.
-        :return: Padded image with caption.
-        """
-        # Calculate text and image padding size
-        text_scale = round(image.shape[1] / 1280, 1)
-        thickness = int(text_scale / 1.5)
-        (_, label_height), baseline = cv2.getTextSize(
-            "Test caption", cv2.FONT_HERSHEY_SIMPLEX, text_scale, thickness
-        )
-        universal_padding = 2
-        bottom_padding_pre_line = label_height + baseline
-        # Prepare image captions
-        caption_lines = [
-            run_name + ("" if fps is None else f" @{fps} fps"),
-            f"Model 1: {model_1}, score {model_1_score:.2f}",
-        ]
-        if model_2 and model_2_score:
-            caption_lines.append(f"Model 2: {model_2}, score {model_2_score:.2f}")
-        # Pad the image and put captions on it
-        padded_image = cv2.copyMakeBorder(
-            image,
-            top=universal_padding,
-            bottom=universal_padding + bottom_padding_pre_line * len(caption_lines),
-            left=universal_padding,
-            right=universal_padding,
-            borderType=cv2.BORDER_CONSTANT,
-            value=(255, 255, 255),
-        )
-        # Put text
-        for line_number, text_line in enumerate(caption_lines):
-            cv2.putText(
-                padded_image,
-                text_line,
-                (0, image.shape[0] + bottom_padding_pre_line * (line_number + 1)),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                text_scale,
-                (0, 0, 0),
-                thickness,
-            )
-        return padded_image
-
-    def _concat_prediction_results(self, results: List[List[np.ndarray]]) -> np.ndarray:
-        """
-        Merge the prediction images to one.
-
-        :param results: List of lists of numpy arrays containing the results of the
-            predictions.
-        :return: Numpy array containing the concatenated results.
-        """
-        # Gather information about images on the grid
-        row_pixel_lengths = []
-        for index, row in enumerate(results):
-            integral_row_length = sum([image.shape[1] for image in row])
-            row_pixel_lengths.append(integral_row_length)
-            image_heights = [image.shape[0] for image in row]
-            if len(set(image_heights)) > 1:
-                raise ValueError(f"Row {index} has images with different heights!")
-        # Concatenate images
-        max_row_length = max(row_pixel_lengths)
-        concatenated_rows = []
-        for row in results:
-            merged_row = cv2.hconcat(row)
-            if merged_row.shape[1] < max_row_length:
-                # Add empty image to the end of the row
-                merged_row = cv2.hconcat(
-                    [
-                        merged_row,
-                        np.ones(
-                            (
-                                merged_row.shape[0],
-                                max_row_length - merged_row.shape[1],
-                                merged_row.shape[2],
-                            ),
-                            dtype=np.uint8,
-                        )
-                        * 255,
-                    ]
-                )
-            concatenated_rows.append(merged_row)
-        return cv2.vconcat(concatenated_rows)
-
     def _add_header_to_comparison(
         self, comparison_image: np.ndarray, target_device: str
     ) -> np.ndarray:
@@ -890,7 +794,7 @@ class Benchmarker:
     def compare_predictions(
         self,
         working_directory: os.PathLike = ".",
-        results_filename: str = "comparison",
+        saved_image_name: str = "comparison",
         target_device: str = "CPU",
         image: Optional[Union[np.ndarray, str, os.PathLike]] = None,
         include_online_prediction_for_active_model: bool = True,  # the name is not finalized
@@ -905,7 +809,7 @@ class Benchmarker:
 
         :param working_directory: Directory in which the deployments that should be
             benchmarked are stored. All output will be saved to this directory.
-        :param results_filename: Name of the file to which the results will be saved.
+        :param saved_image_name: Name of the file to which the results will be saved.
             File extension should not be included, the results will always be saved as
             a `.jpg` file. Defaults to `comparison.jpg`. The results file will be created
             within the `working_directory`
@@ -948,8 +852,8 @@ class Benchmarker:
         else:
             raise TypeError(f"Invalid image type: {type(image)}.")
 
-        results_file = os.path.join(working_directory, f"{results_filename}.jpg")
-        logging.info(f"Saving visual comparison to `{results_file}`")
+        saved_image_path = os.path.join(working_directory, f"{saved_image_name}.jpg")
+        logging.info(f"Saving visual comparison to `{saved_image_path}`")
 
         # Check the benchmark results
         if isinstance(throughput_benchmark_results, (os.PathLike, str)):
@@ -1032,7 +936,7 @@ class Benchmarker:
                         }
                     )
                 # Pad the image and put captions on it
-                image_with_prediction = self._pad_image_and_put_caption(
+                image_with_prediction = pad_image_and_put_caption(
                     image=image_with_prediction, **model_info
                 )
 
@@ -1056,7 +960,7 @@ class Benchmarker:
             )
 
             del online_prediction_result["prediction"]
-            image_with_prediction = self._pad_image_and_put_caption(
+            image_with_prediction = pad_image_and_put_caption(
                 image=image_with_prediction, **online_prediction_result
             )
             # Add online prediction to a separate row
@@ -1065,5 +969,13 @@ class Benchmarker:
                     image_with_prediction,
                 ]
             )
-        image_grid = self._concat_prediction_results(results=results)
-        return self._add_header_to_comparison(image_grid, target_device=target_device)
+        image_grid = concat_prediction_results(results=results)
+        image_with_header = self._add_header_to_comparison(
+            image_grid, target_device=target_device
+        )
+
+        # Save image to file
+        cv2.imwrite(
+            saved_image_path, cv2.cvtColor(image_with_header, cv2.COLOR_RGB2BGR)
+        )
+        return image_with_header

@@ -53,9 +53,9 @@ def show_image_with_annotation_scene(
         This parameter accepts either `rgb` or `bgr` as input values, and defaults to
         `rgb`.
     """
-    if type(annotation_scene) == AnnotationScene:
+    if type(annotation_scene) is AnnotationScene:
         plot_type = "Annotation"
-    elif type(annotation_scene) == Prediction:
+    elif type(annotation_scene) is Prediction:
         plot_type = "Prediction"
     else:
         raise ValueError(
@@ -143,9 +143,9 @@ def show_video_frames_with_annotation_scenes(
         )
 
     for frame, annotation_scene in zip(video_frames, annotation_scenes):
-        if type(annotation_scene) == AnnotationScene:
+        if type(annotation_scene) is AnnotationScene:
             name = "Annotation"
-        elif type(annotation_scene) == Prediction:
+        elif type(annotation_scene) is Prediction:
             name = "Prediction"
         else:
             raise ValueError(
@@ -173,3 +173,104 @@ def show_video_frames_with_annotation_scenes(
         cv2.waitKey(1)
     else:
         out_writer.release()
+
+
+def pad_image_and_put_caption(
+    image: np.ndarray,
+    run_name: int,
+    model_1: str,
+    model_1_score: str,
+    model_2: Optional[str] = None,
+    model_2_score: Optional[str] = None,
+    fps: Optional[int] = None,
+) -> np.ndarray:
+    """
+    Pad the image with white and put the caption on it.
+
+    :param image: Numpy array containing the image to be padded.
+    :param run_name: Experiment description.
+    :param model_1: Name of the model 1.
+    :param model_1_score: Score of the model 1.
+    :param model_2: Name of the model 2.
+    :param model_2_score: Score of the model 2.
+    :param fps: FPS of the inference.
+    :return: Padded image with caption.
+    """
+    # Calculate text and image padding size
+    text_scale = round(image.shape[1] / 1280, 1)
+    thickness = int(text_scale / 1.5)
+    (_, label_height), baseline = cv2.getTextSize(
+        "Test caption", cv2.FONT_HERSHEY_SIMPLEX, text_scale, thickness
+    )
+    universal_padding = 2
+    bottom_padding_pre_line = label_height + baseline
+    # Prepare image captions
+    caption_lines = [
+        run_name + ("" if fps is None else f" @{fps} fps"),
+        f"Model 1: {model_1}, score {model_1_score:.2f}",
+    ]
+    if model_2 and model_2_score:
+        caption_lines.append(f"Model 2: {model_2}, score {model_2_score:.2f}")
+    # Pad the image and put captions on it
+    padded_image = cv2.copyMakeBorder(
+        image,
+        top=universal_padding,
+        bottom=universal_padding + bottom_padding_pre_line * len(caption_lines),
+        left=universal_padding,
+        right=universal_padding,
+        borderType=cv2.BORDER_CONSTANT,
+        value=(255, 255, 255),
+    )
+    # Put text
+    for line_number, text_line in enumerate(caption_lines):
+        cv2.putText(
+            padded_image,
+            text_line,
+            (0, image.shape[0] + bottom_padding_pre_line * (line_number + 1)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            text_scale,
+            (0, 0, 0),
+            thickness,
+        )
+    return padded_image
+
+
+def concat_prediction_results(results: List[List[np.ndarray]]) -> np.ndarray:
+    """
+    Merge the prediction images to one.
+
+    :param results: List of lists of numpy arrays containing the results of the
+        predictions.
+    :return: Numpy array containing the concatenated results.
+    """
+    # Gather information about images on the grid
+    row_pixel_lengths = []
+    for index, row in enumerate(results):
+        integral_row_length = sum([image.shape[1] for image in row])
+        row_pixel_lengths.append(integral_row_length)
+        image_heights = [image.shape[0] for image in row]
+        if len(set(image_heights)) > 1:
+            raise ValueError(f"Row {index} has images with different heights!")
+    # Concatenate images
+    max_row_length = max(row_pixel_lengths)
+    concatenated_rows = []
+    for row in results:
+        merged_row = cv2.hconcat(row)
+        if merged_row.shape[1] < max_row_length:
+            # Add empty image to the end of the row
+            merged_row = cv2.hconcat(
+                [
+                    merged_row,
+                    np.ones(
+                        (
+                            merged_row.shape[0],
+                            max_row_length - merged_row.shape[1],
+                            merged_row.shape[2],
+                        ),
+                        dtype=np.uint8,
+                    )
+                    * 255,
+                ]
+            )
+        concatenated_rows.append(merged_row)
+    return cv2.vconcat(concatenated_rows)
