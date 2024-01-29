@@ -15,6 +15,7 @@
 import csv
 from pathlib import Path
 
+import numpy as np
 import pytest
 from pytest_mock import MockerFixture
 
@@ -328,3 +329,72 @@ class TestBenchmarker:
         assert deployment.load_inference_models.call_count == number_of_runs
         # For each model infer is called: 1 Warm-up call, 1 time estimation call and `frames * repeats` for benchmark
         assert deployment.infer.call_count == number_of_runs * (2 + frames * repeats)
+
+    def test_compare_predictions(
+        self,
+        fxt_benchmarker: Benchmarker,
+        mocker: MockerFixture,
+        fxt_temp_directory: str,
+    ):
+        # Arrange
+        mock_image = np.array((10, 10, 3), dtype=np.uint8)
+        mocked_prediction_client = mocker.patch(
+            "geti_sdk.benchmarking.benchmarker.PredictionClient",
+        )
+        _ = mocker.patch.object(fxt_benchmarker.geti, "deploy_project")
+        _ = mocker.patch(
+            "geti_sdk.benchmarking.benchmarker.cv2.getTextSize",
+            return_value=((10, 10), 10),
+        )
+        _ = mocker.patch(
+            "geti_sdk.benchmarking.benchmarker.cv2.copyMakeBorder",
+            return_value=mock_image,
+        )
+        _ = mocker.patch(
+            "geti_sdk.benchmarking.benchmarker.cv2.putText",
+        )
+        mock_show_image_with_annotation_scene = mocker.patch(
+            "geti_sdk.benchmarking.benchmarker.show_image_with_annotation_scene",
+            return_value=mock_image,
+        )
+        mock_pad_image_and_put_caption = mocker.patch(
+            "geti_sdk.benchmarking.benchmarker.pad_image_and_put_caption",
+        )
+        mock_concat_prediction_results = mocker.patch(
+            "geti_sdk.benchmarking.benchmarker.concat_prediction_results",
+        )
+        fxt_benchmarker.prepare_benchmark(fxt_temp_directory)
+        deployment = mocker.MagicMock()
+        deployment.project.name = fxt_benchmarker.project.name
+        deployment.models = [
+            mocker.MagicMock(),
+        ]
+        _ = mocker.patch(
+            "geti_sdk.benchmarking.benchmarker.Deployment.from_folder",
+            return_value=deployment,
+        )
+
+        results_file = Path(fxt_temp_directory) / "comparison.jpg"
+
+        # Act
+        fxt_benchmarker.compare_predictions(
+            working_directory=fxt_temp_directory,
+            image=mock_image,
+            saved_image_name=results_file.stem,
+        )
+
+        # Assert
+        assert results_file.is_file()
+        mocked_prediction_client.return_value.predict_image.assert_called_once_with(
+            mock_image
+        )
+        assert (
+            mock_show_image_with_annotation_scene.call_count
+            == mock_pad_image_and_put_caption.call_count
+            == (
+                # Calls for deployments + online prediction call
+                len(fxt_benchmarker.models) * len(fxt_benchmarker.precision_levels)
+                + 1
+            )
+        )
+        mock_concat_prediction_results.assert_called_once()
