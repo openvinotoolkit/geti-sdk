@@ -707,22 +707,14 @@ class Benchmarker:
         :param numpy_image: Numpy array containing the image to be predicted on.
         :return: Dictionary containing the prediction results.
         """
-        # upload the image
-        image_client = ImageClient(
-            session=self.geti.session,
-            workspace_id=self.geti.workspace_id,
-            project=self.project,
-        )
-        sc_image = image_client.upload_image(numpy_image)
-        # Load the pixel data to visualize the image later on
-        sc_image.get_data(self.geti.session)
-
+        # Predict on the Platform
         prediction_client = PredictionClient(
             session=self.geti.session,
             workspace_id=self.geti.workspace_id,
             project=self.project,
         )
-        platform_prediction = prediction_client.get_image_prediction(sc_image)
+        platform_prediction = prediction_client.predict_image(numpy_image)
+
         # load active models info
         active_models = self.model_client.get_all_active_models()
         result: dict[str, Any] = {}
