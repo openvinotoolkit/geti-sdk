@@ -723,7 +723,7 @@ class Benchmarker:
         active_models = self.model_client.get_all_active_models()
         result: dict[str, Any] = {}
         result["prediction"] = platform_prediction
-        result["run_name"] = "online prediction"
+        result["run_name"] = "On-Platform Prediction"
         result["model_1"] = active_models[0].name + " " + active_models[0].precision[0]
         result["model_1_score"] = active_models[0].performance.score
         if not self._is_single_task:
@@ -762,7 +762,7 @@ class Benchmarker:
             "Test caption", cv2.FONT_HERSHEY_SIMPLEX, text_scale, thickness
         )
         universal_padding = 2
-        bottom_padding = label_height + baseline
+        bottom_padding_pre_line = label_height + baseline
         # Prepare image captions
         caption_lines = [
             run_name + ("" if fps is None else f" @{fps} fps"),
@@ -774,7 +774,7 @@ class Benchmarker:
         padded_image = cv2.copyMakeBorder(
             image,
             top=universal_padding,
-            bottom=universal_padding + bottom_padding * len(caption_lines),
+            bottom=universal_padding + bottom_padding_pre_line * len(caption_lines),
             left=universal_padding,
             right=universal_padding,
             borderType=cv2.BORDER_CONSTANT,
@@ -785,7 +785,7 @@ class Benchmarker:
             cv2.putText(
                 padded_image,
                 text_line,
-                (0, image.shape[0] + bottom_padding * (line_number + 1)),
+                (0, image.shape[0] + bottom_padding_pre_line * (line_number + 1)),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 text_scale,
                 (0, 0, 0),
@@ -819,18 +819,73 @@ class Benchmarker:
                 merged_row = cv2.hconcat(
                     [
                         merged_row,
-                        np.zeros(
+                        np.ones(
                             (
                                 merged_row.shape[0],
                                 max_row_length - merged_row.shape[1],
                                 merged_row.shape[2],
                             ),
                             dtype=np.uint8,
-                        ),
+                        )
+                        * 255,
                     ]
                 )
             concatenated_rows.append(merged_row)
         return cv2.vconcat(concatenated_rows)
+
+    def _add_header_to_comparison(
+        self, comparison_image: np.ndarray, target_device: str
+    ) -> np.ndarray:
+        """
+        Add a header to the comparison image.
+
+        :param comparison_image: Comparison image to add the header to.
+        :return: Comparison image with header.
+        """
+        # Calculate text and image padding size
+        text_scale = round(comparison_image.shape[1] / 1280, 1)
+        thickness = int(text_scale / 1.4)
+        (_, label_height), baseline = cv2.getTextSize(
+            "Test caption", cv2.FONT_HERSHEY_SIMPLEX, text_scale, thickness
+        )
+        top_padding_per_line = label_height + baseline
+        # Prepare image captions
+        device_info = get_system_info(device=target_device)["device_info"]
+        caption_lines = [
+            "Inference results comparison",
+            f"Project: {self.project.name}",
+            (
+                f"Task: {self.project.get_trainable_tasks()[0].title}"
+                + (
+                    ""
+                    if self._is_single_task
+                    else f" -> {self.project.get_trainable_tasks()[1].title}"
+                )
+            ),
+            f"Device info: {device_info}",
+        ]
+        # Pad the image
+        padded_image = cv2.copyMakeBorder(
+            comparison_image,
+            top=2 * baseline + top_padding_per_line * len(caption_lines),
+            bottom=0,
+            left=0,
+            right=0,
+            borderType=cv2.BORDER_CONSTANT,
+            value=(255, 255, 255),
+        )
+        # Put text
+        for line_number, text_line in enumerate(caption_lines):
+            cv2.putText(
+                padded_image,
+                text_line,
+                (10, top_padding_per_line * (line_number + 1)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                text_scale,
+                (0, 0, 0),
+                thickness,
+            )
+        return padded_image
 
     def compare_predictions(
         self,
@@ -991,7 +1046,7 @@ class Benchmarker:
                 results[row_n].append(image_with_prediction)
 
         if include_online_prediction_for_active_model:
-            logging.info("Predicting on platform using the active model")
+            logging.info("Predicting on the platform using the active model")
             online_prediction_result = self._predict_using_active_model(image)
             image_with_prediction = show_image_with_annotation_scene(
                 image, online_prediction_result["prediction"], show_results=False
@@ -1010,10 +1065,5 @@ class Benchmarker:
                     image_with_prediction,
                 ]
             )
-
-        # self.project.name
-        # self.project.get_trainable_tasks()[0].title
-        # get_system_info(device=target_device)
-        # deployment_folder
-
-        return self._concat_prediction_results(results=results)
+        image_grid = self._concat_prediction_results(results=results)
+        return self._add_header_to_comparison(image_grid, target_device=target_device)
