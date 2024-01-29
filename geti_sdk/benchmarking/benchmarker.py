@@ -687,14 +687,20 @@ class Benchmarker:
                 result_row["total frames"] = f"{frames * repeats}"
                 result_row["source"] = deployment_folder
                 result_row.update(get_system_info(device=target_device))
+
+                # Write results to file
+                fieldnames = list(result_row.keys())
+                if not results:  # First row
+                    with open(results_file, "w", newline="") as csvfile:
+                        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                        writer.writeheader()
+                        writer.writerow(result_row)
+                else:  # Append
+                    with open(results_file, "a", newline="") as csvfile:
+                        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                        writer.writerow(result_row)
                 results.append(result_row)
 
-        # Write results to file
-        with open(results_file, "w", newline="") as csvfile:
-            fieldnames = list(results[0].keys())
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(results)
         return results
 
     def _predict_using_active_model(
