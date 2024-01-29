@@ -700,7 +700,7 @@ class Benchmarker:
     def _predict_using_active_model(
         self,
         numpy_image: np.ndarray,
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """
         Predict on platform using the active model.
 
