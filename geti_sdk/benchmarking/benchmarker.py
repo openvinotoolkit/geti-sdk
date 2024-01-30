@@ -16,8 +16,9 @@ import itertools
 import logging
 import os
 import time
-from typing import Dict, List, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Union
 
+import cv2
 import numpy as np
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
@@ -33,6 +34,12 @@ from geti_sdk.data_models import (
 )
 from geti_sdk.deployment import Deployment
 from geti_sdk.rest_clients import ImageClient, ModelClient, TrainingClient, VideoClient
+from geti_sdk.rest_clients.prediction_client import PredictionClient
+from geti_sdk.utils.plot_helpers import (
+    concat_prediction_results,
+    pad_image_and_put_caption,
+    show_image_with_annotation_scene,
+)
 
 from .utils import get_system_info, load_benchmark_media, suppress_log_output
 
@@ -595,11 +602,9 @@ class Benchmarker:
             f"Benchmarking inference rate for synchronous inference on {frames} frames "
             f"with {repeats} repeats"
         )
-        with logging_redirect_tqdm(tqdm_class=tqdm), open(
-            results_file, "w", newline=""
-        ) as csvfile:
+        with logging_redirect_tqdm(tqdm_class=tqdm):
             results: List[Dict[str, str]] = []
-            for index, deployment_folder in enumerate(
+            for deployment_index, deployment_folder in enumerate(
                 tqdm(self._deployment_folders, desc="Benchmarking")
             ):
                 success = True
@@ -667,7 +672,7 @@ class Benchmarker:
 
                 # Update result list
                 result_row: Dict[str, str] = {}
-                result_row["name"] = f"Deployment {index}"
+                result_row["name"] = f"Deployment {deployment_index}"
                 result_row["project_name"] = self.project.name
                 result_row["target_device"] = target_device
                 result_row["task 1"] = self.project.get_trainable_tasks()[0].title
@@ -682,13 +687,293 @@ class Benchmarker:
                 result_row["total frames"] = f"{frames * repeats}"
                 result_row["source"] = deployment_folder
                 result_row.update(get_system_info(device=target_device))
-                results.append(result_row)
 
                 # Write results to file
-                if index == 0:
-                    fieldnames = list(result_row.keys())
-                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                    writer.writeheader()
-                writer.writerow(result_row)
+                fieldnames = list(result_row.keys())
+                if not results:  # First row
+                    with open(results_file, "w", newline="") as csvfile:
+                        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                        writer.writeheader()
+                        writer.writerow(result_row)
+                else:  # Append
+                    with open(results_file, "a", newline="") as csvfile:
+                        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                        writer.writerow(result_row)
+                results.append(result_row)
 
         return results
+
+    def _predict_using_active_model(
+        self,
+        numpy_image: np.ndarray,
+    ) -> Dict[str, Any]:
+        """
+        Predict on platform using the active model.
+
+        :param numpy_image: Numpy array containing the image to be predicted on.
+        :return: Dictionary containing the prediction results.
+        """
+        # Predict on the Platform
+        prediction_client = PredictionClient(
+            session=self.geti.session,
+            workspace_id=self.geti.workspace_id,
+            project=self.project,
+        )
+        platform_prediction = prediction_client.predict_image(numpy_image)
+
+        # load active models info
+        active_models = self.model_client.get_all_active_models()
+        result: dict[str, Any] = {}
+        result["prediction"] = platform_prediction
+        result["run_name"] = "On-Platform Prediction"
+        result["model_1"] = active_models[0].name + " " + active_models[0].precision[0]
+        result["model_1_score"] = active_models[0].performance.score
+        if not self._is_single_task:
+            result["model_2"] = (
+                active_models[1].name + " " + active_models[1].precision[0]
+            )
+            result["model_2_score"] = active_models[1].performance.score
+        return result
+
+    def _add_header_to_comparison(
+        self, comparison_image: np.ndarray, target_device: str
+    ) -> np.ndarray:
+        """
+        Add a header to the comparison image.
+
+        :param comparison_image: Comparison image to add the header to.
+        :return: Comparison image with header.
+        """
+        # Calculate text and image padding size
+        text_scale = round(comparison_image.shape[1] / 1280, 1)
+        thickness = int(text_scale / 1.4)
+        (_, label_height), baseline = cv2.getTextSize(
+            "Test caption", cv2.FONT_HERSHEY_SIMPLEX, text_scale, thickness
+        )
+        top_padding_per_line = label_height + baseline
+        # Prepare image captions
+        device_info = get_system_info(device=target_device)["device_info"]
+        caption_lines = [
+            "Inference results comparison",
+            f"Project: {self.project.name}",
+            (
+                f"Task: {self.project.get_trainable_tasks()[0].title}"
+                + (
+                    ""
+                    if self._is_single_task
+                    else f" -> {self.project.get_trainable_tasks()[1].title}"
+                )
+            ),
+            f"Device info: {device_info}",
+        ]
+        # Pad the image
+        padded_image = cv2.copyMakeBorder(
+            comparison_image,
+            top=2 * baseline + top_padding_per_line * len(caption_lines),
+            bottom=0,
+            left=0,
+            right=0,
+            borderType=cv2.BORDER_CONSTANT,
+            value=(255, 255, 255),
+        )
+        # Put text
+        for line_number, text_line in enumerate(caption_lines):
+            cv2.putText(
+                padded_image,
+                text_line,
+                (10, top_padding_per_line * (line_number + 1)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                text_scale,
+                (0, 0, 0),
+                thickness,
+            )
+        return padded_image
+
+    def compare_predictions(
+        self,
+        working_directory: os.PathLike = ".",
+        saved_image_name: str = "comparison",
+        target_device: str = "CPU",
+        image: Optional[Union[np.ndarray, str, os.PathLike]] = None,
+        include_online_prediction_for_active_model: bool = True,  # the name is not finalized
+        throughput_benchmark_results: Optional[
+            Union[List[Dict[str, str]], os.PathLike]
+        ] = None,
+    ) -> np.ndarray:
+        """
+        TODO blank image if not success
+
+        Perform visual comparison of predictions from different deployments.
+
+        :param working_directory: Directory in which the deployments that should be
+            benchmarked are stored. All output will be saved to this directory.
+        :param saved_image_name: Name of the file to which the results will be saved.
+            File extension should not be included, the results will always be saved as
+            a `.jpg` file. Defaults to `comparison.jpg`. The results file will be created
+            within the `working_directory`
+        :param target_device: Device to run the inference models on, for example "CPU"
+            or "GPU". Defaults to "CPU".
+        :param image: Image to use for comparison. If no image is passed, the first
+            image in the `images` list will be used.
+        :param include_online_prediction_for_active_model: Flag to include prediction
+            from the active model on the platform side.
+        :param throughput_benchmark_results: Results from a throughput benchmark run. If
+            this is passed, the captions for the images will contain the benchmark results.
+        :return: Image containing visual comparison in form of a NumPy array.
+        """
+        if len(self._deployment_folders) == 0:
+            raise ValueError(
+                "Benchmarker does not contain any deployments to benchmark yet! Please "
+                "prepare the deployments first using either the "
+                "`Benchmarker.prepare_benchmark()` or "
+                "`Benchmarker.initialize_from_folder()` methods."
+            )
+        logging.info("Starting collecting predictions for visual comparison.")
+
+        logging.info(
+            f"The Benchmarker will run for {len(self._deployment_folders)} deployments"
+        )
+
+        logging.info("Loading benchmark media")
+        if isinstance(image, np.ndarray):
+            pass
+        elif image is None:
+            image = load_benchmark_media(
+                session=self.geti.session,
+                images=self.images,
+                video=self.video,
+                frames=1,
+            )[0]
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        elif isinstance(image, (str, os.PathLike)):
+            image = cv2.cvtColor(cv2.imread(image), cv2.COLOR_BGR2RGB)
+        else:
+            raise TypeError(f"Invalid image type: {type(image)}.")
+
+        saved_image_path = os.path.join(working_directory, f"{saved_image_name}.jpg")
+        logging.info(f"Saving visual comparison to `{saved_image_path}`")
+
+        # Check the benchmark results
+        if isinstance(throughput_benchmark_results, (os.PathLike, str)):
+            with open(throughput_benchmark_results, "r") as results_file:
+                throughput_benchmark_results = list(csv.DictReader(results_file))
+
+        # Performe inferece
+        with logging_redirect_tqdm(tqdm_class=tqdm):
+            results: List[List[np.ndarray]] = []
+            model_name_to_row: dict[str, int] = {}
+            for deployment_index, deployment_folder in enumerate(
+                tqdm(self._deployment_folders, desc="Collecting predictions")
+            ):
+                success = True
+                deployment = Deployment.from_folder(deployment_folder)
+                try:
+                    with suppress_log_output():
+                        deployment.load_inference_models(device=target_device)
+                except Exception as e:
+                    success = False
+                    logging.info(
+                        f"Failed to load inference models for deployment at path: "
+                        f"`{deployment_folder}`, with error: {e}. Marking benchmark "
+                        f"run for the deployment as failed"
+                    )
+
+                if success:
+                    try:
+                        prediction = deployment.infer(image)
+                    except Exception as e:
+                        success = False
+                        logging.info(
+                            f"Failed to run inference on the image. Marking "
+                            f"benchmark run for deployment `{deployment_folder}` as "
+                            f"failed. Inference failed with error: `{e}`"
+                        )
+                if success:
+                    image_with_prediction = show_image_with_annotation_scene(
+                        image, prediction, show_results=False
+                    )
+                    image_with_prediction = cv2.cvtColor(
+                        image_with_prediction, cv2.COLOR_BGR2RGB
+                    )
+                else:
+                    # Replace the image with an empty one in case of no prediction
+                    image_with_prediction = np.zeros_like(image)
+                    image_with_prediction = cv2.putText(
+                        image_with_prediction,
+                        "Failed to run inference on the image",
+                        (10, 50),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        1,
+                        (255, 0, 0),
+                        2,
+                    )
+                # Save model scores
+                model_scores = []
+                for om in deployment.models:
+                    if isinstance(om.performance, Performance):
+                        score = om.performance.score
+                    elif isinstance(om.performance, dict):
+                        score = om.performance.get("score", -1)
+                    else:
+                        score = -1
+                    model_scores.append(score)
+
+                model_info = {
+                    "run_name": f"Deployment {deployment_index}",
+                    "model_1": deployment.models[0].name,
+                    "model_1_score": model_scores[0],
+                    "fps": None
+                    if throughput_benchmark_results is None
+                    else throughput_benchmark_results[deployment_index]["fps"],
+                }
+                if not self._is_single_task:
+                    model_info.update(
+                        {
+                            "model_2": deployment.models[1].name,
+                            "model_2_score": model_scores[1],
+                        }
+                    )
+                # Pad the image and put captions on it
+                image_with_prediction = pad_image_and_put_caption(
+                    image=image_with_prediction, **model_info
+                )
+
+                # Image is ready, now we add it to the results array
+                # Determine result's position on the grid
+                model_1_name = deployment.models[0].name.split(" ")[0]
+                if model_1_name not in model_name_to_row:
+                    model_name_to_row[model_1_name] = len(results)
+                    results.append([])
+                row_n = model_name_to_row[model_1_name]
+                results[row_n].append(image_with_prediction)
+
+        if include_online_prediction_for_active_model:
+            logging.info("Predicting on the platform using the active model")
+            online_prediction_result = self._predict_using_active_model(image)
+            image_with_prediction = show_image_with_annotation_scene(
+                image, online_prediction_result["prediction"], show_results=False
+            )
+            image_with_prediction = cv2.cvtColor(
+                image_with_prediction, cv2.COLOR_BGR2RGB
+            )
+
+            del online_prediction_result["prediction"]
+            image_with_prediction = pad_image_and_put_caption(
+                image=image_with_prediction, **online_prediction_result
+            )
+            # Add online prediction to a separate row
+            results.append(
+                [
+                    image_with_prediction,
+                ]
+            )
+        image_grid = concat_prediction_results(results=results)
+        image_with_header = self._add_header_to_comparison(
+            image_grid, target_device=target_device
+        )
+
+        # Save image to file
+        cv2.imwrite(
+            saved_image_path, cv2.cvtColor(image_with_header, cv2.COLOR_RGB2BGR)
+        )
+        return image_with_header
