@@ -132,3 +132,16 @@ class ServerTokenConfig(ServerConfig):
     """
 
     token: str
+
+
+@attrs.define(slots=False)
+class SaaSTokenConfig(ServerTokenConfig):
+    """
+    Configuration for the Intel® Geti™ SaaS environment that uses a personal access token
+    (API key) for authentication.
+
+    :var token: Personal access token that can be used to connect to the server.
+    :var organization_id: ID of the organization for which the token is valid
+    """
+
+    organization_id: str
