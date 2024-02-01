@@ -20,6 +20,9 @@ dist
 # PyCharm configuration
 .idea
 
+# VSCode configuration
+.vscode
+
 # Data folder for additional datasets
 /geti_sdk/demos/data/*
 !/geti_sdk/demos/data/example
