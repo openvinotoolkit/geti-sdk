@@ -111,10 +111,13 @@ class ModelMetadata:
 
     :var model_storage_id: ID of the model storage in which the model lives
     :var model_id: ID of the model
+    :var model_activated: True if the model has been activated succesfully
+        This is applicable after a training job. Defaults to `None`
     """
 
     model_storage_id: str
     model_id: str
+    model_activated: Optional[bool] = None  # Added in Geti v1.14
 
 
 @attr.define
