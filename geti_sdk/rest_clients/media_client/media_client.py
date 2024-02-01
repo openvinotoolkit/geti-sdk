@@ -14,6 +14,7 @@
 import logging
 import os
 import time
+from concurrent.futures import ThreadPoolExecutor
 from glob import glob
 from typing import (
     Any,
@@ -201,6 +202,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         filepaths: List[str],
         skip_if_filename_exists: bool = False,
         dataset: Optional[Dataset] = None,
+        max_threads: int = 5,
     ) -> MediaList[MediaTypeVar]:
         """
         Upload media from a list of filepaths. Also checks if media items with the same
@@ -213,6 +215,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
             Defaults to False
         :param dataset: Dataset to upload the media to. If no dataset is passed, the
             media will be uploaded into the default (training) dataset
+        :param max_threads: Maximum number of threads to use for uploading. Defaults to 5
         :return: MediaList containing a list of all media entities that were uploaded
             to the project
         """
@@ -225,24 +228,36 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         logging.info(
             f"Starting {self._MEDIA_TYPE} upload to dataset '{dataset.name}'..."
         )
-        tqdm_prefix = f"Uploading {self.plural_media_name}"
+        tqdm_prefix = f"Uploading {self.plural_media_name} in {max_threads} threads"
 
         t_start = time.time()
-        with logging_redirect_tqdm(tqdm_class=tqdm):
-            for filepath in tqdm(filepaths, desc=tqdm_prefix):
-                name, ext = os.path.splitext(os.path.basename(filepath))
-                if name in media_in_project.names and skip_if_filename_exists:
-                    skip_count += 1
-                    continue
-                media_dict = self._upload(filepath=filepath, dataset=dataset)
-                media_item = MediaRESTConverter.from_dict(
-                    input_dict=media_dict, media_type=self.__media_type
+
+        def upload_file(filepath: str):
+            nonlocal upload_count, skip_count
+            name, ext = os.path.splitext(os.path.basename(filepath))
+            if name in media_in_project.names and skip_if_filename_exists:
+                skip_count += 1
+                return
+            media_dict = self._upload(filepath=filepath, dataset=dataset)
+            media_item = MediaRESTConverter.from_dict(
+                input_dict=media_dict, media_type=self.__media_type
+            )
+            if isinstance(media_item, Video):
+                media_item._data = filepath
+            # appends are thread safe
+            media_in_project.append(media_item)
+            uploaded_media.append(media_item)
+            upload_count += 1
+
+        with ThreadPoolExecutor(max_workers=max_threads) as executor:
+            with logging_redirect_tqdm(tqdm_class=tqdm):
+                list(
+                    tqdm(  # List unwraps the generator
+                        executor.map(upload_file, filepaths),
+                        total=len(filepaths),
+                        desc=tqdm_prefix,
+                    )
                 )
-                if isinstance(media_item, Video):
-                    media_item._data = filepath
-                media_in_project.append(media_item)
-                uploaded_media.append(media_item)
-                upload_count += 1
 
         t_elapsed = time.time() - t_start
         if upload_count > 0:
@@ -344,6 +359,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         dataset: Dataset,
         path_to_media_folder: str,
         append_media_uid: bool = False,
+        max_threads: int = 10,  # Add a new parameter to limit the number of threads
     ):
         """
         Download all media items of a single type in the dataset to a folder on disk
@@ -354,6 +370,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         :param append_media_uid: True to append the UID of a media item to the
             filename (separated from the original filename by an underscore, i.e.
             '{filename}_{media_id}').
+        :param max_threads: Maximum number of threads to use for downloading. Defaults to 5
         """
         media_list = self._get_all(dataset=dataset)
         os.makedirs(path_to_media_folder, exist_ok=True, mode=0o770)
@@ -365,36 +382,48 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         t_start = time.time()
         download_count = 0
         existing_count = 0
-        tqdm_prefix = f"Downloading {self.plural_media_name}"
-        with logging_redirect_tqdm(tqdm_class=tqdm):
-            for media_item in tqdm(media_list, desc=tqdm_prefix):
-                uid_string = ""
-                if append_media_uid:
-                    uid_string = f"_{media_item.id}"
-                media_filepath = os.path.join(
-                    path_to_media_folder,
-                    os.path.basename(media_item.name)
-                    + uid_string
-                    + MEDIA_DOWNLOAD_FORMAT_MAPPING[self._MEDIA_TYPE],
-                )
-                if os.path.exists(media_filepath) and os.path.isfile(media_filepath):
-                    existing_count += 1
-                    continue
-                response = self.session.get_rest_response(
-                    url=media_item.download_url,
-                    method="GET",
-                    contenttype="jpeg",
-                    include_organization_id=False,
+        tqdm_prefix = f"Downloading {self.plural_media_name} in {max_threads} threads"
+
+        def download_file(media_item: MediaTypeVar):
+            nonlocal download_count, existing_count
+            uid_string = ""
+            if append_media_uid:
+                uid_string = f"_{media_item.id}"
+            media_filepath = os.path.join(
+                path_to_media_folder,
+                os.path.basename(media_item.name)
+                + uid_string
+                + MEDIA_DOWNLOAD_FORMAT_MAPPING[self._MEDIA_TYPE],
+            )
+            if os.path.exists(media_filepath) and os.path.isfile(media_filepath):
+                existing_count += 1
+                return
+            response = self.session.get_rest_response(
+                url=media_item.download_url,
+                method="GET",
+                contenttype="jpeg",
+                include_organization_id=False,
+            )
+
+            with open(media_filepath, "wb") as f:
+                f.write(response.content)
+            if isinstance(media_item, (Image, VideoFrame)):
+                # Set the numpy data attribute if the media item supports it
+                media_item._data = numpy_from_buffer(response.content)
+            elif isinstance(media_item, Video):
+                media_item._data = media_filepath
+            download_count += 1
+
+        with ThreadPoolExecutor(max_workers=max_threads) as executor:
+            with logging_redirect_tqdm(tqdm_class=tqdm):
+                list(
+                    tqdm(  # List unwraps the generator
+                        executor.map(download_file, media_list),
+                        total=len(media_list),
+                        desc=tqdm_prefix,
+                    )
                 )
 
-                with open(media_filepath, "wb") as f:
-                    f.write(response.content)
-                if isinstance(media_item, (Image, VideoFrame)):
-                    # Set the numpy data attribute if the media item supports it
-                    media_item._data = numpy_from_buffer(response.content)
-                elif isinstance(media_item, Video):
-                    media_item._data = media_filepath
-                download_count += 1
         t_elapsed = time.time() - t_start
         if download_count > 0:
             msg = (
