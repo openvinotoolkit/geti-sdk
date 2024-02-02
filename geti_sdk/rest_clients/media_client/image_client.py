@@ -80,6 +80,7 @@ class ImageClient(BaseMediaClient[Image]):
         n_images: int = -1,
         skip_if_filename_exists: bool = False,
         dataset: Optional[Dataset] = None,
+        max_threads: Optional[int] = 5,
     ) -> MediaList[Image]:
         """
         Upload all images in a folder to the project. Returns a MediaList containing
@@ -92,6 +93,8 @@ class ImageClient(BaseMediaClient[Image]):
             Defaults to False
         :param dataset: Dataset to which to upload the images. If no dataset is
             passed, the images are uploaded to the training dataset
+        :param max_threads: Maximum number of threads to use for uploading. Defaults to 5.
+            Set to None to use all available threads.
         :return: MediaList containing all image's in the project
         """
         return self._upload_folder(
@@ -99,9 +102,15 @@ class ImageClient(BaseMediaClient[Image]):
             n_media=n_images,
             skip_if_filename_exists=skip_if_filename_exists,
             dataset=dataset,
+            max_threads=max_threads,
         )
 
-    def download_all(self, path_to_folder: str, append_image_uid: bool = False) -> None:
+    def download_all(
+        self,
+        path_to_folder: str,
+        append_image_uid: bool = False,
+        max_threads: Optional[int] = 10,
+    ) -> None:
         """
         Download all images in a project to a folder on the local disk.
 
@@ -111,8 +120,12 @@ class ImageClient(BaseMediaClient[Image]):
             '{filename}_{image_id}'). If there are images in the project with
             duplicate filename, this must be set to True to ensure all images are
             downloaded. Otherwise images with the same name will be skipped.
+        :param max_threads: Maximum number of threads to use for uploading. Defaults to 10.
+            Set to None to use all available threads.
         """
-        self._download_all(path_to_folder, append_media_uid=append_image_uid)
+        self._download_all(
+            path_to_folder, append_media_uid=append_image_uid, max_threads=max_threads
+        )
 
     def upload_from_list(
         self,
@@ -123,6 +136,7 @@ class ImageClient(BaseMediaClient[Image]):
         skip_if_filename_exists: bool = False,
         image_names_as_full_paths: bool = False,
         dataset: Optional[Dataset] = None,
+        max_threads: int = 5,
     ) -> MediaList[Image]:
         """
         From a folder containing images `path_to_folder`, this method uploads only
@@ -141,6 +155,8 @@ class ImageClient(BaseMediaClient[Image]):
             contains full paths to the images, rather than just the filenames
         :param dataset: Dataset to which to upload the images. If no dataset is
             passed, the images are uploaded to the training dataset
+        :param max_threads: Maximum number of threads to use for uploading images.
+            Defaults to 5. Set to None to use all available threads.
         :return: List of images that were uploaded
         """
         media_formats = MEDIA_SUPPORTED_FORMAT_MAPPING[self._MEDIA_TYPE]
@@ -195,6 +211,7 @@ class ImageClient(BaseMediaClient[Image]):
             filepaths=image_filepaths,
             skip_if_filename_exists=skip_if_filename_exists,
             dataset=dataset,
+            max_threads=max_threads,
         )
 
     def delete_images(self, images: Sequence[Image]) -> bool:

@@ -202,7 +202,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         filepaths: List[str],
         skip_if_filename_exists: bool = False,
         dataset: Optional[Dataset] = None,
-        max_threads: int = 5,
+        max_threads: Optional[int] = 5,
     ) -> MediaList[MediaTypeVar]:
         """
         Upload media from a list of filepaths. Also checks if media items with the same
@@ -215,7 +215,8 @@ class BaseMediaClient(Generic[MediaTypeVar]):
             Defaults to False
         :param dataset: Dataset to upload the media to. If no dataset is passed, the
             media will be uploaded into the default (training) dataset
-        :param max_threads: Maximum number of threads to use for uploading. Defaults to 5
+        :param max_threads: Maximum number of threads to use for uploading. Defaults to 5.
+            Set to None to use all available threads.
         :return: MediaList containing a list of all media entities that were uploaded
             to the project
         """
@@ -282,6 +283,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         n_media: int = -1,
         skip_if_filename_exists: bool = False,
         dataset: Optional[Dataset] = None,
+        max_threads: int = 5,
     ) -> MediaList[MediaTypeVar]:
         """
         Upload all media in a folder to the project. Returns the mapping of filenames
@@ -294,6 +296,8 @@ class BaseMediaClient(Generic[MediaTypeVar]):
             Defaults to False
         :param dataset: Dataset to upload the media to. If no dataset is passed, the
             media will be uploaded into the default (training) dataset
+        :param max_threads: Maximum number of threads to use for uploading. Defaults to 5.
+            Set to None to use all available threads.
         :return: MediaList containing a list of all media entities that were uploaded
             to the project
         """
@@ -318,6 +322,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
             filepaths=filepaths[0:n_to_upload],
             skip_if_filename_exists=skip_if_filename_exists,
             dataset=dataset,
+            max_threads=max_threads,
         )
 
     def _download_all(
@@ -359,7 +364,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         dataset: Dataset,
         path_to_media_folder: str,
         append_media_uid: bool = False,
-        max_threads: int = 10,  # Add a new parameter to limit the number of threads
+        max_threads: Optional[int] = 10,
     ):
         """
         Download all media items of a single type in the dataset to a folder on disk
@@ -370,7 +375,8 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         :param append_media_uid: True to append the UID of a media item to the
             filename (separated from the original filename by an underscore, i.e.
             '{filename}_{media_id}').
-        :param max_threads: Maximum number of threads to use for downloading. Defaults to 5
+        :param max_threads: Maximum number of threads to use for downloading.
+            Defaults to 10. Set to None to use all available threads.
         """
         media_list = self._get_all(dataset=dataset)
         os.makedirs(path_to_media_folder, exist_ok=True, mode=0o770)
