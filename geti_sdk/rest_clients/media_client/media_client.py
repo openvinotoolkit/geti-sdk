@@ -202,7 +202,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         filepaths: List[str],
         skip_if_filename_exists: bool = False,
         dataset: Optional[Dataset] = None,
-        max_threads: Optional[int] = 5,
+        max_threads: int = 5,
     ) -> MediaList[MediaTypeVar]:
         """
         Upload media from a list of filepaths. Also checks if media items with the same
@@ -216,10 +216,14 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         :param dataset: Dataset to upload the media to. If no dataset is passed, the
             media will be uploaded into the default (training) dataset
         :param max_threads: Maximum number of threads to use for uploading. Defaults to 5.
-            Set to None to use all available threads.
+            Set to -1 to use all available threads.
         :return: MediaList containing a list of all media entities that were uploaded
             to the project
         """
+        if max_threads <= 0:
+            # ThreadPoolExecutor will use minimum 5 threads for 1 core cpu
+            # and maximum 32 threads for multi-core cpu.
+            max_threads = None
         if dataset is None:
             dataset = self._project.training_dataset
         media_in_project = self._get_all(dataset=dataset)
@@ -297,7 +301,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         :param dataset: Dataset to upload the media to. If no dataset is passed, the
             media will be uploaded into the default (training) dataset
         :param max_threads: Maximum number of threads to use for uploading. Defaults to 5.
-            Set to None to use all available threads.
+            Set to -1 to use all available threads.
         :return: MediaList containing a list of all media entities that were uploaded
             to the project
         """
@@ -364,7 +368,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         dataset: Dataset,
         path_to_media_folder: str,
         append_media_uid: bool = False,
-        max_threads: Optional[int] = 10,
+        max_threads: int = 10,
     ):
         """
         Download all media items of a single type in the dataset to a folder on disk
@@ -376,8 +380,12 @@ class BaseMediaClient(Generic[MediaTypeVar]):
             filename (separated from the original filename by an underscore, i.e.
             '{filename}_{media_id}').
         :param max_threads: Maximum number of threads to use for downloading.
-            Defaults to 10. Set to None to use all available threads.
+            Defaults to 10. Set to -1 to use all available threads.
         """
+        if max_threads <= 0:
+            # ThreadPoolExecutor will use minimum 5 threads for 1 core cpu
+            # and maximum 32 threads for multi-core cpu.
+            max_threads = None
         media_list = self._get_all(dataset=dataset)
         os.makedirs(path_to_media_folder, exist_ok=True, mode=0o770)
         logging.info(

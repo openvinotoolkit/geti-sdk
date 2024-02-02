@@ -232,7 +232,7 @@ class Geti:
         include_predictions: bool = False,
         include_active_models: bool = False,
         include_deployment: bool = False,
-        max_threads: Optional[int] = 10,
+        max_threads: int = 10,
     ) -> Project:
         """
         Download a project with name `project_name` to the local disk. All images,
@@ -299,8 +299,8 @@ class Geti:
         :param include_deployment: True to create and download a deployment for the
             project, that can be used for local inference with OpenVINO. Defaults to
             False.
-        :param max_threads: Maximum number of threads to use for uploading. Defaults to 10.
-            Set to None to use all available threads.
+        :param max_threads: Maximum number of threads to use for downloading. Defaults to 10.
+            Set to -1 to use all available threads.
         :return: Project object, holding information obtained from the cluster
             regarding the downloaded project
         """
@@ -394,7 +394,7 @@ class Geti:
         target_folder: str,
         project_name: Optional[str] = None,
         enable_auto_train: bool = True,
-        max_threads: Optional[int] = 5,
+        max_threads: int = 5,
     ) -> Project:
         """
         Upload a previously downloaded Intel® Geti™ project to the server. This method
@@ -427,7 +427,7 @@ class Geti:
             training round if the conditions for auto-training are met. False to leave
             auto-training disabled for all tasks. Defaults to True.
         :param max_threads: Maximum number of threads to use for uploading. Defaults to 5.
-            Set to None to use all available threads.
+            Set to -1 to use all available threads.
         :return: Project object, holding information obtained from the cluster
             regarding the uploaded project
         """
@@ -563,7 +563,7 @@ class Geti:
         number_of_images_to_annotate: int = -1,
         enable_auto_train: bool = True,
         upload_videos: bool = False,
-        max_threads: Optional[int] = 5,
+        max_threads: int = 5,
     ) -> Project:
         """
         Create a single task project named `project_name` on the Intel® Geti™ server,
@@ -607,7 +607,7 @@ class Geti:
         :param upload_videos: True to upload any videos found in the `path_to_images`
             folder.
         :param max_threads: Maximum number of threads to use for uploading. Defaults to 5.
-            Set to None to use all available threads.
+            Set to -1 to use all available threads.
         :return: Project object, holding information obtained from the cluster
             regarding the uploaded project
         """
@@ -711,7 +711,7 @@ class Geti:
         number_of_images_to_upload: int = -1,
         number_of_images_to_annotate: int = -1,
         enable_auto_train: bool = True,
-        max_threads: Optional[int] = 5,
+        max_threads: int = 5,
     ) -> Project:
         """
         Create a single task project named `project_name` on the Intel® Geti™ cluster,
@@ -758,7 +758,7 @@ class Geti:
             training round if the conditions for auto-training are met. False to leave
             auto-training disabled for all tasks. Defaults to True.
         :param max_threads: Maximum number of threads to use for uploading. Defaults to 5.
-            Set to None to use all available threads.
+            Set to -1 to use all available threads.
         :return: Project object, holding information obtained from the cluster
             regarding the uploaded project
         """
@@ -935,7 +935,7 @@ class Geti:
         output_folder: Optional[str] = None,
         delete_after_prediction: bool = False,
         skip_if_filename_exists: bool = False,
-        max_threads: Optional[int] = 5,
+        max_threads: int = 5,
     ) -> bool:
         """
         Upload a folder with media (images, videos or both) from local disk at path
@@ -960,7 +960,7 @@ class Geti:
             video) if an image (or video) with the same filename already exists in the
             project. Defaults to False
         :param max_threads: Maximum number of threads to use for uploading. Defaults to 5.
-            Set to None to use all available threads.
+            Set to -1 to use all available threads.
         :return: True if all media was uploaded, and predictions for all media were
             successfully downloaded. False otherwise
         """
