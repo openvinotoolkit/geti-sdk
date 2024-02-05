@@ -237,7 +237,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
 
         t_start = time.time()
 
-        def upload_file(filepath: str):
+        def upload_file(filepath: str) -> None:
             nonlocal upload_count, skip_count
             name, ext = os.path.splitext(os.path.basename(filepath))
             if name in media_in_project.names and skip_if_filename_exists:
@@ -330,7 +330,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         )
 
     def _download_all(
-        self, path_to_folder: str, append_media_uid: bool = False
+        self, path_to_folder: str, append_media_uid: bool = False, max_threads: int = 10
     ) -> None:
         """
         Download all media entities in a project to a folder on the local disk.
@@ -339,6 +339,8 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         :param append_media_uid: True to append the UID of a media item to the
             filename (separated from the original filename by an underscore, i.e.
             '{filename}_{media_id}').
+        :param max_threads: Maximum number of threads to use for downloading.
+            Defaults to 10. Set to -1 to use all available threads.
         :return:
         """
         datasets = self._dataset_client.get_all_datasets()
@@ -349,6 +351,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
                 dataset=datasets[0],
                 path_to_media_folder=path_to_media_folder,
                 append_media_uid=append_media_uid,
+                max_threads=max_threads,
             )
         else:
             # Multiple datasets in the project, create a subfolder for media in each
@@ -361,6 +364,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
                     dataset=dataset,
                     path_to_media_folder=path_to_media_folder,
                     append_media_uid=append_media_uid,
+                    max_threads=max_threads,
                 )
 
     def _download_dataset(
@@ -398,7 +402,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         existing_count = 0
         tqdm_prefix = f"Downloading {self.plural_media_name} in {max_threads} threads"
 
-        def download_file(media_item: MediaTypeVar):
+        def download_file(media_item: MediaTypeVar) -> None:
             nonlocal download_count, existing_count
             uid_string = ""
             if append_media_uid:
