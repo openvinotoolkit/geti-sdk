@@ -139,7 +139,11 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
             logging.info("No new image annotations were found.")
 
     def download_annotations_for_video(
-        self, video: Video, path_to_folder: str, append_video_uid: bool = False
+        self,
+        video: Video,
+        path_to_folder: str,
+        append_video_uid: bool = False,
+        max_threads: int = 10,
     ) -> float:
         """
         Download video annotations from the server to a target folder on disk.
@@ -152,6 +156,8 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
              videos with duplicate filenames. If left as False, the video filename and
              frame index for the annotation are used as filename for the downloaded
              annotation.
+        :param max_threads: Maximum number of threads to use for downloading. Defaults to 10.
+            Set to -1 to use all available threads.
         :return: Returns the time elapsed to download the annotations, in seconds
         """
         annotations = self.get_latest_annotations_for_video(video=video)
@@ -169,6 +175,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
                 path_to_folder=path_to_folder,
                 verbose=False,
                 append_media_uid=append_video_uid,
+                max_threads=max_threads,
             )
         else:
             return 0
@@ -178,6 +185,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         images: MediaList[Image],
         path_to_folder: str,
         append_image_uid: bool = False,
+        max_threads: int = 10,
     ) -> float:
         """
         Download image annotations from the server to a target folder on disk.
@@ -189,6 +197,8 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
              i.e. '{filename}_{media_id}'). This can be useful if the project contains
              images with duplicate filenames. If left as False, the image filename is
              used as filename for the downloaded annotation as well.
+        :param max_threads: Maximum number of threads to use for downloading. Defaults to 10.
+            Set to -1 to use all available threads.
         :return: Returns the time elapsed to download the annotations, in seconds
         """
         return self._download_annotations_for_2d_media_list(
@@ -196,6 +206,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
             path_to_folder=path_to_folder,
             append_media_uid=append_image_uid,
             verbose=False,
+            max_threads=max_threads,
         )
 
     def download_annotations_for_videos(
@@ -203,6 +214,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         videos: MediaList[Video],
         path_to_folder: str,
         append_video_uid: bool = False,
+        max_threads: int = 10,
     ) -> float:
         """
         Download annotations for a list of videos from the server to a target folder
@@ -216,6 +228,8 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
              videos with duplicate filenames. If left as False, the video filename and
              frame index for the annotation are used as filename for the downloaded
              annotation.
+        :param max_threads: Maximum number of threads to use for downloading. Defaults to 10.
+            Set to -1 to use all available threads.
         :return: Time elapsed to download the annotations, in seconds
         """
         t_total = 0
@@ -228,15 +242,20 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
                 video=video,
                 path_to_folder=path_to_folder,
                 append_video_uid=append_video_uid,
+                max_threads=max_threads,
             )
         logging.info(f"Video annotation download finished in {t_total:.1f} seconds.")
         return t_total
 
-    def download_all_annotations(self, path_to_folder: str) -> None:
+    def download_all_annotations(
+        self, path_to_folder: str, max_threads: int = 10
+    ) -> None:
         """
         Download all annotations for the project to a target folder on disk.
 
         :param path_to_folder: Folder to save the annotations to
+        :param max_threads: Maximum number of threads to use for downloading. Defaults to 10.
+            Set to -1 to use all available threads.
         """
         image_list = self._get_all_media_by_type(media_type=Image)
         video_list = self._get_all_media_by_type(media_type=Video)
@@ -245,12 +264,14 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
                 images=image_list,
                 path_to_folder=path_to_folder,
                 append_image_uid=image_list.has_duplicate_filenames,
+                max_threads=max_threads,
             )
         if len(video_list) > 0:
             self.download_annotations_for_videos(
                 video_list,
                 path_to_folder=path_to_folder,
                 append_video_uid=video_list.has_duplicate_filenames,
+                max_threads=max_threads,
             )
 
     def upload_annotations_for_all_media(self, append_annotations: bool = False):

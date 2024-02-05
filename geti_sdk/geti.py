@@ -347,7 +347,9 @@ class Geti:
         annotation_client = AnnotationClient(
             session=self.session, project=project, workspace_id=self.workspace_id
         )
-        annotation_client.download_all_annotations(path_to_folder=target_folder)
+        annotation_client.download_all_annotations(
+            path_to_folder=target_folder, max_threads=max_threads
+        )
 
         # Download predictions
         prediction_client = PredictionClient(

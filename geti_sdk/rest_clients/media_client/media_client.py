@@ -233,7 +233,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         logging.info(
             f"Starting {self._MEDIA_TYPE} upload to dataset '{dataset.name}'..."
         )
-        tqdm_prefix = f"Uploading {self.plural_media_name} in {max_threads} threads"
+        tqdm_prefix = f"Uploading {self.plural_media_name}"
 
         t_start = time.time()
 
@@ -400,7 +400,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         t_start = time.time()
         download_count = 0
         existing_count = 0
-        tqdm_prefix = f"Downloading {self.plural_media_name} in {max_threads} threads"
+        tqdm_prefix = f"Downloading {self.plural_media_name}"
 
         def download_file(media_item: MediaTypeVar) -> None:
             nonlocal download_count, existing_count

@@ -430,7 +430,7 @@ class BaseAnnotationClient:
         t_start = time.time()
         download_count = 0
         skip_count = 0
-        tqdm_prefix = f"Downloading {media_name} annotations in {max_threads} threads"
+        tqdm_prefix = f"Downloading {media_name} annotations"
 
         def download_annotation(media_item: Union[Image, VideoFrame]) -> None:
             nonlocal skip_count, download_count
