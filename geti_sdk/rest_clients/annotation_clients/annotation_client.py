@@ -286,7 +286,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
 
         :param append_annotations: True to append annotations from the local disk to
             the existing annotations on the server, False to overwrite the server
-            annotations by those on the local disk. Defaults to True
+            annotations by those on the local disk. Defaults to True.
         """
         image_list = self._get_all_media_by_type(media_type=Image)
         video_list = self._get_all_media_by_type(media_type=Video)

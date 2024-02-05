@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ import json
 import logging
 import os
 import time
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
 from tqdm.auto import tqdm
@@ -359,6 +360,7 @@ class BaseAnnotationClient:
         path_to_folder: str,
         append_media_uid: bool = False,
         verbose: bool = True,
+        max_threads: int = 10,
     ) -> float:
         """
         Download annotations from the server to a target folder on disk.
@@ -369,8 +371,14 @@ class BaseAnnotationClient:
         :param append_media_uid: True to append the UID of a media item to the
             annotation filename (separated from the original filename by an underscore,
              i.e. '{filename}_{media_id}').
+        :param max_threads: Maximum number of threads to use for downloading. Defaults to 10.
+            Set to -1 to use all available threads.
         :return: Returns the time elapsed to download the annotations, in seconds
         """
+        if max_threads <= 0:
+            # ThreadPoolExecutor will use minimum 5 threads for 1 core cpu
+            # and maximum 32 threads for multi-core cpu.
+            max_threads = None
         path_to_annotations_folder = os.path.join(path_to_folder, "annotations")
         os.makedirs(path_to_annotations_folder, exist_ok=True, mode=0o770)
         if media_list.media_type == Image:
@@ -393,67 +401,77 @@ class BaseAnnotationClient:
         t_start = time.time()
         download_count = 0
         skip_count = 0
-        tqdm_prefix = f"Downloading {media_name} annotations"
-        with logging_redirect_tqdm(tqdm_class=tqdm):
-            for media_item in tqdm(media_list, desc=tqdm_prefix):
-                annotation_scene = self._get_latest_annotation_for_2d_media_item(
-                    media_item
+        tqdm_prefix = f"Downloading {media_name} annotations in {max_threads} threads"
+
+        def download_annotation(media_item: Union[Image, VideoFrame]) -> None:
+            nonlocal skip_count, download_count
+            annotation_scene = self._get_latest_annotation_for_2d_media_item(media_item)
+            if annotation_scene is None:
+                log_msg = (
+                    f"Unable to retrieve latest annotation for {media_name} "
+                    f"{media_item.name}. Skipping this {media_name}"
                 )
-                if annotation_scene is None:
-                    log_msg = (
-                        f"Unable to retrieve latest annotation for {media_name} "
-                        f"{media_item.name}. Skipping this {media_name}"
-                    )
-                    if verbose:
-                        logging.info(log_msg)
-                    else:
-                        logging.debug(log_msg)
-                    skip_count += 1
-                    continue
-                kind = annotation_scene.kind
-                if kind != AnnotationKind.ANNOTATION:
-                    log_msg = (
-                        f"Received invalid annotation of kind {kind} for "
-                        f"{media_name} with name{media_item.name}"
-                    )
-                    if verbose:
-                        logging.info(log_msg)
-                    else:
-                        logging.debug(log_msg)
-                    skip_count += 1
-                    continue
-                export_data = AnnotationRESTConverter.to_dict(annotation_scene)
+                if verbose:
+                    logging.info(log_msg)
+                else:
+                    logging.debug(log_msg)
+                skip_count += 1
+                return
+            kind = annotation_scene.kind
+            if kind != AnnotationKind.ANNOTATION:
+                log_msg = (
+                    f"Received invalid annotation of kind {kind} for "
+                    f"{media_name} with name{media_item.name}"
+                )
+                if verbose:
+                    logging.info(log_msg)
+                else:
+                    logging.debug(log_msg)
+                skip_count += 1
+                return
+            export_data = AnnotationRESTConverter.to_dict(annotation_scene)
 
-                base_media_item_name = os.path.basename(media_item.name)
-                filename = base_media_item_name + ".json"
-                if append_media_uid:
-                    if isinstance(media_item, Image):
-                        filename = f"{base_media_item_name}_{media_item.id}.json"
-                    elif isinstance(media_item, VideoFrame):
-                        if media_item.video_name is not None:
-                            base_video_name = os.path.basename(media_item.video_name)
-                            filename = (
-                                f"{base_video_name}_"
-                                f"{media_item.media_information.video_id}_frame_"
-                                f"{media_item.media_information.frame_index}.json"
-                            )
-                        else:
-                            video_name = base_media_item_name.split("_frame_")[0]
-                            filename = (
-                                f"{video_name}_"
-                                f"{media_item.media_information.video_id}_frame_"
-                                f"{media_item.media_information.frame_index}.json"
-                            )
-                    else:
-                        raise TypeError(
-                            f"Received invalid media item of type {type(media_item)}."
+            base_media_item_name = os.path.basename(media_item.name)
+            filename = base_media_item_name + ".json"
+            if append_media_uid:
+                if isinstance(media_item, Image):
+                    filename = f"{base_media_item_name}_{media_item.id}.json"
+                elif isinstance(media_item, VideoFrame):
+                    if media_item.video_name is not None:
+                        base_video_name = os.path.basename(media_item.video_name)
+                        filename = (
+                            f"{base_video_name}_"
+                            f"{media_item.media_information.video_id}_frame_"
+                            f"{media_item.media_information.frame_index}.json"
                         )
+                    else:
+                        video_name = base_media_item_name.split("_frame_")[0]
+                        filename = (
+                            f"{video_name}_"
+                            f"{media_item.media_information.video_id}_frame_"
+                            f"{media_item.media_information.frame_index}.json"
+                        )
+                else:
+                    raise TypeError(
+                        f"Received invalid media item of type {type(media_item)}."
+                    )
 
-                annotation_path = os.path.join(path_to_annotations_folder, filename)
+            annotation_path = os.path.join(path_to_annotations_folder, filename)
 
-                with open(annotation_path, "w") as f:
-                    json.dump(export_data, f, indent=4)
-                download_count += 1
+            with open(annotation_path, "w") as f:
+                json.dump(export_data, f, indent=4)
+            download_count += 1
+
+        with ThreadPoolExecutor(max_workers=max_threads) as executor:
+            with logging_redirect_tqdm(tqdm_class=tqdm):
+                list(
+                    tqdm(  # List unwraps the generator
+                        executor.map(download_annotation, media_list),
+                        total=len(media_list),
+                        desc=tqdm_prefix,
+                    )
+                )
+
         t_elapsed = time.time() - t_start
         if download_count > 0:
             msg = (
