@@ -281,6 +281,16 @@ class BaseAnnotationClient:
     def _upload_annotations_for_2d_media_list(
         self, media_list: Sequence[MediaItem], append_annotations: bool
     ) -> int:
+        """
+        Upload annotations to the server.
+
+        :param media_list: List of images or video frames to upload the annotations
+            for
+        :param append_annotations: True to append annotations from the local disk to
+            the existing annotations on the server, False to overwrite the server
+            annotations by those on the local disk.
+        :return: Returns the number of uploaded annotations.
+        """
         upload_count = 0
         tqdm_prefix = "Uploading media annotations"
         with logging_redirect_tqdm(tqdm_class=tqdm):
