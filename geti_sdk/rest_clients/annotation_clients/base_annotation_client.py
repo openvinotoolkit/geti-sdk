@@ -17,7 +17,7 @@ import logging
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union
+from typing import Any, Dict, List, Optional, Sequence, Type, TypeVar, Union
 
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
@@ -32,7 +32,7 @@ from geti_sdk.data_models import (
     VideoFrame,
 )
 from geti_sdk.data_models.containers.media_list import MediaList
-from geti_sdk.data_models.media import MediaInformation
+from geti_sdk.data_models.media import MediaInformation, MediaItem
 from geti_sdk.data_models.project import Dataset
 from geti_sdk.http_session import GetiRequestException, GetiSession
 from geti_sdk.rest_clients.dataset_client import DatasetClient
@@ -227,30 +227,6 @@ class BaseAnnotationClient:
             )
         return scene_to_upload
 
-    def annotation_scene_from_rest_response(
-        self, response_dict: Dict[str, Any], media_information: MediaInformation
-    ) -> AnnotationScene:
-        """
-        Convert a dictionary with annotation data obtained from the Intel® Geti™
-        /annotations rest endpoint into an annotation scene.
-
-        :param response_dict: Dictionary containing the annotation data
-        :param media_information: MediaInformation about the media item to which the
-            annotation applies
-        :return: AnnotationScene object corresponding to the data in the response_dict
-        """
-        if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
-            annotation_scene = (
-                NormalizedAnnotationRESTConverter.normalized_annotation_scene_from_dict(
-                    response_dict,
-                    image_width=media_information.width,
-                    image_height=media_information.height,
-                )
-            )
-        else:
-            annotation_scene = AnnotationRESTConverter.from_dict(response_dict)
-        return annotation_scene
-
     def _append_annotation_for_2d_media_item(
         self, media_item: Union[Image, VideoFrame]
     ) -> AnnotationScene:
@@ -301,6 +277,49 @@ class BaseAnnotationClient:
             return AnnotationRESTConverter.from_dict(response)
         else:
             return annotation_scene
+
+    def _upload_annotations_for_2d_media_list(
+        self, media_list: Sequence[MediaItem], append_annotations: bool
+    ) -> int:
+        upload_count = 0
+        tqdm_prefix = "Uploading media annotations"
+        with logging_redirect_tqdm(tqdm_class=tqdm):
+            for media_item in tqdm(media_list, desc=tqdm_prefix):
+                if not append_annotations:
+                    response = self._upload_annotation_for_2d_media_item(
+                        media_item=media_item
+                    )
+                else:
+                    response = self._append_annotation_for_2d_media_item(
+                        media_item=media_item
+                    )
+                if response.annotations:
+                    upload_count += 1
+        return upload_count
+
+    def annotation_scene_from_rest_response(
+        self, response_dict: Dict[str, Any], media_information: MediaInformation
+    ) -> AnnotationScene:
+        """
+        Convert a dictionary with annotation data obtained from the Intel® Geti™
+        /annotations rest endpoint into an annotation scene.
+
+        :param response_dict: Dictionary containing the annotation data
+        :param media_information: MediaInformation about the media item to which the
+            annotation applies
+        :return: AnnotationScene object corresponding to the data in the response_dict
+        """
+        if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
+            annotation_scene = (
+                NormalizedAnnotationRESTConverter.normalized_annotation_scene_from_dict(
+                    response_dict,
+                    image_width=media_information.width,
+                    image_height=media_information.height,
+                )
+            )
+        else:
+            annotation_scene = AnnotationRESTConverter.from_dict(response_dict)
+        return annotation_scene
 
     def _get_latest_annotation_for_2d_media_item(
         self, media_item: Union[Image, VideoFrame]

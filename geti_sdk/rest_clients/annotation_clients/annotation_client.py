@@ -14,9 +14,6 @@
 import logging
 from typing import Generic, List, Optional, Sequence, Union
 
-from tqdm.auto import tqdm
-from tqdm.contrib.logging import logging_redirect_tqdm
-
 from geti_sdk.data_models import AnnotationScene, Image, Video, VideoFrame
 from geti_sdk.data_models.containers import MediaList
 from geti_sdk.http_session import GetiRequestException
@@ -88,19 +85,9 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
                 for frame_index in frame_indices
             ]
         )
-        upload_count = 0
-        with logging_redirect_tqdm(tqdm_class=tqdm):
-            for frame in tqdm(video_frames, desc="Uploading video frame annotations"):
-                if not append_annotations:
-                    response = self._upload_annotation_for_2d_media_item(
-                        media_item=frame
-                    )
-                else:
-                    response = self._append_annotation_for_2d_media_item(
-                        media_item=frame
-                    )
-                if response.annotations:
-                    upload_count += 1
+        upload_count = self._upload_annotations_for_2d_media_list(
+            media_list=video_frames, append_annotations=append_annotations
+        )
         return upload_count
 
     def upload_annotations_for_videos(
@@ -141,21 +128,9 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         :return:
         """
         logging.info("Starting image annotation upload...")
-        upload_count = 0
-
-        tqdm_prefix = "Uploading image annotations"
-        with logging_redirect_tqdm(tqdm_class=tqdm):
-            for image in tqdm(images, desc=tqdm_prefix):
-                if not append_annotations:
-                    response = self._upload_annotation_for_2d_media_item(
-                        media_item=image
-                    )
-                else:
-                    response = self._append_annotation_for_2d_media_item(
-                        media_item=image
-                    )
-                if response.annotations:
-                    upload_count += 1
+        upload_count = self._upload_annotations_for_2d_media_list(
+            media_list=images, append_annotations=append_annotations
+        )
         if upload_count > 0:
             logging.info(
                 f"Upload complete. Uploaded {upload_count} new image annotations"
