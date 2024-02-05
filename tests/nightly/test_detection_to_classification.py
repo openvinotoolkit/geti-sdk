@@ -73,3 +73,6 @@ class TestDetectionToClassification(TestNightlyProject):
             repeats=2,
         )
         pd.DataFrame(results)
+        benchmarker.compare_predictions(
+            working_directory=fxt_temp_directory, throughput_benchmark_results=results
+        )
