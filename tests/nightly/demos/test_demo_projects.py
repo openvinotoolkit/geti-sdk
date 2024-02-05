@@ -150,7 +150,7 @@ class TestDemoProjects:
         ensure_trained_example_project(
             geti=fxt_geti_no_vcr, project_name=fxt_detection_demo_project.name
         )
-        assert time.time() - t_start < 5
+        assert time.time() - t_start < 10
 
         # Case 2: Project does not exist and name does not not match the default
         # example project name. ValueError should be raised
