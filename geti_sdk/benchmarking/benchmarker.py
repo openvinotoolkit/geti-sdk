@@ -656,7 +656,8 @@ class Benchmarker:
                                     f"failed with error: `{e}`"
                                 )
                     t_elapsed = time.time() - t_start
-                    fps = frames * repeats / t_elapsed
+                    total_frames = frames * repeats
+                    fps = t_elapsed and total_frames / t_elapsed or 0
                 else:
                     fps = 0
 

@@ -85,6 +85,7 @@ class GetiSession(requests.Session):
 
         self.config = server_config
         self.logged_in = False
+        self._auth_service: Optional[str] = None
 
         # Determine authentication method
         if isinstance(server_config, ServerCredentialConfig):
@@ -575,20 +576,23 @@ class GetiSession(requests.Session):
         Return the type of authentication service used by the server to which
         the GetiSession is tied.
         """
-        try:
+        if self._auth_service is None:
             deployment_config_response = self.request(
                 url=f"{self.config.host}/deployment-config.json",
                 method="GET",
             )
-        except ConnectionError:
-            return AUTHENTICATION_DEX_OLD
-        authentication_info = deployment_config_response.json().get(
-            "auth", {"type": "dex"}
-        )
-        if authentication_info.get("type") == "dex":
-            return AUTHENTICATION_DEX_NEW
-        else:
-            return AUTHENTICATION_CIDAAS
+            try:
+                authentication_info = deployment_config_response.json().get(
+                    "auth", {"type": "dex"}
+                )
+            except requests.exceptions.JSONDecodeError:
+                self._auth_service = AUTHENTICATION_DEX_OLD
+                return self._auth_service
+            if authentication_info.get("type") == "dex":
+                self._auth_service = AUTHENTICATION_DEX_NEW
+            else:
+                self._auth_service = AUTHENTICATION_CIDAAS
+        return self._auth_service
 
     def _get_organization_id(self) -> str:
         """
