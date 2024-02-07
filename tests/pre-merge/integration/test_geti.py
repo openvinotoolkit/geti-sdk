@@ -199,6 +199,7 @@ class TestGeti:
             path_to_images=fxt_image_folder,
             annotation_reader=fxt_annotation_reader,
             enable_auto_train=False,
+            max_threads=1,
         )
 
         request.addfinalizer(lambda: fxt_project_finalizer(project_name))
@@ -247,6 +248,7 @@ class TestGeti:
             path_to_images=fxt_image_folder,
             label_source_per_task=[annotation_reader_task_1, annotation_reader_task_2],
             enable_auto_train=False,
+            max_threads=1,
         )
         request.addfinalizer(lambda: fxt_project_finalizer(project_name))
 
@@ -280,6 +282,7 @@ class TestGeti:
         fxt_geti.download_project(
             project.name,
             target_folder=target_folder,
+            max_threads=1,
         )
 
         assert os.path.isdir(target_folder)
@@ -292,6 +295,7 @@ class TestGeti:
             target_folder=target_folder,
             project_name=f"{project.name}_upload",
             enable_auto_train=False,
+            max_threads=1,
         )
         request.addfinalizer(lambda: fxt_project_finalizer(uploaded_project.name))
         image_client = ImageClient(
@@ -321,11 +325,13 @@ class TestGeti:
             videos = video_client.get_all_videos()
 
             assert len(videos) == n_videos
-            annotation_client.download_all_annotations(annotation_target_folder)
+            annotation_client.download_all_annotations(
+                annotation_target_folder, max_threads=1
+            )
 
         else:
             annotation_client.download_annotations_for_images(
-                images, annotation_target_folder
+                images, annotation_target_folder, max_threads=1
             )
 
         assert (
@@ -464,12 +470,14 @@ class TestGeti:
             media_folder=fxt_video_folder_light_bulbs,
             output_folder=video_output_folder,
             delete_after_prediction=True,
+            max_threads=1,
         )
         image_success = fxt_geti.upload_and_predict_media_folder(
             project_name=fxt_project_service.project.name,
             media_folder=fxt_image_folder_light_bulbs,
             output_folder=image_output_folder,
             delete_after_prediction=True,
+            max_threads=1,
         )
 
         assert video_success
@@ -555,6 +563,7 @@ class TestGeti:
             include_predictions=True,
             include_active_models=True,
             include_deployment=True,
+            max_threads=1,
         )
 
         prediction_folder_name = "predictions"

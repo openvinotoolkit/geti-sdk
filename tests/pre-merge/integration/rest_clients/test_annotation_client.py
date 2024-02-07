@@ -308,7 +308,7 @@ class TestAnnotationClient:
         annotations_temp_dir = os.path.join(temp_dir, "annotations")
 
         annotation_client.download_annotations_for_video(
-            video=video, path_to_folder=temp_dir
+            video=video, path_to_folder=temp_dir, max_threads=1
         )
         # Get annotations for test directory
         annotation_reader_from_temp_dir = GetiAnnotationReader(
