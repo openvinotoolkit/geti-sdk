@@ -270,13 +270,20 @@ class Job:
         """
         try:
             response = session.get_rest_response(url=self.relative_url, method="GET")
-        except GetiRequestException as e:
-            if e.status_code == 403:
-                logging.warning(
-                    f"Unable to update job status for job `{self.name}`, server "
-                    f"returned status code 403 Forbidden."
+        except GetiRequestException as job_error:
+            if job_error.status_code == 403:
+                raise GetiRequestException(
+                    method=job_error.method,
+                    url=job_error.url,
+                    status_code=404,
+                    request_data=job_error.request_data,
+                    response_data={
+                        "message": f"Job with id {self.id} does not exist on the platform",
+                        "error_code": "job_not_found",
+                    },
                 )
-                return self
+            else:
+                raise job_error
 
         updated_status = JobStatus.from_dict(response["status"])
         self.status = updated_status
@@ -359,7 +366,7 @@ class Job:
             step_pattern = re.compile(r"\(Step \d\/\d\)", re.IGNORECASE)
             results = re.findall(step_pattern, status_message)
             if len(results) != 1:
-                return 1, 1
+                return 0, 1
             result_string = results[0].strip("(").strip(")").split("Step")[-1]
             result_string = result_string.strip()
             result_nums = result_string.split("/")
@@ -395,7 +402,10 @@ class Job:
         else:
             current_step_index = self.current_step - 1
             if current_step_index < 0 or current_step_index >= len(self.steps):
-                return ""
+                if self.status.state != JobState.SCHEDULED:
+                    return ""
+                else:
+                    return "Awaiting job execution"
             return self.steps[current_step_index].get("step_name", "")
 
     @property
