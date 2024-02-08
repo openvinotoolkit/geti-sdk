@@ -28,6 +28,7 @@ from geti_sdk.data_models.utils import (
     str_to_optional_enum_converter,
 )
 from geti_sdk.http_session import GetiRequestException, GetiSession
+from geti_sdk.platform_versions import GETI_18_VERSION, GetiVersion
 
 
 @attr.define(slots=False)
@@ -222,6 +223,7 @@ class Job:
         Initialize private attributes.
         """
         self._workspace_id: Optional[str] = None
+        self._geti_version: Optional[GetiVersion]
 
     @property
     def workspace_id(self) -> str:
@@ -266,11 +268,29 @@ class Job:
             calling this method
         :return: Job with its status updated
         """
-        response = session.get_rest_response(url=self.relative_url, method="GET")
+        try:
+            response = session.get_rest_response(url=self.relative_url, method="GET")
+        except GetiRequestException as job_error:
+            if job_error.status_code == 403:
+                raise GetiRequestException(
+                    method=job_error.method,
+                    url=job_error.url,
+                    status_code=404,
+                    request_data=job_error.request_data,
+                    response_data={
+                        "message": f"Job with id {self.id} does not exist on the platform",
+                        "error_code": "job_not_found",
+                    },
+                )
+            else:
+                raise job_error
+
         updated_status = JobStatus.from_dict(response["status"])
         self.status = updated_status
         self.state = updated_status.state
         self.steps = response.get("steps", None)
+        if self._geti_version is None:
+            self.geti_version = session.version
         return self
 
     def cancel(self, session: GetiSession) -> "Job":
@@ -346,7 +366,7 @@ class Job:
             step_pattern = re.compile(r"\(Step \d\/\d\)", re.IGNORECASE)
             results = re.findall(step_pattern, status_message)
             if len(results) != 1:
-                return 1, 1
+                return 0, 1
             result_string = results[0].strip("(").strip(")").split("Step")[-1]
             result_string = result_string.strip()
             result_nums = result_string.split("/")
@@ -367,3 +387,45 @@ class Job:
         Return the current step for the job
         """
         return self._get_step_information()[0]
+
+    @property
+    def current_step_message(self) -> str:
+        """
+        Return the description of the current step for the job
+
+        :return: String containing the current step name/description. If
+            for whatever reason the current step cannot be determined,
+            an empty string is returned
+        """
+        if self.geti_version <= GETI_18_VERSION:
+            return self.status.message.split("(Step")[0].strip()
+        else:
+            current_step_index = self.current_step - 1
+            if current_step_index < 0 or current_step_index >= len(self.steps):
+                if self.status.state != JobState.SCHEDULED:
+                    return ""
+                else:
+                    return "Awaiting job execution"
+            return self.steps[current_step_index].get("step_name", "")
+
+    @property
+    def geti_version(self) -> GetiVersion:
+        """
+        Return the version of the Intel Geti instance from which the job originates.
+
+        :return: Version of the Intel Geti instance from which the job originates
+        """
+        if self._geti_version is None:
+            raise ValueError(
+                f"Geti version for job {self} is unknown, it was never set."
+            )
+        return self._geti_version
+
+    @geti_version.setter
+    def geti_version(self, geti_version: GetiVersion):
+        """
+        Set the version of the Intel Geti instance for the job.
+
+        :param geti_version: Version of the Intel Geti instance from which the job originates
+        """
+        self._geti_version = geti_version

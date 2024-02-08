@@ -78,6 +78,8 @@ class TestNightlyProject:
         max_attempts = 10
         jobs: List[Job] = []
         n = 0
+        # Wait for a while, giving the server time to initialize the jobs
+        time.sleep(30)
         while len(jobs) == 0 and n < max_attempts:
             jobs = training_client.get_jobs(project_only=True)
             n += 1
@@ -104,6 +106,15 @@ class TestNightlyProject:
         Tests uploading and predicting an image to the project. Waits for the
         inference servers to be initialized.
         """
+        # First make sure that all jobs for the project are finished
+        training_client = fxt_project_service_no_vcr.training_client
+        timeout = 900
+        t_start = time.time()
+        training = training_client.is_training()
+        while training and time.time() - t_start < timeout:
+            training = training_client.is_training()
+            time.sleep(10)
+
         n_attempts = 3
         project = fxt_project_service_no_vcr.project
 

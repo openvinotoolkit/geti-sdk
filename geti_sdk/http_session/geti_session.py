@@ -348,6 +348,15 @@ class GetiSession(requests.Session):
                 f"the server address can be resolved but the SSL certificate could not "
                 f"be verified. \n Full error description: {error.args[-1]}"
             )
+        except ConnectionError as conn_error:
+            if conn_error.args[0] == "Connection aborted.":
+                # We fake a response and try to establish a
+                # new connection by re-authenticating
+                response = Response()
+                response.status_code = 401
+                response.raw = conn_error.args[-1]
+            else:
+                raise conn_error
 
         response_content_type = response.headers.get("Content-Type", [])
         if (
@@ -492,7 +501,7 @@ class GetiSession(requests.Session):
         """
         retry_request = False
 
-        if response.status_code in [200, 401, 403] and allow_reauthentication:
+        if response.status_code in [200, 401] and allow_reauthentication:
             # Authentication has likely expired, re-authenticate
             logging.info("Authentication may have expired, re-authenticating...")
             self.logged_in = False
