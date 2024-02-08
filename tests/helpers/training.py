@@ -2,6 +2,7 @@ import time
 from typing import Optional, Union
 
 from geti_sdk.data_models import Job, Task
+from geti_sdk.data_models.algorithms import Algorithm
 from geti_sdk.http_session import GetiRequestException
 from geti_sdk.rest_clients import TrainingClient
 
@@ -12,6 +13,7 @@ def attempt_to_train_task(
     training_client: TrainingClient,
     task: Union[int, Task],
     test_mode: SdkTestMode = SdkTestMode.OFFLINE,
+    algorithm: Optional[Algorithm] = None,
 ) -> Job:
     """
     Attempts to train the `task` (either a task or the index of the task in the list
@@ -34,7 +36,7 @@ def attempt_to_train_task(
 
     for i in range(n_attempts):
         try:
-            job = training_client.train_task(task)
+            job = training_client.train_task(task, algorithm=algorithm)
             break
         except GetiRequestException as error:
             if error.response_error_code != not_ready_response:
