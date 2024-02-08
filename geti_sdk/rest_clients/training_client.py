@@ -130,6 +130,7 @@ class TrainingClient:
             if running_only and not job.is_running:
                 continue
             job.workspace_id = self.workspace_id
+            job.geti_version = self.session.version
             job_list.append(job)
 
         if not use_querying:
