@@ -108,8 +108,12 @@ class TestNightlyProject:
         """
         # First make sure that all jobs for the project are finished
         training_client = fxt_project_service_no_vcr.training_client
-        jobs = training_client.get_jobs(project_only=True)
-        training_client.monitor_jobs(jobs)
+        timeout = 900
+        t_start = time.time()
+        training = training_client.is_training()
+        while training and time.time() - t_start < timeout:
+            training = training_client.is_training()
+            time.sleep(10)
 
         n_attempts = 3
         project = fxt_project_service_no_vcr.project
