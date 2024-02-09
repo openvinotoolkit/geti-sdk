@@ -27,7 +27,7 @@ jobs:
         REPORT_DIRECTORY: reports
     steps:
       - name: install lfs
-        run: apt install git-lfs
+        run: apt update && install git-lfs
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
