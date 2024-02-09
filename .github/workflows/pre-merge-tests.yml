@@ -48,16 +48,20 @@ jobs:
 
       - name: Check imports with isort
         run: isort . --check
+        if: ${{ always() }}
 
       - name: Flake8 linting
         run: flake8 .
+        if: ${{ always() }}
 
       - name: Pydocstyle linting
         run: pydocstyle geti_sdk --count
+        if: ${{ always() }}
 
       - name: Test with pytest
         run: |
           pytest tests/pre-merge -c tests/offline.ini --cov=geti_sdk --html=$REPORT_DIRECTORY/$PREMERGE_TEST_REPORT --self-contained-html --cov-report html:$REPORT_DIRECTORY/coverage
+        if: ${{ always() }}
 
       - name: Upload test report for pre-merge tests
         # Publish the test report to github
