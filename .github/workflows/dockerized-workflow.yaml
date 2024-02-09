@@ -1,4 +1,4 @@
-name: Pre-merge tests
+name: Dockerized workflow
 on:
   workflow_dispatch:
 
@@ -13,4 +13,4 @@ jobs:
             image: python:3.10-slim
         steps:
             - name: see what happens
-              uses: node --version
+              run: node --version
