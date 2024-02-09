@@ -26,7 +26,8 @@ jobs:
       image: python:${{ matrix.python-version }}
     steps:
       - name: increase user process count
-        uses: ulimit -u 1024
+        run: |
+          ulimit -u 1024
 
       - name: Checkout code with caching for Git LFS
         uses: nschloe/action-cached-lfs-checkout@v1.2.0
