@@ -19,14 +19,15 @@ jobs:
         # os: [ubuntu-latest, windows-latest]
         python-version: ['3.8', '3.9', '3.10']
       fail-fast: true
-      max-parallel: 2
+      max-parallel: 1
     container:
       image: python:${{ matrix.python-version }}
       env:
         PREMERGE_TEST_REPORT: pre_merge_test_report.html
         REPORT_DIRECTORY: reports
     steps:
-
+      - name install lfs
+        run: apt install git-lfs
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
