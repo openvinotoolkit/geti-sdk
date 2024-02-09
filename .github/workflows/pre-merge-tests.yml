@@ -27,7 +27,8 @@ jobs:
         REPORT_DIRECTORY: reports
     steps:
       - name: install lfs
-        run: apt-get update && apt-get install git-lfs
+        run: apt-get update && apt-get install git-lfs ffmpeg libsm6 libxext6  -y
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
