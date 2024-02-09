@@ -12,7 +12,8 @@ on:
 jobs:
   pr_tests:
     # runs-on: ${{ matrix.os }}
-    runs-on: [self-hosted, sdk-runner]
+    runs-on: ubuntu-latest
+    # runs-on: [self-hosted, sdk-runner]
     strategy:
       matrix:
         # os: [ubuntu-latest, windows-latest]
