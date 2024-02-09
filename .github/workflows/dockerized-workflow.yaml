@@ -12,4 +12,5 @@ jobs:
         container:
             image: python:3.10-slim
         steps:
-            - uses: actions/checkout@v4
+            - name: Checkout repository
+              uses: actions/checkout@v4
