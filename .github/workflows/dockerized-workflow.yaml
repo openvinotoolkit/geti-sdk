@@ -8,7 +8,7 @@ on:
 
 jobs:
     test_job:
-        runs-on: [self-hosted, sdk-runner]
+        runs-on: ubuntu-20.04
         container:
             image: python:3.10-slim
         steps:
