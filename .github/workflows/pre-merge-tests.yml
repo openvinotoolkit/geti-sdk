@@ -26,7 +26,7 @@ jobs:
         PREMERGE_TEST_REPORT: pre_merge_test_report.html
         REPORT_DIRECTORY: reports
     steps:
-      - name install lfs
+      - name: install lfs
         run: apt install git-lfs
       - name: Checkout repository
         uses: actions/checkout@v4
