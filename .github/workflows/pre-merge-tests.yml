@@ -7,7 +7,9 @@ on:
   pull_request:
     branches:
       - main
-
+env:
+  PREMERGE_TEST_REPORT: pre_merge_test_report.html
+  REPORT_DIRECTORY: reports
 
 jobs:
   pr_tests:
@@ -22,9 +24,7 @@ jobs:
       max-parallel: 1
     container:
       image: python:${{ matrix.python-version }}
-      env:
-        PREMERGE_TEST_REPORT: pre_merge_test_report.html
-        REPORT_DIRECTORY: reports
+
     steps:
       - name: install lfs
         run: apt-get update && apt-get install git-lfs ffmpeg libsm6 libxext6  -y
