@@ -13,21 +13,26 @@ env:
 
 jobs:
   pr_tests:
-    # runs-on: ${{ matrix.os }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    # runs-on: [ubuntu-latest, ]
     # runs-on: [self-hosted, sdk-runner]
     strategy:
       matrix:
-        # os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ['3.8', '3.9', '3.10']
       fail-fast: true
-      max-parallel: 1
-    container:
-      image: python:${{ matrix.python-version }}
+      max-parallel: 3
+    # container:
+    #   image: python:${{ matrix.python-version }}
 
     steps:
-      - name: install lfs
-        run: apt-get update && apt-get install git-lfs ffmpeg libsm6 libxext6  -y
+      # - name: install lfs
+      #   run: apt-get update && apt-get install git-lfs ffmpeg libsm6 libxext6  -y
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }
 
       - name: Checkout repository
         uses: actions/checkout@v4
