@@ -723,4 +723,6 @@ class PredictionClient:
             contenttype=contenttype,
             data=data,
         )
-        return PredictionRESTConverter.from_dict(response)
+        prediction = PredictionRESTConverter.from_dict(response)
+        prediction.resolve_label_names_and_colors(labels=self._labels)
+        return prediction
