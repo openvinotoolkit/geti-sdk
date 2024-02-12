@@ -116,6 +116,70 @@ class TestModelAndPredictionClient:
         assert model_group is not None
 
     @pytest.mark.vcr()
+    def test_set_active_model(
+        self,
+        fxt_project_service: ProjectService,
+        fxt_test_mode: SdkTestMode,
+    ) -> None:
+        """
+        Test that the specific model or algorithm can be set as active.
+        """
+        model_client = fxt_project_service.model_client
+        project = fxt_project_service.project
+        task = project.get_trainable_tasks()[0]
+        default_algorithm = model_client.supported_algos.get_default_for_task_type(
+            task.type
+        )
+        default_model = model_client.get_active_model_for_task(task=task)
+
+        unsupported_algorithm_name = "unsupported_algorithm"
+
+        untrained_algos = copy.deepcopy(
+            model_client.supported_algos.get_by_task_type(task.type)
+        )
+        untrained_algos.remove(default_algorithm)
+        # Zeroth algo is used in the next test
+        untrained_algo = untrained_algos[1]
+
+        # Act
+        model_client.set_active_model(algorithm=default_algorithm)
+        model_client.set_active_model(algorithm=default_algorithm.algorithm_name)
+        model_client.set_active_model(model=default_model)
+
+        with pytest.raises(ValueError):
+            model_client.set_active_model()
+        with pytest.raises(ValueError):
+            model_client.set_active_model(algorithm=untrained_algo)
+        with pytest.raises(ValueError):
+            model_client.set_active_model(algorithm=unsupported_algorithm_name)
+
+        # Train a model for the new algorithm
+        job = attempt_to_train_task(
+            training_client=fxt_project_service.training_client,
+            task=project.get_trainable_tasks()[0],
+            test_mode=fxt_test_mode,
+            algorithm=untrained_algo,
+        )
+        # Monitor train job to make sure the project is train-ready
+        timeout = 600 if fxt_test_mode != SdkTestMode.OFFLINE else 1
+        interval = 5 if fxt_test_mode != SdkTestMode.OFFLINE else 1
+        fxt_project_service.training_client.monitor_jobs(
+            [job], timeout=timeout, interval=interval
+        )
+        # Set the new algorithm is active
+        model_client.set_active_model(algorithm=untrained_algo)
+        assert (
+            model_client.get_active_model_for_task(task=task).architecture
+            == untrained_algo.algorithm_name
+        )
+        # Activate the old one again
+        model_client.set_active_model(algorithm=default_algorithm)
+        assert (
+            model_client.get_active_model_for_task(task=task).architecture
+            == default_algorithm.algorithm_name
+        )
+
+    @pytest.mark.vcr()
     def test_get_model_algorithm_task_and_version(
         self,
         fxt_project_service: ProjectService,

@@ -298,6 +298,60 @@ class ModelClient:
         updated_model.base_url = self.base_url
         return updated_model
 
+    def set_active_model(
+        self,
+        model: Optional[Union[Model, ModelSummary]] = None,
+        algorithm: Optional[Union[Algorithm, str]] = None,
+    ) -> None:
+        """
+        Set the model as the active model.
+
+        :param model: Model or ModelSummary object representing the model to set as active
+        :param algorithm: Algorithm or algorithm name for which to set the model as active
+        :raises ValueError: If neither `model` nor `algorithm` is specified,
+            If the algorithm is not supported in the project,
+            If unable to set the active model
+        """
+        # First we determine the algorithm name
+        if model is not None:
+            # Update the model details to make sure we have the latest information
+            model = self.update_model_detail(model)
+            algorithm_name = model.architecture
+        elif algorithm is not None:
+            if isinstance(algorithm, str):
+                algorithm_name = algorithm
+            elif isinstance(algorithm, Algorithm):
+                algorithm_name = algorithm.algorithm_name
+            else:
+                raise ValueError(
+                    f"Invalid type {type(algorithm)}. Argument `algorithm` must be "
+                    "either a string representing the algorith name or an Algorithm object"
+                )
+        else:
+            raise ValueError(
+                "Either `model` or `algorithm` must be specified to set the active model"
+            )
+        # Now we make sure that the algorithm is supported in the project
+        algorithms_supported_in_the_project = {
+            algorithm.algorithm_name
+            for task in self.project.get_trainable_tasks()
+            for algorithm in self.supported_algos.get_by_task_type(task.type)
+        }
+        if algorithm_name not in algorithms_supported_in_the_project:
+            raise ValueError(
+                f"Algorithm `{algorithm_name}` is not supported in the project "
+                f"{self.project.name}."
+            )
+        # We get a model group for the algorithm
+        model_group = self.get_model_group_by_algo_name(algorithm_name=algorithm_name)
+        model_group_id = model_group.id if model_group is not None else None
+        if model_group_id is None:
+            raise ValueError("Unable to set the active model. Train a model first")
+        # Fire a request to the server to set a model from the group as active
+        url = f"{self.base_url}/{model_group_id}:activate"
+        _ = self.session.get_rest_response(url=url, method="POST")
+        logging.info(f"{algorithm_name} model set as active successfully")
+
     def get_active_model_for_task(self, task: Task) -> Optional[Model]:
         """
         Return the Model details for the currently active model, for a task if any.
