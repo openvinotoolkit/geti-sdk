@@ -49,12 +49,15 @@ jobs:
 
       - name: Check imports with isort
         run: isort . --check
+        if: ${{ always() }}
 
       - name: Flake8 linting
         run: flake8 .
+        if: ${{ always() }}
 
       - name: Pydocstyle linting
         run: pydocstyle geti_sdk --count
+        if: ${{ always() }}
 
       - name: Test with pytest
         run: |
