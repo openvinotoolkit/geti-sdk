@@ -923,9 +923,11 @@ class Benchmarker:
                     "run_name": f"Deployment {deployment_index}",
                     "model_1": deployment.models[0].name,
                     "model_1_score": model_scores[0],
-                    "fps": None
-                    if throughput_benchmark_results is None
-                    else throughput_benchmark_results[deployment_index]["fps"],
+                    "fps": (
+                        None
+                        if throughput_benchmark_results is None
+                        else throughput_benchmark_results[deployment_index]["fps"]
+                    ),
                 }
                 if not self._is_single_task:
                     model_info.update(
