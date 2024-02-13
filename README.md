@@ -61,7 +61,7 @@ operating system, as indicated in the table below.
 |:------------|:-------------:|:------------------:|:------------------:|:------------------:|:-----------:|
 | **Linux**   | :x:           | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:         |
 | **Windows** | :x:           | :heavy_check_mark: | :heavy_check_mark: | :x:                | :x:         |
-| **MacOS**   | :x:           | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:         |
+| **MacOS**   | :x:           | :heavy_check_mark: | :heavy_check_mark: | :x:                | :x:         |
 
 Once you have created and activated a new environment, follow the steps below to install
 the package.
