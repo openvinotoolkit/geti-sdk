@@ -20,7 +20,7 @@ jobs:
       matrix:
         target: [[ubuntu-latest, '3.8'], [windows-latest, '3.8'], [windows-latest, '3.9'], [macos-latest, '3.8'], [macos-latest, '3.9']]  # [ubuntu-latest, '3.8'], [ubuntu-latest, '3.9'], [ubuntu-latest, '3.10'],
       fail-fast: true
-      max-parallel: 1
+      max-parallel: 5
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -40,7 +40,7 @@ jobs:
       - name: Create report directory
         # Creates the temporary directory that is used to store the test report
         run: |
-          mkdir $REPORT_DIRECTORY
+          mkdir -p $REPORT_DIRECTORY
 
       - name: Check formatting with black
         run: black . --check
