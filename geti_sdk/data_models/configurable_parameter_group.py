@@ -145,9 +145,9 @@ class ParameterGroup:
             input_dict
         """
         input_copy = copy.deepcopy(input_dict)
-        parameter_dicts: List[
-            Union[Dict[str, Any], ConfigurableParameter]
-        ] = input_copy.pop("parameters", [])
+        parameter_dicts: List[Union[Dict[str, Any], ConfigurableParameter]] = (
+            input_copy.pop("parameters", [])
+        )
         group_dicts: List[Union[Dict[str, Any], ParameterGroup]] = input_copy.pop(
             "groups", []
         )
