@@ -12,6 +12,7 @@ on:
 env:
   PREMERGE_TEST_REPORT: pre_merge_test_report.html
   REPORT_DIRECTORY: reports
+  PYTHONUTF8: '1'
 
 jobs:
   pr_tests:
@@ -40,7 +41,7 @@ jobs:
       - name: Create report directory
         # Creates the temporary directory that is used to store the test report
         run: |
-          mkdir -p $REPORT_DIRECTORY
+          mkdir -p env.REPORT_DIRECTORY
 
       - name: Check formatting with black
         run: black . --check
@@ -59,7 +60,7 @@ jobs:
 
       - name: Test with pytest
         run: |
-          pytest tests/pre-merge -c tests/offline.ini --cov=geti_sdk --html=$REPORT_DIRECTORY/$PREMERGE_TEST_REPORT --self-contained-html --cov-report html:$REPORT_DIRECTORY/coverage
+          pytest tests/pre-merge -c tests/offline.ini --cov=geti_sdk --html=env.REPORT_DIRECTORY/env.PREMERGE_TEST_REPORT --self-contained-html --cov-report html:env.REPORT_DIRECTORY/coverage
 
       - name: Upload test report for pre-merge tests
         # Publish the test report to github
@@ -73,4 +74,4 @@ jobs:
         # Remove temporary report directory
         if: ${{ always() }}
         run: |
-          rm -r $REPORT_DIRECTORY
+          rm -r env.REPORT_DIRECTORY
