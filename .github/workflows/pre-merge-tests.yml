@@ -19,9 +19,9 @@ jobs:
     runs-on: ${{ matrix.target[0] }}
     strategy:
       matrix:
-        target: [[ubuntu-latest, '3.8'], [windows-latest, '3.8'], [windows-latest, '3.9'], [macos-latest, '3.8'], [macos-latest, '3.9']]  # [ubuntu-latest, '3.8'], [ubuntu-latest, '3.9'], [ubuntu-latest, '3.10'],
+        target: [[ubuntu-latest, '3.8'], [ubuntu-latest, '3.9'], [ubuntu-latest, '3.10'], [windows-latest, '3.8'], [windows-latest, '3.9'], [macos-latest, '3.8'], [macos-latest, '3.9']]
       fail-fast: true
-      max-parallel: 5
+      max-parallel: 1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
