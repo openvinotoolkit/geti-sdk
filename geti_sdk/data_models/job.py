@@ -162,9 +162,9 @@ class JobMetadata:
     scores: Optional[List[ScoreMetadata]] = None
     trained_model: Optional[ModelMetadata] = None  # Added in Geti v1.7
     warnings: Optional[List[dict]] = None  # Added in Geti v1.13 for dataset import jobs
-    supported_project_types: Optional[
-        List[dict]
-    ] = None  # Added in Geti v1.13 for dataset import jobs
+    supported_project_types: Optional[List[dict]] = (
+        None  # Added in Geti v1.13 for dataset import jobs
+    )
     project_id: Optional[str] = None  # Added in Geti v1.13 for dataset import jobs
 
 

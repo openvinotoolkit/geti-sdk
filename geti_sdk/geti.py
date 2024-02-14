@@ -765,9 +765,11 @@ class Geti:
             regarding the uploaded project
         """
         labels_per_task = [
-            entry.get_all_label_names()
-            if isinstance(entry, AnnotationReader)
-            else entry
+            (
+                entry.get_all_label_names()
+                if isinstance(entry, AnnotationReader)
+                else entry
+            )
             for entry in label_source_per_task
         ]
         annotation_readers_per_task = [
