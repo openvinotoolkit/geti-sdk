@@ -35,6 +35,9 @@ from geti_sdk.data_models import (
 from geti_sdk.data_models.predictions import ResultMedium
 from geti_sdk.data_models.shapes import Polygon, Rectangle, RotatedRectangle
 from geti_sdk.deployment.data_models import ROI, IntermediateInferenceResult
+from geti_sdk.deployment.legacy_converters import (
+    AnomalyClassificationToAnnotationConverter,
+)
 from geti_sdk.rest_converters import ProjectRESTConverter
 
 from .deployed_model import DeployedModel
@@ -327,9 +330,21 @@ class Deployment:
                 )
 
         if n_outputs != 0:
-            annotation_scene_entity = converter.convert_to_annotation(
-                predictions=postprocessing_results, metadata=metadata
-            )
+            try:
+                annotation_scene_entity = converter.convert_to_annotation(
+                    predictions=postprocessing_results, metadata=metadata
+                )
+            except AttributeError:
+                # Add backwards compatibility for anomaly models created in Geti v1.8 and below
+                if task.type.is_anomaly:
+                    legacy_converter = AnomalyClassificationToAnnotationConverter(
+                        label_schema=model.ote_label_schema
+                    )
+                    annotation_scene_entity = legacy_converter.convert_to_annotation(
+                        predictions=postprocessing_results, metadata=metadata
+                    )
+                    self._inference_converters[task.type] = legacy_converter
+
             prediction = Prediction.from_ote(
                 annotation_scene_entity, image_width=width, image_height=height
             )
@@ -465,20 +480,32 @@ class Deployment:
             ) from error
         return self.models[task_index]
 
-    def _remove_temporary_resources(self) -> None:
+    def _remove_temporary_resources(self) -> bool:
         """
         If necessary, clean up any temporary resources associated with the deployment.
+
+        :return: True if temp files have been deleted successfully
         """
         if self._path_to_temp_resources is not None and os.path.isdir(
             self._path_to_temp_resources
         ):
-            shutil.rmtree(self._path_to_temp_resources)
+            try:
+                shutil.rmtree(self._path_to_temp_resources)
+            except PermissionError:
+                logging.warning(
+                    f"Unable to remove temporary files for deployment at path "
+                    f"`{self._path_to_temp_resources}` because the files are in "
+                    f"use by another process. "
+                )
+                return False
         else:
             logging.debug(
                 f"Unable to clean up temporary resources for deployment {self}, "
                 f"because the resources were not found on the system. Possibly "
                 f"they were already deleted."
             )
+            return False
+        return True
 
     def __del__(self):
         """

@@ -10,7 +10,7 @@ Pillow==10.2.*
 pathvalidate>=2.5.0
 simplejson==3.19.*
 ipython==8.12.*
-otx==1.4.3
+otx==1.4.4
 openvino==2023.0.*
 openvino-model-api==0.1.5
 certifi>=2022.12.7
