@@ -164,10 +164,15 @@ class DeployedModel(OptimizedModel):
                     model_python_path = os.path.join(
                         os.path.dirname(source), PYTHON_DIR_NAME
                     )
-                python_dir_contents = os.listdir(model_python_path)
+                python_dir_contents = (
+                    os.listdir(model_python_path)
+                    if os.path.exists(model_python_path)
+                    else []
+                )
                 if WRAPPER_DIR_NAME in python_dir_contents:
                     self._has_custom_model_wrappers = True
-                    self._model_python_path = os.path.join(source, PYTHON_DIR_NAME)
+
+                self._model_python_path = os.path.join(source, PYTHON_DIR_NAME)
 
         elif isinstance(source, GetiSession):
             if self.base_url is None:
@@ -411,14 +416,15 @@ class DeployedModel(OptimizedModel):
             dst=new_model_data_path,
             dirs_exist_ok=True,
         )
-        shutil.copytree(
-            src=self._model_python_path,
-            dst=new_model_python_path,
-            dirs_exist_ok=True,
-        )
+        if self._model_python_path is not None:
+            shutil.copytree(
+                src=self._model_python_path,
+                dst=new_model_python_path,
+                dirs_exist_ok=True,
+            )
+            self._model_python_path = new_model_python_path
 
         self._model_data_path = new_model_data_path
-        self._model_python_path = new_model_python_path
 
         config_dict = ConfigurationRESTConverter.configuration_to_minimal_dict(
             self.hyper_parameters
