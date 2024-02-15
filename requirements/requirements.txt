@@ -6,11 +6,11 @@ omegaconf==2.3.*
 opencv-python==4.9.*
 python-dotenv==1.0.*
 tqdm==4.65.*
-Pillow==10.1.*
+Pillow==10.2.*
 pathvalidate>=2.5.0
 simplejson==3.19.*
 ipython==8.12.*
-otx==1.4.*
+otx==1.4.4
 openvino==2023.0.*
 openvino-model-api==0.1.5
 certifi>=2022.12.7
@@ -21,3 +21,4 @@ orjson==3.9.2
 imageio-ffmpeg==0.4.8
 cryptography>=41.0.2
 semver>=3.0.1
+urllib3==1.26.*
