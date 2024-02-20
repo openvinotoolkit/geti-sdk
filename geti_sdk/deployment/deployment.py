@@ -21,7 +21,6 @@ from typing import Any, Dict, List, Optional, Union
 import attr
 import numpy as np
 import otx
-from otx.api.utils.detection_utils import detection2array
 
 from geti_sdk.data_models import (
     Annotation,
@@ -38,6 +37,7 @@ from geti_sdk.deployment.data_models import ROI, IntermediateInferenceResult
 from geti_sdk.deployment.legacy_converters import (
     AnomalyClassificationToAnnotationConverter,
 )
+from geti_sdk.deployment.predictions_postprocessing import detection2array
 from geti_sdk.rest_converters import ProjectRESTConverter
 
 from .deployed_model import DeployedModel
@@ -285,13 +285,6 @@ class Deployment:
         inference_results = model.infer(preprocessed_image)
         postprocessing_results = model.postprocess(inference_results, metadata=metadata)
 
-        # Optional output related to explainability
-        saliency_map: Optional[np.ndarray] = None
-        repr_vector: Optional[np.ndarray] = None
-        if explain:
-            saliency_map, repr_vector = model.postprocess_explain_outputs(
-                inference_results=inference_results, metadata=metadata
-            )
         converter = self._inference_converters[task.title]
 
         width: int = image.shape[1]
@@ -375,6 +368,9 @@ class Deployment:
 
         # Add optional explainability outputs
         if explain:
+            saliency_map, repr_vector = model.postprocess_explain_outputs(
+                inference_results=inference_results, metadata=metadata
+            )
             prediction.feature_vector = repr_vector
             result_medium = ResultMedium(name="saliency map", type="saliency map")
             result_medium.data = saliency_map
