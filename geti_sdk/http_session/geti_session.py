@@ -589,6 +589,7 @@ class GetiSession(requests.Session):
             deployment_config_response = self.request(
                 url=f"{self.config.host}/deployment-config.json",
                 method="GET",
+                **self._proxies,
             )
             try:
                 authentication_info = deployment_config_response.json().get(
