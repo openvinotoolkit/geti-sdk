@@ -656,7 +656,24 @@ class GetiSession(requests.Session):
 
         :param response: DEX response object to handle
         """
-        code = response.url.split("code=")[1].split("&")[0]
+        if response.status_code == 200:
+            code = response.url.split("code=")[1].split("&")[0]
+        elif response.status_code == 401:
+            raise ValueError(
+                "The cluster responded to the request, but authentication failed. "
+                "Please verify that you have provided correct credentials."
+            )
+        else:
+            raise GetiRequestException(
+                method=response.request.method,
+                url=response.url,
+                status_code=response.status_code,
+                request_data={},
+                response_data={
+                    "message": response.content,
+                    "error_code": response.reason,
+                },
+            )
         # state = login_path.split("state=")[1].split("&")[0]
         data = {
             "grant_type": "authorization_code",
