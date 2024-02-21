@@ -93,8 +93,13 @@ class GetiSession(requests.Session):
             self.use_token = False
         else:
             self.use_token = True
-            access_token = self._acquire_access_token()
-            self.headers.update({"Authorization": f"Bearer {access_token}"})
+            if self.authentication_service == AUTHENTICATION_DEX_OLD:
+                # The old token mechanism
+                access_token = self._acquire_access_token()
+                self.headers.update({"Authorization": f"Bearer {access_token}"})
+            else:
+                # New mechanism, from Geti v1.14
+                self.headers.update({"x-api-key": f"{server_config.token}"})
             self.headers.pop("Connection")
 
         # Get server version
