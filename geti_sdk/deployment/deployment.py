@@ -22,22 +22,8 @@ import attr
 import numpy as np
 import otx
 
-from geti_sdk.data_models import (
-    Annotation,
-    Label,
-    Prediction,
-    Project,
-    ScoredLabel,
-    Task,
-    TaskType,
-)
-from geti_sdk.data_models.predictions import ResultMedium
-from geti_sdk.data_models.shapes import Polygon, Rectangle, RotatedRectangle
+from geti_sdk.data_models import Label, Prediction, Project, Task, TaskType
 from geti_sdk.deployment.data_models import ROI, IntermediateInferenceResult
-from geti_sdk.deployment.legacy_converters import (
-    AnomalyClassificationToAnnotationConverter,
-)
-from geti_sdk.deployment.predictions_postprocessing import detection2array
 from geti_sdk.rest_converters import ProjectRESTConverter
 
 from .deployed_model import DeployedModel
@@ -61,7 +47,6 @@ class Deployment:
         self._is_single_task: bool = len(self.project.get_trainable_tasks()) == 1
         self._are_models_loaded: bool = False
         self._inference_converters: Dict[str, Any] = {}
-        self._empty_labels: Dict[str, Label] = {}
         self._path_to_temp_resources: Optional[str] = None
         self._requires_resource_cleanup: bool = False
 
@@ -161,20 +146,6 @@ class Deployment:
 
         :param device: Device to load the inference models to (e.g. 'CPU', 'GPU', 'AUTO', etc)
         """
-        try:
-            from otx.api.usecases.exportable_code.prediction_to_annotation_converter import (
-                IPredictionToAnnotationConverter,
-                create_converter,
-            )
-        except ImportError as error:
-            raise ValueError(
-                f"Unable to load inference model for {self}. Relevant OpenVINO "
-                f"packages were not found. Please make sure that all packages from the "
-                f"file `requirements-deployment.txt` have been installed. "
-            ) from error
-
-        inference_converters: Dict[str, IPredictionToAnnotationConverter] = {}
-        empty_labels: Dict[str, Label] = {}
         for model, task in zip(self.models, self.project.get_trainable_tasks()):
             model.load_inference_model(device=device, project=self.project)
 
@@ -187,27 +158,6 @@ class Deployment:
                     if label.name == "Anomalous":
                         label.is_anomalous = True
 
-            if otx.__version__ > "1.2.0":
-                configuration = model.openvino_model_parameters
-                if "use_ellipse_shapes" not in configuration.keys():
-                    configuration.update({"use_ellipse_shapes": False})
-                converter_args = {
-                    "labels": model.ote_label_schema,
-                    "configuration": configuration,
-                }
-            else:
-                converter_args = {"labels": model.ote_label_schema}
-
-            inference_converter = create_converter(
-                converter_type=task.type.to_ote_domain(), **converter_args
-            )
-            inference_converters.update({task.title: inference_converter})
-
-            empty_label = next((label for label in task.labels if label.is_empty), None)
-            empty_labels.update({task.title: empty_label})
-
-        self._inference_converters = inference_converters
-        self._empty_labels = empty_labels
         self._are_models_loaded = True
         logging.info(f"Inference models loaded on device `{device}` successfully.")
 
@@ -281,102 +231,7 @@ class Deployment:
         :return: Inference result
         """
         model = self._get_model_for_task(task)
-        preprocessed_image, metadata = model.preprocess(image)
-        inference_results = model.infer(preprocessed_image)
-        postprocessing_results = model.postprocess(inference_results, metadata=metadata)
-
-        converter = self._inference_converters[task.title]
-
-        width: int = image.shape[1]
-        height: int = image.shape[0]
-
-        # Handle empty annotations
-        if isinstance(postprocessing_results, (np.ndarray, list)):
-            try:
-                n_outputs = len(postprocessing_results)
-            except TypeError:
-                n_outputs = 1
-        else:
-            # Handle the new modelAPI output formats for detection and instance
-            # segmentation models
-            if (
-                hasattr(postprocessing_results, "objects")
-                and task.type == TaskType.DETECTION
-            ):
-                n_outputs = len(postprocessing_results.objects)
-                postprocessing_results = detection2array(postprocessing_results.objects)
-            elif hasattr(postprocessing_results, "segmentedObjects") and task.type in [
-                TaskType.INSTANCE_SEGMENTATION,
-                TaskType.ROTATED_DETECTION,
-            ]:
-                n_outputs = len(postprocessing_results.segmentedObjects)
-                postprocessing_results = postprocessing_results.segmentedObjects
-            elif isinstance(postprocessing_results, tuple):
-                try:
-                    n_outputs = len(postprocessing_results)
-                except TypeError:
-                    n_outputs = 1
-            else:
-                raise ValueError(
-                    f"Unknown postprocessing output of type "
-                    f"`{type(postprocessing_results)}` for task `{task.title}`."
-                )
-
-        if n_outputs != 0:
-            try:
-                annotation_scene_entity = converter.convert_to_annotation(
-                    predictions=postprocessing_results, metadata=metadata
-                )
-            except AttributeError:
-                # Add backwards compatibility for anomaly models created in Geti v1.8 and below
-                if task.type.is_anomaly:
-                    legacy_converter = AnomalyClassificationToAnnotationConverter(
-                        label_schema=model.ote_label_schema
-                    )
-                    annotation_scene_entity = legacy_converter.convert_to_annotation(
-                        predictions=postprocessing_results, metadata=metadata
-                    )
-                    self._inference_converters[task.type] = legacy_converter
-
-            prediction = Prediction.from_ote(
-                annotation_scene_entity, image_width=width, image_height=height
-            )
-        else:
-            prediction = Prediction(annotations=[])
-
-        # Empty label is not generated by OTE correctly, append it here if there are
-        # no other predictions
-        if len(prediction.annotations) == 0:
-            if self._empty_labels[task.title] is not None:
-                prediction.append(
-                    Annotation(
-                        shape=Rectangle(x=0, y=0, width=width, height=height),
-                        labels=[
-                            ScoredLabel.from_label(
-                                self._empty_labels[task.title], probability=1
-                            )
-                        ],
-                    )
-                )
-
-        # Rotated detection models produce Polygons, convert them here to
-        # RotatedRectangles
-        if task.type == TaskType.ROTATED_DETECTION:
-            for annotation in prediction.annotations:
-                if isinstance(annotation.shape, Polygon):
-                    annotation.shape = RotatedRectangle.from_polygon(annotation.shape)
-
-        # Add optional explainability outputs
-        if explain:
-            saliency_map, repr_vector = model.postprocess_explain_outputs(
-                inference_results=inference_results, metadata=metadata
-            )
-            prediction.feature_vector = repr_vector
-            result_medium = ResultMedium(name="saliency map", type="saliency map")
-            result_medium.data = saliency_map
-            prediction.maps = [result_medium]
-
-        return prediction
+        return model.infer(image, task, explain)
 
     def _infer_pipeline(self, image: np.ndarray, explain: bool = False) -> Prediction:
         """
