@@ -20,6 +20,9 @@ dist
 # PyCharm configuration
 .idea
 
+# VSCode configuration
+.vscode
+
 # Data folder for additional datasets
 /geti_sdk/demos/data/*
 !/geti_sdk/demos/data/example
@@ -28,6 +31,7 @@ dist
 .ipynb_checkpoints/
 /notebooks/deployments
 /notebooks/projects
+/notebooks/benchmarks
 
 # Documentation builds
 /docs/build
