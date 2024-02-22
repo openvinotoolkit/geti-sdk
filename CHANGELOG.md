@@ -1,3 +1,13 @@
+# v1.8.2 Intel® Geti™ SDK (22-02-2024)
+## What's Changed
+* Update `opencv-python` requirement to `4.9.*`
+* Update `Pillow` requirement to `10.2.*`
+* Update `otx` requirement to `4.4.4`
+* Add backwards compatibility for anomaly model deployment
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v.1.8.1...v.1.8.2
+
 # v1.8.1 Intel® Geti™ SDK (20-11-2023)
 ## What's Changed
 * Update pytest requirement from ==7.3.* to ==7.4.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/261
