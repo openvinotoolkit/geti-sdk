@@ -33,17 +33,16 @@ from otx.api.entities.label import LabelEntity
 from otx.api.entities.label_schema import LabelGroup, LabelGroupType, LabelSchemaEntity
 
 from geti_sdk.data_models import OptimizedModel, Project, TaskConfiguration
-from geti_sdk.data_models.annotations import Annotation
-from geti_sdk.data_models.label import ScoredLabel
+
+# from geti_sdk.data_models.annotations import Annotation
+# from geti_sdk.data_models.label import ScoredLabel
 from geti_sdk.data_models.predictions import Prediction, ResultMedium
-from geti_sdk.data_models.shapes import Polygon, Rectangle, RotatedRectangle
-from geti_sdk.data_models.task import Task, TaskType
-from geti_sdk.deployment.legacy_converters import (
-    AnomalyClassificationToAnnotationConverter,
-)
-from geti_sdk.deployment.predictions_postprocessing.postprocessing import (
-    detection2array,
-)
+from geti_sdk.data_models.task import Task
+
+# from geti_sdk.deployment.legacy_converters import (
+#     AnomalyClassificationToAnnotationConverter,
+# )
+from geti_sdk.deployment.predictions_postprocessing.postprocessing import Postprocessor
 from geti_sdk.http_session import GetiSession
 from geti_sdk.rest_converters import ConfigurationRESTConverter, ModelRESTConverter
 
@@ -100,6 +99,8 @@ class DeployedModel(OptimizedModel):
         self._feature_vector_location: Optional[str] = None
 
         self.openvino_model_parameters: Optional[Dict[str, Any]] = None
+
+        self._postprocessor: Optional[Postprocessor] = None
 
     @property
     def model_data_path(self) -> str:
@@ -593,110 +594,14 @@ class DeployedModel(OptimizedModel):
         )
         postprocessing_results = self._postprocess(inference_results, metadata=metadata)
 
-        # Create a converter
-        try:
-            import otx
-            from otx.api.usecases.exportable_code.prediction_to_annotation_converter import (
-                IPredictionToAnnotationConverter,
-                create_converter,
+        # Create a postprocessor
+        if self._postprocessor is None:
+            self._postprocessor = Postprocessor(
+                labels=self.ote_label_schema,
+                configuration=self.openvino_model_parameters,
+                task=task,
             )
-        except ImportError as error:
-            raise ValueError(
-                f"Unable to load inference model for {self}. Relevant OpenVINO "
-                f"packages were not found. Please make sure that all packages from the "
-                f"file `requirements-deployment.txt` have been installed. "
-            ) from error
-        if otx.__version__ > "1.2.0":
-            configuration = self.openvino_model_parameters
-            if "use_ellipse_shapes" not in configuration.keys():
-                configuration.update({"use_ellipse_shapes": False})
-            converter_args = {
-                "labels": self.ote_label_schema,
-                "configuration": configuration,
-            }
-        else:
-            converter_args = {"labels": self.ote_label_schema}
-
-        converter: IPredictionToAnnotationConverter = create_converter(
-            converter_type=task.type.to_ote_domain(), **converter_args
-        )
-
-        # Proceed with postprocessing
-        width: int = image.shape[1]
-        height: int = image.shape[0]
-
-        # Handle empty annotations
-        if isinstance(postprocessing_results, (np.ndarray, list)):
-            try:
-                n_outputs = len(postprocessing_results)
-            except TypeError:
-                n_outputs = 1
-        else:
-            # Handle the new modelAPI output formats for detection and instance
-            # segmentation models
-            if (
-                hasattr(postprocessing_results, "objects")
-                and task.type == TaskType.DETECTION
-            ):
-                n_outputs = len(postprocessing_results.objects)
-                postprocessing_results = detection2array(postprocessing_results.objects)
-            elif hasattr(postprocessing_results, "segmentedObjects") and task.type in [
-                TaskType.INSTANCE_SEGMENTATION,
-                TaskType.ROTATED_DETECTION,
-            ]:
-                n_outputs = len(postprocessing_results.segmentedObjects)
-                postprocessing_results = postprocessing_results.segmentedObjects
-            elif isinstance(postprocessing_results, tuple):
-                try:
-                    n_outputs = len(postprocessing_results)
-                except TypeError:
-                    n_outputs = 1
-            else:
-                raise ValueError(
-                    f"Unknown postprocessing output of type "
-                    f"`{type(postprocessing_results)}` for task `{task.title}`."
-                )
-
-        if n_outputs != 0:
-            try:
-                annotation_scene_entity = converter.convert_to_annotation(
-                    predictions=postprocessing_results, metadata=metadata
-                )
-            except AttributeError:
-                # Add backwards compatibility for anomaly models created in Geti v1.8 and below
-                if task.type.is_anomaly:
-                    legacy_converter = AnomalyClassificationToAnnotationConverter(
-                        label_schema=self.ote_label_schema
-                    )
-                    annotation_scene_entity = legacy_converter.convert_to_annotation(
-                        predictions=postprocessing_results, metadata=metadata
-                    )
-                    converter = legacy_converter
-
-            prediction = Prediction.from_ote(
-                annotation_scene_entity, image_width=width, image_height=height
-            )
-        else:
-            prediction = Prediction(annotations=[])
-
-        # Empty label is not generated by OTE correctly, append it here if there are
-        # no other predictions
-        if len(prediction.annotations) == 0:
-            empty_label = next((label for label in task.labels if label.is_empty), None)
-            if empty_label is not None:
-                prediction.append(
-                    Annotation(
-                        shape=Rectangle(x=0, y=0, width=width, height=height),
-                        labels=[ScoredLabel.from_label(empty_label, probability=1)],
-                    )
-                )
-
-        # Rotated detection models produce Polygons, convert them here to
-        # RotatedRectangles
-        if task.type == TaskType.ROTATED_DETECTION:
-            for annotation in prediction.annotations:
-                if isinstance(annotation.shape, Polygon):
-                    annotation.shape = RotatedRectangle.from_polygon(annotation.shape)
+        prediction = self._postprocessor(postprocessing_results, image, metadata)
 
         # Add optional explainability outputs
         if explain:
