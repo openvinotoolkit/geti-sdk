@@ -22,6 +22,7 @@ from PIL import Image as PILImage
 
 from geti_sdk.data_models.annotation_scene import AnnotationScene
 from geti_sdk.data_models.containers import MediaList
+from geti_sdk.data_models.enums import AnnotationKind
 from geti_sdk.data_models.media import Image, MediaInformation, VideoFrame
 from geti_sdk.data_models.predictions import Prediction
 
@@ -53,9 +54,9 @@ def show_image_with_annotation_scene(
         This parameter accepts either `rgb` or `bgr` as input values, and defaults to
         `rgb`.
     """
-    if type(annotation_scene) is AnnotationScene:
+    if annotation_scene.kind == AnnotationKind.ANNOTATION:
         plot_type = "Annotation"
-    elif type(annotation_scene) is Prediction:
+    elif annotation_scene.kind == AnnotationKind.PREDICTION:
         plot_type = "Prediction"
     else:
         raise ValueError(
@@ -143,9 +144,9 @@ def show_video_frames_with_annotation_scenes(
         )
 
     for frame, annotation_scene in zip(video_frames, annotation_scenes):
-        if type(annotation_scene) is AnnotationScene:
+        if annotation_scene.kind == AnnotationKind.ANNOTATION:
             name = "Annotation"
-        elif type(annotation_scene) is Prediction:
+        elif annotation_scene.kind == AnnotationKind.PREDICTION:
             name = "Prediction"
         else:
             raise ValueError(
