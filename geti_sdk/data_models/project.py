@@ -217,7 +217,9 @@ class Project:
 
     name: str
     pipeline: Pipeline
-    datasets: List[Dataset]
+    datasets: Optional[List[Dataset]] = (
+        None  # `datasets` was removed from project listing in Geti v1.15
+    )
     score: Optional[float] = None  # 'score' is removed in v1.1
     performance: Optional[Performance] = None
     creation_time: Optional[str] = attr.field(default=None, converter=str_to_datetime)
