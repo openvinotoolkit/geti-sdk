@@ -515,9 +515,16 @@ class GetiSession(requests.Session):
                 logging.info("Authentication complete.")
 
             else:
-                access_token = self._acquire_access_token()
-                logging.info("New bearer token obtained.")
-                self.headers.update({"Authorization": f"Bearer {access_token}"})
+                if self.authentication_service == AUTHENTICATION_DEX_OLD:
+                    access_token = self._acquire_access_token()
+                    logging.info("New bearer token obtained.")
+                    self.headers.update({"Authorization": f"Bearer {access_token}"})
+                else:
+                    raise ValueError(
+                        "Authentication via your personal access token has failed, "
+                        "most likely the token has expired. Please verify that you "
+                        "have provided a valid token."
+                    )
 
             retry_request = True
 
