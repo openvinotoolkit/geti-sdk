@@ -1,5 +1,5 @@
 # Base requirements
-datumaro==1.4.*
+datumaro==1.5.*
 requests==2.31.*
 numpy==1.23.*
 omegaconf==2.3.*
@@ -17,7 +17,7 @@ certifi>=2022.12.7
 joblib>=1.1.1
 protobuf>=3.20.2
 ovmsclient>=2022.3
-orjson==3.9.2
+orjson==3.9.15
 imageio-ffmpeg==0.4.8
 cryptography>=41.0.2
 semver>=3.0.1
