@@ -623,14 +623,12 @@ class GetiSession(requests.Session):
                     url="profile",
                     method="GET",
                     include_organization_id=False,
-                    **self._proxies,
                 )
             else:
                 result = self.get_rest_response(
                     url=f"personal_access_tokens/organization/{self.config.token}",
                     method="GET",
                     include_organization_id=False,
-                    **self._proxies,
                 )
             org_id = result.get("organizationId", None)
         if org_id is None:
