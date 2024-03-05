@@ -33,8 +33,9 @@ def get_proxies(url: str = "", verify_cert: bool = True) -> Dict[str, str]:
     """
     logging.info(f"Connecting to url {url}...")
     proxies: Dict[str, str] = {}
+    timeout = 10
     try:
-        requests.head(url=url, proxies=proxies, timeout=10, verify=verify_cert)
+        requests.head(url=url, proxies=proxies, timeout=timeout, verify=verify_cert)
         return proxies
     except requests.exceptions.ConnectionError:
         logging.info("Unable to reach URL, attempting to connect via proxy...")
@@ -43,7 +44,7 @@ def get_proxies(url: str = "", verify_cert: bool = True) -> Dict[str, str]:
         "https": "http://proxy-mu.intel.com:912",
     }
     try:
-        requests.head(url=url, proxies=proxies, verify=verify_cert)
+        requests.head(url=url, proxies=proxies, verify=verify_cert, timeout=timeout)
         logging.info("Connection succeeded.")
     except requests.exceptions.ConnectionError as error:
         raise ValueError(
@@ -58,6 +59,7 @@ def download_file(
     target_folder: Optional[str],
     check_valid_archive: bool = False,
     verify_cert: bool = True,
+    timeout: int = 1800,
 ) -> str:
     """
     Download a file from `url` to a folder on local disk `target_folder`.
@@ -71,6 +73,7 @@ def download_file(
     :param target_folder:
     :param check_valid_archive: Check if the target file is a valid zip archive
     :param verify_cert: False to disable SSL certificate validation
+    :param timeout: Time (in seconds) after which the download will time out
     :return: path to the downloaded file
     """
     filename = url.split("/")[-1]
@@ -99,7 +102,9 @@ def download_file(
 
     proxies = get_proxies(url, verify_cert=verify_cert)
     logging.info(f"Downloading {filename}...")
-    with requests.get(url, stream=True, proxies=proxies, verify=verify_cert) as r:
+    with requests.get(
+        url, stream=True, proxies=proxies, verify=verify_cert, timeout=timeout
+    ) as r:
         if r.status_code != 200:
             r.raise_for_status()
             raise RuntimeError(
