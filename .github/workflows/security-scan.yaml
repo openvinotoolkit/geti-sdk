@@ -11,6 +11,9 @@ env:
   SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
   REPORT_DIRECTORY: reports
 
+permissions:
+  contents: read
+
 jobs:
   security:
     runs-on: [self-hosted, sdk-runner]
