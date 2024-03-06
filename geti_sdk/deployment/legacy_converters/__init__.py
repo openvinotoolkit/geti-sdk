@@ -18,5 +18,9 @@ versions of the Intel® Geti™ platform, i.e. v1.8 and below.
 """
 
 from .legacy_anomaly_converter import AnomalyClassificationToAnnotationConverter
+from .legacy_classification_converter import ClassificationToAnnotationConverter
 
-__all__ = ["AnomalyClassificationToAnnotationConverter"]
+__all__ = [
+    "AnomalyClassificationToAnnotationConverter",
+    "ClassificationToAnnotationConverter",
+]
