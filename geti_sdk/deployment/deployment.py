@@ -38,6 +38,7 @@ from geti_sdk.deployment.data_models import ROI, IntermediateInferenceResult
 from geti_sdk.deployment.legacy_converters import (
     AnomalyClassificationToAnnotationConverter,
     ClassificationToAnnotationConverter,
+    SegmentationToAnnotationConverter,
 )
 from geti_sdk.rest_converters import ProjectRESTConverter
 
@@ -351,6 +352,10 @@ class Deployment:
                     legacy_converter = ClassificationToAnnotationConverter(
                         label_schema=model.ote_label_schema,
                         hierarchical_cls_heads_info=hierarchical_cls_heads_info,
+                    )
+                elif task.type == TaskType.SEGMENTATION:
+                    legacy_converter = SegmentationToAnnotationConverter(
+                        label_schema=model.ote_label_schema
                     )
                 else:
                     raise e
