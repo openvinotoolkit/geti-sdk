@@ -37,6 +37,8 @@ from geti_sdk.data_models.shapes import Polygon, Rectangle, RotatedRectangle
 from geti_sdk.deployment.data_models import ROI, IntermediateInferenceResult
 from geti_sdk.deployment.legacy_converters import (
     AnomalyClassificationToAnnotationConverter,
+    AnomalyDetectionToAnnotationConverter,
+    AnomalySegmentationToAnnotationConverter,
     ClassificationToAnnotationConverter,
     SegmentationToAnnotationConverter,
 )
@@ -338,8 +340,16 @@ class Deployment:
                 )
             except AttributeError as e:
                 # Add backwards compatibility for anomaly models created in Geti v1.8 and below
-                if task.type.is_anomaly:
+                if task.type == TaskType.ANOMALY_CLASSIFICATION:
                     legacy_converter = AnomalyClassificationToAnnotationConverter(
+                        label_schema=model.ote_label_schema
+                    )
+                elif task.type == TaskType.ANOMALY_SEGMENTATION:
+                    legacy_converter = AnomalySegmentationToAnnotationConverter(
+                        label_schema=model.ote_label_schema
+                    )
+                elif task.type == TaskType.ANOMALY_DETECTION:
+                    legacy_converter = AnomalyDetectionToAnnotationConverter(
                         label_schema=model.ote_label_schema
                     )
                 elif task.type == TaskType.CLASSIFICATION:
