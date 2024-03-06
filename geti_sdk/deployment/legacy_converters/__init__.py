@@ -23,6 +23,7 @@ from .legacy_anomaly_converter import (
     AnomalySegmentationToAnnotationConverter,
 )
 from .legacy_classification_converter import ClassificationToAnnotationConverter
+from .legacy_detection_converter import RotatedRectToAnnotationConverter
 from .legacy_segmentation_converter import (
     MaskToAnnotationConverter,
     SegmentationToAnnotationConverter,
@@ -35,4 +36,5 @@ __all__ = [
     "ClassificationToAnnotationConverter",
     "SegmentationToAnnotationConverter",
     "MaskToAnnotationConverter",
+    "RotatedRectToAnnotationConverter",
 ]

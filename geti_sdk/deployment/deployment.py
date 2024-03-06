@@ -41,6 +41,7 @@ from geti_sdk.deployment.legacy_converters import (
     AnomalySegmentationToAnnotationConverter,
     ClassificationToAnnotationConverter,
     MaskToAnnotationConverter,
+    RotatedRectToAnnotationConverter,
     SegmentationToAnnotationConverter,
 )
 from geti_sdk.rest_converters import ProjectRESTConverter
@@ -340,7 +341,7 @@ class Deployment:
                     predictions=postprocessing_results, metadata=metadata
                 )
             except AttributeError as e:
-                # Add backwards compatibility for anomaly models created in Geti v1.8 and below
+                # Add backwards compatibility for models created in Geti v1.8 and below
                 if task.type == TaskType.ANOMALY_CLASSIFICATION:
                     legacy_converter = AnomalyClassificationToAnnotationConverter(
                         label_schema=model.ote_label_schema
@@ -370,7 +371,12 @@ class Deployment:
                     )
                 elif task.type == TaskType.INSTANCE_SEGMENTATION:
                     legacy_converter = MaskToAnnotationConverter(
-                        label_schema=model.ote_label_schema,
+                        labels=model.ote_label_schema,
+                        configuration=model.openvino_model_parameters,
+                    )
+                elif task.type == TaskType.ROTATED_DETECTION:
+                    legacy_converter = RotatedRectToAnnotationConverter(
+                        labels=model.ote_label_schema,
                         configuration=model.openvino_model_parameters,
                     )
                 else:
