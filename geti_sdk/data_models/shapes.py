@@ -278,6 +278,17 @@ class Rectangle(Shape):
         """
         return self.y + self.height
 
+    @classmethod
+    def generate_full_box(cls, image_width: int, image_height: int) -> "Rectangle":
+        """
+        Return a rectangle that fully encapsulates the image.
+
+        :param image_width: Width of the image to which the rectangle applies (in pixels)
+        :param image_height: Height of the image to which the rectangle applies (in pixels)
+        :return: Rectangle: A rectangle that fully encapsulates the image.
+        """
+        return cls(x=0, y=0, width=image_width, height=image_height)
+
 
 @attr.define(slots=False)
 class Ellipse(Shape):

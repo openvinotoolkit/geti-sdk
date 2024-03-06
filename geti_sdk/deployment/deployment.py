@@ -231,7 +231,7 @@ class Deployment:
         :return: Inference result
         """
         model = self._get_model_for_task(task)
-        return model.infer(image, task, explain)
+        return model.infer(image, explain)
 
     def _infer_pipeline(self, image: np.ndarray, explain: bool = False) -> Prediction:
         """

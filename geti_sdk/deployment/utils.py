@@ -14,6 +14,7 @@
 
 import re
 from importlib import resources
+from typing import Tuple
 
 from pathvalidate import sanitize_filepath
 
@@ -86,3 +87,18 @@ def target_device_is_ovms(device: str) -> bool:
         r"^((https?://)|(www.))(?:([a-zA-Z]+)|(\d+\.\d+\.\d+\.\d+)):\d{1,5}?$"
     )
     return server_pattern.match(device) is not None
+
+
+def rgb_to_hex(rgb: Tuple[int, int, int]) -> str:
+    """
+    Convert an RGB color value to its corresponding hexadecimal representation.
+
+    :param rgb: A tuple representing the RGB color value, where each element is an integer between 0 and 255.
+    :return: The hexadecimal representation of the RGB color value.
+
+    _Example:
+
+        >>> rgb_to_hex((255, 0, 0))
+        '#ff0000'
+    """
+    return "#{:02x}{:02x}{:02x}".format(rgb[0], rgb[1], rgb[2])
