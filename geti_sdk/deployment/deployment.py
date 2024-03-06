@@ -40,6 +40,7 @@ from geti_sdk.deployment.legacy_converters import (
     AnomalyDetectionToAnnotationConverter,
     AnomalySegmentationToAnnotationConverter,
     ClassificationToAnnotationConverter,
+    MaskToAnnotationConverter,
     SegmentationToAnnotationConverter,
 )
 from geti_sdk.rest_converters import ProjectRESTConverter
@@ -366,6 +367,11 @@ class Deployment:
                 elif task.type == TaskType.SEGMENTATION:
                     legacy_converter = SegmentationToAnnotationConverter(
                         label_schema=model.ote_label_schema
+                    )
+                elif task.type == TaskType.INSTANCE_SEGMENTATION:
+                    legacy_converter = MaskToAnnotationConverter(
+                        label_schema=model.ote_label_schema,
+                        configuration=model.openvino_model_parameters,
                     )
                 else:
                     raise e

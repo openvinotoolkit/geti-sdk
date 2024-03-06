@@ -23,7 +23,10 @@ from .legacy_anomaly_converter import (
     AnomalySegmentationToAnnotationConverter,
 )
 from .legacy_classification_converter import ClassificationToAnnotationConverter
-from .legacy_segmentation_converter import SegmentationToAnnotationConverter
+from .legacy_segmentation_converter import (
+    MaskToAnnotationConverter,
+    SegmentationToAnnotationConverter,
+)
 
 __all__ = [
     "AnomalyClassificationToAnnotationConverter",
@@ -31,4 +34,5 @@ __all__ = [
     "AnomalySegmentationToAnnotationConverter",
     "ClassificationToAnnotationConverter",
     "SegmentationToAnnotationConverter",
+    "MaskToAnnotationConverter",
 ]
