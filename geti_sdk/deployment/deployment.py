@@ -37,6 +37,12 @@ from geti_sdk.data_models.shapes import Polygon, Rectangle, RotatedRectangle
 from geti_sdk.deployment.data_models import ROI, IntermediateInferenceResult
 from geti_sdk.deployment.legacy_converters import (
     AnomalyClassificationToAnnotationConverter,
+    AnomalyDetectionToAnnotationConverter,
+    AnomalySegmentationToAnnotationConverter,
+    ClassificationToAnnotationConverter,
+    MaskToAnnotationConverter,
+    RotatedRectToAnnotationConverter,
+    SegmentationToAnnotationConverter,
 )
 from geti_sdk.rest_converters import ProjectRESTConverter
 
@@ -334,17 +340,51 @@ class Deployment:
                 annotation_scene_entity = converter.convert_to_annotation(
                     predictions=postprocessing_results, metadata=metadata
                 )
-            except AttributeError:
-                # Add backwards compatibility for anomaly models created in Geti v1.8 and below
-                if task.type.is_anomaly:
+            except AttributeError as e:
+                # Add backwards compatibility for models created in Geti v1.8 and below
+                if task.type == TaskType.ANOMALY_CLASSIFICATION:
                     legacy_converter = AnomalyClassificationToAnnotationConverter(
                         label_schema=model.ote_label_schema
                     )
-                    annotation_scene_entity = legacy_converter.convert_to_annotation(
-                        predictions=postprocessing_results, metadata=metadata
+                elif task.type == TaskType.ANOMALY_SEGMENTATION:
+                    legacy_converter = AnomalySegmentationToAnnotationConverter(
+                        label_schema=model.ote_label_schema
                     )
-                    self._inference_converters[task.type] = legacy_converter
-
+                elif task.type == TaskType.ANOMALY_DETECTION:
+                    legacy_converter = AnomalyDetectionToAnnotationConverter(
+                        label_schema=model.ote_label_schema
+                    )
+                elif task.type == TaskType.CLASSIFICATION:
+                    hierarchical_info = json.loads(
+                        model._inference_model.hierarchical_config
+                    )
+                    hierarchical_cls_heads_info = hierarchical_info.get(
+                        "cls_heads_info", {}
+                    )
+                    legacy_converter = ClassificationToAnnotationConverter(
+                        label_schema=model.ote_label_schema,
+                        hierarchical_cls_heads_info=hierarchical_cls_heads_info,
+                    )
+                elif task.type == TaskType.SEGMENTATION:
+                    legacy_converter = SegmentationToAnnotationConverter(
+                        label_schema=model.ote_label_schema
+                    )
+                elif task.type == TaskType.INSTANCE_SEGMENTATION:
+                    legacy_converter = MaskToAnnotationConverter(
+                        labels=model.ote_label_schema,
+                        configuration=model.openvino_model_parameters,
+                    )
+                elif task.type == TaskType.ROTATED_DETECTION:
+                    legacy_converter = RotatedRectToAnnotationConverter(
+                        labels=model.ote_label_schema,
+                        configuration=model.openvino_model_parameters,
+                    )
+                else:
+                    raise e
+                annotation_scene_entity = legacy_converter.convert_to_annotation(
+                    predictions=postprocessing_results, metadata=metadata
+                )
+                self._inference_converters[task.type] = legacy_converter
             prediction = Prediction.from_ote(
                 annotation_scene_entity, image_width=width, image_height=height
             )
