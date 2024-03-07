@@ -323,7 +323,6 @@ class Deployment:
                 TaskType.ROTATED_DETECTION,
             ]:
                 n_outputs = len(postprocessing_results.segmentedObjects)
-                postprocessing_results = postprocessing_results.segmentedObjects
             elif isinstance(postprocessing_results, tuple):
                 try:
                     n_outputs = len(postprocessing_results)
