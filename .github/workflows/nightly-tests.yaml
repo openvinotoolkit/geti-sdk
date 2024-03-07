@@ -37,6 +37,9 @@ env:
   CONDA_ENV: sc_sdk_nightly_test_environment
   PYTHON_VERSION: 3.8
 
+permissions:
+  contents: read
+
 jobs:
   nightly_tests:
     runs-on: [self-hosted, sdk-runner]

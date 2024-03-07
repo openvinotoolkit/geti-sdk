@@ -6,6 +6,9 @@ on:
   schedule: # Execute tests at midnight every day
     - cron: "0 0 * * *"
 
+permissions:
+  contents: read
+
 jobs:
   build:
     uses: ./.github/workflows/nightly-tests.yaml
