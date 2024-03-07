@@ -13,5 +13,5 @@
 # in the License.
 
 """
-The module contains services for predictions post-processing.
+The module contains classes for inference results post-processing and conversion to internal entities.
 """

@@ -14,80 +14,72 @@
 
 """Module implements the Postprocessor class."""
 
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 import numpy as np
 import otx
+from otx.api.entities.label_schema import LabelGroup, LabelGroupType, LabelSchemaEntity
+from otx.api.entities.model_template import Domain as OteDomain
 from otx.api.usecases.exportable_code.prediction_to_annotation_converter import (
     IPredictionToAnnotationConverter,
     create_converter,
 )
 
 from geti_sdk.data_models.annotations import Annotation
+from geti_sdk.data_models.enums.domain import Domain
 from geti_sdk.data_models.enums.task_type import TaskType
 from geti_sdk.data_models.label import ScoredLabel
+from geti_sdk.data_models.label_schema import LabelSchema
 from geti_sdk.data_models.predictions import Prediction
 from geti_sdk.data_models.shapes import Polygon, Rectangle, RotatedRectangle
-from geti_sdk.data_models.task import Task
 from geti_sdk.deployment.legacy_converters.legacy_anomaly_converter import (
     AnomalyClassificationToAnnotationConverter,
 )
+from geti_sdk.deployment.predictions_postprocessing.utils.detection_utils import (
+    detection2array,
+)
 
 
-def detection2array(detections: List) -> np.ndarray:
+class LegacyConverter:
     """
-    Convert list of OpenVINO Detection to a numpy array.
-
-    :param detections: List of OpenVINO Detection containing score, id, xmin, ymin, xmax, ymax
-
-    :return: np.ndarray: numpy array with [label, confidence, x1, y1, x2, y2]
-    """
-    scores = np.empty((0, 1), dtype=np.float32)
-    labels = np.empty((0, 1), dtype=np.uint32)
-    boxes = np.empty((0, 4), dtype=np.float32)
-    for det in detections:
-        if (det.xmax - det.xmin) * (det.ymax - det.ymin) < 1.0:
-            continue
-        scores = np.append(scores, [[det.score]], axis=0)
-        labels = np.append(labels, [[det.id]], axis=0)
-        boxes = np.append(
-            boxes,
-            [[float(det.xmin), float(det.ymin), float(det.xmax), float(det.ymax)]],
-            axis=0,
-        )
-    detections = np.concatenate((labels, scores, boxes), -1)
-    return detections
-
-
-class Postprocessor:
-    """
-    Postprocessor class responsible for converting the output of the model to a Prediction object.
+    LegacyConverter class responsible for converting the output of the model to a Prediction object.
+    For models generated with Geti v1.8 and below.
 
     :param labels: Label schema to be used for the conversion.
     :param configuration: Configuration to be used for the conversion.
     :param task: Task object containing the task metadata.
     """
 
-    def __init__(self, label_schema, configuration, task: Task) -> None:
-        self.task = task
-        self.ote_label_schema = label_schema
+    def __init__(
+        self, label_schema: LabelSchema, configuration, domain: Domain
+    ) -> None:
+        self.domain = domain
+        self.task_type = TaskType[self.domain.name]
+        self.label_schema = LabelSchemaEntity(
+            label_groups=[
+                LabelGroup(
+                    name=group.name,
+                    labels=[label.to_ote(self.task_type) for label in group.labels],
+                    group_type=LabelGroupType[group.group_type.name],
+                    id=group.id,
+                )
+                for group in label_schema.get_groups(include_empty=True)
+            ]
+        )
 
         # Create OTX converter
-        converter_args = {"labels": self.ote_label_schema}
+        converter_args = {"labels": self.label_schema}
         if otx.__version__ > "1.2.0":
             if "use_ellipse_shapes" not in configuration.keys():
                 configuration.update({"use_ellipse_shapes": False})
             converter_args["configuration"] = configuration
 
         self.converter: IPredictionToAnnotationConverter = create_converter(
-            converter_type=self.task.type.to_ote_domain(), **converter_args
+            converter_type=OteDomain[self.domain.name], **converter_args
         )
 
-    def __call__(
-        self,
-        postprocessing_results: List,
-        image: np.ndarray,
-        metadata: Dict[str, Tuple[int, int, int]],
+    def convert_to_prediction(
+        self, postprocessing_results: List, image_shape: Tuple[int], **kwargs
     ) -> Prediction:
         """
         Convert the postprocessing results to a Prediction object.
@@ -103,15 +95,15 @@ class Postprocessor:
             # segmentation models
             if (
                 hasattr(postprocessing_results, "objects")
-                and self.task.type == TaskType.DETECTION
+                and self.domain == Domain.DETECTION
             ):
                 n_outputs = len(postprocessing_results.objects)
                 postprocessing_results = detection2array(postprocessing_results.objects)
             elif hasattr(
                 postprocessing_results, "segmentedObjects"
-            ) and self.task.type in [
-                TaskType.INSTANCE_SEGMENTATION,
-                TaskType.ROTATED_DETECTION,
+            ) and self.domain in [
+                Domain.INSTANCE_SEGMENTATION,
+                Domain.ROTATED_DETECTION,
             ]:
                 n_outputs = len(postprocessing_results.segmentedObjects)
                 postprocessing_results = postprocessing_results.segmentedObjects
@@ -127,22 +119,24 @@ class Postprocessor:
                 )
 
         # Proceed with postprocessing
-        width: int = image.shape[1]
-        height: int = image.shape[0]
+        width: int = image_shape[1]
+        height: int = image_shape[0]
 
         if n_outputs != 0:
             try:
                 annotation_scene_entity = self.converter.convert_to_annotation(
-                    predictions=postprocessing_results, metadata=metadata
+                    predictions=postprocessing_results,
+                    metadata={"original_shape": image_shape},
                 )
             except AttributeError:
                 # Add backwards compatibility for anomaly models created in Geti v1.8 and below
-                if self.task.type.is_anomaly:
+                if self.domain.is_anomaly:
                     legacy_converter = AnomalyClassificationToAnnotationConverter(
-                        label_schema=self.ote_label_schema
+                        label_schema=self.label_schema
                     )
                     annotation_scene_entity = legacy_converter.convert_to_annotation(
-                        predictions=postprocessing_results, metadata=metadata
+                        predictions=postprocessing_results,
+                        metadata={"original_shape": image_shape},
                     )
                     self.converter = legacy_converter
 
@@ -151,15 +145,6 @@ class Postprocessor:
             )
         else:
             prediction = Prediction(annotations=[])
-
-        # print(
-        #     "pre-converter",
-        #     postprocessing_results,
-        #     "metadata",
-        #     metadata,
-        # )
-        # print("width", width, "height", height)
-        # print("post-converter", prediction)
 
         # Empty label is not generated by OTE correctly, append it here if there are
         # no other predictions
@@ -177,7 +162,7 @@ class Postprocessor:
 
         # Rotated detection models produce Polygons, convert them here to
         # RotatedRectangles
-        if self.task.type == TaskType.ROTATED_DETECTION:
+        if self.domain == Domain.ROTATED_DETECTION:
             for annotation in prediction.annotations:
                 if isinstance(annotation.shape, Polygon):
                     annotation.shape = RotatedRectangle.from_polygon(annotation.shape)

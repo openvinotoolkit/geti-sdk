@@ -31,19 +31,13 @@ from openvino.runtime import Core
 
 from geti_sdk.data_models import OptimizedModel, Project, TaskConfiguration
 from geti_sdk.data_models.enums.domain import Domain
-
-# from geti_sdk.data_models.annotations import Annotation
 from geti_sdk.data_models.label import Label
-from geti_sdk.data_models.label_group import LabelGroup
+from geti_sdk.data_models.label_group import LabelGroup, LabelGroupType
 from geti_sdk.data_models.label_schema import LabelSchema
 from geti_sdk.data_models.predictions import Prediction, ResultMedium
-
-# from geti_sdk.deployment.legacy_converters import (
-#     AnomalyClassificationToAnnotationConverter,
-# )
-from geti_sdk.deployment.predictions_postprocessing.postprocessing import Postprocessor
-from geti_sdk.deployment.predictions_postprocessing.services.prediction_to_annotation_converter import (
+from geti_sdk.deployment.predictions_postprocessing.results_converter.prediction_to_annotation_converter import (
     ConverterFactory,
+    InferenceResultsToPredictionConverter,
 )
 from geti_sdk.http_session import GetiSession
 from geti_sdk.rest_converters import ConfigurationRESTConverter, ModelRESTConverter
@@ -51,20 +45,15 @@ from geti_sdk.rest_converters import ConfigurationRESTConverter, ModelRESTConver
 from .utils import (
     generate_ovms_model_address,
     generate_ovms_model_name,
+    get_package_version_from_requirements,
     rgb_to_hex,
     target_device_is_ovms,
 )
 
-# from otx.algorithms.classification.utils import get_cls_inferencer_configuration
-# from otx.api.entities.color import Color
-# from otx.api.entities.label import Domain as OTEDomain
-# from otx.api.entities.label import LabelEntity
-# from otx.api.entities.label_schema import LabelGroup, LabelGroupType, LabelSchemaEntity
-
-
 MODEL_DIR_NAME = "model"
 PYTHON_DIR_NAME = "python"
 WRAPPER_DIR_NAME = "model_wrappers"
+REQUIREMENTS_FILE_NAME = "requirements.txt"
 
 LABELS_CONFIG_KEY = "labels"
 LABEL_TREE_KEY = "label_tree"
@@ -100,7 +89,7 @@ class DeployedModel(OptimizedModel):
         self._needs_tempdir_deletion: bool = False
         self._tempdir_path: Optional[str] = None
         self._has_custom_model_wrappers: bool = False
-        # self._label_schema: Optional[LabelSchemaEntity] = None
+        self._label_schema: Optional[LabelSchema] = None
 
         # Attributes related to model explainability
         self._saliency_key: Optional[str] = None
@@ -108,9 +97,7 @@ class DeployedModel(OptimizedModel):
         self._feature_vector_key: Optional[str] = None
         self._feature_vector_location: Optional[str] = None
 
-        self.openvino_model_parameters: Optional[Dict[str, Any]] = None
-
-        self._postprocessor: Optional[Postprocessor] = None
+        self._converter: Optional[Union[InferenceResultsToPredictionConverter]] = None
 
     @property
     def model_data_path(self) -> str:
@@ -322,17 +309,26 @@ class DeployedModel(OptimizedModel):
                     f"is required, but could not be found at path "
                     f"{wrapper_module_path}."
                 ) from ex
+
         model = model_api_Model.create_model(
             model=model_adapter,
             model_type=model_type,
             preload=True,
+            configuration=configuration,
         )
         # self.openvino_model_parameters = configuration
         self._inference_model = model
 
         # Load results to Prediction converter
+        otx_version = get_package_version_from_requirements(
+            requirements_path=os.path.join(
+                self._model_python_path, REQUIREMENTS_FILE_NAME
+            ),
+            package_name="otx",
+        )
+        use_leagacy_converter = not otx_version.startswith("1.5")
         self._converter = ConverterFactory.create_converter(
-            self.label_schema, configuration
+            self.label_schema, configuration, use_legacy_converter=use_leagacy_converter
         )
 
         # TODO: This is a workaround to fix the issue that causes the output blob name
@@ -595,14 +591,6 @@ class DeployedModel(OptimizedModel):
         )
         postprocessing_results = self._postprocess(inference_results, metadata=metadata)
 
-        # Create a postprocessor
-        # if self._postprocessor is None:
-        #     self._postprocessor = Postprocessor(
-        #         label_schema=self.ote_label_schema,
-        #         configuration=self.openvino_model_parameters,
-        #         task=task,
-        #     )
-        # prediction = self._postprocessor(postprocessing_results, image, metadata)
         prediction = self._converter.convert_to_prediction(
             postprocessing_results, image_shape=metadata["original_shape"]
         )
@@ -672,7 +660,7 @@ class DeployedModel(OptimizedModel):
                 LabelGroup(
                     id=group_dict["_id"],
                     name=group_dict["name"],
-                    group_type=group_dict["relation_type"],
+                    group_type=LabelGroupType[group_dict["relation_type"]],
                     labels=labels,
                 )
             )

@@ -15,7 +15,3 @@
 """
 Predictions postprocessing module.
 """
-
-from .postprocessing import detection2array
-
-__all__ = ["detection2array"]

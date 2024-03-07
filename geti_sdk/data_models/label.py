@@ -180,7 +180,11 @@ class ScoredLabel:
             name=ote_label.name,
             id=ote_label.id,
             probability=ote_label.probability,
-            color=ote_label.color.hex_str,
+            color=(
+                ote_label.color
+                if isinstance(ote_label.color, str)
+                else ote_label.color.hex_str
+            ),
         )
 
     def to_ote(self) -> OteScoredLabel:
