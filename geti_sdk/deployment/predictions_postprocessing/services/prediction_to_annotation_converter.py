@@ -397,40 +397,41 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
         pred_label = predictions.pred_label
         label = self.anomalous_label if pred_label == "Anomalous" else self.normal_label
         annotations: list[Annotation] = []
-        match self.domain:
-            case Domain.ANOMALY_CLASSIFICATION:
-                scored_label = ScoredLabel.from_label(
-                    label=label, probability=float(predictions.pred_score)
+        if self.domain == Domain.ANOMALY_CLASSIFICATION:
+            scored_label = ScoredLabel.from_label(
+                label=label, probability=float(predictions.pred_score)
+            )
+            annotations = [
+                Annotation(
+                    shape=Rectangle.generate_full_box(*image_shape[1::-1]),
+                    labels=[scored_label],
                 )
-                annotations = [
+            ]
+        elif self.domain == Domain.ANOMALY_SEGMENTATION:
+            annotations = create_annotation_from_segmentation_map(
+                hard_prediction=predictions.pred_mask,
+                soft_prediction=predictions.anomaly_map.squeeze(),
+                label_map={0: self.normal_label, 1: self.anomalous_label},
+            )
+        elif self.domain == Domain.ANOMALY_DETECTION:
+            for box in predictions.pred_boxes:
+                annotations.append(
                     Annotation(
-                        shape=Rectangle.generate_full_box(*image_shape[1::-1]),
-                        labels=[scored_label],
+                        shape=Rectangle(
+                            box[0], box[1], box[2] - box[0], box[3] - box[1]
+                        ),
+                        labels=[
+                            ScoredLabel.from_label(
+                                label=self.anomalous_label,
+                                probability=predictions.pred_score,
+                            )
+                        ],
                     )
-                ]
-            case Domain.ANOMALY_SEGMENTATION:
-                annotations = create_annotation_from_segmentation_map(
-                    hard_prediction=predictions.pred_mask,
-                    soft_prediction=predictions.anomaly_map.squeeze(),
-                    label_map={0: self.normal_label, 1: self.anomalous_label},
                 )
-            case Domain.ANOMALY_DETECTION:
-                for box in predictions.pred_boxes:
-                    annotations.append(
-                        Annotation(
-                            Rectangle(box[0], box[1], box[2] - box[0], box[3] - box[1]),
-                            labels=[
-                                ScoredLabel.from_label(
-                                    label=self.anomalous_label,
-                                    probability=predictions.pred_score,
-                                )
-                            ],
-                        )
-                    )
-            case _:
-                raise ValueError(
-                    f"Cannot convert predictions for task '{self.domain.name}'. Only Anomaly tasks are supported."
-                )
+        else:
+            raise ValueError(
+                f"Cannot convert predictions for task '{self.domain.name}'. Only Anomaly tasks are supported."
+            )
         if not annotations:
             scored_label = ScoredLabel.from_label(
                 label=self.normal_label, probability=1.0
