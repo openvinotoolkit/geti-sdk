@@ -146,17 +146,9 @@ class Deployment:
 
         :param device: Device to load the inference models to (e.g. 'CPU', 'GPU', 'AUTO', etc)
         """
-        for model, task in zip(self.models, self.project.get_trainable_tasks()):
+        # for model, task in zip(self.models, self.project.get_trainable_tasks()):
+        for model in self.models:
             model.load_inference_model(device=device, project=self.project)
-
-            # This is a workaround for a bug in the label schema for anomaly tasks
-            if task.type.is_anomaly:
-                # For some reason the `is_anomaly` flag is not set correctly in the
-                # ote_label_schema, which will break loading the prediction converter.
-                # We set the flag here
-                for label in model.ote_label_schema.get_labels(include_empty=True):
-                    if label.name == "Anomalous":
-                        label.is_anomalous = True
 
         self._are_models_loaded = True
         logging.info(f"Inference models loaded on device `{device}` successfully.")

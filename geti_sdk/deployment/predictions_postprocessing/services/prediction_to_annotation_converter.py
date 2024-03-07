@@ -114,7 +114,7 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
             shape=Rectangle.generate_full_box(image_shape[1], image_shape[0]),
             labels=labels,
         )
-        return Prediction(annotations)
+        return Prediction([annotations])
 
 
 class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
@@ -208,27 +208,26 @@ class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
         :raises ValueError: if metadata is missing from the preprocess step
         """
         annotations = []
-        if hasattr(predictions, "segmentedObjects"):
-            predictions = predictions.segmentedObjects
         shape: Union[RotatedRectangle, Ellipse]
-        # for obj in predictions:
-        for score, class_idx, box, mask in zip(*predictions):
-            if score < self.confidence_threshold:
+        for obj in predictions.segmentedObjects:
+            if obj.score < self.confidence_threshold:
                 continue
             if self.use_ellipse_shapes:
-                shape = Ellipse(box[0], box[1], box[2] - box[0], box[3] - box[1])
+                shape = Ellipse(
+                    obj.xmin, obj.ymin, obj.xmax - obj.xmin, obj.ymax - obj.ymin
+                )
                 annotations.append(
                     Annotation(
                         shape,
                         labels=[
                             ScoredLabel.from_label(
-                                self.labels[int(class_idx) - 1], float(score)
+                                self.labels[int(obj.id) - 1], float(obj.score)
                             )
                         ],
                     )
                 )
             else:
-                mask = mask.astype(np.uint8)
+                mask = obj.mask.astype(np.uint8)
                 contours, hierarchies = cv2.findContours(
                     mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE
                 )
@@ -252,7 +251,7 @@ class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
                             shape=RotatedRectangle.from_polygon(shape),
                             labels=[
                                 ScoredLabel.from_label(
-                                    self.labels[int(class_idx) - 1], float(score)
+                                    self.labels[int(obj.id) - 1], float(obj.score)
                                 )
                             ],
                         )
@@ -286,25 +285,25 @@ class MaskToAnnotationConverter(InferenceResultsToPredictionConverter):
         """
         annotations = []
         shape: Union[Polygon, Ellipse]
-        for score, class_idx, box, mask in zip(*predictions):
-            if score < self.confidence_threshold:
+        for obj in predictions.segmentedObjects:
+            if obj.score < self.confidence_threshold:
                 continue
             if self.use_ellipse_shapes:
                 shape = shape = Ellipse(
-                    box[0], box[1], box[2] - box[0], box[3] - box[1]
+                    obj.xmin, obj.ymin, obj.xmax - obj.xmin, obj.ymax - obj.ymin
                 )
                 annotations.append(
                     Annotation(
                         shape=shape,
                         labels=[
                             ScoredLabel.from_label(
-                                self.labels[int(class_idx) - 1], float(score)
+                                self.labels[int(obj.id) - 1], float(obj.score)
                             )
                         ],
                     )
                 )
             else:
-                mask = mask.astype(np.uint8)
+                mask = obj.mask.astype(np.uint8)
                 contours, hierarchies = cv2.findContours(
                     mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE
                 )
@@ -329,7 +328,7 @@ class MaskToAnnotationConverter(InferenceResultsToPredictionConverter):
                             shape=shape,
                             labels=[
                                 ScoredLabel.from_label(
-                                    self.labels[int(class_idx) - 1], float(score)
+                                    self.labels[int(obj.id) - 1], float(obj.score)
                                 )
                             ],
                         )
@@ -405,7 +404,7 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
                 )
                 annotations = [
                     Annotation(
-                        Rectangle.generate_full_box(*image_shape[1::-1]),
+                        shape=Rectangle.generate_full_box(*image_shape[1::-1]),
                         labels=[scored_label],
                     )
                 ]
