@@ -13,7 +13,7 @@
 # in the License.
 import logging
 from copy import copy
-from typing import cast
+from typing import Dict, List, cast
 
 import cv2
 import numpy as np
@@ -70,7 +70,7 @@ def create_hard_prediction_from_soft_prediction(
     return hard_prediction
 
 
-def get_subcontours(contour: Contour) -> list[Contour]:
+def get_subcontours(contour: Contour) -> List[Contour]:
     """
     Split contour into sub-contours that do not have self intersections.
 
@@ -78,7 +78,7 @@ def get_subcontours(contour: Contour) -> list[Contour]:
     :return: list of sub-contours
     """
 
-    def find_loops(points: ContourInternal) -> list:
+    def find_loops(points: ContourInternal) -> List:
         """For each consecutive pair of equivalent rows in the input matrix returns their indices."""
         _, inverse, count = np.unique(points, axis=0, return_inverse=True, return_counts=True)  # type: ignore
         duplicates = np.where(count > 1)[0]
@@ -108,8 +108,8 @@ def get_subcontours(contour: Contour) -> list[Contour]:
 
 
 def create_annotation_from_segmentation_map(
-    hard_prediction: np.ndarray, soft_prediction: np.ndarray, label_map: dict
-) -> list[Annotation]:
+    hard_prediction: np.ndarray, soft_prediction: np.ndarray, label_map: Dict
+) -> List[Annotation]:
     """
     Create polygons from the soft predictions.
 

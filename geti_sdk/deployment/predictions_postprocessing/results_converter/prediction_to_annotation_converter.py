@@ -452,7 +452,7 @@ class ConverterFactory:
     @staticmethod
     def create_converter(
         label_schema: LabelSchema,
-        configuration: Optional[dict[str, Any]] = None,
+        configuration: Optional[Dict[str, Any]] = None,
         use_legacy_converter: bool = False,
     ) -> InferenceResultsToPredictionConverter:
         """

@@ -14,6 +14,7 @@
 
 import json
 import logging
+from typing import Any, Dict, List
 
 import numpy as np
 from openvino.model_api.models.utils import Detection
@@ -25,7 +26,7 @@ from geti_sdk.data_models.model import Model
 logger = logging.getLogger(__name__)
 
 
-def detection2array(detections: list[Detection]) -> np.ndarray:
+def detection2array(detections: List[Detection]) -> np.ndarray:
     """
     Convert list of OpenVINO Detection to a numpy array.
 
@@ -71,7 +72,7 @@ def get_detection_inferencer_configuration(model: Model) -> dict:
     return configuration
 
 
-def _flatten_config_values(config: dict) -> None:
+def _flatten_config_values(config: Dict[str, Any]) -> None:
     """
     Extract the "value" field from any nested config.
 
