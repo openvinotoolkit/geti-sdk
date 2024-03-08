@@ -130,7 +130,7 @@ class LegacyConverter:
                 )
             except AttributeError:
                 # Add backwards compatibility for anomaly models created in Geti v1.8 and below
-                if self.domain.is_anomaly:
+                if self.domain == Domain.ANOMALY_CLASSIFICATION:
                     legacy_converter = AnomalyClassificationToAnnotationConverter(
                         label_schema=self.label_schema
                     )

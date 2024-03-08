@@ -316,7 +316,6 @@ class DeployedModel(OptimizedModel):
             preload=True,
             configuration=configuration,
         )
-        # self.openvino_model_parameters = configuration
         self._inference_model = model
 
         # Load results to Prediction converter
@@ -665,14 +664,3 @@ class DeployedModel(OptimizedModel):
                 )
             )
         self._label_schema = LabelSchema(label_groups=label_groups)
-
-        # # This is a workaround for a bug in the label schema for anomaly tasks
-        # if domain is in [
-        #     Domain.ANOMALY_CLASSIFICATION, Domain.ANOMALY_DETECTION, Domain.ANOMALY_SEGMENTATION
-        # ]:
-        #     # For some reason the `is_anomaly` flag is not set correctly in the
-        #     # ote_label_schema, which will break loading the prediction converter.
-        #     # We set the flag here
-        #     for label in model.label_schema.get_labels(include_empty=True):
-        #         if label.name == "Anomalous":
-        #             label.is_anomalous = True

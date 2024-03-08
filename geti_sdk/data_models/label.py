@@ -101,6 +101,7 @@ class Label:
             hotkey=self.hotkey,
             is_empty=self.is_empty,
             color=Color.from_hex_str(self.color),
+            is_anomalous=self.is_anomalous,
         )
 
     def prepare_for_post(self) -> None:
