@@ -28,12 +28,7 @@ from openvino.model_api.models.utils import (
 )
 
 from geti_sdk.data_models.annotations import Annotation
-
-# from otx.api.entities.annotation import Annotation
 from geti_sdk.data_models.enums.domain import Domain
-
-# from otx.api.entities.label import Domain
-# from otx.api.entities.scored_label import ScoredLabel
 from geti_sdk.data_models.label import ScoredLabel
 from geti_sdk.data_models.label_schema import LabelSchema
 from geti_sdk.data_models.predictions import Prediction
@@ -61,17 +56,17 @@ class InferenceResultsToPredictionConverter(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def convert_to_prediction(self, predictions: NamedTuple, **kwargs) -> Prediction:
         """
-        Convert raw predictions to Annotation format.
+        Convert raw predictions to Prediction format.
 
         :param predictions: raw predictions from inference
-        :return: lisf of annotation objects containing the shapes obtained from the raw predictions.
+        :return: Prediction object containing the shapes obtained from the raw predictions.
         """
         raise NotImplementedError
 
 
 class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter):
     """
-    Converts ModelAPI Classification predictions to Annotations.
+    Converts ModelAPI Classification predictions to Prediction object.
 
     :param label_schema: LabelSchema containing the label info of the task
     """
@@ -95,10 +90,10 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
         self, predictions: ClassificationResult, image_shape: Tuple[int], **kwargs
     ) -> Prediction:  # noqa: ARG003
         """
-        Convert ModelAPI ClassificationResult predictions to sc_sdk annotations.
+        Convert ModelAPI ClassificationResult predictions to Prediction object.
 
         :param predictions: classification labels represented in ModelAPI format (label_index, label_name, confidence)
-        :return: list of full box annotations objects with corresponding label
+        :return: Prediction object with corresponding label
         """
         labels = []
         for label in predictions.top_labels:
@@ -118,7 +113,7 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
 
 class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
     """
-    Converts ModelAPI Detection objects to Prediction.
+    Converts ModelAPI Detection objects to Prediction object.
 
     :param label_schema: LabelSchema containing the label info of the task
     :param configuration: optional model configuration setting
@@ -141,7 +136,7 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
         self, predictions: DetectionResult, **kwargs
     ) -> Prediction:
         """
-        Convert ModelAPI DetectionResult predictions to Prediction.
+        Convert ModelAPI DetectionResult predictions to Prediction object.
 
         :param predictions: detection represented in ModelAPI format (label, confidence, x1, y1, x2, y2).
 
@@ -149,7 +144,7 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
             - `label` can be any integer that can be mapped to `self.labels`
             - `confidence` should be a value between 0 and 1
             - `x1`, `x2`, `y1` and `y2` are expected to be in pixel
-        :return: list of annotations object containing the boxes obtained from the prediction
+        :return: Prediction object containing the boxes obtained from the prediction
         """
         detections = detection2array(predictions.objects)
 
@@ -172,7 +167,7 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
             confidence = _detection[1]
             scored_label = ScoredLabel.from_label(self.label_map[label], confidence)
             coords = _detection[2:]
-            shape: Ellipse | Rectangle
+            shape: Union[Ellipse, Rectangle]
 
             if confidence < self.confidence_threshold:
                 continue
@@ -203,7 +198,7 @@ class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
         Convert ModelAPI instance segmentation predictions to a rotated bounding box annotation format.
 
         :param predictions: segmentation represented in ModelAPI format
-        :return: list of annotations containing the rotated boxes obtained from the segmentation contours
+        :return: Prediction object containing the rotated boxes obtained from the segmentation contours
         :raises ValueError: if metadata is missing from the preprocess step
         """
         annotations = []
@@ -259,7 +254,7 @@ class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
 
 
 class MaskToAnnotationConverter(InferenceResultsToPredictionConverter):
-    """Converts DetectionBox Predictions ModelAPI to Annotations."""
+    """Converts DetectionBox Predictions ModelAPI to Prediction object."""
 
     def __init__(
         self, label_schema: LabelSchema, configuration: Optional[Dict[str, Any]] = None
@@ -277,7 +272,7 @@ class MaskToAnnotationConverter(InferenceResultsToPredictionConverter):
         self, predictions: Tuple, **kwargs: Dict[str, Any]
     ) -> Prediction:
         """
-        Convert predictions to Annotation Scene using the metadata.
+        Convert predictions to Prediction object.
 
         :param predictions: Raw predictions from the model.
         :return: Prediction object.
@@ -337,7 +332,7 @@ class MaskToAnnotationConverter(InferenceResultsToPredictionConverter):
 
 class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
     """
-    Converts ModelAPI Segmentation objects to Annotations.
+    Converts ModelAPI Segmentation objects to Prediction object.
 
     :param label_schema: LabelSchema containing the label info of the task
     """
@@ -351,10 +346,10 @@ class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
         self, predictions: ImageResultWithSoftPrediction, **kwargs  # noqa: ARG002
     ) -> Prediction:
         """
-        Convert ModelAPI instance segmentation predictions to sc_sdk annotations.
+        Convert ModelAPI instance segmentation predictions to Prediction object.
 
         :param predictions: segmentation represented in ModelAPI format
-        :return: list of annotations object containing the contour polygon obtained from the segmentation
+        :return: Prediction object containing the contour polygon obtained from the segmentation
         """
         annotations = create_annotation_from_segmentation_map(
             hard_prediction=predictions.resultImage,
@@ -366,7 +361,7 @@ class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
 
 class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
     """
-    Convert ModelAPI AnomalyResult predictions to Annotations.
+    Convert ModelAPI AnomalyResult predictions to Prediction object.
 
     :param label_schema: LabelSchema containing the label info of the task
     """
@@ -388,7 +383,7 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
         Convert ModelAPI AnomalyResult predictions to sc_sdk annotations.
 
         :param predictions: anomaly result represented in ModelAPI format (same for all anomaly tasks)
-        :return: list of annotation objects based on the specific anomaly task:
+        :return: Prediction object based on the specific anomaly task:
             - Classification: single label (normal or anomalous).
             - Segmentation: contour polygon representing the segmentation.
             - Detection: predicted bounding boxes.

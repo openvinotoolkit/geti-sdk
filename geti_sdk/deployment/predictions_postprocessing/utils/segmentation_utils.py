@@ -13,7 +13,7 @@
 # in the License.
 import logging
 from copy import copy
-from typing import Dict, List, Tuple, cast
+from typing import Dict, List, Optional, Tuple, cast
 
 import cv2
 import numpy as np
@@ -25,7 +25,7 @@ from geti_sdk.data_models.shapes import Point, Polygon
 logger = logging.getLogger(__name__)
 
 Contour = List[Tuple[float, float]]
-ContourInternal = List[Tuple[float, float] | None]
+ContourInternal = Optional[List[Tuple[float, float]]]
 
 
 def create_hard_prediction_from_soft_prediction(
