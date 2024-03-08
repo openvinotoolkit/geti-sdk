@@ -120,7 +120,7 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
     """
 
     def __init__(
-        self, label_schema: LabelSchema, configuration: Optional[dict[str, Any]] = None
+        self, label_schema: LabelSchema, configuration: Optional[Dict[str, Any]] = None
     ):
         self.labels = label_schema.get_labels(include_empty=False)
         self.label_map = dict(enumerate(self.labels))
