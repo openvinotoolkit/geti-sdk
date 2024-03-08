@@ -389,7 +389,7 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
             - Detection: predicted bounding boxes.
         """
         pred_label = predictions.pred_label
-        label = self.anomalous_label if pred_label == "Anomalous" else self.normal_label
+        label = self.anomalous_label if pred_label == "Anomaly" else self.normal_label
         annotations: List[Annotation] = []
         if self.domain == Domain.ANOMALY_CLASSIFICATION:
             scored_label = ScoredLabel.from_label(
