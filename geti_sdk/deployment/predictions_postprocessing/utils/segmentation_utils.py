@@ -13,7 +13,7 @@
 # in the License.
 import logging
 from copy import copy
-from typing import Dict, List, cast
+from typing import Dict, List, Tuple, cast
 
 import cv2
 import numpy as np
@@ -22,22 +22,10 @@ from geti_sdk.data_models.annotations import Annotation
 from geti_sdk.data_models.label import ScoredLabel
 from geti_sdk.data_models.shapes import Point, Polygon
 
-# from bson import ObjectId
-
-
-# from otx.api.entities.annotation import Annotation
-# from otx.api.entities.id import ID
-# from otx.api.entities.scored_label import ScoredLabel
-# from otx.api.entities.shapes.polygon import Point, Polygon
-# from otx.api.utils.shape_factory import ShapeFactory
-
-# from sc_sdk.entities.dataset_item import DatasetItem
-# from sc_sdk.entities.label import Label
-
 logger = logging.getLogger(__name__)
 
-Contour = list[tuple[float, float]]
-ContourInternal = list[tuple[float, float] | None]
+Contour = List[Tuple[float, float]]
+ContourInternal = List[Tuple[float, float] | None]
 
 
 def create_hard_prediction_from_soft_prediction(
@@ -95,7 +83,7 @@ def get_subcontours(contour: Contour) -> List[Contour]:
     if not np.array_equal(base_contour[0], base_contour[-1]):  # type: ignore
         base_contour.append(base_contour[0])
 
-    subcontours: list[Contour] = []
+    subcontours: List[Contour] = []
     loops = sorted(find_loops(base_contour), key=lambda x: x[0], reverse=True)
     for loop in loops:
         i, j = loop
@@ -132,7 +120,7 @@ def create_annotation_from_segmentation_map(
     img_class = hard_prediction.swapaxes(0, 1)
 
     # pylint: disable=too-many-nested-blocks
-    annotations: list[Annotation] = []
+    annotations: List[Annotation] = []
     for label_index, label in label_map.items():
         # Skip background
         if label_index == 0:

@@ -15,7 +15,7 @@
 """Module implements the InferenceResultsToPredictionConverter class."""
 
 import abc
-from typing import Any, Dict, NamedTuple, Optional, Tuple, Union
+from typing import Any, Dict, List, NamedTuple, Optional, Tuple, Union
 
 import cv2
 import numpy as np
@@ -274,7 +274,7 @@ class MaskToAnnotationConverter(InferenceResultsToPredictionConverter):
                 self.confidence_threshold = configuration["confidence_threshold"]
 
     def convert_to_prediction(
-        self, predictions: tuple, **kwargs: Dict[str, Any]
+        self, predictions: Tuple, **kwargs: Dict[str, Any]
     ) -> Prediction:
         """
         Convert predictions to Annotation Scene using the metadata.
@@ -395,7 +395,7 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
         """
         pred_label = predictions.pred_label
         label = self.anomalous_label if pred_label == "Anomalous" else self.normal_label
-        annotations: list[Annotation] = []
+        annotations: List[Annotation] = []
         if self.domain == Domain.ANOMALY_CLASSIFICATION:
             scored_label = ScoredLabel.from_label(
                 label=label, probability=float(predictions.pred_score)
