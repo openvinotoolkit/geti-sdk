@@ -43,7 +43,7 @@ class DummyValues:
     LABEL_NAMES = ["rectangle", "ellipse", "triangle"]
     CREATOR_NAME = "SC SDK Fixtures"
     CREATION_DATE = datetime.strptime(
-        "01/01/1970 00:00:01", "%d/%m/%Y %H:%M:%S"
+        "01-01-1971_00:00:01", "%d-%m-%Y_%H:%M:%S"
     ).astimezone(timezone.utc)
     ANNOTATION_SCENE_KIND = AnnotationKind.ANNOTATION
     ANNOTATION_EDITOR_NAME = "editor"
