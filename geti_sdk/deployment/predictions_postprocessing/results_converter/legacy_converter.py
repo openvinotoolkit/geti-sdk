@@ -181,6 +181,7 @@ class LegacyConverter:
                     ),
                     id=empty_label.id_,
                     is_empty=True,
+                    group="",
                 )
                 prediction.append(
                     Annotation(
