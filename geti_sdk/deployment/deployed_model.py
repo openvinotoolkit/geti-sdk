@@ -35,7 +35,7 @@ from geti_sdk.data_models.label import Label
 from geti_sdk.data_models.label_group import LabelGroup, LabelGroupType
 from geti_sdk.data_models.label_schema import LabelSchema
 from geti_sdk.data_models.predictions import Prediction, ResultMedium
-from geti_sdk.deployment.predictions_postprocessing.results_converter.prediction_to_annotation_converter import (
+from geti_sdk.deployment.predictions_postprocessing.results_converter.results_to_prediction_converter import (
     ConverterFactory,
     InferenceResultsToPredictionConverter,
 )

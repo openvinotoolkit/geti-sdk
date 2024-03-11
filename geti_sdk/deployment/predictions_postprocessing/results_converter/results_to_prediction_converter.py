@@ -212,7 +212,7 @@ class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
                 )
                 annotations.append(
                     Annotation(
-                        shape,
+                        shape=shape,
                         labels=[
                             ScoredLabel.from_label(
                                 self.labels[int(obj.id) - 1], float(obj.score)
@@ -389,7 +389,11 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
             - Detection: predicted bounding boxes.
         """
         pred_label = predictions.pred_label
-        label = self.anomalous_label if pred_label == "Anomaly" else self.normal_label
+        label = (
+            self.anomalous_label
+            if pred_label in ("Anomaly", "Anomalous")
+            else self.normal_label
+        )
         annotations: List[Annotation] = []
         if self.domain == Domain.ANOMALY_CLASSIFICATION:
             scored_label = ScoredLabel.from_label(

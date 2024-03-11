@@ -116,7 +116,6 @@ def create_annotation_from_segmentation_map(
     :return: list of annotations with polygons
     """
     # pylint: disable=too-many-locals
-    height, width = hard_prediction.shape[:2]
     img_class = hard_prediction.swapaxes(0, 1)
 
     # pylint: disable=too-many-nested-blocks
@@ -194,42 +193,3 @@ def create_annotation_from_segmentation_map(
                         "not fully supported. A hole was found and will be filled.",
                     )
     return annotations
-
-
-# def mask_from_annotation(annotations: list[Annotation], labels: list[Label], width: int, height: int) -> np.ndarray:
-#     """
-#     Generate a segmentation mask of a numpy image, and a list of shapes.
-
-#     The mask is will be two dimensional and the value of each pixel matches the class
-#     index with offset 1. The background class index is zero. labels[0] matches pixel
-#     value 1, etc. The class index is determined based on the order of `labels`:
-
-#     :param annotations: List of annotations to plot in mask
-#     :param labels: List of labels. The index position of the label determines the class number in the segmentation mask.
-#     :param width: Width of the mask
-#     :param height: Height of the mask
-#     :return: 2d numpy array of mask
-#     """
-
-#     mask = np.zeros(shape=(height, width), dtype=np.uint8)
-#     for annotation in annotations:
-#         shape = annotation.shape
-#         if not isinstance(shape, Polygon):
-#             shape = ShapeFactory.shape_as_polygon(annotation.shape)
-#         known_labels = [
-#             label for label in annotation.get_labels() if isinstance(label, ScoredLabel) and label.get_label() in labels
-#         ]
-#         if len(known_labels) == 0:
-#             # Skip unknown shapes
-#             continue
-
-#         label_to_compare = known_labels[0].get_label()
-
-#         class_idx = labels.index(label_to_compare) + 1
-#         contour = []
-#         for point in shape.points:
-#             contour.append([int(point.x * width), int(point.y * height)])
-
-#         mask = cv2.drawContours(mask, np.asarray([contour]), 0, (class_idx, class_idx, class_idx), -1)
-
-#     return np.expand_dims(mask, axis=2)
