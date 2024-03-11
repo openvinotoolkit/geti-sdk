@@ -325,7 +325,7 @@ class DeployedModel(OptimizedModel):
             ),
             package_name="otx",
         )
-        use_leagacy_converter = not otx_version.startswith("1.5")
+        use_legacy_converter = not otx_version.startswith("1.5")
         self._converter = ConverterFactory.create_converter(
             self.label_schema, configuration, use_legacy_converter=use_leagacy_converter
         )
