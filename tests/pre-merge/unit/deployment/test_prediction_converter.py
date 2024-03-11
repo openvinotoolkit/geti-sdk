@@ -11,6 +11,8 @@
 # This software and the related documents are provided as is,
 # with no express or implied warranties, other than those that are expressly stated
 # in the License.
+from typing import Tuple
+
 import numpy as np
 import pytest
 from openvino.model_api.models.utils import (
@@ -43,7 +45,10 @@ from geti_sdk.deployment.predictions_postprocessing.results_converter.results_to
 )
 
 
-def coords_to_xmin_xmax_width_height(coords):
+def coords_to_xmin_xmax_width_height(
+    coords: Tuple[int, int, int, int]
+) -> Tuple[int, int, int, int]:
+    "Convert bbox to xmin, ymin, width, height format"
     x1, y1, x2, y2 = coords
     return x1, y1, x2 - x1, y2 - y1
 

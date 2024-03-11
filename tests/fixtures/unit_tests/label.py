@@ -13,6 +13,7 @@
 # and limitations under the License.
 
 from datetime import datetime, timezone
+from typing import List
 
 import pytest
 
@@ -190,7 +191,7 @@ def fxt_anomalous_label():
 
 @pytest.fixture
 def fxt_anomaly_labels_factory():
-    def _build_anom_labels(domain: Domain) -> list[Label]:
+    def _build_anom_labels(domain: Domain) -> List[Label]:
         if domain not in (
             Domain.ANOMALY_CLASSIFICATION,
             Domain.ANOMALY_SEGMENTATION,
