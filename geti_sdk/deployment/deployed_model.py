@@ -327,7 +327,7 @@ class DeployedModel(OptimizedModel):
         )
         use_legacy_converter = not otx_version.startswith("1.5")
         self._converter = ConverterFactory.create_converter(
-            self.label_schema, configuration, use_legacy_converter=use_leagacy_converter
+            self.label_schema, configuration, use_legacy_converter=use_legacy_converter
         )
 
         # TODO: This is a workaround to fix the issue that causes the output blob name
