@@ -28,7 +28,7 @@ from otx.api.usecases.exportable_code.prediction_to_annotation_converter import 
 from geti_sdk.data_models.annotations import Annotation
 from geti_sdk.data_models.enums.domain import Domain
 from geti_sdk.data_models.enums.task_type import TaskType
-from geti_sdk.data_models.label import ScoredLabel
+from geti_sdk.data_models.label import Label, ScoredLabel
 from geti_sdk.data_models.label_schema import LabelSchema
 from geti_sdk.data_models.predictions import Prediction
 from geti_sdk.data_models.shapes import Polygon, Rectangle, RotatedRectangle
@@ -172,10 +172,20 @@ class LegacyConverter:
                 None,
             )
             if empty_label is not None:
+                empty_label_sdk = Label(
+                    name=empty_label.name,
+                    color=(
+                        empty_label.color
+                        if isinstance(empty_label.color, str)
+                        else empty_label.color.hex_str
+                    ),
+                    id=empty_label.id_,
+                    is_empty=True,
+                )
                 prediction.append(
                     Annotation(
                         shape=Rectangle(x=0, y=0, width=width, height=height),
-                        labels=[ScoredLabel.from_label(empty_label, probability=1)],
+                        labels=[ScoredLabel.from_label(empty_label_sdk, probability=1)],
                     )
                 )
 
