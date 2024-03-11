@@ -97,7 +97,7 @@ class DeployedModel(OptimizedModel):
         self._feature_vector_key: Optional[str] = None
         self._feature_vector_location: Optional[str] = None
 
-        self._converter: Optional[Union[InferenceResultsToPredictionConverter]] = None
+        self._converter: Optional[InferenceResultsToPredictionConverter] = None
 
     @property
     def model_data_path(self) -> str:
