@@ -47,6 +47,7 @@ from geti_sdk.deployment.legacy_converters import (
 from geti_sdk.rest_converters import ProjectRESTConverter
 
 from .deployed_model import DeployedModel
+from .inference_hook_interfaces import PostInferenceHookInterface
 from .utils import OVMS_README_PATH, generate_ovms_model_name
 
 
@@ -70,6 +71,7 @@ class Deployment:
         self._empty_labels: Dict[str, Label] = {}
         self._path_to_temp_resources: Optional[str] = None
         self._requires_resource_cleanup: bool = False
+        self._post_inference_hooks: List[PostInferenceHookInterface] = []
 
     @property
     def is_single_task(self) -> bool:
@@ -236,6 +238,7 @@ class Deployment:
         # Multi-task inference
         else:
             prediction = self._infer_pipeline(image=image, explain=False)
+        self._execute_post_inference_hooks(image=image, prediction=prediction)
         return prediction
 
     def explain(self, image: np.ndarray) -> Prediction:
@@ -259,6 +262,7 @@ class Deployment:
         # Multi-task inference
         else:
             prediction = self._infer_pipeline(image=image, explain=True)
+        self._execute_post_inference_hooks(image=image, prediction=prediction)
         return prediction
 
     def _check_models_loaded(self) -> None:
@@ -633,3 +637,24 @@ class Deployment:
             f"file with instructions on how to launch OVMS, connect to it and run "
             f"inference. Please follow the instructions outlined there to get started."
         )
+
+    def add_post_inference_hook(self, hook: PostInferenceHookInterface) -> None:
+        """
+        Add a post inference hook, which will be executed after each call to
+        `Deployment.infer`
+
+        :param hook: PostInferenceHook to be added to the deployment
+        """
+        self._post_inference_hooks.append(hook)
+
+    def _execute_post_inference_hooks(
+        self, image: np.ndarray, prediction: Prediction
+    ) -> None:
+        """
+        Execute all post inference hooks
+
+        :param image: Numpy image which was inferred
+        :param prediction: Prediction for the image
+        """
+        for hook in self._post_inference_hooks:
+            hook.run(image, prediction)
