@@ -17,6 +17,24 @@ Prediction converters for use with inference models created in older
 versions of the Intel® Geti™ platform, i.e. v1.8 and below.
 """
 
-from .legacy_anomaly_converter import AnomalyClassificationToAnnotationConverter
+from .legacy_anomaly_converter import (
+    AnomalyClassificationToAnnotationConverter,
+    AnomalyDetectionToAnnotationConverter,
+    AnomalySegmentationToAnnotationConverter,
+)
+from .legacy_classification_converter import ClassificationToAnnotationConverter
+from .legacy_detection_converter import RotatedRectToAnnotationConverter
+from .legacy_segmentation_converter import (
+    MaskToAnnotationConverter,
+    SegmentationToAnnotationConverter,
+)
 
-__all__ = ["AnomalyClassificationToAnnotationConverter"]
+__all__ = [
+    "AnomalyClassificationToAnnotationConverter",
+    "AnomalyDetectionToAnnotationConverter",
+    "AnomalySegmentationToAnnotationConverter",
+    "ClassificationToAnnotationConverter",
+    "SegmentationToAnnotationConverter",
+    "MaskToAnnotationConverter",
+    "RotatedRectToAnnotationConverter",
+]
