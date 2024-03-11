@@ -32,11 +32,14 @@ from geti_sdk.data_models.label import ScoredLabel
 from geti_sdk.data_models.label_schema import LabelSchema
 from geti_sdk.data_models.predictions import Prediction
 from geti_sdk.data_models.shapes import Polygon, Rectangle, RotatedRectangle
-from geti_sdk.deployment.legacy_converters.legacy_anomaly_converter import (
-    AnomalyClassificationToAnnotationConverter,
-)
 from geti_sdk.deployment.predictions_postprocessing.utils.detection_utils import (
     detection2array,
+)
+
+from .legacy_converters import (
+    AnomalyClassificationToAnnotationConverter,
+    AnomalyDetectionToAnnotationConverter,
+    AnomalySegmentationToAnnotationConverter,
 )
 
 
@@ -128,17 +131,28 @@ class LegacyConverter:
                     predictions=postprocessing_results,
                     metadata={"original_shape": image_shape},
                 )
-            except AttributeError:
+            except AttributeError as e:
                 # Add backwards compatibility for anomaly models created in Geti v1.8 and below
                 if self.domain == Domain.ANOMALY_CLASSIFICATION:
                     legacy_converter = AnomalyClassificationToAnnotationConverter(
                         label_schema=self.label_schema
                     )
-                    annotation_scene_entity = legacy_converter.convert_to_annotation(
-                        predictions=postprocessing_results,
-                        metadata={"original_shape": image_shape},
+                elif self.domain == Domain.ANOMALY_DETECTION:
+                    legacy_converter = AnomalyDetectionToAnnotationConverter(
+                        label_schema=self.label_schema
                     )
-                    self.converter = legacy_converter
+                elif self.domain == Domain.ANOMALY_SEGMENTATION:
+                    legacy_converter = AnomalySegmentationToAnnotationConverter(
+                        label_schema=self.label_schema
+                    )
+                else:
+                    raise e
+
+                annotation_scene_entity = legacy_converter.convert_to_annotation(
+                    predictions=postprocessing_results,
+                    metadata={"original_shape": image_shape},
+                )
+                self.converter = legacy_converter
 
             prediction = Prediction.from_ote(
                 annotation_scene_entity, image_width=width, image_height=height
