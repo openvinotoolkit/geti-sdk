@@ -164,7 +164,12 @@ class LegacyConverter:
         # no other predictions
         if len(prediction.annotations) == 0:
             empty_label = next(
-                (label for label in self.task.labels if label.is_empty), None
+                (
+                    label
+                    for label in self.label_schema.get_labels(include_empty=True)
+                    if label.is_empty
+                ),
+                None,
             )
             if empty_label is not None:
                 prediction.append(
