@@ -13,5 +13,21 @@
 # in the License.
 
 """
-The module contains classes for inference results post-processing and conversion to internal entities.
+The package contains classes for inference results post-processing and conversion to internal Prediction entities.
+
+The package contains the following classes:
+    - `AnomalyToPredictionConverter` - class for converting anomaly classification / segmentation / detection results to internal Prediction entities
+    - `ClassificationToPredictionConverter` - class for converting classification results to internal Prediction entities
+    - `DetectionToPredictionConverter` - class for converting detection results to internal Prediction entities
+    - `MaskToAnnotationConverter` - class for converting rotated detection results to internal Prediction entities
+    - `RotatedRectToPredictionConverter` - class for converting rotated detection results to internal Prediction entities
+    - `SegmentationToPredictionConverter` - class for converting segmentation results to internal Prediction entities
+
+    - `LegacyConverter` - OTX based universal converter for models generated with Geti v1.8 and OTX 1.4
+
+    - `ConverterFactory` - factory class for creating the appropriate converter based on the domain of the inference results
 """
+
+from .results_to_prediction_converter import ConverterFactory
+
+__all__ = ["ConverterFactory"]

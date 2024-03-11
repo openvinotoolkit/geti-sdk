@@ -13,5 +13,11 @@
 # and limitations under the License.
 
 """
-Predictions postprocessing module.
+Predictions postprocessing package.
+
+This package provides means for converting inference results obtained from model_api-wrapped OpenVINO models to internal Prediction entities.
 """
+
+from .results_converter import ConverterFactory
+
+__all__ = ["ConverterFactory"]
