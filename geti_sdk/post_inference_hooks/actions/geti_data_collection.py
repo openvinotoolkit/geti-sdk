@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-import logging
 from typing import Optional, Union
 
 import cv2
@@ -38,6 +37,7 @@ class GetiDataCollection(PostInferenceAction):
     :param dataset: Optional Dataset or name of the dataset in which to store the
         image data. If not specified, the default training dataset of the project is
         used
+    :param log_level: Log level for the action. Options are 'info' or 'debug'
     """
 
     def __init__(
@@ -46,7 +46,9 @@ class GetiDataCollection(PostInferenceAction):
         workspace_id: str,
         project: Union[str, Project],
         dataset: Optional[Union[str, Dataset]] = None,
+        log_level: str = "debug",
     ):
+        super().__init__(log_level=log_level)
         project_client = ProjectClient(session=session, workspace_id=workspace_id)
         if isinstance(project, str):
             project_name = project
@@ -70,7 +72,7 @@ class GetiDataCollection(PostInferenceAction):
                 dataset = dataset_client.get_dataset_by_name(dataset_name)
             except ValueError:
                 dataset = dataset_client.create_dataset(dataset_name)
-                logging.info(
+                self.log_function(
                     f"Dataset `{dataset_name}` was created in project `{project.name}`"
                 )
         self.image_client = ImageClient(
@@ -100,7 +102,7 @@ class GetiDataCollection(PostInferenceAction):
         # image in BGR format. However, `Deployment.infer` requires RGB format, so
         # we have to convert
         self.image_client.upload_image(image=image_bgr, dataset=self.dataset)
-        logging.info(
+        self.log_function(
             f"GetiDataCollection inference action uploaded image to dataset "
             f"`{self.dataset.name}`"
         )

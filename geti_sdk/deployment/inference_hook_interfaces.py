@@ -1,3 +1,17 @@
+# Copyright (C) 2024 Intel Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+import logging
 from abc import abstractmethod
 from typing import Optional
 
@@ -50,7 +64,20 @@ class PostInferenceAction(object):
     """
     Base class for post inference actions. These are actions that are used in inference
     hooks, and can be (conditionally) executed after inference
+
+    :param log_level: Log level to use in the action, current options are `info` or
+        `debug`. Defaults to `debug`
     """
+
+    def __init__(self, log_level: str = "debug"):
+        if log_level.lower() == "debug":
+            self.log_function = logging.debug
+        elif log_level.lower() == "info":
+            self.log_function = logging.info
+        else:
+            raise ValueError(
+                f"Unsupported log_level `{log_level}`, options are 'info' or 'debug'."
+            )
 
     @abstractmethod
     def __call__(

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import json
-import logging
 import os
 from datetime import datetime
 from typing import Optional
@@ -41,17 +40,39 @@ class FileSystemDataCollection(PostInferenceAction):
 
     :param target_folder: Target folder on disk where the inferred images should be
         saved. If it does not exist yet, this action will create it.
+    :param file_name_prefix: Prefix to use for the files that will be saved by this
+        action. Default is 'image'
+    :param save_predictions: True to save the predictions for each image as well, in
+        addition to the image itself. Set to False to not store any predictions
+    :param save_scores: True to save the trigger score for each image as well, in
+        addition to the image itself. Set to False to not save any scores.
+    :param log_level: Log level for the action. Options are 'info' or 'debug'
     """
 
-    def __init__(self, target_folder: str, file_name_prefix: str = "image"):
+    def __init__(
+        self,
+        target_folder: str,
+        file_name_prefix: str = "image",
+        save_predictions: bool = True,
+        save_scores: bool = True,
+        log_level: str = "debug",
+    ):
+        super().__init__(log_level=log_level)
         self.image_path = os.path.join(target_folder, "images")
-        self.predictions_path = os.path.join(target_folder, "predictions")
-        self.scores_path = os.path.join(target_folder, "scores")
+        folders_to_create = [self.image_path]
+        if save_predictions:
+            self.predictions_path = os.path.join(target_folder, "predictions")
+            folders_to_create.append(self.predictions_path)
+        if save_scores:
+            self.scores_path = os.path.join(target_folder, "scores")
+            folders_to_create.append(self.scores_path)
 
-        for path in [self.image_path, self.predictions_path, self.scores_path]:
+        for path in folders_to_create:
             os.makedirs(path, exist_ok=True)
 
         self.prefix = file_name_prefix
+        self.save_predictions = save_predictions
+        self.save_scores = save_scores
 
     def __call__(
         self, image: np.ndarray, prediction: Prediction, score: Optional[float] = None
@@ -68,21 +89,27 @@ class FileSystemDataCollection(PostInferenceAction):
         # upload_image uses cv2 to encode the numpy array as image, so it expects an
         # image in BGR format. However, `Deployment.infer` requires RGB format, so
         # we have to convert
-        filename = self.prefix + "_" + datetime.now().__str__()
+        filename = self.prefix + "_" + datetime.now().strftime("%Y%m%dT%H-%M-%S-%f")
         cv2.imwrite(os.path.join(self.image_path, filename + ".png"), image_bgr)
-        logging.info(
+
+        if self.save_predictions:
+            prediction_filepath = os.path.join(
+                self.predictions_path, filename + ".json"
+            )
+            with open(prediction_filepath, "w") as file:
+                prediction_dict = PredictionRESTConverter.to_dict(prediction)
+                json.dump(prediction_dict, fp=file)
+
+        if self.save_scores:
+            if score is not None:
+                score_filepath = os.path.join(self.scores_path, filename + ".txt")
+                with open(score_filepath, "w") as file:
+                    file.write(f"score={score:.4f}")
+
+        self.log_function(
             f"FileSystemDataCollection inference action saved image data to folder "
             f"`{self.image_path}`"
         )
-        prediction_filepath = os.path.join(self.predictions_path, filename + ".json")
-        with open(prediction_filepath, "w") as file:
-            prediction_dict = PredictionRESTConverter.to_dict(prediction)
-            json.dump(file, prediction_dict)
-
-        if score is not None:
-            score_filepath = os.path.join(self.scores_path, filename + ".txt")
-            with open(score_filepath, "w") as file:
-                file.write(f"score={score:.4f}")
 
     def __repr__(self):
         """
