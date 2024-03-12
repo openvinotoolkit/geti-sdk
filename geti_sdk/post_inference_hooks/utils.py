@@ -27,26 +27,32 @@ class RateLimiter(Iterator):
         is called before the next yield is available, and True otherwise
     """
 
-    def __init__(self, frames_per_second: float = 1, is_blocking: bool = False):
-        self.lock = Lock()
+    def __init__(self, frames_per_second: float = 1, is_blocking: bool = False) -> None:
         self.interval = 1 / frames_per_second
-        self.next_yield = 0
         self.is_blocking = is_blocking
+        self.__next_yield = 0
+        self.__lock = Lock()
+
+    def __iter__(self):
+        """
+        Return the iterator
+        """
+        return self
 
     def __next__(self) -> bool:
         """
-        Yield `True` if called after the `self.interval` has elapsed with respect to
+        Return `True` if called after the `self.interval` has elapsed with respect to
         the last call. If `self.is_blocking == True`, will block execution otherwise,
         until the interval has elapsed. If `self.is_blocking == False`, execution is
-        not blocked but `False` is yielded instead.
+        not blocked but `False` is returned instead.
         """
-        with self.lock:
+        with self.__lock:
             t = time.monotonic()
-            if t < self.next_yield:
+            if t < self.__next_yield:
                 if self.is_blocking:
                     time.sleep(self.next_yield - t)
                     t = time.monotonic()
                 else:
-                    yield False
-            self.next_yield = t + self.interval
-            yield True
+                    return False
+            self.__next_yield = t + self.interval
+            return True
