@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 """Actions that can be used in post inference hooks"""
+from .file_system_data_collection import FileSystemDataCollection
 from .geti_data_collection import GetiDataCollection
 
-__all__ = ["GetiDataCollection"]
+__all__ = ["GetiDataCollection", "FileSystemDataCollection"]

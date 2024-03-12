@@ -15,13 +15,15 @@
 PostInferenceHooks are used to construct pipelines for e.g. data collection or other
 actions based on inference outcomes.
 """
-from .actions import GetiDataCollection
+from .actions import FileSystemDataCollection, GetiDataCollection
 from .post_inference_hook import PostInferenceHook
-from .triggers import ConfidenceTrigger, LabelTrigger
+from .triggers import ConfidenceTrigger, EmptyLabelTrigger, LabelTrigger
 
 __all__ = [
     "PostInferenceHook",
     "ConfidenceTrigger",
     "LabelTrigger",
+    "EmptyLabelTrigger",
     "GetiDataCollection",
+    "FileSystemDataCollection",
 ]

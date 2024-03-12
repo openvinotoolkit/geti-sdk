@@ -13,6 +13,7 @@
 # and limitations under the License.
 """Triggers that can be used in post inference hooks"""
 from .confidence_trigger import ConfidenceTrigger
+from .empty_label_trigger import EmptyLabelTrigger
 from .label_trigger import LabelTrigger
 
-__all__ = ["ConfidenceTrigger", "LabelTrigger"]
+__all__ = ["ConfidenceTrigger", "LabelTrigger", "EmptyLabelTrigger"]
