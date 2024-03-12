@@ -638,6 +638,36 @@ class Deployment:
             f"inference. Please follow the instructions outlined there to get started."
         )
 
+    @property
+    def post_inference_hooks(self) -> List[PostInferenceHookInterface]:
+        """
+        Return the currently active post inference hooks for the deployment
+
+        :return: list of PostInferenceHook objects
+        """
+        return self._post_inference_hooks
+
+    @post_inference_hooks.setter
+    def post_inference_hooks(self, hooks: List[PostInferenceHookInterface]) -> None:
+        """
+        Set the post inference hooks for the deployment
+
+        :param hooks: List of PostInferenceHook objects to set
+        """
+        self._post_inference_hooks = hooks
+
+    def clear_inference_hooks(self) -> None:
+        """
+        Remove all post inference hooks for the deployment
+        """
+        n_hooks = len(self.post_inference_hooks)
+        self._post_inference_hooks = []
+        if n_hooks != 0:
+            logging.info(
+                f"Post inference hooks cleared. {n_hooks} hooks were removed "
+                f"successfully"
+            )
+
     def add_post_inference_hook(self, hook: PostInferenceHookInterface) -> None:
         """
         Add a post inference hook, which will be executed after each call to
@@ -646,6 +676,10 @@ class Deployment:
         :param hook: PostInferenceHook to be added to the deployment
         """
         self._post_inference_hooks.append(hook)
+        logging.info(
+            f"Hook added. Deployment now contains {len(self.post_inference_hooks)} "
+            f"post inference hooks."
+        )
 
     def _execute_post_inference_hooks(
         self, image: np.ndarray, prediction: Prediction
