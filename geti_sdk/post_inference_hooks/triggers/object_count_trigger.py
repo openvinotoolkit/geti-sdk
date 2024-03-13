@@ -79,7 +79,7 @@ class ObjectCountTrigger(PostInferenceTrigger):
                 if len(predicted_labels) > 1:
                     return 1.0
                 else:
-                    if predicted_labels[0].lower() == "no object":
+                    if predicted_labels[0].name.lower() == "no object":
                         return 0.0
                     else:
                         return 1.0
