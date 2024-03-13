@@ -104,7 +104,7 @@ class FileSystemDataCollection(PostInferenceAction):
             if score is not None:
                 score_filepath = os.path.join(self.scores_path, filename + ".txt")
                 with open(score_filepath, "w") as file:
-                    file.write(f"score={score:.4f}")
+                    file.write(f"{score}")
 
         self.log_function(
             f"FileSystemDataCollection inference action saved image data to folder "

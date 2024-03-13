@@ -50,7 +50,7 @@ class RateLimiter(Iterator):
             t = time.monotonic()
             if t < self.__next_yield:
                 if self.is_blocking:
-                    time.sleep(self.next_yield - t)
+                    time.sleep(self.__next_yield - t)
                     t = time.monotonic()
                 else:
                     return False

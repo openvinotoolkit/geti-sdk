@@ -15,5 +15,11 @@
 from .confidence_trigger import ConfidenceTrigger
 from .empty_label_trigger import EmptyLabelTrigger
 from .label_trigger import LabelTrigger
+from .object_count_trigger import ObjectCountTrigger
 
-__all__ = ["ConfidenceTrigger", "LabelTrigger", "EmptyLabelTrigger"]
+__all__ = [
+    "ConfidenceTrigger",
+    "LabelTrigger",
+    "EmptyLabelTrigger",
+    "ObjectCountTrigger",
+]

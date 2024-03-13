@@ -17,13 +17,19 @@ actions based on inference outcomes.
 """
 from .actions import FileSystemDataCollection, GetiDataCollection
 from .post_inference_hook import PostInferenceHook
-from .triggers import ConfidenceTrigger, EmptyLabelTrigger, LabelTrigger
+from .triggers import (
+    ConfidenceTrigger,
+    EmptyLabelTrigger,
+    LabelTrigger,
+    ObjectCountTrigger,
+)
 
 __all__ = [
     "PostInferenceHook",
     "ConfidenceTrigger",
     "LabelTrigger",
     "EmptyLabelTrigger",
+    "ObjectCountTrigger",
     "GetiDataCollection",
     "FileSystemDataCollection",
 ]
