@@ -14,7 +14,7 @@
 
 import abc
 import math
-from typing import Any, Dict, List, Optional, TypeVar, Union
+from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
 
 import attr
 import cv2
@@ -435,6 +435,14 @@ class Point:
 
     x: int = attr.field(converter=coordinate_converter)
     y: int = attr.field(converter=coordinate_converter)
+
+    def as_int_tuple(self) -> Tuple[int, int]:
+        """
+        Return the coordinates of the point as a tuple of integers.
+
+        :return: Tuple of integers representing the coordinates of the point
+        """
+        return int(self.x), int(self.y)
 
 
 @attr.define(slots=False)
