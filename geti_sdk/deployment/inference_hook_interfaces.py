@@ -35,6 +35,7 @@ class PostInferenceTrigger(object):
 
     def __init__(self, threshold: float = 0.5):
         self.threshold = threshold
+        self._repr_info_ = f"threshold={threshold:.1f}"
 
     @abstractmethod
     def __call__(self, image: np.ndarray, prediction: Prediction) -> float:
@@ -59,6 +60,12 @@ class PostInferenceTrigger(object):
         """
         return score > self.threshold
 
+    def __repr__(self) -> str:
+        """
+        Return string representation of the PostInferenceTrigger
+        """
+        return f"{type(self).__name__}({self._repr_info_})"
+
 
 class PostInferenceAction(object):
     """
@@ -78,6 +85,7 @@ class PostInferenceAction(object):
             raise ValueError(
                 f"Unsupported log_level `{log_level}`, options are 'info' or 'debug'."
             )
+        self._repr_info_: str = ""
 
     @abstractmethod
     def __call__(
@@ -92,6 +100,12 @@ class PostInferenceAction(object):
         :param score: Optional score computed from a post inference trigger
         """
         return NotImplemented
+
+    def __repr__(self) -> str:
+        """
+        Return string representation of the PostInferenceAction
+        """
+        return f"{type(self).__name__}({self._repr_info_})"
 
 
 class PostInferenceHookInterface(object):
@@ -122,4 +136,4 @@ class PostInferenceHookInterface(object):
         :param prediction: Prediction object containing the inference results for the
             image
         """
-        return NotImplemented
+        raise NotImplementedError

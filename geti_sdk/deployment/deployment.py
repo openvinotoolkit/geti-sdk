@@ -677,7 +677,7 @@ class Deployment:
         """
         self._post_inference_hooks.append(hook)
         logging.info(
-            f"Hook added. Deployment now contains {len(self.post_inference_hooks)} "
+            f"Hook `{hook}` added. Deployment now contains {len(self.post_inference_hooks)} "
             f"post inference hooks."
         )
 

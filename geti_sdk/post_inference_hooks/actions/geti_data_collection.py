@@ -79,7 +79,7 @@ class GetiDataCollection(PostInferenceAction):
             session=session, workspace_id=workspace_id, project=project
         )
         self.dataset = dataset
-        self.__repr_info = (
+        self._repr_info_ = (
             f"target_server=`{session.config.host}`, "
             f"target_project={project.name}, "
             f"target_dataset={dataset.name}"
@@ -106,9 +106,3 @@ class GetiDataCollection(PostInferenceAction):
             f"GetiDataCollection inference action uploaded image to dataset "
             f"`{self.dataset.name}`"
         )
-
-    def __repr__(self):
-        """
-        Return a string representation of the GetiDataCollection action object
-        """
-        return f"PostInferenceAction `GetiDataCollection`({self.__repr_info})"

@@ -38,6 +38,9 @@ class ConfidenceTrigger(PostInferenceTrigger):
         super().__init__(threshold=threshold)
         self.label_names = label_names
 
+        if label_names is not None:
+            self._repr_info_ += f", label_names={label_names}"
+
     def __call__(self, image: np.ndarray, prediction: Prediction) -> float:
         """
         Compute a trigger score for the `image` and corresponding `prediction`.

@@ -51,7 +51,11 @@ class ObjectCountTrigger(PostInferenceTrigger):
     ):
         super().__init__(threshold=threshold)
         self.label_names = label_names
-        self.filter_labels = label_names is not None
+        self.filter_labels = False
+
+        if label_names is not None:
+            self.filter_labels = True
+            self._repr_info_ += f", label_names={label_names}"
 
         lower_mode = mode.lower()
         if lower_mode not in SUPPORTED_MODES:
@@ -59,6 +63,7 @@ class ObjectCountTrigger(PostInferenceTrigger):
                 f"Invalid mode `{mode}`. Valid options are: {SUPPORTED_MODES}"
             )
         self.mode = lower_mode
+        self._repr_info_ += f", mode={lower_mode}"
 
     def __call__(self, image: np.ndarray, prediction: Prediction) -> float:
         """

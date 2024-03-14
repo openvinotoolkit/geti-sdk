@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+import logging
 from concurrent.futures import ThreadPoolExecutor
 from typing import Optional
 
@@ -58,11 +59,15 @@ class PostInferenceHook(PostInferenceHookInterface):
         limit_action_rate: bool = False,
         max_frames_per_second: float = 1,
     ):
-        self.trigger = trigger
-        self.action = action
+        super().__init__(trigger=trigger, action=action)
+
         self.parallel_execution = max_threads != 0
         if self.parallel_execution:
             self.executor = ThreadPoolExecutor(max_workers=max_threads)
+            logging.debug(
+                f"Parallel inference hook execution enabled, using a maximum of "
+                f"{max_threads} threads."
+            )
 
         if limit_action_rate:
             self.rate_limiter: Optional[RateLimiter] = RateLimiter(
@@ -105,3 +110,24 @@ class PostInferenceHook(PostInferenceHookInterface):
         """
         if self.parallel_execution:
             self.executor.shutdown(wait=True)
+
+    def __repr__(self) -> str:
+        """
+        Return a string representation of the PostInferenceHook object
+
+        :return: String representing the post inference hook
+        """
+        rate_msg = ""
+        if self.rate_limiter is not None:
+            rate_msg = (
+                f"Action rate limited to {1/self.rate_limiter.interval:.1f} "
+                f"frames per second."
+            )
+        thread_msg = ""
+        if self.parallel_execution:
+            thread_msg = "Multithreaded execution enabled."
+
+        suffix_msg = f"[{thread_msg} {rate_msg}]"
+        if len(suffix_msg) == 3:
+            suffix_msg = ""
+        return f"PostInferenceHook(trigger={self.trigger}, action={self.action}){suffix_msg}"

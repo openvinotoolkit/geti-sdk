@@ -74,6 +74,13 @@ class FileSystemDataCollection(PostInferenceAction):
         self.save_predictions = save_predictions
         self.save_scores = save_scores
 
+        self._repr_info_ = (
+            f"target_folder=`{target_folder}`, "
+            f"file_prefix={file_name_prefix}, "
+            f"save_predictions={save_predictions}, "
+            f"save_scores={save_scores}"
+        )
+
     def __call__(
         self, image: np.ndarray, prediction: Prediction, score: Optional[float] = None
     ):
@@ -86,7 +93,7 @@ class FileSystemDataCollection(PostInferenceAction):
         :param score: Optional score computed from a post inference trigger
         """
         image_bgr = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        # upload_image uses cv2 to encode the numpy array as image, so it expects an
+        # we use cv2 to encode the numpy array as image, so it expects an
         # image in BGR format. However, `Deployment.infer` requires RGB format, so
         # we have to convert
         filename = self.prefix + "_" + datetime.now().strftime("%Y%m%dT%H-%M-%S-%f")
@@ -109,13 +116,4 @@ class FileSystemDataCollection(PostInferenceAction):
         self.log_function(
             f"FileSystemDataCollection inference action saved image data to folder "
             f"`{self.image_path}`"
-        )
-
-    def __repr__(self):
-        """
-        Return a string representation of the GetiDataCollection action object
-        """
-        return (
-            f"PostInferenceAction `FileSystemDataCollection`"
-            f"(target_folder={self.image_path})"
         )

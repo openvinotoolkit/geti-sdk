@@ -42,6 +42,9 @@ class LabelTrigger(PostInferenceTrigger):
         # LabelTrigger will return a score of 1 if label is found, so we can use the
         # default threshold defined in the super class
         super().__init__()
+        if label_names is not None:
+            self._repr_info_ += f", label_names={label_names}"
+        self._repr_info_ += f", mode={mode}"
 
     def __call__(self, image: np.ndarray, prediction: Prediction) -> float:
         """
