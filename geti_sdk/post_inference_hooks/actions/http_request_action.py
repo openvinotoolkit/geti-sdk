@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+from datetime import datetime
 from typing import Dict, Optional
 
 import numpy as np
@@ -58,7 +59,12 @@ class HttpRequestAction(PostInferenceAction):
         )
 
     def __call__(
-        self, image: np.ndarray, prediction: Prediction, score: Optional[float] = None
+        self,
+        image: np.ndarray,
+        prediction: Prediction,
+        score: Optional[float] = None,
+        name: Optional[str] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """
         Execute the action, send an HTTP request to the predefined url
@@ -66,6 +72,9 @@ class HttpRequestAction(PostInferenceAction):
         :param image: Numpy array representing an image
         :param prediction: Prediction object which was generated for the image
         :param score: Optional score computed from a post inference trigger
+        :param name: String containing the name of the image
+        :param timestamp: Datetime object containing the timestamp belonging to the
+            image
         """
         data = None
         if self.include_data:

@@ -11,16 +11,82 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+import datetime
+import inspect
 import logging
-from abc import abstractmethod
-from typing import Optional
+from abc import ABCMeta, abstractmethod
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 
 from geti_sdk.data_models import Prediction
 
 
-class PostInferenceTrigger(object):
+class PostInferenceObject(object, metaclass=ABCMeta):
+    """
+    Base interface class for post inference triggers, actions and hooks
+    """
+
+    _override_from_dict_: bool = False
+
+    def __new__(cls, *args, **kwargs):
+        """
+        Create a new PostInferenceObject instance
+        """
+        instance = super().__new__(cls)
+        instance._argument_dict_ = {"args": args, "kwargs": kwargs}
+        return instance
+
+    def __init__(self):
+        self._constructor_arguments_ = self.__get_constructor_arguments()
+
+    def __get_constructor_arguments(self) -> Dict[str, Any]:
+        """
+        Return the arguments used for constructing the PostInferenceAction object
+
+        :return: Dictionary containing the constructor parameter names as keys, and
+            parameter values as values
+        """
+        constructor_argument_params = inspect.signature(self.__init__).parameters
+        parameters: Dict[str, Any] = {}
+        args = self._argument_dict_.get("args", ())
+        kwargs = self._argument_dict_.get("kwargs", {})
+        for index, (pname, parameter) in enumerate(constructor_argument_params.items()):
+            if index + 1 <= len(args):
+                parameters.update({pname: args[index]})
+            elif pname in kwargs.keys():
+                parameters.update({pname: kwargs[pname]})
+            else:
+                parameters.update({pname: parameter.default})
+        return parameters
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Return a dictionary representation of the PostInferenceObject
+
+        :return: Dictionary representing the class name and its constructor parameters
+        """
+        constructor_args: Dict[str, Any] = {}
+        for key, value in self._constructor_arguments_.items():
+            if isinstance(value, PostInferenceObject):
+                constructor_args.update({key: value.to_dict()})
+            else:
+                constructor_args.update({key: value})
+        return {type(self).__name__: constructor_args}
+
+    @classmethod
+    @abstractmethod
+    def from_dict(cls, input_dict: Dict[str, Any]) -> "PostInferenceObject":
+        """
+        Construct a PostInferenceObject from an input dictionary `input_dict`
+
+        :param input_dict: Dictionary representation of the PostInferenceObject
+        :return: Instantiated PostInferenceObject, according to the input dictionary
+        """
+        return NotImplemented
+
+
+class PostInferenceTrigger(PostInferenceObject):
     """
     Base class for post inference triggers
 
@@ -34,6 +100,7 @@ class PostInferenceTrigger(object):
     """
 
     def __init__(self, threshold: float = 0.5):
+        super().__init__()
         self.threshold = threshold
         self._repr_info_ = f"threshold={threshold:.1f}"
 
@@ -66,8 +133,28 @@ class PostInferenceTrigger(object):
         """
         return f"{type(self).__name__}({self._repr_info_})"
 
+    @classmethod
+    def from_dict(cls, input_dict: Dict[str, Any]) -> "PostInferenceTrigger":
+        """
+        Construct a PostInferenceTrigger from an input dictionary `input_dict`
 
-class PostInferenceAction(object):
+        :param input_dict: Dictionary representation of the PostInferenceTrigger
+        :return: Instantiated PostInferenceTrigger, according to the input dictionary
+        """
+        available_triggers = {
+            subcls.__name__: subcls for subcls in cls.__subclasses__()
+        }
+        triggers: List["PostInferenceTrigger"] = []
+        for trigger_name, trigger_args in input_dict.items():
+            target_trigger = available_triggers[trigger_name]
+            if target_trigger._override_from_dict_:
+                triggers.append(target_trigger.from_dict(trigger_args))
+            else:
+                triggers.append(target_trigger(**trigger_args))
+        return triggers[0]
+
+
+class PostInferenceAction(PostInferenceObject):
     """
     Base class for post inference actions. These are actions that are used in inference
     hooks, and can be (conditionally) executed after inference
@@ -77,6 +164,7 @@ class PostInferenceAction(object):
     """
 
     def __init__(self, log_level: str = "debug"):
+        super().__init__()
         if log_level.lower() == "debug":
             self.log_function = logging.debug
         elif log_level.lower() == "info":
@@ -89,7 +177,12 @@ class PostInferenceAction(object):
 
     @abstractmethod
     def __call__(
-        self, image: np.ndarray, prediction: Prediction, score: Optional[float] = None
+        self,
+        image: np.ndarray,
+        prediction: Prediction,
+        score: Optional[float] = None,
+        name: Optional[str] = None,
+        timestamp: Optional[datetime.datetime] = None,
     ):
         """
         Execute the action for the given `image` with corresponding `prediction` and an
@@ -98,6 +191,9 @@ class PostInferenceAction(object):
         :param image: Numpy array representing an image
         :param prediction: Prediction object which was generated for the image
         :param score: Optional score computed from a post inference trigger
+        :param name: String containing the name of the image
+        :param timestamp: Datetime object containing the timestamp belonging to the
+            image
         """
         return NotImplemented
 
@@ -107,8 +203,26 @@ class PostInferenceAction(object):
         """
         return f"{type(self).__name__}({self._repr_info_})"
 
+    @classmethod
+    def from_dict(cls, input_dict: Dict[str, Any]) -> "PostInferenceAction":
+        """
+        Construct a PostInferenceAction from an input dictionary `input_dict`
 
-class PostInferenceHookInterface(object):
+        :param input_dict: Dictionary representation of the PostInferenceAction
+        :return: Instantiated PostInferenceAction, according to the input dictionary
+        """
+        available_actions = {subcls.__name__: subcls for subcls in cls.__subclasses__()}
+        actions: List["PostInferenceAction"] = []
+        for action_name, action_args in input_dict.items():
+            target_action = available_actions[action_name]
+            if target_action._override_from_dict_:
+                actions.append(target_action.from_dict(action_args))
+            else:
+                actions.append(target_action(**action_args))
+        return actions[0]
+
+
+class PostInferenceHookInterface(PostInferenceObject):
     """
     Basic hook that can be executed after inference. A PostInferenceHook consists of:
       - A Trigger, defining a condition
@@ -122,11 +236,18 @@ class PostInferenceHookInterface(object):
     """
 
     def __init__(self, trigger: PostInferenceTrigger, action: PostInferenceAction):
+        super().__init__()
         self.trigger = trigger
         self.action = action
 
     @abstractmethod
-    def run(self, image: np.ndarray, prediction: Prediction) -> None:
+    def run(
+        self,
+        image: np.ndarray,
+        prediction: Prediction,
+        name: Optional[str] = None,
+        timestamp: Optional[datetime.datetime] = None,
+    ) -> None:
         """
         Execute the post inference hook. This will first evaluate the `trigger`, and
         if the trigger conditions are met the corresponding `action` will be executed.
@@ -135,5 +256,8 @@ class PostInferenceHookInterface(object):
             model inference
         :param prediction: Prediction object containing the inference results for the
             image
+        :param name: Optional name of the image which can be used in the hook
+            action, for example as filename or tag for data collection
+        :param timestamp: Optional timestamp belonging to the image
         """
         raise NotImplementedError

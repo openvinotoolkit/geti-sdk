@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import datetime
 import json
 import logging
 import os
@@ -122,6 +122,15 @@ class Deployment:
         with open(project_filepath, "w") as project_file:
             json.dump(project_dict, project_file, indent=4)
 
+        # Save post inference hooks, if any
+        if self.post_inference_hooks:
+            hook_config_file = os.path.join(deployment_folder, "hook_config.json")
+            hook_configs: List[Dict[str, Any]] = []
+            for hook in self.post_inference_hooks:
+                hook_configs.append(hook.to_dict())
+            with open(hook_config_file, "w") as file:
+                json.dump({"post_inference_hooks": hook_configs}, file)
+
         # Clean up temp resources if needed
         if self._requires_resource_cleanup:
             self._remove_temporary_resources()
@@ -158,7 +167,23 @@ class Deployment:
             models.append(
                 DeployedModel.from_folder(os.path.join(deployment_folder, task_folder))
             )
-        return cls(models=models, project=project)
+        deployment = cls(models=models, project=project)
+
+        # Load post inference hooks, if any
+        hook_config_file = os.path.join(deployment_folder, "hook_config.json")
+        if os.path.isfile(hook_config_file):
+            available_hooks = {
+                subcls.__name__: subcls
+                for subcls in PostInferenceHookInterface.__subclasses__()
+            }
+            with open(hook_config_file, "r") as file:
+                hook_dict = json.load(file)
+            for hook_data in hook_dict["post_inference_hooks"]:
+                for hook_name, hook_args in hook_data.items():
+                    target_hook = available_hooks[hook_name]
+                    hook = target_hook.from_dict(hook_args)
+                deployment.add_post_inference_hook(hook)
+        return deployment
 
     def load_inference_models(self, device: str = "CPU"):
         """
@@ -219,13 +244,15 @@ class Deployment:
         self._are_models_loaded = True
         logging.info(f"Inference models loaded on device `{device}` successfully.")
 
-    def infer(self, image: np.ndarray) -> Prediction:
+    def infer(self, image: np.ndarray, name: Optional[str] = None) -> Prediction:
         """
         Run inference on an image for the full model chain in the deployment.
 
         :param image: Image to run inference on, as a numpy array containing the pixel
             data. The image is expected to have dimensions [height x width x channels],
             with the channels in RGB order
+        :param name: Optional name for the image, if specified this will be used in
+            any post inference hooks belonging to the deployment.
         :return: inference results
         """
         self._check_models_loaded()
@@ -238,10 +265,12 @@ class Deployment:
         # Multi-task inference
         else:
             prediction = self._infer_pipeline(image=image, explain=False)
-        self._execute_post_inference_hooks(image=image, prediction=prediction)
+        self._execute_post_inference_hooks(
+            image=image, prediction=prediction, name=name
+        )
         return prediction
 
-    def explain(self, image: np.ndarray) -> Prediction:
+    def explain(self, image: np.ndarray, name: Optional[str] = None) -> Prediction:
         """
         Run inference on an image for the full model chain in the deployment. The
         resulting prediction will also contain saliency maps and the feature vector
@@ -250,6 +279,8 @@ class Deployment:
         :param image: Image to run inference on, as a numpy array containing the pixel
             data. The image is expected to have dimensions [height x width x channels],
             with the channels in RGB order
+        :param name: Optional name for the image, if specified this will be used in
+            any post inference hooks belonging to the deployment.
         :return: inference results
         """
         self._check_models_loaded()
@@ -262,7 +293,9 @@ class Deployment:
         # Multi-task inference
         else:
             prediction = self._infer_pipeline(image=image, explain=True)
-        self._execute_post_inference_hooks(image=image, prediction=prediction)
+        self._execute_post_inference_hooks(
+            image=image, prediction=prediction, name=name
+        )
         return prediction
 
     def _check_models_loaded(self) -> None:
@@ -676,19 +709,22 @@ class Deployment:
         :param hook: PostInferenceHook to be added to the deployment
         """
         self._post_inference_hooks.append(hook)
+        logging.info(f"Hook `{hook}` added.")
         logging.info(
-            f"Hook `{hook}` added. Deployment now contains {len(self.post_inference_hooks)} "
+            f"Deployment now contains {len(self.post_inference_hooks)} "
             f"post inference hooks."
         )
 
     def _execute_post_inference_hooks(
-        self, image: np.ndarray, prediction: Prediction
+        self, image: np.ndarray, prediction: Prediction, name: Optional[str] = None
     ) -> None:
         """
         Execute all post inference hooks
 
         :param image: Numpy image which was inferred
         :param prediction: Prediction for the image
+        :param name: Optional name for the image
         """
+        timestamp = datetime.datetime.now()
         for hook in self._post_inference_hooks:
-            hook.run(image, prediction)
+            hook.run(image, prediction, name, timestamp)

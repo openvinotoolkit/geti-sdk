@@ -11,9 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+import copy
+import datetime
 import logging
 from concurrent.futures import ThreadPoolExecutor
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import numpy as np
 
@@ -76,7 +78,13 @@ class PostInferenceHook(PostInferenceHookInterface):
         else:
             self.rate_limiter = None
 
-    def run(self, image: np.ndarray, prediction: Prediction) -> None:
+    def run(
+        self,
+        image: np.ndarray,
+        prediction: Prediction,
+        name: Optional[str] = None,
+        timestamp: Optional[datetime.datetime] = None,
+    ) -> None:
         """
         Run the post inference hook. First evaluate the trigger, then execute the
         action if the trigger conditions are met.
@@ -84,9 +92,14 @@ class PostInferenceHook(PostInferenceHookInterface):
         :param image: Numpy array representing the image
         :param prediction: Prediction object containing the inference results for the
             image
+        :param name: Optional name of the image which can be used in the hook
+            action, for example as filename or tag for data collection
+        :param timestamp: Optional timestamp belonging to the image
         """
 
-        def execution_function(im: np.ndarray, pred: Prediction) -> None:
+        def execution_function(
+            im: np.ndarray, pred: Prediction, ts: datetime.datetime
+        ) -> None:
             score = self.trigger(image=im, prediction=pred)
             decision = self.trigger.get_decision(score=score)
             if decision:
@@ -95,12 +108,16 @@ class PostInferenceHook(PostInferenceHookInterface):
                 else:
                     take_action = True
                 if take_action:
-                    self.action(image=im, prediction=pred, score=score)
+                    self.action(
+                        image=im, prediction=pred, score=score, name=name, timestamp=ts
+                    )
 
+        if timestamp is None:
+            timestamp = datetime.datetime.now()
         if self.parallel_execution:
-            self.executor.submit(execution_function, image, prediction)
+            self.executor.submit(execution_function, image, prediction, timestamp)
         else:
-            execution_function(image, prediction)
+            execution_function(image, prediction, timestamp)
 
     def __del__(self):
         """
@@ -131,3 +148,24 @@ class PostInferenceHook(PostInferenceHookInterface):
         if len(suffix_msg) == 3:
             suffix_msg = ""
         return f"PostInferenceHook(trigger={self.trigger}, action={self.action}){suffix_msg}"
+
+    @classmethod
+    def from_dict(cls, input_dict: Dict[str, Any]) -> "PostInferenceHook":
+        """
+        Create a PostInferenceHook object from it's dictionary representation
+
+        :param input_dict: Dictionary representing the hook
+        :return: Initialized PostInferenceHook object, with a trigger and action set
+            according to the input dictionary
+        """
+        input_copy = copy.deepcopy(input_dict)
+
+        # Construct trigger
+        trigger = PostInferenceTrigger.from_dict(input_copy["trigger"])
+        input_copy.update({"trigger": trigger})
+
+        # Construct action
+        action = PostInferenceAction.from_dict(input_copy["action"])
+        input_copy.update({"action": action})
+
+        return cls(**input_copy)

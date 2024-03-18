@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 """Triggers that can be used in post inference hooks"""
+from .always_trigger import AlwaysTrigger
 from .confidence_trigger import ConfidenceTrigger
 from .empty_label_trigger import EmptyLabelTrigger
 from .label_trigger import LabelTrigger
 from .object_count_trigger import ObjectCountTrigger
 
 __all__ = [
+    "AlwaysTrigger",
     "ConfidenceTrigger",
     "LabelTrigger",
     "EmptyLabelTrigger",

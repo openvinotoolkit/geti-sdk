@@ -11,14 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-from typing import Optional, Union
+import copy
+import warnings
+from datetime import datetime
+from typing import Any, Dict, Optional, Union
 
+import attrs
 import cv2
 import numpy as np
 
 from geti_sdk.data_models import Dataset, Prediction, Project
 from geti_sdk.deployment.inference_hook_interfaces import PostInferenceAction
-from geti_sdk.http_session import GetiSession
+from geti_sdk.http_session import GetiSession, ServerCredentialConfig, ServerTokenConfig
 from geti_sdk.rest_clients.dataset_client import DatasetClient
 from geti_sdk.rest_clients.media_client.image_client import ImageClient
 from geti_sdk.rest_clients.project_client.project_client import ProjectClient
@@ -39,6 +43,8 @@ class GetiDataCollection(PostInferenceAction):
         used
     :param log_level: Log level for the action. Options are 'info' or 'debug'
     """
+
+    _override_from_dict_: bool = True
 
     def __init__(
         self,
@@ -85,17 +91,31 @@ class GetiDataCollection(PostInferenceAction):
             f"target_dataset={dataset.name}"
         )
 
+        # Serialize input arguments
+        self._constructor_arguments_["project"] = project.name
+        self._constructor_arguments_["dataset"] = dataset.name
+        self._constructor_arguments_["session"] = attrs.asdict(session.config)
+
     def __call__(
-        self, image: np.ndarray, prediction: Prediction, score: Optional[float] = None
+        self,
+        image: np.ndarray,
+        prediction: Prediction,
+        score: Optional[float] = None,
+        name: Optional[str] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """
         Execute the action, upload the given `image` to the Intel® Geti™ server.
 
-        The parameters `prediction` and `score` are not used in this specific action.
+        The parameters `prediction`, `score`, `name` and `timestamp` are not used in
+        this specific action.
 
         :param image: Numpy array representing an image
         :param prediction: Prediction object which was generated for the image
         :param score: Optional score computed from a post inference trigger
+        :param name: String containing the name of the image
+        :param timestamp: Datetime object containing the timestamp belonging to the
+            image
         """
         image_bgr = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         # upload_image uses cv2 to encode the numpy array as image, so it expects an
@@ -106,3 +126,39 @@ class GetiDataCollection(PostInferenceAction):
             f"GetiDataCollection inference action uploaded image to dataset "
             f"`{self.dataset.name}`"
         )
+
+    @classmethod
+    def from_dict(cls, input_dict: Dict[str, Any]) -> "GetiDataCollection":
+        """
+        Construct a GetiDataCollection post inference action object from an input
+        dictionary `input_dict`
+
+        :param input_dict: Dictionary representation of the GetiDataCollection
+        :return: Instantiated GetiDataCollection, according to the input dictionary
+        """
+        input_copy = copy.deepcopy(input_dict)
+        session_dict = input_copy["session"]
+        if "username" in session_dict:
+            server_config_class = ServerCredentialConfig
+        elif "token" in session_dict:
+            server_config_class = ServerTokenConfig
+        else:
+            raise ValueError(
+                f"Invalid `GetiSession` parameters encountered: {session_dict}"
+            )
+        session = GetiSession(server_config_class(**session_dict))
+        input_copy.update({"session": session})
+        return cls(**input_copy)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Return a dictionary representation of the PostInferenceObject
+
+        :return: Dictionary representing the class name and its constructor parameters
+        """
+        warnings.warn(
+            "GetiDataCollection post inference action contains sensitive information "
+            "used for authentication on the Intel® Geti™ platform. Be careful when "
+            "saving this information to disk or sharing with others!"
+        )
+        return super().to_dict()

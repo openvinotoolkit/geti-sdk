@@ -14,6 +14,7 @@
 import json
 import os
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 import cv2
@@ -22,6 +23,7 @@ import numpy as np
 from geti_sdk.data_models import Prediction
 from geti_sdk.deployment.inference_hook_interfaces import PostInferenceAction
 from geti_sdk.rest_converters import PredictionRESTConverter
+from geti_sdk.utils import show_image_with_annotation_scene
 
 
 class FileSystemDataCollection(PostInferenceAction):
@@ -52,12 +54,14 @@ class FileSystemDataCollection(PostInferenceAction):
     def __init__(
         self,
         target_folder: str,
-        file_name_prefix: str = "image",
+        file_name_prefix: str = "",
         save_predictions: bool = True,
         save_scores: bool = True,
+        save_overlays: bool = True,
         log_level: str = "debug",
     ):
         super().__init__(log_level=log_level)
+
         self.image_path = os.path.join(target_folder, "images")
         folders_to_create = [self.image_path]
         if save_predictions:
@@ -66,23 +70,38 @@ class FileSystemDataCollection(PostInferenceAction):
         if save_scores:
             self.scores_path = os.path.join(target_folder, "scores")
             folders_to_create.append(self.scores_path)
+        if save_overlays:
+            self.overlays_path = os.path.join(target_folder, "overlays")
+            folders_to_create.append(self.overlays_path)
 
         for path in folders_to_create:
-            os.makedirs(path, exist_ok=True)
+            os.makedirs(path, exist_ok=True, mode=0o770)
 
         self.prefix = file_name_prefix
         self.save_predictions = save_predictions
         self.save_scores = save_scores
+        self.save_overlays = save_overlays
 
         self._repr_info_ = (
             f"target_folder=`{target_folder}`, "
             f"file_prefix={file_name_prefix}, "
             f"save_predictions={save_predictions}, "
-            f"save_scores={save_scores}"
+            f"save_scores={save_scores}, "
+            f"save_overlays={save_overlays}"
+        )
+
+        # Convert target folder to absolute path
+        self._constructor_arguments_["target_folder"] = str(
+            Path(target_folder).resolve()
         )
 
     def __call__(
-        self, image: np.ndarray, prediction: Prediction, score: Optional[float] = None
+        self,
+        image: np.ndarray,
+        prediction: Prediction,
+        score: Optional[float] = None,
+        name: Optional[str] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """
         Execute the action, save the given `image` to the predefined target folder.
@@ -91,12 +110,23 @@ class FileSystemDataCollection(PostInferenceAction):
         :param image: Numpy array representing an image
         :param prediction: Prediction object which was generated for the image
         :param score: Optional score computed from a post inference trigger
+        :param name: String containing the name of the image
+        :param timestamp: Datetime object containing the timestamp belonging to the
+            image
         """
         image_bgr = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         # we use cv2 to encode the numpy array as image, so it expects an
         # image in BGR format. However, `Deployment.infer` requires RGB format, so
         # we have to convert
-        filename = self.prefix + "_" + datetime.now().strftime("%Y%m%dT%H-%M-%S-%f")
+        if name is None:
+            name = self.prefix
+        else:
+            name = self.prefix + name
+        if timestamp is None:
+            timestamp = datetime.now()
+
+        filename = name + "_" + timestamp.strftime("%Y%m%dT%H-%M-%S-%f")
+
         cv2.imwrite(os.path.join(self.image_path, filename + ".png"), image_bgr)
 
         if self.save_predictions:
@@ -112,6 +142,15 @@ class FileSystemDataCollection(PostInferenceAction):
                 score_filepath = os.path.join(self.scores_path, filename + ".txt")
                 with open(score_filepath, "w") as file:
                     file.write(f"{score}")
+
+        if self.save_overlays:
+            overlay_path = os.path.join(self.overlays_path, filename + ".jpg")
+            show_image_with_annotation_scene(
+                image=image,
+                annotation_scene=prediction,
+                filepath=overlay_path,
+                show_results=False,
+            )
 
         self.log_function(
             f"FileSystemDataCollection inference action saved image data to folder "

@@ -14,5 +14,6 @@
 """Actions that can be used in post inference hooks"""
 from .file_system_data_collection import FileSystemDataCollection
 from .geti_data_collection import GetiDataCollection
+from .http_request_action import HttpRequestAction
 
-__all__ = ["GetiDataCollection", "FileSystemDataCollection"]
+__all__ = ["GetiDataCollection", "FileSystemDataCollection", "HttpRequestAction"]
