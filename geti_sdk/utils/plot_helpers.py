@@ -145,15 +145,11 @@ def show_video_frames_with_annotation_scenes(
                 f"Invalid input: Unable to plot object of type "
                 f"{type(annotation_scene)}."
             )
-        ote_annotation = annotation_scene.to_ote(
-            image_width=frame.media_information.width,
-            image_height=frame.media_information.height,
-        )
 
         numpy_frame = frame.numpy.copy()
         window_name = f"{name} for '{frame.video_name}'"
         visualizer = Visualizer(window_name=window_name)
-        result = visualizer.draw(numpy_frame, annotation=ote_annotation)
+        result = visualizer.draw(numpy_frame, annotation=annotation_scene)
 
         if out_writer is None:
             cv2.imshow(window_name, result)
