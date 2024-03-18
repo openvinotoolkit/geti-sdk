@@ -40,16 +40,28 @@ class Visualizer:
         self,
         window_name: Optional[str] = None,
         show_labels: bool = True,
-        show_confidences: bool = True,
+        show_confidence: bool = True,
         show_count: bool = False,
         is_one_label: bool = False,
         no_show: bool = False,
         delay: Optional[int] = None,
         output: Optional[str] = None,
     ) -> None:
+        """
+        Initialize the Visualizer.
+
+        :param window_name: Name of the window to be shown
+        :param show_labels: Show labels on the output image
+        :param show_confidence: Show confidence on the output image
+        :param show_count: Show count of the shapes on the output image
+        :param is_one_label: Show only one label on the output image
+        :param no_show: Do not show the output image
+        :param delay: Delay time for the output image
+        :param output: Path to save the output image
+        """
         self.window_name = "Window" if window_name is None else window_name
         self.shape_drawer = ShapeDrawer(
-            show_count, is_one_label, show_labels, show_confidences
+            show_count, is_one_label, show_labels, show_confidence
         )
 
         self.delay = delay

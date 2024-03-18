@@ -34,6 +34,9 @@ def show_image_with_annotation_scene(
     show_in_notebook: bool = False,
     show_results: bool = True,
     channel_order: str = "rgb",
+    show_labels: bool = True,
+    show_confidences: bool = True,
+    fill_shapes: bool = True,
 ) -> np.ndarray:
     """
     Display an image with an annotation_scene overlayed on top of it.
@@ -53,6 +56,12 @@ def show_image_with_annotation_scene(
     :param channel_order: The channel order (R,G,B or B,G,R) used for the input image.
         This parameter accepts either `rgb` or `bgr` as input values, and defaults to
         `rgb`.
+    :param show_labels: True to show the labels of the annotations. If set to False,
+        the labels will not be shown.
+    :param show_confidences: True to show the confidences of the annotations. If set to
+        False, the confidences will not be shown.
+    :param fill_shapes: True to fill the shapes of the annotations. If set to False, the
+        shapes will not be filled.
     """
     if annotation_scene.kind == AnnotationKind.ANNOTATION:
         plot_type = "Annotation"
@@ -68,7 +77,11 @@ def show_image_with_annotation_scene(
         name = image.name
 
     window_name = f"{plot_type} for {name}"
-    visualizer = Visualizer(window_name=window_name)
+    visualizer = Visualizer(
+        window_name=window_name,
+        show_labels=show_labels,
+        show_confidence=show_confidences,
+    )
 
     if isinstance(image, np.ndarray):
         numpy_image = image.copy()
@@ -85,7 +98,9 @@ def show_image_with_annotation_scene(
             f"`bgr`."
         )
 
-    result = visualizer.draw(image=rgb_image, annotation=annotation_scene)
+    result = visualizer.draw(
+        image=rgb_image, annotation=annotation_scene, fill_shapes=fill_shapes
+    )
 
     if filepath is None:
         if show_results:
@@ -109,6 +124,9 @@ def show_video_frames_with_annotation_scenes(
     annotation_scenes: List[Union[AnnotationScene, Prediction]],
     wait_time: float = 1,
     filepath: Optional[str] = None,
+    show_labels: bool = True,
+    show_confidences: bool = True,
+    fill_shapes: bool = True,
 ):
     """
     Display a list of VideoFrames, with their annotations or predictions overlayed on
@@ -120,6 +138,12 @@ def show_video_frames_with_annotation_scenes(
     :param wait_time: Time to show each frame, in seconds
     :param filepath: Optional filepath to save the video with annotation overlay to.
         If left as None, the video frames will be shown in a new opencv window
+    :param show_labels: True to show the labels of the annotations. If set to False,
+        the labels will not be shown.
+    :param show_confidences: True to show the confidences of the annotations. If set to
+        False, the confidences will not be shown.
+    :param fill_shapes: True to fill the shapes of the annotations. If set to False, the
+        shapes will not be filled.
     """
     first_frame = video_frames[0]
 
@@ -135,21 +159,27 @@ def show_video_frames_with_annotation_scenes(
             ),
         )
 
-    for frame, annotation_scene in zip(video_frames, annotation_scenes):
-        if annotation_scene.kind == AnnotationKind.ANNOTATION:
-            name = "Annotation"
-        elif annotation_scene.kind == AnnotationKind.PREDICTION:
-            name = "Prediction"
-        else:
-            raise ValueError(
-                f"Invalid input: Unable to plot object of type "
-                f"{type(annotation_scene)}."
-            )
+    if annotation_scenes[0].kind == AnnotationKind.ANNOTATION:
+        name = "Annotation"
+    elif annotation_scenes[0].kind == AnnotationKind.PREDICTION:
+        name = "Prediction"
+    else:
+        raise ValueError(
+            f"Invalid input: Unable to plot object of type "
+            f"{type(annotation_scenes[0])}."
+        )
+    window_name = f"{name} for '{video_frames[0].video_name}'"
+    visualizer = Visualizer(
+        window_name=window_name,
+        show_labels=show_labels,
+        show_confidence=show_confidences,
+    )
 
+    for frame, annotation_scene in zip(video_frames, annotation_scenes):
         numpy_frame = frame.numpy.copy()
-        window_name = f"{name} for '{frame.video_name}'"
-        visualizer = Visualizer(window_name=window_name)
-        result = visualizer.draw(numpy_frame, annotation=annotation_scene)
+        result = visualizer.draw(
+            numpy_frame, annotation=annotation_scene, fill_shapes=fill_shapes
+        )
 
         if out_writer is None:
             cv2.imshow(window_name, result)

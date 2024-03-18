@@ -476,6 +476,7 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
             super().__init__()
             self.show_labels = show_labels
             self.show_confidence = show_confidence
+            self.label_offset_box_shape = 0
 
         def draw(
             self,
