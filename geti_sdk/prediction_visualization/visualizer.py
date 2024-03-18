@@ -39,6 +39,8 @@ class Visualizer:
     def __init__(
         self,
         window_name: Optional[str] = None,
+        show_labels: bool = True,
+        show_confidences: bool = True,
         show_count: bool = False,
         is_one_label: bool = False,
         no_show: bool = False,
@@ -46,7 +48,9 @@ class Visualizer:
         output: Optional[str] = None,
     ) -> None:
         self.window_name = "Window" if window_name is None else window_name
-        self.shape_drawer = ShapeDrawer(show_count, is_one_label)
+        self.shape_drawer = ShapeDrawer(
+            show_count, is_one_label, show_labels, show_confidences
+        )
 
         self.delay = delay
         self.no_show = no_show
@@ -58,6 +62,8 @@ class Visualizer:
         self,
         image: np.ndarray,
         annotation: AnnotationScene,
+        fill_shapes: bool = True,
+        confidence_threshold: Optional[float] = None,
         meta: Optional[dict] = None,
     ) -> np.ndarray:
         """
@@ -65,13 +71,20 @@ class Visualizer:
 
         :param image: Input image in RGB format
         :param annotation: Annotations to be drawn on the input image
-        :return: Output image with annotations.
+        :param meta: Optional meta information
+        :param fill_shapes: Fill shapes with color
+        :param confidence_threshold: Confidence threshold to filter annotations.
+            Must be in range [0, 1].
+        :return: Output image with annotations in RGB format
         """
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-        return cv2.cvtColor(
-            self.shape_drawer.draw(image, annotation, labels=[]), cv2.COLOR_BGR2RGB
+        if confidence_threshold is not None:
+            annotation = annotation.filter_by_confidence(confidence_threshold)
+        result = self.shape_drawer.draw(
+            image, annotation, labels=[], fill_shapes=fill_shapes
         )
+        return cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
 
     def show(self, image: np.ndarray) -> None:
         """

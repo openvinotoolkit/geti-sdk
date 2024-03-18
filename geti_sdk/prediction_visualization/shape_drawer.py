@@ -324,11 +324,16 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
     :param is_one_label: Whether there is only one label present in the project.
     """
 
-    # TODO Connect show_count,is_is_one_label to the UI for toggling.
-    def __init__(self, show_count, is_one_label):
+    def __init__(
+        self,
+        show_count: bool,
+        is_one_label: bool,
+        show_labels: bool,
+        show_confidence: bool,
+    ):
         super().__init__()
-        self.show_labels = True
-        self.show_confidence = True
+        self.show_labels = show_labels
+        self.show_confidence = show_confidence
         self.show_count = show_count
         self.is_one_label = is_one_label
 
@@ -351,6 +356,7 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
         image: np.ndarray,
         scene: Union[AnnotationScene | Prediction],
         labels: List[ScoredLabel],
+        fill_shapes: bool = True,
     ) -> np.ndarray:
         """
         Use a compatible drawer to draw all shapes of an annotation to the corresponding image.
@@ -382,7 +388,10 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
                         and len(annotation.labels) > 0
                     ):
                         image = drawer.draw(
-                            image, annotation.shape, labels=annotation.labels
+                            image,
+                            annotation.shape,
+                            labels=annotation.labels,
+                            fill_shapes=fill_shapes,
                         )
         if self.is_one_label:
             image = self.top_left_drawer.draw_labels(image, scene.get_labels())
@@ -469,7 +478,11 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
             self.show_confidence = show_confidence
 
         def draw(
-            self, image: np.ndarray, entity: Rectangle, labels: List[ScoredLabel]
+            self,
+            image: np.ndarray,
+            entity: Rectangle,
+            labels: List[ScoredLabel],
+            fill_shapes: bool = True,
         ) -> np.ndarray:
             """
             Draw a rectangle on the image along with labels.
@@ -477,6 +490,7 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
             :param image: Image to draw on.
             :param entity: Rectangle to draw.
             :param labels: List of labels.
+            :param fill_shapes: Whether to fill the shapes with color.
             :return: Image with rectangle drawn on it.
             """
             base_color = labels[0].color_tuple
@@ -484,9 +498,10 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
             # Draw the rectangle on the image
             x1, y1 = int(entity.x), int(entity.y)
             x2, y2 = int(entity.x + entity.width), int(entity.y + entity.height)
-            image = self.draw_transparent_rectangle(
-                image, x1, y1, x2, y2, base_color, self.alpha_shape
-            )
+            if fill_shapes:
+                image = self.draw_transparent_rectangle(
+                    image, x1, y1, x2, y2, base_color, self.alpha_shape
+                )
             image = cv2.rectangle(
                 img=image, pt1=(x1, y1), pt2=(x2, y2), color=base_color, thickness=2
             )
@@ -526,7 +541,11 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
             self.show_confidence = show_confidence
 
         def draw(
-            self, image: np.ndarray, entity: Ellipse, labels: List[ScoredLabel]
+            self,
+            image: np.ndarray,
+            entity: Ellipse,
+            labels: List[ScoredLabel],
+            fill_shapes: bool = True,
         ) -> np.ndarray:
             """
             Draw the ellipse on the image.
@@ -534,6 +553,7 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
             :param image: Image to draw on.
             :param entity: Ellipse to draw.
             :param labels: Labels to draw.
+            :param fill_shapes: Whether to fill the shapes with color.
             :return: Image with the ellipse drawn on it.
             """
             base_color = labels[0].color_tuple
@@ -553,17 +573,22 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
             )
             # Draw the shape on the image
             alpha = self.alpha_shape
-            overlay = cv2.ellipse(
-                img=image.copy(),
-                center=center,
-                axes=axes,
-                angle=0,
-                startAngle=0,
-                endAngle=360,
-                color=base_color,
-                thickness=cv2.FILLED,
-            )
-            result_without_border = cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0)
+            if fill_shapes:
+                overlay = cv2.ellipse(
+                    img=image.copy(),
+                    center=center,
+                    axes=axes,
+                    angle=0,
+                    startAngle=0,
+                    endAngle=360,
+                    color=base_color,
+                    thickness=cv2.FILLED,
+                )
+                result_without_border = cv2.addWeighted(
+                    overlay, alpha, image, 1 - alpha, 0
+                )
+            else:
+                result_without_border = image
             result_with_border = cv2.ellipse(
                 img=result_without_border,
                 center=center,
@@ -630,6 +655,7 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
             image: np.ndarray,
             entity: Union[Polygon, RotatedRectangle],
             labels: List[ScoredLabel],
+            fill_shapes: bool = True,
         ) -> np.ndarray:
             """
             Draw polygon and labels on image.
@@ -637,6 +663,7 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
             :param image: Image to draw on.
             :param entity: Polygon to draw.
             :param labels: List of labels to draw.
+            :param fill_shapes: Whether to fill the shapes with color.
             :return: Image with polygon drawn on it.
             """
             if isinstance(entity, RotatedRectangle):
@@ -649,14 +676,19 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
                 [[point.x, point.y] for point in entity.points],
                 dtype=np.int32,
             )
-            overlay = cv2.drawContours(
-                image=image.copy(),
-                contours=[contours],
-                contourIdx=-1,
-                color=base_color,
-                thickness=cv2.FILLED,
-            )
-            result_without_border = cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0)
+            if fill_shapes:
+                overlay = cv2.drawContours(
+                    image=image.copy(),
+                    contours=[contours],
+                    contourIdx=-1,
+                    color=base_color,
+                    thickness=cv2.FILLED,
+                )
+                result_without_border = cv2.addWeighted(
+                    overlay, alpha, image, 1 - alpha, 0
+                )
+            else:
+                result_without_border = image
             result_with_border = cv2.drawContours(
                 image=result_without_border,
                 contours=[contours],
@@ -676,28 +708,18 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
                 labels, image, self.show_labels, self.show_confidence
             )
 
-            # get top left corner of imaginary bbox around polygon
-            x_coord = int(sum(point[0] for point in contours) / len(contours))
-            y_coord = (
-                min(point[1] for point in contours)
-                - self.label_offset_box_shape
-                - content_height
-            )
+            # get point in the center of imaginary bbox around polygon
+            x_coords, y_coords = zip(*[(point[0], point[1]) for point in contours])
+            x_coord = (2 * np.median(x_coords) + np.min(x_coords)) / 3
+            y_coord = min(y_coords) - self.label_offset_box_shape - content_height
 
-            # end point = Y in polygon where X is lowest, x offset to make line flush with text rectangle
-            _, idx = min(
-                (val, idx) for (idx, val) in enumerate([point[0] for point in contours])
-            )
-            flagpole_end_point = Point(
-                x_coord + 1, [point[1] for point in contours][idx]
-            )
+            # end point = Y is the median poly Y, x offset to make line flush with text rectangle
+            flagpole_end_point = Point(x_coord + 1, np.median(y_coords))
 
             if y_coord < self.top_margin * image.shape[0]:
                 # The polygon is too close to the top of the image.
                 # Draw the labels underneath the polygon instead.
-                y_coord = (
-                    max(point[1] for point in contours) + self.label_offset_box_shape
-                )
+                y_coord = max(y_coords) + self.label_offset_box_shape
                 flagpole_start_point = Point(x_coord + 1, y_coord)
             else:
                 flagpole_start_point = Point(x_coord + 1, y_coord + content_height)
