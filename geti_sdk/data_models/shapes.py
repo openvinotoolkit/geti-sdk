@@ -355,6 +355,14 @@ class Ellipse(Shape):
             type=str(self.type),
         )
 
+    def get_center_point(self) -> Tuple[int, int]:
+        """
+        Return the coordinates of the center of the ellipse.
+
+        :return: Tuple of integers representing the coordinates of the center of the ellipse
+        """
+        return self.x + self.width // 2, self.y + self.height // 2
+
     @classmethod
     def from_ote(
         cls, ote_shape: OteEllipse, image_width: int, image_height: int

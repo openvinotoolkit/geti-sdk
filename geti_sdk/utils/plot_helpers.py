@@ -17,14 +17,14 @@ from typing import List, Optional, Union
 import cv2
 import numpy as np
 from IPython.display import display
-from otx.api.usecases.exportable_code.visualizers import Visualizer
 from PIL import Image as PILImage
 
 from geti_sdk.data_models.annotation_scene import AnnotationScene
 from geti_sdk.data_models.containers import MediaList
 from geti_sdk.data_models.enums import AnnotationKind
-from geti_sdk.data_models.media import Image, MediaInformation, VideoFrame
+from geti_sdk.data_models.media import Image, VideoFrame
 from geti_sdk.data_models.predictions import Prediction
+from geti_sdk.prediction_visualization.visualizer import Visualizer
 
 
 def show_image_with_annotation_scene(
@@ -63,19 +63,12 @@ def show_image_with_annotation_scene(
             f"Invalid input: Unable to plot object of type {type(annotation_scene)}."
         )
     if isinstance(image, np.ndarray):
-        media_information = MediaInformation(
-            "", height=image.shape[0], width=image.shape[1]
-        )
         name = "Numpy image"
     else:
-        media_information = image.media_information
         name = image.name
 
     window_name = f"{plot_type} for {name}"
     visualizer = Visualizer(window_name=window_name)
-    ote_annotation_scene = annotation_scene.to_ote(
-        image_width=media_information.width, image_height=media_information.height
-    )
 
     if isinstance(image, np.ndarray):
         numpy_image = image.copy()
@@ -92,12 +85,11 @@ def show_image_with_annotation_scene(
             f"`bgr`."
         )
 
-    result = visualizer.draw(image=rgb_image, annotation=ote_annotation_scene)
+    result = visualizer.draw(image=rgb_image, annotation=annotation_scene)
 
     if filepath is None:
         if show_results:
-            rgb_result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
-            image = PILImage.fromarray(rgb_result)
+            image = PILImage.fromarray(result)
             if not show_in_notebook:
                 image.show(title=window_name)
             else:

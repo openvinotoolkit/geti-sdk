@@ -16,6 +16,6 @@
 The package provides the Visualizer class for models predictions visualization.
 """
 
-# from .deployed_model import DeployedModel
+from .visualizer import Visualizer
 
-# __all__ = [DeployedModel"]
+__all__ = ["Visualizer"]

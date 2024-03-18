@@ -83,19 +83,20 @@ class Helpers:
         self.alpha_shape = 100 / 256
         self.alpha_labels = 153 / 256
         self.assumed_image_width_for_text_scale = (
-            1280  # constant number for size of classification/counting overlay
+            1500  # constant number for size of classification/counting overlay
         )
         self.top_margin = 0.07  # part of the top screen reserved for top left classification/counting overlay
         self.content_padding = 3
         self.top_left_box_thickness = 1
         self.content_margin = 2
-        self.label_offset_box_shape = 0
+        self.label_offset_box_shape = 10
         self.black = (0, 0, 0)
         self.white = (255, 255, 255)
         self.yellow = (255, 255, 0)
 
         self.cursor_pos = Point(0, 0)
         self.line_height = 0
+        self.font = cv2.FONT_HERSHEY_DUPLEX
 
     @staticmethod
     def draw_transparent_rectangle(
@@ -183,8 +184,11 @@ class Helpers:
         content_height = 0
 
         # Loop through the list of labels and create a function which can be used to draw the label.
-        for label in labels:
+        n_labels = len(labels)
+        for i, label in enumerate(labels):
             text = self.generate_text_for_label(label, show_labels, show_confidence)
+            if i < n_labels - 1:
+                text += " >"
             text_scale = self.generate_text_scale(image)
             thickness = int(text_scale / 2)
             color = label.color_tuple
@@ -227,7 +231,7 @@ class Helpers:
         margin = self.content_margin
 
         (text_width, text_height), baseline = cv2.getTextSize(
-            text, cv2.FONT_HERSHEY_SIMPLEX, fontScale=text_scale, thickness=thickness
+            text, self.font, fontScale=text_scale, thickness=thickness
         )
 
         width = text_width + 2 * padding
@@ -258,7 +262,7 @@ class Helpers:
                     cursor_pos.x + padding,
                     cursor_pos.y + height - padding - baseline,
                 ),
-                fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                fontFace=self.font,
                 fontScale=text_scale,
                 color=text_color,
                 thickness=thickness,
@@ -277,6 +281,7 @@ class Helpers:
         image: np.ndarray,
         flagpole_start_point: Point,
         flagpole_end_point: Point,
+        color: Tuple[int, int, int] = (0, 0, 0),
     ):
         """
         Draw a small flagpole between two points.
@@ -290,7 +295,7 @@ class Helpers:
             image,
             flagpole_start_point.as_int_tuple(),
             flagpole_end_point.as_int_tuple(),
-            color=[0, 0, 0],
+            color=color,
             thickness=2,
         )
 
@@ -585,9 +590,7 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
             x_coord = entity.x1 * image.shape[1]
             y_coord = entity.y1 * image.shape[0] - offset - content_height
 
-            flagpole_end_point = Point(
-                int(x_coord + 1), int(entity.y_center * image.shape[0])
-            )
+            flagpole_end_point = Point(entity.get_center_point())
 
             # put label at bottom if it is out of bounds at the top of the shape, and shift label to left if needed
             if y_coord < self.top_margin * image.shape[0]:
@@ -606,7 +609,9 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
             # Draw the list of labels and a small flagpole.
             self.set_cursor_pos(Point(x_coord, y_coord))
             image = draw_command(result_with_border)
-            image = self.draw_flagpole(image, flagpole_start_point, flagpole_end_point)
+            image = self.draw_flagpole(
+                image, flagpole_start_point, flagpole_end_point, labels[0].color_tuple
+            )
 
             return image
 
@@ -672,7 +677,7 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
             )
 
             # get top left corner of imaginary bbox around polygon
-            x_coord = min(point[0] for point in contours)
+            x_coord = int(sum(point[0] for point in contours) / len(contours))
             y_coord = (
                 min(point[1] for point in contours)
                 - self.label_offset_box_shape
@@ -705,6 +710,8 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
             # Draw the list of labels and a small flagpole.
             self.set_cursor_pos(Point(x_coord, y_coord))
             image = draw_command(result_with_border)
-            image = self.draw_flagpole(image, flagpole_start_point, flagpole_end_point)
+            image = self.draw_flagpole(
+                image, flagpole_start_point, flagpole_end_point, labels[0].color_tuple
+            )
 
             return image

@@ -63,13 +63,15 @@ class Visualizer:
         """
         Draw annotations on the image.
 
-        :param image: Input image
+        :param image: Input image in RGB format
         :param annotation: Annotations to be drawn on the input image
         :return: Output image with annotations.
         """
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-        return self.shape_drawer.draw(image, annotation, labels=[])
+        return cv2.cvtColor(
+            self.shape_drawer.draw(image, annotation, labels=[]), cv2.COLOR_BGR2RGB
+        )
 
     def show(self, image: np.ndarray) -> None:
         """

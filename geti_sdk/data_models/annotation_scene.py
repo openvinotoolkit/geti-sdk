@@ -301,6 +301,17 @@ class AnnotationScene:
             )
         return mask
 
+    def get_labels(self) -> List[Label]:
+        """
+        Return a list of all labels present in the annotation scene.
+
+        :return: List of labels
+        """
+        labels = set()
+        for annotation in self.annotations:
+            labels.update(annotation.labels)
+        return list(labels)
+
     def apply_identifier(
         self, media_identifier: Union[ImageIdentifier, VideoFrameIdentifier]
     ) -> "AnnotationScene":
