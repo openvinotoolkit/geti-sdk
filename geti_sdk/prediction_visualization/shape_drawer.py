@@ -354,7 +354,7 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
     def draw(
         self,
         image: np.ndarray,
-        scene: Union[AnnotationScene | Prediction],
+        scene: Union[AnnotationScene, Prediction],
         labels: List[ScoredLabel],
         fill_shapes: bool = True,
     ) -> np.ndarray:
