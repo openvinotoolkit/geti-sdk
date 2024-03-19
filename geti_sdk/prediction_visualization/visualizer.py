@@ -29,10 +29,10 @@ class Visualizer:
     Visualize the predicted output by drawing the annotations on the input image.
 
     :example:
-        >>> predictions = inference_model.predict(frame)
-        >>> annotation = prediction_converter.convert_to_annotation(predictions)
-        >>> output = visualizer.draw(frame, annotation.shape, annotation.get_labels())
-        >>> visualizer.show(output)
+        >>> prediction = deployment.infer(image)
+        >>> visualizer = Visualizer()
+        >>> output_image = visualizer.draw(image, prediction )
+        >>> Display(output_image)
 
     """
 
