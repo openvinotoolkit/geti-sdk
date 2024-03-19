@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+import os
 import re
 from importlib import resources
+from pathlib import Path
+from typing import Tuple
 
 from pathvalidate import sanitize_filepath
 
@@ -86,3 +89,42 @@ def target_device_is_ovms(device: str) -> bool:
         r"^((https?://)|(www.))(?:([a-zA-Z]+)|(\d+\.\d+\.\d+\.\d+)):\d{1,5}?$"
     )
     return server_pattern.match(device) is not None
+
+
+def rgb_to_hex(rgb: Tuple[int, int, int]) -> str:
+    """
+    Convert an RGB color value to its corresponding hexadecimal representation.
+
+    :param rgb: A tuple representing the RGB color value, where each element is an integer between 0 and 255.
+    :return: The hexadecimal representation of the RGB color value.
+
+    _Example:
+
+        >>> rgb_to_hex((255, 0, 0))
+        '#ff0000'
+    """
+    return "#{:02x}{:02x}{:02x}".format(rgb[0], rgb[1], rgb[2])
+
+
+def get_package_version_from_requirements(
+    requirements_path: os.PathLike, package_name: str
+) -> str:
+    """
+    Get the version of a package from a requirements file.
+
+    :param requirements_path: The requirements file path
+    :param package_name: The name of the package to get the version of
+    :return: The version of the package as a string, empty line if the package is not found.
+    :raises: ValueError If the requirements file is not found.
+    """
+    if not package_name:
+        return ""
+
+    requirements_path = Path(requirements_path).resolve()
+    if not requirements_path.exists():
+        raise ValueError(f"Requirements file {requirements_path} not found")
+
+    for line in requirements_path.read_text().split("\n"):
+        if line.startswith(package_name):
+            return line.split("==")[1].strip()
+    return ""
