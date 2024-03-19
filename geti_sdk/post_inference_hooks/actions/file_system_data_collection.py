@@ -14,7 +14,6 @@
 import json
 import os
 from datetime import datetime
-from pathlib import Path
 from typing import Optional
 
 import cv2
@@ -88,11 +87,6 @@ class FileSystemDataCollection(PostInferenceAction):
             f"save_predictions={save_predictions}, "
             f"save_scores={save_scores}, "
             f"save_overlays={save_overlays}"
-        )
-
-        # Convert target folder to absolute path
-        self._constructor_arguments_["target_folder"] = str(
-            Path(target_folder).resolve()
         )
 
     def __call__(
