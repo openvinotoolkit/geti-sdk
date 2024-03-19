@@ -680,15 +680,6 @@ class Deployment:
         """
         return self._post_inference_hooks
 
-    @post_inference_hooks.setter
-    def post_inference_hooks(self, hooks: List[PostInferenceHookInterface]) -> None:
-        """
-        Set the post inference hooks for the deployment
-
-        :param hooks: List of PostInferenceHook objects to set
-        """
-        self._post_inference_hooks = hooks
-
     def clear_inference_hooks(self) -> None:
         """
         Remove all post inference hooks for the deployment
