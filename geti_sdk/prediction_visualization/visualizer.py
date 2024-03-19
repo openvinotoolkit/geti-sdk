@@ -43,7 +43,6 @@ class Visualizer:
         show_confidence: bool = True,
         show_count: bool = False,
         is_one_label: bool = False,
-        no_show: bool = False,
         delay: Optional[int] = None,
         output: Optional[str] = None,
     ) -> None:
@@ -55,7 +54,6 @@ class Visualizer:
         :param show_confidence: Show confidence on the output image
         :param show_count: Show count of the shapes on the output image
         :param is_one_label: Show only one label on the output image
-        :param no_show: Do not show the output image
         :param delay: Delay time for the output image
         :param output: Path to save the output image
         """
@@ -65,7 +63,6 @@ class Visualizer:
         )
 
         self.delay = delay
-        self.no_show = no_show
         if delay is None:
             self.delay = 1
         self.output = output
@@ -104,12 +101,8 @@ class Visualizer:
 
         :param image: Image to be shown.
         """
-        if not self.no_show:
-            cv2.imshow(self.window_name, image)
+        cv2.imshow(self.window_name, image)
 
     def is_quit(self) -> bool:
         """Check user wish to quit."""
-        if self.no_show:
-            return False
-
         return ord("q") == cv2.waitKey(self.delay)
