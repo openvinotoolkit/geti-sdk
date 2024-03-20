@@ -13,8 +13,13 @@
 # and limitations under the License.
 """Utility functions for the post inference hook module"""
 import time
-from collections import Iterator
 from threading import Lock
+
+try:
+    from collections.abc import Iterator
+except ImportError:
+    # In python < 3.10 Iterator is in 'collections'
+    from collections import Iterator
 
 
 class RateLimiter(Iterator):
