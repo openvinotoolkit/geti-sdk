@@ -19,7 +19,7 @@ from .fixtures import get_sdk_fixtures
 from .plotting import plot_predictions_side_by_side
 from .project_helpers import get_or_create_annotated_project_for_test_class
 from .project_service import ProjectService
-from .training import attempt_to_train_task
+from .training import attempt_to_train_task, await_training_start
 from .vcr_helpers import are_cassettes_available, replace_host_name_in_cassettes
 
 __all__ = [
@@ -33,4 +33,5 @@ __all__ = [
     "force_delete_project",
     "plot_predictions_side_by_side",
     "attempt_to_train_task",
+    "await_training_start",
 ]

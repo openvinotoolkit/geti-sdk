@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+from typing import Optional
 
 import attr
 
@@ -26,6 +27,9 @@ class TaskAnnotationState:
     """
 
     task_id: str
-    state: str = attr.field(
-        converter=str_to_enum_converter_by_name_or_value(AnnotationState)
+    state: Optional[str] = attr.field(
+        converter=str_to_enum_converter_by_name_or_value(
+            AnnotationState, allow_none=True
+        ),
+        default=None,
     )

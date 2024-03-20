@@ -23,7 +23,7 @@ from vcr import VCR
 
 from geti_sdk import Geti
 from geti_sdk.annotation_readers import AnnotationReader, DatumAnnotationReader
-from geti_sdk.data_models import Prediction, Project
+from geti_sdk.data_models import Job, Prediction, Project
 from geti_sdk.deployment import Deployment
 from geti_sdk.http_session import GetiRequestException
 from geti_sdk.rest_clients import (
@@ -37,6 +37,7 @@ from tests.helpers import (
     ProjectService,
     SdkTestMode,
     attempt_to_train_task,
+    await_training_start,
     get_or_create_annotated_project_for_test_class,
 )
 from tests.helpers.constants import CASSETTE_EXTENSION, PROJECT_PREFIX
@@ -132,16 +133,17 @@ class TestGeti:
         with fxt_vcr.use_cassette(
             f"{project.name}_setup_training.{CASSETTE_EXTENSION}"
         ):
+            jobs: List[Job] = []
             for task in project.get_trainable_tasks():
-                attempt_to_train_task(
-                    training_client=lazy_fxt_project_service.training_client,
-                    task=task,
-                    test_mode=fxt_test_mode,
+                jobs.append(
+                    attempt_to_train_task(
+                        training_client=lazy_fxt_project_service.training_client,
+                        task=task,
+                        test_mode=fxt_test_mode,
+                    )
                 )
 
-        # Wait a few secs to check whether the project is training
-        if fxt_test_mode != SdkTestMode.OFFLINE:
-            time.sleep(20)
+        await_training_start(fxt_test_mode, lazy_fxt_project_service.training_client)
 
         assert lazy_fxt_project_service.is_training
 
@@ -197,6 +199,7 @@ class TestGeti:
             path_to_images=fxt_image_folder,
             annotation_reader=fxt_annotation_reader,
             enable_auto_train=False,
+            max_threads=1,
         )
 
         request.addfinalizer(lambda: fxt_project_finalizer(project_name))
@@ -245,6 +248,7 @@ class TestGeti:
             path_to_images=fxt_image_folder,
             label_source_per_task=[annotation_reader_task_1, annotation_reader_task_2],
             enable_auto_train=False,
+            max_threads=1,
         )
         request.addfinalizer(lambda: fxt_project_finalizer(project_name))
 
@@ -278,6 +282,7 @@ class TestGeti:
         fxt_geti.download_project(
             project.name,
             target_folder=target_folder,
+            max_threads=1,
         )
 
         assert os.path.isdir(target_folder)
@@ -290,6 +295,7 @@ class TestGeti:
             target_folder=target_folder,
             project_name=f"{project.name}_upload",
             enable_auto_train=False,
+            max_threads=1,
         )
         request.addfinalizer(lambda: fxt_project_finalizer(uploaded_project.name))
         image_client = ImageClient(
@@ -319,11 +325,13 @@ class TestGeti:
             videos = video_client.get_all_videos()
 
             assert len(videos) == n_videos
-            annotation_client.download_all_annotations(annotation_target_folder)
+            annotation_client.download_all_annotations(
+                annotation_target_folder, max_threads=1
+            )
 
         else:
             annotation_client.download_annotations_for_images(
-                images, annotation_target_folder
+                images, annotation_target_folder, max_threads=1
             )
 
         assert (
@@ -350,14 +358,15 @@ class TestGeti:
         """
         lazy_fxt_project_service = request.getfixturevalue(project_service)
         project = lazy_fxt_project_service.project
+
         # If training is not ready yet, monitor progress until job completes
-        if not lazy_fxt_project_service.prediction_client.ready_to_predict:
-            timeout = 300 if fxt_test_mode != SdkTestMode.OFFLINE else 1
-            interval = 5 if fxt_test_mode != SdkTestMode.OFFLINE else 1
-            jobs = lazy_fxt_project_service.training_client.get_jobs(project_only=True)
-            lazy_fxt_project_service.training_client.monitor_jobs(
-                jobs, timeout=timeout, interval=interval
-            )
+        if fxt_test_mode != SdkTestMode.OFFLINE:
+            timeout = 300
+            t_start = time.time()
+            training = lazy_fxt_project_service.training_client.is_training()
+            while training and time.time() - t_start < timeout:
+                training = lazy_fxt_project_service.training_client.is_training()
+                time.sleep(10)
 
         # Create a 'test' dataset in the project
         dataset_client = DatasetClient(
@@ -461,12 +470,14 @@ class TestGeti:
             media_folder=fxt_video_folder_light_bulbs,
             output_folder=video_output_folder,
             delete_after_prediction=True,
+            max_threads=1,
         )
         image_success = fxt_geti.upload_and_predict_media_folder(
             project_name=fxt_project_service.project.name,
             media_folder=fxt_image_folder_light_bulbs,
             output_folder=image_output_folder,
             delete_after_prediction=True,
+            max_threads=1,
         )
 
         assert video_success
@@ -485,6 +496,7 @@ class TestGeti:
         fxt_geti: Geti,
         fxt_image_path: str,
         fxt_temp_directory: str,
+        fxt_test_mode: SdkTestMode,
     ) -> None:
         """
         Verifies that deploying a project works
@@ -492,6 +504,7 @@ class TestGeti:
         lazy_fxt_project_service = request.getfixturevalue(project_service)
         project = lazy_fxt_project_service.project
         deployment_folder = os.path.join(fxt_temp_directory, project.name)
+
         deployment = fxt_geti.deploy_project(
             project.name, output_folder=deployment_folder
         )
@@ -550,6 +563,7 @@ class TestGeti:
             include_predictions=True,
             include_active_models=True,
             include_deployment=True,
+            max_threads=1,
         )
 
         prediction_folder_name = "predictions"

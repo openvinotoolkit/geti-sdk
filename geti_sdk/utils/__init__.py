@@ -22,7 +22,7 @@ Module contents
 ---------------
 """
 
-from .algorithm_helpers import get_supported_algorithms
+from .algorithm_helpers import get_default_algorithm_info, get_supported_algorithms
 from .credentials_helpers import get_server_details_from_env
 from .dictionary_helpers import get_dict_key_from_value
 from .label_helpers import (
@@ -51,4 +51,5 @@ __all__ = [
     "get_server_details_from_env",
     "get_project_folder_name",
     "generate_unique_label_color",
+    "get_default_algorithm_info",
 ]

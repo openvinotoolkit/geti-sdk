@@ -114,7 +114,7 @@ class TestImageClient:
         n_images = len(old_images)
 
         # Upload folder
-        images = image_client.upload_folder(fxt_image_folder)
+        images = image_client.upload_folder(fxt_image_folder, max_threads=1)
         assert len(images) == len(os.listdir(fxt_image_folder))
         assert len(image_client.get_all_images()) == n_images + len(images)
 
@@ -122,7 +122,7 @@ class TestImageClient:
         request.addfinalizer(lambda: shutil.rmtree(target_dir))
 
         # Download all images
-        image_client.download_all(target_dir)
+        image_client.download_all(target_dir, max_threads=1)
 
         # Assert that all images are downloaded
         downloaded_filenames = os.listdir(os.path.join(target_dir, "images"))

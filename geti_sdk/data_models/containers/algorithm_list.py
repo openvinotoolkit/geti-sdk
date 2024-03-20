@@ -131,4 +131,11 @@ class AlgorithmList(UserList):
             task_type in the AlgorithmList
         :return: Default algorithm for the task
         """
-        return self.get_by_model_template(DEFAULT_ALGORITHMS[str(task_type)])
+        task_algos = self.get_by_task_type(task_type=task_type)
+        default = [algo for algo in task_algos if algo.recommended_choice]
+        if len(default) == 1:
+            return default[0]
+        else:
+            # The old method used in Geti v1.8 and lower. Keep for backwards
+            # compatibility
+            return self.get_by_model_template(DEFAULT_ALGORITHMS[str(task_type)])

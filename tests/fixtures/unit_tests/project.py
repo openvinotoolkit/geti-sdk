@@ -593,3 +593,10 @@ def fxt_nightly_projects(fxt_nightly_projects_rest) -> List[Project]:
 @pytest.fixture()
 def fxt_classification_project(fxt_nightly_projects: List[Project]) -> Project:
     yield fxt_nightly_projects[0]
+
+
+@pytest.fixture()
+def fxt_detection_to_classification_project(
+    fxt_nightly_projects: List[Project],
+) -> Project:
+    yield fxt_nightly_projects[2]

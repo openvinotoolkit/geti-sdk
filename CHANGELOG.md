@@ -1,3 +1,80 @@
+# v1.15.0 Intel® Geti™ SDK (12-03-2024)
+This release makes the SDK compatible for Intel® Geti™ v1.15. The majority of the changes is focused on that, but below is a list of other changes that are worth mentioning.
+
+## Release Highlights
+- Add compatibility for Intel® Geti™ v1.15. Note that we maintain backwards compatibility for models created in Intel® Geti™ v1.8: This means that the SDK can run inference on deployments from both both the latest Intel® Geti™ on-prem release and Intel® Geti™ SaaS.
+- Add benchmarking functionality for deployments through the `Benchmarker` class, as well as a new notebook to demonstrate this feature.
+- Improve the job monitoring feature, job progression is now displayed via progress bars.
+- Image and annotation upload and download now uses multithreading, greatly speeding up the process.
+- A new notebook demonstrating an end-to-end workflow, from model creation to deployment, was added to `notebooks/use_cases`.
+- Multiple dependency updates, minor bug fixes and documentation improvements.
+
+## What's Changed
+* Add organization ID to session when appropriate by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/294
+* Change job monitor functions to use progress bars by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/295
+* Decrease verbosity for annotation download by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/296
+* Improve model selection mechanism by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/297
+* Add `Benchmarker` class and demo notebook for inference throughput benchmarking of Geti models by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/300
+* Supported algorithms workaround by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/303
+* Workaround for getting supported algorithms by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/305
+* Update README.md by @operepel in https://github.com/openvinotoolkit/geti-sdk/pull/307
+* Fix organization ID when uploading annotations by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/306
+* Mention git lfs in test docs by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/308
+* Fix inference endpoints and job data model by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/309
+* Improve handling of supported algorithms by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/310
+* Fix TaskAnnotationState and Optimization JobType by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/312
+* Test benchmarker by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/311
+* Pin otx to v1.4.3 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/313
+* Remove snyk scan from security workflow by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/314
+* Minor bug fixes related to deployment by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/315
+* Inference results visual comparison by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/316
+* Add `model_activated` field to ModelMetadata by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/320
+* Update `Pillow` dependency to `Pillow==10.2.*` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/322
+* Add shields.io badges to readme by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/321
+* Relax time requirement for demo projects nightly tests by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/325
+* Multithread image upload and download by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/323
+* Handle the new authorization mechanism and organization IDs by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/326
+* Improve robustness of job monitoring by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/327
+* Introduce method to switch active model by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/328
+* Fix issue with undefined label color for prediction by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/330
+* Enable pre-merge tests on Windows and MacOS by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/331
+* Update compatibility table in README by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/332
+* Add compatibility for anomaly model deployment for Geti v1.13 and up by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/333
+* Correctly handle errors in new dex authentication mechanism by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/336
+* Handle the new personal access tokens for Geti v1.15 and up by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/335
+* Fix proxies issue in GetiSession by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/334
+* Modified 'Smart Cities' notebook by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/304
+* Fix annotation kind comparison in plot_helpers by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/337
+* Update flake8 requirement from ==6.0.* to ==7.0.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/302
+* Handle org ID with personal access tokens for Geti SaaS by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/338
+* Bump orjson from 3.9.2 to 3.9.15 in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/344
+* Update pytest-env requirement from ==1.0.* to ==1.1.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/341
+* Update datumaro requirement from ==1.4.* to ==1.5.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/347
+* geti_session - remove unused proxy kwargs by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/346
+* CVS-117852 Fix bandit issues by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/348
+* Make `datasets` optional in Project data model by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/339
+* Fix maskrcnn postprocessing for geti v1.15 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/350
+* Restrict default top-level permissions for all workflows by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/349
+* Add openssf scorecard code scanning by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/351
+* OTX decoupling part 1: inference postprocessing by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/352
+* OTX decoupling: deployment by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/345
+
+## New Contributors
+* @operepel made their first contribution in https://github.com/openvinotoolkit/geti-sdk/pull/307
+* @igor-davidyuk made their first contribution in https://github.com/openvinotoolkit/geti-sdk/pull/308
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v.1.8.2...v1.15.0
+
+# v1.8.2 Intel® Geti™ SDK (22-02-2024)
+## What's Changed
+* Update `opencv-python` requirement to `4.9.*`
+* Update `Pillow` requirement to `10.2.*`
+* Update `otx` requirement to `4.4.4`
+* Add backwards compatibility for anomaly model deployment
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v.1.8.1...v.1.8.2
+
 # v1.8.1 Intel® Geti™ SDK (20-11-2023)
 ## What's Changed
 * Update pytest requirement from ==7.3.* to ==7.4.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/261

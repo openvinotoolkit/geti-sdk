@@ -13,6 +13,7 @@
 # and limitations under the License.
 
 import copy
+import logging
 from pprint import pformat
 from typing import Any, ClassVar, Dict, List, Optional, Sequence, Tuple, Union
 
@@ -300,6 +301,17 @@ class AnnotationScene:
             )
         return mask
 
+    def get_labels(self) -> List[Label]:
+        """
+        Return a list of all labels present in the annotation scene.
+
+        :return: List of labels
+        """
+        labels = set()
+        for annotation in self.annotations:
+            labels.update(annotation.labels)
+        return list(labels)
+
     def apply_identifier(
         self, media_identifier: Union[ImageIdentifier, VideoFrameIdentifier]
     ) -> "AnnotationScene":
@@ -390,3 +402,23 @@ class AnnotationScene:
             media_identifier=self.media_identifier,
             modified=self.modified,
         )
+
+    def resolve_label_names_and_colors(self, labels: List[Label]) -> None:
+        """
+        Add label names and colors to all annotations, based on a list of available
+        labels.
+
+        :param labels: List of labels for the project, serving as a reference point
+            for label names and colors
+        """
+        name_map = {label.id: label.name for label in labels}
+        color_map = {label.id: label.color for label in labels}
+        for annotation in self.annotations:
+            for label in annotation.labels:
+                label.name = name_map.get(label.id, None)
+                label.color = color_map.get(label.id, None)
+                if label.name is None:
+                    logging.warning(
+                        f"Unable to resolve label details for label with id "
+                        f"`{label.id}`"
+                    )

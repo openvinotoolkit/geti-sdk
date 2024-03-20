@@ -63,13 +63,18 @@ class ProjectClient:
         self.workspace_id = workspace_id
         self.base_url = f"workspaces/{workspace_id}/"
 
-    def get_all_projects(self, request_page_size: int = 50) -> List[Project]:
+    def get_all_projects(
+        self, request_page_size: int = 50, get_project_details: bool = True
+    ) -> List[Project]:
         """
         Return a list of projects found on the Intel® Geti™ server
 
         :param request_page_size: Max number of projects to fetch in a single HTTP
             request. Higher values may reduce the response time of this method when
             there are many projects, but increase the chance of timeout.
+        :param get_project_details: True to get all details of the projects on the
+            Intel® Geti™, False to fetch only a summary of each project. Set this to
+            False if minimizing latency is a concern. Defaults to True
         :return: List of Project objects, containing the project information for each
             project on the Intel® Geti™ server
         """
@@ -81,19 +86,23 @@ class ProjectClient:
 
         # The 'projects' endpoint uses pagination: multiple HTTP may be necessary to
         # fetch the full list of projects
-        project_list: List[Dict] = []
+        project_rest_list: List[Dict] = []
         while response := self.session.get_rest_response(
-            url=f"{self.base_url}projects?limit={request_page_size}&skip={len(project_list)}",
+            url=f"{self.base_url}projects?limit={request_page_size}&skip={len(project_rest_list)}",
             method="GET",
         ):
-            project_list.extend(response[project_key])
-            if len(project_list) >= response[num_total_projects_key]:
+            project_rest_list.extend(response[project_key])
+            if len(project_rest_list) >= response[num_total_projects_key]:
                 break
 
-        return [
+        project_list = [
             ProjectRESTConverter.from_dict(project_input=project)
-            for project in project_list
+            for project in project_rest_list
         ]
+        if get_project_details:
+            return [self._get_project_detail(project) for project in project_list]
+        else:
+            return project_list
 
     def get_project_by_name(self, project_name: str) -> Optional[Project]:
         """
@@ -103,11 +112,14 @@ class ProjectClient:
         :return: Project object containing the data of the project, if the project is
             found on the server. Returns None if the project doesn't exist
         """
-        project_list = self.get_all_projects()
-        project = next(
+        project_list = self.get_all_projects(get_project_details=False)
+        project_entry = next(
             (project for project in project_list if project.name == project_name), None
         )
-        return project
+        if project_entry is not None:
+            return self._get_project_detail(project_entry)
+        else:
+            return None
 
     def get_or_create_project(
         self,
@@ -619,3 +631,20 @@ class ProjectClient:
             f"Project has not become ready within the specified timeout ({timeout} "
             f"seconds)."
         ) from error
+
+    def _get_project_detail(self, project: Union[Project, str]) -> Project:
+        """
+        Fetch the most recent project details from the Intel® Geti™ server
+
+        :param project: Name of the project or Project object representing the project
+            to get detailed information for.
+        :return: Updated Project object
+        """
+        if isinstance(project, str):
+            project = self.get_project_by_name(project_name=project)
+            return project
+        else:
+            response = self.session.get_rest_response(
+                url=f"{self.base_url}projects/{project.id}", method="GET"
+            )
+            return ProjectRESTConverter.from_dict(response)

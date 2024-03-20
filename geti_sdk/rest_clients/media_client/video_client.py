@@ -108,6 +108,7 @@ class VideoClient(BaseMediaClient[Video]):
         n_videos: int = -1,
         skip_if_filename_exists: bool = False,
         dataset: Optional[Dataset] = None,
+        max_threads: int = 5,
     ) -> MediaList[Video]:
         """
         Upload all videos in a folder to the project. Returns the mapping of video
@@ -120,6 +121,8 @@ class VideoClient(BaseMediaClient[Video]):
             Defaults to False
         :param dataset: Dataset to which to upload the video. If no dataset is
             passed, the video is uploaded to the training dataset
+        :param max_threads: Maximum number of threads to use for downloading. Defaults to 5.
+            Set to -1 to use all available threads.
         :return: MediaList containing all video's in the project
         """
         return self._upload_folder(
@@ -127,9 +130,15 @@ class VideoClient(BaseMediaClient[Video]):
             n_media=n_videos,
             skip_if_filename_exists=skip_if_filename_exists,
             dataset=dataset,
+            max_threads=max_threads,
         )
 
-    def download_all(self, path_to_folder: str, append_video_uid: bool = False) -> None:
+    def download_all(
+        self,
+        path_to_folder: str,
+        append_video_uid: bool = False,
+        max_threads: int = 10,
+    ) -> None:
         """
         Download all videos in a project to a folder on the local disk.
 
@@ -139,8 +148,12 @@ class VideoClient(BaseMediaClient[Video]):
             '{filename}_{video_id}'). If there are videos in the project with
             duplicate filename, this must be set to True to ensure all videos are
             downloaded. Otherwise videos with the same name will be skipped.
+        :param max_threads: Maximum number of threads to use for downloading. Defaults to 10.
+            Set to -1 to use all available threads.
         """
-        self._download_all(path_to_folder, append_media_uid=append_video_uid)
+        self._download_all(
+            path_to_folder, append_media_uid=append_video_uid, max_threads=max_threads
+        )
 
     def delete_videos(self, videos: Sequence[Video]) -> bool:
         """

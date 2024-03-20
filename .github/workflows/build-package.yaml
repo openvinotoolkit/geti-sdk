@@ -23,6 +23,9 @@ env:
   PYPI_PORT: ${{ secrets.PYPI_PORT }}
   ENABLE_DEV_DEPENDENCIES: ${{ inputs.enable_dev_dependencies }}
 
+permissions:
+  contents: read
+
 jobs:
   build_sdk:
     runs-on: [self-hosted, sdk-runner]

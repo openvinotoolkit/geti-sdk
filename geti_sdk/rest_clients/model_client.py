@@ -22,6 +22,7 @@ from geti_sdk.data_models import (
     Job,
     Model,
     ModelGroup,
+    ModelSummary,
     OptimizedModel,
     Project,
     Task,
@@ -30,6 +31,7 @@ from geti_sdk.data_models.enums import JobState, JobType, OptimizationType
 from geti_sdk.http_session import GetiSession
 from geti_sdk.rest_converters import ModelRESTConverter
 from geti_sdk.utils import get_supported_algorithms
+from geti_sdk.utils.job_helpers import get_job_with_timeout, monitor_job
 
 ModelType = TypeVar("ModelType", Model, OptimizedModel)
 
@@ -46,7 +48,9 @@ class ModelClient:
         self.workspace_id = workspace_id
         self.task_ids = [task.id for task in project.get_trainable_tasks()]
         self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/model_groups"
-        self.supported_algos = get_supported_algorithms(self.session)
+        self.supported_algos = get_supported_algorithms(
+            rest_session=self.session, project=project, workspace_id=workspace_id
+        )
 
     def get_all_model_groups(self) -> List[ModelGroup]:
         """
@@ -73,6 +77,21 @@ class ModelClient:
                 model_template_id=group.model_template_id
             )
         return model_groups
+
+    def get_latest_model_for_all_model_groups(self) -> List[Model]:
+        """
+        Return the latest trained models for each model group in the project.
+
+        :return: List of models, one for each trained algorithm in the project.
+        """
+        model_groups = self.get_all_model_groups()
+        latest_models: List[Model] = []
+        for model_group in model_groups:
+            lm = model_group.get_latest_model()
+            latest_models.append(
+                self._get_model_detail(group_id=model_group.id, model_id=lm.id)
+            )
+        return latest_models
 
     def get_model_group_by_algo_name(self, algorithm_name: str) -> Optional[ModelGroup]:
         """
@@ -253,6 +272,85 @@ class ModelClient:
         model.model_group_id = group_id
         model.base_url = self.base_url
         return model
+
+    def update_model_detail(self, model: Union[Model, ModelSummary]) -> Model:
+        """
+        Update the model such that its details are up to date. This includes updating
+        the list of available optimized models for the model.
+
+        :param model: Model or ModelSummary object, representing the model to update
+        :return: Model object containing the up to date details of the model
+        """
+        if isinstance(model, ModelSummary):
+            group_id = model.model_storage_id
+        elif isinstance(model, Model):
+            group_id = model.model_group_id
+        else:
+            raise TypeError(
+                f"Invalid type {type(model)}. Argument `model` must be either a "
+                f"Model or ModelSummary object"
+            )
+        model_detail = self.session.get_rest_response(
+            url=f"{self.base_url}/{group_id}/models/{model.id}", method="GET"
+        )
+        updated_model = ModelRESTConverter.model_from_dict(model_detail)
+        updated_model.model_group_id = group_id
+        updated_model.base_url = self.base_url
+        return updated_model
+
+    def set_active_model(
+        self,
+        model: Optional[Union[Model, ModelSummary]] = None,
+        algorithm: Optional[Union[Algorithm, str]] = None,
+    ) -> None:
+        """
+        Set the model as the active model.
+
+        :param model: Model or ModelSummary object representing the model to set as active
+        :param algorithm: Algorithm or algorithm name for which to set the model as active
+        :raises ValueError: If neither `model` nor `algorithm` is specified,
+            If the algorithm is not supported in the project,
+            If unable to set the active model
+        """
+        # First we determine the algorithm name
+        if model is not None:
+            # Update the model details to make sure we have the latest information
+            model = self.update_model_detail(model)
+            algorithm_name = model.architecture
+        elif algorithm is not None:
+            if isinstance(algorithm, str):
+                algorithm_name = algorithm
+            elif isinstance(algorithm, Algorithm):
+                algorithm_name = algorithm.algorithm_name
+            else:
+                raise ValueError(
+                    f"Invalid type {type(algorithm)}. Argument `algorithm` must be "
+                    "either a string representing the algorith name or an Algorithm object"
+                )
+        else:
+            raise ValueError(
+                "Either `model` or `algorithm` must be specified to set the active model"
+            )
+        # Now we make sure that the algorithm is supported in the project
+        algorithms_supported_in_the_project = {
+            algorithm.algorithm_name
+            for task in self.project.get_trainable_tasks()
+            for algorithm in self.supported_algos.get_by_task_type(task.type)
+        }
+        if algorithm_name not in algorithms_supported_in_the_project:
+            raise ValueError(
+                f"Algorithm `{algorithm_name}` is not supported in the project "
+                f"{self.project.name}."
+            )
+        # We get a model group for the algorithm
+        model_group = self.get_model_group_by_algo_name(algorithm_name=algorithm_name)
+        model_group_id = model_group.id if model_group is not None else None
+        if model_group_id is None:
+            raise ValueError("Unable to set the active model. Train a model first")
+        # Fire a request to the server to set a model from the group as active
+        url = f"{self.base_url}/{model_group_id}:activate"
+        _ = self.session.get_rest_response(url=url, method="POST")
+        logging.info(f"{algorithm_name} model set as active successfully")
 
     def get_active_model_for_task(self, task: Task) -> Optional[Model]:
         """
@@ -511,3 +609,59 @@ class ModelClient:
             )
         else:
             return model_task
+
+    def optimize_model(self, model: Model, optimization_type: str = "pot") -> Job:
+        """
+        Start an optimization job for the specified `model`.
+
+        :param model: Model to optimize
+        :param optimization_type: Type of optimization to run. Currently supported
+            values: ["pot", "nncf"]. Case insensitive. Defaults to "pot"
+        :return: Job object referring to the optimization job running on the
+            Intel® Geti™ server.
+        """
+        if isinstance(model, OptimizedModel):
+            raise ValueError(
+                f"Model {model.name} is already optimized, please specify a base "
+                f"model for optimization instead."
+            )
+        valid_optimization_types = ["pot", "nncf"]
+        optimization_type = optimization_type.lower()
+        if optimization_type not in valid_optimization_types:
+            raise ValueError(
+                f"Invalid optimization type specified: `{optimization_type}`. Valid "
+                f"options are: {valid_optimization_types}"
+            )
+        optimize_model_url = model.base_url + "/optimize"
+        payload = {
+            "enable_nncf_optimization": optimization_type == "nncf",
+            "enable_pot_optimization": optimization_type == "pot",
+        }
+        response = self.session.get_rest_response(
+            url=optimize_model_url, method="POST", data=payload
+        )
+        job_id = response["job_ids"][0]
+        job = get_job_with_timeout(
+            job_id=job_id,
+            session=self.session,
+            workspace_id=self.workspace_id,
+            job_type="optimization",
+        )
+        return job
+
+    def monitor_job(self, job: Job, timeout: int = 10000, interval: int = 15) -> Job:
+        """
+        Monitor and print the progress of a `job`. Program execution is
+        halted until the job has either finished, failed or was cancelled.
+
+        Progress will be reported in 15s intervals
+
+        :param job: job to monitor
+        :param timeout: Timeout (in seconds) after which to stop the monitoring
+        :param interval: Time interval (in seconds) at which the ModelClient polls
+            the server to update the status of the jobs. Defaults to 15 seconds
+        :return: job with it's status updated
+        """
+        return monitor_job(
+            session=self.session, job=job, timeout=timeout, interval=interval
+        )

@@ -25,17 +25,22 @@ from requests.exceptions import RequestException
 from requests.structures import CaseInsensitiveDict
 from urllib3.exceptions import InsecureRequestWarning
 
-from geti_sdk.platform_versions import GETI_18_VERSION, GetiVersion
+from geti_sdk.platform_versions import GETI_18_VERSION, GETI_114_VERSION, GetiVersion
 
 from .exception import GetiRequestException
 from .server_config import LEGACY_API_VERSION, ServerCredentialConfig, ServerTokenConfig
 
 CSRF_COOKIE_NAME = "_oauth2_proxy_csrf"
 PROXY_COOKIE_NAME = "_oauth2_proxy"
+GETI_COOKIE_NAME = "geti-cookie"
 
 # INITIAL_HEADERS = {"Connection": "keep-alive", "Upgrade-Insecure-Requests": "1"}
 INITIAL_HEADERS = {"Upgrade-Insecure-Requests": "1"}
-SUCCESS_STATUS_CODES = [200, 201]
+SUCCESS_STATUS_CODES = [200, 201, 202]
+
+AUTHENTICATION_DEX_OLD = "dex-old"
+AUTHENTICATION_DEX_NEW = "dex-new"
+AUTHENTICATION_CIDAAS = "cidaas"
 
 
 class GetiSession(requests.Session):
@@ -80,19 +85,26 @@ class GetiSession(requests.Session):
 
         self.config = server_config
         self.logged_in = False
+        self._auth_service: Optional[str] = None
 
         # Determine authentication method
         if isinstance(server_config, ServerCredentialConfig):
-            self.authenticate()
+            self.authenticate(verbose=True)
             self.use_token = False
         else:
             self.use_token = True
-            access_token = self._acquire_access_token()
-            self.headers.update({"Authorization": f"Bearer {access_token}"})
+            if self.authentication_service == AUTHENTICATION_DEX_OLD:
+                # The old token mechanism
+                access_token = self._acquire_access_token()
+                self.headers.update({"Authorization": f"Bearer {access_token}"})
+            else:
+                # New mechanism, from Geti v1.14
+                self.headers.update({"x-api-key": f"{server_config.token}"})
             self.headers.pop("Connection")
 
         # Get server version
         self._product_info = self._get_product_info_and_set_api_version()
+        self._organization_id: Optional[str] = self._get_organization_id()
 
     @property
     def version(self) -> GetiVersion:
@@ -106,6 +118,15 @@ class GetiSession(requests.Session):
         else:
             version_string = self._product_info.get("product-version")
         return GetiVersion(version_string)
+
+    @property
+    def organization_id(self) -> str:
+        """
+        Return the organization id for the user who is associated with the GetiSession
+        """
+        if self._organization_id is None:
+            self._organization_id = self._get_organization_id()
+        return self._organization_id
 
     def _acquire_access_token(self) -> str:
         """
@@ -131,35 +152,59 @@ class GetiSession(requests.Session):
         logging.info(f"Personal access token validated on host {self.config.host}")
         return response.get("access_token")
 
-    def _follow_login_redirects(self, response: Response) -> str:
+    def _follow_login_redirects(self, response: Response, use_legacy_dex: bool) -> str:
         """
         Recursively follow redirects in the initial login request. Updates the
         session._cookies with the cookie and the login uri.
 
         :param response: REST response to follow redirects for
+        :param use_legacy_dex: True to use the old authentication method, used
+                    for DEX in Geti v1.8 and below. False to use the new method, which
+                    is valid for more recent Geti versions
         :return: url to the redirected location
         """
-        if response.status_code in [302, 303]:
-            redirect_url = response.next.url
-            redirected = self.get(redirect_url, allow_redirects=False, **self._proxies)
-            proxy_csrf = redirected.cookies.get(CSRF_COOKIE_NAME, None)
-            if proxy_csrf is None:
-                proxy_csrf = response.cookies.get(CSRF_COOKIE_NAME, None)
-            if proxy_csrf is not None:
-                self._cookies[CSRF_COOKIE_NAME] = proxy_csrf
-            return self._follow_login_redirects(redirected)
+        if use_legacy_dex:
+            if response.status_code in [302, 303]:
+                redirect_url = response.next.url
+                redirected = self.get(
+                    redirect_url, allow_redirects=False, **self._proxies
+                )
+                proxy_csrf = redirected.cookies.get(CSRF_COOKIE_NAME, None)
+                if proxy_csrf is None:
+                    proxy_csrf = response.cookies.get(CSRF_COOKIE_NAME, None)
+                if proxy_csrf is not None:
+                    self._cookies[CSRF_COOKIE_NAME] = proxy_csrf
+                return self._follow_login_redirects(redirected, use_legacy_dex)
+            else:
+                return response.url
         else:
-            return response.url
+            if response.status_code in [302, 303]:
+                return response.next.url
 
-    def _get_initial_login_url(self) -> str:
+    def _get_initial_login_url(self, use_legacy_dex: bool) -> str:
         """
         Retrieve the initial login url by making a request to the login page, and
         following the redirects.
 
+        :param use_legacy_dex: True to use the old authentication method, used
+                    for DEX in Geti v1.8 and below. False to use the new method, which
+                    is valid for more recent Geti versions
         :return: string containing the URL to the login page
         """
-        response = self.get(self.config.host, allow_redirects=False, **self._proxies)
-        login_page_url = self._follow_login_redirects(response)
+        if use_legacy_dex:
+            url = self.config.host
+        else:
+            params = (
+                "client_id=web_ui"
+                "&redirect_uri=/callback"
+                "&code_challenge_method=S256"
+                "&response_type=code"
+                "&response_mode=query"
+                "&scope=openid+profile+groups+email+offline_access"
+            )
+            url = f"{self.config.host}/dex/auth/regular_users?{params}"
+        response = self.get(url, allow_redirects=False, **self._proxies)
+        login_page_url = self._follow_login_redirects(response, use_legacy_dex)
         return login_page_url
 
     def authenticate(self, verbose: bool = True):
@@ -171,9 +216,19 @@ class GetiSession(requests.Session):
         if self.logged_in:
             logging.info("Already logged in, authentication is skipped")
             return
+        if self.authentication_service == AUTHENTICATION_DEX_OLD:
+            use_legacy_dex = True
+        elif self.authentication_service == AUTHENTICATION_DEX_NEW:
+            use_legacy_dex = False
+        else:
+            raise ValueError(
+                f"Unable to start the authentication process: The Geti server "
+                f"requires an authentication service that this version of the "
+                f"geti-sdk does not support: {self.authentication_service}"
+            )
         self.cookies.clear()
         try:
-            login_path = self._get_initial_login_url()
+            login_path = self._get_initial_login_url(use_legacy_dex)
         except requests.exceptions.SSLError as error:
             raise requests.exceptions.SSLError(
                 f"Connection to Intel® Geti™ server at '{self.config.host}' failed, "
@@ -195,31 +250,24 @@ class GetiSession(requests.Session):
         self.headers.update({"Content-Type": "application/x-www-form-urlencoded"})
         if verbose:
             logging.info(f"Authenticating on host {self.config.host}...")
+        if use_legacy_dex:
+            cookies = {CSRF_COOKIE_NAME: self._cookies.get(CSRF_COOKIE_NAME, None)}
+            headers = {"Cookie": self._cookies.get(CSRF_COOKIE_NAME, None)}
+        else:
+            cookies = {}
+            headers = self.headers
         response = self.post(
             url=login_path,
             data={"login": self.config.username, "password": self.config.password},
-            cookies={CSRF_COOKIE_NAME: self._cookies[CSRF_COOKIE_NAME]},
-            headers={"Cookie": self._cookies[CSRF_COOKIE_NAME]},
+            cookies=cookies,
+            headers=headers,
             allow_redirects=True,
             **self._proxies,
         )
-        try:
-            previous_response = response.history[-1]
-        except IndexError:
-            raise ValueError(
-                "The cluster responded to the request, but authentication failed. "
-                "Please verify that you have provided correct credentials."
-            )
-        proxy_cookie = previous_response.cookies.get(PROXY_COOKIE_NAME)
-        if proxy_cookie is not None:
-            cookie = {PROXY_COOKIE_NAME: proxy_cookie}
-            self._cookies.update(cookie)
+        if use_legacy_dex:
+            self._handle_legacy_dex_response(response)
         else:
-            logging.warning(
-                f"Authentication appears to have failed! No valid oauth cookie "
-                f"obtained. Invalid response received from server. Status code: "
-                f"{response.status_code}"
-            )
+            self._handle_dex_response(response)
         if verbose:
             logging.info("Authentication successful. Cookie received.")
         self.logged_in = True
@@ -259,7 +307,9 @@ class GetiSession(requests.Session):
 
         self._update_headers_for_content_type(content_type=contenttype)
 
-        if not include_organization_id:
+        if not include_organization_id or url.startswith(
+            f"organizations/{self.organization_id}/"
+        ):
             requesturl = f"{self.config.base_url}{url}"
         else:
             requesturl = f"{self.base_url}{url}"
@@ -289,6 +339,12 @@ class GetiSession(requests.Session):
         if not self.use_token:
             request_params.update({"cookies": self._cookies})
 
+        csrf_header_methods = ["POST", "PUT", "DELETE", "PATCH"]
+        if method in csrf_header_methods:
+            self.headers.update({"x-geti-csrf-protection": "1"})
+        else:
+            self.headers.pop("x-geti-csrf-protection", "")
+
         try:
             response = self.request(**request_params, **self._proxies)
         except requests.exceptions.SSLError as error:
@@ -297,6 +353,15 @@ class GetiSession(requests.Session):
                 f"the server address can be resolved but the SSL certificate could not "
                 f"be verified. \n Full error description: {error.args[-1]}"
             )
+        except ConnectionError as conn_error:
+            if conn_error.args[0] == "Connection aborted.":
+                # We fake a response and try to establish a
+                # new connection by re-authenticating
+                response = Response()
+                response.status_code = 401
+                response.raw = conn_error.args[-1]
+            else:
+                raise conn_error
 
         response_content_type = response.headers.get("Content-Type", [])
         if (
@@ -312,7 +377,7 @@ class GetiSession(requests.Session):
                     content_type=contenttype,
                 )
 
-        if response.headers.get("Content-Type", None) == "application/json":
+        if response.headers.get("Content-Type", "").startswith("application/json"):
             result = response.json()
         else:
             result = response
@@ -361,7 +426,7 @@ class GetiSession(requests.Session):
                 # The session is already closed
                 requires_closing = False
 
-        self._cookies = {CSRF_COOKIE_NAME: None, PROXY_COOKIE_NAME: None}
+        self._cookies = {}
         self.cookies.clear()
         self.headers = CaseInsensitiveDict(INITIAL_HEADERS)
         self.logged_in = False
@@ -441,7 +506,7 @@ class GetiSession(requests.Session):
         """
         retry_request = False
 
-        if response.status_code in [200, 401, 403] and allow_reauthentication:
+        if response.status_code in [200, 401] and allow_reauthentication:
             # Authentication has likely expired, re-authenticate
             logging.info("Authentication may have expired, re-authenticating...")
             self.logged_in = False
@@ -450,9 +515,16 @@ class GetiSession(requests.Session):
                 logging.info("Authentication complete.")
 
             else:
-                access_token = self._acquire_access_token()
-                logging.info("New bearer token obtained.")
-                self.headers.update({"Authorization": f"Bearer {access_token}"})
+                if self.authentication_service == AUTHENTICATION_DEX_OLD:
+                    access_token = self._acquire_access_token()
+                    logging.info("New bearer token obtained.")
+                    self.headers.update({"Authorization": f"Bearer {access_token}"})
+                else:
+                    raise ValueError(
+                        "Authentication via your personal access token has failed, "
+                        "most likely the token has expired. Please verify that you "
+                        "have provided a valid token."
+                    )
 
             retry_request = True
 
@@ -517,13 +589,125 @@ class GetiSession(requests.Session):
         if self.version <= GETI_18_VERSION:
             return self.config.base_url
         else:
-            org_id = self.get_organization_id()
-            return f"{self.config.base_url}organizations/{org_id}/"
+            return f"{self.config.base_url}organizations/{self.organization_id}/"
 
-    def get_organization_id(self) -> str:
+    @property
+    def authentication_service(self) -> str:
+        """
+        Return the type of authentication service used by the server to which
+        the GetiSession is tied.
+        """
+        if self._auth_service is None:
+            deployment_config_response = self.request(
+                url=f"{self.config.host}/deployment-config.json",
+                method="GET",
+                **self._proxies,
+            )
+            try:
+                authentication_info = deployment_config_response.json().get(
+                    "auth", {"type": "dex"}
+                )
+            except requests.exceptions.JSONDecodeError:
+                self._auth_service = AUTHENTICATION_DEX_OLD
+                return self._auth_service
+            if authentication_info.get("type") == "dex":
+                self._auth_service = AUTHENTICATION_DEX_NEW
+            else:
+                self._auth_service = AUTHENTICATION_CIDAAS
+        return self._auth_service
+
+    def _get_organization_id(self) -> str:
         """
         Return the organization ID associated with the user and host information configured
         in this Session
         """
         default_org_id = "000000000000000000000001"
-        return default_org_id
+        if self.version < GETI_114_VERSION:
+            org_id = default_org_id
+        else:
+            if not self.use_token:
+                result = self.get_rest_response(
+                    url="profile",
+                    method="GET",
+                    include_organization_id=False,
+                )
+            else:
+                result = self.get_rest_response(
+                    url=f"personal_access_tokens/organization/{self.config.token}",
+                    method="GET",
+                    include_organization_id=False,
+                )
+            org_id = result.get("organizationId", None)
+        if org_id is None:
+            raise ValueError(
+                f"Unable to retrieve organization ID from the Intel Geti server. "
+                f"Server responded with: `{result}`"
+            )
+        return org_id
+
+    def _handle_legacy_dex_response(self, response: Response) -> None:
+        """
+        Process the login response for the old-style DEX authorization mechanism
+
+        :param response: Response object to handle
+        """
+        try:
+            previous_response = response.history[-1]
+        except IndexError:
+            raise ValueError(
+                "The cluster responded to the request, but authentication failed. "
+                "Please verify that you have provided correct credentials."
+            )
+        proxy_cookie = previous_response.cookies.get(PROXY_COOKIE_NAME)
+        if proxy_cookie is not None:
+            cookie = {PROXY_COOKIE_NAME: proxy_cookie}
+            self._cookies.update(cookie)
+        else:
+            logging.warning(
+                f"Authentication appears to have failed! No valid oauth cookie "
+                f"obtained. Invalid response received from server. Status code: "
+                f"{response.status_code}"
+            )
+
+    def _handle_dex_response(self, response: Response) -> None:
+        """
+        Process the login response from the DEX authorization mechanism
+
+        Extract the code and exchange it for a token, which must then
+        be used as authentication cookie
+
+        :param response: DEX response object to handle
+        """
+        if response.status_code == 200:
+            code = response.url.split("code=")[1].split("&")[0]
+        elif response.status_code == 401:
+            raise ValueError(
+                "The cluster responded to the request, but authentication failed. "
+                "Please verify that you have provided correct credentials."
+            )
+        else:
+            raise GetiRequestException(
+                method=response.request.method,
+                url=response.url,
+                status_code=response.status_code,
+                request_data={},
+                response_data={
+                    "message": response.content,
+                    "error_code": response.reason,
+                },
+            )
+        # state = login_path.split("state=")[1].split("&")[0]
+        data = {
+            "grant_type": "authorization_code",
+            "redirect_uri": "/callback",
+            "code": code,
+            "client_id": "web_ui",
+        }
+        login_response = self.post(
+            url=f"{self.config.host}/dex/token",
+            data=data,
+            allow_redirects=True,
+            **self._proxies,
+        )
+        token = login_response.json().get("access_token", None)
+        self._cookies.update({GETI_COOKIE_NAME: token})

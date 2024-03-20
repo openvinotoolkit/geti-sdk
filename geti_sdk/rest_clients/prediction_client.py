@@ -26,6 +26,7 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 
 from geti_sdk.data_models import (
     AnnotationKind,
+    Dataset,
     Image,
     MediaItem,
     Prediction,
@@ -34,8 +35,10 @@ from geti_sdk.data_models import (
     VideoFrame,
 )
 from geti_sdk.data_models.containers import MediaList
-from geti_sdk.data_models.enums import PredictionMode
+from geti_sdk.data_models.enums import MediaType, PredictionMode
+from geti_sdk.data_models.predictions import ResultMedium
 from geti_sdk.http_session import GetiRequestException, GetiSession
+from geti_sdk.platform_versions import GETI_18_VERSION
 from geti_sdk.rest_converters.prediction_rest_converter import (
     NormalizedPredictionRESTConverter,
     PredictionRESTConverter,
@@ -87,8 +90,15 @@ class PredictionClient:
         for item in model_info_array:
             if len(item["models"]) > 0:
                 tasks_with_models.append(item["task_id"])
-        for task_id in task_ids:
-            if task_id not in tasks_with_models:
+        if self.session.version <= GETI_18_VERSION:
+            # For Geti v1.8 and older, we need models for all tasks before a
+            # prediction can be made
+            for task_id in task_ids:
+                if task_id not in tasks_with_models:
+                    return False
+        else:
+            # For later versions, it is sufficient if the FIRST task has a model trained
+            if task_ids[0] not in tasks_with_models:
                 return False
         return True
 
@@ -141,7 +151,11 @@ class PredictionClient:
         self._mode = new_mode
 
     def _get_prediction_for_media_item(
-        self, media_item: MediaItem, prediction_mode: Optional[PredictionMode]
+        self,
+        media_item: MediaItem,
+        dataset: Optional[Dataset] = None,
+        prediction_mode: PredictionMode = PredictionMode.AUTO,
+        include_explanation: bool = False,
     ) -> Tuple[Optional[Union[Prediction, List[Prediction]]], str]:
         """
         Get the prediction for a media item. If a 2D media item (Image or VideoFrame)
@@ -153,6 +167,17 @@ class PredictionClient:
         describing the problem.
 
         :param media_item: Image, Video or VideoFrame to get the prediction for
+        :param dataset: Dataset to which the media item belongs. Only needs to be
+            specified when the project contains more than one dataset
+        :param prediction_mode: Mode for the predictions to be retrieved. Use
+            ONLINE to always generate a new prediction, or LATEST to obtain the latest
+            prediction from the cache. AUTO can be used to first query the cache for
+            a prediction, and if none is found the system will generate a new one on
+            the fly
+        :param include_explanation: Only applicable to Geti v1.13 or higher: True
+            to include saliency maps in the result. If set to False, saliency maps
+            will be omitted. Setting this to True will increase the time required to
+            retrieve the prediction
         :return: Tuple containing:
          - Prediction (for Image/VideoFrame) or List of Predictions (for Video)
          - string containing a message
@@ -162,69 +187,167 @@ class PredictionClient:
                 f"Not all tasks in project '{self.project.name}' have a trained "
                 f"model available. Unable to get predictions from the project."
             )
-            result = None
-        else:
-            try:
-                response = self.session.get_rest_response(
-                    url=f"{media_item.base_url}/predictions/{prediction_mode}",
-                    method="GET",
+            return None, msg
+        if dataset is None:
+            if len(self.project.datasets) == 1:
+                dataset = self.project.training_dataset
+                dataset_id = dataset.id
+            else:
+                logging.debug(
+                    f"The project {self.project.name} contains multiple datasets, but "
+                    f"the dataset for the media item was not specified. The "
+                    f"PredictionClient will try to compute the correct dataset for the "
+                    f"media item, but this may lead to a 404 `resource_not_found` error. "
+                    f"For optimal performance, please make sure to specify the correct "
+                    f"dataset"
                 )
-                if isinstance(media_item, (Image, VideoFrame)):
-                    if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
-                        result = NormalizedPredictionRESTConverter.normalized_prediction_from_dict(
-                            prediction=response,
-                            image_height=media_item.media_information.height,
+                dataset_id_string = media_item.base_url.split("/datasets/")[-1]
+                dataset_id = dataset_id_string.split("/")[0]
+        else:
+            dataset_id = dataset.id
+        data: Optional[Dict[str, str]] = None
+        explain_response: Optional[dict] = None
+        if self.session.version > GETI_18_VERSION:
+            prediction_mode_map = {
+                "auto": "auto",
+                "online": "never",
+                "latest": "always",
+            }
+            if media_item.type == MediaType.IMAGE:
+                data = {
+                    "image_id": media_item.identifier.image_id,
+                    "dataset_id": dataset_id,
+                }
+                action = "predict"
+            elif media_item.type == MediaType.VIDEO_FRAME:
+                data = {
+                    "dataset_id": dataset_id,
+                    "video_id": media_item.identifier.video_id,
+                    "frame_index": str(media_item.identifier.frame_index),
+                }
+                action = "predict"
+            elif media_item.type == MediaType.VIDEO:
+                stride = media_item.media_information.frame_stride
+                data = {
+                    "dataset_id": dataset_id,
+                    "video_id": media_item.identifier.video_id,
+                    "start_frame": 0,
+                    "end_frame": int(15 * stride),
+                    "frame_skip": stride,
+                }
+                action = "batch_predict"
+            url = (
+                f"{self._base_url}pipelines/active:{action}"
+                f"?use_cache={prediction_mode_map[str(prediction_mode)]}"
+            )
+            include_org_id = True
+            method = "POST"
+            if include_explanation:
+                explain_map = {"predict": "explain", "batch_predict": "batch_explain"}
+                explain_url = f"{self._base_url}pipelines/active:{explain_map[action]}"
+                explain_response = self.session.get_rest_response(
+                    url=explain_url,
+                    method="POST",
+                    include_organization_id=True,
+                    data=data,
+                )
+        else:
+            url = f"{media_item.base_url}/predictions/{prediction_mode}"
+            include_org_id = False
+            method = "GET"
+        try:
+            response = self.session.get_rest_response(
+                url=url,
+                method=method,
+                include_organization_id=include_org_id,
+                data=data,
+            )
+            if isinstance(media_item, (Image, VideoFrame)):
+                if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
+                    result = NormalizedPredictionRESTConverter.normalized_prediction_from_dict(
+                        prediction=response,
+                        image_height=media_item.media_information.height,
+                        image_width=media_item.media_information.width,
+                    )
+                else:
+                    result = PredictionRESTConverter.from_dict(response)
+                if include_explanation and self.session.version > GETI_18_VERSION:
+                    maps: List[ResultMedium] = []
+                    for map_dict in explain_response.get("maps", []):
+                        map = ResultMedium(
+                            name="saliency_map", label_id=map_dict.get("label_id", None)
+                        )
+                        map.data = map_dict["data"].encode("utf-8")
+                        maps.append(map)
+                    result.maps = maps
+                result.resolve_labels_for_result_media(labels=self._labels)
+                result.resolve_label_names_and_colors(labels=self._labels)
+
+            elif isinstance(media_item, Video):
+                if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
+                    result = [
+                        NormalizedPredictionRESTConverter.normalized_prediction_from_dict(
+                            prediction=prediction,
                             image_width=media_item.media_information.width,
+                            image_height=media_item.media_information.height,
+                        ).resolve_labels_for_result_media(
+                            labels=self._labels
                         )
-                    else:
-                        result = PredictionRESTConverter.from_dict(response)
-                    result.resolve_labels_for_result_media(labels=self._labels)
-                elif isinstance(media_item, Video):
-                    if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
-                        result = [
-                            NormalizedPredictionRESTConverter.normalized_prediction_from_dict(
-                                prediction=prediction,
-                                image_width=media_item.media_information.width,
-                                image_height=media_item.media_information.height,
-                            ).resolve_labels_for_result_media(
-                                labels=self._labels
-                            )
-                            for prediction in response
-                        ]
-                    else:
-                        result = [
-                            PredictionRESTConverter.from_dict(
-                                prediction
-                            ).resolve_labels_for_result_media(labels=self._labels)
-                            for prediction in response["video_predictions"]
-                        ]
+                        for prediction in response
+                    ]
                 else:
-                    raise TypeError(
-                        f"Getting predictions is not supported for media item of type "
-                        f"{media_item.type}. Unable to retrieve predictions."
-                    )
-                msg = "success"
-            except GetiRequestException as error:
-                msg = f"Unable to retrieve prediction for {media_item.type}."
-                if error.status_code == 204:
+                    result = []
+                    for ind, prediction in enumerate(response["video_predictions"]):
+                        pred_object = PredictionRESTConverter.from_dict(prediction)
+                        pred_object.resolve_label_names_and_colors(labels=self._labels)
+                        if (
+                            include_explanation
+                            and self.session.version > GETI_18_VERSION
+                        ):
+                            maps: List[ResultMedium] = []
+                            for map_dict in explain_response["explanations"][ind].get(
+                                "maps", []
+                            ):
+                                map = ResultMedium(
+                                    name="saliency_map",
+                                    label_id=map_dict.get("label_id", None),
+                                )
+                                map.data = map_dict["data"].encode("utf-8")
+                                maps.append(map)
+                            pred_object.maps = maps
+                        pred_object.resolve_labels_for_result_media(labels=self._labels)
+                        result.append(pred_object)
+            else:
+                raise TypeError(
+                    f"Getting predictions is not supported for media item of type "
+                    f"{media_item.type}. Unable to retrieve predictions."
+                )
+            msg = "success"
+        except GetiRequestException as error:
+            msg = f"Unable to retrieve prediction for {media_item.type}."
+            if error.status_code == 204:
+                msg += (
+                    f" The prediction for the {media_item.type} with name "
+                    f"'{media_item.name}' is not available in project "
+                    f"'{self.project.name}'."
+                )
+                if prediction_mode == PredictionMode.LATEST:
                     msg += (
-                        f" The prediction for the {media_item.type} with name "
-                        f"'{media_item.name}' is not available in project "
-                        f"'{self.project.name}'."
+                        "Try setting the mode of the prediction client to "
+                        "'auto' or 'online' to trigger inference upon request."
                     )
-                    if prediction_mode == PredictionMode.LATEST:
-                        msg += (
-                            "Try setting the mode of the prediction client to "
-                            "'auto' or 'online' to trigger inference upon request."
-                        )
-                else:
-                    msg += f" Server responded with error message: {str(error)}"
-                result = None
+            else:
+                msg += f" Server responded with error message: {str(error)}"
+            result = None
         return result, msg
 
     def get_image_prediction(self, image: Image) -> Prediction:
         """
         Get a prediction for an image from the Intel® Geti™ server, if available.
+
+        NOTE: This method is only available for images that are already existing on
+        the server! For getting predictions on a 'new' image, please see the
+        `PredictionClient.predict_image` method
 
         :param image: Image to get the prediction for. The image has to be present in
             the project on the cluster already.
@@ -456,7 +579,9 @@ class PredictionClient:
         with logging_redirect_tqdm(tqdm_class=tqdm):
             for media_item in tqdm(media_list, desc=tqdm_prefix):
                 prediction, msg = self._get_prediction_for_media_item(
-                    media_item, prediction_mode=self.mode
+                    media_item,
+                    prediction_mode=self.mode,
+                    include_explanation=include_result_media,
                 )
                 if prediction is None:
                     if verbose:
@@ -582,11 +707,22 @@ class PredictionClient:
             image_io = io.BytesIO(cv2.imencode(".jpg", image_data)[1].tobytes())
             image_io.name = image_name
 
+        if self.session.version > GETI_18_VERSION:
+            url = f"{self._base_url}pipelines/active:predict"
+            contenttype = "multipart"
+            data = {"file": image_io}
+        else:
+            url = f"{self._base_url}predict"
+            contenttype = "jpeg"
+            data = image_io
+
         # make POST request
         response = self.session.get_rest_response(
-            url=f"{self._base_url}predict",
+            url=url,
             method="POST",
-            contenttype="jpeg",
-            data=image_io,
+            contenttype=contenttype,
+            data=data,
         )
-        return PredictionRESTConverter.from_dict(response)
+        prediction = PredictionRESTConverter.from_dict(response)
+        prediction.resolve_label_names_and_colors(labels=self._labels)
+        return prediction

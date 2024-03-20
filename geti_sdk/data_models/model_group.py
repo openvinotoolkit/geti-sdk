@@ -21,8 +21,6 @@ from geti_sdk.data_models.algorithms import Algorithm
 from geti_sdk.data_models.model import Model
 from geti_sdk.data_models.performance import Performance
 from geti_sdk.data_models.utils import str_to_datetime
-from geti_sdk.http_session import GetiSession
-from geti_sdk.utils.algorithm_helpers import get_supported_algorithms
 
 
 @attr.define
@@ -145,19 +143,6 @@ class ModelGroup:
                 f"group {self}"
             )
         return model
-
-    def get_algorithm_details(self, session: GetiSession) -> Algorithm:
-        """
-        Get the details for the algorithm corresponding to this ModelGroup.
-
-        :param session: REST session to an Intel® Geti™ server
-        :return: Algorithm object holding the algorithm details for the ModelGroup
-        """
-        if self._algorithm is not None:
-            return self._algorithm
-        supported_algos = get_supported_algorithms(session)
-        self._algorithm = supported_algos.get_by_model_template(self.model_template_id)
-        return self._algorithm
 
     @property
     def algorithm(self) -> Optional[Algorithm]:

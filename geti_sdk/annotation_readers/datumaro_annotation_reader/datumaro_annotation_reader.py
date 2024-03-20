@@ -16,6 +16,8 @@ import copy
 import logging
 from typing import Dict, List, Optional, Sequence, Union
 
+import cv2
+import numpy as np
 from datumaro import Image
 from datumaro.components.annotation import Bbox, Polygon
 
@@ -211,11 +213,29 @@ class DatumAnnotationReader(AnnotationReader):
                         "height": y2 - y1,
                     }
                 elif isinstance(annotation, Polygon):
-                    points = [
-                        {"x": float(x), "y": float(y)}
-                        for x, y in zip(*[iter(annotation.points)] * 2)
-                    ]
-                    shape = {"type": "POLYGON", "points": points}
+                    if self.task_type == TaskType.ROTATED_DETECTION:
+                        contour = np.array(
+                            [
+                                np.array([x, y], dtype=np.float32)
+                                for x, y in zip(*[iter(annotation.points)] * 2)
+                            ],
+                            dtype=np.float32,
+                        )
+                        min_rect = cv2.minAreaRect(contour)
+                        shape = {
+                            "type": "ROTATED_RECTANGLE",
+                            "x": min_rect[0][0],
+                            "y": min_rect[0][1],
+                            "width": min_rect[1][0],
+                            "height": min_rect[1][1],
+                            "angle": min_rect[2],
+                        }
+                    else:
+                        points = [
+                            {"x": float(x), "y": float(y)}
+                            for x, y in zip(*[iter(annotation.points)] * 2)
+                        ]
+                        shape = {"type": "POLYGON", "points": points}
                 else:
                     logging.warning(
                         f"Unsupported annotation type found: "

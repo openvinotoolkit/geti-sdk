@@ -58,12 +58,12 @@ class DatumaroDataset(object):
         :param previous_task_type: Optional type of the (trainable) task preceding
             the current task in the pipeline. This is only used for global tasks
         """
-        if task_type.is_detection:
+        if task_type.is_detection and task_type != TaskType.ROTATED_DETECTION:
             new_dataset = self.dataset.transform(
                 self.dataset.env.transforms.get("shapes_to_boxes")
             )
             logging.info("Annotations have been converted to boxes")
-        elif task_type.is_segmentation:
+        elif task_type.is_segmentation or task_type == TaskType.ROTATED_DETECTION:
             converted_dataset = self.dataset.transform(
                 self.dataset.env.transforms.get("masks_to_polygons")
             )
@@ -72,7 +72,10 @@ class DatumaroDataset(object):
             )
             logging.info("Annotations have been converted to polygons")
         elif task_type.is_global:
-            if previous_task_type is not None and previous_task_type.is_segmentation:
+            if previous_task_type is not None and (
+                previous_task_type.is_segmentation
+                or previous_task_type == TaskType.ROTATED_DETECTION
+            ):
                 converted_dataset = self.dataset.transform(
                     self.dataset.env.transforms.get("masks_to_polygons")
                 )
