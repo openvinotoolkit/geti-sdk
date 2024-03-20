@@ -52,13 +52,13 @@ class TestDetectionToClassification(TestNightlyProject):
         )
         benchmarker.set_task_chain_algorithms(
             [
-                algo.algorithm_name
+                algo.name
                 for algo in fxt_project_service_no_vcr._training_client.get_algorithms_for_task(
                     0
                 )
             ][:2],
             [
-                algo.algorithm_name
+                algo.name
                 for algo in fxt_project_service_no_vcr._training_client.get_algorithms_for_task(
                     1
                 )

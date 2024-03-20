@@ -72,7 +72,7 @@ class HyperParameterGroupIdentifier(EntityIdentifier):
         :param algorithm: Algorithm instance to which the hyper parameters belong
         :return:
         """
-        self.algorithm_name = algorithm.algorithm_name
+        self.algorithm_name = algorithm.name
         self.model_template_id = algorithm.model_template_id
 
 

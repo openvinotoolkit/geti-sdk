@@ -99,7 +99,7 @@ class AlgorithmList(UserList):
         summary_str = "Algorithms:\n"
         for algorithm in self.data:
             summary_str += (
-                f"  Name: {algorithm.algorithm_name}\n"
+                f"  Name: {algorithm.name}\n"
                 f"    Task type: {algorithm.task_type}\n"
                 f"    Model size: {algorithm.model_size}\n"
                 f"    Gigaflops: {algorithm.gigaflops}\n\n"
@@ -114,7 +114,7 @@ class AlgorithmList(UserList):
         :return: Algorithm holding the algorithm details
         """
         for algo in self.data:
-            if algo.algorithm_name == name:
+            if algo.name == name:
                 return algo
         raise ValueError(
             f"Algorithm named {name} was not found in the "
@@ -132,7 +132,7 @@ class AlgorithmList(UserList):
         :return: Default algorithm for the task
         """
         task_algos = self.get_by_task_type(task_type=task_type)
-        default = [algo for algo in task_algos if algo.recommended_choice]
+        default = [algo for algo in task_algos if algo.default_algorithm]
         if len(default) == 1:
             return default[0]
         else:

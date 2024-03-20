@@ -170,13 +170,13 @@ class TestModelAndPredictionClient:
         model_client.set_active_model(algorithm=untrained_algo)
         assert (
             model_client.get_active_model_for_task(task=task).architecture
-            == untrained_algo.algorithm_name
+            == untrained_algo.name
         )
         # Activate the old one again
         model_client.set_active_model(algorithm=default_algorithm)
         assert (
             model_client.get_active_model_for_task(task=task).architecture
-            == default_algorithm.algorithm_name
+            == default_algorithm.name
         )
 
     @pytest.mark.vcr()
