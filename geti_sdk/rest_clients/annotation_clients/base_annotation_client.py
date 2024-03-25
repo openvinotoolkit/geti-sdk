@@ -102,8 +102,10 @@ class BaseAnnotationClient:
         """
         if media_type == Image:
             media_name = "images"
+            single_media_name = "image"
         elif media_type == Video:
             media_name = "videos"
+            single_media_name = "video"
         else:
             raise ValueError(f"Invalid media type specified: {media_type}.")
 
@@ -116,14 +118,17 @@ class BaseAnnotationClient:
             response = self.session.get_rest_response(url=get_media_url, method="GET")
             total_number_of_media: int = response["media_count"][media_name]
         else:
-            url = f"{self._base_url}/{dataset.id}/media:query?top=500"
+            url = (
+                f"workspaces/{self.workspace_id}/projects/{self._project.id}"
+                f"/datasets/{dataset.id}/media:query?top=500"
+            )
             data = {
                 "condition": "and",
                 "rules": [
                     {
                         "field": "MEDIA_TYPE",
                         "operator": "EQUAL",
-                        "value": f"{media_type.type}",
+                        "value": single_media_name,
                     }
                 ],
             }
