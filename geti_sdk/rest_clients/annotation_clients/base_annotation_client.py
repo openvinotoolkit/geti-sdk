@@ -35,6 +35,7 @@ from geti_sdk.data_models.containers.media_list import MediaList
 from geti_sdk.data_models.media import MediaInformation, MediaItem
 from geti_sdk.data_models.project import Dataset
 from geti_sdk.http_session import GetiRequestException, GetiSession
+from geti_sdk.platform_versions import GETI_116_VERSION
 from geti_sdk.rest_clients.dataset_client import DatasetClient
 from geti_sdk.rest_converters import AnnotationRESTConverter
 from geti_sdk.rest_converters.annotation_rest_converter import (
@@ -105,13 +106,30 @@ class BaseAnnotationClient:
             media_name = "videos"
         else:
             raise ValueError(f"Invalid media type specified: {media_type}.")
-        get_media_url = (
-            f"workspaces/{self.workspace_id}/projects/{self._project.id}"
-            f"/datasets/{dataset.id}/media/"
-            f"{media_name}?top=500"
-        )
-        response = self.session.get_rest_response(url=get_media_url, method="GET")
-        total_number_of_media: int = response["media_count"][media_name]
+
+        if self.session.version < GETI_116_VERSION:
+            get_media_url = (
+                f"workspaces/{self.workspace_id}/projects/{self._project.id}"
+                f"/datasets/{dataset.id}/media/"
+                f"{media_name}?top=500"
+            )
+            response = self.session.get_rest_response(url=get_media_url, method="GET")
+            total_number_of_media: int = response["media_count"][media_name]
+        else:
+            url = f"{self._base_url}/{dataset.id}/media:query?top=500"
+            data = {
+                "condition": "and",
+                "rules": [
+                    {
+                        "field": "MEDIA_TYPE",
+                        "operator": "EQUAL",
+                        "value": f"{media_type.type}",
+                    }
+                ],
+            }
+            response = self.session.get_rest_response(url=url, method="POST", data=data)
+            total_number_of_media: int = response[f"total_matched_{media_name}"]
+
         raw_media_list: List[Dict[str, Any]] = []
         while len(raw_media_list) < total_number_of_media:
             for media_item_dict in response["media"]:
