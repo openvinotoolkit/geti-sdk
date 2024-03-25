@@ -1,0 +1,98 @@
+name: Record and push VCR cassettes
+
+on:
+    workflow_dispatch: # run on request (no need for PR)
+
+env:
+  # Login details for the Geti instance to run the tests against
+  # Secrets are configured on repository level (Settings > Secrets)
+  GETI_HOST: ${{ secrets.GETI_HOST }}
+  GETI_USERNAME: ${{ secrets.GETI_USERNAME }}
+  GETI_PASSWORD: ${{ secrets.GETI_PASSWORD }}
+
+  # Other environment variables used in the tests
+  TEST_MODE: "RECORD"
+  # Artifacts and test reports
+  ARTIFACT_DIRECTORY: artifacts
+  REPORT_DIRECTORY: reports
+
+  # Python environment
+  PYTHON_VERSION: ${{ inputs.PYTHON_VERSION }}
+  PYTHONUTF8: '1'
+
+permissions:
+  contents: read
+  pull-requests: write  # 'write' access to pull requests
+
+jobs:
+  integration_tests:
+    runs-on: [self-hosted, sdk-runner]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+            python-version: env.PYTHON_VERSION
+
+      - name: Install package with dev requirements
+        run: |
+            python -m pip install --upgrade pip
+            pip install ".[dev]"
+
+      - name: Create report directory
+        # Creates the temporary directories that are used to store the test
+        # artifacts and reports
+        run: |
+            mkdir -p env.REPORT_DIRECTORY
+            mkdir -p env.ARTIFACT_DIRECTORY
+
+      - name: Integration tests
+        # Proxy settings have to be configured and GETI_HOST set to full address before
+        # tests can run
+        #
+        # NOTE: This step executes all tests in the `tests` directory in `ONLINE` mode
+        run: |
+          export no_proxy=$GETI_HOST,$no_proxy
+          export NO_PROXY=$GETI_HOST,$NO_PROXY
+          export GETI_HOST=https://$GETI_HOST
+
+          pytest tests/pre-merge/integration --html=$REPORT_DIRECTORY/integration_test_report.html --self-contained-html
+
+      - name: Commit files
+        run: |
+            git config --local user.email "github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git commit -a -m "Update VCR cassettes"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            branch: ${{ github.ref }}
+
+      - name: Upload artifacts for nightly tests
+        # Publish the test artifacts in the $ARTIFACT_DIRECTORY to github
+        uses: actions/upload-artifact@v3
+        if: ${{ always() }}
+        with:
+          name: artifacts
+          path: ${{ env.ARTIFACT_DIRECTORY }}
+
+      - name: Upload test reports
+        # Publish the test reports to github
+        uses: actions/upload-artifact@v3
+        if: ${{ always() }}
+        with:
+          name: test-reports
+          path: ${{ env.REPORT_DIRECTORY }}
+
+      - name: Clean up artifact directories
+        # Remove temporary artifact and report directories
+        if: ${{ always() }}
+        run: |
+          rm -r $ARTIFACT_DIRECTORY
+          rm -r $REPORT_DIRECTORY
