@@ -209,9 +209,12 @@ def pytest_sessionfinish(session: Session, exitstatus: int) -> None:
                 f"Copying newly recorded cassettes from `{record_cassette_path}` to "
                 f"`{CASSETTE_PATH}`."
             )
-            if os.path.exists(CASSETTE_PATH):
-                shutil.rmtree(CASSETTE_PATH)
-            shutil.move(record_cassette_path, CASSETTE_PATH)
+            for root, dirs, files in os.walk(record_cassette_path):
+                for file in files:
+                    shutil.move(
+                        os.path.join(root, file),
+                        os.path.join(CASSETTE_PATH, file),
+                    )
 
             # Scrub hostname from cassettes
             replace_host_name_in_cassettes(HOST)
