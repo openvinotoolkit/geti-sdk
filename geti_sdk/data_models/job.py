@@ -369,7 +369,7 @@ class Job:
                 if step_state == "finished":
                     steps_complete += 1
             current = steps_complete + 1
-        else:
+        elif self.status is not None:
             # The old method, use job status message to find step number
             status_message = self.status.message
             step_pattern = re.compile(r"\(Step \d\/\d\)", re.IGNORECASE)
@@ -381,6 +381,8 @@ class Job:
             result_nums = result_string.split("/")
             current = int(result_nums[0])
             total = int(result_nums[1])
+        else:
+            return 0, 1
         return current, total
 
     @property
