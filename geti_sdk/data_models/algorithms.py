@@ -59,6 +59,7 @@ class Algorithm:
             # For older Geti versions, that were still using 'recommended choice'
             self.default_algorithm = self.recommended_choice
         if self.name is None:
+            # For older Geti versions, that were still using 'algorithm_name'
             self.name = self.algorithm_name
         if self.domain is not None and self.task_type is None:
             self.task_type = TaskType.from_domain(self.domain)
