@@ -15,7 +15,7 @@ env:
   REPORT_DIRECTORY: reports
 
   # Python environment
-  PYTHON_VERSION: 3.9
+  PYTHON_VERSION: 3.10
 
 permissions:
   contents: write
