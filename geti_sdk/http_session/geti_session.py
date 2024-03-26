@@ -633,7 +633,7 @@ class GetiSession(requests.Session):
                 )
             else:
                 result = self.get_rest_response(
-                    url=f"personal_access_tokens/organization/{self.config.token}",
+                    url="personal_access_tokens/organization",
                     method="GET",
                     include_organization_id=False,
                 )
