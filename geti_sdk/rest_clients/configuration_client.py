@@ -188,7 +188,7 @@ class ConfigurationClient:
         """
         if algorithm not in self.supported_algos.get_by_task_type(task.type):
             raise ValueError(
-                f"The requested algorithm '{algorithm.algorithm_name}' is not "
+                f"The requested algorithm '{algorithm.name}' is not "
                 f"supported for a task of type '{task.type}'. Unable to retrieve "
                 f"configuration."
             )

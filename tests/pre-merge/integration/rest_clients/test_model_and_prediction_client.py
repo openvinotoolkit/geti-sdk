@@ -110,7 +110,7 @@ class TestModelAndPredictionClient:
         )
 
         model_group = fxt_project_service.model_client.get_model_group_by_algo_name(
-            algorithm_name=default_algo.algorithm_name
+            algorithm_name=default_algo.name
         )
 
         assert model_group is not None
@@ -143,7 +143,7 @@ class TestModelAndPredictionClient:
 
         # Act
         model_client.set_active_model(algorithm=default_algorithm)
-        model_client.set_active_model(algorithm=default_algorithm.algorithm_name)
+        model_client.set_active_model(algorithm=default_algorithm.name)
         model_client.set_active_model(model=default_model)
 
         with pytest.raises(ValueError):
@@ -170,13 +170,13 @@ class TestModelAndPredictionClient:
         model_client.set_active_model(algorithm=untrained_algo)
         assert (
             model_client.get_active_model_for_task(task=task).architecture
-            == untrained_algo.algorithm_name
+            == untrained_algo.name
         )
         # Activate the old one again
         model_client.set_active_model(algorithm=default_algorithm)
         assert (
             model_client.get_active_model_for_task(task=task).architecture
-            == default_algorithm.algorithm_name
+            == default_algorithm.name
         )
 
     @pytest.mark.vcr()
@@ -248,13 +248,13 @@ class TestModelAndPredictionClient:
         models_content = os.listdir(models_filepath)
 
         assert len(models_content) >= 3
-        assert f"{algorithm.algorithm_name}_base.zip" in models_content
+        assert f"{algorithm.name}_base.zip" in models_content
         assert f"{task.type}_model_details.json" in models_content
 
         if fxt_project_service.session.version < GETI_15_VERSION:
-            mo_model_name = f"{algorithm.algorithm_name} OpenVINO_MO_optimized.zip"
+            mo_model_name = f"{algorithm.name} OpenVINO_MO_optimized.zip"
         else:
-            mo_model_name = f"{algorithm.algorithm_name} OpenVINO FP16_MO_optimized.zip"
+            mo_model_name = f"{algorithm.name} OpenVINO FP16_MO_optimized.zip"
         assert mo_model_name in models_content
 
     def test_prediction_client_set_mode(

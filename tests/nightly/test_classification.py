@@ -42,7 +42,7 @@ class TestClassification(TestNightlyProject):
         """
         project = fxt_project_service_no_vcr.project
         algorithms_to_benchmark = [
-            algo.algorithm_name
+            algo.name
             for algo in fxt_project_service_no_vcr._training_client.get_algorithms_for_task(
                 0
             )
