@@ -63,7 +63,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: $PYTHON_VERSION
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install package with dev and notebook requirements
         run: |
