@@ -51,7 +51,7 @@ def ensure_project_is_trained(geti: Geti, project: Project) -> bool:
     )
     # If there are no jobs running for the project, we launch them
     jobs = training_client.get_jobs(project_only=True)
-    running_jobs = [job for job in jobs if job.status.state == JobState.RUNNING]
+    running_jobs = [job for job in jobs if job.state == JobState.RUNNING]
     tasks = project.get_trainable_tasks()
 
     new_jobs = []
