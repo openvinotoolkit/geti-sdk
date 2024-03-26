@@ -375,9 +375,13 @@ class BaseAnnotationClient:
                 return None
             else:
                 raise error
-        return self.annotation_scene_from_rest_response(
+        annotation_scene = self.annotation_scene_from_rest_response(
             response, media_item.media_information
         )
+        annotation_scene.resolve_label_names_and_colors(
+            labels=self._project.get_all_labels()
+        )
+        return annotation_scene
 
     def _read_2d_media_annotation_from_source(
         self,
