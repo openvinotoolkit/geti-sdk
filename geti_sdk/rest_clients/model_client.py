@@ -29,6 +29,7 @@ from geti_sdk.data_models import (
 )
 from geti_sdk.data_models.enums import JobState, JobType, OptimizationType
 from geti_sdk.http_session import GetiSession
+from geti_sdk.platform_versions import GETI_116_VERSION
 from geti_sdk.rest_converters import ModelRESTConverter
 from geti_sdk.utils import get_supported_algorithms
 from geti_sdk.utils.job_helpers import get_job_with_timeout, monitor_job
@@ -636,7 +637,10 @@ class ModelClient:
         response = self.session.get_rest_response(
             url=optimize_model_url, method="POST", data=payload
         )
-        job_id = response["job_ids"][0]
+        if self.session.version < GETI_116_VERSION:
+            job_id = response["job_ids"][0]
+        else:
+            job_id = response["job_id"]
         job = get_job_with_timeout(
             job_id=job_id,
             session=self.session,
