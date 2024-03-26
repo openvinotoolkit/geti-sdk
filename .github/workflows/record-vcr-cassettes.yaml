@@ -78,13 +78,13 @@ jobs:
         # tests can run
         #
         # NOTE: This step executes all tests in the `tests` directory in `ONLINE` mode
+        #
+        # eval "$(conda shell.bash hook)"
+        # conda activate $CONDA_ENV
         run: |
           export no_proxy=$GETI_HOST,$no_proxy
           export NO_PROXY=$GETI_HOST,$NO_PROXY
           export GETI_HOST=https://$GETI_HOST
-
-          eval "$(conda shell.bash hook)"
-          conda activate $CONDA_ENV
 
           pytest tests/pre-merge/integration --html=$REPORT_DIRECTORY/integration_test_report.html --self-contained-html
 
