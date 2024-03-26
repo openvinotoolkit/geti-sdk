@@ -12,7 +12,7 @@ simplejson==3.19.*
 ipython==8.12.*
 otx==1.4.4
 openvino==2023.0.*
-openvino-model-api==0.1.5
+openvino-model-api==0.1.9
 certifi>=2022.12.7
 joblib>=1.1.1
 protobuf>=3.20.2
