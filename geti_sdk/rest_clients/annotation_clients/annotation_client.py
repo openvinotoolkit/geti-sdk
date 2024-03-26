@@ -52,13 +52,16 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
             annotations = response
         else:
             annotations = response["video_annotations"]
-        return [
+        annotation_scenes = [
             self.annotation_scene_from_rest_response(
                 annotation_scene, media_information=video.media_information
             )
             for annotation_scene in annotations
             if annotation_scene["annotations"]
         ]
+        for scene in annotation_scenes:
+            scene.resolve_label_names_and_colors(labels=self._project.get_all_labels())
+        return annotation_scenes
 
     def upload_annotations_for_video(
         self, video: Video, append_annotations: bool = False
