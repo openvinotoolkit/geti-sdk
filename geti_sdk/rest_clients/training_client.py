@@ -358,7 +358,7 @@ class TrainingClient:
                 if job.metadata.task is not None:
                     if job.metadata.task.task_id == task.id:
                         if running_only:
-                            if job.status.state == JobState.RUNNING:
+                            if job.state == JobState.RUNNING:
                                 task_jobs.append(job)
                         else:
                             task_jobs.append(job)

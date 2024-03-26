@@ -150,7 +150,7 @@ def monitor_jobs(
         JobState.FAILED,
         JobState.ERROR,
     ]
-    jobs_to_monitor = [job for job in jobs if job.status.state not in completed_states]
+    jobs_to_monitor = [job for job in jobs if job.state not in completed_states]
     logging.info(f"Monitoring progress for {len(jobs_to_monitor)} jobs...")
     outer_bars = []
     inner_bars = []
@@ -217,7 +217,7 @@ def monitor_jobs(
                             )
                         jobs_with_error.append(job)
                         complete_count += 1
-                    if job.status.state in completed_states:
+                    if job.state in completed_states:
                         # Job has just completed, update progress bars to final state
                         complete_count += 1
                         finished_jobs.append(job)
@@ -242,10 +242,12 @@ def monitor_jobs(
                         outer_bars[index].update(job.current_step - job_steps[index])
                         job_steps[index] = job.current_step
 
-                    incremental_progress = job.status.progress - progress_values[index]
+                    incremental_progress = (
+                        job.current_step_progress - progress_values[index]
+                    )
                     restrict(incremental_progress, min=0, max=100)
                     inner_bars[index].update(incremental_progress)
-                    progress_values[index] = job.status.progress
+                    progress_values[index] = job.current_step_progress
                     outer_bars[index].update(0)
 
                 if complete_count == len(jobs_to_monitor):
@@ -308,10 +310,10 @@ def monitor_job(
                 f"found on the Intel Geti instance. Monitoring is skipped "
                 f"for this job."
             )
-    if job.status.state in completed_states:
+    if job.state in completed_states:
         logging.info(
             f"Job `{job.name}` has already finished with status "
-            f"{str(job.status.state)}, monitoring stopped"
+            f"{str(job.state)}, monitoring stopped"
         )
         return job
 
@@ -352,7 +354,7 @@ def monitor_job(
             inner_bar.set_description(previous_message)
             while monitoring and t_elapsed < timeout:
                 job.update(session)
-                if job.status.state in completed_states:
+                if job.state in completed_states:
                     outer_bar.update(total_steps - current_step)
                     inner_bar.update(100 - previous_progress)
                     monitoring = False
@@ -367,11 +369,11 @@ def monitor_job(
                     outer_bar.update(job.current_step - current_step)
                     current_step = job.current_step
 
-                incremental_progress = job.status.progress - previous_progress
+                incremental_progress = job.current_step_progress - previous_progress
                 restrict(incremental_progress, min=0, max=100)
                 inner_bar.update(incremental_progress)
                 outer_bar.update(0)
-                previous_progress = job.status.progress
+                previous_progress = job.current_step_progress
                 time.sleep(interval)
                 t_elapsed = time.time() - t_start
             inner_bar.close()
@@ -390,6 +392,6 @@ def monitor_job(
         else:
             logging.info(
                 f"Monitoring stopped after {t_elapsed:.1f} seconds due to timeout. Current "
-                f"job state: {job.status.state}"
+                f"job state: {job.state}"
             )
     return job

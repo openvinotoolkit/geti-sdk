@@ -94,7 +94,7 @@ class TestNightlyProject:
 
         jobs = training_client.monitor_jobs(jobs=jobs, timeout=10000)
         for job in jobs:
-            assert job.status.state == JobState.FINISHED
+            assert job.state == JobState.FINISHED
 
     def test_upload_and_predict_image(
         self,

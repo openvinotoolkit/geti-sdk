@@ -88,7 +88,7 @@ class TestModelAndPredictionClient:
 
         # Test that getting model for the train job works
         if fxt_test_mode == SdkTestMode.OFFLINE:
-            job.status.state = JobState.FINISHED
+            job.state = JobState.FINISHED
         model = fxt_project_service.model_client.get_model_for_job(
             job=job, check_status=False
         )

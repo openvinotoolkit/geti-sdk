@@ -519,7 +519,7 @@ class ModelClient:
                 f"Cannot get model for job `{job.description}`. This job does not "
                 f"belong to the project managed by this ModelClient instance."
             )
-        if job.status.state != JobState.FINISHED:
+        if job.state != JobState.FINISHED:
             raise ValueError(
                 f"Job `{job.description}` is not finished yet, unable to retrieve "
                 f"model for the job. Please wait until job is finished"
