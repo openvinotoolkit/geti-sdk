@@ -23,3 +23,5 @@ PROJECT_PREFIX = "geti_sdk_test"
 DUMMY_USER = "dummy_user"
 DUMMY_PASSWORD = "dummy_password"  # nosec B105
 DUMMY_TOKEN = "dummy_token"  # nosec B105
+DUMMY_WORKSPACE_ID = "dummy_workspace_id"
+DUMMY_ORGANIZATION_ID = "dummy_organization_id"
