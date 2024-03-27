@@ -5,7 +5,7 @@ on:
 
 env:
   # Login details for the Geti instance to run the tests against
-  # Secrets are configured on repository level (Settings > Secrets)
+  # Secrets are configured on the repository level (Settings > Secrets)
   GETI_HOST: ${{ secrets.GETI_HOST }}
   GETI_USERNAME: ${{ secrets.GETI_USERNAME }}
   GETI_PASSWORD: ${{ secrets.GETI_PASSWORD }}
@@ -26,35 +26,6 @@ jobs:
     runs-on: [self-hosted, sdk-runner]
 
     steps:
-
-      # - name: Checkout code with caching for Git LFS
-      #   uses: nschloe/action-cached-lfs-checkout@v1.2.0
-
-      # - name: Create fresh conda environment
-      #   # Steps: check if env named $CONDA_ENV exists, if so remove it. Create new env
-      #   # using python version $PYTHON_VERSION
-      #   run: |
-      #     eval "$(conda shell.bash hook)"
-
-      #     conda info --envs > temp_envs.txt
-
-      #     if grep --quiet $CONDA_ENV temp_envs.txt; then
-      #     echo Conda environment $CONDA_ENV exists, removing for clean start
-      #     conda remove -y --name $CONDA_ENV --all
-      #     fi
-
-      #     rm temp_envs.txt
-
-      #     conda create -y -n $CONDA_ENV python=$PYTHON_VERSION
-
-
-      # - name: Install package with dev requirements
-      #   # Steps: Activate conda env, upgrade pip, install SDK
-      #   run: |
-      #     eval "$(conda shell.bash hook)"
-      #     conda activate $CONDA_ENV
-      #     python -m pip install --upgrade pip
-      #     pip install ".[dev]"
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -65,7 +36,7 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install package with dev and notebook requirements
+      - name: Install package with dev requirements
         run: |
           python -m pip install --upgrade pip
           python -m pip install virtualenv
@@ -77,10 +48,7 @@ jobs:
         # Proxy settings have to be configured and GETI_HOST set to full address before
         # tests can run
         #
-        # NOTE: This step executes all tests in the `tests` directory in `ONLINE` mode
-        #
-        # eval "$(conda shell.bash hook)"
-        # conda activate $CONDA_ENV
+        # NOTE: This step executes all tests in the `tests` directory in `RECORD` mode
         run: |
           export no_proxy=$GETI_HOST,$no_proxy
           export NO_PROXY=$GETI_HOST,$NO_PROXY
@@ -101,7 +69,7 @@ jobs:
             branch: ${{ github.ref }}
 
       - name: Upload test reports
-        # Publish the test reports to github
+        # Publish the test reports to GitHub
         uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
