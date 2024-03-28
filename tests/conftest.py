@@ -231,7 +231,7 @@ def pytest_sessionfinish(session: Session, exitstatus: int) -> None:
                 cassette_dir=record_cassette_path,
             )
             logging.info(
-                f" Hostname {HOST} was scrubbed from all cassette files successfully."
+                " Hostname, organization and workspace ids were scrubbed from all cassette files successfully."
             )
             # Copy recorded cassettes to fixtures/cassettes
             logging.info(
