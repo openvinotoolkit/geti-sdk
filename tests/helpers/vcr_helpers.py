@@ -16,11 +16,12 @@ import logging
 import os
 import shutil
 import time
+from typing import Optional, Tuple
 
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from .constants import CASSETTE_EXTENSION, CASSETTE_PATH, DUMMY_HOST
+from .constants import CASSETTE_EXTENSION, CASSETTE_PATH
 
 
 def are_cassettes_available() -> bool:
@@ -36,39 +37,45 @@ def are_cassettes_available() -> bool:
     return False
 
 
-def replace_host_name_in_cassettes(server_address: str) -> None:
+def replace_unique_entries_in_cassettes(
+    entry_pairs: Tuple[Tuple[str, str]], cassette_dir: Optional[str] = CASSETTE_PATH
+) -> None:
     """
-    This function searches for the server_address in all cassette files and
-    replaces all occurrences of that address by 'dummy_host'. The cassette files are
+    This function searches for the unique_entry in a target cassette file and
+    replaces all occurrences of that address by a dummy value. The cassette file is
     updated in place
 
-    :param server_address: Server address to search for and replace
+    :param entry_pairs: (unique_entry, dummy_value) pairs to search for and replace
+    :param cassette_dir: Path to the directory containing the cassette files to search in
     """
-    host_name = server_address.replace("https://", "").strip("/")
-    logging.info(f"Removing host '{host_name}' from test cassettes...")
+    logging.info(
+        f"Removing tre following entries from test cassettes: '{(entry_pair[0] for entry_pair in entry_pairs)}' ..."
+    )
     tqdm_prefix = "Scrubbing cassettes"
 
     t_start = time.time()
-    cassette_paths = glob.glob(os.path.join(CASSETTE_PATH, f"*.{CASSETTE_EXTENSION}"))
+    cassette_paths = glob.glob(os.path.join(cassette_dir, f"*.{CASSETTE_EXTENSION}"))
 
     with logging_redirect_tqdm(tqdm_class=tqdm):
         for cassette_path in tqdm(cassette_paths, desc=tqdm_prefix):
-            replace_host_name_in_cassette(
-                host_name=host_name, path_to_cassette_file=cassette_path
+            replace_unique_entries_in_cassette(
+                entry_pairs=entry_pairs, path_to_cassette_file=cassette_path
             )
     logging.info(
-        f"Hostname scrubbed from {len(cassette_paths)} cassette files in "
+        f"Entries scrubbed from {len(cassette_paths)} cassette files in "
         f"{1000*(time.time()-t_start)} seconds"
     )
 
 
-def replace_host_name_in_cassette(host_name: str, path_to_cassette_file: str) -> None:
+def replace_unique_entries_in_cassette(
+    entry_pairs: Tuple[Tuple[str, str]], path_to_cassette_file: str
+) -> None:
     """
-    This function searches for the host_name in a target cassette file and
-    replaces all occurrences of that address by 'dummy_host'. The cassette file is
+    This function searches for the unique_entry in a target cassette file and
+    replaces all occurrences of that address by a dummy value. The cassette file is
     updated in place
 
-    :param host_name: Host name to search for and replace
+    :param entry_pairs: (unique_entry, dummy_value) pairs to search for and replace
     :param path_to_cassette_file: Path to the cassette file to search in
     """
     path_to_scrubbed_cassette_file = path_to_cassette_file + "_new"
@@ -77,7 +84,8 @@ def replace_host_name_in_cassette(host_name: str, path_to_cassette_file: str) ->
         path_to_scrubbed_cassette_file, "wt"
     ) as write_file:
         for index, line in enumerate(read_file.readlines()):
-            line = line.replace(host_name, DUMMY_HOST)
+            for unique_entry, dummy_value in entry_pairs:
+                line = line.replace(unique_entry, dummy_value)
             write_file.write(line)
 
     os.remove(path_to_cassette_file)
