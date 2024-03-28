@@ -166,6 +166,7 @@ class TestAnnotationClient:
         fxt_video_path_1_light_bulbs: str,
         fxt_video_path_2_light_bulbs: str,
         fxt_light_bulbs_annotation_path: str,
+        fxt_test_mode: SdkTestMode,
     ):
         """
         Verifies that uploading and retrieving annotations for multiple video's work
@@ -198,6 +199,9 @@ class TestAnnotationClient:
         annotation_client.annotation_reader = annotation_reader
 
         annotation_client.upload_annotations_for_videos(videos=[video_1, video_2])
+
+        if fxt_test_mode != SdkTestMode.OFFLINE:
+            time.sleep(5)
 
         #  Fetch annotations from annotation client
         annotation_scenes_for_video_1 = (
