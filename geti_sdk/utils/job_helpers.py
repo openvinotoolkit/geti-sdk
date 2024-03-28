@@ -354,6 +354,11 @@ def monitor_job(
             inner_bar.set_description(previous_message)
             while monitoring and t_elapsed < timeout:
                 job.update(session)
+                if job.total_steps > total_steps:
+                    total_steps = job.total_steps
+                    outer_bar.reset(total=job.total_steps)
+                    outer_bar.update(job.current_step)
+                    current_step = job.current_step
                 if job.state in completed_states:
                     outer_bar.update(total_steps - current_step)
                     inner_bar.update(100 - previous_progress)

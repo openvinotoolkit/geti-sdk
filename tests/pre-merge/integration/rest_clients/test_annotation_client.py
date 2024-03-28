@@ -201,7 +201,7 @@ class TestAnnotationClient:
         annotation_client.upload_annotations_for_videos(videos=[video_1, video_2])
 
         if fxt_test_mode != SdkTestMode.OFFLINE:
-            time.sleep(5)
+            time.sleep(10)
 
         #  Fetch annotations from annotation client
         annotation_scenes_for_video_1 = (

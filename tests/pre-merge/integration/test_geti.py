@@ -26,6 +26,13 @@ from geti_sdk.annotation_readers import AnnotationReader, DatumAnnotationReader
 from geti_sdk.data_models import Job, Prediction, Project
 from geti_sdk.deployment import Deployment
 from geti_sdk.http_session import GetiRequestException
+from geti_sdk.post_inference_hooks import (
+    AlwaysTrigger,
+    ConfidenceTrigger,
+    FileSystemDataCollection,
+    GetiDataCollection,
+    PostInferenceHook,
+)
 from geti_sdk.rest_clients import (
     AnnotationClient,
     DatasetClient,
@@ -541,6 +548,67 @@ class TestGeti:
             path_to_folder=deployment_folder
         )
         assert deployment_from_folder.models[0].name == deployment.models[0].name
+
+    @pytest.mark.vcr()
+    def test_post_inference_hooks(
+        self,
+        fxt_project_service: ProjectService,
+        fxt_geti: Geti,
+        fxt_image_path: str,
+        fxt_temp_directory: str,
+    ):
+        """
+        Test that adding post inference hooks to a deployment works, and that the
+        hooks function as expected
+        """
+        project = fxt_project_service.project
+        deployment_folder = os.path.join(fxt_temp_directory, project.name)
+
+        deployment = fxt_geti.deploy_project(project.name)
+        dataset_name = "Test hooks"
+
+        # Add a GetiDataCollectionHook
+        trigger = AlwaysTrigger()
+        action = GetiDataCollection(
+            session=fxt_geti.session,
+            workspace_id=fxt_geti.workspace_id,
+            project=project,
+            dataset=dataset_name,
+        )
+        hook = PostInferenceHook(trigger=trigger, action=action)
+        deployment.add_post_inference_hook(hook)
+
+        # Add a FileSystemDataCollection hook
+        hook_data = os.path.join(deployment_folder, "hook_data")
+        trigger_2 = ConfidenceTrigger(threshold=1.1)
+        action_2 = FileSystemDataCollection(target_folder=hook_data)
+        hook_2 = PostInferenceHook(trigger=trigger_2, action=action_2, max_threads=0)
+        deployment.add_post_inference_hook(hook_2)
+
+        deployment.load_inference_models(device="CPU")
+        image_bgr = cv2.imread(fxt_image_path)
+        image_np = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
+        _ = deployment.infer(image_np)
+
+        dataset_client = DatasetClient(
+            session=fxt_geti.session,
+            workspace_id=fxt_geti.workspace_id,
+            project=project,
+        )
+
+        assert len(deployment.post_inference_hooks) == 2
+
+        # Assert that the hooks have fired
+        dataset = dataset_client.get_dataset_by_name(dataset_name)
+        hook_images = fxt_project_service.image_client.get_all_images(dataset=dataset)
+        assert len(hook_images) == 1
+        expected_folders = ["images", "overlays", "predictions", "scores"]
+        for folder_name in expected_folders:
+            assert folder_name in os.listdir(hook_data)
+            assert len(os.listdir(os.path.join(hook_data, folder_name))) == 1
+
+        deployment.clear_inference_hooks()
+        assert len(deployment.post_inference_hooks) == 0
 
     @pytest.mark.vcr()
     def test_download_project_including_models_and_predictions(
