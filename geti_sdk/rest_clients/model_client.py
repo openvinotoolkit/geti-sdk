@@ -29,6 +29,7 @@ from geti_sdk.data_models import (
 )
 from geti_sdk.data_models.enums import JobState, JobType, OptimizationType
 from geti_sdk.http_session import GetiSession
+from geti_sdk.platform_versions import GETI_116_VERSION
 from geti_sdk.rest_converters import ModelRESTConverter
 from geti_sdk.utils import get_supported_algorithms
 from geti_sdk.utils.job_helpers import get_job_with_timeout, monitor_job
@@ -104,11 +105,7 @@ class ModelClient:
         """
         model_groups = self.get_all_model_groups()
         return next(
-            (
-                group
-                for group in model_groups
-                if group.algorithm.algorithm_name == algorithm_name
-            ),
+            (group for group in model_groups if group.algorithm.name == algorithm_name),
             None,
         )
 
@@ -321,7 +318,7 @@ class ModelClient:
             if isinstance(algorithm, str):
                 algorithm_name = algorithm
             elif isinstance(algorithm, Algorithm):
-                algorithm_name = algorithm.algorithm_name
+                algorithm_name = algorithm.name
             else:
                 raise ValueError(
                     f"Invalid type {type(algorithm)}. Argument `algorithm` must be "
@@ -333,7 +330,7 @@ class ModelClient:
             )
         # Now we make sure that the algorithm is supported in the project
         algorithms_supported_in_the_project = {
-            algorithm.algorithm_name
+            algorithm.name
             for task in self.project.get_trainable_tasks()
             for algorithm in self.supported_algos.get_by_task_type(task.type)
         }
@@ -522,7 +519,7 @@ class ModelClient:
                 f"Cannot get model for job `{job.description}`. This job does not "
                 f"belong to the project managed by this ModelClient instance."
             )
-        if job.status.state != JobState.FINISHED:
+        if job.state != JobState.FINISHED:
             raise ValueError(
                 f"Job `{job.description}` is not finished yet, unable to retrieve "
                 f"model for the job. Please wait until job is finished"
@@ -640,7 +637,10 @@ class ModelClient:
         response = self.session.get_rest_response(
             url=optimize_model_url, method="POST", data=payload
         )
-        job_id = response["job_ids"][0]
+        if self.session.version < GETI_116_VERSION:
+            job_id = response["job_ids"][0]
+        else:
+            job_id = response["job_id"]
         job = get_job_with_timeout(
             job_id=job_id,
             session=self.session,

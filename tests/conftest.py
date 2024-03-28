@@ -25,8 +25,15 @@ from geti_sdk import Geti
 from geti_sdk.http_session import ServerCredentialConfig, ServerTokenConfig
 from tests.helpers.project_helpers import remove_all_test_projects
 
-from .helpers import SdkTestMode, get_sdk_fixtures, replace_host_name_in_cassettes
-from .helpers.constants import BASE_TEST_PATH, CASSETTE_PATH, RECORD_CASSETTE_KEY
+from .helpers import SdkTestMode, get_sdk_fixtures, replace_unique_entries_in_cassettes
+from .helpers.constants import (
+    BASE_TEST_PATH,
+    CASSETTE_PATH,
+    DUMMY_HOST,
+    DUMMY_ORGANIZATION_ID,
+    DUMMY_WORKSPACE_ID,
+    RECORD_CASSETTE_KEY,
+)
 
 pytest_plugins = get_sdk_fixtures()
 
@@ -160,6 +167,23 @@ def fxt_github_actions_environment() -> bool:
 # ----------------------------------------------
 
 
+def _get_geti_instance() -> Geti:
+    """
+    This function returns a Geti instance with the correct authentication parameters
+    """
+    # Handle authentication via token or credentials
+    if TOKEN is None:
+        auth_params = {"username": USERNAME, "password": PASSWORD}
+    else:
+        auth_params = {"token": TOKEN}
+    # Handle proxies
+    if GETI_HTTP_PROXY is not None or GETI_HTTPS_PROXY is not None:
+        proxies = {"http": GETI_HTTP_PROXY, "https": GETI_HTTPS_PROXY}
+    else:
+        proxies = None
+    return Geti(host=HOST, **auth_params, proxies=proxies, verify_certificate=False)
+
+
 def pytest_sessionstart(session: Session) -> None:
     """
     This function is called before a pytest test run begins.
@@ -170,20 +194,8 @@ def pytest_sessionstart(session: Session) -> None:
     :param session: Pytest session instance that has just been created
     """
     if CLEAR_EXISTING_TEST_PROJECTS and TEST_MODE != SdkTestMode.OFFLINE:
-        # Handle authentication via token or credentials
-        if TOKEN is None:
-            auth_params = {"username": USERNAME, "password": PASSWORD}
-        else:
-            auth_params = {"token": TOKEN}
-        # Handle proxies
-        if GETI_HTTP_PROXY is not None or GETI_HTTPS_PROXY is not None:
-            proxies = {"http": GETI_HTTP_PROXY, "https": GETI_HTTPS_PROXY}
-        else:
-            proxies = None
         # Remove existing test projects
-        remove_all_test_projects(
-            Geti(host=HOST, **auth_params, proxies=proxies, verify_certificate=False)
-        )
+        remove_all_test_projects(geti=_get_geti_instance())
     if TEST_MODE == SdkTestMode.RECORD:
         record_cassette_path = tempfile.mkdtemp()
         logging.info(f"Cassettes will be recorded to `{record_cassette_path}`.")
@@ -204,20 +216,35 @@ def pytest_sessionfinish(session: Session, exitstatus: int) -> None:
         record_cassette_path = os.environ.pop(RECORD_CASSETTE_KEY)
         if exitstatus == 0:
             logging.info("Recording successful! Wrapping up....")
+            # Scrub hostname, organization_id and workspace_id from cassettes
+            geti = _get_geti_instance()
+            organization_id_pair = (
+                geti.session._organization_id,
+                DUMMY_ORGANIZATION_ID,
+            )
+            workspace_id_pair = (geti.workspace_id, DUMMY_WORKSPACE_ID)
+            host_name_pair = (HOST.replace("https://", "").strip("/"), DUMMY_HOST)
+
+            # replace_host_name_in_cassettes(HOST, cassette_dir=record_cassette_path)
+            replace_unique_entries_in_cassettes(
+                (organization_id_pair, workspace_id_pair, host_name_pair),
+                cassette_dir=record_cassette_path,
+            )
+            logging.info(
+                " Hostname, organization and workspace ids were scrubbed from all cassette files successfully."
+            )
             # Copy recorded cassettes to fixtures/cassettes
             logging.info(
                 f"Copying newly recorded cassettes from `{record_cassette_path}` to "
                 f"`{CASSETTE_PATH}`."
             )
-            if os.path.exists(CASSETTE_PATH):
-                shutil.rmtree(CASSETTE_PATH)
-            shutil.move(record_cassette_path, CASSETTE_PATH)
+            for root, dirs, files in os.walk(record_cassette_path):
+                for file in files:
+                    shutil.move(
+                        os.path.join(root, file),
+                        os.path.join(CASSETTE_PATH, file),
+                    )
 
-            # Scrub hostname from cassettes
-            replace_host_name_in_cassettes(HOST)
-            logging.info(
-                f" Hostname {HOST} was scrubbed from all cassette files successfully."
-            )
         else:
             # Clean up any cassettes already recorded
             if os.path.exists(record_cassette_path):

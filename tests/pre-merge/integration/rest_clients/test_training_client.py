@@ -70,16 +70,15 @@ class TestTrainingClient:
 
         # Update job status
         job.update(fxt_project_service.session)
-        job_state = job.status.state
-        if job_state in JobState.active_states():
+        if job.state in JobState.active_states():
             # Cancel the job
             logging.info(f"Job '{job.name}' is still active, cancelling...")
             job.cancel(fxt_project_service.session)
         else:
             logging.info(
-                f"Job '{job.name}' has already excited with status {job_state}."
+                f"Job '{job.name}' has already excited with status {job.state}."
             )
-        logging.info(job_state)
+        logging.info(job.state)
 
     @pytest.mark.vcr()
     def test_get_status(

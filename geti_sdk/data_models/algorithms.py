@@ -29,10 +29,11 @@ class Algorithm:
     Representation of a supported algorithm on the Intel® Geti™ platform.
     """
 
-    algorithm_name: str
     model_size: str
     model_template_id: str
     gigaflops: float
+    algorithm_name: Optional[str] = None  # Deprecated in Geti v1.16, use 'name' instead
+    name: Optional[str] = None
     summary: Optional[str] = None
     domain: Optional[str] = attr.field(
         default=None, converter=str_to_optional_enum_converter(Domain)
@@ -42,7 +43,10 @@ class Algorithm:
         default=None, converter=str_to_optional_enum_converter(TaskType)
     )
     supports_auto_hpo: Optional[bool] = None
-    recommended_choice: Optional[bool] = None  # Added in Geti v1.9
+    recommended_choice: Optional[bool] = (
+        None  # Deprecated in Geti v1.16, use 'default_algorithm' instead
+    )
+    default_algorithm: Optional[bool] = None  # Added in Geti v1.16
     performance_category: Optional[str] = None  # Added in Geti v1.9
     lifecycle_stage: Optional[str] = None  # Added in Geti v1.9
 
@@ -51,6 +55,12 @@ class Algorithm:
         Convert domain to task type for backward compatibility with earlier versions of
         the Intel® Geti™ platform
         """
+        if self.default_algorithm is None:
+            # For older Geti versions, that were still using 'recommended choice'
+            self.default_algorithm = self.recommended_choice
+        if self.name is None:
+            # For older Geti versions, that were still using 'algorithm_name'
+            self.name = self.algorithm_name
         if self.domain is not None and self.task_type is None:
             self.task_type = TaskType.from_domain(self.domain)
             self.domain = None

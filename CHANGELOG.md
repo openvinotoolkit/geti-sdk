@@ -1,3 +1,15 @@
+# v1.16.0 Intel® Geti™ SDK (26-03-2024)
+## What's Changed
+* Decouple visualizer for OTX by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/356
+* Update data models to account for REST API changes in Geti v1.16 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/357
+* Fix organization retrieval URL with PAT by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/361
+* TEST: add VCR recording workflow by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/360
+* Fix job id retrieval in optimize_model method by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/364
+* Update job datamodel by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/362
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.15.0...v1.16.0
+
 # v1.15.0 Intel® Geti™ SDK (12-03-2024)
 This release makes the SDK compatible for Intel® Geti™ v1.15. The majority of the changes is focused on that, but below is a list of other changes that are worth mentioning.
 

@@ -28,7 +28,7 @@ from geti_sdk.data_models.utils import (
     str_to_optional_enum_converter,
 )
 from geti_sdk.http_session import GetiRequestException, GetiSession
-from geti_sdk.platform_versions import GETI_18_VERSION, GetiVersion
+from geti_sdk.platform_versions import GETI_18_VERSION, GETI_116_VERSION, GetiVersion
 
 
 @attr.define(slots=False)
@@ -189,20 +189,20 @@ class Job:
     Representation of a job running on the GETi cluster.
 
     :var name: Name of the job
-    :var description: Description of the job
+    :var description: Description of the job [deprecated in Geti v1.16]
     :var id: Unique database ID of the job
     :var project_id: Unique database ID of the project from which the job originates
-    :var status: JobStatus object holding the current status of the job
+    :var status: JobStatus object holding the current status of the job [deprecated in Geti v1.16]
     :var type: Type of the job
     :var metadata: JobMetadata object holding metadata for the job
     """
 
     name: str
-    description: str
     id: str
-    status: JobStatus
     type: str = attr.field(converter=str_to_enum_converter(JobType))
     metadata: JobMetadata
+    description: Optional[str] = None  # deprecated in Geti v1.16
+    status: Optional[JobStatus] = None  # deprecated in Geti v1.16
     project_id: Optional[str] = None
     creation_time: Optional[str] = attr.field(converter=str_to_datetime, default=None)
     start_time: Optional[str] = attr.field(
@@ -285,10 +285,19 @@ class Job:
             else:
                 raise job_error
 
-        updated_status = JobStatus.from_dict(response["status"])
-        self.status = updated_status
-        self.state = updated_status.state
         self.steps = response.get("steps", None)
+        if session.version < GETI_116_VERSION:
+            updated_status = JobStatus.from_dict(response["status"])
+            self.status = updated_status
+            self.state = updated_status.state
+        else:
+            self.state = JobState(response["state"])
+            self.status = JobStatus(
+                progress=self.current_step / self.total_steps,
+                message=self.current_step_message,
+                state=self.state,
+            )
+
         if self._geti_version is None:
             self.geti_version = session.version
         return self
@@ -305,13 +314,13 @@ class Job:
             session.get_rest_response(
                 url=self.relative_url, method="DELETE", allow_text_response=True
             )
-            self.status.state = JobState.CANCELLED
+            self.state = JobState.CANCELLED
         except GetiRequestException as error:
             if error.status_code == 404:
                 logging.info(
                     f"Job '{self.name}' is not active anymore, unable to delete."
                 )
-                self.status.state = JobState.INACTIVE
+                self.state = JobState.INACTIVE
             else:
                 raise error
         return self
@@ -338,14 +347,14 @@ class Job:
         """
         Return True if the job finished successfully, False otherwise
         """
-        return self.status.state == JobState.FINISHED
+        return self.state == JobState.FINISHED
 
     @property
     def is_running(self) -> bool:
         """
         Return True if the job is currently running, False otherwise
         """
-        return self.status.state == JobState.RUNNING
+        return self.state == JobState.RUNNING
 
     def _get_step_information(self) -> Tuple[int, int]:
         """
@@ -360,7 +369,7 @@ class Job:
                 if step_state == "finished":
                     steps_complete += 1
             current = steps_complete + 1
-        else:
+        elif self.status is not None:
             # The old method, use job status message to find step number
             status_message = self.status.message
             step_pattern = re.compile(r"\(Step \d\/\d\)", re.IGNORECASE)
@@ -372,6 +381,8 @@ class Job:
             result_nums = result_string.split("/")
             current = int(result_nums[0])
             total = int(result_nums[1])
+        else:
+            return 0, 1
         return current, total
 
     @property
@@ -402,11 +413,26 @@ class Job:
         else:
             current_step_index = self.current_step - 1
             if current_step_index < 0 or current_step_index >= len(self.steps):
-                if self.status.state != JobState.SCHEDULED:
+                if self.state != JobState.SCHEDULED:
                     return ""
                 else:
                     return "Awaiting job execution"
             return self.steps[current_step_index].get("step_name", "")
+
+    @property
+    def current_step_progress(self) -> float:
+        """
+        Return the progress of the current step for the job
+
+        :return: float indicating the progress of the current step in the job
+        """
+        if self.geti_version <= GETI_18_VERSION:
+            return self.status.progress
+        else:
+            current_step_index = self.current_step - 1
+            if current_step_index < 0 or current_step_index >= len(self.steps):
+                return 0.0
+            return self.steps[current_step_index].get("progress", 0.0)
 
     @property
     def geti_version(self) -> GetiVersion:
