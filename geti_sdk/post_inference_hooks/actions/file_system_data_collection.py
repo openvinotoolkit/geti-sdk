@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import json
+import logging
 import os
 from datetime import datetime
 from typing import Optional
@@ -121,30 +122,39 @@ class FileSystemDataCollection(PostInferenceAction):
 
         filename = name + "_" + timestamp.strftime("%Y%m%dT%H-%M-%S-%f")
 
-        cv2.imwrite(os.path.join(self.image_path, filename + ".png"), image_bgr)
-
-        if self.save_predictions:
-            prediction_filepath = os.path.join(
-                self.predictions_path, filename + ".json"
+        success = cv2.imwrite(
+            os.path.join(self.image_path, filename + ".png"), image_bgr
+        )
+        if not success:
+            logging.error(
+                f"Failed to save image `{filename}.png` to folder `{self.image_path}`."
             )
-            with open(prediction_filepath, "w") as file:
-                prediction_dict = PredictionRESTConverter.to_dict(prediction)
-                json.dump(prediction_dict, fp=file)
 
-        if self.save_scores:
-            if score is not None:
-                score_filepath = os.path.join(self.scores_path, filename + ".txt")
-                with open(score_filepath, "w") as file:
-                    file.write(f"{score}")
+        try:
+            if self.save_predictions:
+                prediction_filepath = os.path.join(
+                    self.predictions_path, filename + ".json"
+                )
+                with open(prediction_filepath, "w") as file:
+                    prediction_dict = PredictionRESTConverter.to_dict(prediction)
+                    json.dump(prediction_dict, fp=file)
 
-        if self.save_overlays:
-            overlay_path = os.path.join(self.overlays_path, filename + ".jpg")
-            show_image_with_annotation_scene(
-                image=image,
-                annotation_scene=prediction,
-                filepath=overlay_path,
-                show_results=False,
-            )
+            if self.save_scores:
+                if score is not None:
+                    score_filepath = os.path.join(self.scores_path, filename + ".txt")
+                    with open(score_filepath, "w") as file:
+                        file.write(f"{score}")
+
+            if self.save_overlays:
+                overlay_path = os.path.join(self.overlays_path, filename + ".jpg")
+                show_image_with_annotation_scene(
+                    image=image,
+                    annotation_scene=prediction,
+                    filepath=overlay_path,
+                    show_results=False,
+                )
+        except Exception as e:
+            logging.exception(e, stack_info=True, exc_info=True)
 
         self.log_function(
             f"FileSystemDataCollection inference action saved image data to folder "

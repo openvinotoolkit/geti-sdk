@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import copy
+import logging
 import warnings
 from datetime import datetime
 from typing import Any, Dict, Optional, Union
@@ -22,7 +23,12 @@ import numpy as np
 
 from geti_sdk.data_models import Dataset, Prediction, Project
 from geti_sdk.deployment.inference_hook_interfaces import PostInferenceAction
-from geti_sdk.http_session import GetiSession, ServerCredentialConfig, ServerTokenConfig
+from geti_sdk.http_session import (
+    GetiRequestException,
+    GetiSession,
+    ServerCredentialConfig,
+    ServerTokenConfig,
+)
 from geti_sdk.rest_clients.dataset_client import DatasetClient
 from geti_sdk.rest_clients.media_client.image_client import ImageClient
 from geti_sdk.rest_clients.project_client.project_client import ProjectClient
@@ -121,7 +127,10 @@ class GetiDataCollection(PostInferenceAction):
         # upload_image uses cv2 to encode the numpy array as image, so it expects an
         # image in BGR format. However, `Deployment.infer` requires RGB format, so
         # we have to convert
-        self.image_client.upload_image(image=image_bgr, dataset=self.dataset)
+        try:
+            self.image_client.upload_image(image=image_bgr, dataset=self.dataset)
+        except GetiRequestException as e:
+            logging.exception(e)
         self.log_function(
             f"GetiDataCollection inference action uploaded image to dataset "
             f"`{self.dataset.name}`"
