@@ -36,7 +36,7 @@ class LabelTrigger(PostInferenceTrigger):
     """
 
     def __init__(self, label_names: List[str], mode: str = "OR"):
-        self.label_names = label_names
+        self.label_names = set(label_names)
         self.mode = mode
 
         # LabelTrigger will return a score of 1 if label is found, so we can use the
@@ -55,17 +55,10 @@ class LabelTrigger(PostInferenceTrigger):
             for the image.
         :return: Float representing the score for the input
         """
+        predicted_labels = set()
+        for label in prediction.get_labels():
+                predicted_labels.add(label.name)
         if self.mode == "AND":
-            labels_to_search = copy.deepcopy(self.label_names)
-        else:
-            labels_to_search = self.label_names
-        for predicted_object in prediction.annotations:
-            for label in predicted_object.labels:
-                if label.name in labels_to_search:
-                    if self.mode == "OR":
-                        return 1
-                    elif self.mode == "AND":
-                        labels_to_search.remove(label.name)
-                        if len(labels_to_search) == 0:
-                            return 1
-        return 0
+            return self.label_names.issubset(predicted_labels)
+        else:  # mode == "OR"
+            return not self.label_names.isdisjoint(predicted_labels)
