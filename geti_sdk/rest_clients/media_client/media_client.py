@@ -262,7 +262,17 @@ class BaseMediaClient(Generic[MediaTypeVar]):
             if name in media_in_project.names and skip_if_filename_exists:
                 skip_count += 1
                 return
-            media_dict = self._upload(filepath=filepath, dataset=dataset)
+            try:
+                media_dict = self._upload(filepath=filepath, dataset=dataset)
+            except GetiRequestException as error:
+                if error.status_code == 500:
+                    logging.error(
+                        f"Failed to upload {self._MEDIA_TYPE} '{name}'. Error message: "
+                        f"{error}"
+                    )
+                    return
+                else:
+                    raise error
             media_item = MediaRESTConverter.from_dict(
                 input_dict=media_dict, media_type=self.__media_type
             )
@@ -435,12 +445,22 @@ class BaseMediaClient(Generic[MediaTypeVar]):
             if os.path.exists(media_filepath) and os.path.isfile(media_filepath):
                 existing_count += 1
                 return
-            response = self.session.get_rest_response(
-                url=media_item.download_url,
-                method="GET",
-                contenttype="jpeg",
-                include_organization_id=False,
-            )
+            try:
+                response = self.session.get_rest_response(
+                    url=media_item.download_url,
+                    method="GET",
+                    contenttype="jpeg",
+                    include_organization_id=False,
+                )
+            except GetiRequestException as error:
+                if error.status_code == 500:
+                    logging.error(
+                        f"Failed to download {self._MEDIA_TYPE} '{media_item.name}' "
+                        f"with ID '{media_item.id}'. Error message: {error}"
+                    )
+                    return
+                else:
+                    raise error
 
             with open(media_filepath, "wb") as f:
                 f.write(response.content)
