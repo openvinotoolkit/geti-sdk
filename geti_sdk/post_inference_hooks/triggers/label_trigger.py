@@ -36,7 +36,7 @@ class LabelTrigger(PostInferenceTrigger):
     """
 
     def __init__(self, label_names: List[str], mode: str = "OR"):
-        self.label_names = label_names
+        self.label_names = set(label_names)
         self.mode = mode
 
         # LabelTrigger will return a score of 1 if label is found, so we can use the
