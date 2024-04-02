@@ -13,7 +13,6 @@
 # and limitations under the License.
 
 from geti_sdk.http_session import GetiSession
-from geti_sdk.platform_versions import GETI_114_VERSION
 
 
 def get_default_workspace_id(rest_session: GetiSession) -> str:
@@ -36,11 +35,12 @@ def get_default_workspace_id(rest_session: GetiSession) -> str:
             f"Unexpected response from cluster: {workspaces}. Expected to receive a "
             f"dictionary containing workspace data."
         )
-    if rest_session.version < GETI_114_VERSION:
-        default_name = "Default Workspace"
-    else:
-        default_name = "default"
+    default_workspace_names = ["default", "default workspace"]
     default_workspace = next(
-        (workspace for workspace in workspace_list if workspace["name"] == default_name)
+        (
+            workspace
+            for workspace in workspace_list
+            if workspace["name"].lower() in default_workspace_names
+        )
     )
     return default_workspace["id"]
