@@ -123,7 +123,7 @@ class GetiDataCollection(PostInferenceAction):
         :param timestamp: Datetime object containing the timestamp belonging to the
             image
         """
-        image_bgr = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         # upload_image uses cv2 to encode the numpy array as image, so it expects an
         # image in BGR format. However, `Deployment.infer` requires RGB format, so
         # we have to convert

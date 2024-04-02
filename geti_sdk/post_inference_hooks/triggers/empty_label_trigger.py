@@ -37,8 +37,6 @@ class EmptyLabelTrigger(PostInferenceTrigger):
             for the image.
         :return: Float representing the score for the input
         """
-        if len(prediction.annotations) > 1:
-            return 0
         for predicted_object in prediction.annotations:
             if len(predicted_object.labels) > 1:
                 return 0
