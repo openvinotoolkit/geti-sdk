@@ -1,7 +1,9 @@
 name: Record and push VCR cassettes
 
 on:
-    workflow_dispatch  # run on request (no need for PR)
+  issue_comment:
+    types: [created]
+  workflow_dispatch:  # run on request (no need for PR)
 
 env:
   # Login details for the Geti instance to run the tests against
@@ -24,6 +26,7 @@ permissions:
 
 jobs:
   integration_tests:
+    if: contains(github.event.comment.body, '/record')
     runs-on: [self-hosted, sdk-runner]
 
     steps:
