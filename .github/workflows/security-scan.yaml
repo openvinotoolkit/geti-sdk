@@ -18,9 +18,7 @@ jobs:
   security:
     runs-on: [self-hosted, sdk-runner]
     permissions:
-      # required for all workflows
-      security-events: write
-      # only required for workflows in private repositories
+      security-events: read
       actions: read
       contents: read
     steps:
