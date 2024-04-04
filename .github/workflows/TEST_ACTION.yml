@@ -39,7 +39,7 @@ jobs:
         run: |
           git branch
           echo ${{ github.event.issue }}
-          echo ${{ github.event.issue_comment }}
+          echo ${{ github.event.issue.pull_request.url }}
           echo ${{ github.ref }}
 
       - name: Touch file
