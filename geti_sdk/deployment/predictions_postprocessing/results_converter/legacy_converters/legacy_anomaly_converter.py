@@ -90,8 +90,10 @@ class AnomalySegmentationToAnnotationConverter(IPredictionToAnnotationConverter)
         :param metadata: Variable containing metadata information.
         :return: OTX annotation scene entity object.
         """
-        assert predictions.pred_mask is not None
-        assert predictions.anomaly_map is not None
+        if predictions.pred_mask is None:
+            raise ValueError("No prediction mask found in model output")
+        if predictions.anomaly_map is None:
+            raise ValueError("No anomaly map found in model output")
         annotations = create_annotation_from_segmentation_map(
             predictions.pred_mask, predictions.anomaly_map / 255.0, self.label_map
         )
@@ -131,9 +133,12 @@ class AnomalyDetectionToAnnotationConverter(IPredictionToAnnotationConverter):
         :param metadata: Variable containing metadata information.
         :return: OTX annotation scene entity object.
         """
-        assert predictions.pred_boxes is not None
-        assert predictions.pred_score is not None
-        assert predictions.pred_mask is not None
+        if predictions.pred_mask is None:
+            raise ValueError("No prediction mask found in model output")
+        if predictions.pred_boxes is None:
+            raise ValueError("No bounding boxes found in model output")
+        if predictions.pred_score is None:
+            raise ValueError("No prediction score found in model output")
         annotations = []
         image_h, image_w = predictions.pred_mask.shape
         for box in predictions.pred_boxes:
