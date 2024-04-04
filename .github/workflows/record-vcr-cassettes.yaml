@@ -22,7 +22,7 @@ env:
 
 permissions:
   contents: write
-  # pull-requests: write  # 'write' access to pull requests
+  pull-requests: write  # 'write' access to pull requests
 
 jobs:
   integration_tests:
