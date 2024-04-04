@@ -1,0 +1,57 @@
+name: TEST ACTION PUSH
+
+on:
+  issue_comment:
+    types: [created]
+  workflow_dispatch:  # run on request (no need for PR)
+
+env:
+  # Login details for the Geti instance to run the tests against
+  # Secrets are configured on the repository level (Settings > Secrets)
+  # GETI_HOST: ${{ secrets.GETI_HOST }}
+  # GETI_USERNAME: ${{ secrets.GETI_USERNAME }}
+  # GETI_PASSWORD: ${{ secrets.GETI_PASSWORD }}
+
+  # Other environment variables used in the tests
+  TEST_MODE: "RECORD"
+  REPORT_DIRECTORY: reports
+  VIRTUALENV_DIRECTORY: .venv
+
+  # Python environment
+  PYTHON_VERSION: 3.9
+
+permissions:
+  contents: write
+  # pull-requests: write  # 'write' access to pull requests
+
+jobs:
+  integration_tests:
+    if: contains(github.event.comment.body, '/record')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - name: Echo branch
+        run: |
+          git branch
+
+      - name: Touch file
+        run: |
+          touch text_file.txt
+
+      - name: Commit files
+        run: |
+            git config --local user.email "github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git commit -a -m "Update VCR cassettes"
+            git fetch
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            branch: ${{ github.ref }}
