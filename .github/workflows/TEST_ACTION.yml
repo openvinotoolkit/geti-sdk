@@ -39,7 +39,12 @@ jobs:
         run: |
           git branch
           echo ${{ github.event.issue }}
-          echo ${{ github.event.issue.pull_request.url }}
+          echo ${{ github.event.issue.pull_request.headRef }}
+
+          PR_API_URL="${{ github.event.issue.pull_request.url }}"
+          PR_DETAILS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" $PR_API_URL)
+          echo "::set-output name=base_ref::$(echo $PR_DETAILS | jq -r .base.ref)"
+
           echo ${{ github.ref }}
 
       - name: Touch file
