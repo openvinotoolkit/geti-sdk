@@ -38,6 +38,7 @@ jobs:
       - name: Echo branch
         run: |
           git branch
+          echo ${{ github.repository }}
 
       - name: Touch file
         run: |
