@@ -38,7 +38,7 @@ jobs:
       - name: Echo branch
         run: |
           git branch
-          echo ${{ github.event.issue.pull_request }}
+          echo ${{ github.event.issue.pull_request.commits(last=1) }}
           echo ${{ github.ref }}
 
       - name: Touch file
