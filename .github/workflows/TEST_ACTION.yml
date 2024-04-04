@@ -38,7 +38,8 @@ jobs:
       - name: Echo branch
         run: |
           git branch
-          echo ${{ github.event.issue.timelineItems }}
+          echo ${{ github.event.issue }}
+          echo ${{ github.event.issue_comment }}
           echo ${{ github.ref }}
 
       - name: Touch file
