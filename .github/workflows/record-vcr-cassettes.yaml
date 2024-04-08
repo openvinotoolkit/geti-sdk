@@ -28,8 +28,8 @@ jobs:
         include:
           - geti_platform_version: "LEGACY"
             host-name: "GETI_HOST"
-          # - geti_platform_version: "DEVELOP"
-          #   host-name: "GETI_DEVELOP_HOST"
+          - geti_platform_version: "DEVELOP"
+            host-name: "GETI_DEVELOP_HOST"
 
     runs-on: [self-hosted, sdk-runner]
 
