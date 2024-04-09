@@ -1,9 +1,6 @@
 name: Record and push VCR cassettes
 
 on:
-  ## When run on comment creation (in PRs) it is not clear how to find the reference branch
-  # issue_comment:
-  #   types: [created]
   workflow_dispatch:  # run on request (no need for PR)
 
 env:
@@ -21,7 +18,6 @@ permissions:
 
 jobs:
   recording_integration_tests:
-    # if: contains(github.event.comment.body, '/record')
 
     strategy:
       matrix:
@@ -58,8 +54,8 @@ jobs:
         #
         # NOTE: This step executes all tests in the `tests` directory in `RECORD` mode
         run: |
-          export no_proxy=$GETI_HOST,$no_proxy
-          export NO_PROXY=$GETI_HOST,$NO_PROXY
+          export no_proxy=$${{ matrix.host-name }},$no_proxy
+          export NO_PROXY=$${{ matrix.host-name }},$NO_PROXY
           export GETI_HOST=https://$${{ matrix.host-name }}
 
           pytest tests/pre-merge/integration --html=$REPORT_DIRECTORY/integration_test_report.html --self-contained-html
@@ -79,7 +75,7 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add tests/fixtures/cassettes
-          git commit -m "Update VCR cassettes"
+          git commit -m "Update ${{ matrix.geti_platform_version }} VCR cassette"
           git fetch
 
       - name: Push changes
