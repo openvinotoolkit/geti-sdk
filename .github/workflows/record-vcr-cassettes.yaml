@@ -58,8 +58,8 @@ jobs:
         #
         # NOTE: This step executes all tests in the `tests` directory in `RECORD` mode
         run: |
-          export no_proxy=$GETI_HOST,$no_proxy
-          export NO_PROXY=$GETI_HOST,$NO_PROXY
+          export no_proxy=$${{ matrix.host-name }},$no_proxy
+          export NO_PROXY=$${{ matrix.host-name }},$NO_PROXY
           export GETI_HOST=https://$${{ matrix.host-name }}
 
           pytest tests/pre-merge/integration --html=$REPORT_DIRECTORY/integration_test_report.html --self-contained-html
