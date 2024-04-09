@@ -16,29 +16,29 @@ import logging
 import os
 import shutil
 import time
-from typing import Optional, Tuple
+from typing import Tuple
 
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from .constants import CASSETTE_EXTENSION, CASSETTE_PATH
+from .constants import CASSETTE_EXTENSION
 
 
-def are_cassettes_available() -> bool:
+def are_cassettes_available(cassette_path) -> bool:
     """
     Checks that the VCR cassettes required to run the tests offline are available
 
     :return: True if the cassettes are available in the proper path, False otherwise
     """
-    if not os.path.isdir(CASSETTE_PATH):
+    if not os.path.isdir(cassette_path):
         return False
-    if len(os.listdir(CASSETTE_PATH)) > 0:
+    if len(os.listdir(cassette_path)) > 0:
         return True
     return False
 
 
 def replace_unique_entries_in_cassettes(
-    entry_pairs: Tuple[Tuple[str, str]], cassette_dir: Optional[str] = CASSETTE_PATH
+    entry_pairs: Tuple[Tuple[str, str]], cassette_dir: str
 ) -> None:
     """
     This function searches for the unique_entry in a target cassette file and
@@ -83,7 +83,7 @@ def replace_unique_entries_in_cassette(
     with open(path_to_cassette_file, "rt") as read_file, open(
         path_to_scrubbed_cassette_file, "wt"
     ) as write_file:
-        for index, line in enumerate(read_file.readlines()):
+        for line in read_file.readlines():
             for unique_entry, dummy_value in entry_pairs:
                 line = line.replace(unique_entry, dummy_value)
             write_file.write(line)

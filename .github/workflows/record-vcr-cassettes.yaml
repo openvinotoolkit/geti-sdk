@@ -1,32 +1,36 @@
 name: Record and push VCR cassettes
 
 on:
-  issue_comment:
-    types: [created]
+  ## When run on comment creation (in PRs) it is not clear how to find the reference branch
+  # issue_comment:
+  #   types: [created]
   workflow_dispatch:  # run on request (no need for PR)
 
 env:
-  # Login details for the Geti instance to run the tests against
-  # Secrets are configured on the repository level (Settings > Secrets)
-  GETI_HOST: ${{ secrets.GETI_HOST }}
-  GETI_USERNAME: ${{ secrets.GETI_USERNAME }}
-  GETI_PASSWORD: ${{ secrets.GETI_PASSWORD }}
+  # Python version
+  PYTHON_VERSION: 3.9
 
   # Other environment variables used in the tests
   TEST_MODE: "RECORD"
   REPORT_DIRECTORY: reports
   VIRTUALENV_DIRECTORY: .venv
 
-  # Python environment
-  PYTHON_VERSION: 3.9
-
 permissions:
   contents: write
   pull-requests: write  # 'write' access to pull requests
 
 jobs:
-  integration_tests:
-    if: contains(github.event.comment.body, '/record')
+  recording_integration_tests:
+    # if: contains(github.event.comment.body, '/record')
+
+    strategy:
+      matrix:
+        include:
+          - geti_platform_version: "LEGACY"
+            host-name: "GETI_HOST"
+          - geti_platform_version: "DEVELOP"
+            host-name: "GETI_DEVELOP_HOST"
+
     runs-on: [self-hosted, sdk-runner]
 
     steps:
@@ -56,16 +60,27 @@ jobs:
         run: |
           export no_proxy=$GETI_HOST,$no_proxy
           export NO_PROXY=$GETI_HOST,$NO_PROXY
-          export GETI_HOST=https://$GETI_HOST
+          export GETI_HOST=https://$${{ matrix.host-name }}
 
           pytest tests/pre-merge/integration --html=$REPORT_DIRECTORY/integration_test_report.html --self-contained-html
+        env:
+          # Login details for the Geti instance to run the tests against
+          # Secrets are configured on the repository level (Settings > Secrets)
+          GETI_HOST: ${{ secrets.GETI_HOST }}
+          GETI_DEVELOP_HOST: ${{ secrets.GETI_DEVELOP_HOST }}
+
+          GETI_USERNAME: ${{ secrets.GETI_USERNAME }}
+          GETI_PASSWORD: ${{ secrets.GETI_PASSWORD }}
+
+          GETI_PLATFORM_VERSION: ${{ matrix.geti_platform_version }}
 
       - name: Commit files
         run: |
-            git config --local user.email "github-actions[bot]@users.noreply.github.com"
-            git config --local user.name "github-actions[bot]"
-            git commit -a -m "Update VCR cassettes"
-            git fetch
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add tests/fixtures/cassettes
+          git commit -m "Update VCR cassettes"
+          git fetch
 
       - name: Push changes
         uses: ad-m/github-push-action@master

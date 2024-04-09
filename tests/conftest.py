@@ -28,7 +28,8 @@ from tests.helpers.project_helpers import remove_all_test_projects
 from .helpers import SdkTestMode, get_sdk_fixtures, replace_unique_entries_in_cassettes
 from .helpers.constants import (
     BASE_TEST_PATH,
-    CASSETTE_PATH,
+    CASSETTE_BASE_PATH,
+    CASSETTE_PATH_KEY,
     DUMMY_HOST,
     DUMMY_ORGANIZATION_ID,
     DUMMY_WORKSPACE_ID,
@@ -44,6 +45,11 @@ pytest_plugins = get_sdk_fixtures()
 TEST_MODE = SdkTestMode[os.environ.get("TEST_MODE", "OFFLINE")]
 # TEST_MODE specifies the mode in which tests are run. Only applies to the integration
 # tests. Possible modes are: "OFFLINE", "ONLINE", "RECORD"
+
+GETI_PLATFORM_VERSION = os.environ.get("GETI_PLATFORM_VERSION", "DEVELOP")
+# GETI_PLATFORM_VERSION specifies the version of the Geti platform to run the tests
+# against. This is only used in the nightly tests in "OFFLINE" and "RECORD" modes.
+# Possible values: "DEVELOP", "LEGACY", "SAAS".
 
 HOST = os.environ.get("GETI_HOST", "https://dummy_host").strip("/")
 # HOST should hold the domain name or ip address of the Geti instance to run the tests
@@ -193,6 +199,10 @@ def pytest_sessionstart(session: Session) -> None:
 
     :param session: Pytest session instance that has just been created
     """
+    versioned_cassette_path = os.path.join(CASSETTE_BASE_PATH, GETI_PLATFORM_VERSION)
+    if not os.path.exists(versioned_cassette_path):
+        os.makedirs(versioned_cassette_path)
+    os.environ.update({CASSETTE_PATH_KEY: versioned_cassette_path})
     if CLEAR_EXISTING_TEST_PROJECTS and TEST_MODE != SdkTestMode.OFFLINE:
         # Remove existing test projects
         remove_all_test_projects(geti=_get_geti_instance())
@@ -214,6 +224,7 @@ def pytest_sessionfinish(session: Session, exitstatus: int) -> None:
     """
     if TEST_MODE == SdkTestMode.RECORD:
         record_cassette_path = os.environ.pop(RECORD_CASSETTE_KEY)
+        versioned_cassette_path = os.environ.pop(CASSETTE_PATH_KEY)
         if exitstatus == 0:
             logging.info("Recording successful! Wrapping up....")
             # Scrub hostname, organization_id and workspace_id from cassettes
@@ -236,13 +247,13 @@ def pytest_sessionfinish(session: Session, exitstatus: int) -> None:
             # Copy recorded cassettes to fixtures/cassettes
             logging.info(
                 f"Copying newly recorded cassettes from `{record_cassette_path}` to "
-                f"`{CASSETTE_PATH}`."
+                f"`{versioned_cassette_path}`."
             )
             for root, dirs, files in os.walk(record_cassette_path):
                 for file in files:
                     shutil.move(
                         os.path.join(root, file),
-                        os.path.join(CASSETTE_PATH, file),
+                        os.path.join(versioned_cassette_path, file),
                     )
 
         else:

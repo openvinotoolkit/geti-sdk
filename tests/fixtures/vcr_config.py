@@ -23,13 +23,15 @@ from vcr.record_mode import RecordMode
 from tests.helpers import SdkTestMode, are_cassettes_available
 from tests.helpers.constants import (
     CASSETTE_EXTENSION,
-    CASSETTE_PATH,
+    CASSETTE_PATH_KEY,
     RECORD_CASSETTE_KEY,
 )
 
 
 @pytest.fixture(scope="session")
-def vcr_record_config(fxt_test_mode, fxt_server_config) -> Dict[str, Any]:
+def vcr_record_config(
+    fxt_test_mode, fxt_server_config, vcr_cassette_dir
+) -> Dict[str, Any]:
     """
     This fixture determines the record mode for the VCR cassettes used in the tests
     """
@@ -45,11 +47,11 @@ def vcr_record_config(fxt_test_mode, fxt_server_config) -> Dict[str, Any]:
             ]
         yield {"record_mode": RecordMode.NONE, "ignore_hosts": [host] + proxy_hosts}
     elif fxt_test_mode == SdkTestMode.OFFLINE:
-        if not are_cassettes_available():
+        if not are_cassettes_available(vcr_cassette_dir):
             raise ValueError(
                 f"Tests were set to run in OFFLINE mode, but no cassettes were found "
                 f"on the system. Please make sure that the cassettes for the SDK test "
-                f"suite are available in '{CASSETTE_PATH}'."
+                f"suite are available in '{vcr_cassette_dir}'."
             )
         yield {"record_mode": RecordMode.NONE}
     else:
@@ -79,7 +81,7 @@ def vcr_cassette_dir(fxt_test_mode) -> str:
     if fxt_test_mode == SdkTestMode.RECORD:
         yield os.environ.get(RECORD_CASSETTE_KEY)
     else:
-        yield CASSETTE_PATH
+        yield os.environ.get(CASSETTE_PATH_KEY)
 
 
 @pytest.fixture(scope="session")
