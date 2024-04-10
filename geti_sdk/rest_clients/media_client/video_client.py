@@ -98,8 +98,13 @@ class VideoClient(BaseMediaClient[Video]):
         uploaded_video = MediaRESTConverter.from_dict(
             input_dict=video_dict, media_type=Video
         )
-        uploaded_video._data = video_path
-        uploaded_video._needs_tempfile_deletion = temporary_file_created
+        # Clean up temp file
+        if temporary_file_created:
+            # We do not keep the video file in case of uploading a numpy array representation.
+            # The intuition is that the user is responsible for managing the original video.
+            os.remove(video_path)
+        else:
+            uploaded_video._data = video_path
         return uploaded_video
 
     def upload_folder(

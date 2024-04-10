@@ -213,8 +213,9 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         :return: Dictionary containing the response of the Intel® Geti™ server, which
             holds the details of the uploaded entity
         """
-        media_bytes = open(filepath, "rb")
-        return self._upload_bytes(media_bytes, dataset=dataset)
+        with open(filepath, "rb") as f:
+            response = self._upload_bytes(f, dataset=dataset)
+        return response
 
     def _upload_loop(
         self,
