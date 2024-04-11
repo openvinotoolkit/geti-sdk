@@ -161,12 +161,15 @@ class TestModelAndPredictionClient:
             algorithm=untrained_algo,
         )
         # Monitor train job to make sure the project is train-ready
-        timeout = 600 if fxt_test_mode != SdkTestMode.OFFLINE else 1
+        timeout = 1200 if fxt_test_mode != SdkTestMode.OFFLINE else 1
         interval = 5 if fxt_test_mode != SdkTestMode.OFFLINE else 1
         fxt_project_service.training_client.monitor_jobs(
             [job], timeout=timeout, interval=interval
         )
-        # Set the new algorithm is active
+
+        assert job.state == JobState.FINISHED
+
+        # Set the new algorithm as active
         model_client.set_active_model(algorithm=untrained_algo)
         assert (
             model_client.get_active_model_for_task(task=task).architecture
