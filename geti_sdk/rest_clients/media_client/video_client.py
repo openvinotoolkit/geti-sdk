@@ -14,7 +14,7 @@
 
 
 import os
-import tempfile
+from datetime import datetime
 from typing import Optional, Sequence, Union
 
 import cv2
@@ -79,9 +79,10 @@ class VideoClient(BaseMediaClient[Video]):
                     f"dimensions representing [frames, height, width, channels]. Got "
                     f"shape {video.shape}"
                 ) from error
-            file_out = tempfile.NamedTemporaryFile(suffix=".avi", delete=False)
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            video_path = f"temp_video_{timestamp}.avi"
             out = cv2.VideoWriter(
-                file_out.name,
+                video_path,
                 cv2.VideoWriter_fourcc("M", "J", "P", "G"),
                 1,
                 (frame_width, frame_height),
@@ -89,7 +90,6 @@ class VideoClient(BaseMediaClient[Video]):
             for frame in video[:, ...]:
                 out.write(frame)
             out.release()
-            video_path = file_out.name
             temporary_file_created = True
         else:
             raise TypeError(f"Invalid video type: {type(video)}.")
