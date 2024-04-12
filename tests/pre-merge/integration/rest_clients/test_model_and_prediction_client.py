@@ -138,8 +138,8 @@ class TestModelAndPredictionClient:
             model_client.supported_algos.get_by_task_type(task.type)
         )
         untrained_algos.remove(default_algorithm)
-        # Zeroth algo is used in the next test
-        untrained_algo = untrained_algos[1]
+        # First algo should not be trained as it is used in the next test
+        untrained_algo = untrained_algos[0]
 
         # Act
         model_client.set_active_model(algorithm=default_algorithm)
@@ -162,7 +162,7 @@ class TestModelAndPredictionClient:
         )
         # Monitor train job to make sure the project is train-ready
         timeout = 1200 if fxt_test_mode != SdkTestMode.OFFLINE else 1
-        interval = 5 if fxt_test_mode != SdkTestMode.OFFLINE else 1
+        interval = 10 if fxt_test_mode != SdkTestMode.OFFLINE else 1e-5
         fxt_project_service.training_client.monitor_jobs(
             [job], timeout=timeout, interval=interval
         )
@@ -201,7 +201,7 @@ class TestModelAndPredictionClient:
         )
         default_algo = untrained_algos.get_default_for_task_type(task.type)
         untrained_algos.remove(default_algo)
-        untrained_algo = untrained_algos[0]
+        untrained_algo = untrained_algos[1]
 
         model_1 = model_client.get_model_by_algorithm_task_and_version(
             algorithm=algorithm, task=task, version=1
