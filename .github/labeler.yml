@@ -1,17 +1,11 @@
 Rest-Clients:
-- changed-files:
-  - any-glob-to-any-file:
-    - 'geti_sdk/rest_clients/**'
+  - 'geti_sdk/rest_clients/**'
 
 HTTP-Session:
-- changed-files:
-  - any-glob-to-any-file: 'geti_sdk/http_session/*'
+  - 'geti_sdk/http_session/*'
 
 Geti-Object:
-- changed-files:
-  - any-glob-to-any-file: 'geti_sdk/geti.py'
+  - 'geti_sdk/geti.py'
 
 Utils:
-- changed-files:
-  - any-glob-to-any-file:
-    - 'geti_sdk/utils/*'
+  - 'geti_sdk/utils/*'
