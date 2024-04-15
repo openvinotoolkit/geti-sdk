@@ -1,4 +1,4 @@
-name: Record and push VCR cassettes
+name: Conditional Workflow
 
 on:
   workflow_dispatch:  # run on request (no need for PR)  
