@@ -1,11 +1,10 @@
-'Rest-Clients':
+Rest-Clients:
   - 'geti_sdk/rest_clients/**'
 
-'HTTP-Session':
+HTTP-Session:
   - 'geti_sdk/http_session/*'
-
-'Geti-Object':
+Geti-Object:
   - 'geti_sdk/geti.py'
 
-'Utils':
+Utils:
   - 'geti_sdk/utils/*'
