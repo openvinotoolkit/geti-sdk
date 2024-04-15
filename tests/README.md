@@ -20,6 +20,7 @@ in offline mode, meaning that no actual Intel® Geti™ server is needed and no 
 http requests are being made during testing. All requests are intercepted, and a
 previously recorded response is returned. The recorded interactions can be found in
 [fixtures/cassettes](fixtures/cassettes).
+> **_NOTE:_**  You may need to fetch and checkout VCR cassette data using [Git Large File Storage (LFS)](https://git-lfs.com/). Make sure that you have the **git-lfs** package installed and run `git lfs pull` from the root repo directory to download the HTTP requests records.
 
 ## Unit tests
 The SDK unit tests are defined in the [pre-merge/unit](pre-merge/unit) directory. The
@@ -76,3 +77,11 @@ by running the tests in `RECORD` mode. The easiest way to do this is to create a
 Once you created the custom `online.ini` or `record.ini` configurations, you can run
 the tests using `pytest -c online.ini ./pre-merge`. This will execute the tests in
 online mode.
+
+### Tests Intel® Geti™ SDK against the previous version of Intel® Geti™ server.
+You can run the test suite against a legacy version of Intel® Geti™ server.
+- In `ONLINE` mode  Simply assign the `GETI_HOST` variable with the legacy server’s address.
+- In `OFFLINE` and `RECORD` modes one can set the `GETI_PLATFORM_VERSION` variable to `LEGACY`
+within `offline.ini` or `record.ini` correspondingly, thus utilizing the pre-recorded cassettes from the prior server release for testing.
+
+> **_NOTE:_**  Currently,  Intel® Geti™ 1.8 is considered as the legacy release.

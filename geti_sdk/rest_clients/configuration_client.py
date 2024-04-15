@@ -46,7 +46,9 @@ class ConfigurationClient:
         self.base_url = (
             f"workspaces/{workspace_id}/projects/{project_id}/" f"configuration"
         )
-        self.supported_algos = get_supported_algorithms(session)
+        self.supported_algos = get_supported_algorithms(
+            rest_session=session, project=project, workspace_id=workspace_id
+        )
 
         # Query the project status to make sure that the project is loaded. Then we
         # can safely fetch the configuration later on, even for newly created projects
@@ -186,7 +188,7 @@ class ConfigurationClient:
         """
         if algorithm not in self.supported_algos.get_by_task_type(task.type):
             raise ValueError(
-                f"The requested algorithm '{algorithm.algorithm_name}' is not "
+                f"The requested algorithm '{algorithm.name}' is not "
                 f"supported for a task of type '{task.type}'. Unable to retrieve "
                 f"configuration."
             )

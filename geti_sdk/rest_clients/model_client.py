@@ -29,6 +29,7 @@ from geti_sdk.data_models import (
 )
 from geti_sdk.data_models.enums import JobState, JobType, OptimizationType
 from geti_sdk.http_session import GetiSession
+from geti_sdk.platform_versions import GETI_116_VERSION
 from geti_sdk.rest_converters import ModelRESTConverter
 from geti_sdk.utils import get_supported_algorithms
 from geti_sdk.utils.job_helpers import get_job_with_timeout, monitor_job
@@ -48,7 +49,9 @@ class ModelClient:
         self.workspace_id = workspace_id
         self.task_ids = [task.id for task in project.get_trainable_tasks()]
         self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/model_groups"
-        self.supported_algos = get_supported_algorithms(self.session)
+        self.supported_algos = get_supported_algorithms(
+            rest_session=self.session, project=project, workspace_id=workspace_id
+        )
 
     def get_all_model_groups(self) -> List[ModelGroup]:
         """
@@ -102,11 +105,7 @@ class ModelClient:
         """
         model_groups = self.get_all_model_groups()
         return next(
-            (
-                group
-                for group in model_groups
-                if group.algorithm.algorithm_name == algorithm_name
-            ),
+            (group for group in model_groups if group.algorithm.name == algorithm_name),
             None,
         )
 
@@ -296,6 +295,60 @@ class ModelClient:
         updated_model.base_url = self.base_url
         return updated_model
 
+    def set_active_model(
+        self,
+        model: Optional[Union[Model, ModelSummary]] = None,
+        algorithm: Optional[Union[Algorithm, str]] = None,
+    ) -> None:
+        """
+        Set the model as the active model.
+
+        :param model: Model or ModelSummary object representing the model to set as active
+        :param algorithm: Algorithm or algorithm name for which to set the model as active
+        :raises ValueError: If neither `model` nor `algorithm` is specified,
+            If the algorithm is not supported in the project,
+            If unable to set the active model
+        """
+        # First we determine the algorithm name
+        if model is not None:
+            # Update the model details to make sure we have the latest information
+            model = self.update_model_detail(model)
+            algorithm_name = model.architecture
+        elif algorithm is not None:
+            if isinstance(algorithm, str):
+                algorithm_name = algorithm
+            elif isinstance(algorithm, Algorithm):
+                algorithm_name = algorithm.name
+            else:
+                raise ValueError(
+                    f"Invalid type {type(algorithm)}. Argument `algorithm` must be "
+                    "either a string representing the algorith name or an Algorithm object"
+                )
+        else:
+            raise ValueError(
+                "Either `model` or `algorithm` must be specified to set the active model"
+            )
+        # Now we make sure that the algorithm is supported in the project
+        algorithms_supported_in_the_project = {
+            algorithm.name
+            for task in self.project.get_trainable_tasks()
+            for algorithm in self.supported_algos.get_by_task_type(task.type)
+        }
+        if algorithm_name not in algorithms_supported_in_the_project:
+            raise ValueError(
+                f"Algorithm `{algorithm_name}` is not supported in the project "
+                f"{self.project.name}."
+            )
+        # We get a model group for the algorithm
+        model_group = self.get_model_group_by_algo_name(algorithm_name=algorithm_name)
+        model_group_id = model_group.id if model_group is not None else None
+        if model_group_id is None:
+            raise ValueError("Unable to set the active model. Train a model first")
+        # Fire a request to the server to set a model from the group as active
+        url = f"{self.base_url}/{model_group_id}:activate"
+        _ = self.session.get_rest_response(url=url, method="POST")
+        logging.info(f"{algorithm_name} model set as active successfully")
+
     def get_active_model_for_task(self, task: Task) -> Optional[Model]:
         """
         Return the Model details for the currently active model, for a task if any.
@@ -466,7 +519,7 @@ class ModelClient:
                 f"Cannot get model for job `{job.description}`. This job does not "
                 f"belong to the project managed by this ModelClient instance."
             )
-        if job.status.state != JobState.FINISHED:
+        if job.state != JobState.FINISHED:
             raise ValueError(
                 f"Job `{job.description}` is not finished yet, unable to retrieve "
                 f"model for the job. Please wait until job is finished"
@@ -584,7 +637,10 @@ class ModelClient:
         response = self.session.get_rest_response(
             url=optimize_model_url, method="POST", data=payload
         )
-        job_id = response["job_ids"][0]
+        if self.session.version < GETI_116_VERSION:
+            job_id = response["job_ids"][0]
+        else:
+            job_id = response["job_id"]
         job = get_job_with_timeout(
             job_id=job_id,
             session=self.session,

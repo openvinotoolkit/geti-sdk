@@ -23,6 +23,7 @@ from otx.api.entities.label import LabelEntity
 from otx.api.entities.scored_label import ScoredLabel as OteScoredLabel
 
 from geti_sdk.data_models.enums import TaskType
+from geti_sdk.data_models.enums.domain import Domain
 
 
 @attr.define
@@ -64,9 +65,28 @@ class Label:
     group: str
     is_empty: bool
     hotkey: str = ""
+    domain: Optional[Domain] = None
     id: Optional[str] = None
     parent_id: Optional[str] = None
     is_anomalous: Optional[bool] = None
+
+    def __key(self) -> Tuple[str, str]:
+        """
+        Return a tuple representing the key of the label.
+
+        The key is a tuple containing the name and color of the label.
+
+        :return: A tuple representing the key of the label.
+        """
+        return (self.name, self.color)
+
+    def __hash__(self) -> int:
+        """
+        Calculate the hash value of the object.
+
+        :return: The hash value of the object.
+        """
+        return hash(self.__key())
 
     def to_ote(self, task_type: TaskType) -> LabelEntity:
         """
@@ -81,6 +101,7 @@ class Label:
             hotkey=self.hotkey,
             is_empty=self.is_empty,
             color=Color.from_hex_str(self.color),
+            is_anomalous=self.is_anomalous,
         )
 
     def prepare_for_post(self) -> None:
@@ -160,7 +181,11 @@ class ScoredLabel:
             name=ote_label.name,
             id=ote_label.id,
             probability=ote_label.probability,
-            color=ote_label.color.hex_str,
+            color=(
+                ote_label.color
+                if isinstance(ote_label.color, str)
+                else ote_label.color.hex_str
+            ),
         )
 
     def to_ote(self) -> OteScoredLabel:

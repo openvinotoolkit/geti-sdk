@@ -27,7 +27,7 @@ from geti_sdk.data_models.enums import DeploymentState, OptimizationType
 from geti_sdk.data_models.model import Model, OptimizedModel
 from geti_sdk.deployment import DeployedModel, Deployment
 from geti_sdk.http_session import GetiSession
-from geti_sdk.platform_versions import GETI_11_VERSION
+from geti_sdk.platform_versions import GETI_11_VERSION, GETI_18_VERSION
 from geti_sdk.rest_clients.configuration_client import ConfigurationClient
 from geti_sdk.rest_clients.model_client import ModelClient
 from geti_sdk.rest_clients.prediction_client import PredictionClient
@@ -44,7 +44,9 @@ class DeploymentClient:
         self.project = project
         self.workspace_id = workspace_id
         self.base_url = f"workspaces/{workspace_id}/projects/{project.id}"
-        self.supported_algos = get_supported_algorithms(session)
+        self.supported_algos = get_supported_algorithms(
+            rest_session=session, project=project, workspace_id=workspace_id
+        )
 
         self._model_client = ModelClient(
             workspace_id=workspace_id, project=project, session=session
@@ -75,7 +77,16 @@ class DeploymentClient:
 
         :return: True when the project is ready for deployment, False otherwise
         """
-        return self._prediction_client.ready_to_predict
+        ready = False
+        if self._prediction_client.ready_to_predict:
+            ready = True
+            if self.session.version > GETI_18_VERSION:
+                # Check that all tasks have a trained model
+                models = self._model_client.get_all_active_models()
+                for model in models:
+                    if model is None:
+                        ready = False
+        return ready
 
     def _request_deployment(
         self, model_identifiers: Sequence[DeploymentModelIdentifier]
@@ -377,8 +388,10 @@ class DeploymentClient:
 
         # Wait for the deployment to become available
         stop_polling = False
+        t_start = time.time()
+        timeout = 600
         logging.info("Waiting for the deployment to be created...")
-        while not stop_polling:
+        while not stop_polling and time.time() - t_start < timeout:
             time.sleep(1)
             code_deployment = self._get_deployment_status(code_deployment.id)
             if code_deployment.state == DeploymentState.DONE:
@@ -388,6 +401,15 @@ class DeploymentClient:
                     f"The Intel® Geti™ server failed to create deployment for "
                     f"project '{self.project.name}'."
                 )
+
+        if code_deployment.state != DeploymentState.DONE:
+            raise ValueError(
+                f"The Intel® Geti™ server failed to create deployment for "
+                f"project '{self.project.name}' within 10 minutes. Deployment "
+                f"creation timed out, the current state of the deployment is"
+                f" `{code_deployment.state}` with a progress of "
+                f"{code_deployment.progress:.1f}%"
+            )
 
         # Fetch the deployment package
         deployment = self._fetch_deployment(deployment_id=code_deployment.id)

@@ -22,6 +22,7 @@ from tests.helpers import (
     ProjectService,
     SdkTestMode,
     attempt_to_train_task,
+    await_training_start,
     get_or_create_annotated_project_for_test_class,
 )
 from tests.helpers.constants import PROJECT_PREFIX
@@ -62,21 +63,22 @@ class TestTrainingClient:
         )
         assert isinstance(job, Job)
 
+        await_training_start(fxt_test_mode, fxt_project_service.training_client)
+
         jobs = fxt_project_service.training_client.get_jobs(project_only=True)
         assert job.id in [project_job.id for project_job in jobs]
 
         # Update job status
         job.update(fxt_project_service.session)
-        job_state = job.status.state
-        if job_state in JobState.active_states():
+        if job.state in JobState.active_states():
             # Cancel the job
             logging.info(f"Job '{job.name}' is still active, cancelling...")
             job.cancel(fxt_project_service.session)
         else:
             logging.info(
-                f"Job '{job.name}' has already excited with status {job_state}."
+                f"Job '{job.name}' has already excited with status {job.state}."
             )
-        logging.info(job_state)
+        logging.info(job.state)
 
     @pytest.mark.vcr()
     def test_get_status(

@@ -17,13 +17,14 @@ from typing import List, Optional, Union
 import cv2
 import numpy as np
 from IPython.display import display
-from otx.api.usecases.exportable_code.visualizers import Visualizer
 from PIL import Image as PILImage
 
 from geti_sdk.data_models.annotation_scene import AnnotationScene
 from geti_sdk.data_models.containers import MediaList
-from geti_sdk.data_models.media import Image, MediaInformation, VideoFrame
+from geti_sdk.data_models.enums import AnnotationKind
+from geti_sdk.data_models.media import Image, VideoFrame
 from geti_sdk.data_models.predictions import Prediction
+from geti_sdk.prediction_visualization.visualizer import Visualizer
 
 
 def show_image_with_annotation_scene(
@@ -33,6 +34,9 @@ def show_image_with_annotation_scene(
     show_in_notebook: bool = False,
     show_results: bool = True,
     channel_order: str = "rgb",
+    show_labels: bool = True,
+    show_confidences: bool = True,
+    fill_shapes: bool = True,
 ) -> np.ndarray:
     """
     Display an image with an annotation_scene overlayed on top of it.
@@ -52,28 +56,31 @@ def show_image_with_annotation_scene(
     :param channel_order: The channel order (R,G,B or B,G,R) used for the input image.
         This parameter accepts either `rgb` or `bgr` as input values, and defaults to
         `rgb`.
+    :param show_labels: True to show the labels of the annotations. If set to False,
+        the labels will not be shown.
+    :param show_confidences: True to show the confidences of the annotations. If set to
+        False, the confidences will not be shown.
+    :param fill_shapes: True to fill the shapes of the annotations. If set to False, the
+        shapes will not be filled.
     """
-    if type(annotation_scene) == AnnotationScene:
+    if annotation_scene.kind == AnnotationKind.ANNOTATION:
         plot_type = "Annotation"
-    elif type(annotation_scene) == Prediction:
+    elif annotation_scene.kind == AnnotationKind.PREDICTION:
         plot_type = "Prediction"
     else:
         raise ValueError(
             f"Invalid input: Unable to plot object of type {type(annotation_scene)}."
         )
     if isinstance(image, np.ndarray):
-        media_information = MediaInformation(
-            "", height=image.shape[0], width=image.shape[1]
-        )
         name = "Numpy image"
     else:
-        media_information = image.media_information
         name = image.name
 
     window_name = f"{plot_type} for {name}"
-    visualizer = Visualizer(window_name=window_name)
-    ote_annotation_scene = annotation_scene.to_ote(
-        image_width=media_information.width, image_height=media_information.height
+    visualizer = Visualizer(
+        window_name=window_name,
+        show_labels=show_labels,
+        show_confidence=show_confidences,
     )
 
     if isinstance(image, np.ndarray):
@@ -91,12 +98,13 @@ def show_image_with_annotation_scene(
             f"`bgr`."
         )
 
-    result = visualizer.draw(image=rgb_image, annotation=ote_annotation_scene)
+    result = visualizer.draw(
+        image=rgb_image, annotation=annotation_scene, fill_shapes=fill_shapes
+    )
 
     if filepath is None:
         if show_results:
-            rgb_result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
-            image = PILImage.fromarray(rgb_result)
+            image = PILImage.fromarray(result)
             if not show_in_notebook:
                 image.show(title=window_name)
             else:
@@ -116,6 +124,9 @@ def show_video_frames_with_annotation_scenes(
     annotation_scenes: List[Union[AnnotationScene, Prediction]],
     wait_time: float = 1,
     filepath: Optional[str] = None,
+    show_labels: bool = True,
+    show_confidences: bool = True,
+    fill_shapes: bool = True,
 ):
     """
     Display a list of VideoFrames, with their annotations or predictions overlayed on
@@ -127,6 +138,12 @@ def show_video_frames_with_annotation_scenes(
     :param wait_time: Time to show each frame, in seconds
     :param filepath: Optional filepath to save the video with annotation overlay to.
         If left as None, the video frames will be shown in a new opencv window
+    :param show_labels: True to show the labels of the annotations. If set to False,
+        the labels will not be shown.
+    :param show_confidences: True to show the confidences of the annotations. If set to
+        False, the confidences will not be shown.
+    :param fill_shapes: True to fill the shapes of the annotations. If set to False, the
+        shapes will not be filled.
     """
     first_frame = video_frames[0]
 
@@ -142,25 +159,27 @@ def show_video_frames_with_annotation_scenes(
             ),
         )
 
-    for frame, annotation_scene in zip(video_frames, annotation_scenes):
-        if type(annotation_scene) == AnnotationScene:
-            name = "Annotation"
-        elif type(annotation_scene) == Prediction:
-            name = "Prediction"
-        else:
-            raise ValueError(
-                f"Invalid input: Unable to plot object of type "
-                f"{type(annotation_scene)}."
-            )
-        ote_annotation = annotation_scene.to_ote(
-            image_width=frame.media_information.width,
-            image_height=frame.media_information.height,
+    if annotation_scenes[0].kind == AnnotationKind.ANNOTATION:
+        name = "Annotation"
+    elif annotation_scenes[0].kind == AnnotationKind.PREDICTION:
+        name = "Prediction"
+    else:
+        raise ValueError(
+            f"Invalid input: Unable to plot object of type "
+            f"{type(annotation_scenes[0])}."
         )
+    window_name = f"{name} for '{video_frames[0].video_name}'"
+    visualizer = Visualizer(
+        window_name=window_name,
+        show_labels=show_labels,
+        show_confidence=show_confidences,
+    )
 
+    for frame, annotation_scene in zip(video_frames, annotation_scenes):
         numpy_frame = frame.numpy.copy()
-        window_name = f"{name} for '{frame.video_name}'"
-        visualizer = Visualizer(window_name=window_name)
-        result = visualizer.draw(numpy_frame, annotation=ote_annotation)
+        result = visualizer.draw(
+            numpy_frame, annotation=annotation_scene, fill_shapes=fill_shapes
+        )
 
         if out_writer is None:
             cv2.imshow(window_name, result)
@@ -173,3 +192,104 @@ def show_video_frames_with_annotation_scenes(
         cv2.waitKey(1)
     else:
         out_writer.release()
+
+
+def pad_image_and_put_caption(
+    image: np.ndarray,
+    run_name: int,
+    model_1: str,
+    model_1_score: str,
+    model_2: Optional[str] = None,
+    model_2_score: Optional[str] = None,
+    fps: Optional[int] = None,
+) -> np.ndarray:
+    """
+    Pad the image with white and put the caption on it.
+
+    :param image: Numpy array containing the image to be padded.
+    :param run_name: Experiment description.
+    :param model_1: Name of the model 1.
+    :param model_1_score: Score of the model 1.
+    :param model_2: Name of the model 2.
+    :param model_2_score: Score of the model 2.
+    :param fps: FPS of the inference.
+    :return: Padded image with caption.
+    """
+    # Calculate text and image padding size
+    text_scale = round(image.shape[1] / 1280, 1)
+    thickness = int(text_scale / 1.5)
+    (_, label_height), baseline = cv2.getTextSize(
+        "Test caption", cv2.FONT_HERSHEY_SIMPLEX, text_scale, thickness
+    )
+    universal_padding = 2
+    bottom_padding_pre_line = label_height + baseline
+    # Prepare image captions
+    caption_lines = [
+        run_name + ("" if fps is None else f" @{fps} fps"),
+        f"Model 1: {model_1}, score {model_1_score:.2f}",
+    ]
+    if model_2 and model_2_score:
+        caption_lines.append(f"Model 2: {model_2}, score {model_2_score:.2f}")
+    # Pad the image and put captions on it
+    padded_image = cv2.copyMakeBorder(
+        image,
+        top=universal_padding,
+        bottom=universal_padding + bottom_padding_pre_line * len(caption_lines),
+        left=universal_padding,
+        right=universal_padding,
+        borderType=cv2.BORDER_CONSTANT,
+        value=(255, 255, 255),
+    )
+    # Put text
+    for line_number, text_line in enumerate(caption_lines):
+        cv2.putText(
+            padded_image,
+            text_line,
+            (0, image.shape[0] + bottom_padding_pre_line * (line_number + 1)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            text_scale,
+            (0, 0, 0),
+            thickness,
+        )
+    return padded_image
+
+
+def concat_prediction_results(results: List[List[np.ndarray]]) -> np.ndarray:
+    """
+    Merge the prediction images to one.
+
+    :param results: List of lists of numpy arrays containing the results of the
+        predictions.
+    :return: Numpy array containing the concatenated results.
+    """
+    # Gather information about images on the grid
+    row_pixel_lengths = []
+    for index, row in enumerate(results):
+        integral_row_length = sum([image.shape[1] for image in row])
+        row_pixel_lengths.append(integral_row_length)
+        image_heights = [image.shape[0] for image in row]
+        if len(set(image_heights)) > 1:
+            raise ValueError(f"Row {index} has images with different heights!")
+    # Concatenate images
+    max_row_length = max(row_pixel_lengths)
+    concatenated_rows = []
+    for row in results:
+        merged_row = cv2.hconcat(row)
+        if merged_row.shape[1] < max_row_length:
+            # Add empty image to the end of the row
+            merged_row = cv2.hconcat(
+                [
+                    merged_row,
+                    np.ones(
+                        (
+                            merged_row.shape[0],
+                            max_row_length - merged_row.shape[1],
+                            merged_row.shape[2],
+                        ),
+                        dtype=np.uint8,
+                    )
+                    * 255,
+                ]
+            )
+        concatenated_rows.append(merged_row)
+    return cv2.vconcat(concatenated_rows)

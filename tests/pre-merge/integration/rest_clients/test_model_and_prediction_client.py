@@ -20,12 +20,11 @@ import numpy as np
 import pytest
 
 from geti_sdk.annotation_readers import DatumAnnotationReader
-from geti_sdk.data_models import Image, Prediction, Project, TaskType
+from geti_sdk.data_models import Image, Prediction, Project
 from geti_sdk.data_models.enums import JobState, PredictionMode
 from geti_sdk.demos import EXAMPLE_IMAGE_PATH
 from geti_sdk.http_session import GetiRequestException
 from geti_sdk.platform_versions import GETI_15_VERSION
-from geti_sdk.utils import get_supported_algorithms
 from tests.helpers import (
     ProjectService,
     SdkTestMode,
@@ -89,7 +88,7 @@ class TestModelAndPredictionClient:
 
         # Test that getting model for the train job works
         if fxt_test_mode == SdkTestMode.OFFLINE:
-            job.status.state = JobState.FINISHED
+            job.state = JobState.FINISHED
         model = fxt_project_service.model_client.get_model_for_job(
             job=job, check_status=False
         )
@@ -111,10 +110,74 @@ class TestModelAndPredictionClient:
         )
 
         model_group = fxt_project_service.model_client.get_model_group_by_algo_name(
-            algorithm_name=default_algo.algorithm_name
+            algorithm_name=default_algo.name
         )
 
         assert model_group is not None
+
+    @pytest.mark.vcr()
+    def test_set_active_model(
+        self,
+        fxt_project_service: ProjectService,
+        fxt_test_mode: SdkTestMode,
+    ) -> None:
+        """
+        Test that the specific model or algorithm can be set as active.
+        """
+        model_client = fxt_project_service.model_client
+        project = fxt_project_service.project
+        task = project.get_trainable_tasks()[0]
+        default_algorithm = model_client.supported_algos.get_default_for_task_type(
+            task.type
+        )
+        default_model = model_client.get_active_model_for_task(task=task)
+
+        unsupported_algorithm_name = "unsupported_algorithm"
+
+        untrained_algos = copy.deepcopy(
+            model_client.supported_algos.get_by_task_type(task.type)
+        )
+        untrained_algos.remove(default_algorithm)
+        # Zeroth algo is used in the next test
+        untrained_algo = untrained_algos[1]
+
+        # Act
+        model_client.set_active_model(algorithm=default_algorithm)
+        model_client.set_active_model(algorithm=default_algorithm.name)
+        model_client.set_active_model(model=default_model)
+
+        with pytest.raises(ValueError):
+            model_client.set_active_model()
+        with pytest.raises(ValueError):
+            model_client.set_active_model(algorithm=untrained_algo)
+        with pytest.raises(ValueError):
+            model_client.set_active_model(algorithm=unsupported_algorithm_name)
+
+        # Train a model for the new algorithm
+        job = attempt_to_train_task(
+            training_client=fxt_project_service.training_client,
+            task=project.get_trainable_tasks()[0],
+            test_mode=fxt_test_mode,
+            algorithm=untrained_algo,
+        )
+        # Monitor train job to make sure the project is train-ready
+        timeout = 600 if fxt_test_mode != SdkTestMode.OFFLINE else 1
+        interval = 5 if fxt_test_mode != SdkTestMode.OFFLINE else 1
+        fxt_project_service.training_client.monitor_jobs(
+            [job], timeout=timeout, interval=interval
+        )
+        # Set the new algorithm is active
+        model_client.set_active_model(algorithm=untrained_algo)
+        assert (
+            model_client.get_active_model_for_task(task=task).architecture
+            == untrained_algo.name
+        )
+        # Activate the old one again
+        model_client.set_active_model(algorithm=default_algorithm)
+        assert (
+            model_client.get_active_model_for_task(task=task).architecture
+            == default_algorithm.name
+        )
 
     @pytest.mark.vcr()
     def test_get_model_algorithm_task_and_version(
@@ -129,10 +192,6 @@ class TestModelAndPredictionClient:
         project = fxt_project_service.project
         task = project.get_trainable_tasks()[0]
         algorithm = model_client.supported_algos.get_default_for_task_type(task.type)
-
-        unsupported_algo = get_supported_algorithms(
-            fxt_project_service.session, task_type=TaskType.SEGMENTATION
-        )[0]
 
         untrained_algos = copy.deepcopy(
             model_client.supported_algos.get_by_task_type(task.type)
@@ -166,11 +225,6 @@ class TestModelAndPredictionClient:
         assert model_not_trained is None
         assert model_invalid_version is None
 
-        with pytest.raises(ValueError):
-            model_client.get_model_by_algorithm_task_and_version(
-                algorithm=unsupported_algo, task=task
-            )
-
     @pytest.mark.vcr()
     def test_download_active_model_for_task(
         self, fxt_project_service: ProjectService, fxt_temp_directory: str
@@ -194,13 +248,13 @@ class TestModelAndPredictionClient:
         models_content = os.listdir(models_filepath)
 
         assert len(models_content) >= 3
-        assert f"{algorithm.algorithm_name}_base.zip" in models_content
+        assert f"{algorithm.name}_base.zip" in models_content
         assert f"{task.type}_model_details.json" in models_content
 
         if fxt_project_service.session.version < GETI_15_VERSION:
-            mo_model_name = f"{algorithm.algorithm_name} OpenVINO_MO_optimized.zip"
+            mo_model_name = f"{algorithm.name} OpenVINO_MO_optimized.zip"
         else:
-            mo_model_name = f"{algorithm.algorithm_name} OpenVINO FP16_MO_optimized.zip"
+            mo_model_name = f"{algorithm.name} OpenVINO FP16_MO_optimized.zip"
         assert mo_model_name in models_content
 
     def test_prediction_client_set_mode(
@@ -242,6 +296,8 @@ class TestModelAndPredictionClient:
             except GetiRequestException as error:
                 if error.status_code != 503:
                     raise error
+            except TimeoutError:
+                pass
             time.sleep(sleep_time)
         prediction_numpy = prediction_client.predict_image(image=fxt_numpy_image)
         prediction_geti_image = prediction_client.predict_image(image=fxt_geti_image)

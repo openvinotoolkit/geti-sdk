@@ -26,7 +26,11 @@ from geti_sdk.data_models.containers import AlgorithmList
 from geti_sdk.data_models.enums import JobState, JobType
 from geti_sdk.data_models.project import Dataset
 from geti_sdk.http_session import GetiSession
-from geti_sdk.platform_versions import GETI_11_VERSION
+from geti_sdk.platform_versions import (
+    GETI_11_VERSION,
+    GETI_18_VERSION,
+    GETI_116_VERSION,
+)
 from geti_sdk.rest_converters import (
     ConfigurationRESTConverter,
     JobRESTConverter,
@@ -46,7 +50,9 @@ class TrainingClient:
         self.project = project
         self.workspace_id = workspace_id
         self.base_url = f"workspaces/{workspace_id}/projects/{project.id}"
-        self.supported_algos = get_supported_algorithms(session)
+        self.supported_algos = get_supported_algorithms(
+            rest_session=session, project=project, workspace_id=workspace_id
+        )
 
     def get_status(self) -> ProjectStatus:
         """
@@ -59,7 +65,15 @@ class TrainingClient:
         )
         return StatusRESTConverter.from_dict(response)
 
-    def get_jobs(self, project_only: bool = True) -> List[Job]:
+    def is_training(self) -> bool:
+        """
+        Request the project status and return True if the project is training
+        """
+        return self.get_status().is_training
+
+    def get_jobs(
+        self, project_only: bool = True, running_only: bool = False
+    ) -> List[Job]:
         """
         Return a list of all jobs on the Intel® Geti™ server.
 
@@ -70,36 +84,76 @@ class TrainingClient:
         :param project_only: True to return only those jobs pertaining to the project
             for which the TrainingClient is active. False to return all jobs in the
             Intel® Geti™ workspace.
+        :param running_only: If set to True, only return those jobs that are still
+            running. Completed or Scheduled jobs will not be included in that case
         :return: List of Jobs
         """
-        response = self.session.get_rest_response(
-            url=f"workspaces/{self.workspace_id}/jobs", method="GET"
-        )
-        job_list: List[Job] = []
+        if self.session.version > GETI_18_VERSION:
+            query = "?limit=100"
+            if project_only:
+                query += f"&project_id={self.project.id}"
+            if running_only:
+                query += "&state=running"
+            use_pagination = True
+            use_querying = True
+        else:
+            query = ""
+            use_pagination = False
+            use_querying = False
+
         if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
             response_list_key = "items"
         else:
             response_list_key = "jobs"
-        for job_dict in response[response_list_key]:
+
+        job_rest_list: List[dict] = []
+        if not use_pagination:
+            response = self.session.get_rest_response(
+                url=f"workspaces/{self.workspace_id}/jobs{query}", method="GET"
+            )
+            job_rest_list = response[response_list_key]
+        else:
+            while response := self.session.get_rest_response(
+                url=f"workspaces/{self.workspace_id}/jobs{query}&skip={len(job_rest_list)}",
+                method="GET",
+            ):
+                job_rest_list.extend(response[response_list_key])
+                job_count_dict = response["jobs_count"]
+                total_job_count = (
+                    job_count_dict.get("n_running_jobs", 0)
+                    + job_count_dict.get("n_finished_jobs", 0)
+                    + job_count_dict.get("n_failed_jobs", 0)
+                    + job_count_dict.get("n_cancelled_jobs", 0)
+                )
+                if len(job_rest_list) >= total_job_count:
+                    break
+
+        job_list: List[Job] = []
+        for job_dict in job_rest_list:
             job = JobRESTConverter.from_dict(job_dict)
+            if running_only and not job.is_running:
+                continue
             job.workspace_id = self.workspace_id
+            job.geti_version = self.session.version
             job_list.append(job)
 
-        if project_only and (
-            self.session.version.is_sc_mvp or self.session.version.is_sc_1_1
-        ):
-            return [job for job in job_list if job.project_id == self.project.id]
-        elif project_only and self.session.version.is_geti:
-            project_jobs: List[Job] = []
-            for job in job_list:
-                project = job.metadata.project
-                if project is not None:
-                    if project.id == self.project.id:
+        if not use_querying:
+            # In this case we have to filter manually
+            if project_only and (
+                self.session.version.is_sc_mvp or self.session.version.is_sc_1_1
+            ):
+                return [job for job in job_list if job.project_id == self.project.id]
+            elif project_only and self.session.version <= GETI_18_VERSION:
+                project_jobs: List[Job] = []
+                for job in job_list:
+                    project = job.metadata.project
+                    if project is not None:
+                        if project.id == self.project.id:
+                            project_jobs.append(job)
+                            continue
+                    if job.metadata.project_id == self.project.id:
                         project_jobs.append(job)
-                        continue
-                if job.metadata.project_id == self.project.id:
-                    project_jobs.append(job)
-            return project_jobs
+                return project_jobs
         else:
             return job_list
 
@@ -127,7 +181,6 @@ class TrainingClient:
         dataset: Optional[Dataset] = None,
         algorithm: Optional[Algorithm] = None,
         train_from_scratch: bool = False,
-        enable_pot_optimization: bool = False,
         hyper_parameters: Optional[TaskConfiguration] = None,
         hpo_parameters: Optional[Dict[str, Any]] = None,
         await_running_jobs: bool = True,
@@ -146,8 +199,6 @@ class TrainingClient:
             default), the default algorithm for the task will be used.
         :param train_from_scratch: True to train the model from scratch, False to
             continue training from an existing checkpoint (if any)
-        :param enable_pot_optimization: True to optimize the trained model with POT
-            after training is complete
         :param hyper_parameters: Optional hyper parameters to use for training
         :param hpo_parameters: Optional set of parameters to use for automatic hyper
             parameter optimization. Only supported for version 1.1 and up
@@ -165,15 +216,20 @@ class TrainingClient:
         """
         if isinstance(task, int):
             task = self.project.get_trainable_tasks()[task]
+        if dataset is not None and self.session.version >= GETI_116_VERSION:
+            logging.warning(
+                "Training on a Dataset other than the default training dataset is not "
+                "supported in the version of the Geti platform running on your server. "
+                "The `dataset` parameter will be disregarded."
+            )
         if dataset is None:
-            dataset = self.project.datasets[0]
+            dataset = self.project.training_dataset
         if algorithm is None:
             algorithm = self.supported_algos.get_default_for_task_type(task.type)
         request_data: Dict[str, Any] = {
             "dataset_id": dataset.id,
             "task_id": task.id,
             "train_from_scratch": train_from_scratch,
-            "enable_pot_optimization": enable_pot_optimization,
             "model_template_id": algorithm.model_template_id,
         }
         if hyper_parameters is not None:
@@ -192,6 +248,9 @@ class TrainingClient:
 
         if self.session.version.is_sc_1_1 or self.session.version.is_sc_mvp:
             data = [request_data]
+        elif self.session.version >= GETI_116_VERSION:
+            request_data.pop("dataset_id")
+            data = request_data
         else:
             data = {"training_parameters": [request_data]}
 
@@ -228,6 +287,8 @@ class TrainingClient:
         if self.session.version < GETI_11_VERSION:
             job = JobRESTConverter.from_dict(response)
             job_id = job.id
+        elif self.session.version >= GETI_116_VERSION:
+            job_id = response["job_id"]
         else:
             job_id = response["job_ids"][0]
         try:
@@ -297,7 +358,7 @@ class TrainingClient:
                 if job.metadata.task is not None:
                     if job.metadata.task.task_id == task.id:
                         if running_only:
-                            if job.status.state == JobState.RUNNING:
+                            if job.state == JobState.RUNNING:
                                 task_jobs.append(job)
                         else:
                             task_jobs.append(job)

@@ -14,7 +14,7 @@
 
 import abc
 import math
-from typing import Any, Dict, List, Optional, TypeVar, Union
+from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
 
 import attr
 import cv2
@@ -278,6 +278,17 @@ class Rectangle(Shape):
         """
         return self.y + self.height
 
+    @classmethod
+    def generate_full_box(cls, image_width: int, image_height: int) -> "Rectangle":
+        """
+        Return a rectangle that fully encapsulates the image.
+
+        :param image_width: Width of the image to which the rectangle applies (in pixels)
+        :param image_height: Height of the image to which the rectangle applies (in pixels)
+        :return: Rectangle: A rectangle that fully encapsulates the image.
+        """
+        return cls(x=0, y=0, width=image_width, height=image_height)
+
 
 @attr.define(slots=False)
 class Ellipse(Shape):
@@ -343,6 +354,14 @@ class Ellipse(Shape):
             height=self.height / image_height,
             type=str(self.type),
         )
+
+    def get_center_point(self) -> Tuple[int, int]:
+        """
+        Return the coordinates of the center of the ellipse.
+
+        :return: Tuple of integers representing the coordinates of the center of the ellipse
+        """
+        return self.x + self.width // 2, self.y + self.height // 2
 
     @classmethod
     def from_ote(
@@ -424,6 +443,14 @@ class Point:
 
     x: int = attr.field(converter=coordinate_converter)
     y: int = attr.field(converter=coordinate_converter)
+
+    def as_int_tuple(self) -> Tuple[int, int]:
+        """
+        Return the coordinates of the point as a tuple of integers.
+
+        :return: Tuple of integers representing the coordinates of the point
+        """
+        return int(self.x), int(self.y)
 
 
 @attr.define(slots=False)

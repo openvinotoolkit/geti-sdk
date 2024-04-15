@@ -23,7 +23,6 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 from geti_sdk.data_models.enums.job_state import JobState
 from geti_sdk.data_models.job import Job
 from geti_sdk.http_session import GetiRequestException, GetiSession
-from geti_sdk.platform_versions import GETI_18_VERSION
 from geti_sdk.rest_converters.job_rest_converter import JobRESTConverter
 
 
@@ -63,7 +62,10 @@ def get_job_by_id(
             return None
         else:
             raise error
-    return JobRESTConverter.from_dict(response)
+    job = JobRESTConverter.from_dict(response)
+    job.workspace_id = workspace_id
+    job.geti_version = session.version
+    return job
 
 
 def get_job_with_timeout(
@@ -86,7 +88,13 @@ def get_job_with_timeout(
     :raises: RuntimeError if the job is not found within the specified timeout
     :return: Job instance holding the details of the job
     """
-    job = get_job_by_id(job_id=job_id, session=session, workspace_id=workspace_id)
+    try:
+        job = get_job_by_id(job_id=job_id, session=session, workspace_id=workspace_id)
+    except GetiRequestException as job_error:
+        if job_error.status_code == 403:
+            job = None
+        else:
+            raise job_error
     if job is not None:
         logging.debug(
             f"{job_type.capitalize()} job with ID {job_id} retrieved from the platform."
@@ -100,15 +108,22 @@ def get_job_with_timeout(
                 f"with ID {job_id}"
             )
             time.sleep(2)
-            job = get_job_by_id(
-                session=session, job_id=job_id, workspace_id=workspace_id
-            )
+            try:
+                job = get_job_by_id(
+                    session=session, job_id=job_id, workspace_id=workspace_id
+                )
+            except GetiRequestException as job_error:
+                if job_error.status_code == 403:
+                    job = None
+                else:
+                    raise job_error
         if job is None:
             raise RuntimeError(
                 f"Unable to find the resulting {job_type} job on the Intel® Geti™ "
                 f"server."
             )
     job.workspace_id = workspace_id
+    job.geti_version = session.version
     return job
 
 
@@ -135,7 +150,7 @@ def monitor_jobs(
         JobState.FAILED,
         JobState.ERROR,
     ]
-    jobs_to_monitor = [job for job in jobs if job.status.state not in completed_states]
+    jobs_to_monitor = [job for job in jobs if job.state not in completed_states]
     logging.info(f"Monitoring progress for {len(jobs_to_monitor)} jobs...")
     outer_bars = []
     inner_bars = []
@@ -144,10 +159,11 @@ def monitor_jobs(
     job_steps = []
     total_job_steps = []
     finished_jobs: List[Job] = []
+    jobs_with_error: List[Job] = []
     with warnings.catch_warnings(), logging_redirect_tqdm(tqdm_class=tqdm):
         warnings.filterwarnings("ignore", category=TqdmWarning)
         for index, job in enumerate(jobs_to_monitor):
-            inner_description = job.status.message.split("(Step")[0].strip()
+            inner_description = job.current_step_message
             outer_description = f"Project `{job.metadata.project.name}` - {job.name}"
             outer_bars.append(
                 tqdm(
@@ -186,17 +202,27 @@ def monitor_jobs(
             complete_count = 0
             while monitoring and t_elapsed < timeout:
                 for index, job in enumerate(jobs_to_monitor):
-                    if job in finished_jobs:
+                    if job in finished_jobs or job in jobs_with_error:
                         # Job has completed some time ago, skip further updates
                         continue
 
-                    job.update(session)
-                    if job.status.state in completed_states:
+                    try:
+                        job.update(session)
+                    except GetiRequestException as error:
+                        if error.status_code == 404:
+                            logging.warning(
+                                f"Job with name `{job.name}` and id `{job.id}` was not "
+                                f"found on the Intel Geti instance. Monitoring is skipped "
+                                f"for this job."
+                            )
+                        jobs_with_error.append(job)
+                        complete_count += 1
+                    if job.state in completed_states:
                         # Job has just completed, update progress bars to final state
                         complete_count += 1
                         finished_jobs.append(job)
                         inner_bars[index].set_description(
-                            f"Job completed with state `{job.status.message}`",
+                            "Job completed.",
                             refresh=True,
                         )
                         inner_bars[index].update(110)
@@ -204,25 +230,24 @@ def monitor_jobs(
                             total_job_steps[index] - job_steps[index]
                         )
                         continue
-                    if session.version <= GETI_18_VERSION:
-                        no_step_message = job.status.message.split("(Step")[0].strip()
-                    else:
-                        no_step_message = job.steps[job.current_step - 1].get(
-                            "step_name", ""
-                        )
+
+                    no_step_message = job.current_step_message
                     if no_step_message != descriptions[index]:
                         # Next phase of the job, reset progress bar
                         inner_bars[index].set_description(no_step_message, refresh=True)
                         inner_bars[index].reset(total=100)
                         descriptions[index] = no_step_message
                         progress_values[index] = 0
+                        outer_bars[index].total = job.total_steps
                         outer_bars[index].update(job.current_step - job_steps[index])
                         job_steps[index] = job.current_step
 
-                    incremental_progress = job.status.progress - progress_values[index]
+                    incremental_progress = (
+                        job.current_step_progress - progress_values[index]
+                    )
                     restrict(incremental_progress, min=0, max=100)
                     inner_bars[index].update(incremental_progress)
-                    progress_values[index] = job.status.progress
+                    progress_values[index] = job.current_step_progress
                     outer_bars[index].update(0)
 
                 if complete_count == len(jobs_to_monitor):
@@ -276,11 +301,19 @@ def monitor_job(
         )
     except AttributeError:
         logging.info(f"Monitoring `{job.name}` with id {job.id}")
-    job.update(session)
-    if job.status.state in completed_states:
+    try:
+        job.update(session)
+    except GetiRequestException as error:
+        if error.status_code == 404:
+            logging.warning(
+                f"Job with name `{job.name}` and id `{job.id}` was not "
+                f"found on the Intel Geti instance. Monitoring is skipped "
+                f"for this job."
+            )
+    if job.state in completed_states:
         logging.info(
             f"Job `{job.name}` has already finished with status "
-            f"{str(job.status.state)}, monitoring stopped"
+            f"{str(job.state)}, monitoring stopped"
         )
         return job
 
@@ -291,7 +324,7 @@ def monitor_job(
         warnings.filterwarnings("ignore", category=TqdmWarning)
         try:
             previous_progress = 0
-            previous_message = job.status.message.split("(Step")[0].strip()
+            previous_message = job.current_step_message
             current_step = job.current_step
             outer_description = f"Project `{job.metadata.project.name}` - {job.name}"
             total_steps = job.total_steps
@@ -321,10 +354,12 @@ def monitor_job(
             inner_bar.set_description(previous_message)
             while monitoring and t_elapsed < timeout:
                 job.update(session)
-                if job.status.state in completed_states:
+                if job.state in completed_states:
                     outer_bar.update(total_steps - current_step)
+                    inner_bar.update(100 - previous_progress)
+                    monitoring = False
                     break
-                no_step_message = job.status.message.split("(Step")[0].strip()
+                no_step_message = job.current_step_message
                 if no_step_message != previous_message:
                     # Next phase of the job, reset progress bar
                     inner_bar.set_description(f"{no_step_message}", refresh=True)
@@ -334,11 +369,11 @@ def monitor_job(
                     outer_bar.update(job.current_step - current_step)
                     current_step = job.current_step
 
-                incremental_progress = job.status.progress - previous_progress
+                incremental_progress = job.current_step_progress - previous_progress
                 restrict(incremental_progress, min=0, max=100)
                 inner_bar.update(incremental_progress)
                 outer_bar.update(0)
-                previous_progress = job.status.progress
+                previous_progress = job.current_step_progress
                 time.sleep(interval)
                 t_elapsed = time.time() - t_start
             inner_bar.close()
@@ -357,6 +392,6 @@ def monitor_job(
         else:
             logging.info(
                 f"Monitoring stopped after {t_elapsed:.1f} seconds due to timeout. Current "
-                f"job state: {job.status.state}"
+                f"job state: {job.state}"
             )
     return job
