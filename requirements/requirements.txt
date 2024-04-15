@@ -1,5 +1,5 @@
 # Base requirements
-datumaro==1.5.*
+datumaro==1.6.*
 requests==2.31.*
 numpy==1.23.*
 omegaconf==2.3.*
@@ -11,8 +11,8 @@ pathvalidate>=2.5.0
 simplejson==3.19.*
 ipython==8.12.*
 otx==1.4.4
-openvino==2023.0.*
-openvino-model-api==0.1.5
+openvino==2024.0.*
+openvino-model-api>=0.1.9
 certifi>=2022.12.7
 joblib>=1.1.1
 protobuf>=3.20.2
