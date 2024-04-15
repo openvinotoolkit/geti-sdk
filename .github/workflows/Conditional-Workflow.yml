@@ -1,0 +1,18 @@
+name: Record and push VCR cassettes
+
+on:
+  workflow_dispatch:  # run on request (no need for PR)  
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - id: label-the-PR
+      uses: actions/labeler@v5
+      
+    - name: log results
+      run: |
+        echo steps.label-the-PR.outputs.all-labels
