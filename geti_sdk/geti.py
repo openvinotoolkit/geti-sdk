@@ -164,6 +164,7 @@ class Geti:
                     proxies=proxies,
                     has_valid_certificate=verify_certificate,
                 )
+
             else:
                 raise TypeError(
                     "__init__ missing required keyword arguments: Either `username` and "
