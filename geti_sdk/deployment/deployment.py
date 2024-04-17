@@ -21,6 +21,7 @@ from typing import Any, Dict, List, Optional, Union
 import attr
 import numpy as np
 import otx
+from openvino.runtime import Core
 
 from geti_sdk.data_models import (
     Annotation,
@@ -147,7 +148,11 @@ class Deployment:
             )
         return cls(models=models, project=project)
 
-    def load_inference_models(self, device: str = "CPU"):
+    def load_inference_models(
+        self,
+        device: str = "CPU",
+        openvino_configuration: Optional[Dict[str, str]] = None,
+    ):
         """
         Load the inference models for the deployment to the specified device.
 
@@ -155,9 +160,19 @@ class Deployment:
         https://docs.openvino.ai/latest/openvino_docs_OV_UG_supported_plugins_Supported_Devices.html
 
         :param device: Device to load the inference models to (e.g. 'CPU', 'GPU', 'AUTO', etc)
+        :param openvino_configuration: Configuration for the OpenVINO execution mode
+            and plugins. This can include for example specific performance hints. For
+            further details, refer to the OpenVINO documentation here:
+            https://docs.openvino.ai/2022.3/openvino_docs_OV_UG_Performance_Hints.html#doxid-openvino-docs-o-v-u-g-performance-hints
         """
+        ov_core = Core()
         for model in self.models:
-            model.load_inference_model(device=device, project=self.project)
+            model.load_inference_model(
+                device=device,
+                project=self.project,
+                core=ov_core,
+                plugin_configuration=openvino_configuration,
+            )
 
         # Extract empty label for the upstream task
         upstream_labels = self.models[0].label_schema.get_labels(include_empty=True)

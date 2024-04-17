@@ -21,7 +21,7 @@ import sys
 import tempfile
 import time
 import zipfile
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import attr
 import numpy as np
@@ -98,6 +98,7 @@ class DeployedModel(OptimizedModel):
         self._feature_vector_location: Optional[str] = None
 
         self._converter: Optional[InferenceResultsToPredictionConverter] = None
+        self._async_callback_defined: bool = False
 
     @property
     def model_data_path(self) -> str:
@@ -216,6 +217,8 @@ class DeployedModel(OptimizedModel):
         device: str = "CPU",
         configuration: Optional[Dict[str, Any]] = None,
         project: Optional[Project] = None,
+        core: Optional[Core] = None,
+        plugin_configuration: Optional[Dict[str, str]] = None,
     ) -> None:
         """
         Load the actual model weights to a specified device.
@@ -226,18 +229,23 @@ class DeployedModel(OptimizedModel):
         :param project: Optional project to which the model belongs.
             This is only used when the model is run on OVMS, in that case the
             project is needed to identify the correct model
+        :param plugin_configuration: Configuration for the OpenVINO execution mode
+            and plugins. This can include for example specific performance hints. For
+            further details, refer to the OpenVINO documentation here:
+            https://docs.openvino.ai/2022.3/openvino_docs_OV_UG_Performance_Hints.html#doxid-openvino-docs-o-v-u-g-performance-hints
         :return: OpenVino inference engine model that can be used to make predictions
             on images
         """
+        if core is None:
+            core = Core()
         if not target_device_is_ovms(device=device):
             # Run the model locally
             model_adapter = OpenvinoAdapter(
-                Core(),
+                core,
                 model=os.path.join(self._model_data_path, "model.xml"),
                 weights_path=os.path.join(self._model_data_path, "model.bin"),
                 device=device,
-                plugin_config=None,
-                max_num_requests=1,
+                plugin_config=plugin_configuration,
             )
         else:
             # Connect to an OpenVINO model server instance
@@ -579,8 +587,9 @@ class DeployedModel(OptimizedModel):
         """
         Run inference on an already preprocessed image.
 
-        :param preprocessed_image: Dictionary holding the preprocessing results for an
-            image
+        :param image: numpy array representing an image
+        :param explain: True to include saliency maps and feature maps in the returned
+            Prediction. Note that these are only available if supported by the model.
         :return: Dictionary containing the model outputs
         """
         preprocessed_image, metadata = self._preprocess(image)
@@ -605,6 +614,76 @@ class DeployedModel(OptimizedModel):
             prediction.maps = [result_medium]
 
         return prediction
+
+    def infer_async(
+        self,
+        image: np.ndarray,
+        explain: bool = False,
+        runtime_data: Optional[Any] = None,
+    ) -> None:
+        """
+        Perform asynchronous inference on the `image`.
+
+        **NOTE**: Inference results are not returned directly! Instead, a
+        post-inference callback should be defined to handle results, using the
+        `.set_callback` method.
+
+        :param image: numpy array representing an image
+        :param explain: True to include saliency maps and feature maps in the returned
+            Prediction. Note that these are only available if supported by the model.
+        """
+        if not self._async_callback_defined:
+            raise ValueError(
+                "No callback function defined to handle asynchronous inference, "
+                "please define a callback using `.set_asynchronous_callback` first."
+            )
+        preprocessed_image, metadata = self._preprocess(image)
+        self._inference_model.infer_async_raw(
+            preprocessed_image,
+            {"explain": explain, "metadata": metadata, "runtime_data": runtime_data},
+        )
+
+    def set_asynchronous_callback(
+        self, callback_function: Callable[[Prediction, Any], None]
+    ) -> bool:
+        """
+        Set the callback function to handle asynchronous inference results. This
+        function is called whenever a result for an asynchronous inference request
+        comes available.
+
+        :param callback_function: Function that should be called to handle
+            asynchronous inference results. The function should take the following
+            input parameters:
+             1. The inference results (the Prediction). This is the first input
+             2. Any arbitrary additional data that will be passed with the infer
+                request at runtime. For example, this could be a timestamp for the
+                frame, or a title/filepath, etc. This can for instance be passed in
+                the form of a tuple or dictionary
+        """
+
+        def full_callback(result, async_metadata: Dict[str, Any]):
+            # Basic postprocessing, convert to `Prediction` object
+            metadata = async_metadata["metadata"]
+            explain = async_metadata["explain"]
+            prediction = self._converter.convert_to_prediction(
+                result, image_shape=metadata["original_shape"]
+            )
+
+            # Add optional explainability outputs
+            if explain:
+                saliency_map, repr_vector = self._postprocess_explain_outputs(
+                    inference_results=result, metadata=metadata
+                )
+                prediction.feature_vector = repr_vector
+                result_medium = ResultMedium(name="saliency map", type="saliency map")
+                result_medium.data = saliency_map
+                prediction.maps = [result_medium]
+
+            # User defined callback to further process the prediction results
+            callback_function(prediction, async_metadata["runtime_data"])
+
+        self._inference_model.inference_adapter.set_callback(full_callback)
+        self._async_callback_defined = True
 
     @property
     def label_schema(self) -> LabelSchema:
