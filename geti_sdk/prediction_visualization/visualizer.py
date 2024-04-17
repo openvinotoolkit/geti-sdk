@@ -86,22 +86,21 @@ class Visualizer:
             Must be in range [0, 1].
         :return: Output image with annotations in RGB format
         """
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
         if confidence_threshold is not None:
             annotation = annotation.filter_by_confidence(confidence_threshold)
         result = self.shape_drawer.draw(
             image, annotation, labels=[], fill_shapes=fill_shapes
         )
-        return cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
+        return result
 
     def show(self, image: np.ndarray) -> None:
         """
         Show result image.
 
-        :param image: Image to be shown.
+        :param image: Image to be shown (in RGB order).
         """
-        cv2.imshow(self.window_name, image)
+        image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        cv2.imshow(self.window_name, image_bgr)
 
     def is_quit(self) -> bool:
         """Check user wish to quit."""
