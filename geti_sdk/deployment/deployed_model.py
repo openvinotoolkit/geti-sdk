@@ -45,7 +45,6 @@ from geti_sdk.rest_converters import ConfigurationRESTConverter, ModelRESTConver
 from .utils import (
     generate_ovms_model_address,
     generate_ovms_model_name,
-    get_package_version_from_requirements,
     rgb_to_hex,
     target_device_is_ovms,
 )
@@ -318,16 +317,8 @@ class DeployedModel(OptimizedModel):
         )
         self._inference_model = model
 
-        # Load results to Prediction converter
-        otx_version = get_package_version_from_requirements(
-            requirements_path=os.path.join(
-                self._model_python_path, REQUIREMENTS_FILE_NAME
-            ),
-            package_name="otx",
-        )
-        use_legacy_converter = not otx_version.startswith("1.5")
         self._converter = ConverterFactory.create_converter(
-            self.label_schema, configuration, use_legacy_converter=use_legacy_converter
+            self.label_schema, configuration
         )
 
         # TODO: This is a workaround to fix the issue that causes the output blob name

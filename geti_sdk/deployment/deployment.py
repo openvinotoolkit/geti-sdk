@@ -20,7 +20,6 @@ from typing import Any, Dict, List, Optional, Union
 
 import attr
 import numpy as np
-import otx
 
 from geti_sdk.data_models import (
     Annotation,
@@ -426,31 +425,12 @@ class Deployment:
             ovms_model_dir = os.path.join(ovms_models_dir, model_name, model_version)
             source_model_dir = model.model_data_path
 
-            if otx.__version__ >= "1.4.0":
-                # Load the model to embed preprocessing for inference with OVMS adapter
-                try:
-                    from openvino.model_api.models import Model as OMZModel
-                except ImportError as error:
-                    raise ValueError(
-                        f"Unable to load inference model for {model.name}. Relevant "
-                        f"OpenVINO packages were not found. Please make sure that "
-                        f"OpenVINO is installed correctly."
-                    ) from error
-                embedded_model = OMZModel.create_model(
-                    model=os.path.join(model.model_data_path, "model.xml")
+            os.makedirs(ovms_model_dir, exist_ok=True)
+            for model_file in os.listdir(source_model_dir):
+                shutil.copy2(
+                    src=os.path.join(source_model_dir, model_file),
+                    dst=os.path.join(ovms_model_dir, model_file),
                 )
-                embedded_model.save(
-                    xml_path=os.path.join(ovms_model_dir, "model.xml"),
-                    bin_path=os.path.join(ovms_model_dir, "model.bin"),
-                )
-                logging.info(f"Model `{model.name}` prepared for OVMS inference.")
-            else:
-                os.makedirs(ovms_model_dir, exist_ok=True)
-                for model_file in os.listdir(source_model_dir):
-                    shutil.copy2(
-                        src=os.path.join(source_model_dir, model_file),
-                        dst=os.path.join(ovms_model_dir, model_file),
-                    )
 
         # Save model configurations
         ovms_config_list = {"model_config_list": model_configs}

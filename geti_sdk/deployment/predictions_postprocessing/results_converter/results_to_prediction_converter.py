@@ -39,9 +39,6 @@ from geti_sdk.data_models.shapes import (
     Rectangle,
     RotatedRectangle,
 )
-from geti_sdk.deployment.predictions_postprocessing.results_converter.legacy_converter import (
-    LegacyConverter,
-)
 from geti_sdk.deployment.predictions_postprocessing.utils.detection_utils import (
     detection2array,
 )
@@ -87,7 +84,10 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
         self.label_schema = label_schema
 
     def convert_to_prediction(
-        self, predictions: ClassificationResult, image_shape: Tuple[int], **kwargs
+        self,
+        predictions: ClassificationResult,
+        image_shape: Tuple[int, int, int],
+        **kwargs,
     ) -> Prediction:  # noqa: ARG003
         """
         Convert ModelAPI ClassificationResult predictions to Prediction object.
@@ -269,7 +269,7 @@ class MaskToAnnotationConverter(InferenceResultsToPredictionConverter):
                 self.confidence_threshold = configuration["confidence_threshold"]
 
     def convert_to_prediction(
-        self, predictions: Tuple, **kwargs: Dict[str, Any]
+        self, predictions: Any, **kwargs: Dict[str, Any]
     ) -> Prediction:
         """
         Convert predictions to Prediction object.
@@ -436,8 +436,8 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
             )
             annotations = [
                 Annotation(
-                    Rectangle.generate_full_box(*image_shape[1::-1]),
                     labels=[scored_label],
+                    shape=Rectangle.generate_full_box(*image_shape[1::-1]),
                 )
             ]
         return Prediction(annotations)
@@ -452,7 +452,6 @@ class ConverterFactory:
     def create_converter(
         label_schema: LabelSchema,
         configuration: Optional[Dict[str, Any]] = None,
-        use_legacy_converter: bool = False,
     ) -> InferenceResultsToPredictionConverter:
         """
         Create the appropriate inferencer object according to the model's task.
@@ -464,9 +463,6 @@ class ConverterFactory:
         :raises ValueError: If the task type cannot be determined from the label schema.
         """
         domain = ConverterFactory._get_labels_domain(label_schema)
-
-        if use_legacy_converter:
-            return LegacyConverter(label_schema, configuration, domain)
 
         if domain == Domain.CLASSIFICATION:
             return ClassificationToPredictionConverter(label_schema)

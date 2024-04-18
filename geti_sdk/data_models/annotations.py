@@ -15,16 +15,9 @@
 from typing import ClassVar, List, Optional, Sequence, Union
 
 import attr
-from otx.api.entities.annotation import Annotation as OteAnnotation
 
 from geti_sdk.data_models.label import Label, ScoredLabel
-from geti_sdk.data_models.shapes import (
-    Ellipse,
-    Polygon,
-    Rectangle,
-    RotatedRectangle,
-    Shape,
-)
+from geti_sdk.data_models.shapes import Ellipse, Polygon, Rectangle, RotatedRectangle
 from geti_sdk.data_models.utils import deidentify, str_to_datetime
 
 
@@ -96,40 +89,6 @@ class Annotation:
                 break
         if index is not None:
             self.labels.pop(index)
-
-    @classmethod
-    def from_ote(
-        cls, ote_annotation: OteAnnotation, image_width: int, image_height: int
-    ) -> "Annotation":
-        """
-        Create a :py:class:`~geti_sdk.data_models.annotations.Annotation` instance
-        from a given OTE SDK Annotation object.
-
-        :param ote_annotation: OTE Annotation object to create the instance from
-        :param image_width: Width of the image to which the annotation applies
-        :param image_height: Height of the image to which the annotation applies
-        :return: Annotation instance
-        """
-        shape = Shape.from_ote(
-            ote_annotation.shape, image_width=image_width, image_height=image_height
-        )
-        labels = [
-            ScoredLabel.from_ote(ote_label)
-            for ote_label in ote_annotation.get_labels(include_empty=True)
-        ]
-        return Annotation(shape=shape, labels=labels, id=ote_annotation.id)
-
-    def to_ote(self, image_width: int, image_height: int) -> OteAnnotation:
-        """
-        Create an OTE SDK Annotation object corresponding to this
-        :py:class:`~geti_sdk.data_models.annotations.Annotation` instance
-
-        :param image_width: Width of the image to which the annotation applies
-        :param image_height: Height of the image to which the annotation applies
-        """
-        shape = self.shape.to_ote(image_width=image_width, image_height=image_height)
-        labels = [label.to_ote() for label in self.labels]
-        return OteAnnotation(shape=shape, labels=labels)
 
     def map_labels(self, labels: Sequence[Union[ScoredLabel, Label]]) -> "Annotation":
         """
