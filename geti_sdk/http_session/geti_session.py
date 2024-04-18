@@ -25,7 +25,7 @@ from requests.exceptions import RequestException
 from requests.structures import CaseInsensitiveDict
 from urllib3.exceptions import InsecureRequestWarning
 
-from geti_sdk.platform_versions import GETI_18_VERSION, GETI_114_VERSION, GetiVersion
+from geti_sdk.platform_versions import GetiVersion
 
 from .exception import GetiRequestException
 from .server_config import LEGACY_API_VERSION, ServerCredentialConfig, ServerTokenConfig
@@ -586,10 +586,7 @@ class GetiSession(requests.Session):
         Return the base URL to the Intel Geti server. If the server is running
         Geti v1.9 or later, the organization ID will be included in the URL
         """
-        if self.version <= GETI_18_VERSION:
-            return self.config.base_url
-        else:
-            return f"{self.config.base_url}organizations/{self.organization_id}/"
+        return f"{self.config.base_url}organizations/{self.organization_id}/"
 
     @property
     def authentication_service(self) -> str:
@@ -621,23 +618,19 @@ class GetiSession(requests.Session):
         Return the organization ID associated with the user and host information configured
         in this Session
         """
-        default_org_id = "000000000000000000000001"
-        if self.version < GETI_114_VERSION:
-            org_id = default_org_id
+        if not self.use_token:
+            result = self.get_rest_response(
+                url="profile",
+                method="GET",
+                include_organization_id=False,
+            )
         else:
-            if not self.use_token:
-                result = self.get_rest_response(
-                    url="profile",
-                    method="GET",
-                    include_organization_id=False,
-                )
-            else:
-                result = self.get_rest_response(
-                    url="personal_access_tokens/organization",
-                    method="GET",
-                    include_organization_id=False,
-                )
-            org_id = result.get("organizationId", None)
+            result = self.get_rest_response(
+                url="personal_access_tokens/organization",
+                method="GET",
+                include_organization_id=False,
+            )
+        org_id = result.get("organizationId", None)
         if org_id is None:
             raise ValueError(
                 f"Unable to retrieve organization ID from the Intel Geti server. "

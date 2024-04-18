@@ -18,7 +18,6 @@ from geti_sdk.data_models.containers import AlgorithmList
 from geti_sdk.data_models.enums import Domain, TaskType
 from geti_sdk.data_models.project import Project
 from geti_sdk.http_session import GetiSession
-from geti_sdk.platform_versions import GETI_18_VERSION
 
 
 def get_supported_algorithms(
@@ -48,24 +47,17 @@ def get_supported_algorithms(
     if task_type is not None and domain is not None:
         raise ValueError("Please specify either task type or domain, but not both")
     elif task_type is not None:
-        query = f"?task_type={task_type}"
         filter_by_task_type = True
     elif domain is not None:
         task_type = TaskType.from_domain(domain)
-        query = f"?task_type={task_type}"
         filter_by_task_type = True
-    else:
-        query = ""
 
-    if rest_session.version <= GETI_18_VERSION:
-        url = f"supported_algorithms{query}"
-    else:
-        if (workspace_id is None) or (project is None):
-            raise ValueError(
-                "For Geti v1.9 or higher, passing `workspace_id` and `project` is "
-                "mandatory in order to retrieve the supported algorithms"
-            )
-        url = f"workspaces/{workspace_id}/projects/{project.id}/supported_algorithms"
+    if (workspace_id is None) or (project is None):
+        raise ValueError(
+            "For Geti v1.9 or higher, passing `workspace_id` and `project` is "
+            "mandatory in order to retrieve the supported algorithms"
+        )
+    url = f"workspaces/{workspace_id}/projects/{project.id}/supported_algorithms"
 
     algorithm_rest_response = rest_session.get_rest_response(url=url, method="GET")
 
@@ -95,15 +87,12 @@ def get_default_algorithm_info(
     :return: Dictionary mapping the default algorithm name to the TaskType, for each
         task in the project
     """
-    if session.version <= GETI_18_VERSION:
-        url = "supported_algorithms"
-    else:
-        if (workspace_id is None) or (project is None):
-            raise ValueError(
-                "For Geti v1.9 or higher, passing `workspace_id` and `project` is "
-                "mandatory in order to retrieve the supported algorithms"
-            )
-        url = f"workspaces/{workspace_id}/projects/{project.id}/supported_algorithms"
+    if (workspace_id is None) or (project is None):
+        raise ValueError(
+            "For Geti v1.9 or higher, passing `workspace_id` and `project` is "
+            "mandatory in order to retrieve the supported algorithms"
+        )
+    url = f"workspaces/{workspace_id}/projects/{project.id}/supported_algorithms"
 
     algorithm_rest_response = session.get_rest_response(url=url, method="GET")
     defaults = algorithm_rest_response.get("default_algorithms", None)

@@ -28,7 +28,7 @@ from geti_sdk.data_models.utils import (
     str_to_optional_enum_converter,
 )
 from geti_sdk.http_session import GetiRequestException, GetiSession
-from geti_sdk.platform_versions import GETI_18_VERSION, GETI_116_VERSION, GetiVersion
+from geti_sdk.platform_versions import GetiVersion
 
 
 @attr.define(slots=False)
@@ -286,17 +286,12 @@ class Job:
                 raise job_error
 
         self.steps = response.get("steps", None)
-        if session.version < GETI_116_VERSION:
-            updated_status = JobStatus.from_dict(response["status"])
-            self.status = updated_status
-            self.state = updated_status.state
-        else:
-            self.state = JobState(response["state"])
-            self.status = JobStatus(
-                progress=self.current_step / self.total_steps,
-                message=self.current_step_message,
-                state=self.state,
-            )
+        self.state = JobState(response["state"])
+        self.status = JobStatus(
+            progress=self.current_step / self.total_steps,
+            message=self.current_step_message,
+            state=self.state,
+        )
 
         if self._geti_version is None:
             self.geti_version = session.version
@@ -408,16 +403,13 @@ class Job:
             for whatever reason the current step cannot be determined,
             an empty string is returned
         """
-        if self.geti_version <= GETI_18_VERSION:
-            return self.status.message.split("(Step")[0].strip()
-        else:
-            current_step_index = self.current_step - 1
-            if current_step_index < 0 or current_step_index >= len(self.steps):
-                if self.state != JobState.SCHEDULED:
-                    return ""
-                else:
-                    return "Awaiting job execution"
-            return self.steps[current_step_index].get("step_name", "")
+        current_step_index = self.current_step - 1
+        if current_step_index < 0 or current_step_index >= len(self.steps):
+            if self.state != JobState.SCHEDULED:
+                return ""
+            else:
+                return "Awaiting job execution"
+        return self.steps[current_step_index].get("step_name", "")
 
     @property
     def current_step_progress(self) -> float:
@@ -426,13 +418,10 @@ class Job:
 
         :return: float indicating the progress of the current step in the job
         """
-        if self.geti_version <= GETI_18_VERSION:
-            return self.status.progress
-        else:
-            current_step_index = self.current_step - 1
-            if current_step_index < 0 or current_step_index >= len(self.steps):
-                return 0.0
-            return self.steps[current_step_index].get("progress", 0.0)
+        current_step_index = self.current_step - 1
+        if current_step_index < 0 or current_step_index >= len(self.steps):
+            return 0.0
+        return self.steps[current_step_index].get("progress", 0.0)
 
     @property
     def geti_version(self) -> GetiVersion:
