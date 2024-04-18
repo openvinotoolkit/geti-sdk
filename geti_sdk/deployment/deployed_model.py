@@ -322,7 +322,7 @@ class DeployedModel(OptimizedModel):
         )
 
         # TODO: This is a workaround to fix the issue that causes the output blob name
-        #  to be unset. Remove this once it has been fixed on OTX/ModelAPI side
+        #  to be unset. Remove this once it has been fixed on ModelAPI side
         output_names = list(self._inference_model.outputs.keys())
         if hasattr(self._inference_model, "output_blob_name"):
             if not self._inference_model.output_blob_name:
