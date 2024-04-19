@@ -45,10 +45,15 @@ def fxt_mocked_session_factory(
         mocker.patch(
             "geti_sdk.http_session.geti_session.GetiSession._get_product_info_and_set_api_version",
             return_value={
-                "build-version": "1.0.0-release-20221005164936",
-                "product-version": "1.0.0",
+                "product-version": "2.0.0",
+                "build-version": "2.0.0-test-20240417130126",
                 "smtp-defined": "True",
+                "environment": "on-prem",
             },
+        )
+        mocker.patch(
+            "geti_sdk.http_session.geti_session.GetiSession._get_organization_id",
+            return_value="000000000000000000000001",
         )
         if server_config is None:
             server_config = fxt_mocked_server_credential_config
