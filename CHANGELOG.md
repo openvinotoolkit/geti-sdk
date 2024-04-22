@@ -1,3 +1,10 @@
+# v1.16.1 Intel® Geti™ SDK (22-04-2024)
+## What's Changed
+* Add `default_workspace` to possible default workspace names by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/394
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.16.0...v1.16.1
+
 # v1.16.0 Intel® Geti™ SDK (26-03-2024)
 ## What's Changed
 * Decouple visualizer for OTX by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/356

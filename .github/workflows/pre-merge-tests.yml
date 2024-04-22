@@ -26,11 +26,15 @@ jobs:
       matrix:
         python-version: ['3.8', '3.9', '3.10']
         os: [ubuntu-latest, windows-latest, macos-latest]
-        exclude:
+        exclude:  # Disabled due to `shapely` package issue (otx dependency)
           - os: macos-latest
             python-version: '3.10'
           - os: windows-latest
             python-version: '3.10'
+        include:  # Run test with legacy cassette (Currently - Geti 1.8)
+          - os: ubuntu-22.04
+            python-version: '3.10'
+            env: GETI_PLATFORM_VERSION=LEGACY
       fail-fast: true
       max-parallel: 3
 

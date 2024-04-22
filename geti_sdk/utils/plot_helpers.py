@@ -102,6 +102,10 @@ def show_image_with_annotation_scene(
         image=rgb_image, annotation=annotation_scene, fill_shapes=fill_shapes
     )
 
+    # For compatibility with the previous version of the function
+    # return image in BGR order; to be changed in 2.0.
+    result_bgr = cv2.cvtColor(result, cv2.COLOR_RGB2BGR)
+
     if filepath is None:
         if show_results:
             image = PILImage.fromarray(result)
@@ -110,13 +114,13 @@ def show_image_with_annotation_scene(
             else:
                 display(image)
     else:
-        success, buffer = cv2.imencode(".jpg", result)
+        success, buffer = cv2.imencode(".jpg", result_bgr)
         if success:
             buffer.tofile(filepath)
         else:
             raise RuntimeError("Unable to encode output image to .jpg format.")
 
-    return result
+    return result_bgr
 
 
 def show_video_frames_with_annotation_scenes(
