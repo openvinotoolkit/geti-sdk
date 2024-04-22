@@ -68,7 +68,7 @@ class GetiSession(requests.Session):
         if server_config.proxies is None:
             self._proxies: Dict[str, str] = {}
         else:
-            self._proxies = {"proxies": server_config.proxies}
+            self._proxies = server_config.proxies
 
         # Configure certificate verification
         if not server_config.has_valid_certificate:
@@ -149,7 +149,7 @@ class GetiSession(requests.Session):
             "&scope=openid+profile+groups+email+offline_access"
         )
         url = f"{self.config.host}/dex/auth/regular_users?{params}"
-        response = self.get(url, allow_redirects=False, **self._proxies)
+        response = self.get(url, allow_redirects=False, proxies=self._proxies)
         login_page_url = self._follow_login_redirects(response)
         return login_page_url
 
@@ -194,7 +194,7 @@ class GetiSession(requests.Session):
             cookies=cookies,
             headers=headers,
             allow_redirects=True,
-            **self._proxies,
+            proxies=self._proxies,
         )
         self._handle_dex_response(response)
         if verbose:
@@ -275,7 +275,7 @@ class GetiSession(requests.Session):
             self.headers.pop("x-geti-csrf-protection", "")
 
         try:
-            response = self.request(**request_params, **self._proxies)
+            response = self.request(**request_params, proxies=self._proxies)
         except requests.exceptions.SSLError as error:
             raise requests.exceptions.SSLError(
                 f"Connection to Intel® Geti™ server at '{self.config.host}' failed, "
@@ -333,7 +333,9 @@ class GetiSession(requests.Session):
                 + "/oauth2/sign_out"
             )
             try:
-                response = self.request(url=sign_out_url, method="GET", **self._proxies)
+                response = self.request(
+                    url=sign_out_url, method="GET", proxies=self._proxies
+                )
 
                 if response.status_code in SUCCESS_STATUS_CODES:
                     if verbose:
@@ -469,7 +471,7 @@ class GetiSession(requests.Session):
                 for file_name, file_buffer in request_params["files"].items():
                     file_buffer.seek(0, 0)
 
-            response = self.request(**request_params, **self._proxies)
+            response = self.request(**request_params, proxies=self._proxies)
 
             if response.status_code in SUCCESS_STATUS_CODES:
                 return response
@@ -598,7 +600,7 @@ class GetiSession(requests.Session):
             url=f"{self.config.host}/dex/token",
             data=data,
             allow_redirects=True,
-            **self._proxies,
+            proxies=self._proxies,
         )
         token = login_response.json().get("access_token", None)
         self._cookies.update({GETI_COOKIE_NAME: token})
