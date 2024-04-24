@@ -43,6 +43,7 @@ from geti_sdk.rest_converters import ConfigurationRESTConverter, ModelRESTConver
 from .utils import (
     generate_ovms_model_address,
     generate_ovms_model_name,
+    get_package_version_from_requirements,
     rgb_to_hex,
     target_device_is_ovms,
 )
@@ -161,6 +162,21 @@ class DeployedModel(OptimizedModel):
                     )
 
                 self._model_python_path = os.path.join(source, PYTHON_DIR_NAME)
+            # A model is being loaded from disk, check if it is a legacy model
+            # We support OTX models starting from version 1.5.0
+            otx_version = get_package_version_from_requirements(
+                requirements_path=os.path.join(
+                    self._model_python_path, REQUIREMENTS_FILE_NAME
+                ),
+                package_name="otx",
+            )
+            if otx_version:  # Empty string if package not found
+                otx_version = otx_version.split(".")
+                if int(otx_version[0]) <= 1 and int(otx_version[1]) < 5:
+                    raise ValueError(
+                        "Model version is not supported. Please use a model trained with "
+                        "OTX version 1.5.0 or higher."
+                    )
 
         elif isinstance(source, GetiSession):
             if self.base_url is None:
@@ -276,6 +292,7 @@ class DeployedModel(OptimizedModel):
         )
         self._inference_model = model
 
+        # Load a Results-to-Prediction converter
         self._converter = ConverterFactory.create_converter(
             self.label_schema, configuration
         )
