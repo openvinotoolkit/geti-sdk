@@ -11,12 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
+import collections
 import json
 import logging
 import os
 import shutil
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import attr
 import numpy as np
@@ -166,7 +166,8 @@ class Deployment:
 
     def load_inference_models(
         self,
-        device: str = "CPU",
+        device: Union[str, Sequence[str]] = "CPU",
+        max_async_infer_requests: Optional[Union[int, Sequence[int]]] = None,
         openvino_configuration: Optional[Dict[str, str]] = None,
     ):
         """
@@ -175,18 +176,50 @@ class Deployment:
         Note: For a list of devices that are supported for OpenVINO inference, please see:
         https://docs.openvino.ai/latest/openvino_docs_OV_UG_supported_plugins_Supported_Devices.html
 
-        :param device: Device to load the inference models to (e.g. 'CPU', 'GPU', 'AUTO', etc)
+        :param device: Device to load the inference models to (e.g. 'CPU', 'GPU',
+            'AUTO', etc).
+
+            **NOTE**: For task chain deployments, it is possible to pass a list of device names
+            instead. Each entry in the list is the target device for the model
+            corresponding to it's index. I.e. the first entry is applied for the
+            first model, the second entry for the second model.
+        :param max_async_infer_requests: Maximum number of infer requests to use in
+            asynchronous mode. This parameter only takes effect when the asynchronous
+            inference mode is used. It controls the maximum number of request that
+            will be handled in parallel. When set to 0, OpenVINO will attempt to
+            determine the optimal number of requests for your system automatically.
+            When left as None (the default), a single infer request per model will be
+            used to conserve memory
+
+            **NOTE**: For task chain deployments, it is possible to pass a list of integers.
+            Each entry in the list is the maximum number of infer requests for the model
+            corresponding to it's index. I.e. the first number is applied for the
+            first model, the second number for the second model.
         :param openvino_configuration: Configuration for the OpenVINO execution mode
             and plugins. This can include for example specific performance hints. For
             further details, refer to the OpenVINO documentation here:
             https://docs.openvino.ai/2022.3/openvino_docs_OV_UG_Performance_Hints.html#doxid-openvino-docs-o-v-u-g-performance-hints
         """
         ov_core = Core()
-        for model in self.models:
+        if max_async_infer_requests is None:
+            max_async_infer_requests = 1
+        elif max_async_infer_requests == 0 and device == "CPU":
+            max_async_infer_requests = os.cpu_count()
+
+        for idx, model in enumerate(self.models):
+            if isinstance(device, collections.Sequence) and not isinstance(device, str):
+                dev = device[idx]
+            else:
+                dev = device
+            if isinstance(max_async_infer_requests, collections.Sequence):
+                max_requests = max_async_infer_requests[idx]
+            else:
+                max_requests = max_async_infer_requests
             model.load_inference_model(
-                device=device,
+                device=dev,
                 project=self.project,
                 core=ov_core,
+                max_async_infer_requests=max_requests,
                 plugin_configuration=openvino_configuration,
             )
 

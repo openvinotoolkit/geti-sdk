@@ -261,6 +261,10 @@ class DeployedModel(OptimizedModel):
                 )
                 model_adapter.max_num_requests = optimal_requests
                 compiled_model = None
+                logging.info(
+                    f"Model `{self.name}` -- Optimal number of infer "
+                    f"requests: {optimal_requests}"
+                )
         else:
             # Connect to an OpenVINO model server instance
             model_name = generate_ovms_model_name(project=project, model=self)
