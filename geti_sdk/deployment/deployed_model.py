@@ -219,6 +219,7 @@ class DeployedModel(OptimizedModel):
         project: Optional[Project] = None,
         core: Optional[Core] = None,
         plugin_configuration: Optional[Dict[str, str]] = None,
+        max_async_infer_requests: int = 0,
     ) -> None:
         """
         Load the actual model weights to a specified device.
@@ -233,6 +234,10 @@ class DeployedModel(OptimizedModel):
             and plugins. This can include for example specific performance hints. For
             further details, refer to the OpenVINO documentation here:
             https://docs.openvino.ai/2022.3/openvino_docs_OV_UG_Performance_Hints.html#doxid-openvino-docs-o-v-u-g-performance-hints
+        :param max_async_infer_requests: Maximum number of asynchronous infer request
+            that can be processed in parallel. This depends on the properties of the
+            target device. If left to 0 (the default), the optimal number of requests
+            will be selected automatically.
         :return: OpenVino inference engine model that can be used to make predictions
             on images
         """
@@ -246,7 +251,16 @@ class DeployedModel(OptimizedModel):
                 weights_path=os.path.join(self._model_data_path, "model.bin"),
                 device=device,
                 plugin_config=plugin_configuration,
+                max_num_requests=max_async_infer_requests,
             )
+            if max_async_infer_requests == 0:
+                # Compile model to query optimal infer requests for the device
+                compiled_model = core.compile_model(model_adapter.get_model(), device)
+                optimal_requests = compiled_model.get_property(
+                    "OPTIMAL_NUMBER_OF_INFER_REQUESTS"
+                )
+                model_adapter.max_num_requests = optimal_requests
+                compiled_model = None
         else:
             # Connect to an OpenVINO model server instance
             model_name = generate_ovms_model_name(project=project, model=self)
@@ -324,6 +338,7 @@ class DeployedModel(OptimizedModel):
             preload=True,
             configuration=configuration,
         )
+
         self._inference_model = model
 
         # Load results to Prediction converter
@@ -626,16 +641,22 @@ class DeployedModel(OptimizedModel):
 
         **NOTE**: Inference results are not returned directly! Instead, a
         post-inference callback should be defined to handle results, using the
-        `.set_callback` method.
+        `.set_asynchronous_callback` method.
 
         :param image: numpy array representing an image
         :param explain: True to include saliency maps and feature maps in the returned
             Prediction. Note that these are only available if supported by the model.
+        :param runtime_data: An optional object containing any additional data.
+            that should be passed to the asynchronous callback for each infer request.
+            This can for example be a timestamp or filename for the image to infer.
+            You can for instance pass a dictionary, or a tuple/list of objects.
         """
         if not self._async_callback_defined:
-            raise ValueError(
+            logging.warning(
                 "No callback function defined to handle asynchronous inference, "
-                "please define a callback using `.set_asynchronous_callback` first."
+                "please make sure to define a callback using "
+                "`.set_asynchronous_callback`, otherwise your inference results may be "
+                "lost."
             )
         preprocessed_image, metadata = self._preprocess(image)
         self._inference_model.infer_async_raw(
@@ -644,8 +665,8 @@ class DeployedModel(OptimizedModel):
         )
 
     def set_asynchronous_callback(
-        self, callback_function: Callable[[Prediction, Any], None]
-    ) -> bool:
+        self, callback_function: Callable[[Prediction, Optional[Any]], None]
+    ) -> None:
         """
         Set the callback function to handle asynchronous inference results. This
         function is called whenever a result for an asynchronous inference request
@@ -654,17 +675,27 @@ class DeployedModel(OptimizedModel):
         :param callback_function: Function that should be called to handle
             asynchronous inference results. The function should take the following
             input parameters:
-             1. The inference results (the Prediction). This is the first input
-             2. Any arbitrary additional data that will be passed with the infer
+
+             1. The inference results (the Prediction). This is the primary input
+             2. Any additional data that will be passed with the infer
                 request at runtime. For example, this could be a timestamp for the
-                frame, or a title/filepath, etc. This can for instance be passed in
-                the form of a tuple or dictionary
+                frame, or a title/filepath, etc. This can be in the form of any object:
+                You can for instance pass a dictionary, or a tuple/list of multiple
+                objects
+
         """
 
-        def full_callback(result, async_metadata: Dict[str, Any]):
+        def full_callback(infer_request, async_metadata: Dict[str, Any]):
             # Basic postprocessing, convert to `Prediction` object
             metadata = async_metadata["metadata"]
             explain = async_metadata["explain"]
+            runtime_data = async_metadata["runtime_data"]
+
+            raw_result = self._inference_model.inference_adapter.get_raw_result(
+                infer_request
+            )
+            result = self._inference_model.postprocess(raw_result, metadata)
+
             prediction = self._converter.convert_to_prediction(
                 result, image_shape=metadata["original_shape"]
             )
@@ -680,7 +711,7 @@ class DeployedModel(OptimizedModel):
                 prediction.maps = [result_medium]
 
             # User defined callback to further process the prediction results
-            callback_function(prediction, async_metadata["runtime_data"])
+            callback_function(prediction, runtime_data)
 
         self._inference_model.inference_adapter.set_callback(full_callback)
         self._async_callback_defined = True
@@ -743,3 +774,37 @@ class DeployedModel(OptimizedModel):
                 )
             )
         self._label_schema = LabelSchema(label_groups=label_groups)
+
+    def infer_queue_full(self) -> bool:
+        """
+        Return True if the queue for asynchronous infer requests is full, False
+        otherwise
+
+        :return: True if the infer queue is full, False otherwise
+        """
+        return not self._inference_model.inference_adapter.is_ready()
+
+    def await_all(self) -> None:
+        """
+        Block execution untill all asynchronous infer requests have finished
+        processing.
+
+        This means that program execution will resume once the infer queue is empty
+
+        This is a flow control function, it is only applicable when using
+        asynchronous inference.
+        """
+        self._inference_model.inference_adapter.await_all()
+
+    def await_any(self) -> None:
+        """
+        Block execution untill any of the asynchronous infer requests currently in
+        the infer queue completes processing
+
+        This means that program execution will resume once a single spot becomes
+        available in the infer queue
+
+        This is a flow control function, it is only applicable when using
+        asynchronous inference.
+        """
+        self._inference_model.inference_adapter.await_any()

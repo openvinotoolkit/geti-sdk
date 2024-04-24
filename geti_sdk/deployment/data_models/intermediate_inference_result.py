@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+from multiprocessing import Queue, Value
 from typing import List, Optional
 
 import attr
@@ -22,7 +23,7 @@ from geti_sdk.data_models import Annotation, Label, Prediction
 from .region_of_interest import ROI
 
 
-@attr.define
+@attr.define(slots=False)
 class IntermediateInferenceResult:
     """
     Inference results for intermediate tasks in the pipeline
@@ -31,6 +32,13 @@ class IntermediateInferenceResult:
     prediction: Prediction
     image: np.ndarray
     rois: Optional[List[ROI]] = None
+
+    def __attrs_post_init__(self):
+        """
+        Initialize private attributes
+        """
+        self._infer_queue: Queue[ROI] = Queue()
+        self._infer_counter = Value("i", 0)
 
     @property
     def image_width(self) -> int:
@@ -125,3 +133,46 @@ class IntermediateInferenceResult:
         for annotation in annotations:
             annotation.shape = roi.original_shape
         self.prediction.extend(annotations)
+
+    def add_to_infer_queue(self, roi: ROI):
+        """
+        Add the ROI to the queue of items to infer
+
+        :param roi: ROI for the item to add to the infer queue
+        """
+        self._infer_queue.put(roi)
+
+    def get_infer_queue(self) -> List[ROI]:
+        """
+        Return the full infer queue
+        """
+        rois: List[ROI] = []
+        while not self._infer_queue.empty():
+            rois.append(self._infer_queue.get())
+        return rois
+
+    def clear_infer_queue(self):
+        """
+        Reset the infer queue
+        """
+        self._infer_queue = Queue()
+
+    def increment_infer_counter(self):
+        """
+        Increase the infer counter by one
+        """
+        with self._infer_counter.get_lock():
+            self._infer_counter.value += 1
+
+    def reset_infer_counter(self):
+        """
+        Reset the infer counter back to zero
+        """
+        self._infer_counter = Value("i", 0)
+
+    def all_rois_inferred(self) -> bool:
+        """
+        Return True if all ROIs in the intermediate result have been inferred
+        """
+        with self._infer_counter.get_lock():
+            return self._infer_counter.value == len(self.rois)
