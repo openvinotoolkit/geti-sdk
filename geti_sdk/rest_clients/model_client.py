@@ -77,6 +77,9 @@ class ModelClient:
             group.algorithm = self.supported_algos.get_by_model_template(
                 model_template_id=group.model_template_id
             )
+            for model in group.models:
+                # set the model storage id, to link models to their parent group
+                model.model_storage_id = group.id
         return model_groups
 
     def get_latest_model_for_all_model_groups(self) -> List[Model]:
