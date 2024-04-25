@@ -23,8 +23,6 @@ The package contains the following classes:
     - `RotatedRectToPredictionConverter` - class for converting rotated detection results to internal Prediction entities
     - `SegmentationToPredictionConverter` - class for converting segmentation results to internal Prediction entities
 
-    - `LegacyConverter` - OTX based universal converter for models generated with Geti v1.8 and OTX 1.4
-
     - `ConverterFactory` - factory class for creating the appropriate converter based on the domain of the inference results
 """
 

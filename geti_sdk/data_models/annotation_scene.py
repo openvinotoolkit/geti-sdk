@@ -20,7 +20,6 @@ from typing import Any, ClassVar, Dict, List, Optional, Sequence, Tuple, Union
 import attr
 import cv2
 import numpy as np
-from otx.api.entities.annotation import AnnotationSceneEntity, AnnotationSceneKind
 
 from geti_sdk.data_models.annotations import Annotation
 from geti_sdk.data_models.enums import AnnotationKind
@@ -335,52 +334,6 @@ class AnnotationScene:
             annotation.id = ""
             annotation.modified = ""
         return new_annotation
-
-    @classmethod
-    def from_ote(
-        cls,
-        ote_annotation_scene: AnnotationSceneEntity,
-        image_width: int,
-        image_height: int,
-    ) -> "AnnotationScene":
-        """
-        Create a :py:class:`~geti_sdk.data_models.annotation_scene.AnnotationScene`
-        instance from a given OTE SDK AnnotationSceneEntity object.
-
-        :param ote_annotation_scene: OTE AnnotationSceneEntity object to create the
-            instance from
-        :param image_width: Width of the image to which the annotation scene applies
-        :param image_height: Height of the image to which the annotation scene applies
-        :return: AnnotationScene instance
-        """
-        annotations = [
-            Annotation.from_ote(
-                annotation, image_width=image_width, image_height=image_height
-            )
-            for annotation in ote_annotation_scene.annotations
-        ]
-        return cls(
-            annotations=annotations,
-            id=ote_annotation_scene.id,
-        )
-
-    def to_ote(self, image_width: int, image_height: int) -> AnnotationSceneEntity:
-        """
-        Create an AnnotationSceneEntity object from OTE SDK from the Geti SDK
-        AnnotationScene instance
-
-        :param image_width: Width of the image to which the annotation scene applies
-        :param image_height: Height of the image to which the annotation scene applies
-        :return: OTE SDK AnnotationSceneEntity instance, corresponding to the current
-            AnnotationScene
-        """
-        annotations = [
-            annotation.to_ote(image_width=image_width, image_height=image_height)
-            for annotation in self.annotations
-        ]
-        return AnnotationSceneEntity(
-            annotations=annotations, kind=AnnotationSceneKind[self.kind.name]
-        )
 
     def map_labels(
         self, labels: Sequence[Union[Label, ScoredLabel]]
