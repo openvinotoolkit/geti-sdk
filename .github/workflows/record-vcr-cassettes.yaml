@@ -36,7 +36,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           export TESTS_TARGET=""
-          if [[ ${{ contains(steps.label-the-PR.outputs.all-labels, 'geti-object') }} ]]; then
+          if [[ ${{ contains(steps.label-the-PR.outputs.all-labels, 'geti-core') }} ]]; then
             export TESTS_TARGET=$TESTS_TARGET:"tests/pre-merge/integration/test_geti.py "
           fi
           if [[ ${{ contains(steps.label-the-PR.outputs.all-labels, 'Rest-Clients') }} ]]; then
@@ -52,7 +52,7 @@ jobs:
           # # An approach to test:
           # export TESTS_TARGET=""
           # declare -A labels_to_tests=(
-          #   ["geti-object"]="tests/pre-merge/integration/test_geti.py "
+          #   ["geti-core"]="tests/pre-merge/integration/test_geti.py "
           #   ["Rest-Clients"]="tests/pre-merge/integration/rest_clients/ "
           #   ["HTTP-Session"]="tests/pre-merge/integration/http_session/ "
           #   ["Geti-Utils"]="tests/pre-merge/integration/utils/ "

@@ -10,7 +10,7 @@ HTTP-Session:
     - 'geti_sdk/http_session/*'
     - 'tests/pre-merge/integration/http_session/*'
 
-Geti-Object:
+Geti-Core:
 - changed-files:
   - any-glob-to-any-file:
     - 'geti_sdk/geti.py'
