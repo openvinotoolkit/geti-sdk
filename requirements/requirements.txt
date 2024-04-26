@@ -1,7 +1,7 @@
 # Base requirements
-datumaro==1.5.*
+datumaro==1.6.*
 requests==2.31.*
-numpy==1.23.*
+numpy>=1.26.4
 omegaconf==2.3.*
 opencv-python==4.9.*
 python-dotenv==1.0.*
@@ -10,13 +10,13 @@ Pillow==10.3.*
 pathvalidate>=2.5.0
 simplejson==3.19.*
 ipython==8.12.*
-openvino==2023.0.*
-openvino-model-api==0.1.5
+openvino>=2023.2.0,<2024.0.0
+openvino-model-api>=0.1.9
 certifi>=2022.12.7
 joblib>=1.1.1
 protobuf>=3.20.2
 ovmsclient>=2022.3
-orjson==3.9.15
+orjson>=3.10.0
 imageio-ffmpeg==0.4.8
 cryptography>=41.0.2
 semver>=3.0.2
