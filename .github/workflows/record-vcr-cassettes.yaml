@@ -13,7 +13,7 @@ env:
   PYTHON_VERSION: 3.10
 
   # Other environment variables used in the tests
-  TESTS_TARGET: "tests/pre-merge/integration"
+  TEST_TARGET: "tests/pre-merge/integration"
   TEST_MODE: "RECORD"
   REPORT_DIRECTORY: reports
   VIRTUALENV_DIRECTORY: .venv
@@ -35,34 +35,19 @@ jobs:
       - name: Smart CI
         if: github.event_name == 'pull_request'
         run: |
-          export TESTS_TARGET=""
-          if [[ ${{ contains(steps.label-the-PR.outputs.all-labels, 'geti-core') }} ]]; then
-            export TESTS_TARGET=$TESTS_TARGET:"tests/pre-merge/integration/test_geti.py "
+          export TEST_TARGET=""
+          if [[ ${{ contains(steps.label-the-PR.outputs.all-labels, 'SDK-Core') }} ]]; then
+            export TEST_TARGET="tests/pre-merge/integration/test_geti.py $TEST_TARGET"
           fi
           if [[ ${{ contains(steps.label-the-PR.outputs.all-labels, 'Rest-Clients') }} ]]; then
-            export TESTS_TARGET=$TESTS_TARGET:"tests/pre-merge/integration/rest_clients/ "
+            export TEST_TARGET="tests/pre-merge/integration/rest_clients/ $TEST_TARGET"
           fi
           if [[ ${{ contains(steps.label-the-PR.outputs.all-labels, 'HTTP-Session') }} ]]; then
-            export TESTS_TARGET=$TESTS_TARGET:"tests/pre-merge/integration/http_session/ "
+            export TEST_TARGET="tests/pre-merge/integration/http_session/ $TEST_TARGET"
           fi
           if [[ ${{ contains(steps.label-the-PR.outputs.all-labels, 'Geti-Utils') }} ]]; then
-            export TESTS_TARGET=$TESTS_TARGET:"tests/pre-merge/integration/utils/ "
+            export TEST_TARGET="tests/pre-merge/integration/utils/ $TEST_TARGET"
           fi
-
-          # # An approach to test:
-          # export TESTS_TARGET=""
-          # declare -A labels_to_tests=(
-          #   ["geti-core"]="tests/pre-merge/integration/test_geti.py "
-          #   ["Rest-Clients"]="tests/pre-merge/integration/rest_clients/ "
-          #   ["HTTP-Session"]="tests/pre-merge/integration/http_session/ "
-          #   ["Geti-Utils"]="tests/pre-merge/integration/utils/ "
-          # )
-
-          # for label in "${!labels_to_tests[@]}"; do
-          #   if [[ ${{ contains(steps.label-the-PR.outputs.all-labels, label) }} ]]; then
-          #     export TESTS_TARGET=$TESTS_TARGET:"${labels_to_tests[$label]}"
-          #   fi
-          # done
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -91,7 +76,7 @@ jobs:
           export NO_PROXY=$GETI_HOST,$NO_PROXY
           export GETI_HOST=https://$GETI_HOST
 
-          pytest $TESTS_TARGET --html=$REPORT_DIRECTORY/integration_test_report_legacy.html --self-contained-html
+          pytest $TEST_TARGET --html=$REPORT_DIRECTORY/integration_test_report_legacy.html --self-contained-html
         env:
           # Login details for the Geti instance to run the tests against
           # Secrets are configured on the repository level (Settings > Secrets)
@@ -107,7 +92,7 @@ jobs:
           export NO_PROXY=$GETI_HOST,$NO_PROXY
           export GETI_HOST=https://$GETI_HOST
 
-          pytest $TESTS_TARGET --html=$REPORT_DIRECTORY/integration_test_report_develop.html --self-contained-html
+          pytest $TEST_TARGET --html=$REPORT_DIRECTORY/integration_test_report_develop.html --self-contained-html
         env:
           # Login details for the Geti instance to run the tests against
           # Secrets are configured on the repository level (Settings > Secrets)
