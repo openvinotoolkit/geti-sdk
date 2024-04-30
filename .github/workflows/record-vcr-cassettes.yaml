@@ -5,12 +5,14 @@ on:
   pull_request:
     branches:
       - main
+    types:
+      - labeled
 
 env:
   GETI_USERNAME: ${{ secrets.GETI_USERNAME }}
   GETI_PASSWORD: ${{ secrets.GETI_PASSWORD }}
   # Python version
-  PYTHON_VERSION: 3.10
+  PYTHON_VERSION: "3.10"
 
   # Other environment variables used in the tests
   TEST_TARGET: "tests/pre-merge/integration"
