@@ -1,7 +1,7 @@
 <div align="center">
 
-[![python](https://img.shields.io/badge/python-3.8%2B-green)]()
-[![openvino](https://img.shields.io/badge/openvino-2023.0.0-purple)](https://github.com/openvinotoolkit/openvino)
+[![python](https://img.shields.io/badge/python-3.9%2B-green)]()
+[![openvino](https://img.shields.io/badge/openvino-2023.2.0-purple)](https://github.com/openvinotoolkit/openvino)
 ![Intel Geti](https://img.shields.io/badge/Intel%C2%AE%20Geti%E2%84%A2-1.5%2B-blue?link=https%3A%2F%2Fgeti.intel.com%2F)
 
 ![Pre-merge Tests Status](https://img.shields.io/github/actions/workflow/status/openvinotoolkit/geti-sdk/pre-merge-tests.yml?label=pre-merge%20tests&link=https%3A%2F%2Fgithub.com%2Fopenvinotoolkit%2Fgeti-sdk%2Factions%2Fworkflows%2Fpre-merge-tests.yml)
@@ -48,8 +48,8 @@ Python environment before installing the Intel® Geti™ SDK and its requirement
 highly recommended.
 
 > **NOTE**: If you have installed multiple versions of Python,
-> use `py -3.8 venv -m <env_name>` when creating your virtual environment to specify
-> a supported version (in this case 3.8). Once you activate the
+> use `py -3.9 venv -m <env_name>` when creating your virtual environment to specify
+> a supported version (in this case 3.9). Once you activate the
 > virtual environment <venv_path>/Scripts/activate, make sure to upgrade pip
 > to the latest version `python -m pip install --upgrade pip wheel setuptools`.
 
@@ -57,11 +57,11 @@ highly recommended.
 Make sure to set up your environment using one of the supported Python versions for your
 operating system, as indicated in the table below.
 
-|             | Python <= 3.7 | Python 3.8         | Python 3.9         | Python 3.10        | Python 3.11 |
+|             | Python <= 3.8 | Python 3.9         | Python 3.10        | Python 3.11        | Python 3.12 |
 |:------------|:-------------:|:------------------:|:------------------:|:------------------:|:-----------:|
 | **Linux**   | :x:           | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:         |
-| **Windows** | :x:           | :heavy_check_mark: | :heavy_check_mark: | :x:                | :x:         |
-| **MacOS**   | :x:           | :heavy_check_mark: | :heavy_check_mark: | :x:                | :x:         |
+| **Windows** | :x:           | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:         |
+| **MacOS**   | :x:           | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:         |
 
 Once you have created and activated a new environment, follow the steps below to install
 the package.
