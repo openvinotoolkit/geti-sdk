@@ -25,10 +25,10 @@ from requests.exceptions import RequestException
 from requests.structures import CaseInsensitiveDict
 from urllib3.exceptions import InsecureRequestWarning
 
-from geti_sdk.platform_versions import GetiVersion
+from geti_sdk.platform_versions import GETI_116_VERSION, GetiVersion
 
 from .exception import GetiRequestException
-from .server_config import LEGACY_API_VERSION, ServerCredentialConfig, ServerTokenConfig
+from .server_config import ServerCredentialConfig, ServerTokenConfig
 
 CSRF_COOKIE_NAME = "_oauth2_proxy_csrf"
 PROXY_COOKIE_NAME = "_oauth2_proxy"
@@ -99,6 +99,11 @@ class GetiSession(requests.Session):
         # Get server version
         self._product_info = self._get_product_info_and_set_api_version()
         self._organization_id: Optional[str] = self._get_organization_id()
+        if self.version < GETI_116_VERSION:
+            raise ValueError(
+                "The Intel® Geti™ server version is not supported by this SDK. Please "
+                "update the Intel® Geti™ server to version 2.0 or later."
+            )
 
     @property
     def version(self) -> GetiVersion:
@@ -379,15 +384,9 @@ class GetiSession(requests.Session):
 
         :return: Dictionary containing the product info.
         """
-        try:
-            product_info = self.get_rest_response(
-                "product_info", "GET", include_organization_id=False
-            )
-        except GetiRequestException:
-            self.config.api_version = LEGACY_API_VERSION
-            product_info = self.get_rest_response(
-                "product_info", "GET", include_organization_id=False
-            )
+        product_info = self.get_rest_response(
+            "product_info", "GET", include_organization_id=False
+        )
         return product_info
 
     def __exit__(self, exc_type, exc_value, traceback):
