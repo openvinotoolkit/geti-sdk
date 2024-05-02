@@ -42,6 +42,7 @@ class OptimizationCapabilities:
 
     is_nncf_supported: bool
     is_filter_pruning_supported: Optional[bool] = None
+    is_filter_pruning_enabled: Optional[bool] = None
 
 
 @attr.define
