@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import logging
-import re
 from pprint import pformat
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -189,10 +188,8 @@ class Job:
     Representation of a job running on the GETi cluster.
 
     :var name: Name of the job
-    :var description: Description of the job [deprecated in Geti v1.16]
     :var id: Unique database ID of the job
     :var project_id: Unique database ID of the project from which the job originates
-    :var status: JobStatus object holding the current status of the job [deprecated in Geti v1.16]
     :var type: Type of the job
     :var metadata: JobMetadata object holding metadata for the job
     """
@@ -201,8 +198,6 @@ class Job:
     id: str
     type: str = attr.field(converter=str_to_enum_converter(JobType))
     metadata: JobMetadata
-    description: Optional[str] = None  # deprecated in Geti v1.16
-    status: Optional[JobStatus] = None  # deprecated in Geti v1.16
     project_id: Optional[str] = None
     creation_time: Optional[str] = attr.field(converter=str_to_datetime, default=None)
     start_time: Optional[str] = attr.field(
@@ -287,11 +282,6 @@ class Job:
 
         self.steps = response.get("steps", None)
         self.state = JobState(response["state"])
-        self.status = JobStatus(
-            progress=self.current_step / self.total_steps,
-            message=self.current_step_message,
-            state=self.state,
-        )
 
         if self._geti_version is None:
             self.geti_version = session.version
@@ -364,18 +354,6 @@ class Job:
                 if step_state == "finished":
                     steps_complete += 1
             current = steps_complete + 1
-        elif self.status is not None:
-            # The old method, use job status message to find step number
-            status_message = self.status.message
-            step_pattern = re.compile(r"\(Step \d\/\d\)", re.IGNORECASE)
-            results = re.findall(step_pattern, status_message)
-            if len(results) != 1:
-                return 0, 1
-            result_string = results[0].strip("(").strip(")").split("Step")[-1]
-            result_string = result_string.strip()
-            result_nums = result_string.split("/")
-            current = int(result_nums[0])
-            total = int(result_nums[1])
         else:
             return 0, 1
         return current, total

@@ -41,7 +41,6 @@ class OptimizationCapabilities:
     """
 
     is_nncf_supported: bool
-    is_filter_pruning_enabled: Optional[bool] = None  # deprecated in v1.1
     is_filter_pruning_supported: Optional[bool] = None
 
 
@@ -223,7 +222,7 @@ class Model(BaseModel):
     optimized_models: List[OptimizedModel] = attr.field(kw_only=True)
     labels: Optional[List[Label]] = None
     version: Optional[int] = attr.field(default=None, kw_only=True)
-    # 'version' is deprecated in v1.1
+    # 'version' is deprecated in v1.1 -- IS IT?
     training_dataset_info: Optional[Dict[str, str]] = None
 
     @property

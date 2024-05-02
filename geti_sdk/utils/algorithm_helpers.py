@@ -15,14 +15,13 @@
 from typing import Dict, Optional
 
 from geti_sdk.data_models.containers import AlgorithmList
-from geti_sdk.data_models.enums import Domain, TaskType
+from geti_sdk.data_models.enums import TaskType
 from geti_sdk.data_models.project import Project
 from geti_sdk.http_session import GetiSession
 
 
 def get_supported_algorithms(
     rest_session: GetiSession,
-    domain: Optional[Domain] = None,
     task_type: Optional[TaskType] = None,
     project: Optional[Project] = None,
     workspace_id: Optional[str] = None,
@@ -32,9 +31,6 @@ def get_supported_algorithms(
     cluster.
 
     :param rest_session: HTTP session to the cluster
-    :param domain: Optional domain for which to get the supported algorithms. If left
-        as None (the default), the supported algorithms for all domains are returned.
-        NOTE: domain is deprecated in SC1.1, please use `task_type` instead.
     :param task_type: Optional TaskType for which to get the supported algorithms.
     :param project: Project to get the supported algorithms for. NOTE: `project` is
         not required for Geti versions v1.8 and lower, but is mandatory for v1.9 and up.
@@ -43,15 +39,6 @@ def get_supported_algorithms(
         lower, but is mandatory for v1.9 and up.
     :return: AlgorithmList holding the supported algorithms
     """
-    filter_by_task_type = False
-    if task_type is not None and domain is not None:
-        raise ValueError("Please specify either task type or domain, but not both")
-    elif task_type is not None:
-        filter_by_task_type = True
-    elif domain is not None:
-        task_type = TaskType.from_domain(domain)
-        filter_by_task_type = True
-
     if (workspace_id is None) or (project is None):
         raise ValueError(
             "For Geti v1.9 or higher, passing `workspace_id` and `project` is "
@@ -61,13 +48,12 @@ def get_supported_algorithms(
 
     algorithm_rest_response = rest_session.get_rest_response(url=url, method="GET")
 
-    if filter_by_task_type:
-        filtered_response = [
-            algo
-            for algo in algorithm_rest_response["supported_algorithms"]
-            if algo["task_type"].upper() == task_type.name
-        ]
-        algorithm_rest_response["items"] = filtered_response
+    filtered_response = [
+        algo
+        for algo in algorithm_rest_response["supported_algorithms"]
+        if algo["task_type"].upper() == task_type.name
+    ]
+    algorithm_rest_response["items"] = filtered_response
     return AlgorithmList.from_rest(algorithm_rest_response)
 
 

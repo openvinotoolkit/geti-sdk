@@ -116,8 +116,6 @@ class MediaItem:
     type: str = attr.field(converter=str_to_media_type)
     upload_time: str = attr.field(converter=str_to_datetime)
     media_information: MediaInformation
-    state: Optional[str] = None
-    # State is deprecated in SC1.1, replaced by `annotation_state_per_task`
     annotation_state_per_task: Optional[List[TaskAnnotationState]] = None
     thumbnail: Optional[str] = None
     uploader_id: Optional[str] = None
