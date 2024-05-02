@@ -48,12 +48,13 @@ def get_supported_algorithms(
 
     algorithm_rest_response = rest_session.get_rest_response(url=url, method="GET")
 
-    filtered_response = [
-        algo
-        for algo in algorithm_rest_response["supported_algorithms"]
-        if algo["task_type"].upper() == task_type.name
-    ]
-    algorithm_rest_response["items"] = filtered_response
+    if task_type:
+        filtered_response = [
+            algo
+            for algo in algorithm_rest_response["supported_algorithms"]
+            if algo["task_type"].upper() == task_type.name
+        ]
+        algorithm_rest_response["items"] = filtered_response
     return AlgorithmList.from_rest(algorithm_rest_response)
 
 
