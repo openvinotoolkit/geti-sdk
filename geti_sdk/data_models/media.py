@@ -120,6 +120,7 @@ class MediaItem:
     annotation_state_per_task: Optional[List[TaskAnnotationState]] = None
     thumbnail: Optional[str] = None
     uploader_id: Optional[str] = None
+    last_annotator_id: Optional[str] = None
 
     @property
     def download_url(self) -> str:
