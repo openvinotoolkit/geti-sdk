@@ -102,7 +102,7 @@ class GetiSession(requests.Session):
         if self.version < GETI_116_VERSION:
             raise ValueError(
                 "The Intel® Geti™ server version is not supported by this SDK. Please "
-                "update the Intel® Geti™ server to version 2.0 or later."
+                "update the Intel® Geti™ server to version 2.0 or later, or us the previous version of the SDK."
             )
 
     @property
