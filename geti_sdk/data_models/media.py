@@ -108,6 +108,7 @@ class MediaItem:
     :var thumbnail: URL that can be used to get a thumbnail for the media entity
     :var media_information: Container holding basic information such as width and
         height about the media entity
+    :param last_annotator_id: the name or id of the editor.
     """
 
     id: str
