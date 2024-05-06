@@ -15,6 +15,7 @@ import copy
 import datetime
 import logging
 from concurrent.futures import ThreadPoolExecutor
+from threading import BoundedSemaphore
 from typing import Any, Dict, Optional
 
 import numpy as np
@@ -51,6 +52,12 @@ class PostInferenceHook(PostInferenceHookInterface):
         sampling many near-duplicate frames
     :param max_frames_per_second: Maximum frame rate at which to execute the action.
         Only takes effect if `limit_action_rate = True`.
+    :param queue_limit: Maximum size of the execution queue for the hook. If left as 0
+        (the default), the queue is unbounded. This may lead to high memory usage in
+        some cases (if inference is very fast, or the action execution is slow). When
+        running into out of memory issues, try setting the queue limit to avoid
+        buffering too many frames in memory. Note that this may slow down the
+        inference rate
     """
 
     def __init__(
@@ -60,16 +67,21 @@ class PostInferenceHook(PostInferenceHookInterface):
         max_threads: int = 5,
         limit_action_rate: bool = False,
         max_frames_per_second: float = 1,
+        queue_limit: int = 0,
     ):
         super().__init__(trigger=trigger, action=action)
 
         self.parallel_execution = max_threads != 0
+        self._semaphore: Optional[BoundedSemaphore] = None
+
         if self.parallel_execution:
             self.executor = ThreadPoolExecutor(max_workers=max_threads)
             logging.debug(
                 f"Parallel inference hook execution enabled, using a maximum of "
                 f"{max_threads} threads."
             )
+            if queue_limit > 0:
+                self._semaphore = BoundedSemaphore(queue_limit + max_threads)
 
         if limit_action_rate:
             self.rate_limiter: Optional[RateLimiter] = RateLimiter(
@@ -115,7 +127,18 @@ class PostInferenceHook(PostInferenceHookInterface):
         if timestamp is None:
             timestamp = datetime.datetime.now()
         if self.parallel_execution:
-            self.executor.submit(execution_function, image, prediction, timestamp)
+            if self._semaphore is not None:
+                self._semaphore.acquire()
+            try:
+                future = self.executor.submit(
+                    execution_function, image, prediction, timestamp
+                )
+            except Exception as error:
+                if self._semaphore is not None:
+                    self._semaphore.release()
+                raise error
+            if self._semaphore is not None:
+                future.add_done_callback(lambda x: self._semaphore.release())
         else:
             execution_function(image, prediction, timestamp)
 
