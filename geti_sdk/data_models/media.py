@@ -108,6 +108,7 @@ class MediaItem:
     :var thumbnail: URL that can be used to get a thumbnail for the media entity
     :var media_information: Container holding basic information such as width and
         height about the media entity
+    :param last_annotator_id: the name or id of the editor.
     """
 
     id: str
@@ -120,6 +121,8 @@ class MediaItem:
     annotation_state_per_task: Optional[List[TaskAnnotationState]] = None
     thumbnail: Optional[str] = None
     uploader_id: Optional[str] = None
+    # last_annotator_id was added in Geti v 2.0. It replaced `editor_name`
+    last_annotator_id: Optional[str] = None
 
     @property
     def download_url(self) -> str:
@@ -214,9 +217,6 @@ class Image(MediaItem):
         kw_only=True, default=None, repr=False
     )  # Added in Geti v 1.16
     roi_id: Optional[str] = attr.field(
-        kw_only=True, default=None, repr=False
-    )  # Added in Geti v 1.16
-    editor_name: Optional[str] = attr.field(
         kw_only=True, default=None, repr=False
     )  # Added in Geti v 1.16
 
