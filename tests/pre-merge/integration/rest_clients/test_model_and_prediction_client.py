@@ -138,8 +138,7 @@ class TestModelAndPredictionClient:
             model_client.supported_algos.get_by_task_type(task.type)
         )
         untrained_algos.remove(default_algorithm)
-        # Zeroth algo is used in the next test
-        untrained_algo = untrained_algos[1]
+        untrained_algo = sorted(untrained_algos, key=lambda x: x.gigaflops)[0]
 
         # Act
         model_client.set_active_model(algorithm=default_algorithm)
@@ -166,7 +165,8 @@ class TestModelAndPredictionClient:
         fxt_project_service.training_client.monitor_jobs(
             [job], timeout=timeout, interval=interval
         )
-        # Set the new algorithm is active
+
+        # Set the new algorithm active once a model is trained
         model_client.set_active_model(algorithm=untrained_algo)
         assert (
             model_client.get_active_model_for_task(task=task).architecture
@@ -198,7 +198,7 @@ class TestModelAndPredictionClient:
         )
         default_algo = untrained_algos.get_default_for_task_type(task.type)
         untrained_algos.remove(default_algo)
-        untrained_algo = untrained_algos[0]
+        untrained_algo = sorted(untrained_algos, key=lambda x: x.gigaflops)[1]
 
         model_1 = model_client.get_model_by_algorithm_task_and_version(
             algorithm=algorithm, task=task, version=1
