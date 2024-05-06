@@ -274,6 +274,22 @@ class Image(MediaItem):
 
 
 @attr.define(slots=False)
+class VideoAnnotationStatistics:
+    """
+    Annotation statistics for a video in Intel® Geti™.
+
+    :var annotated: Number of frames in the video that have been fully annotated
+    :var partially_annotated: Number of frames in the video that have been partially
+        annotated, meaning that one task in the task chain is still missing annotations
+    :var unannotated: Number of frames in the video that have not yet been annotated
+    """
+
+    annotated: int
+    partially_annotated: int
+    unannotated: int
+
+
+@attr.define(slots=False)
 class Video(MediaItem):
     """
     Representation of a video in Intel® Geti™.
@@ -284,6 +300,9 @@ class Video(MediaItem):
 
     media_information: VideoInformation = attr.field(kw_only=True)
     matched_frames: Optional[int] = attr.field(kw_only=True, default=None, repr=False)
+    annotation_statistics: Optional[VideoAnnotationStatistics] = attr.field(
+        kw_only=True, default=None, repr=False
+    )
 
     def __attrs_post_init__(self):
         """

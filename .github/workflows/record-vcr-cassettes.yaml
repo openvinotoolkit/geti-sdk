@@ -1,29 +1,26 @@
 name: Record and push VCR cassettes
 
 on:
-    workflow_dispatch  # run on request (no need for PR)
+  workflow_dispatch:  # run on request (no need for PR)
 
 env:
-  # Login details for the Geti instance to run the tests against
-  # Secrets are configured on the repository level (Settings > Secrets)
-  GETI_HOST: ${{ secrets.GETI_HOST }}
   GETI_USERNAME: ${{ secrets.GETI_USERNAME }}
   GETI_PASSWORD: ${{ secrets.GETI_PASSWORD }}
+  # Python version
+  PYTHON_VERSION: 3.9
 
   # Other environment variables used in the tests
   TEST_MODE: "RECORD"
   REPORT_DIRECTORY: reports
   VIRTUALENV_DIRECTORY: .venv
 
-  # Python environment
-  PYTHON_VERSION: 3.9
-
 permissions:
   contents: write
-  # pull-requests: write  # 'write' access to pull requests
+  pull-requests: write  # 'write' access to pull requests
 
 jobs:
-  integration_tests:
+  recording_integration_tests:
+
     runs-on: [self-hosted, sdk-runner]
 
     steps:
@@ -45,23 +42,45 @@ jobs:
           source $VIRTUALENV_DIRECTORY/bin/activate
           pip install ".[dev]"
 
-      - name: Record integration test cassettes
+      - name: Record integration test cassettes [legacy platform]
         # Proxy settings have to be configured and GETI_HOST set to full address before
         # tests can run
-        #
         # NOTE: This step executes all tests in the `tests` directory in `RECORD` mode
         run: |
           export no_proxy=$GETI_HOST,$no_proxy
           export NO_PROXY=$GETI_HOST,$NO_PROXY
           export GETI_HOST=https://$GETI_HOST
 
-          pytest tests/pre-merge/integration --html=$REPORT_DIRECTORY/integration_test_report.html --self-contained-html
+          pytest tests/pre-merge/integration --html=$REPORT_DIRECTORY/integration_test_report_legacy.html --self-contained-html
+        env:
+          # Login details for the Geti instance to run the tests against
+          # Secrets are configured on the repository level (Settings > Secrets)
+          GETI_HOST: ${{ secrets.GETI_HOST }}
+          GETI_PLATFORM_VERSION: "LEGACY"
+
+      - name: Record integration test cassettes [develop platform]
+        # Proxy settings have to be configured and GETI_HOST set to full address before
+        # tests can run
+        # NOTE: This step executes all tests in the `tests` directory in `RECORD` mode
+        run: |
+          export no_proxy=$GETI_HOST,$no_proxy
+          export NO_PROXY=$GETI_HOST,$NO_PROXY
+          export GETI_HOST=https://$GETI_HOST
+
+          pytest tests/pre-merge/integration --html=$REPORT_DIRECTORY/integration_test_report_develop.html --self-contained-html
+        env:
+          # Login details for the Geti instance to run the tests against
+          # Secrets are configured on the repository level (Settings > Secrets)
+          GETI_HOST: ${{ secrets.GETI_DEVELOP_HOST }}
+          GETI_PLATFORM_VERSION: "DEVELOP"
 
       - name: Commit files
         run: |
-            git config --local user.email "github-actions[bot]@users.noreply.github.com"
-            git config --local user.name "github-actions[bot]"
-            git commit -a -m "Update VCR cassettes"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add tests/fixtures/cassettes
+          git commit -m "Update VCR cassette"
+          git fetch
 
       - name: Push changes
         uses: ad-m/github-push-action@master

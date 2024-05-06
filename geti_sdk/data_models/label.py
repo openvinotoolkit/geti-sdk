@@ -16,13 +16,7 @@ import copy
 from typing import ClassVar, List, Optional, Tuple
 
 import attr
-from otx.api.entities.color import Color
-from otx.api.entities.color import Color as OteColor
-from otx.api.entities.label import Domain as OteLabelDomain
-from otx.api.entities.label import LabelEntity
-from otx.api.entities.scored_label import ScoredLabel as OteScoredLabel
 
-from geti_sdk.data_models.enums import TaskType
 from geti_sdk.data_models.enums.domain import Domain
 
 
@@ -88,22 +82,6 @@ class Label:
         """
         return hash(self.__key())
 
-    def to_ote(self, task_type: TaskType) -> LabelEntity:
-        """
-        Convert the `Label` instance to an OTE SDK LabelEntity object.
-
-        :return: OTE SDK LabelEntity instance corresponding to the label
-        """
-        return LabelEntity(
-            name=self.name,
-            domain=task_type.to_ote_domain(),
-            id=self.id,
-            hotkey=self.hotkey,
-            is_empty=self.is_empty,
-            color=Color.from_hex_str(self.color),
-            is_anomalous=self.is_anomalous,
-        )
-
     def prepare_for_post(self) -> None:
         """
         Set all fields to None that are not valid for making a POST request to the
@@ -166,39 +144,4 @@ class ScoredLabel:
         """
         return ScoredLabel(
             name=label.name, probability=probability, color=label.color, id=label.id
-        )
-
-    @classmethod
-    def from_ote(cls, ote_label: OteScoredLabel) -> "ScoredLabel":
-        """
-        Create a :py:class`~geti_sdk.data_models.label.ScoredLabel` from
-        the OTE SDK ScoredLabel entity passed.
-
-        :param ote_label: OTE SDK ScoredLabel entity to convert from
-        :return: ScoredLabel instance created according to the ote_label
-        """
-        return cls(
-            name=ote_label.name,
-            id=ote_label.id,
-            probability=ote_label.probability,
-            color=(
-                ote_label.color
-                if isinstance(ote_label.color, str)
-                else ote_label.color.hex_str
-            ),
-        )
-
-    def to_ote(self) -> OteScoredLabel:
-        """
-        Create a ScoredLabel object from OTE SDK corresponding to this
-        :py:class`~geti_sdk.data_models.label.ScoredLabel` instance.
-        """
-        return OteScoredLabel(
-            label=LabelEntity(
-                name=self.name,
-                color=OteColor(*self.color_tuple),
-                id=self.id,
-                domain=OteLabelDomain.NULL,
-            ),
-            probability=self.probability,
         )

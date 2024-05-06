@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-import importlib.util
 import json
 import logging
 import os
 import shutil
-import sys
 import tempfile
 import time
 import zipfile
@@ -52,7 +50,6 @@ from .utils import (
 
 MODEL_DIR_NAME = "model"
 PYTHON_DIR_NAME = "python"
-WRAPPER_DIR_NAME = "model_wrappers"
 REQUIREMENTS_FILE_NAME = "requirements.txt"
 
 LABELS_CONFIG_KEY = "labels"
@@ -88,7 +85,6 @@ class DeployedModel(OptimizedModel):
         self._model_python_path: Optional[str] = None
         self._needs_tempdir_deletion: bool = False
         self._tempdir_path: Optional[str] = None
-        self._has_custom_model_wrappers: bool = False
         self._label_schema: Optional[LabelSchema] = None
 
         # Attributes related to model explainability
@@ -144,9 +140,6 @@ class DeployedModel(OptimizedModel):
                 self._model_data_path = os.path.join(temp_dir, MODEL_DIR_NAME)
                 self._model_python_path = os.path.join(temp_dir, PYTHON_DIR_NAME)
 
-                # Check if the model includes custom model wrappers
-                if WRAPPER_DIR_NAME in os.listdir(self._model_python_path):
-                    self._has_custom_model_wrappers = True
                 self.get_data(temp_dir)
 
             elif os.path.isdir(source):
@@ -167,21 +160,23 @@ class DeployedModel(OptimizedModel):
                         f"file 'model.xml' and weights file 'model.bin' were not found "
                         f"at the path specified. "
                     )
-                if PYTHON_DIR_NAME in source_contents:
-                    model_python_path = os.path.join(source, PYTHON_DIR_NAME)
-                else:
-                    model_python_path = os.path.join(
-                        os.path.dirname(source), PYTHON_DIR_NAME
-                    )
-                python_dir_contents = (
-                    os.listdir(model_python_path)
-                    if os.path.exists(model_python_path)
-                    else []
-                )
-                if WRAPPER_DIR_NAME in python_dir_contents:
-                    self._has_custom_model_wrappers = True
 
                 self._model_python_path = os.path.join(source, PYTHON_DIR_NAME)
+            # A model is being loaded from disk, check if it is a legacy model
+            # We support OTX models starting from version 1.5.0
+            otx_version = get_package_version_from_requirements(
+                requirements_path=os.path.join(
+                    self._model_python_path, REQUIREMENTS_FILE_NAME
+                ),
+                package_name="otx",
+            )
+            if otx_version:  # Empty string if package not found
+                otx_version = otx_version.split(".")
+                if int(otx_version[0]) <= 1 and int(otx_version[1]) < 5:
+                    raise ValueError(
+                        "Model version is not supported. Please use a model trained with "
+                        "OTX version 1.5.0 or higher."
+                    )
 
         elif isinstance(source, GetiSession):
             if self.base_url is None:
@@ -289,27 +284,6 @@ class DeployedModel(OptimizedModel):
         )
         self._parse_label_schema_from_dict(label_dictionary)
 
-        # Create model wrapper with the loaded configuration
-        # First, add custom wrapper (if any) to path so that we can find it
-        if self._has_custom_model_wrappers:
-            wrapper_module_path = os.path.join(
-                self._model_python_path, WRAPPER_DIR_NAME
-            )
-            module_name = WRAPPER_DIR_NAME + "." + model_type.lower().replace(" ", "-")
-            try:
-                spec = importlib.util.spec_from_file_location(
-                    module_name, os.path.join(wrapper_module_path, "__init__.py")
-                )
-                module = importlib.util.module_from_spec(spec)
-                sys.modules[module_name] = module
-                spec.loader.exec_module(module)
-            except ImportError as ex:
-                raise ImportError(
-                    f"Unable to load inference model for {self}. A custom model wrapper"
-                    f"is required, but could not be found at path "
-                    f"{wrapper_module_path}."
-                ) from ex
-
         model = model_api_Model.create_model(
             model=model_adapter,
             model_type=model_type,
@@ -318,20 +292,13 @@ class DeployedModel(OptimizedModel):
         )
         self._inference_model = model
 
-        # Load results to Prediction converter
-        otx_version = get_package_version_from_requirements(
-            requirements_path=os.path.join(
-                self._model_python_path, REQUIREMENTS_FILE_NAME
-            ),
-            package_name="otx",
-        )
-        use_legacy_converter = not otx_version.startswith("1.5")
+        # Load a Results-to-Prediction converter
         self._converter = ConverterFactory.create_converter(
-            self.label_schema, configuration, use_legacy_converter=use_legacy_converter
+            self.label_schema, configuration
         )
 
         # TODO: This is a workaround to fix the issue that causes the output blob name
-        #  to be unset. Remove this once it has been fixed on OTX/ModelAPI side
+        #  to be unset. Remove this once it has been fixed on ModelAPI side
         output_names = list(self._inference_model.outputs.keys())
         if hasattr(self._inference_model, "output_blob_name"):
             if not self._inference_model.output_blob_name:

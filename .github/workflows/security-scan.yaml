@@ -16,11 +16,9 @@ permissions:
 
 jobs:
   security:
-    runs-on: [self-hosted, sdk-runner]
+    runs-on: [ubuntu-latest]
     permissions:
-      # required for all workflows
       security-events: write
-      # only required for workflows in private repositories
       actions: read
       contents: read
     steps:
@@ -48,15 +46,19 @@ jobs:
           pip install bandit
           bandit -r . --ini tox.ini -f 'txt' -o $REPORT_DIRECTORY/bandit.txt -v
 
-#      - name: Git AV Scan
-#        uses: djdefi/gitavscan@main
-#        with:
-#          full: '--full'
+      - name: Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: 'CRITICAL'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
 
-      - name: Hadolint scan
-        # Run hadolint scan on the dockerfile
-        run: |
-         docker run --rm -i hadolint/hadolint < Dockerfile | tee $REPORT_DIRECTORY/hadolint.txt
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
 
       - name: Upload test reports
         # Publish the test reports to github
