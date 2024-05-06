@@ -15,7 +15,7 @@
 import logging
 import time
 from multiprocessing import Value
-from queue import PriorityQueue
+from queue import Empty, PriorityQueue
 from threading import Event, Thread
 from typing import Optional
 
@@ -24,7 +24,7 @@ import numpy as np
 
 
 def _process(
-    queue: PriorityQueue,
+    process_queue: PriorityQueue,
     writer: cv2.VideoWriter,
     stop_event: Event,
     fps_limit: Optional[float] = None,
@@ -35,7 +35,7 @@ def _process(
     If `fps_limit` is given, the rate at which frames are written is limited to at
     most the specified frequency.
 
-    :param queue: PriorityQueue holding the video frames
+    :param process_queue: PriorityQueue holding the video frames
     :param writer: VideoWriter object used to write the frames
     :param stop_event: Event object that signals the processing to stop when set
     :param fps_limit: Optional rate limit for writing the frames
@@ -49,24 +49,28 @@ def _process(
         if stop_event.is_set():
             if not stop_received:
                 logging.info("Stop event received, waiting for queue to be emptied.")
-                stop_received = False
-            if queue.empty():
+                stop_received = True
+            if process_queue.qsize() == 0:
                 logging.info("Video writing process stopped successfully.")
-                writer.release()
                 return
-        if queue.qsize() < buffer_size and not stop_event.is_set():
+        if process_queue.qsize() < buffer_size and not stop_received:
             continue
         try:
-            timestamp, index, frame = queue.get(block=True, timeout=1)
-        except queue.Empty:
-            continue
+            timestamp, index, frame = process_queue.get(block=False)
+            logging.info(f"Got frame {index} from queue. Timestamp: {timestamp}")
+        except Empty:
+            if stop_received:
+                return
+            else:
+                continue
+
         writer.write(frame)
 
         if fps_limit is not None:
-            t = time.monotonic()
+            t = time.time()
             if t < next_frame:
                 time.sleep(next_frame - t)
-                t = time.monotonic()
+                t = time.time()
             next_frame = t + interval
 
 
@@ -94,14 +98,18 @@ class AsyncVideoProcessor:
             guaranteed.
         """
         self.writer = writer
-        self._queue = PriorityQueue()
+        if frame_buffer_size > 0:
+            queue_size = int(2 * frame_buffer_size)
+        else:
+            queue_size = -1
+        self._queue = PriorityQueue(maxsize=queue_size)
         self.fps_limit = fps_limit
         self._stop_event = Event()
         self.buffer_size = frame_buffer_size
         self._worker = Thread(
             target=_process,
             kwargs={
-                "queue": self._queue,
+                "process_queue": self._queue,
                 "writer": self.writer,
                 "stop_event": self._stop_event,
                 "fps_limit": self.fps_limit,
@@ -142,6 +150,7 @@ class AsyncVideoProcessor:
         logging.info("Gracefully stopping video processing thread")
         self._stop_event.set()
         self._worker.join()
+        self.writer.release()
 
     def await_all(self):
         """
@@ -150,6 +159,7 @@ class AsyncVideoProcessor:
         """
         if not (self._worker.is_alive() and self._is_running):
             raise RuntimeError("Worker thread is not running!")
-        while not self._queue.empty():
-            time.sleep(0.1)
         self.stop()
+        buf_size = self.buffer_size
+        while not buf_size == 0:
+            buf_size = self._queue.qsize()
