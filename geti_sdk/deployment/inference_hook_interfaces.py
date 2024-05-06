@@ -83,7 +83,15 @@ class PostInferenceObject(object, metaclass=ABCMeta):
         :param input_dict: Dictionary representation of the PostInferenceObject
         :return: Instantiated PostInferenceObject, according to the input dictionary
         """
-        return NotImplemented
+        available_objects = {subcls.__name__: subcls for subcls in cls.__subclasses__()}
+        pi_objects: List["PostInferenceObject"] = []
+        for object_name, object_args in input_dict.items():
+            target_object = available_objects[object_name]
+            if target_object._override_from_dict_:
+                pi_objects.append(target_object.from_dict(object_args))
+            else:
+                pi_objects.append(target_object(**object_args))
+        return pi_objects[0]
 
 
 class PostInferenceTrigger(PostInferenceObject):
@@ -132,26 +140,6 @@ class PostInferenceTrigger(PostInferenceObject):
         Return string representation of the PostInferenceTrigger
         """
         return f"{type(self).__name__}({self._repr_info_})"
-
-    @classmethod
-    def from_dict(cls, input_dict: Dict[str, Any]) -> "PostInferenceTrigger":
-        """
-        Construct a PostInferenceTrigger from an input dictionary `input_dict`
-
-        :param input_dict: Dictionary representation of the PostInferenceTrigger
-        :return: Instantiated PostInferenceTrigger, according to the input dictionary
-        """
-        available_triggers = {
-            subcls.__name__: subcls for subcls in cls.__subclasses__()
-        }
-        triggers: List["PostInferenceTrigger"] = []
-        for trigger_name, trigger_args in input_dict.items():
-            target_trigger = available_triggers[trigger_name]
-            if target_trigger._override_from_dict_:
-                triggers.append(target_trigger.from_dict(trigger_args))
-            else:
-                triggers.append(target_trigger(**trigger_args))
-        return triggers[0]
 
 
 class PostInferenceAction(PostInferenceObject):
@@ -202,24 +190,6 @@ class PostInferenceAction(PostInferenceObject):
         Return string representation of the PostInferenceAction
         """
         return f"{type(self).__name__}({self._repr_info_})"
-
-    @classmethod
-    def from_dict(cls, input_dict: Dict[str, Any]) -> "PostInferenceAction":
-        """
-        Construct a PostInferenceAction from an input dictionary `input_dict`
-
-        :param input_dict: Dictionary representation of the PostInferenceAction
-        :return: Instantiated PostInferenceAction, according to the input dictionary
-        """
-        available_actions = {subcls.__name__: subcls for subcls in cls.__subclasses__()}
-        actions: List["PostInferenceAction"] = []
-        for action_name, action_args in input_dict.items():
-            target_action = available_actions[action_name]
-            if target_action._override_from_dict_:
-                actions.append(target_action.from_dict(action_args))
-            else:
-                actions.append(target_action(**action_args))
-        return actions[0]
 
 
 class PostInferenceHookInterface(PostInferenceObject):
