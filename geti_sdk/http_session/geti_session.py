@@ -38,7 +38,8 @@ GETI_COOKIE_NAME = "geti-cookie"
 INITIAL_HEADERS = {"Upgrade-Insecure-Requests": "1"}
 SUCCESS_STATUS_CODES = [200, 201, 202]
 
-AUTHENTICATION_CIDAAS = "cidaas"
+SAAS_MODE = "saas"
+ONPREM_MODE = "on-prem"
 
 
 class GetiSession(requests.Session):
@@ -87,11 +88,20 @@ class GetiSession(requests.Session):
 
         # Determine authentication method
         if isinstance(server_config, ServerCredentialConfig):
+            if self.platform_serving_mode == SAAS_MODE:
+                raise ValueError(
+                    "Authentication via username and password is not supported for "
+                    "Intel® Geti™ SaaS instances. Please use a personal access token."
+                )
+            else:
+                logging.warning(
+                    "Authentication via username and password is deprecated and will be "
+                    "removed in a future version of the SDK. Please use a personal access token."
+                )
             self.authenticate(verbose=True)
             self.use_token = False
-        else:
+        else:  # ServerTokenConfig
             self.use_token = True
-
             # New mechanism, from Geti v1.14
             self.headers.update({"x-api-key": f"{server_config.token}"})
             self.headers.pop("Connection")
@@ -103,6 +113,26 @@ class GetiSession(requests.Session):
             raise ValueError(
                 "The Intel® Geti™ server version is not supported by this SDK. Please "
                 "update the Intel® Geti™ server to version 2.0 or later, or us the previous version of the SDK."
+            )
+
+    @property
+    def platform_serving_mode(self) -> str:
+        """
+        Return the type of the GETi platform service.
+        """
+        deployment_config_response = self.request(
+            url=f"{self.config.host}/deployment-config.json",
+            method="GET",
+            proxies=self._proxies,
+        ).json()
+        serving_mode = deployment_config_response.get("servingMode").lower()
+        if serving_mode == "on-prem":
+            return ONPREM_MODE
+        elif serving_mode == "saas":
+            return SAAS_MODE
+        else:
+            raise ValueError(
+                f"Unexpected serving mode '{serving_mode}' received from the server."
             )
 
     @property
@@ -127,17 +157,6 @@ class GetiSession(requests.Session):
             self._organization_id = self._get_organization_id()
         return self._organization_id
 
-    def _follow_login_redirects(self, response: Response) -> str:
-        """
-        Recursively follow redirects in the initial login request. Updates the
-        session._cookies with the cookie and the login uri.
-
-        :param response: REST response to follow redirects for
-        :return: url to the redirected location
-        """
-        if response.status_code in [302, 303]:
-            return response.next.url
-
     def _get_initial_login_url(self) -> str:
         """
         Retrieve the initial login url by making a request to the login page, and
@@ -155,7 +174,10 @@ class GetiSession(requests.Session):
         )
         url = f"{self.config.host}/dex/auth/regular_users?{params}"
         response = self.get(url, allow_redirects=False, proxies=self._proxies)
-        login_page_url = self._follow_login_redirects(response)
+        if response.status_code in [302, 303]:
+            login_page_url = response.next.url
+        else:
+            login_page_url = response.url
         return login_page_url
 
     def authenticate(self, verbose: bool = True):
