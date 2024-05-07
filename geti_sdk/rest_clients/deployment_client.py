@@ -25,9 +25,8 @@ from geti_sdk.data_models.code_deployment_info import (
 )
 from geti_sdk.data_models.enums import DeploymentState, OptimizationType
 from geti_sdk.data_models.model import Model, OptimizedModel
-from geti_sdk.deployment import DeployedModel, Deployment
+from geti_sdk.deployment import Deployment
 from geti_sdk.http_session import GetiSession
-from geti_sdk.platform_versions import GETI_11_VERSION, GETI_18_VERSION
 from geti_sdk.rest_clients.configuration_client import ConfigurationClient
 from geti_sdk.rest_clients.model_client import ModelClient
 from geti_sdk.rest_clients.prediction_client import PredictionClient
@@ -77,16 +76,9 @@ class DeploymentClient:
 
         :return: True when the project is ready for deployment, False otherwise
         """
-        ready = False
-        if self._prediction_client.ready_to_predict:
-            ready = True
-            if self.session.version > GETI_18_VERSION:
-                # Check that all tasks have a trained model
-                models = self._model_client.get_all_active_models()
-                for model in models:
-                    if model is None:
-                        ready = False
-        return ready
+        return self._prediction_client.ready_to_predict and all(
+            model is not None for model in self._model_client.get_all_active_models()
+        )
 
     def _request_deployment(
         self, model_identifiers: Sequence[DeploymentModelIdentifier]
@@ -219,79 +211,11 @@ class DeploymentClient:
                 "An `output_folder` must be specified when setting "
                 "`prepare_for_ovms=True`."
             )
-        if self.session.version >= GETI_11_VERSION:
-            deployment = self._backend_deploy_project(
-                output_folder=output_folder, models=models
-            )
-        else:
-            if models is not None:
-                logging.warning(
-                    "You have specified models for deployment, however the "
-                    "Intel® Geti™ platform running on your server does not support "
-                    "this functionality yet. Please update the Intel® Geti™ platform"
-                    "to version 1.1 or higher to make use of this functionality "
-                    "through the Geti SDK. Note that it is possible to deploy specific "
-                    "models via the 'Deployments' page in the Intel® Geti™ graphical "
-                    "user interface."
-                )
-            logging.info("Creating project deployment using active model(s).")
-            deployment = self._legacy_deploy_project(output_folder=output_folder)
+        deployment = self._backend_deploy_project(
+            output_folder=output_folder, models=models
+        )
         if prepare_for_ovms:
             deployment.generate_ovms_config(output_folder=output_folder)
-        return deployment
-
-    def _legacy_deploy_project(
-        self, output_folder: Optional[Union[str, os.PathLike]] = None
-    ) -> Deployment:
-        """
-        Create a deployment for a project that lives on an older Intel® Geti™ server,
-        that doesn't support the latest deployment mechanism yet.
-
-        :param output_folder: Path to a folder on local disk to which the Deployment
-            should be downloaded. If no path is specified, the deployment will not be
-            saved to disk directly. Note that it is always possible to save the
-            deployment once it has been created, using the `deployment.save` method.
-        :return: Deployment for the project
-        """
-        active_models = [
-            model
-            for model in self._model_client.get_all_active_models()
-            if model is not None
-        ]
-
-        configuration = self._configuration_client.get_full_configuration()
-        if len(active_models) != len(self.project.get_trainable_tasks()):
-            raise ValueError(
-                f"Project `{self.project.name}` does not have a trained model for each "
-                f"task in the project. Unable to create deployment, please ensure all "
-                f"tasks are trained first."
-            )
-        deployed_models: List[DeployedModel] = []
-        for model_index, model in enumerate(active_models):
-            model_config = configuration.task_chain[model_index]
-            optimized_models = model.optimized_models
-            optimization_types = [
-                op_model.optimization_type for op_model in optimized_models
-            ]
-            preferred_model = optimized_models[0]
-            for optimization_type in OptimizationType:
-                if optimization_type in optimization_types:
-                    preferred_model = optimized_models[
-                        optimization_types.index(optimization_type)
-                    ]
-                    break
-            deployed_model = DeployedModel.from_model_and_hypers(
-                model=preferred_model, hyper_parameters=model_config
-            )
-            logging.info(
-                f"Retrieving {preferred_model.optimization_type} model data for "
-                f"{self.project.get_trainable_tasks()[model_index].title}..."
-            )
-            deployed_model.get_data(source=self.session)
-            deployed_models.append(deployed_model)
-        deployment = Deployment(project=self.project, models=deployed_models)
-        if output_folder is not None:
-            deployment.save(output_folder)
         return deployment
 
     def _backend_deploy_project(

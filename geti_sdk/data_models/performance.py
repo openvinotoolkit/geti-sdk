@@ -35,8 +35,6 @@ class TaskPerformance:
     """
     Task Performance metrics in Intel® Geti™.
 
-    :var task_node_id: Unique ID of the task to which this Performance metric
-        applies. Deprecated in Geti v1.16, use `task_id` instead.
     :var task_id: Unique ID of the task to which this Performance metric
         applies.
     :var score: Score of the project or model for each task
@@ -46,18 +44,10 @@ class TaskPerformance:
         classification of the full image for each task
     """
 
-    task_node_id: Optional[str] = None  # Deprecated in Geti v1.16
     task_id: Optional[str] = None
     score: Optional[Score] = None
     local_score: Optional[Score] = None
     global_score: Optional[Score] = None
-
-    def __attrs_post_init__(self):
-        """
-        Post initialization hook
-        """
-        if self.task_id is None:
-            self.task_id = self.task_node_id
 
 
 @attr.define()

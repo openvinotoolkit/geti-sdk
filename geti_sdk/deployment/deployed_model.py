@@ -26,6 +26,7 @@ import numpy as np
 from openvino.model_api.adapters import OpenvinoAdapter, OVMSAdapter
 from openvino.model_api.models import Model as model_api_Model
 from openvino.runtime import Core
+from packaging.version import Version
 
 from geti_sdk.data_models import OptimizedModel, Project, TaskConfiguration
 from geti_sdk.data_models.enums.domain import Domain
@@ -162,6 +163,7 @@ class DeployedModel(OptimizedModel):
                     )
 
                 self._model_python_path = os.path.join(source, PYTHON_DIR_NAME)
+
             # A model is being loaded from disk, check if it is a legacy model
             # We support OTX models starting from version 1.5.0
             otx_version = get_package_version_from_requirements(
@@ -171,11 +173,12 @@ class DeployedModel(OptimizedModel):
                 package_name="otx",
             )
             if otx_version:  # Empty string if package not found
-                otx_version = otx_version.split(".")
-                if int(otx_version[0]) <= 1 and int(otx_version[1]) < 5:
+                if Version(otx_version) < Version("1.5.0"):
                     raise ValueError(
-                        "Model version is not supported. Please use a model trained with "
-                        "OTX version 1.5.0 or higher."
+                        "\n"
+                        "This deployment model is not compatible with the current SDK. Proposed solutions:\n"
+                        "1. Please deploy a model using GETi Platform version 2.0.0 or higher.\n"
+                        "2. Downgrade to a compatible GETi-SDK version to continue using this model.\n\n"
                     )
 
         elif isinstance(source, GetiSession):

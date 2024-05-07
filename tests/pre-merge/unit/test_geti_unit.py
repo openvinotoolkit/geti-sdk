@@ -33,17 +33,8 @@ class TestGeti:
     ):
         # Arrange
         mocker.patch("geti_sdk.geti.GetiSession", new=fxt_mocked_session_factory)
-        mock_acquire_token = mocker.patch(
-            "geti_sdk.http_session.geti_session.GetiSession._acquire_access_token",
-            return_value=DUMMY_TOKEN,
-        )
         mock_get_workspace_id = mocker.patch(
             "geti_sdk.geti.get_default_workspace_id", return_value=1
-        )
-        mock_authentication_service = mocker.patch(
-            "geti_sdk.http_session.geti_session.GetiSession.authentication_service",
-            return_value="dex-old",
-            new_callable=mocker.PropertyMock,
         )
 
         # Act and assert
@@ -64,8 +55,6 @@ class TestGeti:
                 password=DUMMY_PASSWORD,
             )
         assert isinstance(geti.session.config, ServerTokenConfig)
-        mock_acquire_token.assert_called_once()
-        mock_authentication_service.assert_called_once()
         mock_get_workspace_id.assert_called_once()
 
         # Both host and server_config specified, host will be ignored
@@ -80,13 +69,7 @@ class TestGeti:
 
         # When the new authentication mechanism is detected (Geti v1.15 and up), do
         # not acquire token
-        mock_authentication_service = mocker.patch(
-            "geti_sdk.http_session.geti_session.GetiSession.authentication_service",
-            return_value="dex-new",
-            new_callable=mocker.PropertyMock,
-        )
         geti = Geti(host=DUMMY_HOST, token=DUMMY_TOKEN)
-        mock_authentication_service.assert_called_once()
         assert "x-api-key" in geti.session.headers.keys()
 
     def test_logout(self, mocker: MockerFixture, fxt_mocked_geti: Geti):
