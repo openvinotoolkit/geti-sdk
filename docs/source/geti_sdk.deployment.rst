@@ -12,3 +12,4 @@ Subpackages
    :maxdepth: 2
 
    Data models <geti_sdk.deployment.data_models>
+   Predictions postprocessing <geti_sdk.deployment.predictions_postprocessing>

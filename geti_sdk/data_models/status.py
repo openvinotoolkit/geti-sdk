@@ -26,13 +26,10 @@ class StatusSummary:
     NOTE: the 'message' attribute was removed in Geti 1.1
 
     :var progress: Training progress, if a model is being trained
-    :var time_remaining: Estimated time remaining on the training process, if a model
-        is being trained.
     :var message: Optional Human readable message describing the status
     """
 
     progress: float
-    time_remaining: Optional[float] = None  # Deprecated in Geti v1.16
     message: Optional[str] = None
 
     def __attrs_post_init__(self):
@@ -146,7 +143,6 @@ class ProjectStatus:
         tasks in the project
     :var n_required_annotations: Total number of required annotations for the project,
         before auto-training can be started
-    :var project_score: Accuracy score for the project
     :var status: StatusSummary object that contains (among others) a human readable
         message describing the status of the project
     :var tasks: List of TaskStatus objects, detailing the status of each task in the
@@ -160,7 +156,6 @@ class ProjectStatus:
     tasks: List[TaskStatus]
     n_new_annotations: Optional[int] = None  # Added in Geti v1.1
     project_performance: Optional[Performance] = None
-    project_score: Optional[float] = None  # Deprecated in Geti 1.0, to be removed
     n_running_jobs: Optional[int] = None
     n_running_jobs_project: Optional[int] = None
 

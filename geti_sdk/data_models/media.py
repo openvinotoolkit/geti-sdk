@@ -102,10 +102,10 @@ class MediaItem:
 
     :var id: Unique database ID of the media entity
     :var name: Filename of the media entity
-    :var state: Annotation state of the media entity
     :var type: MediaType of the entity
     :var upload_time: Time and date at which the entity was uploaded to the system
     :var thumbnail: URL that can be used to get a thumbnail for the media entity
+    :var annotation_state_per_task: Annotation state of the media entity
     :var media_information: Container holding basic information such as width and
         height about the media entity
     :param last_annotator_id: the name or id of the editor.
@@ -116,8 +116,6 @@ class MediaItem:
     type: str = attr.field(converter=str_to_media_type)
     upload_time: str = attr.field(converter=str_to_datetime)
     media_information: MediaInformation
-    state: Optional[str] = None
-    # State is deprecated in SC1.1, replaced by `annotation_state_per_task`
     annotation_state_per_task: Optional[List[TaskAnnotationState]] = None
     thumbnail: Optional[str] = None
     uploader_id: Optional[str] = None
@@ -446,7 +444,7 @@ class VideoFrame(MediaItem):
             upload_time=video.upload_time,
             thumbnail=f"{base_url}/display/thumb",
             media_information=frame_information,
-            state=video.state,
+            annotation_state_per_task=video.annotation_state_per_task,
             id=video.id,
             video_name=video.name,
         )

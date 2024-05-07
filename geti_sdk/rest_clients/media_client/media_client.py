@@ -40,7 +40,6 @@ from geti_sdk.data_models.enums.media_type import (
 from geti_sdk.data_models.project import Dataset
 from geti_sdk.data_models.utils import numpy_from_buffer
 from geti_sdk.http_session import GetiRequestException, GetiSession
-from geti_sdk.platform_versions import GETI_116_VERSION
 from geti_sdk.rest_clients.dataset_client import DatasetClient
 from geti_sdk.rest_converters.media_rest_converter import MediaRESTConverter
 
@@ -111,27 +110,19 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         if dataset is None:
             dataset = self._project.training_dataset
 
-        if self.session.version < GETI_116_VERSION:
-            response = self.session.get_rest_response(
-                url=f"{self.base_url(dataset=dataset)}?top=500", method="GET"
-            )
-            total_number_of_media: int = response["media_count"][self.plural_media_name]
-        else:
-            url = f"{self._base_url}/{dataset.id}/media:query?top=500"
-            data = {
-                "condition": "and",
-                "rules": [
-                    {
-                        "field": "MEDIA_TYPE",
-                        "operator": "EQUAL",
-                        "value": f"{self._MEDIA_TYPE}",
-                    }
-                ],
-            }
-            response = self.session.get_rest_response(url=url, method="POST", data=data)
-            total_number_of_media: int = response[
-                f"total_matched_{self.plural_media_name}"
-            ]
+        url = f"{self._base_url}/{dataset.id}/media:query?top=500"
+        data = {
+            "condition": "and",
+            "rules": [
+                {
+                    "field": "MEDIA_TYPE",
+                    "operator": "EQUAL",
+                    "value": f"{self._MEDIA_TYPE}",
+                }
+            ],
+        }
+        response = self.session.get_rest_response(url=url, method="POST", data=data)
+        total_number_of_media: int = response[f"total_matched_{self.plural_media_name}"]
 
         raw_media_list: List[Dict[str, Any]] = []
         while len(raw_media_list) < total_number_of_media:

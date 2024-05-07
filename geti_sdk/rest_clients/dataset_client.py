@@ -16,7 +16,6 @@ from typing import List, Optional
 
 from geti_sdk.data_models import Dataset, Project
 from geti_sdk.http_session import GetiSession
-from geti_sdk.platform_versions import GETI_116_VERSION
 from geti_sdk.utils import deserialize_dictionary
 
 
@@ -39,8 +38,6 @@ class DatasetClient:
         :return: The created dataset
         """
         request_data = {"name": name}
-        if self.session.version < GETI_116_VERSION:
-            request_data.update({"use_for_training": False})
         response = self.session.get_rest_response(
             url=self.base_url,
             method="POST",

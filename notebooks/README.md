@@ -4,7 +4,7 @@ that you have installed the `geti-sdk` package. The steps to install the package
 can be found in the [main readme](../README.md) in this repository. Once the package
 is installed, you can follow the steps below to set up the notebooks.
 
-1. Navigate to this folder in a terminal
+1. Navigate to this folder in a terminal `cd ./notebooks`
 
 2. Activate the Python environment in which you installed the `geti-sdk` package
 
@@ -13,11 +13,10 @@ is installed, you can follow the steps below to set up the notebooks.
 
 4. Create a `.env` file containing the server details for your Intel® Geti™ server,
    following the instructions in the [Authentication](#authentication)
-   box.
+   section.
 
-5. In your terminal, navigate to the `notebooks` directory and execute the command
-   `jupyter lab`. This will start the jupyter server and should take you straight to
-   the jupyter web interface.
+5. In your terminal, execute the command `jupyter lab`. This will start the jupyter
+   server and should take you straight to the jupyter web interface.
 
 6. The notebooks should show up in the side menu of the jupyter web interface.
 
@@ -119,9 +118,33 @@ The following notebooks are currently provided:
   to re-create the project from a previously downloaded project, and upload all
   downloaded data to the newly created project.
 
+
+- [010 model_serving](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/010_model_serving.ipynb)
+  -- This notebook shows how to create a stand-alone inference server for a Geti project,
+  using the [OpenVINO Model Server (OVMS)](https://docs.openvino.ai/2021.4/ovms_what_is_openvino_model_server.html).
+  The notebook also demonstrates how to connect to the server through the Geti SDK and send inference requests to it.
+
+
+- [011 benchmarking_models](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/011_benchmarking_models.ipynb)
+  -- This notebook shows how to measure and compare the inference rates for the various
+  algorithms available in a Geti project on local hardware, that
+  can help to select a suitable architecture for model deployment.
+
+
 - [101 simulate_low-light_product_inspection_demo](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/use_cases/101_simulate_low_light_product_inspection.ipynb)
   -- This notebook shows how to systematically simulate a change
   in lighting conditions (i.e. a shift in data distribution),
   and the effect such a change has on model predictions. This notebook uses the 'transistor'
   category from the [MVTec AD](https://www.mvtec.com/company/research/datasets/mvtec-ad)
   [(CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/) dataset.
+
+
+- [102 from_zero_to_hero_9_steps](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/use_cases/102_from_zero_to_hero_9_steps.ipynb)
+  -- This notebook teaches how to use the SDK to create a project on the Intel Geti
+  graphics platform, upload videos, download the displays locally, and run the inference
+  by viewing the results on this same notebook.
+
+
+- [103 parking_lot_train-to-deployment](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/use_cases/103_parking_lot_train2deployment.ipynb)
+  -- This notebook shows the process of creation of a smart car counting system for parking lots.
+  The notebook demonstrates how to train models, manipulate training features, and deploy the solution locally.
