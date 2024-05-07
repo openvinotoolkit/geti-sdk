@@ -13,7 +13,24 @@
 # and limitations under the License.
 
 """
-The package provides the Visualizer class for models predictions visualization.
+Introduction
+------------
+
+The `prediction_visualization` package provides classes for visualizing models predictions.
+Currently, the user interfaces to this package are available in the :py:mod:`~geti_sdk.utils.plot_helpers` module.
+
+Module contents
+---------------
+
+.. automodule:: geti_sdk.prediction_visualization.visualizer
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. autoclass:: geti_sdk.prediction_visualization.shape_drawer.ShapeDrawer
+   :members:
+   :undoc-members:
+   :show-inheritance:
 """
 
 from .visualizer import Visualizer

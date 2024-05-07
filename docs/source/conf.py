@@ -26,7 +26,7 @@ with open(f"{root_path}/geti_sdk/__init__.py", "r", encoding="utf-8") as init_fi
 # -- Project information -----------------------------------------------------
 
 project = "Intel® Geti™ SDK"
-copyright = "2022 Intel Corporation"
+copyright = "2024 Intel Corporation"
 author = "Ludo Cornelissen"
 
 # The full version, including alpha/beta/rc tags
