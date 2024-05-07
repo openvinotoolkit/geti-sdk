@@ -187,8 +187,11 @@ docker run --rm -ti -v $(pwd):/app geti-sdk:latest /bin/bash
   folder for examples on how to do this.
 
 
+- **Creating datasets** and retrieving dataset statistics.
+
+
 - **Uploading** images, videos, annotations for images and video frames and configurations
-  to a project
+  to a project.
 
 
 - **Downloading** images, videos, annotations, models and predictions for all images and
@@ -197,7 +200,7 @@ docker run --rm -ti -v $(pwd):/app geti-sdk:latest /bin/bash
 
 
 - **Setting configuration for a project**, like turning auto train on/off and
-  setting number of iterations for all tasks
+  setting number of iterations for all tasks.
 
 
 - **Deploying a project** to load OpenVINO inference models for all tasks in the pipeline,
@@ -209,10 +212,26 @@ docker run --rm -ti -v $(pwd):/app geti-sdk:latest /bin/bash
   annotations, media and configurations are backed up, models are not.
 
 
-- **Launching and monitoring training jobs**
+- **Launching and monitoring training jobs** is straightforward with the `TrainingClient`.
+  Please refer to the notebook `007_train_project` for instructions.
 
 
-- **Authorization via Personal Access Token**
+- **Authorization via Personal Access Token** is available for both On-Prem and SaaS users.
+
+
+- **Fetching the active dataset**
+
+
+- **Triggering (post-training) model optimization** for model quantization and
+  changing models precision.
+
+
+- **Running model tests**
+
+
+- **Benchmarking models** to measure inference throughput on different hardware.
+  It allows for quick and easy comparison of inference framerates for different
+  model architectures and precision levels for the specified project.
 
 
 ## What is not supported
@@ -221,10 +240,3 @@ docker run --rm -ti -v $(pwd):/app geti-sdk:latest /bin/bash
 - Prediction upload
 - Exporting datasets to COCO/YOLO/VOC format: For this, you can use the export
   functionality from the Intel® Geti™ user interface instead.
-
-The following features are not supported yet but will be added to the SDK in future
-releases:
-- Fetching the active dataset
-- Triggering (post-training) model optimization
-- Running model tests
-- Creating datasets and retrieving dataset statistics
