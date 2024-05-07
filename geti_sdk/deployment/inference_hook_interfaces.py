@@ -75,7 +75,6 @@ class PostInferenceObject(object, metaclass=ABCMeta):
         return {type(self).__name__: constructor_args}
 
     @classmethod
-    @abstractmethod
     def from_dict(cls, input_dict: Dict[str, Any]) -> "PostInferenceObject":
         """
         Construct a PostInferenceObject from an input dictionary `input_dict`
