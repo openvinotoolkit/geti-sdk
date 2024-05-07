@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-import copy
 from typing import List
 
 import numpy as np
@@ -57,7 +56,7 @@ class LabelTrigger(PostInferenceTrigger):
         """
         predicted_labels = set()
         for label in prediction.get_labels():
-                predicted_labels.add(label.name)
+            predicted_labels.add(label.name)
         if self.mode == "AND":
             return self.label_names.issubset(predicted_labels)
         else:  # mode == "OR"
