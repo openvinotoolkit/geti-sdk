@@ -98,7 +98,7 @@ class GetiSession(requests.Session):
                     "Authentication via username and password is deprecated and will be "
                     "removed in a future version of the SDK. Please use a personal access token."
                 )
-            self.authenticate(verbose=True)
+            self.authenticate_with_password(verbose=True)
             self.use_token = False
         else:  # ServerTokenConfig
             self.use_token = True
@@ -180,7 +180,7 @@ class GetiSession(requests.Session):
             login_page_url = response.url
         return login_page_url
 
-    def authenticate(self, verbose: bool = True):
+    def authenticate_with_password(self, verbose: bool = True):
         """
         Get a new authentication cookie from the server.
 
@@ -463,7 +463,7 @@ class GetiSession(requests.Session):
             logging.info("Authentication may have expired, re-authenticating...")
             self.logged_in = False
             if not self.use_token:
-                self.authenticate(verbose=False)
+                self.authenticate_with_password(verbose=False)
                 logging.info("Authentication complete.")
 
             else:

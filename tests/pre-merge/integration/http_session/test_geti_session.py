@@ -22,7 +22,7 @@ class TestGetiSession:
         """
         Test that the authenticated GetiSession instance contains authentication cookies
         """
-        fxt_geti_session.authenticate(verbose=False)
+        fxt_geti_session.authenticate_with_password(verbose=False)
 
     def test_product_version(self, fxt_geti_session: GetiSession):
         """

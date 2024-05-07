@@ -19,6 +19,7 @@ from pytest_mock import MockerFixture
 
 from geti_sdk import Geti
 from geti_sdk.http_session import GetiSession, ServerCredentialConfig
+from geti_sdk.http_session.geti_session import ONPREM_MODE
 from geti_sdk.http_session.server_config import ServerConfig
 
 
@@ -37,7 +38,13 @@ def fxt_mocked_session_factory(
         return_value: Optional[Union[List, Dict]] = None,
         server_config: Optional[ServerConfig] = None,
     ) -> GetiSession:
-        mocker.patch("geti_sdk.http_session.geti_session.GetiSession.authenticate")
+        mocker.patch(
+            "geti_sdk.http_session.geti_session.GetiSession.platform_serving_mode",
+            ONPREM_MODE,
+        )
+        mocker.patch(
+            "geti_sdk.http_session.geti_session.GetiSession.authenticate_with_password"
+        )
         mocker.patch(
             "geti_sdk.http_session.geti_session.GetiSession.get_rest_response",
             return_value=return_value,
