@@ -290,7 +290,7 @@ class DeployedModel(OptimizedModel):
         model = model_api_Model.create_model(
             model=model_adapter,
             model_type=model_type,
-            preload=True,
+            preload=False,
             configuration=configuration,
         )
         self._inference_model = model
@@ -308,6 +308,14 @@ class DeployedModel(OptimizedModel):
                 self._inference_model.output_blob_name = {
                     name: name for name in output_names
                 }
+
+        if (
+            not hasattr(self._inference_model.inference_adapter, "compiled_model")
+            or self._inference_model.inference_adapter.compiled_model is None
+        ):
+            self._inference_model.load(force=False)
+        else:
+            self._inference_model.model_loaded = True
 
     @classmethod
     def from_model_and_hypers(

@@ -142,3 +142,21 @@ class ScoredLabel:
         return ScoredLabel(
             name=label.name, probability=probability, color=label.color, id=label.id
         )
+
+    def __key(self) -> Tuple[str, str]:
+        """
+        Return a tuple representing the key of the ScoredLabel.
+
+        The key is a tuple containing the name and color of the scored label.
+
+        :return: A tuple representing the key of the label.
+        """
+        return (self.name, self.color)
+
+    def __hash__(self) -> int:
+        """
+        Calculate the hash value of the object.
+
+        :return: The hash value of the object.
+        """
+        return hash(self.__key())
