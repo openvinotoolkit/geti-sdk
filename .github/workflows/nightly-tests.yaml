@@ -35,7 +35,7 @@ env:
 
   # Conda environment
   CONDA_ENV: sc_sdk_nightly_test_environment
-  PYTHON_VERSION: 3.8
+  PYTHON_VERSION: 3.9
 
 permissions:
   contents: read
