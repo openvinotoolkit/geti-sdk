@@ -20,7 +20,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import attr
 import numpy as np
-from openvino.model_api.models import Model as OMZModel
+from model_api.models import Model as OMZModel
 
 from geti_sdk.data_models import (
     Annotation,
