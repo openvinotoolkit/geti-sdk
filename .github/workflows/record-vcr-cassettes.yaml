@@ -47,6 +47,7 @@ jobs:
         # tests can run
         # NOTE: This step executes all tests in the `tests` directory in `RECORD` mode
         run: |
+          source $VIRTUALENV_DIRECTORY/bin/activate
           export no_proxy=$GETI_HOST,$no_proxy
           export NO_PROXY=$GETI_HOST,$NO_PROXY
           export GETI_HOST=https://$GETI_HOST
@@ -63,6 +64,7 @@ jobs:
         # tests can run
         # NOTE: This step executes all tests in the `tests` directory in `RECORD` mode
         run: |
+          source $VIRTUALENV_DIRECTORY/bin/activate
           export no_proxy=$GETI_HOST,$no_proxy
           export NO_PROXY=$GETI_HOST,$NO_PROXY
           export GETI_HOST=https://$GETI_HOST
