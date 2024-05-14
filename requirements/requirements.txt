@@ -5,7 +5,7 @@ numpy>=1.26.4
 omegaconf==2.3.*
 opencv-python==4.9.*
 python-dotenv==1.0.*
-tqdm==4.65.*
+tqdm>=4.66.3
 Pillow==10.3.*
 pathvalidate>=2.5.0
 simplejson==3.19.*
