@@ -1,4 +1,4 @@
-FROM python:3.8-bullseye
+FROM python:3.8-bullseye@sha256:5277b878d90029446c0124f08064ff3eba05a4d5ce182ee4b17a52a32d83d392
 
 RUN apt-get update && apt-get install -y --no-install-recommends python3-opencv libgl1
 
