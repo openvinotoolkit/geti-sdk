@@ -15,7 +15,7 @@ from typing import Tuple
 
 import numpy as np
 import pytest
-from openvino.model_api.models.utils import (
+from model_api.models.utils import (
     AnomalyResult,
     ClassificationResult,
     Detection,

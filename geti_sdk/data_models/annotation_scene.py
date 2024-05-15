@@ -15,7 +15,7 @@
 import copy
 import logging
 from pprint import pformat
-from typing import Any, ClassVar, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, ClassVar, Dict, List, Optional, Sequence, Set, Tuple, Union
 
 import attr
 import cv2
@@ -310,6 +310,17 @@ class AnnotationScene:
         for annotation in self.annotations:
             labels.update(annotation.labels)
         return list(labels)
+
+    def get_label_names(self) -> List[str]:
+        """
+        Return a list with the unique label names in the annotation scene.
+
+        :return: List of label names
+        """
+        label_names: Set[str] = set()
+        for label in self.get_labels():
+            label_names.update([label.name])
+        return list(label_names)
 
     def apply_identifier(
         self, media_identifier: Union[ImageIdentifier, VideoFrameIdentifier]

@@ -19,7 +19,7 @@ from typing import Any, Dict, List, NamedTuple, Optional, Tuple, Union
 
 import cv2
 import numpy as np
-from openvino.model_api.models.utils import (
+from model_api.models.utils import (
     AnomalyResult,
     ClassificationResult,
     DetectionResult,
