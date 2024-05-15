@@ -17,7 +17,7 @@ import logging
 from typing import Any, Dict, List
 
 import numpy as np
-from openvino.model_api.models.utils import Detection
+from model_api.models.utils import Detection
 
 from geti_sdk.data_models.model import Model
 

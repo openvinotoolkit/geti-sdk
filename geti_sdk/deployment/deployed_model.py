@@ -23,8 +23,8 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import attr
 import numpy as np
-from openvino.model_api.adapters import OpenvinoAdapter, OVMSAdapter
-from openvino.model_api.models import Model as model_api_Model
+from model_api.adapters import OpenvinoAdapter, OVMSAdapter
+from model_api.models import Model as model_api_Model
 from openvino.runtime import Core
 from packaging.version import Version
 
@@ -227,10 +227,11 @@ class DeployedModel(OptimizedModel):
         :return: OpenVino inference engine model that can be used to make predictions
             on images
         """
+        core = Core()
         if not target_device_is_ovms(device=device):
             # Run the model locally
             model_adapter = OpenvinoAdapter(
-                Core(),
+                core,
                 model=os.path.join(self._model_data_path, "model.xml"),
                 weights_path=os.path.join(self._model_data_path, "model.bin"),
                 device=device,
@@ -290,7 +291,8 @@ class DeployedModel(OptimizedModel):
         model = model_api_Model.create_model(
             model=model_adapter,
             model_type=model_type,
-            preload=True,
+            preload=False,
+            core=core,
             configuration=configuration,
         )
         self._inference_model = model
@@ -308,6 +310,14 @@ class DeployedModel(OptimizedModel):
                 self._inference_model.output_blob_name = {
                     name: name for name in output_names
                 }
+
+        # Force reload model to account for any postprocessing changes that may have
+        # been applied while creating the ModelAPI wrapper
+        logging.info(
+            f"Inference model wrapper initialized, force reloading model on device "
+            f"`{device}` to finalize inference model initialization process."
+        )
+        self._inference_model.load(force=True)
 
     @classmethod
     def from_model_and_hypers(
