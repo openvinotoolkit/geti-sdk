@@ -15,11 +15,15 @@ env:
   VIRTUALENV_DIRECTORY: .venv
 
 permissions:
-  contents: write
-  pull-requests: write  # 'write' access to pull requests
+  contents: read
+
 
 jobs:
   recording_integration_tests:
+
+    permissions:
+      contents: write
+      pull-requests: write
 
     runs-on: [self-hosted, sdk-runner]
 
