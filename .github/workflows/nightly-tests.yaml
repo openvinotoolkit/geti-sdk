@@ -46,11 +46,6 @@ jobs:
 
     steps:
 
-      - name: Harden Runner
-        uses: step-security/harden-runner@a4aa98b93cab29d9b1101a6143fb8bce00e2eac4 # v2.7.1
-        with:
-          egress-policy: audit
-
       - name: Checkout code with caching for Git LFS
         uses: nschloe/action-cached-lfs-checkout@b45b5731560fe7acf2d15c536bc8aef4f71c885e # v1.2.0
 
