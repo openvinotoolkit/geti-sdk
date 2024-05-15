@@ -28,7 +28,7 @@ permissions:
 
 jobs:
   build_sdk:
-    runs-on: [self-hosted, sdk-runner]
+    runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@a4aa98b93cab29d9b1101a6143fb8bce00e2eac4 # v2.7.1
