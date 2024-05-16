@@ -13,11 +13,11 @@ ipython==8.12.*
 openvino>=2023.2.0
 openvino-model-api==0.2.*
 certifi>=2022.12.7
-joblib>=1.1.1
+joblib>=1.2.0
 protobuf>=3.20.2
 ovmsclient>=2022.3
 orjson>=3.10.0
 imageio-ffmpeg==0.4.9
-cryptography>=41.0.2
+cryptography>=42.0.7
 semver>=3.0.2
 urllib3==1.26.*

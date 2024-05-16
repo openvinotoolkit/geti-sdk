@@ -1,8 +1,8 @@
 <div align="center">
 
 [![python](https://img.shields.io/badge/python-3.9%2B-green)]()
-[![openvino](https://img.shields.io/badge/openvino-2023.2.0-purple)](https://github.com/openvinotoolkit/openvino)
-![Intel Geti](https://img.shields.io/badge/Intel%C2%AE%20Geti%E2%84%A2-1.5%2B-blue?link=https%3A%2F%2Fgeti.intel.com%2F)
+[![openvino](https://img.shields.io/badge/openvino-2023.2.0%2B-purple)](https://github.com/openvinotoolkit/openvino)
+![Intel Geti](https://img.shields.io/badge/Intel%C2%AE%20Geti%E2%84%A2-1.14%2B-blue?link=https%3A%2F%2Fgeti.intel.com%2F)
 
 ![Pre-merge Tests Status](https://img.shields.io/github/actions/workflow/status/openvinotoolkit/geti-sdk/pre-merge-tests.yml?label=pre-merge%20tests&link=https%3A%2F%2Fgithub.com%2Fopenvinotoolkit%2Fgeti-sdk%2Factions%2Fworkflows%2Fpre-merge-tests.yml)
 ![Nightly Tests [Geti latest] Status](https://img.shields.io/github/actions/workflow/status/openvinotoolkit/geti-sdk/nightly-tests-geti-latest.yaml?label=nightly%20tests%20%5BGeti%20latest%5D&link=https%3A%2F%2Fgithub.com%2Fopenvinotoolkit%2Fgeti-sdk%2Factions%2Fworkflows%2Fnightly-tests-geti-latest.yaml)
