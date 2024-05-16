@@ -18,6 +18,6 @@ protobuf>=3.20.2
 ovmsclient>=2022.3
 orjson>=3.10.0
 imageio-ffmpeg==0.4.9
-cryptography>=41.0.2
+cryptography>=42.0.7
 semver>=3.0.2
 urllib3==1.26.*
