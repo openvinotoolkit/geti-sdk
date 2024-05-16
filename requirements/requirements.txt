@@ -12,8 +12,8 @@ simplejson==3.19.*
 ipython==8.12.*
 openvino>=2023.2.0
 openvino-model-api==0.2.*
-certifi>=2022.12.7
-joblib>=1.1.1
+certifi>=2024.2.2
+joblib>=1.2.0
 protobuf>=3.20.2
 ovmsclient>=2022.3
 orjson>=3.10.0
