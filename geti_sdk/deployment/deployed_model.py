@@ -25,6 +25,7 @@ import attr
 import numpy as np
 from model_api.adapters import OpenvinoAdapter, OVMSAdapter
 from model_api.models import Model as model_api_Model
+from model_api.tilers import DetectionTiler, InstanceSegmentationTiler, Tiler
 from openvino.runtime import Core
 from packaging.version import Version
 
@@ -63,6 +64,11 @@ ANOMALY_SALIENCY_KEY = "anomaly_map"
 SEGMENTATION_SALIENCY_KEY = "soft_prediction"
 FEATURE_VECTOR_KEY = "feature_vector"
 
+TILER_MAPPING = {
+    Domain.DETECTION: DetectionTiler,
+    Domain.INSTANCE_SEGMENTATION: InstanceSegmentationTiler,
+}
+
 OVMS_TIMEOUT = 10  # Max time to wait for OVMS models to become available
 
 
@@ -95,6 +101,8 @@ class DeployedModel(OptimizedModel):
         self._feature_vector_location: Optional[str] = None
 
         self._converter: Optional[InferenceResultsToPredictionConverter] = None
+        self._tiling_enabled: bool = False
+        self._tiler: Optional[Tiler] = None
 
     @property
     def model_data_path(self) -> str:
@@ -288,6 +296,11 @@ class DeployedModel(OptimizedModel):
         )
         self._parse_label_schema_from_dict(label_dictionary)
 
+        # Load a Results-to-Prediction converter
+        self._converter = ConverterFactory.create_converter(
+            self.label_schema, configuration
+        )
+
         model = model_api_Model.create_model(
             model=model_adapter,
             model_type=model_type,
@@ -297,10 +310,20 @@ class DeployedModel(OptimizedModel):
         )
         self._inference_model = model
 
-        # Load a Results-to-Prediction converter
-        self._converter = ConverterFactory.create_converter(
-            self.label_schema, configuration
-        )
+        # Extract tiling parameters, if applicable
+        tiling_parameters = configuration_json.get("tiling_parameters", None)
+
+        enable_tiling = False
+        if tiling_parameters is not None:
+            enable_tiling = tiling_parameters.get("enable_tiling", False)
+            if isinstance(enable_tiling, dict):
+                enable_tiling = enable_tiling.get("value", False)
+
+        if enable_tiling:
+            logging.info("Tiling is enabled for this model, initializing Tiler")
+            tiler_type = TILER_MAPPING[self._converter.domain]
+            self._tiler = tiler_type(model=model, execution_mode="sync")
+            self._tiling_enabled = True
 
         # TODO: This is a workaround to fix the issue that causes the output blob name
         #  to be unset. Remove this once it has been fixed on ModelAPI side
@@ -563,22 +586,32 @@ class DeployedModel(OptimizedModel):
             image
         :return: Dictionary containing the model outputs
         """
-        preprocessed_image, metadata = self._preprocess(image)
-        # metadata is a dict with keys 'original_shape' and 'resized_shape'
-        inference_results: Dict[str, np.ndarray] = self._inference_model.infer_sync(
-            preprocessed_image
-        )
-        postprocessing_results = self._postprocess(inference_results, metadata=metadata)
+        if not self._tiling_enabled:
+            preprocessed_image, metadata = self._preprocess(image)
+            # metadata is a dict with keys 'original_shape' and 'resized_shape'
+            inference_results: Dict[str, np.ndarray] = self._inference_model.infer_sync(
+                preprocessed_image
+            )
+            postprocessing_results = self._postprocess(
+                inference_results, metadata=metadata
+            )
+        else:
+            postprocessing_results = self._tiler(image)
 
         prediction = self._converter.convert_to_prediction(
-            postprocessing_results, image_shape=metadata["original_shape"]
+            postprocessing_results, image_shape=image.shape
         )
 
         # Add optional explainability outputs
         if explain:
-            saliency_map, repr_vector = self._postprocess_explain_outputs(
-                inference_results=inference_results, metadata=metadata
-            )
+            if not self._tiling_enabled:
+                saliency_map, repr_vector = self._postprocess_explain_outputs(
+                    inference_results=inference_results, metadata=metadata
+                )
+            else:
+                repr_vector = postprocessing_results.feature_vector
+                saliency_map = postprocessing_results.saliency_map
+
             prediction.feature_vector = repr_vector
             result_medium = ResultMedium(name="saliency map", type="saliency map")
             result_medium.data = saliency_map

@@ -50,6 +50,16 @@ from geti_sdk.deployment.predictions_postprocessing.utils.segmentation_utils imp
 class InferenceResultsToPredictionConverter(metaclass=abc.ABCMeta):
     """Interface for the converter"""
 
+    @property
+    @abc.abstractmethod
+    def domain(self) -> Domain:
+        """
+        Return the domain for which the converter applies
+
+        :return: The task domain for which the label converter applies
+        """
+        raise NotImplementedError
+
     @abc.abstractmethod
     def convert_to_prediction(self, predictions: NamedTuple, **kwargs) -> Prediction:
         """
@@ -67,6 +77,8 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
 
     :param label_schema: LabelSchema containing the label info of the task
     """
+
+    domain = Domain.CLASSIFICATION
 
     def __init__(self, label_schema: LabelSchema):
         all_labels = label_schema.get_labels(include_empty=True)
@@ -118,6 +130,8 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
     :param label_schema: LabelSchema containing the label info of the task
     :param configuration: optional model configuration setting
     """
+
+    domain = Domain.DETECTION
 
     def __init__(
         self, label_schema: LabelSchema, configuration: Optional[Dict[str, Any]] = None
@@ -191,6 +205,8 @@ class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
     :param label_schema: LabelSchema containing the label info of the task
     """
 
+    domain = Domain.ROTATED_DETECTION
+
     def convert_to_prediction(
         self, predictions: InstanceSegmentationResult, **kwargs
     ) -> Prediction:
@@ -255,6 +271,8 @@ class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
 
 class MaskToAnnotationConverter(InferenceResultsToPredictionConverter):
     """Converts DetectionBox Predictions ModelAPI to Prediction object."""
+
+    domain = Domain.INSTANCE_SEGMENTATION
 
     def __init__(
         self, label_schema: LabelSchema, configuration: Optional[Dict[str, Any]] = None
@@ -337,6 +355,8 @@ class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
     :param label_schema: LabelSchema containing the label info of the task
     """
 
+    domain = Domain.SEGMENTATION
+
     def __init__(self, label_schema: LabelSchema):
         self.labels = label_schema.get_labels(include_empty=False)
         # NB: index=0 is reserved for the background label
@@ -365,6 +385,8 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
 
     :param label_schema: LabelSchema containing the label info of the task
     """
+
+    domain = Domain.ANOMALY
 
     def __init__(self, label_schema: LabelSchema):
         self.labels = label_schema.get_labels(include_empty=False)
