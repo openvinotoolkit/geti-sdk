@@ -88,7 +88,6 @@ class TrainingClient:
             query += f"&project_id={self.project.id}"
         if running_only:
             query += "&state=running"
-        use_pagination = True
 
         if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
             response_list_key = "items"
@@ -96,26 +95,20 @@ class TrainingClient:
             response_list_key = "jobs"
 
         job_rest_list: List[dict] = []
-        if not use_pagination:
-            response = self.session.get_rest_response(
-                url=f"workspaces/{self.workspace_id}/jobs{query}", method="GET"
+        while response := self.session.get_rest_response(
+            url=f"workspaces/{self.workspace_id}/jobs{query}&skip={len(job_rest_list)}",
+            method="GET",
+        ):
+            job_rest_list.extend(response[response_list_key])
+            job_count_dict = response["jobs_count"]
+            total_job_count = (
+                job_count_dict.get("n_running_jobs", 0)
+                + job_count_dict.get("n_finished_jobs", 0)
+                + job_count_dict.get("n_failed_jobs", 0)
+                + job_count_dict.get("n_cancelled_jobs", 0)
             )
-            job_rest_list = response[response_list_key]
-        else:
-            while response := self.session.get_rest_response(
-                url=f"workspaces/{self.workspace_id}/jobs{query}&skip={len(job_rest_list)}",
-                method="GET",
-            ):
-                job_rest_list.extend(response[response_list_key])
-                job_count_dict = response["jobs_count"]
-                total_job_count = (
-                    job_count_dict.get("n_running_jobs", 0)
-                    + job_count_dict.get("n_finished_jobs", 0)
-                    + job_count_dict.get("n_failed_jobs", 0)
-                    + job_count_dict.get("n_cancelled_jobs", 0)
-                )
-                if len(job_rest_list) >= total_job_count:
-                    break
+            if len(job_rest_list) >= total_job_count:
+                break
 
         job_list: List[Job] = []
         for job_dict in job_rest_list:
