@@ -9,7 +9,6 @@ Additional examples of post-inference hooks, and instructions for configuring th
 ## Breaking changes
 This major release of the Intel® Geti™ SDK breaks backwards compatibility with Intel® Geti™ servers of version v1.14 and below. Please make sure that your Intel® Geti™ server is updated to the latest version of the Intel® Geti™ platform, to prevent compatibility issues.
 
-
 ## What's Changed
 * Update `Video` data model with annotation statistics by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/391
 * Record Legacy and Develop cassette in separate steps instead of pipelines by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/387
@@ -36,6 +35,7 @@ This major release of the Intel® Geti™ SDK breaks backwards compatibility wit
 * Update requests requirement from ==2.31.* to ==2.32.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/415
 * Update pytest-html requirement from ==3.2.* to ==4.1.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/418
 * Update pytest-cov requirement from ==4.1.* to ==5.0.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/416
+* Add initial support for Tiling inference [synchronous mode only] by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/414
 
 ## New Contributors
 * @step-security-bot made their first contribution in https://github.com/openvinotoolkit/geti-sdk/pull/408
