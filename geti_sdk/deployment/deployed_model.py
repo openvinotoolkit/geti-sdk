@@ -321,7 +321,9 @@ class DeployedModel(OptimizedModel):
 
         if enable_tiling:
             logging.info("Tiling is enabled for this model, initializing Tiler")
-            tiler_type = TILER_MAPPING[self._converter.domain]
+            tiler_type = TILER_MAPPING.get(self._converter.domain, None)
+            if tiler_type is None:
+                raise ValueError(f"Tiling is not supported for domain {self._converter.domain}")
             self._tiler = tiler_type(model=model, execution_mode="sync")
             self._tiling_enabled = True
 
