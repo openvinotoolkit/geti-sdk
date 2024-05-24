@@ -53,7 +53,6 @@ def coords_to_xmin_xmax_width_height(
     return x1, y1, x2 - x1, y2 - y1
 
 
-@pytest.mark.JobsComponent
 class TestInferenceResultsToPredictionConverter:
     def test_classification_to_prediction_converter(self, fxt_label_schema_factory):
         # Arrange
