@@ -38,7 +38,6 @@ from geti_sdk.data_models.containers import MediaList
 from geti_sdk.data_models.enums import MediaType, PredictionMode
 from geti_sdk.data_models.predictions import ResultMedium
 from geti_sdk.http_session import GetiRequestException, GetiSession
-from geti_sdk.platform_versions import GETI_18_VERSION
 from geti_sdk.rest_converters.prediction_rest_converter import (
     NormalizedPredictionRESTConverter,
     PredictionRESTConverter,
@@ -90,17 +89,12 @@ class PredictionClient:
         for item in model_info_array:
             if len(item["models"]) > 0:
                 tasks_with_models.append(item["task_id"])
-        if self.session.version <= GETI_18_VERSION:
-            # For Geti v1.8 and older, we need models for all tasks before a
-            # prediction can be made
-            for task_id in task_ids:
-                if task_id not in tasks_with_models:
-                    return False
+
+        # It is sufficient if the FIRST task has a model trained
+        if task_ids[0] in tasks_with_models:
+            return True
         else:
-            # For later versions, it is sufficient if the FIRST task has a model trained
-            if task_ids[0] not in tasks_with_models:
-                return False
-        return True
+            return False
 
     @property
     def ready_to_predict(self):
@@ -207,54 +201,50 @@ class PredictionClient:
             dataset_id = dataset.id
         data: Optional[Dict[str, str]] = None
         explain_response: Optional[dict] = None
-        if self.session.version > GETI_18_VERSION:
-            prediction_mode_map = {
-                "auto": "auto",
-                "online": "never",
-                "latest": "always",
+
+        prediction_mode_map = {
+            "auto": "auto",
+            "online": "never",
+            "latest": "always",
+        }
+        if media_item.type == MediaType.IMAGE:
+            data = {
+                "image_id": media_item.identifier.image_id,
+                "dataset_id": dataset_id,
             }
-            if media_item.type == MediaType.IMAGE:
-                data = {
-                    "image_id": media_item.identifier.image_id,
-                    "dataset_id": dataset_id,
-                }
-                action = "predict"
-            elif media_item.type == MediaType.VIDEO_FRAME:
-                data = {
-                    "dataset_id": dataset_id,
-                    "video_id": media_item.identifier.video_id,
-                    "frame_index": str(media_item.identifier.frame_index),
-                }
-                action = "predict"
-            elif media_item.type == MediaType.VIDEO:
-                stride = media_item.media_information.frame_stride
-                data = {
-                    "dataset_id": dataset_id,
-                    "video_id": media_item.identifier.video_id,
-                    "start_frame": 0,
-                    "end_frame": int(15 * stride),
-                    "frame_skip": stride,
-                }
-                action = "batch_predict"
-            url = (
-                f"{self._base_url}pipelines/active:{action}"
-                f"?use_cache={prediction_mode_map[str(prediction_mode)]}"
+            action = "predict"
+        elif media_item.type == MediaType.VIDEO_FRAME:
+            data = {
+                "dataset_id": dataset_id,
+                "video_id": media_item.identifier.video_id,
+                "frame_index": str(media_item.identifier.frame_index),
+            }
+            action = "predict"
+        elif media_item.type == MediaType.VIDEO:
+            stride = media_item.media_information.frame_stride
+            data = {
+                "dataset_id": dataset_id,
+                "video_id": media_item.identifier.video_id,
+                "start_frame": 0,
+                "end_frame": int(15 * stride),
+                "frame_skip": stride,
+            }
+            action = "batch_predict"
+        url = (
+            f"{self._base_url}pipelines/active:{action}"
+            f"?use_cache={prediction_mode_map[str(prediction_mode)]}"
+        )
+        include_org_id = True
+        method = "POST"
+        if include_explanation:
+            explain_map = {"predict": "explain", "batch_predict": "batch_explain"}
+            explain_url = f"{self._base_url}pipelines/active:{explain_map[action]}"
+            explain_response = self.session.get_rest_response(
+                url=explain_url,
+                method="POST",
+                include_organization_id=True,
+                data=data,
             )
-            include_org_id = True
-            method = "POST"
-            if include_explanation:
-                explain_map = {"predict": "explain", "batch_predict": "batch_explain"}
-                explain_url = f"{self._base_url}pipelines/active:{explain_map[action]}"
-                explain_response = self.session.get_rest_response(
-                    url=explain_url,
-                    method="POST",
-                    include_organization_id=True,
-                    data=data,
-                )
-        else:
-            url = f"{media_item.base_url}/predictions/{prediction_mode}"
-            include_org_id = False
-            method = "GET"
         try:
             response = self.session.get_rest_response(
                 url=url,
@@ -271,7 +261,7 @@ class PredictionClient:
                     )
                 else:
                     result = PredictionRESTConverter.from_dict(response)
-                if include_explanation and self.session.version > GETI_18_VERSION:
+                if include_explanation:
                     maps: List[ResultMedium] = []
                     for map_dict in explain_response.get("maps", []):
                         map = ResultMedium(
@@ -300,10 +290,7 @@ class PredictionClient:
                     for ind, prediction in enumerate(response["video_predictions"]):
                         pred_object = PredictionRESTConverter.from_dict(prediction)
                         pred_object.resolve_label_names_and_colors(labels=self._labels)
-                        if (
-                            include_explanation
-                            and self.session.version > GETI_18_VERSION
-                        ):
+                        if include_explanation:
                             maps: List[ResultMedium] = []
                             for map_dict in explain_response["explanations"][ind].get(
                                 "maps", []
@@ -707,14 +694,9 @@ class PredictionClient:
             image_io = io.BytesIO(cv2.imencode(".jpg", image_data)[1].tobytes())
             image_io.name = image_name
 
-        if self.session.version > GETI_18_VERSION:
-            url = f"{self._base_url}pipelines/active:predict"
-            contenttype = "multipart"
-            data = {"file": image_io}
-        else:
-            url = f"{self._base_url}predict"
-            contenttype = "jpeg"
-            data = image_io
+        url = f"{self._base_url}pipelines/active:predict"
+        contenttype = "multipart"
+        data = {"file": image_io}
 
         # make POST request
         response = self.session.get_rest_response(

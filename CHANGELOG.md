@@ -1,3 +1,55 @@
+# v2.0.0 Intel® Geti™ SDK (16-05-2024)
+## New features
+This release introduces a new feature related to model deployment: post-inference hooks! A post-inference hook can be added to any `Deployment`, and will be executed after every inference request (i.e. every call to `deployment.infer()`). The hooks allow you to define specific actions to take under certain conditions. For example, a hook could implement the following behaviour:
+**If** the confidence level of one of the predictions for the image is less than 20%, **then** upload the image to the Intel® Geti™ project in which the model was trained.
+
+This could be useful for improving your model with a next training round, because including such 'low confidence images' in the training dataset might help to improve model accuracy.
+Additional examples of post-inference hooks, and instructions for configuring them, can be found in the newly added [notebook 012](https://github.com/openvinotoolkit/geti-sdk/blob/main/notebooks/012_post_inference_hooks.ipynb) in this repository.
+
+## Breaking changes
+This major release of the Intel® Geti™ SDK breaks backwards compatibility with Intel® Geti™ servers of version v1.14 and below. Please make sure that your Intel® Geti™ server is updated to the latest version of the Intel® Geti™ platform, to prevent compatibility issues.
+
+## What's Changed
+* Update `Video` data model with annotation statistics by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/391
+* Record Legacy and Develop cassette in separate steps instead of pipelines by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/387
+* Remove dependency on OTX by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/393
+* Add `model_storage_id` to models when fetching model group by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/399
+* Add Python 3.11 support; Deprecate Python 3.8 by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/398
+* Add `last_annotator_id` field to media data model by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/403
+* Documentation Update 2.0 by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/402
+* End support for Platforms versions lower than 1.15 by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/397
+* Bump imageio-ffmpeg from 0.4.8 to 0.4.9 in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/404
+* Update python version in github workflows by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/405
+* Update requirement for tqdm to `>=4.66.3` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/407
+* Add `PostInferenceHook` feature initial implementation and notebook by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/355
+* [StepSecurity] Apply security best practices by @step-security-bot in https://github.com/openvinotoolkit/geti-sdk/pull/408
+* Define permissions on job level for cassette record workflow by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/409
+* Update pytest-recording requirement from ==0.12.* to ==0.13.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/406
+* Update pytest requirement from ==7.4.* to ==8.2.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/401
+* Update cryptography requirement to `>=42.0.7` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/410
+* Update requirement for joblib to `>=1.2.0` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/411
+* Update certifi requirement to `>=2024.2.2` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/412
+* Update ipython requirement from ==8.12.* to ==8.18.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/400
+* Update vcrpy requirement from ==4.4.* to ==6.0.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/318
+* Remove dead code in training client by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/413
+* Update requests requirement from ==2.31.* to ==2.32.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/415
+* Update pytest-html requirement from ==3.2.* to ==4.1.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/418
+* Update pytest-cov requirement from ==4.1.* to ==5.0.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/416
+* Add initial support for Tiling inference [synchronous mode only] by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/414
+
+## New Contributors
+* @step-security-bot made their first contribution in https://github.com/openvinotoolkit/geti-sdk/pull/408
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.16.1...v2.0.0
+
+
+# v1.16.1 Intel® Geti™ SDK (22-04-2024)
+## What's Changed
+* Add `default_workspace` to possible default workspace names by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/394
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v1.16.0...v1.16.1
+
 # v1.16.0 Intel® Geti™ SDK (26-03-2024)
 ## What's Changed
 * Decouple visualizer for OTX by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/356

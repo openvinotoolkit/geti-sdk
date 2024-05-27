@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-import importlib.util
 import json
 import logging
 import os
 import shutil
-import sys
 import tempfile
 import time
 import zipfile
@@ -25,9 +23,11 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import attr
 import numpy as np
-from openvino.model_api.adapters import OpenvinoAdapter, OVMSAdapter
-from openvino.model_api.models import Model as model_api_Model
+from model_api.adapters import OpenvinoAdapter, OVMSAdapter
+from model_api.models import Model as model_api_Model
+from model_api.tilers import DetectionTiler, InstanceSegmentationTiler, Tiler
 from openvino.runtime import Core
+from packaging.version import Version
 
 from geti_sdk.data_models import OptimizedModel, Project, TaskConfiguration
 from geti_sdk.data_models.enums.domain import Domain
@@ -52,7 +52,6 @@ from .utils import (
 
 MODEL_DIR_NAME = "model"
 PYTHON_DIR_NAME = "python"
-WRAPPER_DIR_NAME = "model_wrappers"
 REQUIREMENTS_FILE_NAME = "requirements.txt"
 
 LABELS_CONFIG_KEY = "labels"
@@ -64,6 +63,11 @@ SALIENCY_KEY = "saliency_map"
 ANOMALY_SALIENCY_KEY = "anomaly_map"
 SEGMENTATION_SALIENCY_KEY = "soft_prediction"
 FEATURE_VECTOR_KEY = "feature_vector"
+
+TILER_MAPPING = {
+    Domain.DETECTION: DetectionTiler,
+    Domain.INSTANCE_SEGMENTATION: InstanceSegmentationTiler,
+}
 
 OVMS_TIMEOUT = 10  # Max time to wait for OVMS models to become available
 
@@ -88,7 +92,6 @@ class DeployedModel(OptimizedModel):
         self._model_python_path: Optional[str] = None
         self._needs_tempdir_deletion: bool = False
         self._tempdir_path: Optional[str] = None
-        self._has_custom_model_wrappers: bool = False
         self._label_schema: Optional[LabelSchema] = None
 
         # Attributes related to model explainability
@@ -99,6 +102,8 @@ class DeployedModel(OptimizedModel):
 
         self._converter: Optional[InferenceResultsToPredictionConverter] = None
         self._async_callback_defined: bool = False
+        self._tiling_enabled: bool = False
+        self._tiler: Optional[Tiler] = None
 
     @property
     def model_data_path(self) -> str:
@@ -145,9 +150,6 @@ class DeployedModel(OptimizedModel):
                 self._model_data_path = os.path.join(temp_dir, MODEL_DIR_NAME)
                 self._model_python_path = os.path.join(temp_dir, PYTHON_DIR_NAME)
 
-                # Check if the model includes custom model wrappers
-                if WRAPPER_DIR_NAME in os.listdir(self._model_python_path):
-                    self._has_custom_model_wrappers = True
                 self.get_data(temp_dir)
 
             elif os.path.isdir(source):
@@ -168,21 +170,25 @@ class DeployedModel(OptimizedModel):
                         f"file 'model.xml' and weights file 'model.bin' were not found "
                         f"at the path specified. "
                     )
-                if PYTHON_DIR_NAME in source_contents:
-                    model_python_path = os.path.join(source, PYTHON_DIR_NAME)
-                else:
-                    model_python_path = os.path.join(
-                        os.path.dirname(source), PYTHON_DIR_NAME
-                    )
-                python_dir_contents = (
-                    os.listdir(model_python_path)
-                    if os.path.exists(model_python_path)
-                    else []
-                )
-                if WRAPPER_DIR_NAME in python_dir_contents:
-                    self._has_custom_model_wrappers = True
 
                 self._model_python_path = os.path.join(source, PYTHON_DIR_NAME)
+
+            # A model is being loaded from disk, check if it is a legacy model
+            # We support OTX models starting from version 1.5.0
+            otx_version = get_package_version_from_requirements(
+                requirements_path=os.path.join(
+                    self._model_python_path, REQUIREMENTS_FILE_NAME
+                ),
+                package_name="otx",
+            )
+            if otx_version:  # Empty string if package not found
+                if Version(otx_version) < Version("1.5.0"):
+                    raise ValueError(
+                        "\n"
+                        "This deployment model is not compatible with the current SDK. Proposed solutions:\n"
+                        "1. Please deploy a model using GETi Platform version 2.0.0 or higher.\n"
+                        "2. Downgrade to a compatible GETi-SDK version to continue using this model.\n\n"
+                    )
 
         elif isinstance(source, GetiSession):
             if self.base_url is None:
@@ -315,56 +321,56 @@ class DeployedModel(OptimizedModel):
         )
         self._parse_label_schema_from_dict(label_dictionary)
 
-        # Create model wrapper with the loaded configuration
-        # First, add custom wrapper (if any) to path so that we can find it
-        if self._has_custom_model_wrappers:
-            wrapper_module_path = os.path.join(
-                self._model_python_path, WRAPPER_DIR_NAME
-            )
-            module_name = WRAPPER_DIR_NAME + "." + model_type.lower().replace(" ", "-")
-            try:
-                spec = importlib.util.spec_from_file_location(
-                    module_name, os.path.join(wrapper_module_path, "__init__.py")
-                )
-                module = importlib.util.module_from_spec(spec)
-                sys.modules[module_name] = module
-                spec.loader.exec_module(module)
-            except ImportError as ex:
-                raise ImportError(
-                    f"Unable to load inference model for {self}. A custom model wrapper"
-                    f"is required, but could not be found at path "
-                    f"{wrapper_module_path}."
-                ) from ex
+        # Load a Results-to-Prediction converter
+        self._converter = ConverterFactory.create_converter(
+            self.label_schema, configuration
+        )
 
         model = model_api_Model.create_model(
             model=model_adapter,
             model_type=model_type,
-            preload=True,
+            preload=False,
+            core=core,
             configuration=configuration,
         )
 
         self._inference_model = model
 
-        # Load results to Prediction converter
-        otx_version = get_package_version_from_requirements(
-            requirements_path=os.path.join(
-                self._model_python_path, REQUIREMENTS_FILE_NAME
-            ),
-            package_name="otx",
-        )
-        use_legacy_converter = not otx_version.startswith("1.5")
-        self._converter = ConverterFactory.create_converter(
-            self.label_schema, configuration, use_legacy_converter=use_legacy_converter
-        )
+        # Extract tiling parameters, if applicable
+        tiling_parameters = configuration_json.get("tiling_parameters", None)
+
+        enable_tiling = False
+        if tiling_parameters is not None:
+            enable_tiling = tiling_parameters.get("enable_tiling", False)
+            if isinstance(enable_tiling, dict):
+                enable_tiling = enable_tiling.get("value", False)
+
+        if enable_tiling:
+            logging.info("Tiling is enabled for this model, initializing Tiler")
+            tiler_type = TILER_MAPPING.get(self._converter.domain, None)
+            if tiler_type is None:
+                raise ValueError(
+                    f"Tiling is not supported for domain {self._converter.domain}"
+                )
+            self._tiler = tiler_type(model=model, execution_mode="async")
+            self._tiling_enabled = True
 
         # TODO: This is a workaround to fix the issue that causes the output blob name
-        #  to be unset. Remove this once it has been fixed on OTX/ModelAPI side
+        #  to be unset. Remove this once it has been fixed on ModelAPI side
         output_names = list(self._inference_model.outputs.keys())
         if hasattr(self._inference_model, "output_blob_name"):
             if not self._inference_model.output_blob_name:
                 self._inference_model.output_blob_name = {
                     name: name for name in output_names
                 }
+
+        # Force reload model to account for any postprocessing changes that may have
+        # been applied while creating the ModelAPI wrapper
+        logging.info(
+            f"Inference model wrapper initialized, force reloading model on device "
+            f"`{device}` to finalize inference model initialization process."
+        )
+        self._inference_model.load(force=True)
 
     @classmethod
     def from_model_and_hypers(
@@ -611,22 +617,32 @@ class DeployedModel(OptimizedModel):
             Prediction. Note that these are only available if supported by the model.
         :return: Dictionary containing the model outputs
         """
-        preprocessed_image, metadata = self._preprocess(image)
-        # metadata is a dict with keys 'original_shape' and 'resized_shape'
-        inference_results: Dict[str, np.ndarray] = self._inference_model.infer_sync(
-            preprocessed_image
-        )
-        postprocessing_results = self._postprocess(inference_results, metadata=metadata)
+        if not self._tiling_enabled:
+            preprocessed_image, metadata = self._preprocess(image)
+            # metadata is a dict with keys 'original_shape' and 'resized_shape'
+            inference_results: Dict[str, np.ndarray] = self._inference_model.infer_sync(
+                preprocessed_image
+            )
+            postprocessing_results = self._postprocess(
+                inference_results, metadata=metadata
+            )
+        else:
+            postprocessing_results = self._tiler(image)
 
         prediction = self._converter.convert_to_prediction(
-            postprocessing_results, image_shape=metadata["original_shape"]
+            postprocessing_results, image_shape=image.shape
         )
 
         # Add optional explainability outputs
         if explain:
-            saliency_map, repr_vector = self._postprocess_explain_outputs(
-                inference_results=inference_results, metadata=metadata
-            )
+            if not self._tiling_enabled:
+                saliency_map, repr_vector = self._postprocess_explain_outputs(
+                    inference_results=inference_results, metadata=metadata
+                )
+            else:
+                repr_vector = postprocessing_results.feature_vector
+                saliency_map = postprocessing_results.saliency_map
+
             prediction.feature_vector = repr_vector
             result_medium = ResultMedium(name="saliency map", type="saliency map")
             result_medium.data = saliency_map

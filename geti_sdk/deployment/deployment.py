@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import collections
+import datetime
 import json
 import logging
 import os
@@ -20,7 +21,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import attr
 import numpy as np
-import otx
+from model_api.models import Model as OMZModel
 from openvino.runtime import Core
 
 from geti_sdk.data_models import Label, Prediction, Project, Task
@@ -28,6 +29,7 @@ from geti_sdk.deployment.data_models import ROI, IntermediateInferenceResult
 from geti_sdk.rest_converters import ProjectRESTConverter
 
 from .deployed_model import DeployedModel
+from .inference_hook_interfaces import PostInferenceHookInterface
 from .utils import (
     OVMS_README_PATH,
     assign_empty_label,
@@ -56,6 +58,7 @@ class Deployment:
         self._inference_converters: Dict[str, Any] = {}
         self._path_to_temp_resources: Optional[str] = None
         self._requires_resource_cleanup: bool = False
+        self._post_inference_hooks: List[PostInferenceHookInterface] = []
         self._empty_label: Optional[Label] = None
         self._asynchronous_mode: bool = False
         self._async_callback_defined: bool = False
@@ -126,6 +129,15 @@ class Deployment:
         with open(project_filepath, "w") as project_file:
             json.dump(project_dict, project_file, indent=4)
 
+        # Save post inference hooks, if any
+        if self.post_inference_hooks:
+            hook_config_file = os.path.join(deployment_folder, "hook_config.json")
+            hook_configs: List[Dict[str, Any]] = []
+            for hook in self.post_inference_hooks:
+                hook_configs.append(hook.to_dict())
+            with open(hook_config_file, "w") as file:
+                json.dump({"post_inference_hooks": hook_configs}, file)
+
         # Clean up temp resources if needed
         if self._requires_resource_cleanup:
             self._remove_temporary_resources()
@@ -162,7 +174,23 @@ class Deployment:
             models.append(
                 DeployedModel.from_folder(os.path.join(deployment_folder, task_folder))
             )
-        return cls(models=models, project=project)
+        deployment = cls(models=models, project=project)
+
+        # Load post inference hooks, if any
+        hook_config_file = os.path.join(deployment_folder, "hook_config.json")
+        if os.path.isfile(hook_config_file):
+            available_hooks = {
+                subcls.__name__: subcls
+                for subcls in PostInferenceHookInterface.__subclasses__()
+            }
+            with open(hook_config_file, "r") as file:
+                hook_dict = json.load(file)
+            for hook_data in hook_dict["post_inference_hooks"]:
+                for hook_name, hook_args in hook_data.items():
+                    target_hook = available_hooks[hook_name]
+                    hook = target_hook.from_dict(hook_args)
+                deployment.add_post_inference_hook(hook)
+        return deployment
 
     def load_inference_models(
         self,
@@ -232,13 +260,15 @@ class Deployment:
         self._are_models_loaded = True
         logging.info(f"Inference models loaded on device `{device}` successfully.")
 
-    def infer(self, image: np.ndarray) -> Prediction:
+    def infer(self, image: np.ndarray, name: Optional[str] = None) -> Prediction:
         """
         Run inference on an image for the full model chain in the deployment.
 
         :param image: Image to run inference on, as a numpy array containing the pixel
             data. The image is expected to have dimensions [height x width x channels],
             with the channels in RGB order
+        :param name: Optional name for the image, if specified this will be used in
+            any post inference hooks belonging to the deployment.
         :return: inference results
         """
         self._check_models_loaded()
@@ -263,6 +293,10 @@ class Deployment:
         # it here if there are no other predictions
         assign_empty_label(
             prediction=prediction, image=image, empty_label=self._empty_label
+        )
+
+        self._execute_post_inference_hooks(
+            image=image, prediction=prediction, name=name
         )
 
         return prediction
@@ -304,7 +338,7 @@ class Deployment:
             runtime_data=runtime_data_tuple,
         )
 
-    def explain(self, image: np.ndarray) -> Prediction:
+    def explain(self, image: np.ndarray, name: Optional[str] = None) -> Prediction:
         """
         Run inference on an image for the full model chain in the deployment. The
         resulting prediction will also contain saliency maps and the feature vector
@@ -313,6 +347,8 @@ class Deployment:
         :param image: Image to run inference on, as a numpy array containing the pixel
             data. The image is expected to have dimensions [height x width x channels],
             with the channels in RGB order
+        :param name: Optional name for the image, if specified this will be used in
+            any post inference hooks belonging to the deployment.
         :return: inference results
         """
         self._check_models_loaded()
@@ -332,6 +368,10 @@ class Deployment:
         # Multi-task inference
         else:
             prediction = self._infer_pipeline(image=image, explain=True)
+
+        self._execute_post_inference_hooks(
+            image=image, prediction=prediction, name=name
+        )
         return prediction
 
     def explain_async(
@@ -589,33 +629,16 @@ class Deployment:
                 model_version = "1"
 
             ovms_model_dir = os.path.join(ovms_models_dir, model_name, model_version)
-            source_model_dir = model.model_data_path
 
-            if otx.__version__ >= "1.4.0":
-                # Load the model to embed preprocessing for inference with OVMS adapter
-                try:
-                    from openvino.model_api.models import Model as OMZModel
-                except ImportError as error:
-                    raise ValueError(
-                        f"Unable to load inference model for {model.name}. Relevant "
-                        f"OpenVINO packages were not found. Please make sure that "
-                        f"OpenVINO is installed correctly."
-                    ) from error
-                embedded_model = OMZModel.create_model(
-                    model=os.path.join(model.model_data_path, "model.xml")
-                )
-                embedded_model.save(
-                    xml_path=os.path.join(ovms_model_dir, "model.xml"),
-                    bin_path=os.path.join(ovms_model_dir, "model.bin"),
-                )
-                logging.info(f"Model `{model.name}` prepared for OVMS inference.")
-            else:
-                os.makedirs(ovms_model_dir, exist_ok=True)
-                for model_file in os.listdir(source_model_dir):
-                    shutil.copy2(
-                        src=os.path.join(source_model_dir, model_file),
-                        dst=os.path.join(ovms_model_dir, model_file),
-                    )
+            # Load the model to embed preprocessing for inference with OVMS adapter
+            embedded_model = OMZModel.create_model(
+                model=os.path.join(model.model_data_path, "model.xml")
+            )
+            embedded_model.save(
+                xml_path=os.path.join(ovms_model_dir, "model.xml"),
+                bin_path=os.path.join(ovms_model_dir, "model.bin"),
+            )
+            logging.info(f"Model `{model.name}` prepared for OVMS inference.")
 
         # Save model configurations
         ovms_config_list = {"model_config_list": model_configs}
@@ -684,7 +707,10 @@ class Deployment:
         self.models[0].await_any()
 
     def set_asynchronous_callback(
-        self, callback_function: Callable[[Prediction, Optional[Any]], None]
+        self,
+        callback_function: Optional[
+            Callable[[np.ndarray, Prediction, Optional[Any]], None]
+        ] = None,
     ) -> None:
         """
         Set the callback function to handle asynchronous inference results. This
@@ -699,13 +725,40 @@ class Deployment:
             asynchronous inference results. The function should take the following
             input parameters:
 
-             1. The inference results (the Prediction). This is the primary input
+             1. The image/video frame. This is the original image to infer
+             2. The inference results (the Prediction). This is the model output for
+                the image
              2. Any additional data that will be passed with the infer
                 request at runtime. For example, this could be a timestamp for the
                 frame, or a title/filepath, etc. This can be in the form of any object:
                 You can for instance pass a dictionary, or a tuple/list of multiple
                 objects
+
+            **NOTE**: It is possible to call this method without specifying any
+                      callback function. In that case, the deployment will be switched
+                      to asynchronous mode but only the post-inference hooks will be
+                      executed after each infer request
         """
+
+        def post_inference_hook_callback(
+            image: np.ndarray, prediction: Prediction, runtime_data: Optional[Any]
+        ):
+            self._execute_post_inference_hooks(
+                image=image, prediction=prediction, name=runtime_data.get("name", None)
+            )
+
+        if callback_function is None:
+            final_callback_function = post_inference_hook_callback
+        else:
+
+            def callback_and_hook(image, prediction, runtime_data):
+                self._execute_post_inference_hooks(
+                    image, prediction, runtime_data.get("name", None)
+                )
+                callback_function(image, prediction, runtime_data)
+
+            final_callback_function = callback_and_hook()
+
         if self.is_single_task:
 
             def full_callback(result: Prediction, runtime_data: Tuple[np.ndarray, Any]):
@@ -715,7 +768,7 @@ class Deployment:
                 )
 
                 # User defined callback to further process the prediction results
-                callback_function(result, runtime_user_data)
+                final_callback_function(image, result, runtime_user_data)
 
             self.models[0].set_asynchronous_callback(full_callback)
         else:
@@ -750,7 +803,7 @@ class Deployment:
                         deployment=self,
                         next_trainable_task=next_trainable_task,
                         next_task=next_task,
-                        final_callback=callback_function,
+                        final_callback=final_callback_function,
                     )
                 )
             for task, callback in zip(trainable_tasks, callbacks):
@@ -759,3 +812,52 @@ class Deployment:
 
         self._async_callback_defined = True
         logging.info("Asynchronous inference mode enabled.")
+
+    @property
+    def post_inference_hooks(self) -> List[PostInferenceHookInterface]:
+        """
+        Return the currently active post inference hooks for the deployment
+
+        :return: list of PostInferenceHook objects
+        """
+        return self._post_inference_hooks
+
+    def clear_inference_hooks(self) -> None:
+        """
+        Remove all post inference hooks for the deployment
+        """
+        n_hooks = len(self.post_inference_hooks)
+        self._post_inference_hooks = []
+        if n_hooks != 0:
+            logging.info(
+                f"Post inference hooks cleared. {n_hooks} hooks were removed "
+                f"successfully"
+            )
+
+    def add_post_inference_hook(self, hook: PostInferenceHookInterface) -> None:
+        """
+        Add a post inference hook, which will be executed after each call to
+        `Deployment.infer`
+
+        :param hook: PostInferenceHook to be added to the deployment
+        """
+        self._post_inference_hooks.append(hook)
+        logging.info(f"Hook `{hook}` added.")
+        logging.info(
+            f"Deployment now contains {len(self.post_inference_hooks)} "
+            f"post inference hooks."
+        )
+
+    def _execute_post_inference_hooks(
+        self, image: np.ndarray, prediction: Prediction, name: Optional[str] = None
+    ) -> None:
+        """
+        Execute all post inference hooks
+
+        :param image: Numpy image which was inferred
+        :param prediction: Prediction for the image
+        :param name: Optional name for the image
+        """
+        timestamp = datetime.datetime.now()
+        for hook in self._post_inference_hooks:
+            hook.run(image, prediction, name, timestamp)

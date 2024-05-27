@@ -11,20 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
-"""
-Prediction converters for use with inference models created in older
-versions of the Intel® Geti™ platform, i.e. v1.8 and below.
-"""
-
-from .legacy_anomaly_converter import (
-    AnomalyClassificationToAnnotationConverter,
-    AnomalyDetectionToAnnotationConverter,
-    AnomalySegmentationToAnnotationConverter,
-)
+"""Triggers that can be used in post inference hooks"""
+from .always_trigger import AlwaysTrigger
+from .confidence_trigger import ConfidenceTrigger
+from .empty_label_trigger import EmptyLabelTrigger
+from .label_trigger import LabelTrigger
+from .object_count_trigger import ObjectCountTrigger
 
 __all__ = [
-    "AnomalyClassificationToAnnotationConverter",
-    "AnomalyDetectionToAnnotationConverter",
-    "AnomalySegmentationToAnnotationConverter",
+    "AlwaysTrigger",
+    "ConfidenceTrigger",
+    "LabelTrigger",
+    "EmptyLabelTrigger",
+    "ObjectCountTrigger",
 ]

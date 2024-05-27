@@ -64,7 +64,7 @@ setuptools.setup(
         "License :: OSI Approved :: Apache Software License",
     ],
     packages=setuptools.find_packages(),
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     install_requires=get_requirements("requirements.txt"),
     extras_require={
         "dev": get_requirements("requirements-dev.txt"),

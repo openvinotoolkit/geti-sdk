@@ -102,12 +102,13 @@ class MediaItem:
 
     :var id: Unique database ID of the media entity
     :var name: Filename of the media entity
-    :var state: Annotation state of the media entity
     :var type: MediaType of the entity
     :var upload_time: Time and date at which the entity was uploaded to the system
     :var thumbnail: URL that can be used to get a thumbnail for the media entity
+    :var annotation_state_per_task: Annotation state of the media entity
     :var media_information: Container holding basic information such as width and
         height about the media entity
+    :param last_annotator_id: the name or id of the editor.
     """
 
     id: str
@@ -115,11 +116,11 @@ class MediaItem:
     type: str = attr.field(converter=str_to_media_type)
     upload_time: str = attr.field(converter=str_to_datetime)
     media_information: MediaInformation
-    state: Optional[str] = None
-    # State is deprecated in SC1.1, replaced by `annotation_state_per_task`
     annotation_state_per_task: Optional[List[TaskAnnotationState]] = None
     thumbnail: Optional[str] = None
     uploader_id: Optional[str] = None
+    # last_annotator_id was added in Geti v 2.0. It replaced `editor_name`
+    last_annotator_id: Optional[str] = None
 
     @property
     def download_url(self) -> str:
@@ -216,9 +217,6 @@ class Image(MediaItem):
     roi_id: Optional[str] = attr.field(
         kw_only=True, default=None, repr=False
     )  # Added in Geti v 1.16
-    editor_name: Optional[str] = attr.field(
-        kw_only=True, default=None, repr=False
-    )  # Added in Geti v 1.16
 
     def __attrs_post_init__(self):
         """
@@ -274,6 +272,22 @@ class Image(MediaItem):
 
 
 @attr.define(slots=False)
+class VideoAnnotationStatistics:
+    """
+    Annotation statistics for a video in Intel® Geti™.
+
+    :var annotated: Number of frames in the video that have been fully annotated
+    :var partially_annotated: Number of frames in the video that have been partially
+        annotated, meaning that one task in the task chain is still missing annotations
+    :var unannotated: Number of frames in the video that have not yet been annotated
+    """
+
+    annotated: int
+    partially_annotated: int
+    unannotated: int
+
+
+@attr.define(slots=False)
 class Video(MediaItem):
     """
     Representation of a video in Intel® Geti™.
@@ -284,6 +298,9 @@ class Video(MediaItem):
 
     media_information: VideoInformation = attr.field(kw_only=True)
     matched_frames: Optional[int] = attr.field(kw_only=True, default=None, repr=False)
+    annotation_statistics: Optional[VideoAnnotationStatistics] = attr.field(
+        kw_only=True, default=None, repr=False
+    )
 
     def __attrs_post_init__(self):
         """
@@ -427,7 +444,7 @@ class VideoFrame(MediaItem):
             upload_time=video.upload_time,
             thumbnail=f"{base_url}/display/thumb",
             media_information=frame_information,
-            state=video.state,
+            annotation_state_per_task=video.annotation_state_per_task,
             id=video.id,
             video_name=video.name,
         )

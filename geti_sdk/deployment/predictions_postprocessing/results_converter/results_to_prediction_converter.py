@@ -19,7 +19,7 @@ from typing import Any, Dict, List, NamedTuple, Optional, Tuple, Union
 
 import cv2
 import numpy as np
-from openvino.model_api.models.utils import (
+from model_api.models.utils import (
     AnomalyResult,
     ClassificationResult,
     DetectionResult,
@@ -39,9 +39,6 @@ from geti_sdk.data_models.shapes import (
     Rectangle,
     RotatedRectangle,
 )
-from geti_sdk.deployment.predictions_postprocessing.results_converter.legacy_converter import (
-    LegacyConverter,
-)
 from geti_sdk.deployment.predictions_postprocessing.utils.detection_utils import (
     detection2array,
 )
@@ -52,6 +49,16 @@ from geti_sdk.deployment.predictions_postprocessing.utils.segmentation_utils imp
 
 class InferenceResultsToPredictionConverter(metaclass=abc.ABCMeta):
     """Interface for the converter"""
+
+    @property
+    @abc.abstractmethod
+    def domain(self) -> Domain:
+        """
+        Return the domain for which the converter applies
+
+        :return: The task domain for which the label converter applies
+        """
+        raise NotImplementedError
 
     @abc.abstractmethod
     def convert_to_prediction(self, predictions: NamedTuple, **kwargs) -> Prediction:
@@ -71,6 +78,8 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
     :param label_schema: LabelSchema containing the label info of the task
     """
 
+    domain = Domain.CLASSIFICATION
+
     def __init__(self, label_schema: LabelSchema):
         all_labels = label_schema.get_labels(include_empty=True)
         # add empty labels if only one non-empty label exits
@@ -87,7 +96,10 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
         self.label_schema = label_schema
 
     def convert_to_prediction(
-        self, predictions: ClassificationResult, image_shape: Tuple[int], **kwargs
+        self,
+        predictions: ClassificationResult,
+        image_shape: Tuple[int, int, int],
+        **kwargs,
     ) -> Prediction:  # noqa: ARG003
         """
         Convert ModelAPI ClassificationResult predictions to Prediction object.
@@ -118,6 +130,8 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
     :param label_schema: LabelSchema containing the label info of the task
     :param configuration: optional model configuration setting
     """
+
+    domain = Domain.DETECTION
 
     def __init__(
         self, label_schema: LabelSchema, configuration: Optional[Dict[str, Any]] = None
@@ -191,6 +205,8 @@ class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
     :param label_schema: LabelSchema containing the label info of the task
     """
 
+    domain = Domain.ROTATED_DETECTION
+
     def convert_to_prediction(
         self, predictions: InstanceSegmentationResult, **kwargs
     ) -> Prediction:
@@ -256,6 +272,8 @@ class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
 class MaskToAnnotationConverter(InferenceResultsToPredictionConverter):
     """Converts DetectionBox Predictions ModelAPI to Prediction object."""
 
+    domain = Domain.INSTANCE_SEGMENTATION
+
     def __init__(
         self, label_schema: LabelSchema, configuration: Optional[Dict[str, Any]] = None
     ):
@@ -269,7 +287,7 @@ class MaskToAnnotationConverter(InferenceResultsToPredictionConverter):
                 self.confidence_threshold = configuration["confidence_threshold"]
 
     def convert_to_prediction(
-        self, predictions: Tuple, **kwargs: Dict[str, Any]
+        self, predictions: Any, **kwargs: Dict[str, Any]
     ) -> Prediction:
         """
         Convert predictions to Prediction object.
@@ -337,6 +355,8 @@ class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
     :param label_schema: LabelSchema containing the label info of the task
     """
 
+    domain = Domain.SEGMENTATION
+
     def __init__(self, label_schema: LabelSchema):
         self.labels = label_schema.get_labels(include_empty=False)
         # NB: index=0 is reserved for the background label
@@ -365,6 +385,8 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
 
     :param label_schema: LabelSchema containing the label info of the task
     """
+
+    domain = Domain.ANOMALY
 
     def __init__(self, label_schema: LabelSchema):
         self.labels = label_schema.get_labels(include_empty=False)
@@ -436,8 +458,8 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
             )
             annotations = [
                 Annotation(
-                    Rectangle.generate_full_box(*image_shape[1::-1]),
                     labels=[scored_label],
+                    shape=Rectangle.generate_full_box(*image_shape[1::-1]),
                 )
             ]
         return Prediction(annotations)
@@ -452,21 +474,16 @@ class ConverterFactory:
     def create_converter(
         label_schema: LabelSchema,
         configuration: Optional[Dict[str, Any]] = None,
-        use_legacy_converter: bool = False,
     ) -> InferenceResultsToPredictionConverter:
         """
         Create the appropriate inferencer object according to the model's task.
 
         :param label_schema: The label schema containing the label info of the task.
         :param configuration: Optional configuration for the converter. Defaults to None.
-        :param use_legacy_converter: Load a legacy converter for models generated by OTX version 1.4.
         :return: The created inference result to prediction converter.
         :raises ValueError: If the task type cannot be determined from the label schema.
         """
         domain = ConverterFactory._get_labels_domain(label_schema)
-
-        if use_legacy_converter:
-            return LegacyConverter(label_schema, configuration, domain)
 
         if domain == Domain.CLASSIFICATION:
             return ClassificationToPredictionConverter(label_schema)
