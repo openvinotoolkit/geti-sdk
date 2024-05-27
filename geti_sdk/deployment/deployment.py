@@ -11,13 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-import collections
 import datetime
 import json
 import logging
 import os
 import shutil
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from collections.abc import Sequence
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import attr
 import numpy as np
@@ -257,11 +257,11 @@ class Deployment:
             max_async_infer_requests = os.cpu_count()
 
         for idx, model in enumerate(self.models):
-            if isinstance(device, collections.Sequence) and not isinstance(device, str):
+            if isinstance(device, Sequence) and not isinstance(device, str):
                 dev = device[idx]
             else:
                 dev = device
-            if isinstance(max_async_infer_requests, collections.Sequence):
+            if isinstance(max_async_infer_requests, Sequence):
                 max_requests = max_async_infer_requests[idx]
             else:
                 max_requests = max_async_infer_requests
