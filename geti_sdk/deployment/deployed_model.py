@@ -828,3 +828,33 @@ class DeployedModel(OptimizedModel):
         asynchronous inference.
         """
         self._inference_model.inference_adapter.await_any()
+
+    @property
+    def asynchronous_mode(self):
+        """
+        Return True if the DeployedModel is in asynchronous inference mode, False
+        otherwise
+        """
+        return self._async_callback_defined
+
+    @asynchronous_mode.setter
+    def asynchronous_mode(self, mode: bool):
+        """
+        Set the DeployedModel to synchronous or asynchronous inference mode
+        """
+        if mode:
+            if not self._async_callback_defined:
+                raise ValueError(
+                    "Please use the method `.set_asynchronous_callback()` to define a "
+                    "callback and set the DeployedModel to asynchronous inference "
+                    "mode."
+                )
+            else:
+                logging.debug("DeployedModel is already in asynchronous mode")
+        else:
+
+            def do_nothing(request, userdata):
+                pass
+
+            self._async_callback_defined = False
+            self._inference_model.inference_adapter.set_callback(do_nothing)

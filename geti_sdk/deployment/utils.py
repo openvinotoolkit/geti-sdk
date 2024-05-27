@@ -222,7 +222,7 @@ def pipeline_callback_factory(
             if len(rois) == 0:
                 # Empty prediction. Assign empty label and run final callback immediately
                 assign_empty_label(result, image, deployment._empty_label)
-                final_callback(result, runtime_user_data)
+                final_callback(image, result, runtime_user_data)
                 return
 
             intermediate_result = IntermediateInferenceResult(
@@ -234,7 +234,6 @@ def pipeline_callback_factory(
                 intermediate_result.rois = rois
             else:
                 image_views = intermediate_result.generate_views()
-
             for roi, view in zip(rois, image_views):
                 deployment._infer_task_async(
                     image=view,
@@ -266,9 +265,7 @@ def pipeline_callback_factory(
                     intermediate_result.add_to_infer_queue(
                         new_roi.to_absolute_coordinates(parent_roi=roi)
                     )
-
             intermediate_result.increment_infer_counter()
-
             if intermediate_result.all_rois_inferred():
                 # In this case, all ROIS from the preceding task have been inferred.
                 # The infer queue now becomes the new ROIs for the intermediate result
@@ -297,6 +294,6 @@ def pipeline_callback_factory(
                         )
                 else:
                     prediction = intermediate_result.prediction
-                    final_callback(prediction, runtime_user_data)
+                    final_callback(image, prediction, runtime_user_data)
 
     return callback

@@ -101,6 +101,28 @@ class Deployment:
         """
         return self._async_callback_defined
 
+    @asynchronous_mode.setter
+    def asynchronous_mode(self, mode: bool):
+        """
+        Set the inference mode for the deployment
+
+        :param mode: False to set the deployment to synchronous mode. Removes all
+            asynchronous callbacks for the models in the deployment.
+        """
+        if mode:
+            if not self._async_callback_defined:
+                raise ValueError(
+                    "Please use the `set_asynchronous_callback` method to switch a "
+                    "deployment to asynchronous inference mode."
+                )
+            else:
+                logging.debug("Deployment is already in asynchronous mode.")
+        else:
+            self._async_callback_defined = False
+            for model in self.models:
+                model.asynchronous_mode = False
+            logging.info("Asynchronous inference mode disabled. All callbacks removed.")
+
     def save(self, path_to_folder: Union[str, os.PathLike]) -> bool:
         """
         Save the Deployment instance to a folder on local disk.
@@ -743,8 +765,12 @@ class Deployment:
         def post_inference_hook_callback(
             image: np.ndarray, prediction: Prediction, runtime_data: Optional[Any]
         ):
+            if isinstance(runtime_data, dict):
+                name = runtime_data.get("name", None)
+            else:
+                name = None
             self._execute_post_inference_hooks(
-                image=image, prediction=prediction, name=runtime_data.get("name", None)
+                image=image, prediction=prediction, name=name
             )
 
         if callback_function is None:
@@ -752,12 +778,10 @@ class Deployment:
         else:
 
             def callback_and_hook(image, prediction, runtime_data):
-                self._execute_post_inference_hooks(
-                    image, prediction, runtime_data.get("name", None)
-                )
+                post_inference_hook_callback(image, prediction, runtime_data)
                 callback_function(image, prediction, runtime_data)
 
-            final_callback_function = callback_and_hook()
+            final_callback_function = callback_and_hook
 
         if self.is_single_task:
 

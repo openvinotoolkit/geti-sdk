@@ -32,6 +32,7 @@ dist
 /notebooks/deployments
 /notebooks/projects
 /notebooks/benchmarks
+/notebooks/output
 
 # Use case notebook data
 /notebooks/use_cases/deployments
