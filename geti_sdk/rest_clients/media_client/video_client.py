@@ -11,9 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
-
+import atexit
 import os
+import tempfile
 from datetime import datetime
 from typing import Optional, Sequence, Union
 
@@ -80,7 +80,12 @@ class VideoClient(BaseMediaClient[Video]):
                     f"shape {video.shape}"
                 ) from error
             timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-            video_path = f"temp_video_{timestamp}.avi"
+            video_file = tempfile.NamedTemporaryFile(
+                prefix="geti-sdk_temp_video_", suffix=f"_{timestamp}.avi", delete=False
+            )
+            # Close the file, opencv will open it again from the path
+            video_file.close()
+            video_path = video_file.name
             out = cv2.VideoWriter(
                 video_path,
                 cv2.VideoWriter_fourcc("M", "J", "P", "G"),
@@ -98,13 +103,15 @@ class VideoClient(BaseMediaClient[Video]):
         uploaded_video = MediaRESTConverter.from_dict(
             input_dict=video_dict, media_type=Video
         )
-        # Clean up temp file
+        uploaded_video._data = video_path
         if temporary_file_created:
-            # We do not keep the video file in case of uploading a numpy array representation.
-            # The intuition is that the user is responsible for managing the original video.
-            os.remove(video_path)
-        else:
-            uploaded_video._data = video_path
+            uploaded_video._needs_tempfile_deletion = True
+
+            # Register cleanup function on system exit to ensure __del__ gets called
+            def clean_temp_video():
+                uploaded_video.__del__()
+
+            atexit.register(clean_temp_video)
         return uploaded_video
 
     def upload_folder(
