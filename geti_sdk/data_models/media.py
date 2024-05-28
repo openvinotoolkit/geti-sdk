@@ -13,6 +13,7 @@
 # and limitations under the License.
 
 import abc
+import logging
 import os
 import tempfile
 from multiprocessing import Lock
@@ -401,6 +402,7 @@ class Video(MediaItem):
         with self._data_lock:
             if self._needs_tempfile_deletion:
                 if os.path.exists(self._data) and os.path.isfile(self._data):
+                    logging.debug(f"Removing temporary video file at `{self._data}`")
                     os.remove(self._data)
 
 
