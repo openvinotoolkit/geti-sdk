@@ -378,7 +378,7 @@ class AnnotationScene:
         :return: AnnotationScene with filtered annotations
         """
         label_names_to_keep = {
-            label if type(label) == str else label.name for label in labels
+            label if type(label) is str else label.name for label in labels
         }
         filtered_annotations: List[Annotation] = []
         for annotation in self.annotations:
