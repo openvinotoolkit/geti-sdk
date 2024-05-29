@@ -22,7 +22,6 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 import attr
 import numpy as np
 from model_api.models import Model as OMZModel
-from openvino.runtime import Core
 
 from geti_sdk.data_models import Label, Prediction, Project, Task
 from geti_sdk.deployment.data_models import ROI, IntermediateInferenceResult
@@ -250,7 +249,6 @@ class Deployment:
             further details, refer to the OpenVINO documentation here:
             https://docs.openvino.ai/2022.3/openvino_docs_OV_UG_Performance_Hints.html#doxid-openvino-docs-o-v-u-g-performance-hints
         """
-        ov_core = Core()
         if max_async_infer_requests is None:
             max_async_infer_requests = 1
         elif max_async_infer_requests == 0 and device == "CPU":
@@ -268,7 +266,6 @@ class Deployment:
             model.load_inference_model(
                 device=dev,
                 project=self.project,
-                core=ov_core,
                 max_async_infer_requests=max_requests,
                 plugin_configuration=openvino_configuration,
             )

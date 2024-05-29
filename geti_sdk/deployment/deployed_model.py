@@ -223,7 +223,6 @@ class DeployedModel(OptimizedModel):
         device: str = "CPU",
         configuration: Optional[Dict[str, Any]] = None,
         project: Optional[Project] = None,
-        core: Optional[Core] = None,
         plugin_configuration: Optional[Dict[str, str]] = None,
         max_async_infer_requests: int = 0,
     ) -> None:
@@ -247,8 +246,7 @@ class DeployedModel(OptimizedModel):
         :return: OpenVino inference engine model that can be used to make predictions
             on images
         """
-        if core is None:
-            core = Core()
+        core = Core()
         if not target_device_is_ovms(device=device):
             # Run the model locally
             model_adapter = OpenvinoAdapter(
@@ -623,32 +621,12 @@ class DeployedModel(OptimizedModel):
             inference_results: Dict[str, np.ndarray] = self._inference_model.infer_sync(
                 preprocessed_image
             )
-            postprocessing_results = self._postprocess(
-                inference_results, metadata=metadata
-            )
         else:
-            postprocessing_results = self._tiler(image)
-
-        prediction = self._converter.convert_to_prediction(
-            postprocessing_results, image_shape=image.shape
+            inference_results = self._tiler(image)
+            metadata = {"original_shape": image.shape}
+        return self._apply_postprocessing_steps(
+            inference_results=inference_results, metadata=metadata, explain=explain
         )
-
-        # Add optional explainability outputs
-        if explain:
-            if not self._tiling_enabled:
-                saliency_map, repr_vector = self._postprocess_explain_outputs(
-                    inference_results=inference_results, metadata=metadata
-                )
-            else:
-                repr_vector = postprocessing_results.feature_vector
-                saliency_map = postprocessing_results.saliency_map
-
-            prediction.feature_vector = repr_vector
-            result_medium = ResultMedium(name="saliency map", type="saliency map")
-            result_medium.data = saliency_map
-            prediction.maps = [result_medium]
-
-        return prediction
 
     def infer_async(
         self,
@@ -714,22 +692,7 @@ class DeployedModel(OptimizedModel):
             raw_result = self._inference_model.inference_adapter.get_raw_result(
                 infer_request
             )
-            result = self._inference_model.postprocess(raw_result, metadata)
-
-            prediction = self._converter.convert_to_prediction(
-                result, image_shape=metadata["original_shape"]
-            )
-
-            # Add optional explainability outputs
-            if explain:
-                saliency_map, repr_vector = self._postprocess_explain_outputs(
-                    inference_results=result, metadata=metadata
-                )
-                prediction.feature_vector = repr_vector
-                result_medium = ResultMedium(name="saliency map", type="saliency map")
-                result_medium.data = saliency_map
-                prediction.maps = [result_medium]
-
+            prediction = self._apply_postprocessing_steps(raw_result, metadata, explain)
             # User defined callback to further process the prediction results
             callback_function(prediction, runtime_data)
 
@@ -794,6 +757,45 @@ class DeployedModel(OptimizedModel):
                 )
             )
         self._label_schema = LabelSchema(label_groups=label_groups)
+
+    def _apply_postprocessing_steps(
+        self, inference_results: Any, metadata: Dict[str, Any], explain: bool
+    ) -> Prediction:
+        """
+        Apply the required postprocessing steps to convert the model output to a
+        Prediction object, with saliency maps and feature vector included if needed.
+
+        :param inference_results: The results of the model
+        :param metadata: Dictionary containing metadata about the original image
+        :param explain: True to enable XAI outputs (saliency map and feature vector)
+        :return: Prediction object containing the model predictions
+        """
+        if not self._tiling_enabled:
+            postprocessing_results = self._postprocess(
+                inference_results, metadata=metadata
+            )
+        else:
+            postprocessing_results = inference_results
+
+        prediction = self._converter.convert_to_prediction(
+            postprocessing_results, image_shape=metadata["original_shape"]
+        )
+
+        # Add optional explainability outputs
+        if explain:
+            if not self._tiling_enabled:
+                saliency_map, repr_vector = self._postprocess_explain_outputs(
+                    inference_results=inference_results, metadata=metadata
+                )
+            else:
+                repr_vector = postprocessing_results.feature_vector
+                saliency_map = postprocessing_results.saliency_map
+
+            prediction.feature_vector = repr_vector
+            result_medium = ResultMedium(name="saliency map", type="saliency map")
+            result_medium.data = saliency_map
+            prediction.maps = [result_medium]
+        return prediction
 
     def infer_queue_full(self) -> bool:
         """
