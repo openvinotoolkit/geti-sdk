@@ -65,7 +65,7 @@ class InferenceResultsToPredictionConverter(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def convert_saliency_map(
         self, inference_results: NamedTuple, **kwargs
-    ) -> Dict[str, np.ndarray] | None:
+    ) -> Optional[Dict[str, np.ndarray]]:
         """
         Extract a saliency map from inference results and return in a unified format.
 
@@ -129,7 +129,7 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
         self,
         inference_results: NamedTuple,
         image_shape: Tuple[int, int, int],
-    ) -> Dict[str, np.ndarray] | None | None:
+    ) -> Optional[Dict[str, np.ndarray]]:
         """
         Extract a saliency map from inference results and return in a unified format.
 
@@ -227,7 +227,7 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
         self,
         inference_results: NamedTuple,
         image_shape: Tuple[int, int, int],
-    ) -> Dict[str, np.ndarray] | None:
+    ) -> Optional[Dict[str, np.ndarray]]:
         """
         Extract a saliency map from inference results and return in a unified format.
 
@@ -398,7 +398,7 @@ class MaskToAnnotationConverter(InferenceResultsToPredictionConverter):
         self,
         inference_results: NamedTuple,
         image_shape: Tuple[int, int, int],
-    ) -> Dict[str, np.ndarray] | None:
+    ) -> Optional[Dict[str, np.ndarray]]:
         """
         Extract a saliency map from inference results and return in a unified format.
 
@@ -449,7 +449,7 @@ class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
         self,
         inference_results: NamedTuple,
         image_shape: Tuple[int, int, int],
-    ) -> Dict[str, np.ndarray] | None:
+    ) -> Optional[Dict[str, np.ndarray]]:
         """
         Extract a saliency map from inference results and return in a unified format.
 
@@ -551,7 +551,7 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
         self,
         inference_results: NamedTuple,
         image_shape: Tuple[int, int, int],
-    ) -> Dict[str, np.ndarray] | None:
+    ) -> Optional[Dict[str, np.ndarray]]:
         """
         Extract a saliency map from inference results and return in a unified format.
 
