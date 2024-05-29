@@ -100,6 +100,7 @@ class Visualizer:
         prediction: Prediction,
         label_name: str,
         opacity: float = 0.5,
+        show_predictions: bool = True,
     ):
         """
         Draw saliency map overlay on the image.
@@ -129,6 +130,9 @@ class Visualizer:
         overlay = cv2.applyColorMap(saliency_map, cv2.COLORMAP_JET)
         overlay = cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB)
         result = cv2.addWeighted(image, 1 - opacity, overlay, opacity, 0)
+        if show_predictions:
+            filtered_prediction = prediction.filter_annotations([label_name])
+            result = self.draw(result, filtered_prediction, fill_shapes=False)
         return result
 
     def show(self, image: np.ndarray) -> None:

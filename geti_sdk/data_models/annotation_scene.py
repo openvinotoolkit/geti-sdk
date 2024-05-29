@@ -368,16 +368,18 @@ class AnnotationScene:
         )
 
     def filter_annotations(
-        self, labels: Sequence[Union[Label, ScoredLabel]]
+        self, labels: Sequence[Union[Label, ScoredLabel, str]]
     ) -> "AnnotationScene":
         """
         Filter annotations in the scene to only include labels that are present in the
         provided list of labels.
 
-        :param labels: List of labels to filter the scene with
+        :param labels: List of labels or label names to filter the scene with
         :return: AnnotationScene with filtered annotations
         """
-        label_names_to_keep = {label.name for label in labels}
+        label_names_to_keep = {
+            label if type(label) == str else label.name for label in labels
+        }
         filtered_annotations: List[Annotation] = []
         for annotation in self.annotations:
             for label_name in annotation.label_names:

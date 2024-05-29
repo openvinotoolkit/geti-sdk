@@ -65,7 +65,7 @@ class InferenceResultsToPredictionConverter(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def convert_saliency_map(
         self, inference_results: NamedTuple, **kwargs
-    ) -> Dict[str, np.ndarray]:
+    ) -> Dict[str, np.ndarray] | None:
         """
         Extract a saliency map from inference results and return in a unified format.
 
@@ -129,7 +129,7 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
         self,
         inference_results: NamedTuple,
         image_shape: Tuple[int, int, int],
-    ) -> Dict[str, np.ndarray]:
+    ) -> Dict[str, np.ndarray] | None | None:
         """
         Extract a saliency map from inference results and return in a unified format.
 
@@ -137,9 +137,11 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
         :param image_shape: shape of the input image
         :return: Prediction object with corresponding label
         """
-        saliency_map = inference_results.saliency_map.squeeze(0)
+        saliency_map = inference_results.saliency_map
+        if not saliency_map:
+            return None
         saliency_map = cv2.resize(
-            np.transpose(saliency_map, (1, 2, 0)),
+            np.transpose(saliency_map.squeeze(0), (1, 2, 0)),
             dsize=(image_shape[1], image_shape[0]),
             interpolation=cv2.INTER_CUBIC,
         )
@@ -225,7 +227,7 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
         self,
         inference_results: NamedTuple,
         image_shape: Tuple[int, int, int],
-    ) -> Dict[str, np.ndarray]:
+    ) -> Dict[str, np.ndarray] | None:
         """
         Extract a saliency map from inference results and return in a unified format.
 
@@ -233,9 +235,11 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
         :param image_shape: shape of the input image
         :return: Prediction object with corresponding label
         """
-        saliency_map = inference_results.saliency_map.squeeze(0)
+        saliency_map = inference_results.saliency_map
+        if not saliency_map:
+            return None
         saliency_map = cv2.resize(
-            np.transpose(saliency_map, (1, 2, 0)),
+            np.transpose(saliency_map.squeeze(0), (1, 2, 0)),
             dsize=(image_shape[1], image_shape[0]),
             interpolation=cv2.INTER_CUBIC,
         )
@@ -394,7 +398,7 @@ class MaskToAnnotationConverter(InferenceResultsToPredictionConverter):
         self,
         inference_results: NamedTuple,
         image_shape: Tuple[int, int, int],
-    ) -> Dict[str, np.ndarray]:
+    ) -> Dict[str, np.ndarray] | None:
         """
         Extract a saliency map from inference results and return in a unified format.
 
@@ -445,7 +449,7 @@ class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
         self,
         inference_results: NamedTuple,
         image_shape: Tuple[int, int, int],
-    ) -> Dict[str, np.ndarray]:
+    ) -> Dict[str, np.ndarray] | None:
         """
         Extract a saliency map from inference results and return in a unified format.
 
@@ -453,9 +457,10 @@ class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
         :param image_shape: shape of the input image
         :return: Prediction object with corresponding label
         """
-        saliency_map = np.transpose(
-            inference_results.saliency_map, (2, 0, 1)
-        )  # shape: (N classes, h, w)
+        saliency_map = inference_results.saliency_map
+        if not saliency_map:
+            return None
+        saliency_map = np.transpose(saliency_map, (2, 0, 1))  # shape: (N classes, h, w)
         return {label.name: saliency_map[i] for i, label in enumerate(self.labels)}
 
 
@@ -546,7 +551,7 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
         self,
         inference_results: NamedTuple,
         image_shape: Tuple[int, int, int],
-    ) -> Dict[str, np.ndarray]:
+    ) -> Dict[str, np.ndarray] | None:
         """
         Extract a saliency map from inference results and return in a unified format.
 
