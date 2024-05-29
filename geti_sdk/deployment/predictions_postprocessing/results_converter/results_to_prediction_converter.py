@@ -138,7 +138,7 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
         :return: Prediction object with corresponding label
         """
         saliency_map = inference_results.saliency_map
-        if not saliency_map:
+        if len(saliency_map) == 0:
             return None
         saliency_map = cv2.resize(
             np.transpose(saliency_map.squeeze(0), (1, 2, 0)),
@@ -236,7 +236,7 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
         :return: Prediction object with corresponding label
         """
         saliency_map = inference_results.saliency_map
-        if not saliency_map:
+        if len(saliency_map) == 0:
             return None
         saliency_map = cv2.resize(
             np.transpose(saliency_map.squeeze(0), (1, 2, 0)),
@@ -458,10 +458,10 @@ class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
         :return: Prediction object with corresponding label
         """
         saliency_map = inference_results.saliency_map
-        if not saliency_map:
+        if len(saliency_map) == 0:
             return None
         saliency_map = np.transpose(saliency_map, (2, 0, 1))  # shape: (N classes, h, w)
-        return {label.name: saliency_map[i] for i, label in enumerate(self.labels)}
+        return {label.name: saliency_map[i + 1] for i, label in enumerate(self.labels)}
 
 
 class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
