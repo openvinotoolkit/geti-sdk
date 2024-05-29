@@ -367,6 +367,29 @@ class AnnotationScene:
             modified=self.modified,
         )
 
+    def filter_annotations(
+        self, labels: Sequence[Union[Label, ScoredLabel]]
+    ) -> "AnnotationScene":
+        """
+        Filter annotations in the scene to only include labels that are present in the
+        provided list of labels.
+
+        :param labels: List of labels to filter the scene with
+        :return: AnnotationScene with filtered annotations
+        """
+        label_names_to_keep = {label.name for label in labels}
+        filtered_annotations: List[Annotation] = []
+        for annotation in self.annotations:
+            for label_name in annotation.label_names:
+                if label_name in label_names_to_keep:
+                    filtered_annotations.append(annotation)
+                    break
+        return AnnotationScene(
+            annotations=filtered_annotations,
+            media_identifier=self.media_identifier,
+            modified=self.modified,
+        )
+
     def resolve_label_names_and_colors(self, labels: List[Label]) -> None:
         """
         Add label names and colors to all annotations, based on a list of available

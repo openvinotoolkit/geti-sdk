@@ -88,6 +88,7 @@ class DeployedModel(OptimizedModel):
         Initialize private attributes
         """
         super().__attrs_post_init__()
+        self._domain: Optional[Domain] = None
         self._model_data_path: Optional[str] = None
         self._model_python_path: Optional[str] = None
         self._needs_tempdir_deletion: bool = False
@@ -300,6 +301,7 @@ class DeployedModel(OptimizedModel):
         self._converter = ConverterFactory.create_converter(
             self.label_schema, configuration
         )
+        self._domain = ConverterFactory._get_labels_domain(self.label_schema)
 
         model = model_api_Model.create_model(
             model=model_adapter,
@@ -321,11 +323,9 @@ class DeployedModel(OptimizedModel):
 
         if enable_tiling:
             logging.info("Tiling is enabled for this model, initializing Tiler")
-            tiler_type = TILER_MAPPING.get(self._converter.domain, None)
+            tiler_type = TILER_MAPPING.get(self._domain, None)
             if tiler_type is None:
-                raise ValueError(
-                    f"Tiling is not supported for domain {self._converter.domain}"
-                )
+                raise ValueError(f"Tiling is not supported for domain {self._domain}")
             self._tiler = tiler_type(model=model, execution_mode="sync")
             self._tiling_enabled = True
 
@@ -489,99 +489,6 @@ class DeployedModel(OptimizedModel):
         """
         return self._inference_model.postprocess(inference_results, metadata)
 
-    def _postprocess_explain_outputs(
-        self,
-        inference_results: Dict[str, np.ndarray],
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Postprocess the model outputs to obtain saliency maps, feature vectors and
-        active scores.
-
-        :param inference_results: Dictionary holding the results of inference
-        :param metadata: Dictionary holding metadata
-        :return: Tuple containing postprocessed outputs, formatted as follows:
-            - Numpy array containing the saliency map
-            - Numpy array containing the feature vector
-        """
-        if self._saliency_location is None and self._feature_vector_location is None:
-            # When running postprocessing for the first time, we need to determine the
-            # key and location of the saliency map and feature vector.
-            if hasattr(self._inference_model, "postprocess_aux_outputs"):
-                (
-                    _,
-                    saliency_map,
-                    repr_vector,
-                    _,
-                ) = self._inference_model.postprocess_aux_outputs(
-                    inference_results, metadata
-                )
-                self._saliency_location = "aux"
-                self._feature_vector_location = "aux"
-            else:
-                # Check all possible saliency map keys in outputs and metadata
-                if SALIENCY_KEY in inference_results.keys():
-                    saliency_map = inference_results[SALIENCY_KEY]
-                    self._saliency_location = "output"
-                    self._saliency_key = SALIENCY_KEY
-                elif SALIENCY_KEY in metadata.keys():
-                    saliency_map = metadata[SALIENCY_KEY]
-                    self._saliency_location = "meta"
-                    self._saliency_key = SALIENCY_KEY
-                elif ANOMALY_SALIENCY_KEY in metadata.keys():
-                    saliency_map = metadata[ANOMALY_SALIENCY_KEY]
-                    self._saliency_location = "meta"
-                    self._saliency_key = ANOMALY_SALIENCY_KEY
-                elif SEGMENTATION_SALIENCY_KEY in metadata.keys():
-                    saliency_map = metadata[SEGMENTATION_SALIENCY_KEY]
-                    self._saliency_location = "meta"
-                    self._saliency_key = SEGMENTATION_SALIENCY_KEY
-                else:
-                    logging.warning("No saliency map found in model output")
-                    saliency_map = None
-
-                # Check all possible feature vector keys in outputs and metadata
-                if FEATURE_VECTOR_KEY in inference_results.keys():
-                    repr_vector = inference_results[FEATURE_VECTOR_KEY]
-                    self._feature_vector_location = "output"
-                    self._feature_vector_key = FEATURE_VECTOR_KEY
-                elif FEATURE_VECTOR_KEY in metadata.keys():
-                    repr_vector = metadata[FEATURE_VECTOR_KEY]
-                    self._feature_vector_location = "meta"
-                    self._feature_vector_key = FEATURE_VECTOR_KEY
-                else:
-                    logging.warning("No feature vector found in model output")
-                    repr_vector = None
-        else:
-            # If location of feature vector and saliency map are already known, we can
-            # use them directly
-            if self._saliency_location == "aux":
-                (
-                    _,
-                    saliency_map,
-                    repr_vector,
-                    _,
-                ) = self._inference_model.postprocess_aux_outputs(
-                    inference_results, metadata
-                )
-                return saliency_map, repr_vector
-            elif self._saliency_location == "meta":
-                saliency_map = metadata[self._saliency_key]
-            elif self._saliency_location == "output":
-                saliency_map = inference_results[self._saliency_key]
-            else:
-                logging.warning("No saliency map found in model output")
-                saliency_map = None
-            if self._feature_vector_location == "meta":
-                repr_vector = metadata[self._feature_vector_key]
-            elif self._feature_vector_location == "output":
-                repr_vector = inference_results[self._feature_vector_key]
-
-            else:
-                logging.warning("No feature vector found in model output")
-                repr_vector = None
-        return saliency_map, repr_vector
-
     def infer(self, image: np.ndarray, explain: bool = False) -> Prediction:
         """
         Run inference on an already preprocessed image.
@@ -608,18 +515,13 @@ class DeployedModel(OptimizedModel):
 
         # Add optional explainability outputs
         if explain:
-            if not self._tiling_enabled:
-                saliency_map, repr_vector = self._postprocess_explain_outputs(
-                    inference_results=inference_results, metadata=metadata
-                )
-            else:
-                repr_vector = postprocessing_results.feature_vector
-                saliency_map = postprocessing_results.saliency_map
-
-            prediction.feature_vector = repr_vector
+            if hasattr(postprocessing_results, "feature_vector"):
+                prediction.feature_vector = postprocessing_results.feature_vector
             result_medium = ResultMedium(name="saliency map", type="saliency map")
-            result_medium.data = saliency_map
-            prediction.maps = [result_medium]
+            result_medium.data = self._converter.convert_saliency_map(
+                postprocessing_results, image_shape=image.shape
+            )
+            prediction.maps.append(result_medium)
 
         return prediction
 
