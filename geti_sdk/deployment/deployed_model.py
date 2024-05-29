@@ -350,12 +350,14 @@ class DeployedModel(OptimizedModel):
                 raise ValueError(
                     f"Tiling is not supported for domain {self._converter.domain}"
                 )
-            classifier_name = "tile_classifier.xml"
-            tiler_arguments = {"model": model, "execution_mode": "async"}
+            classifier_name = "tile_classifier"
+            tiler_arguments = {"model": model, "execution_mode": "sync"}
             if classifier_name in os.listdir(self.model_data_path):
+                classifier_path = os.path.join(self.model_data_path, classifier_name)
                 tile_classifier_model = model_api_Model.create_model(
-                    model=os.path.join(self.model_data_path, classifier_name),
-                    core=core,
+                    model=classifier_path + ".xml",
+                    weights_path=classifier_path + ".bin",
+                    core=None,
                     preload=True,
                 )
                 tiler_arguments.update({"tile_classifier_model": tile_classifier_model})
