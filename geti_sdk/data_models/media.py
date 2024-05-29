@@ -15,6 +15,7 @@
 import abc
 import os
 import tempfile
+from multiprocessing import Lock
 from pprint import pformat
 from typing import Any, Dict, List, Optional, Union
 
@@ -308,6 +309,7 @@ class Video(MediaItem):
         """
         self._data: Optional[str] = None
         self._needs_tempfile_deletion: bool = False
+        self._data_lock: Lock = Lock()
 
     @property
     def identifier(self) -> VideoIdentifier:
@@ -396,9 +398,10 @@ class Video(MediaItem):
         Clean up the temporary file created to store the video data (if any). This
         method is called when the Video object is deleted.
         """
-        if self._needs_tempfile_deletion:
-            if os.path.exists(self._data):
-                os.remove(self._data)
+        with self._data_lock:
+            if self._needs_tempfile_deletion:
+                if os.path.exists(self._data) and os.path.isfile(self._data):
+                    os.remove(self._data)
 
 
 @attr.define(slots=False)

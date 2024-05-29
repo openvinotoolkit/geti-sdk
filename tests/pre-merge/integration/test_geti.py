@@ -590,6 +590,9 @@ class TestGeti:
         image_np = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
         _ = deployment.infer(image_np)
 
+        # Small delay to ensure that the hooks have time to run
+        time.sleep(1)
+
         dataset_client = DatasetClient(
             session=fxt_geti.session,
             workspace_id=fxt_geti.workspace_id,

@@ -301,23 +301,25 @@ class GetiSession(requests.Session):
         else:
             self.headers.pop("x-geti-csrf-protection", "")
 
-        try:
-            response = self.request(**request_params, proxies=self._proxies)
-        except requests.exceptions.SSLError as error:
-            raise requests.exceptions.SSLError(
-                f"Connection to Intel® Geti™ server at '{self.config.host}' failed, "
-                f"the server address can be resolved but the SSL certificate could not "
-                f"be verified. \n Full error description: {error.args[-1]}"
-            )
-        except ConnectionError as conn_error:
-            if conn_error.args[0] == "Connection aborted.":
-                # We fake a response and try to establish a
-                # new connection by re-authenticating
-                response = Response()
-                response.status_code = 401
-                response.raw = conn_error.args[-1]
-            else:
-                raise conn_error
+        # Make the request, retrying a maximum of 5 times in case of connection errors
+        retries = 5
+        last_conn_error: Optional[ConnectionError] = None
+        while retries:
+            try:
+                response = self.request(**request_params, proxies=self._proxies)
+                break
+            except requests.exceptions.SSLError as error:
+                raise requests.exceptions.SSLError(
+                    f"Connection to Intel® Geti™ server at '{self.config.host}' failed, "
+                    f"the server address can be resolved but the SSL certificate could not "
+                    f"be verified. \n Full error description: {error.args[-1]}"
+                )
+            except ConnectionError as conn_error:
+                last_conn_error = conn_error
+                retries -= 1
+
+        if last_conn_error is not None:
+            raise last_conn_error
 
         response_content_type = response.headers.get("Content-Type", [])
         if (
