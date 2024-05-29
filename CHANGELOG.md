@@ -1,3 +1,11 @@
+# v2.0.1 Intel® Geti™ SDK (29-05-2024)
+## What's Changed
+* Add retry mechanism to better handle `ConnectionError` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/420
+* Undo changes to video tempfile handling, register atexit handler for tempfile deletion by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/423
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v2.0.0...v2.0.1
+
 # v2.0.0 Intel® Geti™ SDK (16-05-2024)
 ## New features
 This release introduces a new feature related to model deployment: post-inference hooks! A post-inference hook can be added to any `Deployment`, and will be executed after every inference request (i.e. every call to `deployment.infer()`). The hooks allow you to define specific actions to take under certain conditions. For example, a hook could implement the following behaviour:
