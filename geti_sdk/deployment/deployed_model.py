@@ -251,8 +251,8 @@ class DeployedModel(OptimizedModel):
             # Run the model locally
             model_adapter = OpenvinoAdapter(
                 core,
-                model=os.path.join(self._model_data_path, "model.xml"),
-                weights_path=os.path.join(self._model_data_path, "model.bin"),
+                model=os.path.join(self.model_data_path, "model.xml"),
+                weights_path=os.path.join(self.model_data_path, "model.bin"),
                 device=device,
                 plugin_config=plugin_configuration,
                 max_num_requests=max_async_infer_requests,
@@ -296,7 +296,7 @@ class DeployedModel(OptimizedModel):
                     )
 
         # Load model configuration
-        config_path = os.path.join(self._model_data_path, "config.json")
+        config_path = os.path.join(self.model_data_path, "config.json")
         if not os.path.isfile(config_path):
             raise ValueError(
                 f"Missing configuration file `config.json` for deployed model `{self}`,"
@@ -350,7 +350,16 @@ class DeployedModel(OptimizedModel):
                 raise ValueError(
                     f"Tiling is not supported for domain {self._converter.domain}"
                 )
-            self._tiler = tiler_type(model=model, execution_mode="async")
+            classifier_name = "tile_classifier.xml"
+            tiler_arguments = {"model": model, "execution_mode": "async"}
+            if classifier_name in os.listdir(self.model_data_path):
+                tile_classifier_model = model_api_Model.create_model(
+                    model=os.path.join(self.model_data_path, classifier_name),
+                    core=core,
+                    preload=True,
+                )
+                tiler_arguments.update({"tile_classifier_model": tile_classifier_model})
+            self._tiler = tiler_type(**tiler_arguments)
             self._tiling_enabled = True
 
         # TODO: This is a workaround to fix the issue that causes the output blob name
@@ -682,6 +691,11 @@ class DeployedModel(OptimizedModel):
                 objects
 
         """
+        if self._tiling_enabled:
+            raise ValueError(
+                "Asynchronous inference mode is not supported with models that use "
+                "Tiling. Please use the synchronous inference mode instead."
+            )
 
         def full_callback(infer_request, async_metadata: Dict[str, Any]):
             # Basic postprocessing, convert to `Prediction` object
