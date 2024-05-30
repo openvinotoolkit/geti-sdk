@@ -350,6 +350,10 @@ class DeployedModel(OptimizedModel):
                 raise ValueError(
                     f"Tiling is not supported for domain {self._converter.domain}"
                 )
+            # InstanceSegmentationTiler supports a `tile_classifier` model, which is
+            # used to filter tiles based on their objectness score. The tile
+            # classifier model will be exported to the same directory as the instance
+            # segmentation model. If it's there, we will load it and add it to the Tiler
             classifier_name = "tile_classifier"
             tiler_arguments = {"model": model, "execution_mode": "sync"}
             if classifier_name in os.listdir(self.model_data_path):
@@ -357,7 +361,7 @@ class DeployedModel(OptimizedModel):
                 tile_classifier_model = model_api_Model.create_model(
                     model=classifier_path + ".xml",
                     weights_path=classifier_path + ".bin",
-                    core=None,
+                    core=core,
                     preload=True,
                 )
                 tiler_arguments.update({"tile_classifier_model": tile_classifier_model})
