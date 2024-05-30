@@ -21,6 +21,7 @@ import cv2
 import numpy as np
 
 from geti_sdk.data_models.annotation_scene import AnnotationScene
+from geti_sdk.data_models.predictions import Prediction
 from geti_sdk.prediction_visualization.shape_drawer import ShapeDrawer
 
 
@@ -91,6 +92,52 @@ class Visualizer:
         result = self.shape_drawer.draw(
             image, annotation, labels=[], fill_shapes=fill_shapes
         )
+        return result
+
+    def explain_label(
+        self,
+        image: np.ndarray,
+        prediction: Prediction,
+        label_name: str,
+        opacity: float = 0.5,
+        show_predictions: bool = True,
+    ) -> np.ndarray:
+        """
+        Draw saliency map overlay on the image.
+
+        :param image: Input image in RGB format
+        :param prediction: Prediction object containing saliency maps
+        :param label_name: Label name to be explained
+        :param opacity: Opacity of the saliency map overlay
+        :param show_predictions: Show predictions for the label on the output image
+        :return: Output image with saliency map overlay in RGB format
+        """
+        saliency_map = None
+        for pred_map in prediction.maps:
+            if pred_map.type == "saliency map":
+                saliency_map = pred_map.data
+                break
+        if saliency_map is None:
+            raise ValueError("Prediction does not contain saliency maps")
+        if label_name not in saliency_map:
+            raise ValueError(
+                f"Saliency map for label {label_name} is not found in the prediction."
+            )
+        # Accessing the saliency map for the label
+        saliency_map = saliency_map[label_name]
+        if saliency_map.shape[:2] != image.shape[:2]:
+            saliency_map = cv2.resize(
+                saliency_map,
+                (image.shape[1], image.shape[0]),
+                interpolation=cv2.INTER_CUBIC,
+            )
+        # Visualizing the saliency map
+        overlay = cv2.applyColorMap(saliency_map, cv2.COLORMAP_JET)
+        overlay = cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB)
+        result = cv2.addWeighted(image, 1 - opacity, overlay, opacity, 0)
+        if show_predictions:
+            filtered_prediction = prediction.filter_annotations([label_name])
+            result = self.draw(result, filtered_prediction, fill_shapes=False)
         return result
 
     def show(self, image: np.ndarray) -> None:
