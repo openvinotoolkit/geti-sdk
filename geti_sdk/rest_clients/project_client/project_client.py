@@ -78,10 +78,7 @@ class ProjectClient:
         :return: List of Project objects, containing the project information for each
             project on the Intel® Geti™ server
         """
-        if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
-            project_key = "items"
-        else:
-            project_key = "projects"
+        project_key = "projects"
         num_total_projects_key = "project_counts"
 
         # The 'projects' endpoint uses pagination: multiple HTTP may be necessary to
@@ -100,24 +97,59 @@ class ProjectClient:
             for project in project_rest_list
         ]
         if get_project_details:
-            return [self._get_project_detail(project) for project in project_list]
+            project_detail_list: List[Project] = []
+            for project in project_list:
+                try:
+                    project_detail_list.append(self._get_project_detail(project))
+                except GetiRequestException as e:
+                    if e.status_code == 403:
+                        logging.info(
+                            f"Unable to access project `{project.name}` details: Unauthorized."
+                        )
+                        project_detail_list.append(project)
         else:
             return project_list
 
-    def get_project_by_name(self, project_name: str) -> Optional[Project]:
+    def get_project_by_name(
+        self, project_name: str, project_id: Optional[str] = None
+    ) -> Optional[Project]:
         """
         Get a project from the Intel® Geti™ server by project_name.
 
         :param project_name: Name of the project to get
+        :param project_id: Optional ID of the project to get. Only used if more than
+            one project named `project_name` exists in the workspace.
+        :raises: ValueError in case multiple projects with the specified name exist on
+            the server, and no `project_id` is provided in order to allow unique
+            identification of the project.
         :return: Project object containing the data of the project, if the project is
             found on the server. Returns None if the project doesn't exist
         """
         project_list = self.get_all_projects(get_project_details=False)
-        project_entry = next(
-            (project for project in project_list if project.name == project_name), None
-        )
-        if project_entry is not None:
-            return self._get_project_detail(project_entry)
+        matches = [project for project in project_list if project.name == project_name]
+        if len(matches) == 1:
+            return self._get_project_detail(matches[0])
+        elif len(matches) > 1:
+            if project_id is None:
+                raise ValueError(
+                    f"A total of {len(matches)} projects named `{project_name}` were "
+                    f"found in the workspace. Unable to uniquely identify the "
+                    f"desired project. Please provide a `project_id` to ensure the "
+                    f"proper project is returned."
+                )
+            else:
+                id_matches = [
+                    project for project in matches if project.id == project_id
+                ]
+                if len(id_matches) == 1:
+                    return id_matches[0]
+                else:
+                    logging.info(
+                        f"Projects with name `{project_name}` were found, but none of "
+                        f"the project ID's `{[p.id for p in matches]}` matches the "
+                        f"requested id `{project_id}`."
+                    )
+                    return None
         else:
             return None
 
@@ -139,7 +171,7 @@ class ProjectClient:
         project = self.get_project_by_name(project_name)
         if project is not None:
             logging.info(
-                f"Project with name {project_name} already exists, continuing with "
+                f"Project with name {project_name} exists, continuing with "
                 f"exiting project. No new project has been created."
             )
         else:
@@ -168,22 +200,15 @@ class ProjectClient:
             the workspace
         :return: Project object, as created on the cluster
         """
-        project = self.get_project_by_name(project_name)
-        if project is not None:
-            raise ValueError(
-                f"Project with name '{project_name}' already exists, unable to create "
-                f"project."
-            )
-        else:
-            project_template = self._create_project_template(
-                project_name=project_name, project_type=project_type, labels=labels
-            )
-            project = self.session.get_rest_response(
-                url=f"{self.base_url}projects", method="POST", data=project_template
-            )
-            logging.info("Project created successfully.")
-            project = ProjectRESTConverter.from_dict(project)
-            self._await_project_ready(project=project)
+        project_template = self._create_project_template(
+            project_name=project_name, project_type=project_type, labels=labels
+        )
+        project = self.session.get_rest_response(
+            url=f"{self.base_url}projects", method="POST", data=project_template
+        )
+        logging.info("Project created successfully.")
+        project = ProjectRESTConverter.from_dict(project)
+        self._await_project_ready(project=project)
         return project
 
     def download_project_info(self, project_name: str, path_to_folder: str) -> None:
