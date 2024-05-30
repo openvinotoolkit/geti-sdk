@@ -163,7 +163,6 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
         self, label_schema: LabelSchema, configuration: Optional[Dict[str, Any]] = None
     ):
         self.labels = label_schema.get_labels(include_empty=False)
-        # self.label_map = dict(enumerate(self.labels))
         self.use_ellipse_shapes = False
         self.confidence_threshold = 0.0
         if configuration is not None:

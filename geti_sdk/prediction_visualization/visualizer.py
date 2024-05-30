@@ -109,6 +109,7 @@ class Visualizer:
         :param prediction: Prediction object containing saliency maps
         :param label_name: Label name to be explained
         :param opacity: Opacity of the saliency map overlay
+        :param show_predictions: Show predictions for the label on the output image
         :return: Output image with saliency map overlay in RGB format
         """
         saliency_map = None
@@ -125,7 +126,11 @@ class Visualizer:
         # Accessing the saliency map for the label
         saliency_map = saliency_map[label_name]
         if saliency_map.shape[:2] != image.shape[:2]:
-            saliency_map = cv2.resize(saliency_map, (image.shape[1], image.shape[0]))
+            saliency_map = cv2.resize(
+                saliency_map,
+                (image.shape[1], image.shape[0]),
+                interpolation=cv2.INTER_CUBIC,
+            )
         # Visualizing the saliency map
         overlay = cv2.applyColorMap(saliency_map, cv2.COLORMAP_JET)
         overlay = cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB)
