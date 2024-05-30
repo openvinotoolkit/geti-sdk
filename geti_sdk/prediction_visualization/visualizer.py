@@ -101,7 +101,7 @@ class Visualizer:
         label_name: str,
         opacity: float = 0.5,
         show_predictions: bool = True,
-    ):
+    ) -> np.ndarray:
         """
         Draw saliency map overlay on the image.
 
