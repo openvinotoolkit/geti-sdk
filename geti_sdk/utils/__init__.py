@@ -36,7 +36,6 @@ from .plot_helpers import (
 )
 from .project_helpers import get_project_folder_name, get_task_types_by_project_type
 from .serialization_helpers import deserialize_dictionary
-from .video_helpers import AsyncVideoProcessor
 from .workspace_helpers import get_default_workspace_id
 
 __all__ = [
@@ -53,5 +52,4 @@ __all__ = [
     "get_project_folder_name",
     "generate_unique_label_color",
     "get_default_algorithm_info",
-    "AsyncVideoProcessor",
 ]

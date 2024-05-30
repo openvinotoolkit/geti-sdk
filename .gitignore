@@ -33,6 +33,7 @@ dist
 /notebooks/projects
 /notebooks/benchmarks
 /notebooks/output
+/notebooks/hook_data
 
 # Use case notebook data
 /notebooks/use_cases/deployments
