@@ -15,6 +15,7 @@
 import logging
 import time
 from dataclasses import dataclass, field
+from multiprocessing import Value
 from queue import Empty, PriorityQueue
 from typing import Any, Optional
 
@@ -59,6 +60,8 @@ class OrderedResultBuffer:
         self._queue = PriorityQueue[IndexedResult](**queue_args)
         self._minsize = minsize
         self.__queue_args = queue_args
+        self._put_count = Value("i", 0)
+        self._get_count = Value("i", 0)
 
         if maxsize is not None and minsize >= maxsize:
             raise ValueError("minsize must be smaller than maxsize")
@@ -88,6 +91,8 @@ class OrderedResultBuffer:
             index=index, image=image, prediction=prediction, runtime_data=runtime_data
         )
         self._queue.put(queue_item)
+        with self._put_count.get_lock():
+            self._put_count.value += 1
 
     def get(self, timeout: int = 0, empty_buffer: bool = False) -> IndexedResult:
         """
@@ -100,6 +105,7 @@ class OrderedResultBuffer:
             the prediction and any additional data assigned at runtime
         """
         t_start = time.time()
+        item: Optional[IndexedResult] = None
         if not empty_buffer:
             while timeout == 0 or t_start - time.time() < timeout:
                 if self._queue.qsize() > self._minsize:
@@ -109,17 +115,25 @@ class OrderedResultBuffer:
                     except Empty:
                         time.sleep(1e-9)
                         continue
-                    return item
+                    break
                 time.sleep(1e-9)
         else:
-            item = self._queue.get(block=True, timeout=timeout)
-            return item
+            item = self._queue.get(block=True, timeout=timeout + 1e-9)
+        if item is None:
+            raise Empty
+        with self._get_count.get_lock():
+            self._get_count.value += 1
+        return item
 
     def reset(self) -> None:
         """
         Clear all remaining items from the buffer, and reset the index.
         """
         self._queue = PriorityQueue[IndexedResult](**self.__queue_args)
+        with self._put_count.get_lock():
+            self._put_count.value = 0
+        with self._get_count.get_lock():
+            self._get_count.value = 0
 
     @property
     def is_empty(self) -> bool:
@@ -129,3 +143,19 @@ class OrderedResultBuffer:
         :return: True if the buffer is empty, False otherwise
         """
         return self._queue.qsize() == 0
+
+    @property
+    def total_items_buffered(self) -> int:
+        """
+        Return the total number of items that have been put to the buffer
+        """
+        with self._put_count.get_lock():
+            return self._put_count.value
+
+    @property
+    def current_buffer_size(self) -> int:
+        """
+        Return the number of items that are currently in the buffer
+        """
+        with self._put_count.get_lock(), self._get_count.get_lock():
+            return self._put_count.value - self._get_count.value()

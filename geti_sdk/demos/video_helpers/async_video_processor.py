@@ -81,7 +81,9 @@ class AsyncVideoProcessor:
         self._should_stop: bool = False
         self._should_stop_now: bool = False
         self._is_running: bool = False
-        self.current_index = Value("i", 0)
+        self._min_buffer_size = min_buffer_size
+        self._current_index = Value("i", 0)
+        self._processed_count = Value("i", 0)
 
         if deployment.asynchronous_mode:
             logging.info(
@@ -124,6 +126,16 @@ class AsyncVideoProcessor:
         :param num_frames: Optional integer specifying the length of the video to
             process. When processing a continuous stream, leave this as None
         """
+        if self._is_running:
+            raise ValueError("The processing thread is already running.")
+
+        # Reset the index
+        with self._current_index.get_lock():
+            self._current_index.value = 0
+
+        # Reset the processing count
+        with self._processed_count.get_lock():
+            self._processed_count.value = 0
 
         def process_items():
             """
@@ -133,41 +145,63 @@ class AsyncVideoProcessor:
                 if self._should_stop_now:
                     logging.debug("Stopping processing thread immediately")
                     return
+
+                # Check if all frames have been inferred and put to the buffer already
                 all_frames_inferred = False
                 if num_frames is not None:
-                    all_frames_inferred = self.current_index.value == num_frames
-                empty_buffer = self._should_stop or all_frames_inferred
+                    all_frames_inferred = (
+                        self.buffer.total_items_buffered == num_frames - 1
+                    )
+
+                # In case of the `should_stop` signal, check if the buffer has reached
+                # it's minimum size yet. If so, we can start to empty it
+                processed_up_to_min_buffer = False
+                if self._should_stop:
+                    with (
+                        self._current_index.get_lock(),
+                        self._processed_count.get_lock(),
+                    ):
+                        if (
+                            self._current_index.value - self._processed_count.value
+                            <= self._min_buffer_size
+                        ):
+                            processed_up_to_min_buffer = True
+                empty_buffer = processed_up_to_min_buffer or all_frames_inferred
+
+                # Get the item from the buffer
                 try:
                     item = self.buffer.get(empty_buffer=empty_buffer)
                 except Empty:
-                    # If empty_buffer == False, buffer.get will block until we have
-                    # at least minsize items in the buffer. So Empty will only be
-                    # raised when all items have been processed.
-                    logging.debug("Buffer is empty, stopping thread")
-                    self._is_running = False
-                    return
+                    with (
+                        self._processed_count.get_lock(),
+                        self._current_index.get_lock(),
+                    ):
+                        if self._processed_count.value == self._current_index.value:
+                            # Buffer is empty, all items have been processed.
+                            # Stop thread
+                            return
+                    time.sleep(1e-12)
+                    continue
+
                 self.processing_function(item.image, item.prediction, item.runtime_data)
+                with self._processed_count.get_lock():
+                    self._processed_count.value += 1
 
         self._worker = Thread(target=process_items, daemon=False)
         self._worker.start()
         self._is_running = True
-        logging.info("AsyncVideoProcessor: Processing thread started")
+        logging.debug("AsyncVideoProcessor: Processing thread started")
 
-    def stop(self, wait: bool = True):
+    def stop(self):
         """
-        Stop the processing thread
-
-        :param wait: If True, wait until all frames left in the buffer have been
-            processed. If False, stop immediately.
+        Stop the processing thread immediately. Any items left in the buffer will not
+        be processed.
         """
-        if not self._is_running:
-            raise ValueError("The processing thread is not running, unable to stop.")
-        self._should_stop = True
-        self._should_stop_now = not wait
+        self._should_stop_now = True
         self._worker.join()
         self._is_running = False
-        self._should_stop = False
         self._should_stop_now = False
+        logging.debug("AsyncVideoProcessor: Processing thread stopped")
 
     def process(self, frame: np.ndarray, runtime_data: Optional[Any] = None):
         """
@@ -183,18 +217,28 @@ class AsyncVideoProcessor:
                 "The processing thread is not running, please start it using the "
                 "`.start()` method first."
             )
-        with self.current_index.get_lock():
-            index = self.current_index.value
-            self.deployment.infer_async(image=frame, runtime_data=(index, runtime_data))
-            self.current_index.value += 1
+        with self._current_index.get_lock():
+            self.deployment.infer_async(
+                image=frame, runtime_data=(self._current_index.value, runtime_data)
+            )
+            self._current_index.value += 1
 
     def await_all(self):
         """
         Block program execution until all frames left in the buffer have been fully
         processed.
         """
+        if not self._is_running:
+            return
+        self._should_stop = True
+        self._worker.join()
+        self._is_running = False
+        self._should_stop = False
         while True:
             if self.buffer.is_empty and not self._worker.is_alive():
                 # Buffer should be empty and worker thread should have stopped
-                return
+                break
             time.sleep(1e-9)
+        logging.debug(
+            "AsyncVideoProcessor: All frames processed. Processing thread stopped"
+        )
