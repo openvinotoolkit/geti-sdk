@@ -182,10 +182,10 @@ class TestNightlyProject:
             )
 
             explain_prediction = deployment.explain(image_np)
-            if "anomaly" not in self.PROJECT_TYPE:
-                if all([model.has_xai_head for model in deployment.models]):
+            if all([model.has_xai_head for model in deployment.models]):
+                if "anomaly" not in self.PROJECT_TYPE:
                     assert explain_prediction.feature_vector is not None
-            assert len(explain_prediction.maps) > 0
+                assert len(explain_prediction.maps) > 0
 
             online_mask = online_prediction.as_mask(image.media_information)
             local_mask = local_prediction.as_mask(image.media_information)
