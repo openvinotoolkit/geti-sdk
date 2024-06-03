@@ -225,7 +225,7 @@ class Geti:
             )
         return project
 
-    def download_project(
+    def download_project_data(
         self,
         project_name: str,
         target_folder: Optional[str] = None,
@@ -391,7 +391,7 @@ class Geti:
         logging.info(f"Project '{project.name}' was downloaded successfully.")
         return project
 
-    def upload_project(
+    def upload_project_data(
         self,
         target_folder: str,
         project_name: Optional[str] = None,
@@ -880,7 +880,7 @@ class Geti:
                 logging.info(
                     f"Downloading project '{project.name}'... {index+1}/{len(projects)}."
                 )
-                self.download_project(
+                self.download_project_data(
                     project_name=project.name,
                     target_folder=os.path.join(
                         target_folder, get_project_folder_name(project)
@@ -926,7 +926,7 @@ class Geti:
                     f"Uploading project from folder '{os.path.basename(project_folder)}'..."
                     f" {index + 1}/{len(project_folders)}."
                 )
-                project = self.upload_project(
+                project = self.upload_project_data(
                     target_folder=project_folder, enable_auto_train=False
                 )
                 projects.append(project)

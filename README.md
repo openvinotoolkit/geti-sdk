@@ -186,7 +186,7 @@ Instantiating the `Geti` class will establish the connection and perform authent
     host="https://your_server_hostname_or_ip_address", token="your_personal_access_token"
   )
 
-  geti.download_project(project_name="dummy_project")
+  geti.download_project_data(project_name="dummy_project")
   ```
 
   Here, it is assumed that the project with name 'dummy_project' exists on the cluster.
@@ -223,7 +223,7 @@ Instantiating the `Geti` class will establish the connection and perform authent
     host="https://your_server_hostname_or_ip_address", token="your_personal_access_token"
   )
 
-  geti.upload_project(target_folder="dummy_project")
+  geti.upload_project_data(target_folder="dummy_project")
   ```
 
   The parameter `target_folder` must be a valid path to the directory holding the
@@ -301,10 +301,10 @@ the screenshot below).
 ## High level API reference
 The `Geti` class provides the following methods:
 
-- `download_project` -- Downloads a project by project name.
+- `download_project_data` -- Downloads a project by project name.
 
 
-- `upload_project` -- Uploads project from a folder.
+- `upload_project_data` -- Uploads project from a folder.
 
 
 - `download_all_projects` -- Downloads all projects found on the server.

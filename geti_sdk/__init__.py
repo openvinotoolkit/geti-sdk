@@ -35,7 +35,7 @@ For example, to download a project, simply do:
      host="https://0.0.0.0", username="dummy_user", password="dummy_password"
    )
 
-   geti.download_project(project_name="dummy_project")
+   geti.download_project_data(project_name="dummy_project")
 
 For custom operations or more fine-grained control over the behavior, the
 :py:mod:`~geti_sdk.rest_clients` subpackage should be used.
@@ -48,9 +48,9 @@ Module contents
 
    .. rubric:: Project download and upload
 
-   .. automethod:: download_project
+   .. automethod:: download_project_data
 
-   .. automethod:: upload_project
+   .. automethod:: upload_project_data
 
    .. automethod:: download_all_projects
 

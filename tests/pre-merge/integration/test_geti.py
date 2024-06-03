@@ -286,7 +286,7 @@ class TestGeti:
         project = lazy_fxt_project_service.project
         target_folder = os.path.join(fxt_temp_directory, project.name)
 
-        fxt_geti.download_project(
+        fxt_geti.download_project_data(
             project.name,
             target_folder=target_folder,
             max_threads=1,
@@ -298,7 +298,7 @@ class TestGeti:
         n_images = len(os.listdir(os.path.join(target_folder, "images")))
         n_annotations = len(os.listdir(os.path.join(target_folder, "annotations")))
 
-        uploaded_project = fxt_geti.upload_project(
+        uploaded_project = fxt_geti.upload_project_data(
             target_folder=target_folder,
             project_name=f"{project.name}_upload",
             enable_auto_train=False,
@@ -660,7 +660,7 @@ class TestGeti:
         target_folder = os.path.join(
             fxt_temp_directory, project.name + "_all_inclusive"
         )
-        fxt_geti.download_project(
+        fxt_geti.download_project_data(
             project_name=project.name,
             target_folder=target_folder,
             include_predictions=True,

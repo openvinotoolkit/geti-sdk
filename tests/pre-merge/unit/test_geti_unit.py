@@ -94,7 +94,9 @@ class TestGeti:
             "geti_sdk.geti.ProjectClient.get_all_projects",
             return_value=fxt_nightly_projects,
         )
-        mock_download_project = mocker.patch.object(fxt_mocked_geti, "download_project")
+        mock_download_project_data = mocker.patch.object(
+            fxt_mocked_geti, "download_project_data"
+        )
 
         # Act
         projects = fxt_mocked_geti.download_all_projects(
@@ -103,7 +105,7 @@ class TestGeti:
 
         # Assert
         mock_get_all_projects.assert_called_once()
-        assert mock_download_project.call_count == len(projects)
+        assert mock_download_project_data.call_count == len(projects)
 
     def test_upload_all_projects(
         self,
@@ -119,11 +121,13 @@ class TestGeti:
         mock_is_project_dir = mocker.patch(
             "geti_sdk.geti.ProjectClient.is_project_dir", return_value=True
         )
-        mock_upload_project = mocker.patch.object(fxt_mocked_geti, "upload_project")
+        mock_upload_project_data = mocker.patch.object(
+            fxt_mocked_geti, "upload_project_data"
+        )
 
         # Act
         fxt_mocked_geti.upload_all_projects(target_folder=target_dir)
 
         # Assert
         assert mock_is_project_dir.call_count == len(fxt_nightly_projects)
-        assert mock_upload_project.call_count == len(fxt_nightly_projects)
+        assert mock_upload_project_data.call_count == len(fxt_nightly_projects)
