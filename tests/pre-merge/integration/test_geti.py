@@ -610,8 +610,35 @@ class TestGeti:
             assert folder_name in os.listdir(hook_data)
             assert len(os.listdir(os.path.join(hook_data, folder_name))) == 1
 
+        # Set deployment to async mode
+        results: List[Prediction] = []
+
+        def process_results(image, prediction, data):
+            results.append(prediction)
+
+        deployment.set_asynchronous_callback(process_results)
+        assert deployment.asynchronous_mode
+
+        deployment.infer_async(image_np)
+        deployment.await_all()
+
+        # Assert that the process_results callback has run
+        assert len(results) == 1
+
+        # Small delay to ensure that the hooks have time to run
+        time.sleep(1)
+
+        # Assert that the hooks have fired in the async case
+        hook_images = fxt_project_service.image_client.get_all_images(dataset=dataset)
+        assert len(hook_images) == 2
+        for folder_name in expected_folders:
+            assert len(os.listdir(os.path.join(hook_data, folder_name))) == 1
+
         deployment.clear_inference_hooks()
         assert len(deployment.post_inference_hooks) == 0
+
+        deployment.asynchronous_mode = False
+        assert not deployment._async_callback_defined
 
     @pytest.mark.vcr()
     def test_download_project_including_models_and_predictions(
