@@ -628,11 +628,12 @@ class TestGeti:
         # Small delay to ensure that the hooks have time to run
         time.sleep(1)
 
-        # Assert that the hooks have fired in the async case
+        # Assert that the hooks have fired in the async case: 1 image should have
+        # been added to both Geti dataset and results folders
         hook_images = fxt_project_service.image_client.get_all_images(dataset=dataset)
         assert len(hook_images) == 2
         for folder_name in expected_folders:
-            assert len(os.listdir(os.path.join(hook_data, folder_name))) == 1
+            assert len(os.listdir(os.path.join(hook_data, folder_name))) == 2
 
         deployment.clear_inference_hooks()
         assert len(deployment.post_inference_hooks) == 0
