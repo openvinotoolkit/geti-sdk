@@ -291,7 +291,7 @@ class Model(BaseModel):
         """
         if optimization_type is None and precision is None:
             raise ValueError("Please specify optimization_type or precision, or both")
-        optimized_models: List[OptimizedModel] = None
+        optimized_models: List[OptimizedModel] = []
         if optimization_type is not None:
             capitalized_ot = optimization_type.upper()
             if capitalized_ot == "OPENVINO":
@@ -305,15 +305,15 @@ class Model(BaseModel):
                         f"Invalid optimization type passed, supported values are "
                         f"{allowed_types} or `openvino`"
                     )
-                optim_type = OptimizationType(capitalized_ot)
+                optimization_type = OptimizationType(capitalized_ot)
                 optimized_models = [
                     model
                     for model in self.optimized_models
-                    if model.optimization_type == optim_type
+                    if model.optimization_type == optimization_type
                 ]
 
         if precision is not None:
-            if optimized_models is None:
+            if len(optimized_models) == 0:
                 models_to_search = self.optimized_models
             else:
                 models_to_search = optimized_models
@@ -333,7 +333,7 @@ class Model(BaseModel):
                 if optimized_models[0].has_xai_head:
                     return optimized_models[0]
                 logging.info(
-                    f"An optimized model of type {optim_type} was found, but it does "
+                    f"An optimized model of type {optimization_type} was found, but it does "
                     f"not include an XAI head. Method `get_optimized_model` returned "
                     f"None."
                 )
@@ -345,7 +345,7 @@ class Model(BaseModel):
                 models_to_check = [m for m in optimized_models if m.has_xai_head]
             if len(models_to_check) == 0:
                 logging.info(
-                    f"An optimized model of type {optim_type} was found, but it does "
+                    f"An optimized model of type {optimization_type} was found, but it does "
                     f"not include an XAI head. Method `get_optimized_model` returned "
                     f"None."
                 )
