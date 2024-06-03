@@ -33,12 +33,12 @@ from geti_sdk.data_models import (
     Video,
 )
 from geti_sdk.deployment import Deployment
+from geti_sdk.prediction_visualization.visualizer import Visualizer
 from geti_sdk.rest_clients import ImageClient, ModelClient, TrainingClient, VideoClient
 from geti_sdk.rest_clients.prediction_client import PredictionClient
 from geti_sdk.utils.plot_helpers import (
     concat_prediction_results,
     pad_image_and_put_caption,
-    show_image_with_annotation_scene,
 )
 
 from .utils import get_system_info, load_benchmark_media, suppress_log_output
@@ -859,6 +859,8 @@ class Benchmarker:
             with open(throughput_benchmark_results, "r") as results_file:
                 throughput_benchmark_results = list(csv.DictReader(results_file))
 
+        visusalizer = Visualizer()
+
         # Performe inferece
         with logging_redirect_tqdm(tqdm_class=tqdm):
             results: List[List[np.ndarray]] = []
@@ -890,9 +892,7 @@ class Benchmarker:
                             f"failed. Inference failed with error: `{e}`"
                         )
                 if success:
-                    image_with_prediction = show_image_with_annotation_scene(
-                        image, prediction, show_results=False
-                    )
+                    image_with_prediction = visusalizer.draw(image, prediction)
                     image_with_prediction = cv2.cvtColor(
                         image_with_prediction, cv2.COLOR_BGR2RGB
                     )
@@ -953,8 +953,8 @@ class Benchmarker:
         if include_online_prediction_for_active_model:
             logging.info("Predicting on the platform using the active model")
             online_prediction_result = self._predict_using_active_model(image)
-            image_with_prediction = show_image_with_annotation_scene(
-                image, online_prediction_result["prediction"], show_results=False
+            image_with_prediction = visusalizer.draw(
+                image, online_prediction_result["prediction"]
             )
             image_with_prediction = cv2.cvtColor(
                 image_with_prediction, cv2.COLOR_BGR2RGB
