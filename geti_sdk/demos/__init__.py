@@ -41,7 +41,7 @@ from .demo_projects import (
     ensure_trained_anomaly_project,
     ensure_trained_example_project,
 )
-from .predict_video import predict_video_from_deployment
+from .video_helpers import AsyncVideoProcessor, predict_video_from_deployment
 
 __all__ = [
     "DEFAULT_DATA_PATH",
@@ -60,4 +60,5 @@ __all__ = [
     "set_directory_permissions",
     "get_person_car_bike_video",
     "predict_video_from_deployment",
+    "AsyncVideoProcessor",
 ]

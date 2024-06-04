@@ -19,7 +19,7 @@ import shutil
 import tempfile
 import time
 import zipfile
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import attr
 import numpy as np
@@ -88,6 +88,7 @@ class DeployedModel(OptimizedModel):
         Initialize private attributes
         """
         super().__attrs_post_init__()
+        self._domain: Optional[Domain] = None
         self._model_data_path: Optional[str] = None
         self._model_python_path: Optional[str] = None
         self._needs_tempdir_deletion: bool = False
@@ -101,6 +102,7 @@ class DeployedModel(OptimizedModel):
         self._feature_vector_location: Optional[str] = None
 
         self._converter: Optional[InferenceResultsToPredictionConverter] = None
+        self._async_callback_defined: bool = False
         self._tiling_enabled: bool = False
         self._tiler: Optional[Tiler] = None
 
@@ -222,6 +224,8 @@ class DeployedModel(OptimizedModel):
         device: str = "CPU",
         configuration: Optional[Dict[str, Any]] = None,
         project: Optional[Project] = None,
+        plugin_configuration: Optional[Dict[str, str]] = None,
+        max_async_infer_requests: int = 0,
     ) -> None:
         """
         Load the actual model weights to a specified device.
@@ -232,6 +236,14 @@ class DeployedModel(OptimizedModel):
         :param project: Optional project to which the model belongs.
             This is only used when the model is run on OVMS, in that case the
             project is needed to identify the correct model
+        :param plugin_configuration: Configuration for the OpenVINO execution mode
+            and plugins. This can include for example specific performance hints. For
+            further details, refer to the OpenVINO documentation here:
+            https://docs.openvino.ai/2022.3/openvino_docs_OV_UG_Performance_Hints.html#doxid-openvino-docs-o-v-u-g-performance-hints
+        :param max_async_infer_requests: Maximum number of asynchronous infer request
+            that can be processed in parallel. This depends on the properties of the
+            target device. If left to 0 (the default), the optimal number of requests
+            will be selected automatically.
         :return: OpenVino inference engine model that can be used to make predictions
             on images
         """
@@ -240,12 +252,24 @@ class DeployedModel(OptimizedModel):
             # Run the model locally
             model_adapter = OpenvinoAdapter(
                 core,
-                model=os.path.join(self._model_data_path, "model.xml"),
-                weights_path=os.path.join(self._model_data_path, "model.bin"),
+                model=os.path.join(self.model_data_path, "model.xml"),
+                weights_path=os.path.join(self.model_data_path, "model.bin"),
                 device=device,
-                plugin_config=None,
-                max_num_requests=1,
+                plugin_config=plugin_configuration,
+                max_num_requests=max_async_infer_requests,
             )
+            if max_async_infer_requests == 0:
+                # Compile model to query optimal infer requests for the device
+                compiled_model = core.compile_model(model_adapter.get_model(), device)
+                optimal_requests = compiled_model.get_property(
+                    "OPTIMAL_NUMBER_OF_INFER_REQUESTS"
+                )
+                model_adapter.max_num_requests = optimal_requests
+                compiled_model = None
+                logging.info(
+                    f"Model `{self.name}` -- Optimal number of infer "
+                    f"requests: {optimal_requests}"
+                )
         else:
             # Connect to an OpenVINO model server instance
             model_name = generate_ovms_model_name(project=project, model=self)
@@ -273,7 +297,7 @@ class DeployedModel(OptimizedModel):
                     )
 
         # Load model configuration
-        config_path = os.path.join(self._model_data_path, "config.json")
+        config_path = os.path.join(self.model_data_path, "config.json")
         if not os.path.isfile(config_path):
             raise ValueError(
                 f"Missing configuration file `config.json` for deployed model `{self}`,"
@@ -300,6 +324,7 @@ class DeployedModel(OptimizedModel):
         self._converter = ConverterFactory.create_converter(
             self.label_schema, configuration
         )
+        self._domain = ConverterFactory._get_labels_domain(self.label_schema)
 
         model = model_api_Model.create_model(
             model=model_adapter,
@@ -308,6 +333,7 @@ class DeployedModel(OptimizedModel):
             core=core,
             configuration=configuration,
         )
+
         self._inference_model = model
 
         # Extract tiling parameters, if applicable
@@ -321,12 +347,25 @@ class DeployedModel(OptimizedModel):
 
         if enable_tiling:
             logging.info("Tiling is enabled for this model, initializing Tiler")
-            tiler_type = TILER_MAPPING.get(self._converter.domain, None)
+            tiler_type = TILER_MAPPING.get(self._domain, None)
             if tiler_type is None:
-                raise ValueError(
-                    f"Tiling is not supported for domain {self._converter.domain}"
+                raise ValueError(f"Tiling is not supported for domain {self._domain}")
+            # InstanceSegmentationTiler supports a `tile_classifier` model, which is
+            # used to filter tiles based on their objectness score. The tile
+            # classifier model will be exported to the same directory as the instance
+            # segmentation model. If it's there, we will load it and add it to the Tiler
+            classifier_name = "tile_classifier"
+            tiler_arguments = {"model": model, "execution_mode": "sync"}
+            if classifier_name in os.listdir(self.model_data_path):
+                classifier_path = os.path.join(self.model_data_path, classifier_name)
+                tile_classifier_model = model_api_Model.create_model(
+                    model=classifier_path + ".xml",
+                    weights_path=classifier_path + ".bin",
+                    core=core,
+                    preload=True,
                 )
-            self._tiler = tiler_type(model=model, execution_mode="sync")
+                tiler_arguments.update({"tile_classifier_model": tile_classifier_model})
+            self._tiler = tiler_type(**tiler_arguments)
             self._tiling_enabled = True
 
         # TODO: This is a workaround to fix the issue that causes the output blob name
@@ -489,105 +528,13 @@ class DeployedModel(OptimizedModel):
         """
         return self._inference_model.postprocess(inference_results, metadata)
 
-    def _postprocess_explain_outputs(
-        self,
-        inference_results: Dict[str, np.ndarray],
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Postprocess the model outputs to obtain saliency maps, feature vectors and
-        active scores.
-
-        :param inference_results: Dictionary holding the results of inference
-        :param metadata: Dictionary holding metadata
-        :return: Tuple containing postprocessed outputs, formatted as follows:
-            - Numpy array containing the saliency map
-            - Numpy array containing the feature vector
-        """
-        if self._saliency_location is None and self._feature_vector_location is None:
-            # When running postprocessing for the first time, we need to determine the
-            # key and location of the saliency map and feature vector.
-            if hasattr(self._inference_model, "postprocess_aux_outputs"):
-                (
-                    _,
-                    saliency_map,
-                    repr_vector,
-                    _,
-                ) = self._inference_model.postprocess_aux_outputs(
-                    inference_results, metadata
-                )
-                self._saliency_location = "aux"
-                self._feature_vector_location = "aux"
-            else:
-                # Check all possible saliency map keys in outputs and metadata
-                if SALIENCY_KEY in inference_results.keys():
-                    saliency_map = inference_results[SALIENCY_KEY]
-                    self._saliency_location = "output"
-                    self._saliency_key = SALIENCY_KEY
-                elif SALIENCY_KEY in metadata.keys():
-                    saliency_map = metadata[SALIENCY_KEY]
-                    self._saliency_location = "meta"
-                    self._saliency_key = SALIENCY_KEY
-                elif ANOMALY_SALIENCY_KEY in metadata.keys():
-                    saliency_map = metadata[ANOMALY_SALIENCY_KEY]
-                    self._saliency_location = "meta"
-                    self._saliency_key = ANOMALY_SALIENCY_KEY
-                elif SEGMENTATION_SALIENCY_KEY in metadata.keys():
-                    saliency_map = metadata[SEGMENTATION_SALIENCY_KEY]
-                    self._saliency_location = "meta"
-                    self._saliency_key = SEGMENTATION_SALIENCY_KEY
-                else:
-                    logging.warning("No saliency map found in model output")
-                    saliency_map = None
-
-                # Check all possible feature vector keys in outputs and metadata
-                if FEATURE_VECTOR_KEY in inference_results.keys():
-                    repr_vector = inference_results[FEATURE_VECTOR_KEY]
-                    self._feature_vector_location = "output"
-                    self._feature_vector_key = FEATURE_VECTOR_KEY
-                elif FEATURE_VECTOR_KEY in metadata.keys():
-                    repr_vector = metadata[FEATURE_VECTOR_KEY]
-                    self._feature_vector_location = "meta"
-                    self._feature_vector_key = FEATURE_VECTOR_KEY
-                else:
-                    logging.warning("No feature vector found in model output")
-                    repr_vector = None
-        else:
-            # If location of feature vector and saliency map are already known, we can
-            # use them directly
-            if self._saliency_location == "aux":
-                (
-                    _,
-                    saliency_map,
-                    repr_vector,
-                    _,
-                ) = self._inference_model.postprocess_aux_outputs(
-                    inference_results, metadata
-                )
-                return saliency_map, repr_vector
-            elif self._saliency_location == "meta":
-                saliency_map = metadata[self._saliency_key]
-            elif self._saliency_location == "output":
-                saliency_map = inference_results[self._saliency_key]
-            else:
-                logging.warning("No saliency map found in model output")
-                saliency_map = None
-            if self._feature_vector_location == "meta":
-                repr_vector = metadata[self._feature_vector_key]
-            elif self._feature_vector_location == "output":
-                repr_vector = inference_results[self._feature_vector_key]
-
-            else:
-                logging.warning("No feature vector found in model output")
-                repr_vector = None
-        return saliency_map, repr_vector
-
     def infer(self, image: np.ndarray, explain: bool = False) -> Prediction:
         """
         Run inference on an already preprocessed image.
 
-        :param preprocessed_image: Dictionary holding the preprocessing results for an
-            image
+        :param image: numpy array representing an image
+        :param explain: True to include saliency maps and feature maps in the returned
+            Prediction. Note that these are only available if supported by the model.
         :return: Dictionary containing the model outputs
         """
         if not self._tiling_enabled:
@@ -596,32 +543,88 @@ class DeployedModel(OptimizedModel):
             inference_results: Dict[str, np.ndarray] = self._inference_model.infer_sync(
                 preprocessed_image
             )
-            postprocessing_results = self._postprocess(
-                inference_results, metadata=metadata
-            )
         else:
-            postprocessing_results = self._tiler(image)
-
-        prediction = self._converter.convert_to_prediction(
-            postprocessing_results, image_shape=image.shape
+            inference_results = self._tiler(image)
+            metadata = {"original_shape": image.shape}
+        return self._apply_postprocessing_steps(
+            inference_results=inference_results, metadata=metadata, explain=explain
         )
 
-        # Add optional explainability outputs
-        if explain:
-            if not self._tiling_enabled:
-                saliency_map, repr_vector = self._postprocess_explain_outputs(
-                    inference_results=inference_results, metadata=metadata
-                )
-            else:
-                repr_vector = postprocessing_results.feature_vector
-                saliency_map = postprocessing_results.saliency_map
+    def infer_async(
+        self,
+        image: np.ndarray,
+        explain: bool = False,
+        runtime_data: Optional[Any] = None,
+    ) -> None:
+        """
+        Perform asynchronous inference on the `image`.
 
-            prediction.feature_vector = repr_vector
-            result_medium = ResultMedium(name="saliency map", type="saliency map")
-            result_medium.data = saliency_map
-            prediction.maps = [result_medium]
+        **NOTE**: Inference results are not returned directly! Instead, a
+        post-inference callback should be defined to handle results, using the
+        `.set_asynchronous_callback` method.
 
-        return prediction
+        :param image: numpy array representing an image
+        :param explain: True to include saliency maps and feature maps in the returned
+            Prediction. Note that these are only available if supported by the model.
+        :param runtime_data: An optional object containing any additional data.
+            that should be passed to the asynchronous callback for each infer request.
+            This can for example be a timestamp or filename for the image to infer.
+            You can for instance pass a dictionary, or a tuple/list of objects.
+        """
+        if not self._async_callback_defined:
+            logging.warning(
+                "No callback function defined to handle asynchronous inference, "
+                "please make sure to define a callback using "
+                "`.set_asynchronous_callback`, otherwise your inference results may be "
+                "lost."
+            )
+        preprocessed_image, metadata = self._preprocess(image)
+        self._inference_model.infer_async_raw(
+            preprocessed_image,
+            {"explain": explain, "metadata": metadata, "runtime_data": runtime_data},
+        )
+
+    def set_asynchronous_callback(
+        self, callback_function: Callable[[Prediction, Optional[Any]], None]
+    ) -> None:
+        """
+        Set the callback function to handle asynchronous inference results. This
+        function is called whenever a result for an asynchronous inference request
+        comes available.
+
+        :param callback_function: Function that should be called to handle
+            asynchronous inference results. The function should take the following
+            input parameters:
+
+             1. The inference results (the Prediction). This is the primary input
+             2. Any additional data that will be passed with the infer
+                request at runtime. For example, this could be a timestamp for the
+                frame, or a title/filepath, etc. This can be in the form of any object:
+                You can for instance pass a dictionary, or a tuple/list of multiple
+                objects
+
+        """
+        if self._tiling_enabled:
+            raise ValueError(
+                "Asynchronous inference mode is not supported with models that use "
+                "Tiling. Please use the synchronous inference mode instead."
+            )
+
+        def full_callback(infer_request, async_metadata: Dict[str, Any]):
+            # Basic postprocessing, convert to `Prediction` object
+            metadata = async_metadata["metadata"]
+            explain = async_metadata["explain"]
+            runtime_data = async_metadata["runtime_data"]
+
+            raw_result = self._inference_model.inference_adapter.get_raw_result(
+                infer_request
+            )
+            prediction = self._apply_postprocessing_steps(raw_result, metadata, explain)
+            # User defined callback to further process the prediction results
+            callback_function(prediction, runtime_data)
+
+        self._inference_model.inference_adapter.set_callback(full_callback)
+        self._async_callback_defined = True
 
     @property
     def label_schema(self) -> LabelSchema:
@@ -681,3 +684,101 @@ class DeployedModel(OptimizedModel):
                 )
             )
         self._label_schema = LabelSchema(label_groups=label_groups)
+
+    def _apply_postprocessing_steps(
+        self, inference_results: Any, metadata: Dict[str, Any], explain: bool
+    ) -> Prediction:
+        """
+        Apply the required postprocessing steps to convert the model output to a
+        Prediction object, with saliency maps and feature vector included if needed.
+
+        :param inference_results: The results of the model
+        :param metadata: Dictionary containing metadata about the original image
+        :param explain: True to enable XAI outputs (saliency map and feature vector)
+        :return: Prediction object containing the model predictions
+        """
+        if not self._tiling_enabled:
+            postprocessing_results = self._postprocess(
+                inference_results, metadata=metadata
+            )
+        else:
+            postprocessing_results = inference_results
+
+        prediction = self._converter.convert_to_prediction(
+            postprocessing_results, image_shape=metadata["original_shape"]
+        )
+
+        # Add optional explainability outputs
+        if explain:
+            if hasattr(postprocessing_results, "feature_vector"):
+                prediction.feature_vector = postprocessing_results.feature_vector
+            result_medium = ResultMedium(name="saliency map", type="saliency map")
+            result_medium.data = self._converter.convert_saliency_map(
+                postprocessing_results, image_shape=metadata["original_shape"]
+            )
+            prediction.maps.append(result_medium)
+        return prediction
+
+    def infer_queue_full(self) -> bool:
+        """
+        Return True if the queue for asynchronous infer requests is full, False
+        otherwise
+
+        :return: True if the infer queue is full, False otherwise
+        """
+        return not self._inference_model.inference_adapter.is_ready()
+
+    def await_all(self) -> None:
+        """
+        Block execution untill all asynchronous infer requests have finished
+        processing.
+
+        This means that program execution will resume once the infer queue is empty
+
+        This is a flow control function, it is only applicable when using
+        asynchronous inference.
+        """
+        self._inference_model.inference_adapter.await_all()
+
+    def await_any(self) -> None:
+        """
+        Block execution untill any of the asynchronous infer requests currently in
+        the infer queue completes processing
+
+        This means that program execution will resume once a single spot becomes
+        available in the infer queue
+
+        This is a flow control function, it is only applicable when using
+        asynchronous inference.
+        """
+        self._inference_model.inference_adapter.await_any()
+
+    @property
+    def asynchronous_mode(self):
+        """
+        Return True if the DeployedModel is in asynchronous inference mode, False
+        otherwise
+        """
+        return self._async_callback_defined
+
+    @asynchronous_mode.setter
+    def asynchronous_mode(self, mode: bool):
+        """
+        Set the DeployedModel to synchronous or asynchronous inference mode
+        """
+        if mode:
+            if not self._async_callback_defined:
+                raise ValueError(
+                    "Please use the method `.set_asynchronous_callback()` to define a "
+                    "callback and set the DeployedModel to asynchronous inference "
+                    "mode."
+                )
+            else:
+                logging.debug("DeployedModel is already in asynchronous mode")
+        else:
+
+            def do_nothing(request, userdata):
+                pass
+
+            self._async_callback_defined = False
+            self._inference_model.inference_adapter.set_callback(do_nothing)
