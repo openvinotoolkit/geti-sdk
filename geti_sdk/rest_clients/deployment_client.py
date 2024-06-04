@@ -160,7 +160,7 @@ class DeploymentClient:
         self,
         output_folder: Optional[Union[str, os.PathLike]] = None,
         models: Optional[Sequence[Union[Model, OptimizedModel]]] = None,
-        include_explainable_ai_head: bool = False,
+        enable_explainable_ai: bool = False,
         prepare_for_ovms: bool = False,
     ) -> Deployment:
         """
@@ -195,7 +195,7 @@ class DeploymentClient:
         :param models: Optional list of models to use in the deployment. If no list is
             passed, this method will create a deployment using the currently active
             model for each task in the project.
-        :param include_explainable_ai_head: True to include an Explainable AI head in
+        :param enable_explainable_ai: True to include an Explainable AI head in
             the deployment. This will add an Explainable AI head to the model for each
             task in the project, allowing for the generation of saliency maps.
         :param prepare_for_ovms: True to prepare the deployment to be hosted on a
@@ -218,7 +218,7 @@ class DeploymentClient:
         deployment = self._backend_deploy_project(
             output_folder=output_folder,
             models=models,
-            require_xai=include_explainable_ai_head,
+            require_xai=enable_explainable_ai,
         )
         if prepare_for_ovms:
             deployment.generate_ovms_config(output_folder=output_folder)

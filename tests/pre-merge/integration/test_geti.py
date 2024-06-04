@@ -515,7 +515,7 @@ class TestGeti:
         deployment = fxt_geti.deploy_project(
             project.name,
             output_folder=deployment_folder,
-            include_explainable_ai_head=True,
+            enable_explainable_ai=True,
         )
 
         assert os.path.isdir(os.path.join(deployment_folder, "deployment"))
