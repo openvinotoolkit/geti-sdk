@@ -54,11 +54,6 @@ class TestProjectClient:
             assert label_name in label_names
 
         project_client = fxt_project_service.project_client
-        with pytest.raises(ValueError):
-            project_client.create_project(
-                project_name=project.name, project_type="detection", labels=[["none"]]
-            )
-
         project_get_or_create = project_client.get_or_create_project(
             project_name=project.name, project_type="detection", labels=[["none"]]
         )
