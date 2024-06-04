@@ -16,28 +16,26 @@ import json
 import logging
 import os
 import shutil
-from typing import Any, Dict, List, Optional, Union
+from collections.abc import Sequence
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import attr
 import numpy as np
 from model_api.models import Model as OMZModel
 
-from geti_sdk.data_models import (
-    Annotation,
-    Label,
-    Prediction,
-    Project,
-    ScoredLabel,
-    Task,
-    TaskType,
-)
-from geti_sdk.data_models.shapes import Rectangle
+from geti_sdk.data_models import Label, Prediction, Project, Task
 from geti_sdk.deployment.data_models import ROI, IntermediateInferenceResult
 from geti_sdk.rest_converters import ProjectRESTConverter
 
 from .deployed_model import DeployedModel
 from .inference_hook_interfaces import PostInferenceHookInterface
-from .utils import OVMS_README_PATH, generate_ovms_model_name
+from .utils import (
+    OVMS_README_PATH,
+    assign_empty_label,
+    flow_control,
+    generate_ovms_model_name,
+    pipeline_callback_factory,
+)
 
 
 @attr.define(slots=False)
@@ -61,6 +59,8 @@ class Deployment:
         self._requires_resource_cleanup: bool = False
         self._post_inference_hooks: List[PostInferenceHookInterface] = []
         self._empty_label: Optional[Label] = None
+        self._asynchronous_mode: bool = False
+        self._async_callback_defined: bool = False
 
     @property
     def is_single_task(self) -> bool:
@@ -82,6 +82,45 @@ class Deployment:
             memory and ready for inference
         """
         return self._are_models_loaded
+
+    @property
+    def asynchronous_mode(self) -> bool:
+        """
+        Return True if the deployment is configured for asynchronous inference execution.
+
+        Asynchronous execution can result in a large increase in throughput for
+        certain applications, for example video processing. However, it requires
+        slightly more configuration compared to synchronous (the default) mode. For a
+        more detailed overview of the differences between synchronous and
+        asynchronous execution, please refer to the OpenVINO documentation at
+        https://docs.openvino.ai/2024/notebooks/115-async-api-with-output.html
+
+        :return: True if the deployment is set in asynchronous execution mode, False
+            if it is in synchronous mode.
+        """
+        return self._async_callback_defined
+
+    @asynchronous_mode.setter
+    def asynchronous_mode(self, mode: bool):
+        """
+        Set the inference mode for the deployment
+
+        :param mode: False to set the deployment to synchronous mode. Removes all
+            asynchronous callbacks for the models in the deployment.
+        """
+        if mode:
+            if not self._async_callback_defined:
+                raise ValueError(
+                    "Please use the `set_asynchronous_callback` method to switch a "
+                    "deployment to asynchronous inference mode."
+                )
+            else:
+                logging.debug("Deployment is already in asynchronous mode.")
+        else:
+            self._async_callback_defined = False
+            for model in self.models:
+                model.asynchronous_mode = False
+            logging.info("Asynchronous inference mode disabled. All callbacks removed.")
 
     def save(self, path_to_folder: Union[str, os.PathLike]) -> bool:
         """
@@ -174,17 +213,62 @@ class Deployment:
                 deployment.add_post_inference_hook(hook)
         return deployment
 
-    def load_inference_models(self, device: str = "CPU"):
+    def load_inference_models(
+        self,
+        device: Union[str, Sequence[str]] = "CPU",
+        max_async_infer_requests: Optional[Union[int, Sequence[int]]] = None,
+        openvino_configuration: Optional[Dict[str, str]] = None,
+    ):
         """
         Load the inference models for the deployment to the specified device.
 
         Note: For a list of devices that are supported for OpenVINO inference, please see:
         https://docs.openvino.ai/latest/openvino_docs_OV_UG_supported_plugins_Supported_Devices.html
 
-        :param device: Device to load the inference models to (e.g. 'CPU', 'GPU', 'AUTO', etc)
+        :param device: Device to load the inference models to (e.g. 'CPU', 'GPU',
+            'AUTO', etc).
+
+            **NOTE**: For task chain deployments, it is possible to pass a list of device names
+            instead. Each entry in the list is the target device for the model
+            corresponding to it's index. I.e. the first entry is applied for the
+            first model, the second entry for the second model.
+        :param max_async_infer_requests: Maximum number of infer requests to use in
+            asynchronous mode. This parameter only takes effect when the asynchronous
+            inference mode is used. It controls the maximum number of request that
+            will be handled in parallel. When set to 0, OpenVINO will attempt to
+            determine the optimal number of requests for your system automatically.
+            When left as None (the default), a single infer request per model will be
+            used to conserve memory
+
+            **NOTE**: For task chain deployments, it is possible to pass a list of integers.
+            Each entry in the list is the maximum number of infer requests for the model
+            corresponding to it's index. I.e. the first number is applied for the
+            first model, the second number for the second model.
+        :param openvino_configuration: Configuration for the OpenVINO execution mode
+            and plugins. This can include for example specific performance hints. For
+            further details, refer to the OpenVINO documentation here:
+            https://docs.openvino.ai/2022.3/openvino_docs_OV_UG_Performance_Hints.html#doxid-openvino-docs-o-v-u-g-performance-hints
         """
-        for model in self.models:
-            model.load_inference_model(device=device, project=self.project)
+        if max_async_infer_requests is None:
+            max_async_infer_requests = 1
+        elif max_async_infer_requests == 0 and device == "CPU":
+            max_async_infer_requests = os.cpu_count()
+
+        for idx, model in enumerate(self.models):
+            if isinstance(device, Sequence) and not isinstance(device, str):
+                dev = device[idx]
+            else:
+                dev = device
+            if isinstance(max_async_infer_requests, Sequence):
+                max_requests = max_async_infer_requests[idx]
+            else:
+                max_requests = max_async_infer_requests
+            model.load_inference_model(
+                device=dev,
+                project=self.project,
+                max_async_infer_requests=max_requests,
+                plugin_configuration=openvino_configuration,
+            )
 
         # Extract empty label for the upstream task
         upstream_labels = self.models[0].label_schema.get_labels(include_empty=True)
@@ -208,6 +292,13 @@ class Deployment:
         """
         self._check_models_loaded()
 
+        if self.asynchronous_mode:
+            raise RuntimeError(
+                "Unable to use synchronous inference while the deployment is set to "
+                "asynchronous execution mode. Please use the `.infer_async` method "
+                "instead."
+            )
+
         # Single task inference
         if self.is_single_task:
             prediction = self._infer_task(
@@ -219,21 +310,52 @@ class Deployment:
 
         # Empty label is not generated by prediction postprocessing correctly, append
         # it here if there are no other predictions
-        height, width = image.shape[0:2]
-        if len(prediction.annotations) == 0:
-            if self._empty_label is not None:
-                prediction.append(
-                    Annotation(
-                        shape=Rectangle(x=0, y=0, width=width, height=height),
-                        labels=[
-                            ScoredLabel.from_label(self._empty_label, probability=1)
-                        ],
-                    )
-                )
+        assign_empty_label(
+            prediction=prediction, image=image, empty_label=self._empty_label
+        )
+
         self._execute_post_inference_hooks(
             image=image, prediction=prediction, name=name
         )
+
         return prediction
+
+    def infer_async(
+        self, image: np.ndarray, runtime_data: Optional[Any] = None
+    ) -> None:
+        """
+        Perform asynchronous inference on the `image`.
+
+        **NOTE**: Inference results are not returned directly! Instead, a
+        post-inference callback should be defined to handle results, using the
+        `.set_asynchronous_callback` method.
+
+        :param image: numpy array representing an image
+        :param runtime_data: An optional object containing any additional data
+            that should be passed to the asynchronous callback for each infer request.
+            This can for example be a timestamp or filename for the image to infer.
+            Passing complex objects like a tuple/list or dictionary is also supported.
+        """
+        self._check_models_loaded()
+
+        if not self.asynchronous_mode:
+            raise RuntimeError(
+                "No callback function defined to handle asynchronous inference, "
+                "please make sure to define a callback using "
+                "the `.set_asynchronous_callback()` method of the deployment, "
+                "otherwise your inference results will be lost."
+            )
+
+        runtime_data_tuple = (image, runtime_data)
+
+        # Note that this method is the same for both single task and pipeline projects
+        # Infer requests for downstream models in a pipeline are handled via callbacks
+        self._infer_task_async(
+            image,
+            task=self.project.get_trainable_tasks()[0],
+            explain=False,
+            runtime_data=runtime_data_tuple,
+        )
 
     def explain(self, image: np.ndarray, name: Optional[str] = None) -> Prediction:
         """
@@ -250,6 +372,13 @@ class Deployment:
         """
         self._check_models_loaded()
 
+        if self.asynchronous_mode:
+            raise RuntimeError(
+                "Unable to use synchronous inference while the deployment is set to "
+                "asynchronous execution mode. Please use the `.explain_async` method "
+                "instead."
+            )
+
         # Single task inference
         if self.is_single_task:
             prediction = self._infer_task(
@@ -258,10 +387,49 @@ class Deployment:
         # Multi-task inference
         else:
             prediction = self._infer_pipeline(image=image, explain=True)
+
         self._execute_post_inference_hooks(
             image=image, prediction=prediction, name=name
         )
         return prediction
+
+    def explain_async(
+        self, image: np.ndarray, runtime_data: Optional[Any] = None
+    ) -> None:
+        """
+        Perform asynchronous inference on the `image`, and generate saliency maps and
+        feature vectors
+
+        **NOTE**: Inference results are not returned directly! Instead, a
+        post-inference callback should be defined to handle results, using the
+        `.set_asynchronous_callback` method.
+
+        :param image: numpy array representing an image
+        :param runtime_data: An optional object containing any additional data
+            that should be passed to the asynchronous callback for each infer request.
+            This can for example be a timestamp or filename for the image to infer.
+            Passing complex objects like a tuple/list or dictionary is also supported.
+        """
+        self._check_models_loaded()
+
+        if not self.asynchronous_mode:
+            raise RuntimeError(
+                "No callback function defined to handle asynchronous inference, "
+                "please make sure to define a callback using "
+                "the `.set_asynchronous_callback()` method of the deployment, "
+                "otherwise your inference results will be lost."
+            )
+
+        runtime_data_tuple = (image, runtime_data)
+
+        # Note that this method is the same for both single task and pipeline projects
+        # Infer requests for downstream models in a pipeline are handled via callbacks
+        self._infer_task_async(
+            image,
+            task=self.project.get_trainable_tasks()[0],
+            explain=True,
+            runtime_data=runtime_data_tuple,
+        )
 
     def _check_models_loaded(self) -> None:
         """
@@ -290,6 +458,32 @@ class Deployment:
         """
         model = self._get_model_for_task(task)
         return model.infer(image, explain)
+
+    def _infer_task_async(
+        self,
+        image: np.ndarray,
+        task: Task,
+        explain: bool = False,
+        runtime_data: Optional[Any] = None,
+    ) -> None:
+        """
+        Perform asynchronous inference on the `image`.
+
+        **NOTE**: Inference results are not returned directly! Instead, a
+        post-inference callback should be defined to handle results, using the
+        `.set_asynchronous_callback` method.
+
+        :param image: numpy array representing an image
+        :param task: Task to run inference for
+        :param explain: True to include saliency maps and feature maps in the returned
+            Prediction. Note that these are only available if supported by the model.
+        :param runtime_data: An optional object containing any additional data
+            that should be passed to the asynchronous callback for each infer request.
+            This can for example be a timestamp or filename for the image to infer.
+            Passing complex objects like a tuple/list or dictionary is also supported.
+        """
+        model = self._get_model_for_task(task)
+        model.infer_async(image=image, explain=explain, runtime_data=runtime_data)
 
     def _infer_pipeline(self, image: np.ndarray, explain: bool = False) -> Prediction:
         """
@@ -362,15 +556,9 @@ class Deployment:
                         f"has to be a trainable task, found task of type {task.type} "
                         f"instead."
                     )
-                # CROP task
-                if task.type == TaskType.CROP:
-                    rois = intermediate_result.filter_rois(label=None)
-                    image_views = intermediate_result.generate_views(rois)
-                else:
-                    raise NotImplementedError(
-                        f"Unable to run inference for the pipeline in the deployed "
-                        f"project: Unsupported task type {task.type} found."
-                    )
+                rois, image_views = flow_control(
+                    intermediate_result=intermediate_result, task=task
+                )
         return intermediate_result.prediction
 
     def _get_model_for_task(self, task: Task) -> DeployedModel:
@@ -486,6 +674,165 @@ class Deployment:
             f"file with instructions on how to launch OVMS, connect to it and run "
             f"inference. Please follow the instructions outlined there to get started."
         )
+
+    def infer_queue_full(self) -> bool:
+        """
+        Return True if the queue for asynchronous infer requests is full, False
+        otherwise
+
+        :return: True if the infer queue is full, False otherwise
+        """
+        if not self.asynchronous_mode:
+            logging.warning(
+                "Method `infer_queue_full()` has no effect in synchronous execution "
+                "mode"
+            )
+        # Check the infer queue of the first model in the deployment
+        return self.models[0].infer_queue_full()
+
+    def await_all(self) -> None:
+        """
+        Block execution until all asynchronous infer requests have finished
+        processing.
+
+        This means that program execution will resume once the infer queue is empty
+
+        This is a flow control function, it is only applicable when using
+        asynchronous inference.
+        """
+        if not self.asynchronous_mode:
+            logging.warning(
+                "Method `await_all()` has no effect in synchronous execution " "mode"
+            )
+        # Wait until the infer queue of the last model in the task chain is empty
+        for model in self.models:
+            model.await_all()
+
+    def await_any(self) -> None:
+        """
+        Block execution until any of the asynchronous infer requests currently in
+        the infer queue completes processing
+
+        This means that program execution will resume once a single spot becomes
+        available in the infer queue
+
+        This is a flow control function, it is only applicable when using
+        asynchronous inference.
+        """
+        if not self.asynchronous_mode:
+            logging.warning(
+                "Method `await_any()` has no effect in synchronous execution " "mode"
+            )
+        self.models[0].await_any()
+
+    def set_asynchronous_callback(
+        self,
+        callback_function: Optional[
+            Callable[[np.ndarray, Prediction, Optional[Any]], None]
+        ] = None,
+    ) -> None:
+        """
+        Set the callback function to handle asynchronous inference results. This
+        function is called whenever a result for an asynchronous inference request
+        comes available.
+
+        **NOTE**: Calling this method enables asynchronous inference mode for the
+                  deployment. The regular synchronous inference method will no longer
+                  be available, unless the deployment is reloaded.
+
+        :param callback_function: Function that should be called to handle
+            asynchronous inference results. The function should take the following
+            input parameters:
+
+             1. The image/video frame. This is the original image to infer
+             2. The inference results (the Prediction). This is the model output for
+                the image
+             2. Any additional data that will be passed with the infer
+                request at runtime. For example, this could be a timestamp for the
+                frame, or a title/filepath, etc. This can be in the form of any object:
+                You can for instance pass a dictionary, or a tuple/list of multiple
+                objects
+
+            **NOTE**: It is possible to call this method without specifying any
+                      callback function. In that case, the deployment will be switched
+                      to asynchronous mode but only the post-inference hooks will be
+                      executed after each infer request
+        """
+
+        def post_inference_hook_callback(
+            image: np.ndarray, prediction: Prediction, runtime_data: Optional[Any]
+        ):
+            if isinstance(runtime_data, dict):
+                name = runtime_data.get("name", None)
+            else:
+                name = None
+            self._execute_post_inference_hooks(
+                image=image, prediction=prediction, name=name
+            )
+
+        if callback_function is None:
+            final_callback_function = post_inference_hook_callback
+        else:
+
+            def callback_and_hook(image, prediction, runtime_data):
+                post_inference_hook_callback(image, prediction, runtime_data)
+                callback_function(image, prediction, runtime_data)
+
+            final_callback_function = callback_and_hook
+
+        if self.is_single_task:
+
+            def full_callback(result: Prediction, runtime_data: Tuple[np.ndarray, Any]):
+                image, runtime_user_data = runtime_data
+                assign_empty_label(
+                    prediction=result, image=image, empty_label=self._empty_label
+                )
+
+                # User defined callback to further process the prediction results
+                final_callback_function(image, result, runtime_user_data)
+
+            self.models[0].set_asynchronous_callback(full_callback)
+        else:
+            # Pipeline case, this is a general implementation accounting for
+            # pipelines with more than 2 trainable tasks!
+            callbacks: List[Callable[[Prediction, Any], None]] = []
+            trainable_tasks = self.project.get_trainable_tasks()
+
+            for task_idx, task in enumerate(self.project.pipeline.tasks):
+                if not task.is_trainable:
+                    # No callbacks are added for flow control tasks
+                    continue
+
+                trainable_task_idx = trainable_tasks.index(task)
+                is_first_task = trainable_task_idx == 0
+                is_final_task = trainable_task_idx == len(trainable_tasks) - 1
+
+                next_task: Optional[Task] = None
+                next_trainable_task: Optional[Task] = None
+                add_flow_control = False
+                if not is_final_task:
+                    next_task = self.project.pipeline.tasks[task_idx + 1]
+                    next_trainable_task = trainable_tasks[trainable_task_idx + 1]
+                    add_flow_control = next_task.type.is_trainable
+
+                callbacks.append(
+                    pipeline_callback_factory(
+                        is_first_task=is_first_task,
+                        is_final_task=is_final_task,
+                        add_flow_control=add_flow_control,
+                        current_task=task,
+                        deployment=self,
+                        next_trainable_task=next_trainable_task,
+                        next_task=next_task,
+                        final_callback=final_callback_function,
+                    )
+                )
+            for task, callback in zip(trainable_tasks, callbacks):
+                model = self._get_model_for_task(task)
+                model.set_asynchronous_callback(callback)
+
+        self._async_callback_defined = True
+        logging.info("Asynchronous inference mode enabled.")
 
     @property
     def post_inference_hooks(self) -> List[PostInferenceHookInterface]:
