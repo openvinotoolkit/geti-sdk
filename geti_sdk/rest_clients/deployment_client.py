@@ -160,6 +160,7 @@ class DeploymentClient:
         self,
         output_folder: Optional[Union[str, os.PathLike]] = None,
         models: Optional[Sequence[Union[Model, OptimizedModel]]] = None,
+        enable_explainable_ai: bool = False,
         prepare_for_ovms: bool = False,
     ) -> Deployment:
         """
@@ -194,6 +195,9 @@ class DeploymentClient:
         :param models: Optional list of models to use in the deployment. If no list is
             passed, this method will create a deployment using the currently active
             model for each task in the project.
+        :param enable_explainable_ai: True to include an Explainable AI head in
+            the deployment. This will add an Explainable AI head to the model for each
+            task in the project, allowing for the generation of saliency maps.
         :param prepare_for_ovms: True to prepare the deployment to be hosted on a
             OpenVINO model server (OVMS). Passing True will create OVMS configuration
             files for the model(s) in the project and instructions with sample code
@@ -212,7 +216,9 @@ class DeploymentClient:
                 "`prepare_for_ovms=True`."
             )
         deployment = self._backend_deploy_project(
-            output_folder=output_folder, models=models
+            output_folder=output_folder,
+            models=models,
+            require_xai=enable_explainable_ai,
         )
         if prepare_for_ovms:
             deployment.generate_ovms_config(output_folder=output_folder)
@@ -222,6 +228,7 @@ class DeploymentClient:
         self,
         output_folder: Optional[Union[str, os.PathLike]] = None,
         models: Optional[Sequence[Union[Model, OptimizedModel]]] = None,
+        require_xai: bool = False,
     ) -> Deployment:
         """
         Create a deployment for a project, using the /code_deployment endpoint from the
@@ -234,6 +241,7 @@ class DeploymentClient:
         :param models: Optional list of models to use in the deployment. If no list is
             passed, this method will create a deployment using the currently active
             model for each task in the project.
+        :param require_xai: True to include an Explainable AI head in the deployment.
         :return: Deployment for the project
         """
         # Get the models to deploy
@@ -270,18 +278,33 @@ class DeploymentClient:
         for model in models:
             if not isinstance(model, OptimizedModel):
                 current_optim_models = model.optimized_models
-                optimization_types = [
-                    op_model.optimization_type for op_model in current_optim_models
-                ]
-                preferred_model = current_optim_models[0]
+                optimization_types = set(
+                    (op_model.optimization_type for op_model in current_optim_models)
+                )
+                preferred_model = None
                 for optimization_type in OptimizationType:
-                    if optimization_type in optimization_types:
-                        preferred_model = current_optim_models[
-                            optimization_types.index(optimization_type)
-                        ]
-                        break
+                    # The order of fields in OptimizationType gives us priority order for optimization types
+                    if optimization_type not in optimization_types or (
+                        optimization_type
+                        in (OptimizationType.ONNX, OptimizationType.NONE)
+                    ):
+                        continue
+                    for op_model in current_optim_models:
+                        if (
+                            op_model.optimization_type == optimization_type
+                            and require_xai == op_model.has_xai_head
+                        ):
+                            preferred_model = op_model
+                            break
+                if preferred_model is None:
+                    raise ValueError(
+                        f"Could not find an optimized model for model '{model.name}' "
+                        f"with optimization type '{optimization_type}' and explainable ai "
+                        + ("enabled." if require_xai else "disabled.")
+                    )
                 optimized_models.append(preferred_model)
 
+                # Update the task id for the model
                 task_id_for_model = model_id_to_task_id[model.id]
                 model_id_to_task_id.update({preferred_model.id: task_id_for_model})
             else:
