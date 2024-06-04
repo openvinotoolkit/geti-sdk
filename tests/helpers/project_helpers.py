@@ -92,7 +92,7 @@ def remove_all_test_projects(geti: Geti) -> List[str]:
     """
     project_client = ProjectClient(session=geti.session, workspace_id=geti.workspace_id)
     projects_removed: List[str] = []
-    for project in project_client.get_all_projects():
+    for project in project_client.get_all_projects(get_project_details=False):
         if project.name.startswith(PROJECT_PREFIX):
             force_delete_project(project.name, project_client)
             projects_removed.append(project.name)

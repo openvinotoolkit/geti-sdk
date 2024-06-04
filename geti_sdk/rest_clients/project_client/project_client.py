@@ -107,6 +107,7 @@ class ProjectClient:
                             f"Unable to access project `{project.name}` details: Unauthorized."
                         )
                         project_detail_list.append(project)
+            return project_detail_list
         else:
             return project_list
 
