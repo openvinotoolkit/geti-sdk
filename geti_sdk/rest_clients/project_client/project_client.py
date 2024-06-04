@@ -132,25 +132,34 @@ class ProjectClient:
             return self._get_project_detail(matches[0])
         elif len(matches) > 1:
             if project_id is None:
+                detailed_matches = [
+                    self._get_project_detail(match) for match in matches
+                ]
+                projects_info = [
+                    (
+                        f"Name: {p.name}, Type: {p.project_type}, ID: {p.id}, "
+                        f"creation_date: {p.creation_time}"
+                    )
+                    for p in detailed_matches
+                ]
                 raise ValueError(
                     f"A total of {len(matches)} projects named `{project_name}` were "
                     f"found in the workspace. Unable to uniquely identify the "
                     f"desired project. Please provide a `project_id` to ensure the "
-                    f"proper project is returned."
+                    f"proper project is returned. The following projects were found:"
+                    f"{projects_info}"
                 )
             else:
-                id_matches = [
-                    project for project in matches if project.id == project_id
-                ]
-                if len(id_matches) == 1:
-                    return id_matches[0]
-                else:
+                matched_project = next(
+                    (project for project in matches if project.id == project_id), None
+                )
+                if matched_project is None:
                     logging.info(
                         f"Projects with name `{project_name}` were found, but none of "
                         f"the project ID's `{[p.id for p in matches]}` matches the "
                         f"requested id `{project_id}`."
                     )
-                    return None
+                return matched_project
         else:
             return None
 
