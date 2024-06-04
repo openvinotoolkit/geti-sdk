@@ -299,7 +299,7 @@ class DeploymentClient:
                 if preferred_model is None:
                     raise ValueError(
                         f"Could not find an optimized model for model '{model.name}' "
-                        f"with optimization type '{optimization_type}'."
+                        f"with optimization type '{optimization_type}' and explainable ai {"enabled" if require_xai else "disabled"}."
                     )
                 optimized_models.append(preferred_model)
 
