@@ -284,7 +284,10 @@ class DeploymentClient:
                 preferred_model = None
                 for optimization_type in OptimizationType:
                     # The order of fields in OptimizationType gives us priority order for optimization types
-                    if optimization_type not in optimization_types:
+                    if optimization_type not in optimization_types or (
+                        optimization_type
+                        in (OptimizationType.ONNX, OptimizationType.NONE)
+                    ):
                         continue
                     for op_model in current_optim_models:
                         if (

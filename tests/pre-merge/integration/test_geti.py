@@ -513,7 +513,9 @@ class TestGeti:
         deployment_folder = os.path.join(fxt_temp_directory, project.name)
 
         deployment = fxt_geti.deploy_project(
-            project.name, output_folder=deployment_folder
+            project.name,
+            output_folder=deployment_folder,
+            include_explainable_ai_head=True,
         )
 
         assert os.path.isdir(os.path.join(deployment_folder, "deployment"))
