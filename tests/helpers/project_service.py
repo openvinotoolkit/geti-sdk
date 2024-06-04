@@ -334,7 +334,9 @@ class ProjectService:
         """Deletes the project from the server"""
         if self._project is not None:
             with self.vcr_context(f"{self.project.name}_deletion.{CASSETTE_EXTENSION}"):
-                force_delete_project(self.project.name, self.project_client)
+                force_delete_project(
+                    self.project.name, self.project_client, self.project.id
+                )
                 self.reset_state()
 
     def reset_state(self) -> None:

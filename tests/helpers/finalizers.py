@@ -13,20 +13,26 @@
 # and limitations under the License.
 import logging
 import time
+from typing import Optional
 
 from geti_sdk.rest_clients import ProjectClient, TrainingClient
 
 
-def force_delete_project(project_name: str, project_client: ProjectClient) -> None:
+def force_delete_project(
+    project_name: str, project_client: ProjectClient, project_id: Optional[str] = None
+) -> None:
     """
     Deletes the project named 'project_name'. If any jobs are running for the
     project, this finalizer cancels them.
 
     :param project_name: Name of project to delete
     :param project_client: ProjectClient to use for project deletion
+    :param project_id: Optional ID of the project to delete. This can be useful in case
+        there are multiple projects with the same name in the workspace
     """
+    project = project_client.get_project_by_name(project_name, project_id)
     try:
-        project_client.delete_project(project=project_name, requires_confirmation=False)
+        project_client.delete_project(project=project, requires_confirmation=False)
     except TypeError:
         logging.warning(
             f"Project {project_name} was not found on the server, it was most "
@@ -39,8 +45,6 @@ def force_delete_project(project_name: str, project_client: ProjectClient) -> No
             f"session that is in progress. "
             f"\n\n Attempting to cancel the job and re-try project deletion."
         )
-
-        project = project_client.get_project_by_name(project_name)
         training_client = TrainingClient(
             workspace_id=project_client.workspace_id,
             session=project_client.session,
@@ -51,10 +55,8 @@ def force_delete_project(project_name: str, project_client: ProjectClient) -> No
             job.cancel(project_client.session)
         time.sleep(1)
         try:
-            project_client.delete_project(
-                project=project_name, requires_confirmation=False
-            )
+            project_client.delete_project(project=project, requires_confirmation=False)
         except ValueError as error:
             raise ValueError(
-                f"Unable to force delete project {project_name}, due to: {error} "
+                f"Unable to force delete project {project.name}, due to: {error} "
             )

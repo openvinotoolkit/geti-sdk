@@ -200,7 +200,7 @@ class TestGeti:
         fxt_annotation_reader.filter_dataset(
             labels=fxt_default_labels, criterion=dataset_filter_criterion
         )
-        fxt_geti.create_single_task_project_from_dataset(
+        project = fxt_geti.create_single_task_project_from_dataset(
             project_name=project_name,
             project_type=project_type,
             path_to_images=fxt_image_folder,
@@ -209,7 +209,7 @@ class TestGeti:
             max_threads=1,
         )
 
-        request.addfinalizer(lambda: fxt_project_finalizer(project_name))
+        request.addfinalizer(lambda: fxt_project_finalizer(project_name, project.id))
 
     @pytest.mark.vcr()
     @pytest.mark.parametrize(
@@ -257,7 +257,7 @@ class TestGeti:
             enable_auto_train=False,
             max_threads=1,
         )
-        request.addfinalizer(lambda: fxt_project_finalizer(project_name))
+        request.addfinalizer(lambda: fxt_project_finalizer(project_name, project.id))
 
         all_labels = fxt_default_labels + ["block"]
         for label_name in all_labels:
@@ -304,7 +304,9 @@ class TestGeti:
             enable_auto_train=False,
             max_threads=1,
         )
-        request.addfinalizer(lambda: fxt_project_finalizer(uploaded_project.name))
+        request.addfinalizer(
+            lambda: fxt_project_finalizer(uploaded_project.name, uploaded_project.id)
+        )
         image_client = ImageClient(
             session=fxt_geti.session,
             workspace_id=fxt_geti.workspace_id,

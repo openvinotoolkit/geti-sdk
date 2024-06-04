@@ -62,7 +62,9 @@ def fxt_anomaly_classification_demo_project(
     )
     yield project
     force_delete_project(
-        project_name=project_name, project_client=fxt_project_client_no_vcr
+        project_name=project_name,
+        project_client=fxt_project_client_no_vcr,
+        project_id=project.id,
     )
 
 
@@ -85,7 +87,9 @@ def fxt_segmentation_demo_project(
     )
     yield project
     force_delete_project(
-        project_name=project.name, project_client=fxt_project_client_no_vcr
+        project_name=project.name,
+        project_client=fxt_project_client_no_vcr,
+        project_id=project.id,
     )
 
 
@@ -108,7 +112,9 @@ def fxt_detection_to_classification_demo_project(
     )
     yield project
     force_delete_project(
-        project_name=project.name, project_client=fxt_project_client_no_vcr
+        project_name=project.name,
+        project_client=fxt_project_client_no_vcr,
+        project_id=project.id,
     )
 
 
@@ -131,7 +137,9 @@ def fxt_detection_to_segmentation_demo_project(
     )
     yield project
     force_delete_project(
-        project_name=project_name, project_client=fxt_project_client_no_vcr
+        project_name=project_name,
+        project_client=fxt_project_client_no_vcr,
+        project_id=project.id,
     )
 
 
@@ -154,7 +162,9 @@ def fxt_classification_demo_project(
     )
     yield project
     force_delete_project(
-        project_name=project_name, project_client=fxt_project_client_no_vcr
+        project_name=project_name,
+        project_client=fxt_project_client_no_vcr,
+        project_id=project.id,
     )
 
 
@@ -177,7 +187,9 @@ def fxt_detection_demo_project(
     )
     yield project
     force_delete_project(
-        project_name=project_name, project_client=fxt_project_client_no_vcr
+        project_name=project_name,
+        project_client=fxt_project_client_no_vcr,
+        project_id=project.id,
     )
 
 
