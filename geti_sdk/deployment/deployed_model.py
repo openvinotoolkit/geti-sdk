@@ -715,14 +715,14 @@ class DeployedModel(OptimizedModel):
                     prediction.feature_vector = postprocessing_results.feature_vector
                 result_medium = ResultMedium(name="saliency map", type="saliency map")
                 result_medium.data = self._converter.convert_saliency_map(
-                    postprocessing_results, image_shape=image.shape
+                    postprocessing_results, image_shape=metadata["original_shape"]
                 )
                 prediction.maps.append(result_medium)
             else:
-                logging.warning(
+                raise ValueError(
                     "Explainability outputs are not available for this model. "
                     "Please ensure the model has an explainability head."
-                )       
+                )
         return prediction
 
     def infer_queue_full(self) -> bool:

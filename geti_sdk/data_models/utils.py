@@ -310,7 +310,7 @@ def remove_null_fields(input: Any):
             elif isinstance(value, Sequence):
                 for item in value:
                     remove_null_fields(item)
-            elif value is None or value == "":
+            elif value is None or (type(value) is str and value == ""):
                 input.pop(key)
     elif isinstance(input, list):
         for item in input:
