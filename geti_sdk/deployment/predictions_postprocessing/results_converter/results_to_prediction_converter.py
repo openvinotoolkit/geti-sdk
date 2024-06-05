@@ -405,6 +405,8 @@ class MaskToAnnotationConverter(InferenceResultsToPredictionConverter):
         :param image_shape: shape of the input image
         :return: Prediction object with corresponding label
         """
+        if len(inference_results.saliency_map) == 0:
+            return None
         # Model API returns a list of np.ndarray for each label
         # Including `no_object` which is empty
         saliency_map = np.array(
