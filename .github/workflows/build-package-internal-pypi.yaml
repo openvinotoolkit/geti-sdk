@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   build:
+    runs-on: [self-hosted, sdk-runner]
     uses: ./.github/workflows/build-package.yaml
     with:
       enable_dev_dependencies: 1
