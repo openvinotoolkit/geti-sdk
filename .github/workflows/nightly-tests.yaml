@@ -73,7 +73,7 @@ jobs:
       - name: Install package with dev requirements
         # Steps: Activate conda env, upgrade pip, install SDK
         run: |
-          eval "$(conda shell.bash hook)"
+          eval "$($CONDA_DIR/conda shell.bash hook)"
           conda activate $CONDA_ENV
 
           python -m pip install --upgrade pip
@@ -101,7 +101,7 @@ jobs:
           export NO_PROXY=$GETI_HOST,$NO_PROXY
           export GETI_HOST=https://$GETI_HOST
 
-          eval "$(conda shell.bash hook)"
+          eval "$($CONDA_DIR/conda shell.bash hook)"
           conda activate $CONDA_ENV
 
           pytest tests --cov=geti_sdk --html=$REPORT_DIRECTORY/nightly_test_report.html --self-contained-html --cov-report html:$REPORT_DIRECTORY/coverage
