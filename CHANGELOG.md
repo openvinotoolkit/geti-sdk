@@ -1,3 +1,18 @@
+# v2.1.0 Intel® Geti™ SDK (05-06-2024)
+## What's Changed
+* Saliency map visualization by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/424
+* Add a model management notebook by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/419
+* Add support for asynchronous inference in deployments by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/421
+* Bump imageio-ffmpeg from 0.4.9 to 0.5.1 in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/430
+* Saliency map fix by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/427
+* Fix rotated detectionsaliency map processing by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/431
+* Handle projects with duplicate names in the `ProjectClient` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/425
+* Update opencv-python requirement from ==4.9.* to ==4.10.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/428
+* Update nightly test conda env directory by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/432
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v2.0.1...v2.1.0
+
 # v2.0.1 Intel® Geti™ SDK (29-05-2024)
 ## What's Changed
 * Add retry mechanism to better handle `ConnectionError` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/420
