@@ -237,8 +237,21 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
         saliency_map = inference_results.saliency_map
         if len(saliency_map) == 0:
             return None
+        if isinstance(saliency_map, list):
+            saliency_map = np.array(
+                [
+                    smap if len(smap) > 0 else np.zeros(image_shape[:2], dtype=np.uint8)
+                    for smap in saliency_map
+                ]
+            )
+        elif isinstance(saliency_map, np.ndarray):
+            saliency_map = saliency_map.squeeze(0)
+        else:
+            raise ValueError(
+                f"Unsupported saliency map type: {type(saliency_map)}. Expected list or numpy array."
+            )
         saliency_map = cv2.resize(
-            np.transpose(saliency_map.squeeze(0), (1, 2, 0)),
+            np.transpose(saliency_map, (1, 2, 0)),
             dsize=(image_shape[1], image_shape[0]),
             interpolation=cv2.INTER_CUBIC,
         )
