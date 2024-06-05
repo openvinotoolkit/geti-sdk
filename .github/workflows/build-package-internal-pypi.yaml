@@ -11,10 +11,10 @@ permissions:
 
 jobs:
   build:
-    runs-on: [self-hosted, sdk-runner]
     uses: ./.github/workflows/build-package.yaml
     with:
       enable_dev_dependencies: 1
+      runner: self-hosted
     secrets:
       PYPI_USER: ${{ secrets.SCLAB_PYPI_USERNAME }}
       PYPI_PASSWORD: ${{ secrets.SCLAB_PYPI_PASSWORD }}
