@@ -20,9 +20,12 @@ class TestAnomalyClassification(TestNightlyProject):
         Test the `ensure_trained_anomaly_project` method
         """
         project_name = f"{PROJECT_PREFIX}_ensure_trained_anomaly_project"
-        if fxt_project_client_no_vcr.get_project_by_name(project_name) is not None:
+        existing_project = fxt_project_client_no_vcr.get_project_by_name(project_name)
+        if existing_project is not None:
             force_delete_project(
-                project_name=project_name, project_client=fxt_project_client_no_vcr
+                project_name=project_name,
+                project_client=fxt_project_client_no_vcr,
+                project_id=existing_project.id,
             )
         assert project_name not in [
             project.name for project in fxt_project_client_no_vcr.get_all_projects()
