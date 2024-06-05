@@ -16,6 +16,8 @@ on:
         required: true
       GETI_PASSWORD:
         required: true
+      CONDA_DIR:
+        required: true
 
 env:
   # Login details for the Geti instance to run the tests against
@@ -35,6 +37,7 @@ env:
 
   # Conda environment
   CONDA_ENV: sc_sdk_nightly_test_environment
+  CONDA_DIR: ${{ secrets.CONDA_DIR }}
   PYTHON_VERSION: 3.9
 
 permissions:
@@ -53,7 +56,7 @@ jobs:
         # Steps: check if env named $CONDA_ENV exists, if so remove it. Create new env
         # using python version $PYTHON_VERSION
         run: |
-          eval "$(conda shell.bash hook)"
+          eval "$($CONDA_DIR/conda shell.bash hook)"
 
           conda info --envs > temp_envs.txt
 

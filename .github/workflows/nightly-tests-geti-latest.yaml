@@ -19,3 +19,4 @@ jobs:
       GETI_HOST: ${{ secrets.GETI_HOST }}
       GETI_USERNAME: ${{ secrets.GETI_USERNAME }}
       GETI_PASSWORD: ${{ secrets.GETI_PASSWORD }}
+      CONDA_DIR: ${{ secrets.CONDA_DIR }}
