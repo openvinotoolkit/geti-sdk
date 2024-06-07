@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from geti_sdk.platform_versions import (
-    GETI_10_VERSION,
-    GETI_11_VERSION,
-)
+from geti_sdk.platform_versions import GETI_10_VERSION, GETI_11_VERSION
 
 
 class TestGetiVersion:
