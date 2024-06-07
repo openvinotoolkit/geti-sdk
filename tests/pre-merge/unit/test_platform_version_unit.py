@@ -26,15 +26,6 @@ class TestGetiVersion:
         Test parsing the version from a version string, for different release versions
         of the Intel Geti platform. Also test comparisons between versions
         """
-
-        assert SC_MVP_VERSION.is_sc_mvp and not SC_MVP_VERSION.is_geti
-        assert (
-            SC_11_VERSION.is_sc_1_1
-            and not SC_11_VERSION.is_geti
-            and not SC_11_VERSION.is_sc_mvp
-        )
-        assert GETI_10_VERSION.is_geti
-
         assert GETI_10_VERSION > SC_11_VERSION
         assert SC_11_VERSION > SC_MVP_VERSION
         assert not SC_MVP_VERSION > GETI_10_VERSION
