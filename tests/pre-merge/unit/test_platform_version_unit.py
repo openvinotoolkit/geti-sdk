@@ -15,8 +15,6 @@
 from geti_sdk.platform_versions import (
     GETI_10_VERSION,
     GETI_11_VERSION,
-    SC_11_VERSION,
-    SC_MVP_VERSION,
 )
 
 
@@ -26,8 +24,5 @@ class TestGetiVersion:
         Test parsing the version from a version string, for different release versions
         of the Intel Geti platform. Also test comparisons between versions
         """
-        assert GETI_10_VERSION > SC_11_VERSION
-        assert SC_11_VERSION > SC_MVP_VERSION
-        assert not SC_MVP_VERSION > GETI_10_VERSION
         assert GETI_10_VERSION < GETI_11_VERSION
         assert GETI_11_VERSION >= GETI_10_VERSION
