@@ -32,9 +32,8 @@ class TestGetiSession:
         version_tests = [
             fxt_geti_session.version.is_sc_mvp,
             fxt_geti_session.version.is_sc_1_1,
-            fxt_geti_session.version.is_geti,
         ]
-        assert sum(version_tests) == 1
+        assert sum(version_tests) == 0
 
     @pytest.mark.vcr()
     def test_logout(self, fxt_geti_session: GetiSession):

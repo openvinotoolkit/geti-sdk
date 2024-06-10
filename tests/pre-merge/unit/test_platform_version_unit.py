@@ -12,12 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from geti_sdk.platform_versions import (
-    GETI_10_VERSION,
-    GETI_11_VERSION,
-    SC_11_VERSION,
-    SC_MVP_VERSION,
-)
+from geti_sdk.platform_versions import GETI_10_VERSION, GETI_11_VERSION
 
 
 class TestGetiVersion:
@@ -26,17 +21,5 @@ class TestGetiVersion:
         Test parsing the version from a version string, for different release versions
         of the Intel Geti platform. Also test comparisons between versions
         """
-
-        assert SC_MVP_VERSION.is_sc_mvp and not SC_MVP_VERSION.is_geti
-        assert (
-            SC_11_VERSION.is_sc_1_1
-            and not SC_11_VERSION.is_geti
-            and not SC_11_VERSION.is_sc_mvp
-        )
-        assert GETI_10_VERSION.is_geti
-
-        assert GETI_10_VERSION > SC_11_VERSION
-        assert SC_11_VERSION > SC_MVP_VERSION
-        assert not SC_MVP_VERSION > GETI_10_VERSION
         assert GETI_10_VERSION < GETI_11_VERSION
         assert GETI_11_VERSION >= GETI_10_VERSION
