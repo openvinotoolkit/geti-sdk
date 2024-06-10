@@ -6,6 +6,9 @@ on:
       enable_dev_dependencies:
         required: false
         type: string
+      runner:
+        required: true
+        type: string
     secrets:
       PYPI_USER:
         required: true
@@ -28,7 +31,7 @@ permissions:
 
 jobs:
   build_sdk:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@a4aa98b93cab29d9b1101a6143fb8bce00e2eac4 # v2.7.1
