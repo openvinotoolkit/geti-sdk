@@ -59,18 +59,10 @@ class GetiVersion:
             raise TypeError(
                 f"Unsupported comparison operation, {other} is not a GetiVersion."
             )
-        if self.is_geti and other.is_geti:
-            if self.version != other.version:
-                return self.version > other.version
-            else:
-                return self.time_tag > other.time_tag
+        if self.version != other.version:
+            return self.version > other.version
         else:
-            if self.is_geti and not other.is_geti:
-                return True
-            elif not self.is_geti and other.is_geti:
-                return False
-            else:
-                return self.time_tag > other.time_tag
+            return self.time_tag > other.time_tag
 
     def __lt__(self, other):
         """
@@ -157,18 +149,6 @@ class GetiVersion:
         return (
             self.version == Version("1.1.0")
             and self._SC11_TIMETAG <= self.time_tag <= self._GETI10_TIMETAG
-        )
-
-    @property
-    def is_geti(self) -> bool:
-        """
-        Return True if the version corresponds to any version of the Geti platform.
-        Return False if it corresponds to any SC version.
-        """
-        return (
-            self.version > Version("1.0.0b0")
-            and self.time_tag >= self._GETI10_TIMETAG
-            and not (self.is_sc_1_1 or self.is_sc_mvp)
         )
 
 
