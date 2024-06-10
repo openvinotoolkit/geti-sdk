@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - main
+      - 'releases/**'
 
 env:
   PREMERGE_TEST_REPORT: pre_merge_test_report.html
