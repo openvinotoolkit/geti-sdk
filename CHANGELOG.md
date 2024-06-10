@@ -1,3 +1,10 @@
+# v2.0.2 Intel® Geti™ SDK (10-06-2024)
+## What's Changed
+* Fix `is_geti` version check (#434) by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/435
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v2.0.1...v2.0.2
+
 # v2.0.1 Intel® Geti™ SDK (29-05-2024)
 ## What's Changed
 * Add retry mechanism to better handle `ConnectionError` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/420
