@@ -72,6 +72,7 @@ class ModelInfo:
     )
     version: int
     precision: Optional[List[str]] = None  # Added in Geti v1.9
+    task_id: Optional[str] = None  # Added in Geti v2.0
 
 
 @attr.define()
