@@ -59,15 +59,7 @@ class ModelClient:
         :return: List of model groups in the project
         """
         response = self.session.get_rest_response(url=self.base_url, method="GET")
-        if self.session.version.is_sc_1_1 or self.session.version.is_sc_mvp:
-            # The API is not fully consistent here, depending on exact release.
-            # Response may either be a dict or a list
-            try:
-                response_array = response["items"]
-            except TypeError:
-                response_array = response
-        else:
-            response_array = response["model_groups"]
+        response_array = response["model_groups"]
         model_groups = [
             ModelRESTConverter.model_group_from_dict(group) for group in response_array
         ]
@@ -512,10 +504,7 @@ class ModelClient:
         """
         if check_status:
             job.update(self.session)
-        if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
-            job_pid = job.project_id
-        else:
-            job_pid = job.metadata.project.id
+        job_pid = job.metadata.project.id
         if job_pid != self.project.id:
             raise ValueError(
                 f"Cannot get model for job `{job.description}`. This job does not "

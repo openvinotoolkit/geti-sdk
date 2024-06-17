@@ -88,11 +88,7 @@ class TrainingClient:
             query += f"&project_id={self.project.id}"
         if running_only:
             query += "&state=running"
-
-        if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
-            response_list_key = "items"
-        else:
-            response_list_key = "jobs"
+        response_list_key = "jobs"
 
         job_rest_list: List[dict] = []
         while response := self.session.get_rest_response(

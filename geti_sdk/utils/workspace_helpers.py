@@ -26,10 +26,7 @@ def get_default_workspace_id(rest_session: GetiSession) -> str:
     if isinstance(workspaces, list):
         workspace_list = workspaces
     elif isinstance(workspaces, dict):
-        if rest_session.version.is_sc_mvp or rest_session.version.is_sc_1_1:
-            workspace_list = workspaces["items"]
-        else:
-            workspace_list = workspaces["workspaces"]
+        workspace_list = workspaces["workspaces"]
     else:
         raise ValueError(
             f"Unexpected response from cluster: {workspaces}. Expected to receive a "
