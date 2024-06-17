@@ -36,7 +36,7 @@ GETI_COOKIE_NAME = "geti-cookie"
 
 # INITIAL_HEADERS = {"Connection": "keep-alive", "Upgrade-Insecure-Requests": "1"}
 INITIAL_HEADERS = {"Upgrade-Insecure-Requests": "1"}
-SUCCESS_STATUS_CODES = [200, 201, 202]
+SUCCESS_STATUS_CODES = [200, 201, 202, 204]
 
 SAAS_MODE = "saas"
 ONPREM_MODE = "on-prem"
@@ -233,10 +233,11 @@ class GetiSession(requests.Session):
         url: str,
         method: str,
         contenttype: str = "json",
-        data=None,
+        data: Optional[Any] = None,
         allow_reauthentication: bool = True,
         include_organization_id: bool = True,
         allow_text_response: bool = False,
+        request_headers: Dict[str, str] = {},
     ) -> Union[Response, dict, list]:
         """
         Return the REST response from a request to `url` with `method`.
@@ -257,9 +258,10 @@ class GetiSession(requests.Session):
             when authentication has expired. However, some endpoints are designed to
             return text responses, for those endpoints this parameter should be set to
             True
+        :param request_headers: Additional headers to include in the request
         """
-        if url.startswith(self.config.api_pattern):
-            url = url[len(self.config.api_pattern) :]
+        if self.config.api_pattern in url:
+            url = url.split(self.config.api_pattern)[-1]
 
         self._update_headers_for_content_type(content_type=contenttype)
 
@@ -282,6 +284,8 @@ class GetiSession(requests.Session):
                     f"Making a POST request with content of type {contenttype} is "
                     f"currently not supported through the Geti SDK."
                 )
+        elif method == "PATCH":
+            kw_data_arg = {"data": data}
         else:
             kw_data_arg = {}
 
@@ -306,7 +310,9 @@ class GetiSession(requests.Session):
         last_conn_error: Optional[ConnectionError] = None
         while retries:
             try:
-                response = self.request(**request_params, proxies=self._proxies)
+                response = self.request(
+                    **request_params, proxies=self._proxies, headers=request_headers
+                )
                 break
             except requests.exceptions.SSLError as error:
                 raise requests.exceptions.SSLError(
@@ -320,7 +326,6 @@ class GetiSession(requests.Session):
 
         if last_conn_error is not None:
             raise last_conn_error
-
         response_content_type = response.headers.get("Content-Type", [])
         if (
             response.status_code not in SUCCESS_STATUS_CODES
@@ -528,6 +533,10 @@ class GetiSession(requests.Session):
             self.headers.pop("Content-Type", None)
         elif content_type == "zip":
             self.headers.update({"Content-Type": "application/zip"})
+        elif content_type == "offset+octet-stream":
+            self.headers.update({"Content-Type": "application/offset+octet-stream"})
+        else:
+            self.headers.update({"Content-Type": content_type})
 
     @property
     def base_url(self) -> str:
