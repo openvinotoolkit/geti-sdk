@@ -45,7 +45,10 @@ class ModelRESTConverter:
             Intel® Geti™ /model_groups/models REST endpoint
         :return: Model object corresponding to the data in `input_dict`
         """
-        return deserialize_dictionary(input_dict, output_type=Model)
+        model_group_id = input_dict.pop("model_group_id", None)
+        model_object = deserialize_dictionary(input_dict, output_type=Model)
+        model_object.model_group_id = model_group_id
+        return model_object
 
     @staticmethod
     def optimized_model_from_dict(input_dict: Dict[str, Any]) -> OptimizedModel:
@@ -56,4 +59,7 @@ class ModelRESTConverter:
             the Intel® Geti™ /model_groups/models REST endpoint
         :return: OptimizedModel object corresponding to the data in `input_dict`
         """
-        return deserialize_dictionary(input_dict, output_type=OptimizedModel)
+        model_group_id = input_dict.pop("model_group_id", None)
+        model_object = deserialize_dictionary(input_dict, output_type=OptimizedModel)
+        model_object.model_group_id = model_group_id
+        return model_object
