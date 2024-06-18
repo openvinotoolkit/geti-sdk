@@ -361,9 +361,11 @@ class DeploymentClient:
         # Fetch the deployment package
         deployment = self._fetch_deployment(deployment_id=code_deployment.id)
 
-        # Attach the appropriate hyper parameters to the deployed models
+        # Attach the appropriate hyper parameters and model_group_id to the deployed
+        # models
         for index, model in enumerate(deployment.models):
             model.hyper_parameters = hyper_parameters[index]
+            model.model_group_id = sorted_optimized_models[index].model_group_id
 
         # Save the deployment, if needed
         if output_folder is not None:
