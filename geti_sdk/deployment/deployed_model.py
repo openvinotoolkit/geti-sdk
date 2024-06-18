@@ -400,9 +400,9 @@ class DeployedModel(OptimizedModel):
         """
         model_dict = model.to_dict()
         model_dict.update({"hyper_parameters": hyper_parameters})
+        model_group_id = model_dict.pop("model_group_id", None)
         deployed_model = cls(**model_dict)
         try:
-            model_group_id = model.model_group_id
             base_url = model.base_url
             deployed_model.model_group_id = model_group_id
             deployed_model.base_url = base_url
