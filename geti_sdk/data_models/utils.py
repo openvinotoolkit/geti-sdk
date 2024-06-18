@@ -307,7 +307,7 @@ def remove_null_fields(input: Any):
         for key, value in list(input.items()):
             if isinstance(value, dict):
                 remove_null_fields(value)
-            elif isinstance(value, Sequence):
+            elif isinstance(value, Sequence) and not isinstance(value, str):
                 for item in value:
                     remove_null_fields(item)
             elif value is None or (isinstance(value, str) and value == ""):
