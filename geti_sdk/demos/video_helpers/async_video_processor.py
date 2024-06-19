@@ -61,6 +61,8 @@ class AsyncVideoProcessor:
         """
         self.deployment = deployment
         self.processing_function = processing_function
+
+        # Try to set min buffer size based on cpu count
         if min_buffer_size is None and os.cpu_count() is not None:
             min_buffer_size = 2 * os.cpu_count()
             logging.debug(
@@ -74,6 +76,21 @@ class AsyncVideoProcessor:
                     "This may result in video frames not being processed in order. It"
                     "is recommended to increase the minimum buffer size."
                 )
+        # Make sure min_buffer_size is not larger than max_buffer_size
+        if min_buffer_size is not None and max_buffer_size is not None:
+            target_min_buffer_size = min_buffer_size
+            min_buffer_size = max(2, min(target_min_buffer_size, max_buffer_size - 1))
+            if min_buffer_size < target_min_buffer_size:
+                logging.info(
+                    f"Minimum buffer size `{target_min_buffer_size}` was set larger "
+                    f"than maximum size `{max_buffer_size}`. Limiting minimum buffer "
+                    f"size to {min_buffer_size}."
+                )
+        # Ultimately, fall back to 2 as absolute minimum
+        if min_buffer_size is None or min_buffer_size < 2:
+            logging.info("Setting minimum buffer size to 2")
+            min_buffer_size = 2
+
         self.buffer = OrderedResultBuffer(
             maxsize=max_buffer_size, minsize=min_buffer_size
         )
@@ -143,7 +160,9 @@ class AsyncVideoProcessor:
             """
             while True:
                 if self._should_stop_now:
-                    logging.debug("Stopping processing thread immediately")
+                    logging.debug(
+                        "AsyncVideoProcessor: Stopping processing thread immediately"
+                    )
                     return
 
                 # Check if all frames have been inferred and put to the buffer already
@@ -153,30 +172,19 @@ class AsyncVideoProcessor:
                         self.buffer.total_items_buffered == num_frames - 1
                     )
 
-                # In case of the `should_stop` signal, check if the buffer has reached
-                # it's minimum size yet. If so, we can start to empty it
-                processed_up_to_min_buffer = False
-                if self._should_stop:
-                    with (
-                        self._current_index.get_lock(),
-                        self._processed_count.get_lock(),
-                    ):
-                        if (
-                            self._current_index.value - self._processed_count.value
-                            <= self._min_buffer_size
-                        ):
-                            processed_up_to_min_buffer = True
-                empty_buffer = processed_up_to_min_buffer or all_frames_inferred
-
+                empty_buffer = self._should_stop or all_frames_inferred
                 # Get the item from the buffer
                 try:
-                    item = self.buffer.get(empty_buffer=empty_buffer)
+                    item = self.buffer.get(empty_buffer=empty_buffer, timeout=1e-6)
                 except Empty:
                     with (
                         self._processed_count.get_lock(),
                         self._current_index.get_lock(),
                     ):
-                        if self._processed_count.value == self._current_index.value:
+                        if (
+                            self._processed_count.value == self._current_index.value
+                            and self._should_stop
+                        ):
                             # Buffer is empty, all items have been processed.
                             # Stop thread
                             return
@@ -231,14 +239,10 @@ class AsyncVideoProcessor:
         if not self._is_running:
             return
         self._should_stop = True
+        logging.info("AsyncVideoProcessor: Awaiting processing of all frames in buffer")
         self._worker.join()
         self._is_running = False
         self._should_stop = False
-        while True:
-            if self.buffer.is_empty and not self._worker.is_alive():
-                # Buffer should be empty and worker thread should have stopped
-                break
-            time.sleep(1e-9)
-        logging.debug(
+        logging.info(
             "AsyncVideoProcessor: All frames processed. Processing thread stopped"
         )
