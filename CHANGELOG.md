@@ -1,4 +1,4 @@
-# v2.1.0 Intel® Geti™ SDK (05-06-2024)
+# v2.1.0 Intel® Geti™ SDK (19-06-2024)
 ## What's Changed
 * Saliency map visualization by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/424
 * Add a model management notebook by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/419
@@ -9,6 +9,17 @@
 * Handle projects with duplicate names in the `ProjectClient` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/425
 * Update opencv-python requirement from ==4.9.* to ==4.10.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/428
 * Update nightly test conda env directory by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/432
+* Fix `is_geti` version check by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/434
+* Fix build and publish workflow for internal pypi by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/433
+* Add check to make sure project is trained in notebook 012 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/439
+* Update flake8 requirement from ==7.0.* to ==7.1.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/440
+* Fix removal of empty strings in json data for POSTing by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/442
+* Include `model_group_id` in `Model` serialization and deserialization by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/443
+* Include `model_group_id` upon model deployment in DeploymentClient by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/444
+* Small fixes for testing client and test result by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/438
+* Run pre-merge tests on PR to release branch by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/436
+* Fix model_group_id assignment in DeployedModel deserialization by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/445
+* Fix bug in `AsyncVideoProcessor` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/441
 
 
 **Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v2.0.1...v2.1.0

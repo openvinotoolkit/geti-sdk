@@ -17,7 +17,7 @@ from typing import List, Optional, Sequence
 from geti_sdk.data_models import Dataset, Job, Model, Project, TestResult
 from geti_sdk.http_session import GetiSession
 from geti_sdk.rest_converters import TestResultRESTConverter
-from geti_sdk.utils.job_helpers import get_job_with_timeout, monitor_jobs
+from geti_sdk.utils.job_helpers import get_job_with_timeout, monitor_job, monitor_jobs
 
 SUPPORTED_METRICS = ["global", "local"]
 
@@ -73,7 +73,7 @@ class TestingClient:
             url=self.base_url, method="POST", data=test_data
         )
         job = get_job_with_timeout(
-            job_id=response["job_ids"][0],
+            job_id=response["job_id"],
             session=self.session,
             workspace_id=self.workspace_id,
             job_type="testing",
@@ -121,4 +121,21 @@ class TestingClient:
         """
         return monitor_jobs(
             session=self.session, jobs=jobs, timeout=timeout, interval=interval
+        )
+
+    def monitor_job(self, job: Job, timeout: int = 10000, interval: int = 15) -> Job:
+        """
+        Monitor and print the progress of the `job`. Execution is
+        halted until the job has either finished, failed or was cancelled.
+
+        Progress will be reported in 15s intervals
+
+        :param job: Job to monitor
+        :param timeout: Timeout (in seconds) after which to stop the monitoring
+        :param interval: Time interval (in seconds) at which the TrainingClient polls
+            the server to update the status of the jobs. Defaults to 15 seconds
+        :return: Job with its status updated
+        """
+        return monitor_job(
+            session=self.session, job=job, timeout=timeout, interval=interval
         )

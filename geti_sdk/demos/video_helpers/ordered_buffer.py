@@ -94,7 +94,7 @@ class OrderedResultBuffer:
         with self._put_count.get_lock():
             self._put_count.value += 1
 
-    def get(self, timeout: int = 0, empty_buffer: bool = False) -> IndexedResult:
+    def get(self, timeout: float = 0, empty_buffer: bool = False) -> IndexedResult:
         """
         Get the next item from the buffer
 
@@ -107,11 +107,10 @@ class OrderedResultBuffer:
         t_start = time.time()
         item: Optional[IndexedResult] = None
         if not empty_buffer:
-            while timeout == 0 or t_start - time.time() < timeout:
+            while timeout == 0 or time.time() - t_start < timeout:
                 if self._queue.qsize() > self._minsize:
                     try:
                         item = self._queue.get(block=False)
-                        self._queue.task_done()
                     except Empty:
                         time.sleep(1e-9)
                         continue
@@ -121,6 +120,7 @@ class OrderedResultBuffer:
             item = self._queue.get(block=True, timeout=timeout + 1e-9)
         if item is None:
             raise Empty
+        self._queue.task_done()
         with self._get_count.get_lock():
             self._get_count.value += 1
         return item
