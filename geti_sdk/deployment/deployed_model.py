@@ -402,9 +402,9 @@ class DeployedModel(OptimizedModel):
         model_dict.update({"hyper_parameters": hyper_parameters})
         model_group_id = model_dict.pop("model_group_id", None)
         deployed_model = cls(**model_dict)
+        deployed_model.model_group_id = model_group_id
         try:
             base_url = model.base_url
-            deployed_model.model_group_id = model_group_id
             deployed_model.base_url = base_url
         except ValueError:
             pass
