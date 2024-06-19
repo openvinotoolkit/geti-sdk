@@ -149,22 +149,17 @@ class BaseModel:
                 model._base_url = base_url + f"/optimized_models/{model.id}"
         self._base_url = base_url
 
-    @model_group_id.setter
-    def model_group_id(self, id_: str):
-        """
-        Set the model group id for this model.
-
-        :param id: ID to set
-        """
-        self._model_group_id = id_
-
     def to_dict(self) -> Dict[str, Any]:
         """
         Return the dictionary representation of the model.
 
         :return:
         """
-        return attr.asdict(self, recurse=True, value_serializer=attr_value_serializer)
+        base_dict = attr.asdict(
+            self, recurse=True, value_serializer=attr_value_serializer
+        )
+        base_dict["model_group_id"] = self.model_group_id
+        return base_dict
 
     @property
     def overview(self) -> str:
