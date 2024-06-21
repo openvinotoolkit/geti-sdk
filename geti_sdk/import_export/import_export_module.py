@@ -3,8 +3,8 @@ import os
 import time
 from typing import List, Optional
 
-import tqdm
 from pathvalidate import sanitize_filepath
+from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
 from geti_sdk.annotation_readers.geti_annotation_reader import GetiAnnotationReader
@@ -312,7 +312,7 @@ class GetiIE:
                     f"Downloading project '{project.name}'... {index+1}/{len(projects)}."
                 )
                 self.download_project_data(
-                    project_name=project.name,
+                    project=project,
                     target_folder=os.path.join(
                         target_folder, get_project_folder_name(project)
                     ),

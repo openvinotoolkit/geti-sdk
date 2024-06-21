@@ -94,8 +94,8 @@ class TestGeti:
             "geti_sdk.geti.ProjectClient.get_all_projects",
             return_value=fxt_nightly_projects,
         )
-        mock_download_project_data = mocker.patch.object(
-            fxt_mocked_geti, "download_project_data"
+        mock_download_project_data = mocker.patch(
+            "geti_sdk.import_export.import_export_module.GetiIE.download_project_data"
         )
 
         # Act
@@ -121,8 +121,8 @@ class TestGeti:
         mock_is_project_dir = mocker.patch(
             "geti_sdk.geti.ProjectClient.is_project_dir", return_value=True
         )
-        mock_upload_project_data = mocker.patch.object(
-            fxt_mocked_geti, "upload_project_data"
+        mock_upload_project_data = mocker.patch(
+            "geti_sdk.import_export.import_export_module.GetiIE.upload_project_data"
         )
 
         # Act
