@@ -36,7 +36,7 @@ GETI_COOKIE_NAME = "geti-cookie"
 
 # INITIAL_HEADERS = {"Connection": "keep-alive", "Upgrade-Insecure-Requests": "1"}
 INITIAL_HEADERS = {"Upgrade-Insecure-Requests": "1"}
-SUCCESS_STATUS_CODES = [200, 201, 202, 204]
+SUCCESS_STATUS_CODES = [200, 201, 202]
 
 SAAS_MODE = "saas"
 ONPREM_MODE = "on-prem"
@@ -331,7 +331,9 @@ class GetiSession(requests.Session):
             response.status_code not in SUCCESS_STATUS_CODES
             or "text/html" in response_content_type
         ):
-            if not ("text/html" in response_content_type and allow_text_response):
+            if response.status_code == 204 and method in ["OPTIONS", "PATCH"]:
+                pass
+            elif not ("text/html" in response_content_type and allow_text_response):
                 response = self._handle_error_response(
                     response=response,
                     request_params=request_params,
@@ -339,7 +341,6 @@ class GetiSession(requests.Session):
                     allow_reauthentication=allow_reauthentication,
                     content_type=contenttype,
                 )
-
         if response.headers.get("Content-Type", "").startswith("application/json"):
             result = response.json()
         else:

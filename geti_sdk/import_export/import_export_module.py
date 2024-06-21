@@ -47,34 +47,12 @@ class GetiIE:
         self.base_url = f"workspaces/{workspace_id}/"
         self.project_client = project_client
 
-    def get_project(self, project_name: str, project_id: Optional[str]) -> Project:
-        """
-        Return the Intel® Geti™ project named `project_name`, if any. If no project by
-        that name is found on the Intel® Geti™ server, this method will raise a
-        KeyError.
-
-        :param project_name: Name of the project to retrieve
-        :raises: KeyError if project named `project_name` is not found on the server
-        :return: Project identified by `project_name`
-        """
-        project = self.project_client.get_project_by_name(
-            project_name=project_name, project_id=project_id
-        )
-        if project is None:
-            raise KeyError(
-                f"Project '{project_name}' was not found in the current workspace on "
-                f"the Intel® Geti™ server."
-            )
-        return project
-
     def download_project_data(
         self,
-        project_name: str,
-        project_id: Optional[str] = None,
+        project: Project,
         target_folder: Optional[str] = None,
         include_predictions: bool = False,
         include_active_models: bool = False,
-        include_deployment: bool = False,
         max_threads: int = 10,
     ) -> Project:
         """
@@ -85,13 +63,9 @@ class GetiIE:
         :param target_folder: The path to save the downloaded project.
         :param include_predictions: Whether to download predictions for the project.
         :param include_active_models: Whether to download active models for the project.
-        :param include_deployment: Whether to download deployment for the project.
         :param max_threads: The maximum number of threads to use for downloading media.
         :return: The downloaded project.
         """
-        # Obtain project details from cluster
-        project = self.get_project(project_name, project_id)
-
         # Validate or create target_folder
         if target_folder is None:
             target_folder = os.path.join(".", get_project_folder_name(project))
@@ -389,7 +363,10 @@ class GetiIE:
 
         :param filepath: The path to the dataset archive.
         :param project_name: The name of the new project.
-        :param project_type: The type of the new project.
+        :param project_type: The type of the new project. Provide one of
+            [classification, classification_hierarchical, detection, segmentation,
+            instance_segmentation, anomaly_classification, anomaly_detection, anomaly_segmentation,
+            detection_oriented, detection_classification, detection_segmentation]
         :return: The imported project.
         :raises: RuntimeError if the project type is not supported for the imported dataset.
         """
@@ -456,10 +433,15 @@ class GetiIE:
         logging.info(
             f"Project '{project_name}' was successfully imported from the dataset."
         )
-        return self.get_project(
+        imported_project = self.project_client.get_project_by_name(
             project_name=project_name,
             project_id=job.metadata.project_id,
         )
+        if imported_project is None:
+            raise RuntimeError(
+                f"Failed to retrieve the imported project '{project_name}'."
+            )
+        return imported_project
 
     def import_project(
         self, filepath: os.PathLike, project_name: Optional[str] = None
@@ -497,10 +479,15 @@ class GetiIE:
         )
 
         job = monitor_job(session=self.session, job=job, interval=5)
-        return self.get_project(
+        imported_project = self.project_client.get_project_by_name(
             project_name=project_name,
             project_id=job.metadata.project_id,
         )
+        if imported_project is None:
+            raise RuntimeError(
+                f"Failed to retrieve the imported project '{project_name}'."
+            )
+        return imported_project
 
     def _tus_upload_file(self, upload_endpoint: str, filepath: os.PathLike) -> str:
         """
@@ -520,7 +507,7 @@ class GetiIE:
             raise RuntimeError("Failed to get file id for project {project_name}.")
         return file_id
 
-    def export_project(self, project: Project, filepath: os.PathLike):
+    def export_project(self, project_id: str, filepath: os.PathLike):
         """
         Export a project from the Geti Platform.
 
@@ -528,8 +515,8 @@ class GetiIE:
         :param filepath: The path to save the exported project.
         :raises: RuntimeError if the download url is not retrieved.
         """
-        url = f"{self.base_url}projects/{project.id}:export"
-        self._export_entity(url=url, filepath=filepath)
+        url = f"{self.base_url}projects/{project_id}:export"
+        self._export_snapshot(url=url, filepath=filepath)
 
     def export_dataset(
         self,
@@ -558,9 +545,9 @@ class GetiIE:
             f":prepare-for-export?{query_params}"
         )
 
-        self._export_entity(url=url, filepath=filepath)
+        self._export_snapshot(url=url, filepath=filepath)
 
-    def _export_entity(self, url: str, filepath: os.PathLike):
+    def _export_snapshot(self, url: str, filepath: os.PathLike):
         """
         Export an entity from the Geti Platform.
 
@@ -568,6 +555,9 @@ class GetiIE:
         :param filepath: The path to save the exported entity.
         :raises: RuntimeError if the download url is not retrieved.
         """
+        parent_dir = os.path.dirname(filepath)
+        os.makedirs(parent_dir, exist_ok=True)
+
         response = self.session.get_rest_response(
             url=url,
             method="POST",

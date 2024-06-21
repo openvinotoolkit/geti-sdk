@@ -317,6 +317,7 @@ class Job:
 
         self.steps = response.get("steps", None)
         self.state = JobState(response["state"])
+        self.metadata.project_id = response["metadata"].get("project_id", None)
         self.metadata.download_url = response["metadata"].get("download_url", None)
         self.metadata.warnings = response["metadata"].get("warnings", None)
         self.metadata.supported_project_types = response["metadata"].get(
