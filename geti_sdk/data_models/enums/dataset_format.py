@@ -28,6 +28,6 @@ class DatasetFormat(Enum):
 
     def __str__(self):
         """
-        Return the string representation of the AnnotationState instance.
+        Return the string representation of the DatasetFormat instance.
         """
         return self.value
