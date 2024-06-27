@@ -366,7 +366,7 @@ class GetiIE:
         :param project_type: The type of the new project. Provide one of
             [classification, classification_hierarchical, detection, segmentation,
             instance_segmentation, anomaly_classification, anomaly_detection, anomaly_segmentation,
-            detection_oriented, detection_classification, detection_segmentation]
+            detection_oriented, detection_to_classification, detection_to_segmentation]
         :return: The imported project.
         :raises: RuntimeError if the project type is not supported for the imported dataset.
         """
@@ -388,6 +388,10 @@ class GetiIE:
         )
         job = monitor_job(session=self.session, job=job, interval=5)
         # Make sure that the project type is supported for the imported dataset
+        if "_to_" in project_type:
+            # Translate the SDK `detection_to_segmentation` project type format
+            # to the Geti Platform `detection_segmentation` format
+            project_type = project_type.replace("_to_", "_")
         project_dict = next(
             (
                 entry

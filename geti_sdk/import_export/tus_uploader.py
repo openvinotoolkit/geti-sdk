@@ -47,7 +47,7 @@ class TUSUploader:
         self.stop_at = self.get_file_size()
         self.session = session
         self.base_url = base_url
-        self.tus_resumable_version = self._get_tus_reumable_version()
+        self.tus_resumable_version = self._get_tus_resumable_version()
         self.offset = 0
         self.upload_url = None
         self.chunk_size = chunk_size
@@ -56,7 +56,7 @@ class TUSUploader:
         self._retried = 0
         self.retry_delay = retry_delay
 
-    def _get_tus_reumable_version(self):
+    def _get_tus_resumable_version(self):
         """
         Return tus resumable version.
         """
@@ -71,6 +71,9 @@ class TUSUploader:
         Return offset from tus server.
 
         Make an http request to the tus server to retrieve the current offset.
+
+        :return: Offset value.
+        :raises: Exception if offset retrieval fails.
         """
         response = self.session.get_rest_response(
             url=self.upload_url,
@@ -94,6 +97,9 @@ class TUSUploader:
     def get_file_stream(self) -> BufferedReader:
         """
         Return a file stream instance of the upload.
+
+        :return: File stream instance.
+        :raises: ValueError if file_path is invalid.
         """
         if self.file_stream:
             self.file_stream.seek(0)
@@ -160,6 +166,8 @@ class TUSUploader:
     def get_file_id(self) -> Optional[str]:
         """
         Return file id from upload url.
+
+        :return: File id.
         """
         if self.upload_url is None:
             return
@@ -199,6 +207,9 @@ class TUSUploader:
     def _retry(self, error):
         """
         Retry upload in case of failure.
+
+        :param error: Error that caused the upload to fail.
+        :raises: error if retries are exhausted.
         """
         if self.retries > self._retried:
             time.sleep(self.retry_delay)

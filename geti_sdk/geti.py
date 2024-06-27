@@ -495,8 +495,8 @@ class Geti:
             * anomaly_detection
             * anomaly_segmentation
             * detection_oriented
-            * detection_classification
-            * detection_segmentation
+            * detection_to_classification
+            * detection_to_segmentation
 
         > Note: The dataset zip archive should be exported from the Geti™ server of the same version.
 
