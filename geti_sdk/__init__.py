@@ -17,9 +17,9 @@ Introduction
 ------------
 
 These pages contain the documentation for the main SDK class,
-:py:class:`~geti_sdk.sc_rest_client.Geti`.
+:py:class:`~geti_sdk.geti.Geti`.
 
-The :py:class:`~geti_sdk.sc_rest_client.Geti` class implements convenience
+The :py:class:`~geti_sdk.geti.Geti` class implements convenience
 methods for common operations that can be performed on the Intel® Geti™ cluster, such as
 creating a project from a pre-existing dataset, downloading or uploading a project,
 uploading an image and getting a prediction for it and creating a deployment for a
@@ -36,6 +36,30 @@ For example, to download a project, simply do:
    )
 
    geti.download_project_data(project_name="dummy_project")
+
+The :py:class:`~geti_sdk.geti.Geti` class provides a high-level interface for
+import-export operations in Intel® Geti™ platform. Here is a list of these operations:
+* Project download
+   :py:meth:`~geti_sdk.geti.Geti.download_project_data` method fetches the project data
+   and creates a local Python object that supports a range of operations with the project.
+* Project upload
+   :py:meth:`~geti_sdk.geti.Geti.upload_project_data` method uploads the project data
+   from a local Python object to the Intel® Geti™ platform.
+* Batched project download and upload
+   :py:meth:`~geti_sdk.geti.Geti.download_all_projects` and
+   :py:meth:`~geti_sdk.geti.Geti.upload_all_projects` methods download and upload
+   multiple projects at once.
+* Project export
+   :py:meth:`~geti_sdk.geti.Geti.export_project` method exports the project snapshot
+   to a zip archive. The archive can be used to import the project to another or the same Intel® Geti™
+   instance.
+* Project import
+   :py:meth:`~geti_sdk.geti.Geti.import_project` method imports the project from a zip archive.
+* Dataset export
+   :py:meth:`~geti_sdk.geti.Geti.export_dataset` method exports the dataset to a zip archive.
+* Dataset import
+   :py:meth:`~geti_sdk.geti.Geti.import_dataset` method imports the dataset from a zip archive
+   as a new project.
 
 For custom operations or more fine-grained control over the behavior, the
 :py:mod:`~geti_sdk.rest_clients` subpackage should be used.
@@ -56,11 +80,21 @@ Module contents
 
    .. automethod:: upload_all_projects
 
+   .. automethod:: import_project
+
+   .. automethod:: export_project
+
+   .. rubric:: Dataset export
+
+   .. automethod:: export_dataset
+
    .. rubric:: Project creation from dataset
 
    .. automethod:: create_single_task_project_from_dataset
 
    .. automethod:: create_task_chain_project_from_dataset
+
+   .. automethod:: import_dataset
 
    .. rubric:: Project deployment
 

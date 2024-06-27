@@ -16,7 +16,7 @@
 Introduction
 ------------
 
-The `import-export` package contains the `GetiIE` class with methods for importing and
+The `import-export` package contains the `GetiIE` class with number of methods for importing and
 exporting projets and datasets to and from the Intel® Geti™ platform.
 
 Module contents

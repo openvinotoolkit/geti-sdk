@@ -427,5 +427,5 @@ docker run --rm -ti -v $(pwd):/app geti-sdk:latest /bin/bash
 
 - Model upload
 - Prediction upload
-- Exporting datasets to COCO/YOLO/VOC format: For this, you can use the export
+- Importing datasets to an existing project: For this, you can use the import
   functionality from the Intel® Geti™ user interface instead.
