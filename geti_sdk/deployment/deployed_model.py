@@ -187,8 +187,8 @@ class DeployedModel(OptimizedModel):
                     raise ValueError(
                         "\n"
                         "This deployment model is not compatible with the current SDK. Proposed solutions:\n"
-                        "1. Please deploy a model using GETi Platform version 2.0.0 or higher.\n"
-                        "2. Downgrade to a compatible GETi-SDK version to continue using this model.\n\n"
+                        "1. Please deploy a model using Intel Geti Platform version 2.0.0 or higher.\n"
+                        "2. Downgrade to a compatible Geti-SDK version to continue using this model.\n\n"
                     )
 
         elif isinstance(source, GetiSession):

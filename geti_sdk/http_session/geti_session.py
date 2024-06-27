@@ -282,7 +282,7 @@ class GetiSession(requests.Session):
             else:
                 raise ValueError(
                     f"Making a POST request with content of type {contenttype} is "
-                    f"currently not supported through the Geti SDK."
+                    f"currently not supported through the Intel Geti SDK."
                 )
         elif method == "PATCH":
             kw_data_arg = {"data": data}
