@@ -301,10 +301,10 @@ the screenshot below).
 ## High level API reference
 The `Geti` class provides the following methods:
 
-- `download_project_data` -- Downloads a project by project name.
+- `download_project_data` -- Downloads a project by project name (Geti-SDK representation), returns an interactive object.
 
 
-- `upload_project_data` -- Uploads project from a folder.
+- `upload_project_data` -- Uploads project (Geti-SDK representation) from a folder.
 
 
 - `download_all_projects` -- Downloads all projects found on the server.
@@ -313,6 +313,18 @@ The `Geti` class provides the following methods:
 - `upload_all_projects` -- Uploads all projects found in a specified folder to the
   server.
 
+- `export_project` -- Exports a project to an archive on disk. This method is useful for
+  creating a backup of a project, or for migrating a project to a different cluster.
+
+- `import_project` -- Imports a project from an archive on disk. This method is useful for
+  restoring a project from a backup, or for migrating a project to a different cluster.
+
+- `export_dataset` -- Exports a dataset to an archive on disk. This method is useful for
+  creating a backup of a dataset, or for migrating a dataset to a different cluster.
+
+- `import_dataset` -- Imports a dataset from an archive on disk. A new project will
+  be created for the dataset. This method is useful for restoring a project from a dataset
+  backup, or for migrating a dataset to a different cluster.
 
 - `upload_and_predict_image` -- Uploads a single image to an existing project on the
   server, and requests a prediction for that image. Optionally, the prediction can

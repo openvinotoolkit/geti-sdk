@@ -483,7 +483,7 @@ class Geti:
     ) -> Project:
         """
         Import a dataset from the zip archive specified by `filepath` to the Intel® Geti™ server.
-        The dataset will be created as a new project on the server with the name `project_name`.
+        A new project will be created from the dataset on the server with the name `project_name`.
         Please set the `project_type` to determine the type of the project with one of possible values are:
 
             * classification
