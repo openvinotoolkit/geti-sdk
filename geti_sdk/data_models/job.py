@@ -189,7 +189,7 @@ class Job:
 
     :var name: Name of the job
     :var id: Unique database ID of the job
-    :var project_id: Unique database ID of the project from which the job originates
+    :var description: Brief description of the job
     :var type: Type of the job
     :var metadata: JobMetadata object holding metadata for the job
     """
@@ -198,7 +198,7 @@ class Job:
     id: str
     type: str = attr.field(converter=str_to_enum_converter(JobType))
     metadata: JobMetadata
-    project_id: Optional[str] = None
+    description: Optional[str] = None
     creation_time: Optional[str] = attr.field(converter=str_to_datetime, default=None)
     start_time: Optional[str] = attr.field(
         converter=str_to_datetime, default=None
