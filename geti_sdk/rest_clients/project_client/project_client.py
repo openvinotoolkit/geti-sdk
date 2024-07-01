@@ -78,9 +78,6 @@ class ProjectClient:
         :return: List of Project objects, containing the project information for each
             project on the Intel® Geti™ server
         """
-        project_key = "projects"
-        num_total_projects_key = "project_counts"
-
         # The 'projects' endpoint uses pagination: multiple HTTP may be necessary to
         # fetch the full list of projects
         project_rest_list: List[Dict] = []
@@ -88,8 +85,8 @@ class ProjectClient:
             url=f"{self.base_url}projects?limit={request_page_size}&skip={len(project_rest_list)}",
             method="GET",
         ):
-            project_rest_list.extend(response[project_key])
-            if len(project_rest_list) >= response[num_total_projects_key]:
+            project_rest_list.extend(response["projects"])
+            if len(project_rest_list) >= response["project_counts"]:
                 break
 
         project_list = [

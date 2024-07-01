@@ -274,7 +274,7 @@ def monitor_jobs(
 
 def monitor_job(
     session: GetiSession, job: Job, timeout: int = 10000, interval: int = 15
-) -> List[Job]:
+) -> Job:
     """
     Monitor and print the progress of a single `job`. Execution is
     halted until the job has either finished, failed or was cancelled.
@@ -326,7 +326,11 @@ def monitor_job(
             previous_progress = 0
             previous_message = job.current_step_message
             current_step = job.current_step
-            outer_description = f"Project `{job.metadata.project.name}` - {job.name}"
+            outer_description = (
+                f"Project `{job.metadata.project.name}` - "
+                if job.metadata.project
+                else ""
+            ) + f"{job.name}"
             total_steps = job.total_steps
             outer_bar = tqdm(
                 total=total_steps,

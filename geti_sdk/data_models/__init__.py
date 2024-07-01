@@ -23,7 +23,7 @@ as :py:class:`~geti_sdk.data_models.annotation_scene.AnnotationScene`,
 :py:class:`~geti_sdk.data_models.model.Model` and many more.
 
 When interacting with the GETi cluster through the
-:py:class:`geti_sdk.sc_rest_client.Geti` or the
+:py:class:`geti_sdk.geti.Geti` or the
 :py:mod:`~geti_sdk.rest_clients`, all entities retrieved from the cluster will be
 deserialized into the data models defined in this package.
 

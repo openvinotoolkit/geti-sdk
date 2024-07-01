@@ -24,8 +24,8 @@ Deployments can be created for both single task and task chain projects alike, t
 is the same in both cases.
 
 Creating a deployment for a project is done through the
-:py:class:`~geti_sdk.sc_rest_client.Geti` class, which provides a
-convenience method :py:meth:`~geti_sdk.sc_rest_client.Geti.deploy_project`.
+:py:class:`~geti_sdk.geti.Geti` class, which provides a
+convenience method :py:meth:`~geti_sdk.geti.Geti.deploy_project`.
 
 The following code snippet shows:
 

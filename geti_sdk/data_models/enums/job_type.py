@@ -31,6 +31,9 @@ class JobType(Enum):
     TEST = "test"
     PREPARE_IMPORT_TO_NEW_PROJECT = "prepare_import_to_new_project"
     PERFORM_IMPORT_TO_NEW_PROJECT = "perform_import_to_new_project"
+    EXPORT_PROJECT = "export_project"
+    IMPORT_PROJECT = "import_project"
+    EXPORT_DATASET = "export_dataset"
 
     def __str__(self) -> str:
         """

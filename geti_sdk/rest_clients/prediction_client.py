@@ -38,10 +38,7 @@ from geti_sdk.data_models.containers import MediaList
 from geti_sdk.data_models.enums import MediaType, PredictionMode
 from geti_sdk.data_models.predictions import ResultMedium
 from geti_sdk.http_session import GetiRequestException, GetiSession
-from geti_sdk.rest_converters.prediction_rest_converter import (
-    NormalizedPredictionRESTConverter,
-    PredictionRESTConverter,
-)
+from geti_sdk.rest_converters.prediction_rest_converter import PredictionRESTConverter
 
 
 class PredictionClient:
@@ -72,17 +69,7 @@ class PredictionClient:
         )
         model_info_array: List[Dict[str, Any]]
 
-        if self.session.version.is_sc_1_1 or self.session.version.is_sc_mvp:
-            if isinstance(response, dict):
-                model_info_array = response.get("items", [])
-            elif isinstance(response, list):
-                model_info_array = response
-            else:
-                raise ValueError(
-                    f"Unexpected response from Intel® Geti™ server: {response}"
-                )
-        else:
-            model_info_array = response.get("model_groups", [])
+        model_info_array = response.get("model_groups", [])
 
         task_ids = [task.id for task in self.project.get_trainable_tasks()]
         tasks_with_models: List[str] = []
@@ -253,14 +240,7 @@ class PredictionClient:
                 data=data,
             )
             if isinstance(media_item, (Image, VideoFrame)):
-                if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
-                    result = NormalizedPredictionRESTConverter.normalized_prediction_from_dict(
-                        prediction=response,
-                        image_height=media_item.media_information.height,
-                        image_width=media_item.media_information.width,
-                    )
-                else:
-                    result = PredictionRESTConverter.from_dict(response)
+                result = PredictionRESTConverter.from_dict(response)
                 if include_explanation:
                     maps: List[ResultMedium] = []
                     for map_dict in explain_response.get("maps", []):
@@ -274,36 +254,24 @@ class PredictionClient:
                 result.resolve_label_names_and_colors(labels=self._labels)
 
             elif isinstance(media_item, Video):
-                if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
-                    result = [
-                        NormalizedPredictionRESTConverter.normalized_prediction_from_dict(
-                            prediction=prediction,
-                            image_width=media_item.media_information.width,
-                            image_height=media_item.media_information.height,
-                        ).resolve_labels_for_result_media(
-                            labels=self._labels
-                        )
-                        for prediction in response
-                    ]
-                else:
-                    result = []
-                    for ind, prediction in enumerate(response["video_predictions"]):
-                        pred_object = PredictionRESTConverter.from_dict(prediction)
-                        pred_object.resolve_label_names_and_colors(labels=self._labels)
-                        if include_explanation:
-                            maps: List[ResultMedium] = []
-                            for map_dict in explain_response["explanations"][ind].get(
-                                "maps", []
-                            ):
-                                map = ResultMedium(
-                                    name="saliency_map",
-                                    label_id=map_dict.get("label_id", None),
-                                )
-                                map.data = map_dict["data"].encode("utf-8")
-                                maps.append(map)
-                            pred_object.maps = maps
-                        pred_object.resolve_labels_for_result_media(labels=self._labels)
-                        result.append(pred_object)
+                result = []
+                for ind, prediction in enumerate(response["video_predictions"]):
+                    pred_object = PredictionRESTConverter.from_dict(prediction)
+                    pred_object.resolve_label_names_and_colors(labels=self._labels)
+                    if include_explanation:
+                        maps: List[ResultMedium] = []
+                        for map_dict in explain_response["explanations"][ind].get(
+                            "maps", []
+                        ):
+                            map = ResultMedium(
+                                name="saliency_map",
+                                label_id=map_dict.get("label_id", None),
+                            )
+                            map.data = map_dict["data"].encode("utf-8")
+                            maps.append(map)
+                        pred_object.maps = maps
+                    pred_object.resolve_labels_for_result_media(labels=self._labels)
+                    result.append(pred_object)
             else:
                 raise TypeError(
                     f"Getting predictions is not supported for media item of type "

@@ -37,9 +37,6 @@ from geti_sdk.data_models.project import Dataset
 from geti_sdk.http_session import GetiRequestException, GetiSession
 from geti_sdk.rest_clients.dataset_client import DatasetClient
 from geti_sdk.rest_converters import AnnotationRESTConverter
-from geti_sdk.rest_converters.annotation_rest_converter import (
-    NormalizedAnnotationRESTConverter,
-)
 
 AnnotationReaderType = TypeVar("AnnotationReaderType", bound=AnnotationReader)
 MediaType = TypeVar("MediaType", Image, Video)
@@ -220,17 +217,9 @@ class BaseAnnotationClient:
                 )
         if scene_to_upload.has_data:
             scene_to_upload.prepare_for_post()
-            if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
-                rest_data = NormalizedAnnotationRESTConverter.to_normalized_dict(
-                    scene_to_upload,
-                    deidentify=False,
-                    image_width=media_item.media_information.width,
-                    image_height=media_item.media_information.height,
-                )
-            else:
-                rest_data = AnnotationRESTConverter.to_dict(
-                    scene_to_upload, deidentify=False
-                )
+            rest_data = AnnotationRESTConverter.to_dict(
+                scene_to_upload, deidentify=False
+            )
             rest_data.pop("kind")
             self.session.get_rest_response(
                 url=f"{media_item.base_url}/annotations",
@@ -267,17 +256,9 @@ class BaseAnnotationClient:
         annotation_scene.extend(new_annotation_scene.annotations)
 
         if annotation_scene.has_data:
-            if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
-                rest_data = NormalizedAnnotationRESTConverter.to_normalized_dict(
-                    annotation_scene,
-                    deidentify=False,
-                    image_width=media_item.media_information.width,
-                    image_height=media_item.media_information.height,
-                )
-            else:
-                rest_data = AnnotationRESTConverter.to_dict(
-                    annotation_scene, deidentify=False
-                )
+            rest_data = AnnotationRESTConverter.to_dict(
+                annotation_scene, deidentify=False
+            )
             rest_data.pop("kind", None)
             rest_data.pop("annotation_state_per_task", None)
             rest_data.pop("id", None)
@@ -332,16 +313,7 @@ class BaseAnnotationClient:
             annotation applies
         :return: AnnotationScene object corresponding to the data in the response_dict
         """
-        if self.session.version.is_sc_mvp or self.session.version.is_sc_1_1:
-            annotation_scene = (
-                NormalizedAnnotationRESTConverter.normalized_annotation_scene_from_dict(
-                    response_dict,
-                    image_width=media_information.width,
-                    image_height=media_information.height,
-                )
-            )
-        else:
-            annotation_scene = AnnotationRESTConverter.from_dict(response_dict)
+        annotation_scene = AnnotationRESTConverter.from_dict(response_dict)
         return annotation_scene
 
     def _get_latest_annotation_for_2d_media_item(

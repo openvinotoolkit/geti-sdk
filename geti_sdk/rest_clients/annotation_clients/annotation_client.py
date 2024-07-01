@@ -48,10 +48,7 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
                 return []
             else:
                 raise error
-        if self.session.version.is_sc_1_1 or self.session.version.is_sc_mvp:
-            annotations = response
-        else:
-            annotations = response["video_annotations"]
+        annotations = response["video_annotations"]
         annotation_scenes = [
             self.annotation_scene_from_rest_response(
                 annotation_scene, media_information=video.media_information

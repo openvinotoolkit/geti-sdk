@@ -378,7 +378,7 @@ This release breaks backwards compatibility with `deployments` created by earlie
 * Add performance hint to the ovms config by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/152
 * Fix bug in deployment resource clean up method by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/153
 * Update python-dotenv requirement from ==0.21.* to ==1.0.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/156
-* Add a short sleep in `Geti.upload_project` after media upload by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/157
+* Add a short sleep in `Geti.upload_project_data` after media upload by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/157
 * Add OVMS deployment resources to manifest by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/158
 
 
@@ -477,7 +477,7 @@ This release breaks backwards compatibility with `deployments` created by earlie
 * Update numpy requirement to 1.21.* by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/89
 * Reduce permissions upon directory creation by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/90
 * Update README to correctly reference Intel Geti brand everywhere by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/92
-* Improve check for video processing in `Geti.upload_project()` to avoid potential infinite loop by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/93
+* Improve check for video processing in `Geti.upload_project_data()` to avoid potential infinite loop by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/93
 * Add unit tests to pre-merge test suite by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/91
 * Update ProjectStatus and TaskStatus to include new field `n_new_annotations` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/94
 * Add progress bars for up/download of projects, media, annotations and predictions by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/95
