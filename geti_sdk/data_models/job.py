@@ -233,7 +233,7 @@ class Job:
     id: str
     type: str = attr.field(converter=str_to_enum_converter(JobType))
     metadata: JobMetadata
-    project_id: Optional[str] = None
+    description: Optional[str] = None
     creation_time: Optional[str] = attr.field(converter=str_to_datetime, default=None)
     start_time: Optional[str] = attr.field(
         converter=str_to_datetime, default=None
