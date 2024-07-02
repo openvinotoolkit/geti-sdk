@@ -18,7 +18,7 @@ from typing import ClassVar, List, Optional, Union
 import attr
 
 from geti_sdk.data_models.algorithms import Algorithm
-from geti_sdk.data_models.model import Model
+from geti_sdk.data_models.model import Model, ModelPurgeInfo
 from geti_sdk.data_models.performance import Performance
 from geti_sdk.data_models.utils import str_to_datetime
 
@@ -47,6 +47,7 @@ class ModelSummary:
     name: str
     creation_date: str = attr.field(converter=str_to_datetime)
     score_up_to_date: bool
+    purge_info: Optional[ModelPurgeInfo] = None
     size: Optional[int] = None
     version: Optional[int] = None  # 'version' is removed in v1.1
     score: Optional[float] = attr.field(default=None)  # 'score' is removed in v1.1
