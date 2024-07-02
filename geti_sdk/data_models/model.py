@@ -48,7 +48,8 @@ class OptimizationCapabilities:
 @attr.define
 class ModelPurgeInfo:
     """
-    Representation of the model soft delition status.
+    Representation of the model soft deletion status. If `is_purged==True`, the model binaries (i.e. the trained weights) 
+    have been deleted from the server storage.
     """
 
     is_purged: bool
