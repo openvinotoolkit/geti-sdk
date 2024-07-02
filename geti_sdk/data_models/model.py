@@ -37,7 +37,7 @@ from .performance import Performance
 @attr.define
 class OptimizationCapabilities:
     """
-    Representation of the various model optimization capabilities in Geti.
+    Representation of the various model optimization capabilities in Intel Geti.
     """
 
     is_nncf_supported: bool
@@ -61,7 +61,7 @@ class ModelPurgeInfo:
 @attr.define
 class OptimizationConfigurationParameter:
     """
-    Representation of a parameter for model optimization in Geti.
+    Representation of a parameter for model optimization in Intel Geti.
     """
 
     name: str
@@ -71,7 +71,7 @@ class OptimizationConfigurationParameter:
 @attr.define(slots=False)
 class BaseModel:
     """
-    Representation of the basic information for a Model or OptimizedModel in Geti
+    Representation of the basic information for a Model or OptimizedModel in Intel Geti
     """
 
     _identifier_fields: ClassVar[str] = [
@@ -93,7 +93,7 @@ class BaseModel:
     previous_trained_revision_id: Optional[str] = None
     performance: Optional[Performance] = None
     id: Optional[str] = attr.field(default=None)
-    label_schema_in_sync: Optional[bool] = attr.field(default=None)  # Added in Geti 1.1
+    label_schema_in_sync: Optional[bool] = attr.field(default=None)  # Added in Intel Geti 1.1
 
     def __attrs_post_init__(self):
         """
@@ -214,9 +214,9 @@ class OptimizedModel(BaseModel):
     version: Optional[int] = attr.field(kw_only=True, default=None)
     configurations: Optional[List[OptimizationConfigurationParameter]] = attr.field(
         kw_only=True, default=None
-    )  # Added in Geti v1.4
-    model_format: Optional[str] = None  # Added in Geti v1.5
-    has_xai_head: bool = False  # Added in Geti v1.5
+    )  # Added in Intel Geti v1.4
+    model_format: Optional[str] = None  # Added in Intel Geti v1.5
+    has_xai_head: bool = False  # Added in Intel Geti v1.5
 
 
 @attr.define(slots=False)
