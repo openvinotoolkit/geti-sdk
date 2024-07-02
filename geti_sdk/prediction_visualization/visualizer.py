@@ -86,7 +86,7 @@ class Visualizer:
         if confidence_threshold is not None:
             annotation = annotation.filter_by_confidence(confidence_threshold)
         result = self.shape_drawer.draw(
-            image, annotation, labels=[], fill_shapes=fill_shapes
+            image.copy(), annotation, labels=[], fill_shapes=fill_shapes
         )
         return result
 
