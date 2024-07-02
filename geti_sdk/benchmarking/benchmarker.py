@@ -859,7 +859,7 @@ class Benchmarker:
             with open(throughput_benchmark_results, "r") as results_file:
                 throughput_benchmark_results = list(csv.DictReader(results_file))
 
-        visusalizer = Visualizer()
+        visualizer = Visualizer()
 
         # Performe inferece
         with logging_redirect_tqdm(tqdm_class=tqdm):
@@ -892,7 +892,7 @@ class Benchmarker:
                             f"failed. Inference failed with error: `{e}`"
                         )
                 if success:
-                    image_with_prediction = visusalizer.draw(image, prediction)
+                    image_with_prediction = visualizer.draw(image, prediction)
                     image_with_prediction = cv2.cvtColor(
                         image_with_prediction, cv2.COLOR_BGR2RGB
                     )
@@ -953,7 +953,7 @@ class Benchmarker:
         if include_online_prediction_for_active_model:
             logging.info("Predicting on the platform using the active model")
             online_prediction_result = self._predict_using_active_model(image)
-            image_with_prediction = visusalizer.draw(
+            image_with_prediction = visualizer.draw(
                 image, online_prediction_result["prediction"]
             )
             image_with_prediction = cv2.cvtColor(

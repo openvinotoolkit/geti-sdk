@@ -357,8 +357,8 @@ class TestBenchmarker:
         _ = mocker.patch(
             "geti_sdk.benchmarking.benchmarker.cv2.putText",
         )
-        mock_show_image_with_annotation_scene = mocker.patch(
-            "geti_sdk.benchmarking.benchmarker.show_image_with_annotation_scene",
+        mock_visualizer_draw = mocker.patch(
+            "geti_sdk.benchmarking.benchmarker.Visualizer.draw",
             return_value=mock_image,
         )
         mock_pad_image_and_put_caption = mocker.patch(
@@ -393,7 +393,7 @@ class TestBenchmarker:
             mock_image
         )
         assert (
-            mock_show_image_with_annotation_scene.call_count
+            mock_visualizer_draw.call_count
             == mock_pad_image_and_put_caption.call_count
             == (
                 # Calls for deployments + online prediction call
