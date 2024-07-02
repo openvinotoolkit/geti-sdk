@@ -22,8 +22,8 @@ import numpy as np
 
 from geti_sdk.data_models import Prediction
 from geti_sdk.deployment.inference_hook_interfaces import PostInferenceAction
+from geti_sdk.prediction_visualization.visualizer import Visualizer
 from geti_sdk.rest_converters import PredictionRESTConverter
-from geti_sdk.utils import show_image_with_annotation_scene
 
 
 class FileSystemDataCollection(PostInferenceAction):
@@ -81,6 +81,7 @@ class FileSystemDataCollection(PostInferenceAction):
         self.save_predictions = save_predictions
         self.save_scores = save_scores
         self.save_overlays = save_overlays
+        self.visualizer = Visualizer()
 
         self._repr_info_ = (
             f"target_folder=`{target_folder}`, "
@@ -147,12 +148,8 @@ class FileSystemDataCollection(PostInferenceAction):
 
             if self.save_overlays:
                 overlay_path = os.path.join(self.overlays_path, filename + ".jpg")
-                show_image_with_annotation_scene(
-                    image=image,
-                    annotation_scene=prediction,
-                    filepath=overlay_path,
-                    show_results=False,
-                )
+                result = self.visualizer.draw(image, prediction)
+                self.visualizer.save_image(result, overlay_path)
         except Exception as e:
             logging.exception(e, stack_info=True, exc_info=True)
 
