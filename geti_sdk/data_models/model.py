@@ -93,7 +93,9 @@ class BaseModel:
     previous_trained_revision_id: Optional[str] = None
     performance: Optional[Performance] = None
     id: Optional[str] = attr.field(default=None)
-    label_schema_in_sync: Optional[bool] = attr.field(default=None)  # Added in Intel Geti 1.1
+    label_schema_in_sync: Optional[bool] = attr.field(
+        default=None
+    )  # Added in Intel Geti 1.1
 
     def __attrs_post_init__(self):
         """
