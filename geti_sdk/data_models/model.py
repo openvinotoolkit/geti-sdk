@@ -37,12 +37,23 @@ from .performance import Performance
 @attr.define
 class OptimizationCapabilities:
     """
-    Representation of the various model optimization capabilities in GETi.
+    Representation of the various model optimization capabilities in Geti.
     """
 
     is_nncf_supported: bool
     is_filter_pruning_supported: Optional[bool] = None
     is_filter_pruning_enabled: Optional[bool] = None
+
+
+@attr.define
+class ModelPurgeInfo:
+    """
+    Representation of the model soft delition status.
+    """
+
+    is_purged: bool
+    purge_time: Optional[str] = None
+    user_uid: Optional[str] = None
 
 
 @attr.define
@@ -58,7 +69,7 @@ class OptimizationConfigurationParameter:
 @attr.define(slots=False)
 class BaseModel:
     """
-    Representation of the basic information for a Model or OptimizedModel in GETi
+    Representation of the basic information for a Model or OptimizedModel in Geti
     """
 
     _identifier_fields: ClassVar[str] = [
@@ -72,12 +83,12 @@ class BaseModel:
     latency: str
     precision: List[str]
     creation_date: str = attr.field(converter=str_to_datetime)
+    purge_info: Optional[ModelPurgeInfo] = None
     size: Optional[int] = None
     target_device: Optional[str] = None
     target_device_type: Optional[str] = None
     previous_revision_id: Optional[str] = None
     previous_trained_revision_id: Optional[str] = None
-    score: Optional[float] = attr.field(default=None)  # 'score' is removed in v1.1
     performance: Optional[Performance] = None
     id: Optional[str] = attr.field(default=None)
     label_schema_in_sync: Optional[bool] = attr.field(default=None)  # Added in Geti 1.1
