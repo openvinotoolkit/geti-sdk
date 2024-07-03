@@ -1,3 +1,7 @@
 [build-system]
 requires = ["setuptools>=66", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.cibuildwheel]
+# Disable building PyPy wheels on all platforms
+skip = "pp*"
