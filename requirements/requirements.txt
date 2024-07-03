@@ -6,7 +6,7 @@ omegaconf==2.3.*
 opencv-python==4.10.*
 python-dotenv==1.0.*
 tqdm>=4.66.3
-Pillow==10.3.*
+Pillow==10.4.*
 pathvalidate>=2.5.0
 simplejson==3.19.*
 ipython==8.18.*
