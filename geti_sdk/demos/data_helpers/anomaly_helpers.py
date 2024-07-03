@@ -98,7 +98,9 @@ def get_mvtec_dataset_from_path(dataset_path: str = "data") -> str:
     )
     archive_name = f"{dataset_name}.tar.xz"
     url = f"https://www.mydrive.ch/shares/38536/3830184030e49fe74747669442f0f282/download/420938166-1629953277/{archive_name}"
-    download_file(url, target_folder=dataset_path, check_valid_archive=False)
+    download_file(
+        url, target_folder=dataset_path, check_valid_archive=False, verify_cert=False
+    )
     archive_path = os.path.join(dataset_path, archive_name)
     validate_hash(
         file_path=archive_path,
