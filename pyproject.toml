@@ -3,7 +3,5 @@ requires = ["setuptools>=66", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
-test-command = "pytest tests/pre-merge"
-test-extras = ["dev"]
 # Disable building PyPy wheels on all platforms
 skip = "pp*"

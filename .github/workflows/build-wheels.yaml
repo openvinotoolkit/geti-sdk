@@ -12,8 +12,10 @@ jobs:
         include:
           - os: ubuntu-latest
             cibw_archs: "aarch64"
-          - os: macos-latest
-            cibw_archs: "native arm64"
+          - os: macos-13
+            cibw_archs: "x86_64"
+          - os: macos-14
+            cibw_archs: "arm64"
 
     steps:
       - name: Harden Runner
