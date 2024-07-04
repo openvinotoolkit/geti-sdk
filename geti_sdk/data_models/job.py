@@ -207,6 +207,7 @@ class JobCancellationInfo:
     :var cancel_time: Time at which the Job was cancelled
     """
 
+    cancellable: bool = True
     is_cancelled: bool = False
     user_uid: Optional[str] = None
     cancel_time: Optional[str] = attr.field(converter=str_to_datetime, default=None)
