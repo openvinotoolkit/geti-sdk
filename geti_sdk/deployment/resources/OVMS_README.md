@@ -62,8 +62,10 @@ image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 predictions = deployment.infer(image=image)
 
 # Show inference result
-from geti_sdk.utils import show_image_with_annotation_scene
-show_image_with_annotation_scene(image=image, annotation_scene=predictions);
+from geti_sdk import Visualizer
+visualizer = Visualizer()
+result_image = visualizer.draw(image=image, annotation_scene=predictions)
+visualizer.show_window(result_image)
 ```
 
 The example uses a sample image, please make sure to replace it with your own.

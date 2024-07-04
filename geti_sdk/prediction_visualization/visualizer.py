@@ -15,12 +15,17 @@
 """The package provides the Visualizer class for models predictions visualization."""
 
 
-from typing import Optional
+from os import PathLike
+from typing import List, Optional, Union
 
 import cv2
 import numpy as np
+from IPython.display import display
+from PIL import Image
 
 from geti_sdk.data_models.annotation_scene import AnnotationScene
+from geti_sdk.data_models.containers.media_list import MediaList
+from geti_sdk.data_models.media import VideoFrame
 from geti_sdk.data_models.predictions import Prediction
 from geti_sdk.prediction_visualization.shape_drawer import ShapeDrawer
 
@@ -44,8 +49,6 @@ class Visualizer:
         show_confidence: bool = True,
         show_count: bool = False,
         is_one_label: bool = False,
-        delay: Optional[int] = None,
-        output: Optional[str] = None,
     ) -> None:
         """
         Initialize the Visualizer.
@@ -55,18 +58,11 @@ class Visualizer:
         :param show_confidence: Show confidence on the output image
         :param show_count: Show count of the shapes on the output image
         :param is_one_label: Show only one label on the output image
-        :param delay: Delay time for the output image
-        :param output: Path to save the output image
         """
         self.window_name = "Window" if window_name is None else window_name
         self.shape_drawer = ShapeDrawer(
             show_count, is_one_label, show_labels, show_confidence
         )
-
-        self.delay = delay
-        if delay is None:
-            self.delay = 1
-        self.output = output
 
     def draw(
         self,
@@ -90,7 +86,7 @@ class Visualizer:
         if confidence_threshold is not None:
             annotation = annotation.filter_by_confidence(confidence_threshold)
         result = self.shape_drawer.draw(
-            image, annotation, labels=[], fill_shapes=fill_shapes
+            image.copy(), annotation, labels=[], fill_shapes=fill_shapes
         )
         return result
 
@@ -140,7 +136,53 @@ class Visualizer:
             result = self.draw(result, filtered_prediction, fill_shapes=False)
         return result
 
-    def show(self, image: np.ndarray) -> None:
+    @staticmethod
+    def save_image(image: np.ndarray, output_path: PathLike) -> None:
+        """
+        Save the image to the output path.
+
+        :param image: Image in RGB format to be saved
+        :param output_path: Path to save the image
+        """
+        bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(output_path, bgr_image)
+
+    @staticmethod
+    def save_video(
+        video_frames: MediaList[VideoFrame],
+        annotation_scenes: List[Union[AnnotationScene, Prediction]],
+        output_path: PathLike,
+        fps: float = 1,
+    ) -> None:
+        """
+        Save the video to the output path.
+
+        :param video_frames: List of video frames
+        :param annotation_scenes: List of annotation scenes to be drawn on the video frames
+        :param output_path: Path to save the image
+        """
+        out_writer = cv2.VideoWriter(
+            filename=f"{output_path}",
+            fourcc=cv2.VideoWriter_fourcc("M", "J", "P", "G"),
+            fps=fps,
+            frameSize=(
+                video_frames[0].media_information.width,
+                video_frames[0].media_information.height,
+            ),
+        )
+        for frame, annotation in zip(video_frames, annotation_scenes):
+            out_writer.write(frame)
+
+    @staticmethod
+    def show_in_notebook(image: np.ndarray) -> None:
+        """
+        Show the image in the Jupyter notebook.
+
+        :param image: Image to be shown in RGB format
+        """
+        display(Image.fromarray(image))
+
+    def show_window(self, image: np.ndarray) -> None:
         """
         Show result image.
 
@@ -149,6 +191,6 @@ class Visualizer:
         image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         cv2.imshow(self.window_name, image_bgr)
 
-    def is_quit(self) -> bool:
+    def is_quit(self, delay: int = 1) -> bool:
         """Check user wish to quit."""
-        return ord("q") == cv2.waitKey(self.delay)
+        return ord("q") == cv2.waitKey(delay)
