@@ -87,6 +87,6 @@ class HttpRequestAction(PostInferenceAction):
             data = prediction_dict
 
         requests.request(
-            method=self.method, url=self.url, headers=self.headers, data=data
+            method=self.method, url=self.url, headers=self.headers, json=data
         )
         self.log_function(f"HTTP {self.method} request send to `{self.url}`.")
