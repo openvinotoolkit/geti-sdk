@@ -229,8 +229,11 @@ class Model(BaseModel):
 
     architecture: str = attr.field(kw_only=True)
     score_up_to_date: bool = attr.field(kw_only=True)
-    optimization_capabilities: OptimizationCapabilities = attr.field(kw_only=True)
     optimized_models: List[OptimizedModel] = attr.field(kw_only=True)
+    # Removed in Geti 2.2
+    optimization_capabilities: Optional[OptimizationCapabilities] = attr.field(
+        default=None, kw_only=True
+    )
     labels: Optional[List[Label]] = None
     version: Optional[int] = attr.field(default=None, kw_only=True)
     # 'version' is deprecated in v1.1 -- IS IT?
