@@ -113,6 +113,6 @@ Module contents
 from .geti import Geti
 from .prediction_visualization.visualizer import Visualizer
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 
 __all__ = ["Geti", "Visualizer"]

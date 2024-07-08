@@ -1,3 +1,22 @@
+# v2.2.0 Intel® Geti™ SDK (08-07-2024)
+## What's Changed
+* Add `description` attribute to the job class by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/448
+* Project/Dataset export import API alignment by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/446
+* Create geti_sdk.import_export docs page by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/451
+* Introduce data_model `purge_info` field by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/453
+* Disable certificate validation for mvtec dataset download by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/452
+* Use proper project name in notebook 008 by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/454
+* Update pillow requirement from ==10.3.* to ==10.4.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/449
+* Create workflow to build wheels for different OS/CPU architecture combinations by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/456
+* Fix headers in `HttpRequest` PostInferenceAction by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/457
+* Correctly set headers in `HttpRequest` PostInferenceAction by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/458
+* Expose Visualizer class by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/426
+* Job and Model schema update by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/459
+* Use `json` instead of `data` parameter in HttpRequestAction by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/460
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/releases/v2.1.0...v2.2.0
+
 # v2.1.0 Intel® Geti™ SDK (19-06-2024)
 ## What's Changed
 * Saliency map visualization by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/424
