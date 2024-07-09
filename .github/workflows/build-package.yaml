@@ -16,14 +16,11 @@ on:
         required: true
       PYPI_HOST:
         required: true
-      PYPI_PORT:
-        required: false
 
 env:
   PYPI_USER: ${{ secrets.PYPI_USER }}
   PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
   PYPI_HOST: ${{ secrets.PYPI_HOST }}
-  PYPI_PORT: ${{ secrets.PYPI_PORT }}
   ENABLE_DEV_DEPENDENCIES: ${{ inputs.enable_dev_dependencies }}
 
 permissions:
@@ -75,11 +72,7 @@ jobs:
 
       - name: Publish SDK package to pypi
         run: |
-          if [[ $PYPI_HOST != "pypi.org" && $PYPI_HOST != "test.pypi.org" ]]; then
-            export no_proxy=$PYPI_HOST
-            export REPOSITORY_URL=http://$PYPI_HOST:$PYPI_PORT
-            twine upload --repository-url $REPOSITORY_URL dist/* -u $PYPI_USER -p $PYPI_PASSWORD
-          elif [[ $PYPI_HOST = "test.pypi.org" ]]; then
+          if [[ $PYPI_HOST = "test.pypi.org" ]]; then
             twine upload -r testpypi dist/* -u $PYPI_USER -p $PYPI_PASSWORD
           else
             twine upload dist/* -u $PYPI_USER -p $PYPI_PASSWORD
