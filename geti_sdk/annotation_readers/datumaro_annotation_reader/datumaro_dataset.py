@@ -52,7 +52,7 @@ class DatumaroDataset(object):
         self, task_type: TaskType, previous_task_type: Optional[TaskType] = None
     ) -> Dataset:
         """
-        Prepare the dataset for uploading to Sonoma Creek.
+        Prepare the dataset for uploading to Intel Geti.
 
         :param task_type: TaskType to prepare the dataset for
         :param previous_task_type: Optional type of the (trainable) task preceding
