@@ -370,8 +370,8 @@ class Project:
     @property
     def training_dataset(self) -> Dataset:
         """
-        Return the training dataset for the project.
+        Return a training dataset for the project.
 
         :return: Training dataset for the project
         """
-        return [dataset for dataset in self.datasets if dataset.use_for_training][0]
+        return next(dataset for dataset in self.datasets if dataset.use_for_training)
