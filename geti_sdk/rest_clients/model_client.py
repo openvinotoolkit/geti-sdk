@@ -17,6 +17,8 @@ import logging
 import os
 from typing import List, Optional, TypeVar, Union
 
+from requests import Response
+
 from geti_sdk.data_models import (
     Algorithm,
     Job,
@@ -635,6 +637,32 @@ class ModelClient:
             job_type="optimization",
         )
         return job
+
+    def purge_model(self, model: Model) -> None:
+        """
+        Purge the model from the Intel® Geti™ server.
+
+        This will permanently delete all the files related to the model including base model weights,
+        optimized model weights and exportable code for the Intel® Geti™ server.
+
+        :param model: Model to archive. Only base models are accepted, not optimized models.
+            Note: the model must not be the latest in the model group or be the active model.
+        :raises ValueError: If the model does not have a base_url, meaning it cannot be purged
+            from the remote server.
+        """
+        if model.base_url is None:
+            raise ValueError(
+                f"Model {model.name} does not have a base_url. Unable to purge the model."
+            )
+        purge_model_url = model.base_url + "/purge"
+        response = self.session.get_rest_response(
+            url=purge_model_url,
+            method="POST",
+        )
+        if type(response) is Response and response.status_code == 204:
+            logging.info(f"Model {model.name} was successfully purged.")
+        else:
+            logging.error(f"Failed to purge model {model.name}.")
 
     def monitor_job(self, job: Job, timeout: int = 10000, interval: int = 15) -> Job:
         """
