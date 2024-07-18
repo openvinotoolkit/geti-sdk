@@ -156,7 +156,9 @@ class ProjectClient:
                         f"the project ID's `{[p.id for p in matches]}` matches the "
                         f"requested id `{project_id}`."
                     )
-                return matched_project
+                    return None
+                else:
+                    return self._get_project_detail(matched_project)
         else:
             return None
 
@@ -524,10 +526,10 @@ class ProjectClient:
                     f"{dataset.id}/statistics",
                     method="GET",
                 )
-                if dataset_statistics is dict:
-                    dataset_statistics["overview"].get("image_count", 0)
-                    image_count += dataset_statistics.get("images", 0)
-                    video_count += dataset_statistics.get("videos", 0)
+                if isinstance(dataset_statistics, dict):
+                    dataset_overview = dataset_statistics["overview"]
+                    image_count += dataset_overview.get("images", 0)
+                    video_count += dataset_overview.get("videos", 0)
                 else:
                     logging.warning(
                         f"Unable to retrieve statistics for dataset {dataset.name}."
