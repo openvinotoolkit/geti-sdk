@@ -526,7 +526,7 @@ class ProjectClient:
                     f"{dataset.id}/statistics",
                     method="GET",
                 )
-                if type(dataset_statistics) is dict:
+                if isinstance(dataset_statistics, dict):
                     dataset_overview = dataset_statistics["overview"]
                     image_count += dataset_overview.get("images", 0)
                     video_count += dataset_overview.get("videos", 0)
