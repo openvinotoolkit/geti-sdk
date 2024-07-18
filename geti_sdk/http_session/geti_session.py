@@ -14,6 +14,7 @@
 import logging
 import time
 import warnings
+from functools import cache
 from json import JSONDecodeError
 from typing import Any, Dict, Optional, Union
 
@@ -116,6 +117,7 @@ class GetiSession(requests.Session):
             )
 
     @property
+    @cache
     def platform_serving_mode(self) -> str:
         """
         Return the type of the GETi platform service.

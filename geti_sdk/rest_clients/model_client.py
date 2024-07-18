@@ -638,7 +638,7 @@ class ModelClient:
         )
         return job
 
-    def purge_model(self, model: Model) -> None:
+    def purge_model(self, model: Union[Model, ModelSummary]) -> None:
         """
         Purge the model from the Intel® Geti™ server.
 
@@ -650,11 +650,12 @@ class ModelClient:
         :raises ValueError: If the model does not have a base_url, meaning it cannot be purged
             from the remote server.
         """
+        model = self.update_model_detail(model)
         if model.base_url is None:
             raise ValueError(
                 f"Model {model.name} does not have a base_url. Unable to purge the model."
             )
-        purge_model_url = model.base_url + "/purge"
+        purge_model_url = model.base_url + ":purge"
         response = self.session.get_rest_response(
             url=purge_model_url,
             method="POST",
