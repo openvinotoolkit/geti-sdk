@@ -32,6 +32,6 @@ Module contents
    :show-inheritance:
 """
 
-from .ood_model import OODModel
+from .ood_model import COODModel
 
-__all__ = ["OODModel"]
+__all__ = ["COODModel"]

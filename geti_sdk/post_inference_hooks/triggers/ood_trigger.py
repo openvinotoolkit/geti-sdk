@@ -17,7 +17,7 @@ import numpy as np
 
 from geti_sdk.data_models import Prediction
 from geti_sdk.deployment.inference_hook_interfaces import PostInferenceTrigger
-from geti_sdk.detect_ood import OODModel
+from geti_sdk.detect_ood import COODModel
 
 
 class OODTrigger(PostInferenceTrigger):
@@ -29,7 +29,7 @@ class OODTrigger(PostInferenceTrigger):
     :param ood_model: OODModel object that calculates the OOD score for an image
     """
 
-    def __init__(self, ood_model: OODModel, threshold: float = 0.5):
+    def __init__(self, ood_model: COODModel, threshold: float = 0.5):
         super().__init__(threshold=threshold)
         self.ood_model = ood_model
 
