@@ -423,7 +423,11 @@ class Geti:
         """
         if project_id is None:
             project_id = self.get_project(project_name=project_name).id
-        assert project_id is not None
+        if project_id is None:
+            raise ValueError(
+                f"Could not retrieve project ID for project '{project_name}'."
+                "Please specify the project ID explicitly."
+            )
         self.import_export_module.export_project(
             project_id=project_id, filepath=filepath
         )
