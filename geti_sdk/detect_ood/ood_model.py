@@ -48,11 +48,27 @@ class COODModel:
         :param deployment: Deployment to use for OOD dete. If not provided, the
         """
         self.geti = geti
+
         if isinstance(project, str):
             project_name = project
             self.project = geti.get_project(project_name=project_name)
         else:
             self.project = project
+
+        self.model_client = ModelClient(
+            session=geti.session, workspace_id=geti.workspace_id, project=self.project
+        )
+
+        # datasets_in_project = self.project.datasets
+        #
+        # self.image_client = ImageClient(
+        #     session=geti.session, workspace_id=geti.workspace_id, project=project
+        # )
+        # path_to_save_data = "/Users/rgangire/workspace/Results/SDK/images_download"  # TODO[OOD]: Better directory.
+        # self.image_client.download_all(
+        #     path_to_folder=path_to_save_data, append_image_uid=True
+        # )
+        # # dataset_images = self.image_client.get_all_images()
 
         logging.info(
             f"Building Combined OOD detection model for Intel® Geti™ project `{self.project.name}`."
@@ -72,10 +88,6 @@ class COODModel:
                 "supported for classification tasks for now."
             )
 
-        self.model_client = ModelClient(
-            session=geti.session, workspace_id=geti.workspace_id, project=self.project
-        )
-
         if deployment is None:
             self.deployment = self._get_usable_deployment()
         else:
@@ -90,8 +102,6 @@ class COODModel:
 
         if not self.deployment.are_models_loaded:
             self.deployment.load_inference_models(device="CPU")
-
-        # datasets_in_project = self.project.datasets
 
         # The COOD random forest classifier
         self.ood_classifier = None
@@ -121,7 +131,7 @@ class COODModel:
         for model in models:
             for optimised_model in model.optimized_models:
                 if optimised_model.has_xai_head:
-                    model_with_xai_head = model
+                    model_with_xai_head = optimised_model
                     break
 
         if model_with_xai_head is None:
