@@ -169,6 +169,7 @@ from .configuration import (
     GlobalConfiguration,
     TaskConfiguration,
 )
+from .credit_system import Subscription
 from .enums import AnnotationKind, MediaType, TaskType
 from .job import Job
 from .label import Label, ScoredLabel
@@ -216,4 +217,5 @@ __all__ = [
     "TestResult",
     "Score",
     "User",
+    "Subscription",
 ]
