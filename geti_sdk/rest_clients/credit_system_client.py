@@ -28,9 +28,12 @@ class CreditSystemClient:
     Class to work with credits in Intel Geti.
     """
 
-    def __init__(self, session: GetiSession):
+    def __init__(self, session: GetiSession, workspace_id: Optional[str] = None):
         self.session = session
-        self.workspace_id = get_default_workspace_id(self.session)
+        if workspace_id is not None:
+            self.workspace_id = workspace_id
+        else:
+            self.workspace_id = get_default_workspace_id(self.session)
         # Make sure the Intel Geti Platform supports Credit System.
         self._is_supported = self.is_supported()
 
@@ -87,7 +90,7 @@ class CreditSystemClient:
         """
         Get the cost of a job.
 
-        This method allows you to get the cost of a training or an optimization job.
+        This method allows you to find out the cost of a training or an optimization job.
 
         :param job: A Job object or a Job ID.
         :return: A JobCost object presenting the total cost and the consumed credits.

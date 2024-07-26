@@ -21,6 +21,7 @@ import numpy as np
 
 from geti_sdk.data_models.enums.dataset_format import DatasetFormat
 from geti_sdk.import_export.import_export_module import GetiIE
+from geti_sdk.rest_clients.credit_system_client import CreditSystemClient
 
 from .annotation_readers import AnnotationReader, DatumAnnotationReader
 from .data_models import (
@@ -185,6 +186,9 @@ class Geti:
             workspace_id=self.workspace_id,
             project_client=self.project_client,
         )
+        self.credit_system_client = CreditSystemClient(
+            session=self.session, workspace_id=self.workspace_id
+        )
 
         # Cache of deployment clients for projects in the workspace
         self._deployment_clients: Dict[str, DeploymentClient] = {}
@@ -199,6 +203,15 @@ class Geti:
             instance
         """
         return self.project_client.get_all_projects()
+
+    @property
+    def credit_balance(self) -> Optional[int]:
+        """
+        Get the current credit balance in the workspace.
+
+        :return: The available credit balance in the workspace.
+        """
+        return self.credit_system_client.get_balance()
 
     def get_project(
         self, project_name: str, project_id: Optional[str] = None
