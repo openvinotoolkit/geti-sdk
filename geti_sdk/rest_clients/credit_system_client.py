@@ -86,6 +86,11 @@ class CreditSystemClient:
     def get_job_cost(self, job: Union[Job, str]) -> Optional[JobCost]:
         """
         Get the cost of a job.
+
+        This method allows you to get the cost of a training or an optimization job.
+
+        :param job: A Job object or a Job ID.
+        :return: A JobCost object presenting the total cost and the consumed credits.
         """
         if isinstance(job, Job):
             job_id = job.id
