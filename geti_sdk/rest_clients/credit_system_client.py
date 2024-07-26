@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+import logging
 from typing import List, Optional, Union
 
 from geti_sdk.data_models import Subscription
 from geti_sdk.data_models.job import Job, JobCost
 from geti_sdk.http_session import GetiSession
-from geti_sdk.utils.job_helpers import get_job_with_timeout
+from geti_sdk.utils.job_helpers import get_job_by_id
 from geti_sdk.utils.serialization_helpers import deserialize_dictionary
 from geti_sdk.utils.workspace_helpers import get_default_workspace_id
 
@@ -36,6 +37,8 @@ class CreditSystemClient:
     def is_supported(self) -> bool:
         """
         Check if the Intel Geti Platform supports Credit system.
+
+        :return: True if the Credit System is supported, False otherwise.
         """
         r = self.session.get_rest_response(
             url=self.session.base_url + "balance",
@@ -50,9 +53,29 @@ class CreditSystemClient:
             # The session would return a Response object.
             return False
 
+    @staticmethod
+    def allow_supported(func):
+        """
+        Decorate the class methods to allow them to run only if the Credit System is supported.
+        """
+
+        def wrapper(instance, *args, **kwargs):
+            if instance._is_supported:
+                return func(instance, *args, **kwargs)
+            else:
+                logging.warning(
+                    "Credit System is not supported by the Intel Geti Platform."
+                )
+                return None
+
+        return wrapper
+
+    @allow_supported
     def get_balance(self) -> Optional[int]:
         """
         Get the current credit balance in the workspace.
+
+        :return: The available credit balance in the workspace.
         """
         response = self.session.get_rest_response(
             url=self.session.base_url + "balance",
@@ -68,12 +91,15 @@ class CreditSystemClient:
             job_id = job.id
         else:
             job_id = job
-        job = get_job_with_timeout(job_id, self.session, self.workspace_id)
-        return job.cost
+        fetched_job = get_job_by_id(job_id, self.session, self.workspace_id)
+        return fetched_job.cost if fetched_job else None
 
-    def get_subscription(self) -> Optional[List[Subscription]]:
+    @allow_supported
+    def get_subscriptions(self) -> Optional[List[Subscription]]:
         """
         Get the subscription details for the workspace.
+
+        :return: A list of Subscription objects.
         """
         response = self.session.get_rest_response(
             url=self.session.base_url + "subscriptions",
