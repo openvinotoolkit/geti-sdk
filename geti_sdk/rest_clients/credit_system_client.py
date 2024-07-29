@@ -23,6 +23,23 @@ from geti_sdk.utils.serialization_helpers import deserialize_dictionary
 from geti_sdk.utils.workspace_helpers import get_default_workspace_id
 
 
+def allow_supported(func):
+    """
+    Decorate the class methods to allow them to run only if the Credit System is supported.
+    """
+
+    def wrapper(instance, *args, **kwargs):
+        if instance._is_supported:
+            return func(instance, *args, **kwargs)
+        else:
+            logging.warning(
+                "Credit System is not supported by the Intel Geti Platform."
+            )
+            return None
+
+    return wrapper
+
+
 class CreditSystemClient:
     """
     Class to work with credits in Intel Geti.
@@ -55,23 +72,6 @@ class CreditSystemClient:
             # In case the server returns an empty 200 message, it means the Credit System is not supported.
             # The session would return a Response object.
             return False
-
-    @staticmethod
-    def allow_supported(func):
-        """
-        Decorate the class methods to allow them to run only if the Credit System is supported.
-        """
-
-        def wrapper(instance, *args, **kwargs):
-            if instance._is_supported:
-                return func(instance, *args, **kwargs)
-            else:
-                logging.warning(
-                    "Credit System is not supported by the Intel Geti Platform."
-                )
-                return None
-
-        return wrapper
 
     @allow_supported
     def get_balance(self) -> Optional[int]:
