@@ -18,8 +18,8 @@ from requests import Response
 from geti_sdk.rest_clients.credit_system_client import CreditSystemClient
 
 
-class TestGeti:
-    def test_exception_flow_init(
+class TestCreditSystemClient:
+    def test_init(
         self,
         mocker: MockerFixture,
         fxt_mocked_session_factory,
