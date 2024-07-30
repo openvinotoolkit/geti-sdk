@@ -207,11 +207,12 @@ class Geti:
     @property
     def credit_balance(self) -> Optional[int]:
         """
-        Get the current credit balance in the workspace.
+        Get the current available credit balance in the workspace.
 
         :return: The available credit balance in the workspace.
         """
-        return self.credit_system_client.get_balance()
+        balance = self.credit_system_client.get_balance()
+        return balance.available if balance is not None else None
 
     def get_project(
         self, project_name: str, project_id: Optional[str] = None
