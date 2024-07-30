@@ -94,6 +94,7 @@ Module contents
 from .active_learning_client import ActiveLearningClient
 from .annotation_clients import AnnotationClient
 from .configuration_client import ConfigurationClient
+from .credit_system_client import CreditSystemClient
 from .dataset_client import DatasetClient
 from .deployment_client import DeploymentClient
 from .media_client import ImageClient, VideoClient
@@ -116,4 +117,5 @@ __all__ = [
     "DeploymentClient",
     "ActiveLearningClient",
     "TestingClient",
+    "CreditSystemClient",
 ]
