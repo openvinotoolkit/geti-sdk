@@ -13,9 +13,10 @@
 # and limitations under the License.
 
 import logging
+from datetime import datetime
 from typing import List, Optional, Union
 
-from geti_sdk.data_models import Subscription
+from geti_sdk.data_models import CreditAccount, CreditBalance, Subscription
 from geti_sdk.data_models.job import Job, JobCost
 from geti_sdk.http_session import GetiSession
 from geti_sdk.utils.job_helpers import get_job_by_id
@@ -74,17 +75,23 @@ class CreditSystemClient:
             return False
 
     @allow_supported
-    def get_balance(self) -> Optional[int]:
+    def get_balance(
+        self, timestamp: Optional[datetime] = None
+    ) -> Optional[CreditBalance]:
         """
         Get the current credit balance in the workspace.
 
+        :param timestamp: The timestamp to get the balance at. If None, the current balance is returned.
         :return: The available credit balance in the workspace.
         """
+        query_postfix = (
+            f"?date={int(timestamp.timestamp() * 1000)}" if timestamp else ""
+        )
         response = self.session.get_rest_response(
-            url=self.session.base_url + "balance",
+            url=self.session.base_url + "balance" + query_postfix,
             method="GET",
         )
-        return response.get("available", None)
+        return deserialize_dictionary(response, CreditBalance)
 
     def get_job_cost(self, job: Union[Job, str]) -> Optional[JobCost]:
         """
@@ -116,4 +123,20 @@ class CreditSystemClient:
         return [
             deserialize_dictionary(sub, Subscription)
             for sub in response.get("subscriptions", [])
+        ]
+
+    @allow_supported
+    def get_credit_accounts(self) -> Optional[List[CreditAccount]]:
+        """
+        Get the subscription details for the workspace.
+
+        :return: A list of Subscription objects.
+        """
+        response = self.session.get_rest_response(
+            url=self.session.base_url + "credit_accounts",
+            method="GET",
+        )
+        return [
+            deserialize_dictionary(sub, CreditAccount)
+            for sub in response.get("credit_accounts", [])
         ]
