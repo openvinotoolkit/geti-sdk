@@ -113,7 +113,7 @@ class COODModel:
         if not self.deployment.are_models_loaded:
             self.deployment.load_inference_models(device="CPU")
 
-        self._download_labeled_id_images_from_project()
+        self.id_data = self._download_labeled_id_images_from_project()
 
         # The COOD random forest classifier
         self.ood_classifier = None
