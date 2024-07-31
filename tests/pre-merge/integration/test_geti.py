@@ -514,11 +514,20 @@ class TestGeti:
         project = lazy_fxt_project_service.project
         deployment_folder = os.path.join(fxt_temp_directory, project.name)
 
-        deployment = fxt_geti.deploy_project(
-            project.name,
-            output_folder=deployment_folder,
-            enable_explainable_ai=True,
-        )
+        n_attempts = 2 if fxt_test_mode != SdkTestMode.OFFLINE else 1
+        sleep_time = 20 if fxt_test_mode != SdkTestMode.OFFLINE else 1
+        for _ in range(n_attempts):
+            try:
+                deployment = fxt_geti.deploy_project(
+                    project.name,
+                    output_folder=deployment_folder,
+                    enable_explainable_ai=True,
+                )
+            except (ValueError, FileNotFoundError) as error:
+                deployment = None
+                time.sleep(sleep_time)
+                logging.info(error)
+        assert deployment is not None
 
         assert os.path.isdir(os.path.join(deployment_folder, "deployment"))
         deployment.load_inference_models(device="CPU")

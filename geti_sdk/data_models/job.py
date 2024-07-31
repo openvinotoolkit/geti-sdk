@@ -213,6 +213,16 @@ class JobCancellationInfo:
     cancel_time: Optional[str] = attr.field(converter=str_to_datetime, default=None)
 
 
+@attr.define
+class JobCost:
+    """
+    Information relating to the cost of a Job in Intel Geti
+    """
+
+    requests: List
+    consumed: List
+
+
 @attr.define(slots=False)
 class Job:
     """
@@ -248,6 +258,7 @@ class Job:
         converter=str_to_optional_enum_converter(JobState), default=None
     )  # Added in Geti v1.7
     steps: Optional[List[dict]] = None  # Added in Geti v1.7
+    cost: Optional[JobCost] = None  # Added in Geti v2.2
 
     def __attrs_post_init__(self):
         """

@@ -19,6 +19,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, List, Optional, Sequence, Type, TypeVar, Union
 
+from requests import Response
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -34,7 +35,7 @@ from geti_sdk.data_models import (
 from geti_sdk.data_models.containers.media_list import MediaList
 from geti_sdk.data_models.media import MediaInformation, MediaItem
 from geti_sdk.data_models.project import Dataset
-from geti_sdk.http_session import GetiRequestException, GetiSession
+from geti_sdk.http_session import GetiSession
 from geti_sdk.rest_clients.dataset_client import DatasetClient
 from geti_sdk.rest_converters import AnnotationRESTConverter
 
@@ -326,17 +327,13 @@ class BaseAnnotationClient:
         :param media_item: Image or VideoFrame to retrieve the annotations for
         :return: Dictionary containing the annotations data
         """
-        try:
-            response = self.session.get_rest_response(
-                url=f"{media_item.base_url}/annotations/latest",
-                method="GET",
-                include_organization_id=False,
-            )
-        except GetiRequestException as error:
-            if error.status_code in [204, 404]:
-                return None
-            else:
-                raise error
+        response = self.session.get_rest_response(
+            url=f"{media_item.base_url}/annotations/latest",
+            method="GET",
+            include_organization_id=False,
+        )
+        if type(response) is Response and response.status_code == 204:
+            return None
         annotation_scene = self.annotation_scene_from_rest_response(
             response, media_item.media_information
         )

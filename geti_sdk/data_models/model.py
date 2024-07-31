@@ -96,6 +96,7 @@ class BaseModel:
     label_schema_in_sync: Optional[bool] = attr.field(
         default=None
     )  # Added in Intel Geti 1.1
+    total_disk_size: Optional[int] = None  # Added in Intel Geti 2.3
 
     def __attrs_post_init__(self):
         """
