@@ -12,9 +12,14 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+import json
 import logging
+import os
+
+# import time
 from typing import List, Union
 
+import cv2
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 
@@ -22,7 +27,7 @@ from geti_sdk import Geti
 from geti_sdk.data_models import Prediction, Project
 from geti_sdk.data_models.enums.task_type import TaskType
 from geti_sdk.deployment import Deployment
-from geti_sdk.rest_clients import ModelClient
+from geti_sdk.rest_clients import AnnotationClient, ImageClient, ModelClient
 
 from .utils import fit_pca_model, fre_score, perform_knn_indexing
 
@@ -49,6 +54,9 @@ class COODModel:
         """
         self.geti = geti
 
+        # TODO[OOD] : Make it tmpdir or something
+        self.data_dir = "/Users/rgangire/workspace/Results/SDK/data"
+
         if isinstance(project, str):
             project_name = project
             self.project = geti.get_project(project_name=project_name)
@@ -56,19 +64,21 @@ class COODModel:
             self.project = project
 
         self.model_client = ModelClient(
-            session=geti.session, workspace_id=geti.workspace_id, project=self.project
+            session=self.geti.session,
+            workspace_id=self.geti.workspace_id,
+            project=self.project,
+        )
+        self.image_client = ImageClient(
+            session=self.geti.session,
+            workspace_id=self.geti.workspace_id,
+            project=self.project,
         )
 
-        # datasets_in_project = self.project.datasets
-        #
-        # self.image_client = ImageClient(
-        #     session=geti.session, workspace_id=geti.workspace_id, project=project
-        # )
-        # path_to_save_data = "/Users/rgangire/workspace/Results/SDK/images_download"  # TODO[OOD]: Better directory.
-        # self.image_client.download_all(
-        #     path_to_folder=path_to_save_data, append_image_uid=True
-        # )
-        # # dataset_images = self.image_client.get_all_images()
+        self.annotation_client = AnnotationClient(
+            session=self.geti.session,
+            workspace_id=self.geti.workspace_id,
+            project=self.project,
+        )
 
         logging.info(
             f"Building Combined OOD detection model for Intel® Geti™ project `{self.project.name}`."
@@ -103,6 +113,8 @@ class COODModel:
         if not self.deployment.are_models_loaded:
             self.deployment.load_inference_models(device="CPU")
 
+        self._download_labeled_id_images_from_project()
+
         # The COOD random forest classifier
         self.ood_classifier = None
 
@@ -128,6 +140,7 @@ class COODModel:
         # We need the model which has xai enabled - this allows us to get the feature vector from the model.
         model_with_xai_head = None
 
+        # TODO[OOD] : Take the model which has highest accuracy or some other metric, instead of the first model
         for model in models:
             for optimised_model in model.optimized_models:
                 if optimised_model.has_xai_head:
@@ -143,6 +156,7 @@ class COODModel:
         deployment = self.geti.deploy_project(
             project_name=self.project.name, models=[model_with_xai_head]
         )
+
         return deployment
 
     def train(self):
@@ -197,11 +211,62 @@ class COODModel:
         # Call's all submodel objects. Gets back individual scores
         pass
 
-    def _get_labeled_id_images_from_project(self):
+    def _download_labeled_id_images_from_project(self):
         """
-        Create a list of the images that will be ID
+        Download all the images from the project.
         """
-        pass
+        id_data_all = []
+
+        # datasets_in_project = self.project.datasets
+        media_list = self.image_client.get_all_images()
+
+        self.image_client.download_all(
+            path_to_folder=self.data_dir, append_image_uid=True
+        )
+
+        self.annotation_client.download_annotations_for_images(
+            images=media_list,
+            path_to_folder=self.data_dir,
+            append_image_uid=True,
+        )
+        # read the json files and get the annotations
+        annotations_dir = os.path.join(self.data_dir, "annotations")
+        image_dir = os.path.join(self.data_dir, "images")
+        for media in media_list:
+            id_data = {}
+            media_fname = media.name + "_" + media.id
+            annotation_file = os.path.join(annotations_dir, f"{media_fname}.json")
+
+            id_data["media_name"] = media_fname
+            # TODO[OOD]": Careful with this. This has to be made better. Check for only annotation_kind = "ANNOTATION"
+            # only then add it as "annotation_label"
+            # make the list of dictionary a object - use the iLRF dataset item class
+            if os.path.exists(annotation_file):
+                with open(annotation_file, "r") as f:
+                    annotation = json.load(f)
+                    id_data["annotated_label"] = annotation["annotations"][0]["labels"][
+                        0
+                    ]["name"]
+            else:
+                id_data["annotated_label"] = None
+
+            image_path = os.path.join(image_dir, f"{media_fname}.jpg")
+            id_data["image_path"] = image_path
+            img = cv2.imread(image_path)
+            img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            prediction = self.deployment.explain(image=img_rgb)
+            feature_vector = prediction.feature_vector
+            if len(feature_vector.shape) != 1:
+                feature_vector = feature_vector.flatten()
+            id_data["feature_vector"] = feature_vector
+            id_data["prediction_probabilty"] = (
+                prediction.annotations[0].labels[0].probability
+            )
+            id_data["predicted_label"] = prediction.annotations[0].labels[0].name
+
+            id_data_all.append(id_data)
+
+        return id_data_all
 
     def _get_ood_images_from_project(self):
         """
