@@ -149,15 +149,23 @@ class BaseAnnotationClient:
         source_label_names = self.annotation_reader.get_all_label_names()
         project_label_mapping = project.pipeline.label_id_to_name_mapping
         project_label_name_to_id_mapping = {
-            name: id_ for (id_, name) in project_label_mapping.items()
+            name.casefold(): id_ for (id_, name) in project_label_mapping.items()
         }
+        source_label_name_to_project_label_id_mapping = {}
         for source_label_name in source_label_names:
-            if source_label_name not in project_label_name_to_id_mapping:
+            # We search for the casefold label name in the project labels
+            source_label_name = source_label_name.casefold()
+            if source_label_name in project_label_name_to_id_mapping:
+                # But we store the original label name in the mapping
+                source_label_name_to_project_label_id_mapping[source_label_name] = (
+                    project_label_name_to_id_mapping[source_label_name]
+                )
+            else:
                 raise ValueError(
                     f"Found label {source_label_name} in source labels, but this "
                     f"label is not in the project labels."
                 )
-        return project_label_name_to_id_mapping
+        return source_label_name_to_project_label_id_mapping
 
     @property
     def label_mapping(self) -> Dict[str, str]:
