@@ -154,11 +154,10 @@ class BaseAnnotationClient:
         source_label_name_to_project_label_id_mapping = {}
         for source_label_name in source_label_names:
             # We search for the casefold label name in the project labels
-            source_label_name = source_label_name.casefold()
-            if source_label_name in project_label_name_to_id_mapping:
+            if source_label_name.casefold() in project_label_name_to_id_mapping:
                 # But we store the original label name in the mapping
                 source_label_name_to_project_label_id_mapping[source_label_name] = (
-                    project_label_name_to_id_mapping[source_label_name]
+                    project_label_name_to_id_mapping[source_label_name.casefold()]
                 )
             else:
                 raise ValueError(
