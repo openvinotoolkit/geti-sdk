@@ -216,7 +216,7 @@ class JobCancellationInfo:
 @attr.define
 class JobCost:
     """
-    Information relating to the cost of a Job in Intel Geti
+    Information relating to the cost of a Job in Intel Geti.
     """
 
     requests: List

@@ -122,8 +122,6 @@ def get_job_with_timeout(
                 f"Unable to find the resulting {job_type} job on the Intel® Geti™ "
                 f"server."
             )
-    job.workspace_id = workspace_id
-    job.geti_version = session.version
     return job
 
 
