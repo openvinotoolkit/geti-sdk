@@ -61,9 +61,7 @@ class CreditAccount:
     expires: Optional[str] = attr.field(
         default=None, converter=str_to_datetime
     )  # renewable account doesn't have an expiration timestamp by default
-    renewal_day_of_month: Optional[str] = attr.field(
-        default=None, converter=str_to_datetime
-    )
+    renewal_day_of_month: Optional[int] = None
     # renewable quota, for the welcoming one-off account it's None
     renewable_amount: Optional[int] = None
 
