@@ -26,16 +26,41 @@ from sklearn.ensemble import RandomForestClassifier
 from geti_sdk import Geti
 from geti_sdk.data_models import Prediction, Project
 from geti_sdk.data_models.enums.task_type import TaskType
+from geti_sdk.data_models.project import Dataset
 from geti_sdk.deployment import Deployment
 from geti_sdk.rest_clients import AnnotationClient, ImageClient, ModelClient
 
-from .utils import fit_pca_model, fre_score, perform_knn_indexing
+from .utils import (  # normalise_features,
+    CutoutTransform,
+    fit_pca_model,
+    fre_score,
+    perform_knn_indexing,
+)
+
+ID_DATASET_NAMES = ["Dataset"]
+OOD_DATASET_NAMES = ["ood dataset"]
 
 
 class COODModel:
     """
     Out-of-distribution detection model. Uses the Combined out-of-distribution (COOD) detection
     algorithm (see : https://arxiv.org/abs/2403.06874).
+
+    Workspace directory for this Model follows the structure:
+    ```
+    workspace_dir
+    ├── data
+    │   ├── ID
+    │   │   ├── images
+    │   │   ├── annotations
+    │   │   └── predictions
+    │   └── OOD
+    │       ├── images
+    │       └── predictions
+    └── models
+        ├── deployment_model
+        └── ood_model
+
     """
 
     def __init__(
@@ -52,10 +77,17 @@ class COODModel:
             project must exist on the specified Geti instance
         :param deployment: Deployment to use for OOD dete. If not provided, the
         """
+        # TODO[OOD] : move any possible methods to Utils
         self.geti = geti
+        self.distribution_data = {}
+        # TODO[ood] Once the id_data is made into a class object,
+        # this can be a list, with each data having a distribution name
 
-        # TODO[OOD] : Make it tmpdir or something
-        self.data_dir = "/Users/rgangire/workspace/Results/SDK/data"
+        # TODO[OOD] : Features are not yet normalised
+
+        # TODO[OOD] : Make it tmpdir or something, make it a workspace dire with model, data subdirs
+        self.workspace_dir = "/Users/rgangire/workspace/Results/SDK/"
+        self.data_dir = os.path.join(self.workspace_dir, "data")
 
         if isinstance(project, str):
             project_name = project
@@ -79,6 +111,7 @@ class COODModel:
             workspace_id=self.geti.workspace_id,
             project=self.project,
         )
+        self.corruption = CutoutTransform()
 
         logging.info(
             f"Building Combined OOD detection model for Intel® Geti™ project `{self.project.name}`."
@@ -113,7 +146,7 @@ class COODModel:
         if not self.deployment.are_models_loaded:
             self.deployment.load_inference_models(device="CPU")
 
-        self.id_data = self._download_labeled_id_images_from_project()
+        self._prepare_id_odd_data()
 
         # The COOD random forest classifier
         self.ood_classifier = None
@@ -124,6 +157,61 @@ class COODModel:
             "class_fre": ClassFREModel(n_components=0.995),
             "max_softmax_probability": MaxSoftmaxProbabilityModel(),
         }
+
+        self._initialise_ood_models()
+
+    def _prepare_id_odd_data(self):
+        datasets_in_project = self.project.datasets
+
+        id_datasets = []
+        ood_datasets = []
+
+        for dataset in datasets_in_project:
+            if dataset.name in ID_DATASET_NAMES:
+                id_datasets.append(dataset)
+            elif dataset.name in OOD_DATASET_NAMES:
+                ood_datasets.append(dataset)
+
+        if len(id_datasets) == 0:
+            raise ValueError(
+                "Could not find any relevant datasets for in-distribution data. "
+                "Please make sure that the project contains at least one dataset with the names: "
+                f"{ID_DATASET_NAMES}."
+            )
+
+        id_data = []
+        for dataset in id_datasets:
+            id_data.extend(self._prepare_data_from_dataset(dataset))
+
+        ood_data = []
+        if len(ood_datasets) == 0:
+            logging.info(
+                "No out-of-distribution datasets found in the project. "
+                "Generating near-OOD images by applying strong corruptions to the in-distribution images."
+            )
+            for dataset in id_datasets:
+                ood_path = self._create_ood_images(dataset)
+                ood_data.extend(self._prepare_ood_data(ood_dataset_path=ood_path))
+
+        else:
+            for dataset in ood_datasets:
+                ood_data.extend(self._prepare_data_from_dataset(dataset))
+
+        # Len of id_data and ood_data
+        logging.info(f"Number of in-distribution samples: {len(id_data)}")
+        logging.info(f"Number of out-of-distribution samples: {len(ood_data)}")
+
+        self.distribution_data = {
+            "id_data": id_data,
+            "ood_data": ood_data,
+        }
+
+    def _initialise_ood_models(self):
+        """
+        Initialise the OOD models
+        """
+        for sub_model in self.sub_models.values():
+            sub_model.train()
 
     def _get_usable_deployment(self) -> Deployment:
         """
@@ -177,9 +265,6 @@ class COODModel:
 
         # Step 4 : Train all the sub models
 
-        for sub_model in self.sub_models.values():
-            sub_model.train()
-
         ood_classifier = RandomForestClassifier()
         features = []  # Each element is an output (ood score) from the sub-models
         labels = []  # OOD = 1, ID = 0
@@ -211,75 +296,118 @@ class COODModel:
         # Call's all submodel objects. Gets back individual scores
         pass
 
-    def _download_labeled_id_images_from_project(self):
-        """
-        Download all the images from the project.
-        """
-        id_data_all = []
+    def _prepare_data_from_dataset(self, dataset: Dataset) -> List[dict]:
+        required_data_all = []
+        dataset_name = dataset.name
+        dataset_dir = os.path.join(self.data_dir, dataset_name)
 
-        # datasets_in_project = self.project.datasets
-        media_list = self.image_client.get_all_images()
-
+        media_list = self.image_client.get_all_images(dataset=dataset)
         self.image_client.download_all(
-            path_to_folder=self.data_dir, append_image_uid=True
+            path_to_folder=dataset_dir, append_image_uid=True
         )
-
         self.annotation_client.download_annotations_for_images(
             images=media_list,
-            path_to_folder=self.data_dir,
+            path_to_folder=dataset_dir,
             append_image_uid=True,
         )
-        # read the json files and get the annotations
-        annotations_dir = os.path.join(self.data_dir, "annotations")
-        image_dir = os.path.join(self.data_dir, "images")
-        for media in media_list:
-            id_data = {}
-            media_fname = media.name + "_" + media.id
-            annotation_file = os.path.join(annotations_dir, f"{media_fname}.json")
 
-            id_data["media_name"] = media_fname
+        # For each image in the dataset, annotation (if exists) is read and feature vector is extracted
+        annotations_dir = os.path.join(dataset_dir, "annotations")
+        image_dir = os.path.join(dataset_dir, "images")
+        for media in media_list:
+            required_data = {}
+            media_filename = media.name + "_" + media.id
+            annotation_file = os.path.join(annotations_dir, f"{media_filename}.json")
+            image_path = os.path.join(image_dir, f"{media_filename}.jpg")
+
+            required_data["media_name"] = media_filename
+            required_data["image_path"] = image_path
+
             # TODO[OOD]": Careful with this. This has to be made better. Check for only annotation_kind = "ANNOTATION"
             # only then add it as "annotation_label"
             # make the list of dictionary a object - use the iLRF dataset item class
             if os.path.exists(annotation_file):
                 with open(annotation_file, "r") as f:
                     annotation = json.load(f)
-                    id_data["annotated_label"] = annotation["annotations"][0]["labels"][
-                        0
-                    ]["name"]
+                    required_data["annotated_label"] = annotation["annotations"][0][
+                        "labels"
+                    ][0]["name"]
             else:
-                id_data["annotated_label"] = None
+                required_data["annotated_label"] = None
 
-            image_path = os.path.join(image_dir, f"{media_fname}.jpg")
-            id_data["image_path"] = image_path
-            img = cv2.imread(image_path)
-            img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            prediction = self.deployment.explain(image=img_rgb)
+            prediction = self._infer(image_path=image_path, explain=True)
             feature_vector = prediction.feature_vector
             if len(feature_vector.shape) != 1:
                 feature_vector = feature_vector.flatten()
-            id_data["feature_vector"] = feature_vector
-            id_data["prediction_probabilty"] = (
+            required_data["feature_vector"] = feature_vector
+            required_data["prediction_probabilty"] = (
                 prediction.annotations[0].labels[0].probability
             )
-            id_data["predicted_label"] = prediction.annotations[0].labels[0].name
+            required_data["predicted_label"] = prediction.annotations[0].labels[0].name
 
-            id_data_all.append(id_data)
+            required_data_all.append(required_data)
 
-        return id_data_all
+        return required_data_all
 
-    def _get_ood_images_from_project(self):
+    def _infer(self, image_path: str, explain: bool = False) -> Prediction:
         """
-        Create a list of the images that will be OOD
+        Infer the image and get the prediction using the deployment
         """
-        pass
+        img = cv2.imread(image_path)
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        if explain:
+            # Note that a check to see if xai model is present in the deployment is not done.
+            # If the model is not present, then feature_vector will be None
+            return self.deployment.explain(image=img_rgb)
+        else:
+            return self.deployment.infer(image=img_rgb)
 
-    def _create_ood_images(self):
+    def _create_ood_images(self, reference_dataset: Dataset) -> str:
         """
-        Create near-OOD images by applying strong corruptions to the in-distribution images
+        Create near-OOD images by applying strong corruptions to the in-distribution images in the reference datasets.
         """
-        # Options  : Applying corruptions, generating Perlin Noise Images, Background extraction
-        pass
+        # Options  : Applying corruptions, generating Perlin Noise Images, Background extraction (using saliency maps)
+        ref_images_path = os.path.join(self.data_dir, reference_dataset.name, "images")
+        corrupted_images_path = os.path.join(self.data_dir, "ood_images")
+        if not os.path.exists(corrupted_images_path):
+            os.makedirs(corrupted_images_path)
+
+        for image_name in os.listdir(ref_images_path):
+            image_path = os.path.join(ref_images_path, image_name)
+            img = cv2.imread(image_path)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            corrupted_img = self.corruption(img)
+            corrupted_image_path = os.path.join(corrupted_images_path, image_name)
+            cv2.imwrite(corrupted_image_path, corrupted_img)
+
+        return corrupted_images_path
+
+    def _prepare_ood_data(self, ood_dataset_path):
+        """
+        Prepare the OOD data for the model
+        """
+        ood_data_all = []
+        for file_name in os.listdir(ood_dataset_path):
+            required_data = {}
+            required_data["image_path"] = os.path.join(ood_dataset_path, file_name)
+            required_data["media_name"] = os.path.splitext(os.path.basename(file_name))[
+                0
+            ]
+            required_data["annotated_label"] = None
+            prediction = self._infer(
+                image_path=os.path.join(ood_dataset_path, file_name), explain=True
+            )
+            feature_vector = prediction.feature_vector
+            if len(feature_vector.shape) != 1:
+                feature_vector = feature_vector.flatten()
+            required_data["feature_vector"] = feature_vector
+            required_data["prediction_probabilty"] = (
+                prediction.annotations[0].labels[0].probability
+            )
+            required_data["predicted_label"] = prediction.annotations[0].labels[0].name
+
+            ood_data_all.append(required_data)
+        return ood_data_all
 
 
 class KNNBasedOODModel:
@@ -290,13 +418,25 @@ class KNNBasedOODModel:
     def __init__(self, knn_k: int = 10):
         self.knn_k = knn_k
         self.knn_search_index = None
+        self._is_trained = False
 
-    def train(self):
+    def train(self, distribution_data: dict):
         """
         Train the kNN model
         """
-        feature_vectors = None
-        self.knn_search_index = perform_knn_indexing(feature_vectors)
+        id_data = distribution_data["id_data"]
+        feature_vectors = np.ndarray(
+            [data["feature_vector"] for data in id_data], dtype=np.float32
+        )
+        self.knn_search_index = perform_knn_indexing(feature_vectors, use_gpu=False)
+        self._is_trained = True
+
+    @property
+    def is_trained(self) -> bool:
+        """
+        Return True if the model is trained.
+        """
+        return self._is_trained
 
     def __call__(self, prediction: Prediction) -> dict:
         """
@@ -313,15 +453,18 @@ class ClassFREModel:
     def __init__(self, n_components=0.995):
         self.n_components = n_components
         self.pca_models_per_class = {}
+        self._is_trained = False
 
-    def train(self):
+    def train(self, distribution_data: dict):
         """
         Fit PCA Models on the in-distribution data for each class.
         """
+        id_data = distribution_data["id_data"]
+        features = np.array([data["feature_vector"] for data in id_data])
+        labels = np.array([data["annotated_label"] for data in id_data])
+
         # iterate through unique labels and fit pca model for each class
         pca_models = {}
-        features: np.ndarray = None
-        labels: List[str] = None
 
         for label in np.unique(labels):
             # labels are list of class names and not indices
@@ -332,6 +475,14 @@ class ClassFREModel:
             )
 
         self.pca_models_per_class = pca_models
+        self._is_trained = True
+
+    @property
+    def is_trained(self) -> bool:
+        """
+        Return True if the model is trained.
+        """
+        return self._is_trained
 
     def __call__(self, prediction: Prediction) -> dict:
         """
@@ -357,7 +508,29 @@ class MaxSoftmaxProbabilityModel:
     """
 
     def __init__(self):
-        pass
+        self._is_trained = False
+
+    def train(self):
+        """
+        MSP model does not require training.
+        """
+        self._is_trained = True
+
+    @property
+    def is_trained(self) -> bool:
+        """
+        Return True if the model is trained.
+        """
+        return self._is_trained
+
+    def __call__(self, prediction: Prediction) -> float:
+        """
+        Return the maximum softmax probability for the given prediction.
+        """
+        prediction_probabilities = [
+            label.probability for label in prediction.annotations[0].labels
+        ]
+        return max(prediction_probabilities)
 
 
 class DKNNModel:

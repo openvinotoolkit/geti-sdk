@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-
+import albumentations
 import faiss
 import numpy as np
 from sklearn.decomposition import PCA
@@ -173,3 +173,31 @@ def generate_ood_dataset_by_corruption(
     Util
     """
     pass
+
+
+class CutoutTransform:
+    """
+    Cutout transform to apply on images
+    """
+
+    def __init__(
+        self,
+    ):
+        self.corruption_strength_range = (0.001, 1)
+        transform = albumentations.Compose(
+            [
+                albumentations.CoarseDropout(
+                    max_holes=1,
+                    p=1,
+                    hole_width_range=(0.5, 0.7),
+                    hole_height_range=(0.5, 0.7),
+                )
+            ]
+        )
+        self.transform = transform
+
+    def __call__(self, image: np.ndarray) -> np.ndarray:
+        """
+        Apply the cutout transform on the image
+        """
+        return self.transform(image=image)["image"]
