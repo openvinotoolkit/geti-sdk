@@ -35,6 +35,7 @@ from .utils import (  # normalise_features,
     fit_pca_model,
     fre_score,
     perform_knn_indexing,
+    perform_knn_search,
 )
 
 ID_DATASET_NAMES = ["Dataset"]
@@ -95,22 +96,8 @@ class COODModel:
         else:
             self.project = project
 
-        self.model_client = ModelClient(
-            session=self.geti.session,
-            workspace_id=self.geti.workspace_id,
-            project=self.project,
-        )
-        self.image_client = ImageClient(
-            session=self.geti.session,
-            workspace_id=self.geti.workspace_id,
-            project=self.project,
-        )
+        self._prepare_geti_clients()
 
-        self.annotation_client = AnnotationClient(
-            session=self.geti.session,
-            workspace_id=self.geti.workspace_id,
-            project=self.project,
-        )
         self.corruption = CutoutTransform()
 
         logging.info(
@@ -158,7 +145,29 @@ class COODModel:
             "max_softmax_probability": MaxSoftmaxProbabilityModel(),
         }
 
-        self._initialise_ood_models()
+        self._train_sub_models()
+        self.train()
+
+    def _prepare_geti_clients(self):
+        """
+        Prepare the Geti clients for the project
+        """
+        self.model_client = ModelClient(
+            session=self.geti.session,
+            workspace_id=self.geti.workspace_id,
+            project=self.project,
+        )
+        self.image_client = ImageClient(
+            session=self.geti.session,
+            workspace_id=self.geti.workspace_id,
+            project=self.project,
+        )
+
+        self.annotation_client = AnnotationClient(
+            session=self.geti.session,
+            workspace_id=self.geti.workspace_id,
+            project=self.project,
+        )
 
     def _prepare_id_odd_data(self):
         datasets_in_project = self.project.datasets
@@ -206,12 +215,12 @@ class COODModel:
             "ood_data": ood_data,
         }
 
-    def _initialise_ood_models(self):
+    def _train_sub_models(self):
         """
         Initialise the OOD models
         """
         for sub_model in self.sub_models.values():
-            sub_model.train()
+            sub_model.train(distribution_data=self.distribution_data)
 
     def _get_usable_deployment(self) -> Deployment:
         """
@@ -264,6 +273,13 @@ class COODModel:
         # Step 7 : Test COOD on test set (?)  Determine threshold (usually this is just 0.5)
 
         # Step 4 : Train all the sub models
+
+        ood_output_sub_models = {}
+        for sub_model in self.sub_models.values():
+            if sub_model.is_trained:
+                ood_output_sub_models[sub_model.__class__.__name__] = sub_model(
+                    self.distribution_data["ood_data"]
+                )
 
         ood_classifier = RandomForestClassifier()
         features = []  # Each element is an output (ood score) from the sub-models
@@ -425,9 +441,7 @@ class KNNBasedOODModel:
         Train the kNN model
         """
         id_data = distribution_data["id_data"]
-        feature_vectors = np.ndarray(
-            [data["feature_vector"] for data in id_data], dtype=np.float32
-        )
+        feature_vectors = np.array([data["feature_vector"] for data in id_data])
         self.knn_search_index = perform_knn_indexing(feature_vectors, use_gpu=False)
         self._is_trained = True
 
@@ -442,7 +456,14 @@ class KNNBasedOODModel:
         """
         Return the kNN OOD score for the given feature vector.
         """
-        pass
+        features = prediction.feature_vector
+        ood_scores = perform_knn_search(
+            knn_search_index=self.knn_search_index,
+            feature_vectors=features,
+            k=self.knn_k,
+        )
+        # distance to the kth nearest neighbour
+        return {"knn_ood_score": ood_scores[:, -1]}
 
 
 class ClassFREModel:
@@ -450,7 +471,7 @@ class ClassFREModel:
     Yet to be finalised
     """
 
-    def __init__(self, n_components=0.995):
+    def __init__(self, name: str = "class_fre_model", n_components=0.995):
         self.n_components = n_components
         self.pca_models_per_class = {}
         self._is_trained = False
@@ -510,7 +531,7 @@ class MaxSoftmaxProbabilityModel:
     def __init__(self):
         self._is_trained = False
 
-    def train(self):
+    def train(self, distribution_data: dict):
         """
         MSP model does not require training.
         """
