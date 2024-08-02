@@ -33,6 +33,7 @@ from geti_sdk.data_models import (
     VideoFrame,
 )
 from geti_sdk.data_models.containers.media_list import MediaList
+from geti_sdk.data_models.label import Label
 from geti_sdk.data_models.media import MediaInformation, MediaItem
 from geti_sdk.data_models.project import Dataset
 from geti_sdk.http_session import GetiSession
@@ -146,25 +147,38 @@ class BaseAnnotationClient:
         :return: Dictionary containing the label names as keys and the label ids as
             values
         """
+        project_label_name_to_label: Dict[str, Label] = {}
+        for label in project.pipeline.get_all_labels():
+            if label.is_empty:
+                # We perform a casefold on the label name to ensure that we can match
+                # the empy labels from projects created in older versions of the
+                # Intel Geti platform.
+                label_name = label.name.casefold()
+            else:
+                label_name = label.name
+            project_label_name_to_label[label_name] = label
+
         source_label_names = self.annotation_reader.get_all_label_names()
-        project_label_mapping = project.pipeline.label_id_to_name_mapping
-        project_label_name_to_id_mapping = {
-            name.casefold(): id_ for (id_, name) in project_label_mapping.items()
-        }
-        source_label_name_to_project_label_id_mapping = {}
+        source_label_name_to_project_label_id: Dict[str, str] = {}
         for source_label_name in source_label_names:
-            # We search for the casefold label name in the project labels
-            if source_label_name.casefold() in project_label_name_to_id_mapping:
-                # But we store the original label name in the mapping
-                source_label_name_to_project_label_id_mapping[source_label_name] = (
-                    project_label_name_to_id_mapping[source_label_name.casefold()]
-                )
+            if source_label_name in project_label_name_to_label:
+                label_id = project_label_name_to_label[source_label_name].id
+            elif (
+                source_label_name.casefold() in project_label_name_to_label
+                and project_label_name_to_label[source_label_name.casefold()].is_empty
+            ):
+                label_id = project_label_name_to_label[source_label_name.casefold()].id
             else:
                 raise ValueError(
                     f"Found label {source_label_name} in source labels, but this "
                     f"label is not in the project labels."
                 )
-        return source_label_name_to_project_label_id_mapping
+            if label_id is None:
+                raise ValueError(
+                    f"Unable to find label id for label {source_label_name}."
+                )
+            source_label_name_to_project_label_id[source_label_name] = label_id
+        return source_label_name_to_project_label_id
 
     @property
     def label_mapping(self) -> Dict[str, str]:
