@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,6 +40,30 @@ from .utils import (  # normalise_features,
 
 ID_DATASET_NAMES = ["Dataset"]
 OOD_DATASET_NAMES = ["ood dataset"]
+
+
+class DistributionDataItem:
+    """
+    A class to store the data for the COOD model.
+    """
+
+    def __init__(
+        self,
+        media_name: str,
+        image_path: str,
+        annotated_label: str,
+        feature_vector: np.ndarray,
+        prediction_probabilty: float,
+        predicted_label: str,
+        raw_prediction: Prediction,
+    ):
+        self.media_name = media_name
+        self.image_path = image_path
+        self.annotated_label = annotated_label
+        self.feature_vector = feature_vector
+        self.prediction_probabilty = prediction_probabilty
+        self.predicted_label = predicted_label
+        self.raw_prediction = raw_prediction
 
 
 class COODModel:
