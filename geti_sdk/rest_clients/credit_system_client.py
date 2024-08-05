@@ -61,9 +61,13 @@ class CreditSystemClient:
 
         :return: True if the Credit System is supported, False otherwise.
         """
+        # Send a GET request to the balance endpoint to check if the Credit System is supported.
+        # The text response is allowed to check if the server responds with a default
+        # html page in case the Credit System is not supported.
         r = self.session.get_rest_response(
             url=self.session.base_url + "balance",
             method="GET",
+            allow_text_response=True,
         )
         if isinstance(r, dict):
             # If the Platform responds with the information about the available subscriptions,
