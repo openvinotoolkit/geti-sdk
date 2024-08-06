@@ -22,7 +22,7 @@ such as :py:class:`~geti_sdk.data_models.project.Project`,
 :py:class:`~geti_sdk.data_models.model.Model`)
 on the Intel® Geti™ server.
 
-All rest clients are initialized with a
+The rest clients are initialized with a
 :py:class:`~geti_sdk.http_session.geti_session.GetiSession` and a workspace id. The
 :py:class:`~geti_sdk.rest_clients.project_client.project_client.ProjectClient`
 can be initialized with just that, while all other clients are initialized
@@ -86,11 +86,15 @@ Module contents
 .. autoclass:: geti_sdk.rest_clients.deployment_client.DeploymentClient
    :members:
 
+.. autoclass:: geti_sdk.rest_clients.credit_system_client.CreditSystemClient
+   :members:
+
 """
 
 from .active_learning_client import ActiveLearningClient
 from .annotation_clients import AnnotationClient
 from .configuration_client import ConfigurationClient
+from .credit_system_client import CreditSystemClient
 from .dataset_client import DatasetClient
 from .deployment_client import DeploymentClient
 from .media_client import ImageClient, VideoClient
@@ -113,4 +117,5 @@ __all__ = [
     "DeploymentClient",
     "ActiveLearningClient",
     "TestingClient",
+    "CreditSystemClient",
 ]

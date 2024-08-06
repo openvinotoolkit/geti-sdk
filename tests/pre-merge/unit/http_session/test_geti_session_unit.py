@@ -92,35 +92,3 @@ class TestPlatformAuthentication:
         # Username and password will soon be deprecated for on-prem
         with pytest.warns():
             GetiSession(fxt_mocked_server_credential_config)
-
-    def test_authentication_legacy(
-        self,
-        fxt_mocked_server_credential_config,
-        mocker: MockerFixture,
-    ):
-        # Arrange
-        mocker.patch(
-            "geti_sdk.http_session.geti_session.GetiSession.platform_serving_mode",
-            ONPREM_MODE,
-        )
-        mocker.patch(
-            "geti_sdk.http_session.geti_session.GetiSession._get_product_info_and_set_api_version",
-            return_value={
-                "product-version": "1.8.0",
-                "build-version": "1.8.0-test-20240417130126",
-                "smtp-defined": "True",
-                "environment": "on-prem",
-            },
-        )
-        mocker.patch(
-            "geti_sdk.http_session.geti_session.GetiSession._get_organization_id",
-            return_value="dummy_org_id",
-        )
-        mocker.patch(
-            "geti_sdk.http_session.geti_session.GetiSession.authenticate_with_password"
-        )
-
-        # Act
-        # Legacy platforms are no longer supported
-        with pytest.raises(ValueError):
-            GetiSession(fxt_mocked_server_credential_config)

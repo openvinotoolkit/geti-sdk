@@ -207,7 +207,12 @@ def str_to_datetime(datetime_str: Optional[Union[str, datetime]]) -> Optional[da
     """
     if isinstance(datetime_str, str):
         try:
-            return datetime.fromisoformat(datetime_str)
+            if datetime_str.isdigit():
+                # POSIX timestamp
+                return datetime.fromtimestamp(int(datetime_str) / 1000)
+            else:
+                # ISO format
+                return datetime.fromisoformat(datetime_str)
         except ValueError:
             logging.debug(
                 f"Unable to convert str '{datetime_str}' to datetime, converter "

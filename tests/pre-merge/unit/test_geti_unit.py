@@ -21,6 +21,7 @@ from pytest_mock import MockerFixture
 from geti_sdk import Geti
 from geti_sdk.data_models import Project
 from geti_sdk.http_session import ServerCredentialConfig, ServerTokenConfig
+from geti_sdk.http_session.geti_session import ONPREM_MODE
 from tests.helpers.constants import DUMMY_HOST, DUMMY_PASSWORD, DUMMY_TOKEN, DUMMY_USER
 
 
@@ -71,6 +72,59 @@ class TestGeti:
         # not acquire token
         geti = Geti(host=DUMMY_HOST, token=DUMMY_TOKEN)
         assert "x-api-key" in geti.session.headers.keys()
+
+    def test_connection_to_legacy_platform(
+        self,
+        fxt_mocked_server_credential_config,
+        fxt_mocked_session_factory,
+        mocker: MockerFixture,
+    ):
+        # Arrange
+        mocker.patch(
+            "geti_sdk.http_session.geti_session.GetiSession.platform_serving_mode",
+            ONPREM_MODE,
+        )
+        mocker.patch(
+            "geti_sdk.http_session.geti_session.GetiSession._get_product_info_and_set_api_version",
+            return_value={
+                "product-version": "1.8.0",
+                "build-version": "1.8.0-test-20240417130126",
+                "smtp-defined": "True",
+                "environment": "on-prem",
+            },
+        )
+        mocker.patch(
+            "geti_sdk.http_session.geti_session.GetiSession._get_organization_id",
+            return_value="dummy_org_id",
+        )
+        mocker.patch(
+            "geti_sdk.http_session.geti_session.GetiSession.authenticate_with_password"
+        )
+
+        # Act
+        # Legacy platforms are no longer supported
+        with pytest.raises(ValueError):
+            Geti(host=DUMMY_HOST, server_config=fxt_mocked_server_credential_config)
+
+    def test_connection_to_legacynewer_platform(
+        self,
+        fxt_mocked_session_factory,
+        mocker: MockerFixture,
+    ):
+        # Arrange
+        mocker.patch("geti_sdk.geti.GetiSession", new=fxt_mocked_session_factory)
+        mock_session = fxt_mocked_session_factory()
+        mocker.patch("geti_sdk.geti.get_default_workspace_id", return_value=1)
+        # Decrease the minor version for the SDK
+        platform_version = str(mock_session.version.version).split(".")
+        mocker.patch(
+            "geti_sdk.geti.sdk_version_string",
+            f"{platform_version[0]}.{int(platform_version[1]) - 1}.0",
+        )
+
+        # Act
+        with pytest.warns():
+            Geti(host=DUMMY_HOST, token=DUMMY_TOKEN)
 
     def test_logout(self, mocker: MockerFixture, fxt_mocked_geti: Geti):
         # Arrange

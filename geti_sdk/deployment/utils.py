@@ -137,7 +137,7 @@ def get_package_version_from_requirements(
         raise ValueError(f"Requirements file {requirements_path} not found")
 
     for line in requirements_path.read_text().split("\n"):
-        # The otx may be installed from a GitHub url
+        # The OTX package may be installed from a GitHub url
         if line.startswith(package_name) and "==" in line:
             return line.split("==")[1].strip()
     return ""

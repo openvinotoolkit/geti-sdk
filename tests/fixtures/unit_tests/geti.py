@@ -52,8 +52,8 @@ def fxt_mocked_session_factory(
         mocker.patch(
             "geti_sdk.http_session.geti_session.GetiSession._get_product_info_and_set_api_version",
             return_value={
-                "product-version": "2.0.0",
-                "build-version": "2.0.0-test-20240417130126",
+                "product-version": "2.3.0",
+                "build-version": "2.3.0-test-20240417130126",
                 "smtp-defined": "True",
                 "environment": "on-prem",
             },

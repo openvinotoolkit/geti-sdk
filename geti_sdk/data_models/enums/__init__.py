@@ -26,12 +26,14 @@ from .model_status import ModelStatus
 from .optimization_type import OptimizationType
 from .prediction_mode import PredictionMode
 from .shape_type import ShapeType
+from .subscription_status import SubscriptionStatus
 from .task_type import TaskType
 
 __all__ = [
     "TaskType",
     "MediaType",
     "ShapeType",
+    "SubscriptionStatus",
     "AnnotationKind",
     "AnnotationState",
     "PredictionMode",

@@ -48,6 +48,13 @@ Project-related entities
    :members:
    :undoc-members:
 
+Credit System-related entities
+++++++++++++++++++++++++
+
+.. automodule:: geti_sdk.data_models.credit_system
+   :members:
+   :undoc-members:
+
 Annotation-related entities
 +++++++++++++++++++++++++++
 .. automodule:: geti_sdk.data_models.label
@@ -169,6 +176,7 @@ from .configuration import (
     GlobalConfiguration,
     TaskConfiguration,
 )
+from .credit_system import CreditAccount, CreditBalance, Subscription
 from .enums import AnnotationKind, MediaType, TaskType
 from .job import Job
 from .label import Label, ScoredLabel
@@ -216,4 +224,7 @@ __all__ = [
     "TestResult",
     "Score",
     "User",
+    "CreditAccount",
+    "CreditBalance",
+    "Subscription",
 ]

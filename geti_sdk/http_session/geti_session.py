@@ -26,7 +26,7 @@ from requests.exceptions import RequestException
 from requests.structures import CaseInsensitiveDict
 from urllib3.exceptions import InsecureRequestWarning
 
-from geti_sdk.platform_versions import GETI_116_VERSION, GetiVersion
+from geti_sdk.platform_versions import GetiVersion
 
 from .exception import GetiRequestException
 from .server_config import ServerCredentialConfig, ServerTokenConfig
@@ -110,11 +110,6 @@ class GetiSession(requests.Session):
         # Get server version
         self._product_info = self._get_product_info_and_set_api_version()
         self._organization_id: Optional[str] = self._get_organization_id()
-        if self.version < GETI_116_VERSION:
-            raise ValueError(
-                "The Intel® Geti™ server version is not supported by this SDK. Please "
-                "update the Intel® Geti™ server to version 2.0 or later, or us the previous version of the SDK."
-            )
 
     @property
     @cache

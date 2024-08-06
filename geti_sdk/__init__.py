@@ -110,9 +110,8 @@ Module contents
 
 """
 
+from ._version import __version__  # noqa: F401
 from .geti import Geti
 from .prediction_visualization.visualizer import Visualizer
-
-__version__ = "2.2.0"
 
 __all__ = ["Geti", "Visualizer"]
