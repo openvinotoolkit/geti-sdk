@@ -16,7 +16,7 @@ import sys
 sys.path.insert(0, os.path.abspath("../../geti_sdk"))
 
 root_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-with open(f"{root_path}/geti_sdk/__init__.py", "r", encoding="utf-8") as init_file:
+with open(f"{root_path}/geti_sdk/_version.py", "r", encoding="utf-8") as init_file:
     for line in init_file:
         line = line.strip()
         if line.startswith("__version__"):
