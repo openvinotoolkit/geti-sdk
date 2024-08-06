@@ -51,9 +51,9 @@ class DistributionDataItem:
         self,
         media_name: str,
         image_path: str,
-        annotated_label: str,
+        annotated_label: str | None,
         feature_vector: np.ndarray,
-        prediction_probabilty: float,
+        prediction_probability: float,
         predicted_label: str,
         raw_prediction: Prediction,
     ):
@@ -61,9 +61,13 @@ class DistributionDataItem:
         self.image_path = image_path
         self.annotated_label = annotated_label
         self.feature_vector = feature_vector
-        self.prediction_probabilty = prediction_probabilty
+        self.prediction_probability = prediction_probability
         self.predicted_label = predicted_label
         self.raw_prediction = raw_prediction
+
+    # TODO[OOD] : Take only required fields and everything else can be property def where they can be
+    #  extracted from raw_prediction
+    # TODO[OOD] : Normalise feature vector in efficient ways when doing the above todo task
 
 
 class COODModel:
@@ -336,7 +340,9 @@ class COODModel:
         # Call's all submodel objects. Gets back individual scores
         pass
 
-    def _prepare_data_from_dataset(self, dataset: Dataset) -> List[dict]:
+    def _prepare_data_from_dataset(
+        self, dataset: Dataset
+    ) -> List[DistributionDataItem]:
         required_data_all = []
         dataset_name = dataset.name
         dataset_dir = os.path.join(self.data_dir, dataset_name)
@@ -380,12 +386,22 @@ class COODModel:
             if len(feature_vector.shape) != 1:
                 feature_vector = feature_vector.flatten()
             required_data["feature_vector"] = feature_vector
-            required_data["prediction_probabilty"] = (
+            required_data["prediction_probability"] = (
                 prediction.annotations[0].labels[0].probability
             )
             required_data["predicted_label"] = prediction.annotations[0].labels[0].name
 
-            required_data_all.append(required_data)
+            data_item = DistributionDataItem(
+                media_name=required_data["media_name"],
+                image_path=required_data["image_path"],
+                annotated_label=required_data["annotated_label"],
+                feature_vector=required_data["feature_vector"],
+                prediction_probability=required_data["prediction_probability"],
+                predicted_label=required_data["predicted_label"],
+                raw_prediction=prediction,
+            )
+
+            required_data_all.append(data_item)
 
         return required_data_all
 
@@ -429,6 +445,7 @@ class COODModel:
         ood_data_all = []
         for file_name in os.listdir(ood_dataset_path):
             required_data = {}
+
             required_data["image_path"] = os.path.join(ood_dataset_path, file_name)
             required_data["media_name"] = os.path.splitext(os.path.basename(file_name))[
                 0
@@ -441,12 +458,22 @@ class COODModel:
             if len(feature_vector.shape) != 1:
                 feature_vector = feature_vector.flatten()
             required_data["feature_vector"] = feature_vector
-            required_data["prediction_probabilty"] = (
+            required_data["prediction_probability"] = (
                 prediction.annotations[0].labels[0].probability
             )
             required_data["predicted_label"] = prediction.annotations[0].labels[0].name
 
-            ood_data_all.append(required_data)
+            data_item = DistributionDataItem(
+                media_name=required_data["media_name"],
+                image_path=required_data["image_path"],
+                annotated_label=required_data["annotated_label"],
+                feature_vector=required_data["feature_vector"],
+                prediction_probability=required_data["prediction_probability"],
+                predicted_label=required_data["predicted_label"],
+                raw_prediction=prediction,
+            )
+
+            ood_data_all.append(data_item)
         return ood_data_all
 
 
