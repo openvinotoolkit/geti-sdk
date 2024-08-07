@@ -27,12 +27,12 @@ jobs:
       matrix:
         python-version: ['3.9', '3.10', '3.11']
         os: [ubuntu-latest, windows-latest, macos-latest]
-        # include:  # DISABELED UNTIL 2.0 RELEASE - Run test with legacy cassette (Currently - Geti 1.8)
-        #   - os: ubuntu-22.04
-        #     python-version: '3.10'
-        #     env: GETI_PLATFORM_VERSION=LEGACY
+        include:  # Run test with legacy cassette (Currently - Geti 2.0)
+          - os: ubuntu-latest
+            python-version: '3.10'
+            env: GETI_PLATFORM_VERSION=LEGACY
       fail-fast: true
-      max-parallel: 4
+      max-parallel: 5
 
     steps:
       - name: Harden Runner
