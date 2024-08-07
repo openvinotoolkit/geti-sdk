@@ -28,7 +28,7 @@ jobs:
         python-version: ['3.9', '3.10', '3.11']
         os: [ubuntu-latest, windows-latest, macos-latest]
         include:  # Run test with legacy cassette (Currently - Geti 2.0)
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             python-version: '3.10'
             env: GETI_PLATFORM_VERSION=LEGACY
       fail-fast: true
