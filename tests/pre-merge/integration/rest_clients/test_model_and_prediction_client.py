@@ -24,7 +24,7 @@ from geti_sdk.data_models import Image, Prediction, Project
 from geti_sdk.data_models.enums import JobState, PredictionMode
 from geti_sdk.demos import EXAMPLE_IMAGE_PATH
 from geti_sdk.http_session import GetiRequestException
-from geti_sdk.platform_versions import GETI_15_VERSION
+from geti_sdk.platform_versions import GETI_15_VERSION, GETI_22_VERSION
 from tests.helpers import (
     ProjectService,
     SdkTestMode,
@@ -316,6 +316,8 @@ class TestModelAndPredictionClient:
         """
         Test that an inactive model may be purged.
         """
+        if fxt_project_service.session.version < GETI_22_VERSION:
+            pytest.skip("Model purging is not supported in this version")
         # Arrange
         model_client = fxt_project_service.model_client
         project = fxt_project_service.project
