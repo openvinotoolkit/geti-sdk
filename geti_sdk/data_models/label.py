@@ -139,6 +139,7 @@ class ScoredLabel:
         :param probability: probability score for the label
         :return: ScoredLabel instance corresponding to `label` and `probability`
         """
+        probability = 0 if label.is_empty else probability
         return ScoredLabel(
             name=label.name, probability=probability, color=label.color, id=label.id
         )
