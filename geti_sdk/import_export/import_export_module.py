@@ -280,7 +280,7 @@ class GetiIE:
         return project
 
     def download_all_projects(
-        self, target_folder: str, include_predictions: bool = True
+        self, target_folder: str = "./projects", include_predictions: bool = True
     ) -> List[Project]:
         """
         Download all projects from the Geti Platform.
@@ -293,8 +293,6 @@ class GetiIE:
         projects = self.project_client.get_all_projects()
 
         # Validate or create target_folder
-        if target_folder is None:
-            target_folder = os.path.join(".", "projects")
         os.makedirs(target_folder, exist_ok=True, mode=0o770)
         logging.info(
             f"Found {len(projects)} projects in the designated workspace on the "
@@ -505,7 +503,7 @@ class GetiIE:
         )
         tus_uploader.upload()
         file_id = tus_uploader.get_file_id()
-        if file_id is None or len(file_id) < 2:
+        if file_id is None:
             raise RuntimeError("Failed to get file id for project {project_name}.")
         return file_id
 
