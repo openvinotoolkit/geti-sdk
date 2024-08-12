@@ -17,6 +17,7 @@ import json
 import logging
 import os
 import time
+import warnings
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from geti_sdk.data_models import Project, Task, TaskType
@@ -696,3 +697,50 @@ class ProjectClient:
                 url=f"{self.base_url}projects/{project.id}", method="GET"
             )
             return ProjectRESTConverter.from_dict(response)
+
+    def get_project_by_id(self, project_id: str) -> Optional[Project]:
+        """
+        Get a project from the Intel® Geti™ server by project_id.
+
+        :param project_id: ID of the project to get
+        :return: Project object containing the data of the project, if the project is
+            found on the server. Returns None if the project doesn't exist
+        """
+        response = self.session.get_rest_response(
+            url=f"{self.base_url}projects/{project_id}", method="GET"
+        )
+        return ProjectRESTConverter.from_dict(response)
+
+    def get_project(
+        self,
+        project_name: Optional[str] = None,
+        project_id: Optional[str] = None,
+        project: Optional[Project] = None,
+    ) -> Optional[Project]:
+        """
+        Get a project from the Intel® Geti™ server by project_name or project_id, or
+        update a provided Project object with the latest data from the server.
+
+        :param project_name: Name of the project to get
+        :param project_id: ID of the project to get
+        :param project: Project object to update with the latest data from the server
+        :return: Project object containing the data of the project, if the project is
+            found on the server. Returns None if the project doesn't exist
+        """
+        # The method prioritize the parameters in the following order:
+        if project_id is not None:
+            return self.get_project_by_id(project_id)
+        elif project is not None:
+            if project.id is not None:
+                return self.get_project_by_id(project.id)
+            else:
+                return self.get_project_by_name(project_name=project.name)
+        elif project_name is not None:
+            return self.get_project_by_name(project_name=project_name)
+        else:
+            # No parameters provided
+            # Warn the user and return None
+            warnings.warn(
+                "At least one of the parameters `project_name`, `project_id`, or "
+                "`project` must be provided."
+            )
