@@ -24,7 +24,7 @@ from geti_sdk.data_models import Image, Prediction, Project
 from geti_sdk.data_models.enums import JobState, PredictionMode
 from geti_sdk.demos import EXAMPLE_IMAGE_PATH
 from geti_sdk.http_session import GetiRequestException
-from geti_sdk.platform_versions import GETI_15_VERSION
+from geti_sdk.platform_versions import GETI_15_VERSION, GETI_22_VERSION
 from tests.helpers import (
     ProjectService,
     SdkTestMode,
@@ -217,7 +217,7 @@ class TestModelAndPredictionClient:
         )
 
         model_invalid_version = model_client.get_model_by_algorithm_task_and_version(
-            algorithm=algorithm, task=task, version=3
+            algorithm=algorithm, task=task, version=10
         )
 
         assert model_1 == model_no_task
@@ -306,3 +306,55 @@ class TestModelAndPredictionClient:
         assert len(prediction_numpy.annotations) == len(
             prediction_geti_image.annotations
         )
+
+    @pytest.mark.vcr()
+    def test_purge_model(
+        self,
+        fxt_project_service: ProjectService,
+        fxt_test_mode: SdkTestMode,
+    ) -> None:
+        """
+        Test that an inactive model may be purged.
+        """
+        if fxt_project_service.session.version < GETI_22_VERSION:
+            pytest.skip("Model purging is not supported in this version")
+        # Arrange
+        model_client = fxt_project_service.model_client
+        project = fxt_project_service.project
+        task = project.get_trainable_tasks()[0]
+
+        active_model = model_client.get_active_model_for_task(task=task)
+        # Train another model for the active algo
+        algo = next(
+            algorithm
+            for algorithm in model_client.supported_algos
+            if algorithm.name == active_model.architecture
+        )
+        job = attempt_to_train_task(
+            training_client=fxt_project_service.training_client,
+            task=project.get_trainable_tasks()[0],
+            test_mode=fxt_test_mode,
+            algorithm=algo,
+        )
+        # Monitor train job to make sure the project is train-ready
+        timeout = 600 if fxt_test_mode != SdkTestMode.OFFLINE else 1
+        interval = 5 if fxt_test_mode != SdkTestMode.OFFLINE else 1
+        fxt_project_service.training_client.monitor_jobs(
+            [job], timeout=timeout, interval=interval
+        )
+        models_in_group = model_client.get_model_group_by_algo_name(algo.name).models
+        models_in_group.sort(key=lambda x: x.version)
+
+        # Act
+        assert len(models_in_group) > 1
+        active_model = model_client.update_model_detail(models_in_group[-1])
+        with pytest.raises(GetiRequestException):
+            # Can not archive the active model
+            model_client.purge_model(model=models_in_group[-1])
+        previous_model = model_client.update_model_detail(models_in_group[-2])
+        assert not previous_model.purge_info.is_purged
+        model_client.purge_model(model=previous_model)
+
+        # Assert
+        purged_model = model_client.update_model_detail(previous_model)
+        assert purged_model.purge_info.is_purged

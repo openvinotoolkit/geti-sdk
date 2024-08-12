@@ -14,9 +14,10 @@
 import logging
 from typing import Generic, List, Optional, Sequence, Union
 
+from requests import Response
+
 from geti_sdk.data_models import AnnotationScene, Image, Video, VideoFrame
 from geti_sdk.data_models.containers import MediaList
-from geti_sdk.http_session import GetiRequestException
 
 from .base_annotation_client import AnnotationReaderType, BaseAnnotationClient
 
@@ -37,17 +38,13 @@ class AnnotationClient(BaseAnnotationClient, Generic[AnnotationReaderType]):
         :return: List of AnnotationScene's, each entry corresponds to an
             AnnotationScene for a single frame in the video
         """
-        try:
-            response = self.session.get_rest_response(
-                url=f"{video.base_url}/annotations/latest",
-                method="GET",
-                include_organization_id=False,
-            )
-        except GetiRequestException as error:
-            if error.status_code == 204:
-                return []
-            else:
-                raise error
+        response = self.session.get_rest_response(
+            url=f"{video.base_url}/annotations/latest",
+            method="GET",
+            include_organization_id=False,
+        )
+        if type(response) is Response and response.status_code == 204:
+            return []
         annotations = response["video_annotations"]
         annotation_scenes = [
             self.annotation_scene_from_rest_response(

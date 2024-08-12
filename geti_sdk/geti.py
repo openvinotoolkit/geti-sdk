@@ -18,10 +18,14 @@ import warnings
 from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
+from packaging.version import Version
 
 from geti_sdk.data_models.enums.dataset_format import DatasetFormat
 from geti_sdk.import_export.import_export_module import GetiIE
+from geti_sdk.platform_versions import GETI_116_VERSION
+from geti_sdk.rest_clients.credit_system_client import CreditSystemClient
 
+from ._version import __version__ as sdk_version_string
 from .annotation_readers import AnnotationReader, DatumAnnotationReader
 from .data_models import (
     Dataset,
@@ -56,6 +60,8 @@ from .utils import (
 
 DEFAULT_LOG_LEVEL = logging.INFO
 DEFAULT_LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
+
+logging.captureWarnings(True)
 
 
 class Geti:
@@ -170,10 +176,15 @@ class Geti:
                     "please update the `server_config` accordingly."
                 )
 
+        # Set the Intel Geti SDK version
+        self.sdk_version = Version(sdk_version_string)
         # Initialize session and get workspace id
         self.session = GetiSession(
             server_config=server_config,
         )
+        # Now that the connection to the server is established, check the platform version
+        self._check_platform_version()
+        # Get workspace ID
         if workspace_id is None:
             workspace_id = get_default_workspace_id(self.session)
         self.workspace_id = workspace_id
@@ -185,9 +196,39 @@ class Geti:
             workspace_id=self.workspace_id,
             project_client=self.project_client,
         )
+        self.credit_system_client = CreditSystemClient(
+            session=self.session, workspace_id=self.workspace_id
+        )
 
         # Cache of deployment clients for projects in the workspace
         self._deployment_clients: Dict[str, DeploymentClient] = {}
+
+    def _check_platform_version(self) -> None:
+        """
+        Check the version of the Intel® Geti™ server that this `Geti` instance is
+        connected to. If the version is not supported by the SDK, a warning will be
+        issued.
+
+        :raises: ValueError if the Intel® Geti™ server version is not supported by the
+            Intel® Geti™ SDK.
+        """
+        # Get the build version without a timestamp
+        platform_version = self.session.version.version
+        # Check if the platform version is newer than the SDK version
+        if platform_version > self.sdk_version:
+            warnings.warn(
+                f"The Intel® Geti™ server version {platform_version} is newer than "
+                f"the Geti SDK version {self.sdk_version}. Some features may not be "
+                "supported and you may encounter errors.\n"
+                "Please update the Intel Geti SDK to the latest version"
+                "with `pip install --upgrade geti-sdk`."
+            )
+        # Check if the platform version is older than the last supported version
+        if self.session.version < GETI_116_VERSION:
+            raise ValueError(
+                "The Intel® Geti™ server version is not supported by this Intel Geti SDK package. Please "
+                "update the Intel® Geti™ server to version 2.0 or later, or use a previous version of the SDK."
+            )
 
     @property
     def projects(self) -> List[Project]:
@@ -199,6 +240,16 @@ class Geti:
             instance
         """
         return self.project_client.get_all_projects()
+
+    @property
+    def credit_balance(self) -> Optional[int]:
+        """
+        Get the current available credit balance in the workspace.
+
+        :return: The available credit balance in the workspace.
+        """
+        balance = self.credit_system_client.get_balance()
+        return balance.available if balance is not None else None
 
     def get_project(
         self, project_name: str, project_id: Optional[str] = None
@@ -423,7 +474,11 @@ class Geti:
         """
         if project_id is None:
             project_id = self.get_project(project_name=project_name).id
-        assert project_id is not None
+        if project_id is None:
+            raise ValueError(
+                f"Could not retrieve project ID for project '{project_name}'."
+                "Please specify the project ID explicitly."
+            )
         self.import_export_module.export_project(
             project_id=project_id, filepath=filepath
         )

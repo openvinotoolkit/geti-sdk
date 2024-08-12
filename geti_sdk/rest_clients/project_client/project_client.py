@@ -156,7 +156,9 @@ class ProjectClient:
                         f"the project ID's `{[p.id for p in matches]}` matches the "
                         f"requested id `{project_id}`."
                     )
-                return matched_project
+                    return None
+                else:
+                    return self._get_project_detail(matched_project)
         else:
             return None
 
@@ -512,16 +514,30 @@ class ProjectClient:
             raise TypeError(f"{type(project)} is not a valid project type.")
 
         if requires_confirmation:
-            media_response = self.session.get_rest_response(
-                url=f"{self.base_url}projects/{project.id}/datasets/"
-                f"{project.datasets[0].id}/media",
-                method="GET",
-            )
+            # Update project details
+            project = self._get_project_detail(project)
+            if project.datasets is None:
+                project.datasets = []
+            image_count = 0
+            video_count = 0
+            for dataset in project.datasets:
+                dataset_statistics = self.session.get_rest_response(
+                    url=f"{self.base_url}projects/{project.id}/datasets/"
+                    f"{dataset.id}/statistics",
+                    method="GET",
+                )
+                if isinstance(dataset_statistics, dict):
+                    dataset_overview = dataset_statistics["overview"]
+                    image_count += dataset_overview.get("images", 0)
+                    video_count += dataset_overview.get("videos", 0)
+                else:
+                    logging.warning(
+                        f"Unable to retrieve statistics for dataset {dataset.name}."
+                    )
 
-            media_count = media_response.get("media_count", {"images": 0, "videos": 0})
             user_confirmation = input(
                 f"CAUTION: You are about to delete project '{project.name}', "
-                f"containing {media_count['images']} images and {media_count['videos']}"
+                f"containing {image_count} images and {video_count}"
                 f" videos, from the platform. Are you sure you want to continue? Type "
                 f"Y or YES to continue, any other key to cancel."
             )

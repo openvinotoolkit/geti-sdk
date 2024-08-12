@@ -312,7 +312,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
     ) -> MediaList[MediaTypeVar]:
         """
         Upload all media in a folder to the project. Returns the mapping of filenames
-        to the unique IDs assigned by Sonoma Creek.
+        to the unique IDs assigned by Intel Geti.
 
         :param path_to_folder: Folder with media items to upload
         :param n_media: Number of media to upload from folder

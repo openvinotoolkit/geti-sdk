@@ -1,4 +1,4 @@
-# v2.2.0 Intel® Geti™ SDK (08-07-2024)
+# v2.2.0 Intel® Geti™ SDK (18-07-2024)
 ## What's Changed
 * Add `description` attribute to the job class by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/448
 * Project/Dataset export import API alignment by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/446
@@ -13,9 +13,15 @@
 * Expose Visualizer class by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/426
 * Job and Model schema update by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/459
 * Use `json` instead of `data` parameter in HttpRequestAction by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/460
+* Remove workflows that require a self-hosted runner by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/461
+* Fix 005_modify_image.ipynb image usage by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/463
+* Fix permissions for wheel build workflow and remove record_cassettes workflow by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/462
+* Fix `delete_project` method by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/466
+* Add a Custom Dataset upload example by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/464
+* Add Job Cost info to job data scheme by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/467
 
 
-**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/releases/v2.1.0...v2.2.0
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/releases/v2.1.0...1234
 
 # v2.1.0 Intel® Geti™ SDK (19-06-2024)
 ## What's Changed
