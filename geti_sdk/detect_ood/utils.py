@@ -142,6 +142,9 @@ def normalise_features(feature_vectors: np.ndarray) -> np.ndarray:
     :param feature_vectors: Feature vectors to normalise
     :return: Normalised feature vectors.
     """
+    if len(feature_vectors.shape) == 1:
+        feature_vectors = feature_vectors.reshape(1, -1)
+
     return feature_vectors / (
         np.linalg.norm(feature_vectors, axis=1, keepdims=True) + 1e-10
     )

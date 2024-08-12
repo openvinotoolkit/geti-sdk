@@ -15,8 +15,6 @@
 import json
 import logging
 import os
-
-# import time
 from typing import List, Union
 
 import cv2
@@ -30,10 +28,11 @@ from geti_sdk.data_models.project import Dataset
 from geti_sdk.deployment import Deployment
 from geti_sdk.rest_clients import AnnotationClient, ImageClient, ModelClient
 
-from .utils import (  # normalise_features,
+from .utils import (
     CutoutTransform,
     fit_pca_model,
     fre_score,
+    normalise_features,
     perform_knn_indexing,
     perform_knn_search,
 )
@@ -49,25 +48,27 @@ class DistributionDataItem:
 
     def __init__(
         self,
-        media_name: str,
-        image_path: str,
-        annotated_label: str | None,
-        feature_vector: np.ndarray,
-        prediction_probability: float,
-        predicted_label: str,
+        media_name: Union[str, None],
+        media_path: Union[str, None],
+        annotated_label: Union[str, None],
         raw_prediction: Prediction,
     ):
         self.media_name = media_name
-        self.image_path = image_path
+        self.image_path = media_path
         self.annotated_label = annotated_label
-        self.feature_vector = feature_vector
-        self.prediction_probability = prediction_probability
-        self.predicted_label = predicted_label
         self.raw_prediction = raw_prediction
+        feature_vector = (
+            raw_prediction.feature_vector
+        )  # TODO[OOD]: Remove normal feature_vector, instead, have a flag to normalise and if true, feature_vector is normalised
+        if len(feature_vector.shape) != 1:
+            feature_vector = feature_vector.flatten()
 
-    # TODO[OOD] : Take only required fields and everything else can be property def where they can be
-    #  extracted from raw_prediction
-    # TODO[OOD] : Normalise feature vector in efficient ways when doing the above todo task
+        self.feature_vector = feature_vector
+        self.feature_vector_normalised = normalise_features(feature_vector)[0]
+        self.prediction_probability = (
+            raw_prediction.annotations[0].labels[0].probability,
+        )  # Rename to max_prediction_probability
+        self.predicted_label = (raw_prediction.annotations[0].labels[0].name,)
 
 
 class COODModel:
@@ -302,19 +303,42 @@ class COODModel:
 
         # Step 4 : Train all the sub models
 
-        ood_output_sub_models = {}
-        for sub_model in self.sub_models.values():
-            if sub_model.is_trained:
-                ood_output_sub_models[sub_model.__class__.__name__] = sub_model(
-                    self.distribution_data["ood_data"]
-                )
+        num_id_images = len(self.distribution_data["id_data"])
+        num_ood_images = len(self.distribution_data["ood_data"])
 
-        ood_classifier = RandomForestClassifier()
-        features = []  # Each element is an output (ood score) from the sub-models
-        labels = []  # OOD = 1, ID = 0
-        ood_classifier.fit(features, labels)
+        # Make id and ood ouputs from submodels
+        id_scores_all_sub_models = {}
+        ood_scores_all_sub_models = {}
 
-        self.ood_classifier = ood_classifier
+        for ood_sub_model in self.sub_models:
+            id_scores_dict = self.sub_models[ood_sub_model](
+                self.distribution_data["id_data"]
+            )
+            ood_scores_dict = self.sub_models[ood_sub_model](
+                self.distribution_data["ood_data"]
+            )
+            for score_type in id_scores_dict:
+                id_scores_all_sub_models[score_type] = id_scores_dict[score_type]
+                ood_scores_all_sub_models[score_type] = ood_scores_dict[score_type]
+
+        # arrange all features to be as id_features in n_images x n_score_types shape
+        id_features = np.zeros((num_id_images, len(id_scores_all_sub_models)))
+        ood_features = np.zeros((num_ood_images, len(ood_scores_all_sub_models)))
+
+        for score_idx, score_type in enumerate(id_scores_all_sub_models):
+            id_features[:, score_idx] = id_scores_all_sub_models[score_type]
+            ood_features[:, score_idx] = ood_scores_all_sub_models[score_type]
+
+        all_features = np.concatenate((id_features, ood_features))
+        all_labels = np.concatenate(
+            (
+                np.zeros(len(self.distribution_data["id_data"])),
+                np.ones(len(self.distribution_data["ood_data"])),
+            )
+        )
+
+        self.ood_classifier = RandomForestClassifier()
+        self.ood_classifier.fit(all_features, all_labels)
 
     def __call__(self, prediction: Prediction) -> float:
         """
@@ -327,18 +351,23 @@ class COODModel:
         #         label.probability for label in annotation.labels
         #     ]
         #
+        data_item = DistributionDataItem(
+            media_name="sample",
+            media_path="sample",
+            annotated_label="",
+            raw_prediction=prediction,
+        )
+        feature_idx = 0
+        score_dict = {}
+        cood_features = np.zeros((1, len(self.sub_models)))
+        for ood_sub_model in self.sub_models:
+            score_dict = self.sub_models[ood_sub_model]([data_item])
+            for score_type in score_dict:
+                cood_features[0, feature_idx] = score_dict[score_type]
+                feature_idx += 1
 
-        cood_features = self.call_sub_models(prediction)
-        cood_score = self.ood_classifier.predict(cood_features)
-        return cood_score
-
-    def call_sub_models(self, prediction: Prediction) -> np.ndarray:
-        """
-        Call the sub-models to get the OOD scores
-        """
-        # see paper at https://github.com/VitjanZ/DRAEM
-        # Call's all submodel objects. Gets back individual scores
-        pass
+        cood_score = self.ood_classifier.predict_proba(cood_features)
+        return cood_score[0][1]
 
     def _prepare_data_from_dataset(
         self, dataset: Dataset
@@ -393,11 +422,8 @@ class COODModel:
 
             data_item = DistributionDataItem(
                 media_name=required_data["media_name"],
-                image_path=required_data["image_path"],
+                media_path=required_data["image_path"],
                 annotated_label=required_data["annotated_label"],
-                feature_vector=required_data["feature_vector"],
-                prediction_probability=required_data["prediction_probability"],
-                predicted_label=required_data["predicted_label"],
                 raw_prediction=prediction,
             )
 
@@ -465,11 +491,8 @@ class COODModel:
 
             data_item = DistributionDataItem(
                 media_name=required_data["media_name"],
-                image_path=required_data["image_path"],
+                media_path=required_data["image_path"],
                 annotated_label=required_data["annotated_label"],
-                feature_vector=required_data["feature_vector"],
-                prediction_probability=required_data["prediction_probability"],
-                predicted_label=required_data["predicted_label"],
                 raw_prediction=prediction,
             )
 
@@ -492,7 +515,7 @@ class KNNBasedOODModel:
         Train the kNN model
         """
         id_data = distribution_data["id_data"]
-        feature_vectors = np.array([data["feature_vector"] for data in id_data])
+        feature_vectors = np.array([data.feature_vector for data in id_data])
         self.knn_search_index = perform_knn_indexing(feature_vectors, use_gpu=False)
         self._is_trained = True
 
@@ -503,18 +526,19 @@ class KNNBasedOODModel:
         """
         return self._is_trained
 
-    def __call__(self, prediction: Prediction) -> dict:
+    def __call__(self, data_items: List[DistributionDataItem]) -> dict:
         """
         Return the kNN OOD score for the given feature vector.
         """
-        features = prediction.feature_vector
-        ood_scores = perform_knn_search(
+        features = np.array([item.feature_vector_normalised for item in data_items])
+        distances, indices = perform_knn_search(
             knn_search_index=self.knn_search_index,
             feature_vectors=features,
             k=self.knn_k,
         )
+        # TODO : When doing kNN Search for ID, the 0th index is the same image. So, should we use k+1 ?
         # distance to the kth nearest neighbour
-        return {"knn_ood_score": ood_scores[:, -1]}
+        return {"knn_ood_score": distances[:, -1]}
 
 
 class ClassFREModel:
@@ -532,8 +556,8 @@ class ClassFREModel:
         Fit PCA Models on the in-distribution data for each class.
         """
         id_data = distribution_data["id_data"]
-        features = np.array([data["feature_vector"] for data in id_data])
-        labels = np.array([data["annotated_label"] for data in id_data])
+        feature_vectors = np.array([data.feature_vector for data in id_data])
+        labels = np.array([data.annotated_label for data in id_data])
 
         # iterate through unique labels and fit pca model for each class
         pca_models = {}
@@ -541,7 +565,7 @@ class ClassFREModel:
         for label in np.unique(labels):
             # labels are list of class names and not indices
             class_indices = [i for i, j in enumerate(labels) if j == label]
-            class_features = features[class_indices]
+            class_features = feature_vectors[class_indices]
             pca_models[label] = fit_pca_model(
                 feature_vectors=class_features, n_components=self.n_components
             )
@@ -556,20 +580,25 @@ class ClassFREModel:
         """
         return self._is_trained
 
-    def __call__(self, prediction: Prediction) -> dict:
+    def __call__(self, data_items: List[DistributionDataItem]) -> dict:
         """
         Return the class fre score for the given feature vector.
         """
-        features = prediction.feature_vector
+        features = np.array([item.feature_vector_normalised for item in data_items])
         fre_scores_per_class = {}
         # class_fre_models is a dict with label name and pca model.
-        for label, pca_model in self.class_fre_models.items():
+        for label, pca_model in self.pca_models_per_class.items():
             fre_scores_per_class[label] = fre_score(
                 feature_vectors=features, pca_model=pca_model
             )
 
-        # return maximum FRE
-        return {"max_fre": max(fre_scores_per_class.values())}
+        # For each element, we return the max FRE score
+        max_fre_scores = np.ndarray(len(features))
+        for k in range(len(features)):
+            max_fre_scores[k] = max(
+                [fre_scores_per_class[label][k] for label in fre_scores_per_class]
+            )
+        return {"class_fre_score": max_fre_scores}
 
 
 class MaxSoftmaxProbabilityModel:
@@ -595,14 +624,15 @@ class MaxSoftmaxProbabilityModel:
         """
         return self._is_trained
 
-    def __call__(self, prediction: Prediction) -> float:
+    def __call__(self, data_items: List[DistributionDataItem]) -> dict:
         """
         Return the maximum softmax probability for the given prediction.
         """
-        prediction_probabilities = [
-            label.probability for label in prediction.annotations[0].labels
-        ]
-        return max(prediction_probabilities)
+        msp_scores = np.ndarray(len(data_items))
+        for i, data_item in enumerate(data_items):
+            msp_scores[i] = data_item.prediction_probability[0]
+
+        return {"max_softmax_probability": msp_scores}
 
 
 class DKNNModel:
