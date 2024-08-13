@@ -32,6 +32,7 @@ from .utils import (
     CutoutTransform,
     fit_pca_model,
     fre_score,
+    get_usable_deployment,
     normalise_features,
     perform_knn_indexing,
     perform_knn_search,
@@ -52,23 +53,34 @@ class DistributionDataItem:
         media_path: Union[str, None],
         annotated_label: Union[str, None],
         raw_prediction: Prediction,
+        normalise_feature_vector: bool = True,
     ):
         self.media_name = media_name
         self.image_path = media_path
         self.annotated_label = annotated_label
         self.raw_prediction = raw_prediction
-        feature_vector = (
-            raw_prediction.feature_vector
-        )  # TODO[OOD]: Remove normal feature_vector, instead, have a flag to normalise and if true, feature_vector is normalised
+        self._normalise_feature_vector = normalise_feature_vector
+
+        feature_vector = raw_prediction.feature_vector
+
         if len(feature_vector.shape) != 1:
             feature_vector = feature_vector.flatten()
 
+        if normalise_feature_vector:
+            feature_vector = normalise_features(feature_vector)[0]
+
         self.feature_vector = feature_vector
-        self.feature_vector_normalised = normalise_features(feature_vector)[0]
-        self.prediction_probability = (
+        self.max_prediction_probability = (
             raw_prediction.annotations[0].labels[0].probability,
-        )  # Rename to max_prediction_probability
+        )
         self.predicted_label = (raw_prediction.annotations[0].labels[0].name,)
+
+    @property
+    def is_feature_vector_normalised(self) -> bool:
+        """
+        Return True if the feature vector is normalised.
+        """
+        return self._normalise_feature_vector
 
 
 class COODModel:
@@ -109,13 +121,13 @@ class COODModel:
         """
         # TODO[OOD] : move any possible methods to Utils
         self.geti = geti
+
         self.distribution_data = {}
         # TODO[ood] Once the id_data is made into a class object,
         # this can be a list, with each data having a distribution name
+        self.ood_classifier = None  # The COOD random forest classifier
 
-        # TODO[OOD] : Features are not yet normalised
-
-        # TODO[OOD] : Make it tmpdir or something, make it a workspace dire with model, data subdirs
+        # TODO[OOD] : Make it tmpdir or something, make it a workspace dir with model, data subdirs
         self.workspace_dir = "/Users/rgangire/workspace/Results/SDK/"
         self.data_dir = os.path.join(self.workspace_dir, "data")
 
@@ -126,35 +138,19 @@ class COODModel:
             self.project = project
 
         self._prepare_geti_clients()
-
-        self.corruption = CutoutTransform()
-
-        logging.info(
-            f"Building Combined OOD detection model for Intel® Geti™ project `{self.project.name}`."
-        )
-
-        tasks_in_project = self.project.get_trainable_tasks()
-        if len(tasks_in_project) != 1:
-            raise ValueError(
-                "Out-of-distribution detection models are only "
-                "supported for projects with a single task for now."
-            )
-        # get the task type and check if it is classification
-        task_type = tasks_in_project[0].task_type
-        if task_type != TaskType.CLASSIFICATION:
-            raise ValueError(
-                "Out-of-distribution detection models are only "
-                "supported for classification tasks for now."
-            )
+        self._check_project_fit()
 
         if deployment is None:
-            self.deployment = self._get_usable_deployment()
+            self.deployment = get_usable_deployment(
+                geti=self.geti, model_client=self.model_client
+            )
         else:
             if not deployment.models[0].has_xai_head:
                 raise ValueError(
                     "The provided deployment does not have an model with an XAI head."
                     "Please reconfigure the deployment to include a model with an XAI head "
-                    "(OptimizedModel.has_xai_head must be True)"
+                    "(OptimizedModel.has_xai_head must be True). "
+                    "Hint : You can use the get_usable_deployment() method from detect_ood.utils"
                 )
 
             self.deployment = deployment
@@ -162,10 +158,13 @@ class COODModel:
         if not self.deployment.are_models_loaded:
             self.deployment.load_inference_models(device="CPU")
 
-        self._prepare_id_odd_data()
+        logging.info(
+            f"Building Combined OOD detection model for Intel® Geti™ project `{self.project.name}`."
+        )
 
-        # The COOD random forest classifier
-        self.ood_classifier = None
+        self.corruption = CutoutTransform()
+
+        self._prepare_id_odd_data()
 
         # A dict consisting smaller OOD models (FRE, EnWeDi, etc)
         self.sub_models = {
@@ -176,6 +175,23 @@ class COODModel:
 
         self._train_sub_models()
         self.train()
+
+    def _check_project_fit(self):
+
+        tasks_in_project = self.project.get_trainable_tasks()
+        if len(tasks_in_project) != 1:
+            raise ValueError(
+                "Out-of-distribution detection models are only "
+                "supported for projects with a single task for now."
+            )
+
+        # get the task type and check if it is classification
+        task_type = tasks_in_project[0].task_type
+        if task_type != TaskType.CLASSIFICATION:
+            raise ValueError(
+                "Out-of-distribution detection models are only "
+                "supported for classification tasks for now."
+            )
 
     def _prepare_geti_clients(self):
         """
@@ -250,40 +266,6 @@ class COODModel:
         """
         for sub_model in self.sub_models.values():
             sub_model.train(distribution_data=self.distribution_data)
-
-    def _get_usable_deployment(self) -> Deployment:
-        """
-        Get a deployment that has an optimised model with an XAI head.
-        """
-        # Check if there's at least one trained model in the project
-        models = self.model_client.get_all_active_models()
-        if len(models) == 0:
-            raise ValueError(
-                "No trained models were found in the project, please either "
-                "train a model first or specify an algorithm to train."
-            )
-
-        # We need the model which has xai enabled - this allows us to get the feature vector from the model.
-        model_with_xai_head = None
-
-        # TODO[OOD] : Take the model which has highest accuracy or some other metric, instead of the first model
-        for model in models:
-            for optimised_model in model.optimized_models:
-                if optimised_model.has_xai_head:
-                    model_with_xai_head = optimised_model
-                    break
-
-        if model_with_xai_head is None:
-            raise ValueError(
-                "No trained model with an XAI head was found in the project, "
-                "please train a model with an XAI head first."
-            )
-
-        deployment = self.geti.deploy_project(
-            project_name=self.project.name, models=[model_with_xai_head]
-        )
-
-        return deployment
 
     def train(self):
         """
@@ -630,7 +612,7 @@ class MaxSoftmaxProbabilityModel:
         """
         msp_scores = np.ndarray(len(data_items))
         for i, data_item in enumerate(data_items):
-            msp_scores[i] = data_item.prediction_probability[0]
+            msp_scores[i] = data_item.max_prediction_probability[0]
 
         return {"max_softmax_probability": msp_scores}
 

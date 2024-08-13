@@ -2,12 +2,13 @@ import cv2
 
 from geti_sdk import Geti
 from geti_sdk.detect_ood.ood_model import COODModel
+from geti_sdk.detect_ood.utils import get_usable_deployment
 from geti_sdk.post_inference_hooks import (
     FileSystemDataCollection,
     OODTrigger,
     PostInferenceHook,
 )
-from geti_sdk.rest_clients import ProjectClient
+from geti_sdk.rest_clients import ModelClient, ProjectClient
 from geti_sdk.utils import get_server_details_from_env
 
 geti_server_configuration = get_server_details_from_env(
@@ -20,9 +21,16 @@ project_client = ProjectClient(session=geti.session, workspace_id=geti.workspace
 PROJECT_NAME = "CUB3"
 project = project_client.get_project_by_name(project_name=PROJECT_NAME)
 
-ood_model = COODModel(geti=geti, project=project)
+model_client = ModelClient(
+    session=geti.session,
+    workspace_id=geti.workspace_id,
+    project=project,
+)
 
-a = 1
+deployment = get_usable_deployment(geti=geti, model_client=model_client)
+
+
+ood_model = COODModel(geti=geti, project=project, deployment=deployment)
 
 
 trigger = OODTrigger(
