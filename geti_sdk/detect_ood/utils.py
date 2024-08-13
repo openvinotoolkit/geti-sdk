@@ -17,9 +17,48 @@ import faiss
 import numpy as np
 from sklearn.decomposition import PCA
 
+from geti_sdk import Geti
 from geti_sdk.deployment import Deployment
 from geti_sdk.http_session import GetiSession
-from geti_sdk.rest_clients import ImageClient
+from geti_sdk.rest_clients import ImageClient, ModelClient
+
+
+def get_usable_deployment(geti: Geti, model_client: ModelClient) -> Deployment:
+    """
+    Get a deployment that has an optimised model with an XAI head.
+    """
+    # Check if there's at least one trained model in the project
+    models = model_client.get_all_active_models()
+    if len(models) == 0:
+        raise ValueError(
+            "No trained models were found in the project, please either "
+            "train a model first or specify an algorithm to train."
+        )
+
+    # We need the model which has xai enabled - this allows us to get the feature vector from the model.
+    model_with_xai_head = None
+
+    # TODO[OOD] : More model properties can be used to determine "best" model (size, precision with respect to accuracy)
+    max_model_performance = -1
+    for model in models:
+        for optimised_model in model.optimized_models:
+            if optimised_model.has_xai_head:
+                model_performance = optimised_model.performance.score
+                if model_performance > max_model_performance:
+                    model_with_xai_head = optimised_model
+                    max_model_performance = model_performance
+
+    if model_with_xai_head is None:
+        raise ValueError(
+            "No trained model with an XAI head was found in the project, "
+            "please train a model with an XAI head first."
+        )
+
+    deployment = geti.deploy_project(
+        project_name=model_client.project.name, models=[model_with_xai_head]
+    )
+
+    return deployment
 
 
 def fit_pca_model(feature_vectors=np.ndarray, n_components: float = 0.995) -> PCA:
