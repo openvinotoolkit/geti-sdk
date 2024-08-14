@@ -32,6 +32,7 @@ from geti_sdk.rest_clients import AnnotationClient, ImageClient, ModelClient
 
 from .utils import (
     CutoutTransform,
+    calculate_entropy_nearest_neighbours,
     fit_pca_model,
     fre_score,
     get_usable_deployment,
@@ -93,20 +94,25 @@ class COODModel:
     Out-of-distribution detection model. Uses the Combined out-of-distribution (COOD) detection
     algorithm (see : https://arxiv.org/abs/2403.06874).
 
-    Workspace directory for this Model follows the structure:
+    Uses a temporary directory for storing data with the following structure:
     ```
-    workspace_dir
-    ├── data
-    │   ├── ID
-    │   │   ├── images
-    │   │   ├── annotations
-    │   │   └── predictions
-    │   └── OOD
-    │       ├── images
-    │       └── predictions
-    └── models
-        ├── deployment_model
-        └── ood_model
+    temp_dir
+    ├── ood_detection
+    │   └── project_name
+    │       ├── data
+    │       │   ├── Geti_dataset_1
+    │       │   │   ├── images
+    │       │   │   └── annotations
+    │       │   ├── geti_dataset_2
+    │       │   │   ├── images
+    │       │   │   └── annotations
+    │       │   ├── ood_images
+    │       │   │   ├── image_001.jpg
+    │       │   │   ├── image_002.jpg
+    │       │       └── image_003.jpg
+
+
+
 
     """
 
@@ -197,8 +203,9 @@ class COODModel:
         # A dict consisting smaller OOD models (FRE, EnWeDi, etc)
         self.sub_models = {
             "knn_based": KNNBasedOODModel(knn_k=10),
-            "class_fre": ClassFREModel(n_components=0.995),
-            "max_softmax_probability": MaxSoftmaxProbabilityModel(),
+            "class_fre": ClassFREBasedModel(n_components=0.995),
+            "global_fre": GlobalFREBasedModel(n_components=0.995),
+            "max_softmax_probability": ProbabilityBasedModel(),
         }
 
         self._train_sub_models()
@@ -229,7 +236,7 @@ class COODModel:
         id_distribution_data_items = []  # List[DistributionDataItem]
         for dataset in id_datasets_in_geti:
             id_distribution_data_items.extend(
-                self.prepare_distribution_data(source=dataset)
+                self._prepare_distribution_data(source=dataset)
             )
 
         ood_distribution_data_items = []  # List[DistributionDataItem]
@@ -241,13 +248,13 @@ class COODModel:
             for dataset in id_datasets_in_geti:
                 ood_path = self._create_ood_images(reference_dataset=dataset)
                 ood_distribution_data_items.extend(
-                    self.prepare_distribution_data(source=ood_path)
+                    self._prepare_distribution_data(source=ood_path)
                 )
 
         else:
             for dataset in ood_datasets_in_geti:
                 ood_distribution_data_items.extend(
-                    self.prepare_distribution_data(source=dataset)
+                    self._prepare_distribution_data(source=dataset)
                 )
 
         logging.info(
@@ -278,13 +285,6 @@ class COODModel:
             for score_type in scores_dict:
                 scores_all_sub_models[score_type] = scores_dict[score_type]
         return scores_all_sub_models
-
-    @staticmethod
-    def _arrange_features(scores_all_sub_models: dict, num_images: int) -> np.ndarray:
-        features = np.zeros((num_images, len(scores_all_sub_models)))
-        for score_idx, score_type in enumerate(scores_all_sub_models):
-            features[:, score_idx] = scores_all_sub_models[score_type]
-        return features
 
     def train(self):
         """
@@ -324,7 +324,6 @@ class COODModel:
             annotated_label="",
             raw_prediction=prediction,
         )
-
         scores_all_sub_models = self._get_scores_from_sub_models(
             distribution_data=[data_item]
         )
@@ -386,7 +385,7 @@ class COODModel:
                 "supported for classification tasks for now."
             )
 
-    def prepare_distribution_data(
+    def _prepare_distribution_data(
         self, source: Union[Dataset, str]
     ) -> List[DistributionDataItem]:
         """
@@ -456,11 +455,21 @@ class COODModel:
                 return annotation["annotations"][0]["labels"][0]["name"]
         return None
 
+    @staticmethod
+    def _arrange_features(scores_all_sub_models: dict, num_images: int) -> np.ndarray:
+        features = np.zeros((num_images, len(scores_all_sub_models)))
+        for score_idx, score_type in enumerate(scores_all_sub_models):
+            features[:, score_idx] = scores_all_sub_models[score_type]
+        return features
+
 
 class OODSubModel(metaclass=ABCMeta):
     """
     Base class for OOD detection sub-models.
     """
+
+    def __init__(self):
+        self._is_trained = False
 
     @abstractmethod
     def train(self, distribution_data: List[DistributionDataItem]):
@@ -477,22 +486,28 @@ class OODSubModel(metaclass=ABCMeta):
         raise NotImplementedError
 
     @property
-    @abstractmethod
     def is_trained(self) -> bool:
         """
         Return True if the model is trained.
         """
-        raise NotImplementedError
+        return self._is_trained
 
 
 class KNNBasedOODModel(OODSubModel):
     """
     k Nearest Neighbour based OOD detection model.
+    # TODO[OOD]: Add
+    1) distance to prototypical center
+    2) ldof (to expensive ?)
+    3) exact combination of entropy and distance from thesis
+
     """
 
     def __init__(self, knn_k: int = 10):
+        super().__init__()
         self.knn_k = knn_k
         self.knn_search_index = None
+        self.train_set_labels = None
         self._is_trained = False
 
     def train(self, distribution_data: List[DistributionDataItem]):
@@ -501,37 +516,97 @@ class KNNBasedOODModel(OODSubModel):
         """
         id_data = distribution_data
         feature_vectors = np.array([data.feature_vector for data in id_data])
+        labeled_set_labels = np.array([data.annotated_label for data in id_data])
+
+        self.train_set_labels = labeled_set_labels
         self.knn_search_index = perform_knn_indexing(feature_vectors, use_gpu=False)
         self._is_trained = True
-
-    @property
-    def is_trained(self) -> bool:
-        """
-        Return True if the model is trained.
-        """
-        return self._is_trained
 
     def __call__(self, data_items: List[DistributionDataItem]) -> dict:
         """
         Return the kNN OOD score for the given feature vector.
         """
+        if not self._is_trained:
+            raise ValueError(
+                "Model is not trained. Please train the model first before calling."
+            )
         features = np.array([item.feature_vector for item in data_items])
-        distances, indices = perform_knn_search(
+        distances, nn_indices = perform_knn_search(
             knn_search_index=self.knn_search_index,
             feature_vectors=features,
             k=self.knn_k,
         )
+
+        knn_distance = distances[:, -1]  # distance to the kth nearest neighbour
+        nn_distance = distances[:, 1]  # distance to the nearest neighbour
         # TODO : When doing kNN Search for ID, the 0th index is the same image. So, should we use k+1 ?
-        # distance to the kth nearest neighbour
-        return {"knn_ood_score": distances[:, -1]}
+        average_nn_distance = np.mean(distances[:, 1:], axis=1)
+
+        entropy_score = calculate_entropy_nearest_neighbours(
+            train_labels=self.train_set_labels,
+            nns_labels_for_test_fts=nn_indices,
+            k=self.knn_k,
+        )
+
+        # Add one to the entropy scores
+        # This is to offset the range to [1,2] instead of [0,1] and avoids division by zero
+        # if used elsewhere
+        entropy_score += 1
+
+        enwedi_score = average_nn_distance * entropy_score
+        enwedi_nn_score = nn_distance * entropy_score
+
+        return {
+            "knn_distance": knn_distance,
+            "nn_distance": nn_distance,
+            "average_nn_distance": average_nn_distance,
+            "entropy_score": entropy_score,
+            "enwedi_score": enwedi_score,
+            "enwedi_nn_score": enwedi_nn_score,
+        }
 
 
-class ClassFREModel(OODSubModel):
+class GlobalFREBasedModel(OODSubModel):
     """
     Yet to be finalised
     """
 
-    def __init__(self, name: str = "class_fre_model", n_components=0.995):
+    def __init__(self, n_components=0.995):
+        super().__init__()
+        self.n_components = n_components
+        self.pca_model = None
+        self._is_trained = False
+
+    def train(self, distribution_data: List[DistributionDataItem]):
+        """
+        Trains a single (global) PCA model for the in-distribution data
+        """
+        feature_vectors = np.array([data.feature_vector for data in distribution_data])
+        self.pca_model = fit_pca_model(
+            feature_vectors=feature_vectors, n_components=self.n_components
+        )
+        self._is_trained = True
+
+    def __call__(self, data_items: List[DistributionDataItem]) -> dict:
+        """
+        Return the global fre score for the given data items.
+        """
+        if not self._is_trained:
+            raise ValueError(
+                "Model is not trained. Please train the model first before calling."
+            )
+        features = np.array([item.feature_vector for item in data_items])
+        fre_scores = fre_score(feature_vectors=features, pca_model=self.pca_model)
+        return {"global_fre_score": fre_scores}
+
+
+class ClassFREBasedModel(OODSubModel):
+    """
+    Yet to be finalised
+    """
+
+    def __init__(self, n_components=0.995):
+        super().__init__()
         self.n_components = n_components
         self.pca_models_per_class = {}
         self._is_trained = False
@@ -558,17 +633,14 @@ class ClassFREModel(OODSubModel):
         self.pca_models_per_class = pca_models
         self._is_trained = True
 
-    @property
-    def is_trained(self) -> bool:
-        """
-        Return True if the model is trained.
-        """
-        return self._is_trained
-
     def __call__(self, data_items: List[DistributionDataItem]) -> dict:
         """
         Return the class fre score for the given feature vector.
         """
+        if not self._is_trained:
+            raise ValueError(
+                "Model is not trained. Please train the model first before calling."
+            )
         features = np.array([item.feature_vector for item in data_items])
         fre_scores_per_class = {}
         # class_fre_models is a dict with label name and pca model.
@@ -586,7 +658,7 @@ class ClassFREModel(OODSubModel):
         return {"class_fre_score": max_fre_scores}
 
 
-class MaxSoftmaxProbabilityModel(OODSubModel):
+class ProbabilityBasedModel(OODSubModel):
     """
     Maximum Softmax Probability Model - A baseline OOD detection model.
     Use the concept that a lower maximum softmax probability indicates that the image could be OOD.
@@ -594,6 +666,7 @@ class MaxSoftmaxProbabilityModel(OODSubModel):
     """
 
     def __init__(self):
+        super().__init__()
         self._is_trained = False
 
     def train(self, distribution_data: List[DistributionDataItem]):
@@ -602,29 +675,16 @@ class MaxSoftmaxProbabilityModel(OODSubModel):
         """
         self._is_trained = True
 
-    @property
-    def is_trained(self) -> bool:
-        """
-        Return True if the model is trained.
-        """
-        return self._is_trained
-
     def __call__(self, data_items: List[DistributionDataItem]) -> dict:
         """
         Return the maximum softmax probability for the given prediction.
         """
+        if not self._is_trained:
+            raise ValueError(
+                "Model is not trained. Please train the model first before calling."
+            )
         msp_scores = np.ndarray(len(data_items))
         for i, data_item in enumerate(data_items):
             msp_scores[i] = data_item.max_prediction_probability[0]
 
         return {"max_softmax_probability": msp_scores}
-
-
-class DKNNModel:
-    """
-    todo[ood] : Docstring if this class is actually used
-    """
-
-    # This will be called by KNNBasedModel.
-    # KnnBasedModel would have prepared the index. COOD or OODSubModel would have prepared the feature vectors
-    pass
