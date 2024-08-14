@@ -15,12 +15,12 @@
 import albumentations
 import faiss
 import numpy as np
+from scipy import stats
 from sklearn.decomposition import PCA
 
 from geti_sdk import Geti
 from geti_sdk.deployment import Deployment
-from geti_sdk.http_session import GetiSession
-from geti_sdk.rest_clients import ImageClient, ModelClient
+from geti_sdk.rest_clients import ModelClient
 
 
 def get_usable_deployment(geti: Geti, model_client: ModelClient) -> Deployment:
@@ -173,6 +173,45 @@ def perform_knn_search(
     return distances, indices
 
 
+def calculate_entropy_nearest_neighbours(
+    train_labels: np.ndarray,
+    nns_labels_for_test_fts: np.ndarray,
+    k: int,
+):
+    """
+    Calculate the "entropy", a measure of how different the k nearest neighbours are for a sample.
+    The value always range between [0,1] . A 0 indicates that all the k nearest neighbours belong to one class.
+        Not a highly informative sample
+    A value of 1 indicates that the sample has k different nearest neighbours (no sample belongs to same class).
+        More informative sample in theory
+
+    :param train_labels: labels of the annotated images
+    :param nns_labels_for_test_fts: labels of the k nearest neighbours for each test feature
+    :param k: number of nearest neighbours to consider
+    """
+    # preallocate
+    neighbour_bin_count = np.zeros((nns_labels_for_test_fts.shape[0], k), dtype=int)
+    for i in range(nns_labels_for_test_fts.shape[0]):
+        nn_labels = train_labels[nns_labels_for_test_fts[i, :]]
+
+        _, nn_bin_count = np.unique(
+            nn_labels,
+            return_index=False,
+            return_inverse=False,
+            return_counts=True,
+        )
+        neighbour_bin_count[i, : nn_bin_count.shape[0]] = nn_bin_count
+        # No correction for all samples from a class being in a test sample's nearest neighbours
+        # is done.
+
+    # Calculate entropy
+    # Note : This Entropy lies within [0,1]
+    # A fully uncertain sample has entropy of 1 (bin count looks like [1,1,1,1,1,1,1,1,1,1])
+    # A fully certain sample has entropy of 0 (bin count looks like [10,0,0,0,0,0,0,0,0,0])
+    entropy_scores = stats.entropy(neighbour_bin_count, axis=1, base=k)
+    return entropy_scores
+
+
 def normalise_features(feature_vectors: np.ndarray) -> np.ndarray:
     """
     Feature embeddings are normalised by dividing each feature embedding vector by its respective 2nd-order vector norm
@@ -187,34 +226,6 @@ def normalise_features(feature_vectors: np.ndarray) -> np.ndarray:
     return feature_vectors / (
         np.linalg.norm(feature_vectors, axis=1, keepdims=True) + 1e-10
     )
-
-
-def extract_features_from_imageclient(
-    deployment: Deployment,
-    image_client: ImageClient,
-    geti_session: GetiSession,
-    n_images: int = -1,
-    normalise_feats: bool = True,
-):
-    """
-    Extract
-    """
-    pass
-
-
-def generate_ood_dataset_by_corruption(
-    geti_deployment: Deployment,
-    source_path: str,
-    corruption_type: str,
-    dest_path: str = None,
-    desired_accuracy: float = 50,
-    desired_accuracy_tol=3.0,
-    show_progress: bool = True,
-) -> str:
-    """
-    Util
-    """
-    pass
 
 
 class CutoutTransform:
