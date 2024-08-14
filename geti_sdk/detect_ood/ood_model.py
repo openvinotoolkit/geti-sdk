@@ -16,6 +16,7 @@ import json
 import logging
 import os
 import tempfile
+from abc import ABCMeta, abstractmethod
 from typing import List, Union
 
 import cv2
@@ -335,68 +336,6 @@ class COODModel:
 
         return cood_score[0][1]  # Return only the probability of being OOD
 
-    # def _prepare_distribution_data_from_dataset(
-    #     self, dataset: Dataset
-    # ) -> List[DistributionDataItem]:
-    #     required_data_all = []
-    #     dataset_name = dataset.name
-    #     dataset_dir = os.path.join(self.data_dir, dataset_name)
-    #
-    #     media_list = self.image_client.get_all_images(dataset=dataset)
-    #     self.image_client.download_all(
-    #         path_to_folder=dataset_dir, append_image_uid=True
-    #     )
-    #     self.annotation_client.download_annotations_for_images(
-    #         images=media_list,
-    #         path_to_folder=dataset_dir,
-    #         append_image_uid=True,
-    #     )
-    #
-    #     # For each image in the dataset, annotation (if exists) is read and feature vector is extracted
-    #     annotations_dir = os.path.join(dataset_dir, "annotations")
-    #     image_dir = os.path.join(dataset_dir, "images")
-    #     for media in media_list:
-    #         required_data = {}
-    #         media_filename = media.name + "_" + media.id
-    #         annotation_file = os.path.join(annotations_dir, f"{media_filename}.json")
-    #         image_path = os.path.join(image_dir, f"{media_filename}.jpg")
-    #
-    #         required_data["media_name"] = media_filename
-    #         required_data["image_path"] = image_path
-    #
-    #         # TODO[OOD]": Careful with this. This has to be made better. Check for only annotation_kind = "ANNOTATION"
-    #         # only then add it as "annotation_label"
-    #         # make the list of dictionary a object - use the iLRF dataset item class
-    #         if os.path.exists(annotation_file):
-    #             with open(annotation_file, "r") as f:
-    #                 annotation = json.load(f)
-    #                 required_data["annotated_label"] = annotation["annotations"][0][
-    #                     "labels"
-    #                 ][0]["name"]
-    #         else:
-    #             required_data["annotated_label"] = None
-    #
-    #         prediction = self._infer(image_path=image_path, explain=True)
-    #         feature_vector = prediction.feature_vector
-    #         if len(feature_vector.shape) != 1:
-    #             feature_vector = feature_vector.flatten()
-    #         required_data["feature_vector"] = feature_vector
-    #         required_data["prediction_probability"] = (
-    #             prediction.annotations[0].labels[0].probability
-    #         )
-    #         required_data["predicted_label"] = prediction.annotations[0].labels[0].name
-    #
-    #         data_item = DistributionDataItem(
-    #             media_name=required_data["media_name"],
-    #             media_path=required_data["image_path"],
-    #             annotated_label=required_data["annotated_label"],
-    #             raw_prediction=prediction,
-    #         )
-    #
-    #         required_data_all.append(data_item)
-    #
-    #     return required_data_all
-
     def _infer(self, image_path: str, explain: bool = False) -> Prediction:
         """
         Infer the image and get the prediction using the deployment
@@ -429,40 +368,6 @@ class COODModel:
             cv2.imwrite(corrupted_image_path, corrupted_img)
 
         return corrupted_images_path
-
-    # def _prepare_distribution_data_from_dir(self, images_dir):
-    #     """
-    #     Prepare the distribution data from a directory containing images.
-    #     """
-    #     ood_data_all = []
-    #     for file_name in os.listdir(images_dir):
-    #         required_data = {
-    #             "image_path": os.path.join(images_dir, file_name),
-    #             "media_name": os.path.splitext(os.path.basename(file_name))[0],
-    #             "annotated_label": None,
-    #         }
-    #
-    #         prediction = self._infer(
-    #             image_path=os.path.join(images_dir, file_name), explain=True
-    #         )
-    #         feature_vector = prediction.feature_vector
-    #         if len(feature_vector.shape) != 1:
-    #             feature_vector = feature_vector.flatten()
-    #         required_data["feature_vector"] = feature_vector
-    #         required_data["prediction_probability"] = (
-    #             prediction.annotations[0].labels[0].probability
-    #         )
-    #         required_data["predicted_label"] = prediction.annotations[0].labels[0].name
-    #
-    #         data_item = DistributionDataItem(
-    #             media_name=required_data["media_name"],
-    #             media_path=required_data["image_path"],
-    #             annotated_label=required_data["annotated_label"],
-    #             raw_prediction=prediction,
-    #         )
-    #
-    #         ood_data_all.append(data_item)
-    #     return ood_data_all
 
     def _check_project_fit(self):
 
@@ -552,7 +457,35 @@ class COODModel:
         return None
 
 
-class KNNBasedOODModel:
+class OODSubModel(metaclass=ABCMeta):
+    """
+    Base class for OOD detection sub-models.
+    """
+
+    @abstractmethod
+    def train(self, distribution_data: List[DistributionDataItem]):
+        """
+        Train the OOD detection sub-model using a list in-distribution data items
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def __call__(self, data_items: List[DistributionDataItem]) -> dict:
+        """
+        Return the OOD score for the given data items.
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def is_trained(self) -> bool:
+        """
+        Return True if the model is trained.
+        """
+        raise NotImplementedError
+
+
+class KNNBasedOODModel(OODSubModel):
     """
     k Nearest Neighbour based OOD detection model.
     """
@@ -593,7 +526,7 @@ class KNNBasedOODModel:
         return {"knn_ood_score": distances[:, -1]}
 
 
-class ClassFREModel:
+class ClassFREModel(OODSubModel):
     """
     Yet to be finalised
     """
@@ -653,7 +586,7 @@ class ClassFREModel:
         return {"class_fre_score": max_fre_scores}
 
 
-class MaxSoftmaxProbabilityModel:
+class MaxSoftmaxProbabilityModel(OODSubModel):
     """
     Maximum Softmax Probability Model - A baseline OOD detection model.
     Use the concept that a lower maximum softmax probability indicates that the image could be OOD.
