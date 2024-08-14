@@ -50,11 +50,9 @@ geti_hook = PostInferenceHook(
 )
 
 ood_model.deployment.add_post_inference_hook(hook=geti_hook)
-dummy_imgae_path = "/Users/rgangire/workspace/Results/SDK/data/ood_images/Black_And_White_Warbler_0001_160352_669e4d1f62ebb5f7b69f97ad.jpg"
-
+# dummy_imgae_path = "/Users/rgangire/workspace/Results/SDK/data/ood_images/Black_And_White_Warbler_0001_160352_669e4d1f62ebb5f7b69f97ad.jpg"
+dummy_imgae_path = "/Users/rgangire/workspace/Results/SDK/data/images/Black_And_White_Warbler_0001_160352_669e4d1f62ebb5f7b69f97ad.jpg"
 img = cv2.imread(dummy_imgae_path)
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-prediction = ood_model.deployment.explain(
-    image=img
-)  # Set this the other way - give a deployment which xai to the ood_model or use ood_model's function
+prediction = ood_model.deployment.explain(image=img)
