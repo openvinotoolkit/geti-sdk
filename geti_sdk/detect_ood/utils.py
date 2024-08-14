@@ -229,10 +229,10 @@ class CutoutTransform:
         transform = albumentations.Compose(
             [
                 albumentations.CoarseDropout(
-                    max_holes=1,
+                    max_holes=2,
                     p=1,
-                    hole_width_range=(0.5, 0.7),
-                    hole_height_range=(0.5, 0.7),
+                    hole_width_range=(0.25, 0.35),
+                    hole_height_range=(0.25, 0.35),
                 )
             ]
         )
