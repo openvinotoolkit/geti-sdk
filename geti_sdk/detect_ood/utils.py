@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+from typing import List
+
 import albumentations
 import faiss
 import numpy as np
@@ -23,9 +25,13 @@ from geti_sdk.deployment import Deployment
 from geti_sdk.rest_clients import ModelClient
 
 
-def get_usable_deployment(geti: Geti, model_client: ModelClient) -> Deployment:
+def get_deployment_with_xai_head(geti: Geti, model_client: ModelClient) -> Deployment:
     """
-    Get a deployment that has an optimised model with an XAI head.
+    Get a deployment that has an optimised model with an XAI head. If there are multiple models with XAI heads,
+    the model with the best performance is selected.
+    :param geti: Geti instance pointing to the GETi server
+    :param model_client: Modelclient instance pointing to the Project where at least one trained model is present
+    :return: Deployment object with the optimised model with an XAI head.
     """
     # Check if there's at least one trained model in the project
     models = model_client.get_all_active_models()
@@ -73,7 +79,9 @@ def fit_pca_model(feature_vectors=np.ndarray, n_components: float = 0.995) -> PC
     return pca_model
 
 
-def stratified_selection(x, y, fraction: float, min_samples_per_class: int = 3):
+def stratified_selection(
+    x, y, fraction: float, min_samples_per_class: int = 3
+) -> (List, List):
     """
     Sub sample (reduce) a dataset (x,y) by a provided fraction while maintaining the class distribution
     Note that this is to be use only for collection where each x (data point or sample) has only one y (label).
@@ -83,8 +91,9 @@ def stratified_selection(x, y, fraction: float, min_samples_per_class: int = 3):
     :param fraction: Fraction of the dataset to keep.
     :param min_samples_per_class: Minimum number of samples to keep per class. Note that a very small value for
     "fraction" can sometimes make a class empty. To avoid this, we keep a minimum number of samples per class.
+    :return: Subsampled data points and labels
     """
-    # TODO[ood]: Yet to be tested
+    # TODO[ood]: Yet to be tested. Not used yet
     # stratified sampling from train_labels
 
     selected_labels = []
@@ -136,9 +145,14 @@ def fre_score(feature_vectors: np.ndarray, pca_model: PCA) -> np.ndarray:
     return fre_scores
 
 
-def perform_knn_indexing(feature_vectors: np.ndarray, use_gpu: bool = False):
+def perform_knn_indexing(
+    feature_vectors: np.ndarray, use_gpu: bool = False
+) -> faiss.IndexFlatL2:
     """
-    Perform KNN indexing on the feature vectors
+    Perform KNN indexing on the feature vectors using the FAISS library
+    :param feature_vectors: Feature vectors to build the KNN index on
+    :param use_gpu: Whether to use GPU for KNN indexing. Default is False
+    :return: KNN search index object
     """
     # use faiss with gpu
     if use_gpu:
@@ -177,7 +191,7 @@ def calculate_entropy_nearest_neighbours(
     train_labels: np.ndarray,
     nns_labels_for_test_fts: np.ndarray,
     k: int,
-):
+) -> np.ndarray:
     """
     Calculate the "entropy", a measure of how different the k nearest neighbours are for a sample.
     The value always range between [0,1] . A 0 indicates that all the k nearest neighbours belong to one class.
@@ -188,6 +202,7 @@ def calculate_entropy_nearest_neighbours(
     :param train_labels: labels of the annotated images
     :param nns_labels_for_test_fts: labels of the k nearest neighbours for each test feature
     :param k: number of nearest neighbours to consider
+    :return: Entropy scores for each test feature
     """
     # preallocate
     neighbour_bin_count = np.zeros((nns_labels_for_test_fts.shape[0], k), dtype=int)
@@ -230,20 +245,29 @@ def normalise_features(feature_vectors: np.ndarray) -> np.ndarray:
 
 class CutoutTransform:
     """
-    Cutout transform to apply on images
+    Cutout transform to apply on images. This can be used for generating out of distribution (OOD) samples from in
+    distribution (ID) samples.
     """
 
     def __init__(
         self,
+        number_of_cutouts: int = 1,
+        min_cutout_size: float = 0.5,
+        max_cutout_size: float = 0.7,
     ):
-        self.corruption_strength_range = (0.001, 1)
+        """
+        :param number_of_cutouts: Number of cutouts to apply on the image
+        :param min_cutout_size: Minimum size of the cutout
+        :param max_cutout_size: Maximum size of the cutout
+        """
+        # TODO[OOD]: Add more advanced OOD transforms like perlin noise
         transform = albumentations.Compose(
             [
                 albumentations.CoarseDropout(
-                    max_holes=1,
+                    max_holes=number_of_cutouts,
                     p=1,
-                    hole_width_range=(0.5, 0.7),
-                    hole_height_range=(0.5, 0.7),
+                    hole_width_range=(min_cutout_size, max_cutout_size),
+                    hole_height_range=(min_cutout_size, max_cutout_size),
                 )
             ]
         )
