@@ -35,22 +35,31 @@ from .utils import (
     calculate_entropy_nearest_neighbours,
     fit_pca_model,
     fre_score,
-    get_usable_deployment,
+    get_deployment_with_xai_head,
     normalise_features,
     perform_knn_indexing,
     perform_knn_search,
 )
 
+# Names of the Geti datasets that are used as reference/training data for the COOD model, if available
 ID_DATASET_NAMES = ["Dataset"]
 OOD_DATASET_NAMES = ["ood dataset"]
 
 
-# TODO[ood] Once the id_data is made into a class object,
+# TODO[OOD] : If required, a DistributionData class can be created which is a collection of DistributionDataItems
 
 
 class DistributionDataItem:
     """
     A class to store the data for the COOD model.
+    An DistributionDataItem for an image contains the following:
+    - media_name: Name of the media (optional)
+    - image_path: Path to the image (optional)
+    - annotated_label: Annotated label for the image (optional)
+    - raw_prediction: Prediction object for the image (required)
+    - feature_vector: Feature vector extracted from the image (extracted from raw_prediction)
+
+    All OOD models take a list of DistributionDataItems as input for training and inference.
     """
 
     def __init__(
@@ -65,7 +74,6 @@ class DistributionDataItem:
         self.image_path = media_path
         self.annotated_label = annotated_label
         self.raw_prediction = raw_prediction
-        self._normalise_feature_vector = normalise_feature_vector
 
         feature_vector = raw_prediction.feature_vector
 
@@ -75,11 +83,22 @@ class DistributionDataItem:
         if normalise_feature_vector:
             feature_vector = normalise_features(feature_vector)[0]
 
+        self._normalise_feature_vector = normalise_feature_vector
         self.feature_vector = feature_vector
         self.max_prediction_probability = (
             raw_prediction.annotations[0].labels[0].probability,
         )
-        self.predicted_label = (raw_prediction.annotations[0].labels[0].name,)
+        self.predicted_label = raw_prediction.annotations[0].labels[0].name
+
+    def __repr__(self):
+        """
+        Return a string representation of the DistributionDataItem.
+        """
+        return (
+            f"DataItem(media_name={self.media_name}, "
+            f"shape(feature_vector)={self.feature_vector.shape}), "
+            f"feature_vector normalised={self.is_feature_vector_normalised})"
+        )
 
     @property
     def is_feature_vector_normalised(self) -> bool:
@@ -95,7 +114,6 @@ class COODModel:
     algorithm (see : https://arxiv.org/abs/2403.06874).
 
     Uses a temporary directory for storing data with the following structure:
-    ```
     temp_dir
     ├── ood_detection
     │   └── project_name
@@ -106,13 +124,10 @@ class COODModel:
     │       │   ├── geti_dataset_2
     │       │   │   ├── images
     │       │   │   └── annotations
-    │       │   ├── ood_images
+    │       │   ├── ood_images (if generated)
     │       │   │   ├── image_001.jpg
     │       │   │   ├── image_002.jpg
     │       │       └── image_003.jpg
-
-
-
 
     """
 
@@ -161,6 +176,7 @@ class COODModel:
             project=self.project,
         )
 
+        # TODO[OOD]: Would it be better to use a fixed directory instead of a tmp directory?
         self.workspace_dir = os.path.join(
             tempfile.mkdtemp(), "ood_detection", self.project.name
         )
@@ -171,9 +187,8 @@ class COODModel:
 
         if deployment is None:
             # If no deployment is provided, select an XAI model with the highest accuracy to be deployed
-            self.deployment = get_usable_deployment(
-                geti=self.geti,
-                model_client=self.model_client,
+            self.deployment = get_deployment_with_xai_head(
+                geti=self.geti, model_client=self.model_client
             )
         else:
             if not deployment.models[0].has_xai_head:
@@ -181,7 +196,7 @@ class COODModel:
                     "The provided deployment does not have an model with an XAI head."
                     "Please reconfigure the deployment to include a model with an XAI head "
                     "(OptimizedModel.has_xai_head must be True). "
-                    "Hint : You can use the get_usable_deployment() method from detect_ood.utils"
+                    "Hint : You can use the get_deployment_with_xai_head() method from detect_ood.utils"
                 )
 
             self.deployment = deployment
@@ -209,9 +224,18 @@ class COODModel:
         }
 
         self._train_sub_models()
-        self.train()
+        self._train()
 
-    def _prepare_id_ood_data(self):
+    def _prepare_id_ood_data(self) -> dict:
+        """
+        Prepare the in-distribution and out-of-distribution data for training the COOD and the sub-models.
+        For in-distribution data, all the images and annotations from the dataset names mentioned in ID_DATASET_NAMES
+        are downloaded from the Geti Project.
+        For out-of-distribution data, the same is done for the dataset names mentioned in OOD_DATASET_NAMES. If there is
+        no out-of-distribution dataset, near-OOD images are generated by applying strong corruptions to the downloaded
+        in-distribution images.
+        All images are locally inferred to get prediction probabilities and feature vectors
+        """
         datasets_in_project = self.project.datasets
 
         id_datasets_in_geti = []
@@ -271,22 +295,26 @@ class COODModel:
 
     def _train_sub_models(self):
         """
-        Initialise the OOD models
+        Train the sub-models for OOD detection.
+        Currently, all sub-models are trained on in-distribution data.
         """
         for sub_model in self.sub_models.values():
             sub_model.train(distribution_data=self.id_distribution_data)
 
-    def _get_scores_from_sub_models(
-        self, distribution_data: List[DistributionDataItem]
-    ) -> dict:
+    def _infer_sub_models(self, distribution_data: List[DistributionDataItem]) -> dict:
+        """
+        Get OOD scores from all the sub-models for the given distribution data.
+        :param distribution_data: List of DistributionDataItems for which ood scores are calculated
+        :return: A dictionary containing the OOD scores from all the sub-models.
+        """
         scores_all_sub_models = {}
-        for ood_sub_model in self.sub_models:
-            scores_dict = self.sub_models[ood_sub_model](distribution_data)
+        for sub_model in self.sub_models.values():
+            scores_dict = sub_model(distribution_data)
             for score_type in scores_dict:
                 scores_all_sub_models[score_type] = scores_dict[score_type]
         return scores_all_sub_models
 
-    def train(self):
+    def _train(self):
         """
         Train the COOD model using the RandomForestClassifier
         """
@@ -294,16 +322,16 @@ class COODModel:
         num_ood_images = len(self.ood_distribution_data)
 
         # Get scores from sub-models
-        id_scores_all_sub_models = self._get_scores_from_sub_models(
-            self.id_distribution_data
-        )
-        ood_scores_all_sub_models = self._get_scores_from_sub_models(
-            self.ood_distribution_data
-        )
+        id_scores_all_sub_models = self._infer_sub_models(self.id_distribution_data)
+        ood_scores_all_sub_models = self._infer_sub_models(self.ood_distribution_data)
 
         # Arrange features
-        id_features = self._arrange_features(id_scores_all_sub_models, num_id_images)
-        ood_features = self._arrange_features(ood_scores_all_sub_models, num_ood_images)
+        id_features = self._aggregate_sub_model_scores_into_cood_features(
+            id_scores_all_sub_models, num_id_images
+        )
+        ood_features = self._aggregate_sub_model_scores_into_cood_features(
+            ood_scores_all_sub_models, num_ood_images
+        )
 
         # Combine features and labels
         all_features = np.concatenate((id_features, ood_features))
@@ -324,10 +352,8 @@ class COODModel:
             annotated_label="",
             raw_prediction=prediction,
         )
-        scores_all_sub_models = self._get_scores_from_sub_models(
-            distribution_data=[data_item]
-        )
-        features_arranged = self._arrange_features(
+        scores_all_sub_models = self._infer_sub_models(distribution_data=[data_item])
+        features_arranged = self._aggregate_sub_model_scores_into_cood_features(
             scores_all_sub_models=scores_all_sub_models, num_images=1
         )
 
@@ -335,7 +361,9 @@ class COODModel:
 
         return cood_score[0][1]  # Return only the probability of being OOD
 
-    def _infer(self, image_path: str, explain: bool = False) -> Prediction:
+    def _infer_image_on_deployment(
+        self, image_path: str, explain: bool = False
+    ) -> Prediction:
         """
         Infer the image and get the prediction using the deployment
         """
@@ -350,7 +378,7 @@ class COODModel:
 
     def _create_ood_images(self, reference_dataset: Dataset) -> str:
         """
-        Create near-OOD images by applying strong corruptions to the in-distribution images in the reference datasets.
+        Create near-OOD images by applying strong corruptions to the images in the reference datasets.
         """
         # Options  : Applying corruptions, generating Perlin Noise Images, Background extraction (using saliency maps)
         ref_images_path = os.path.join(self.data_dir, reference_dataset.name, "images")
@@ -369,7 +397,10 @@ class COODModel:
         return corrupted_images_path
 
     def _check_project_fit(self):
-
+        """
+        Check if the project is suited for the current OOD detection task.
+        Currently, only a single task of type "classification" is supported.
+        """
         tasks_in_project = self.project.get_trainable_tasks()
         if len(tasks_in_project) != 1:
             raise ValueError(
@@ -439,7 +470,15 @@ class COODModel:
     def _prepare_data_item(
         self, image_path: str, annotation_label: Union[str, None]
     ) -> DistributionDataItem:
-        prediction = self._infer(image_path=image_path, explain=True)
+        """
+        Prepare the DistributionDataItem for the given image. Infers the image and extracts the feature vector.
+        :param image_path: Path to the image
+        :param annotation_label: Annotated label for the image (optional)
+        return: DistributionDataItem for the image
+        """
+        prediction = self._infer_image_on_deployment(
+            image_path=image_path, explain=True
+        )
         return DistributionDataItem(
             media_name=os.path.splitext(os.path.basename(image_path))[0],
             media_path=image_path,
@@ -449,6 +488,12 @@ class COODModel:
 
     @staticmethod
     def _load_annotations(annotation_file: str) -> Union[str, None]:
+        """
+        Read the annotations from the annotation file downloaded from Geti and returns the single label.
+        Only to be used for classification tasks an image is annotated with a single label.
+        :param annotation_file: Path to the annotation file
+        :return: Annotated label for the image, if available, else None
+        """
         if os.path.exists(annotation_file):
             with open(annotation_file, "r") as f:
                 annotation = json.load(f)
@@ -456,11 +501,30 @@ class COODModel:
         return None
 
     @staticmethod
-    def _arrange_features(scores_all_sub_models: dict, num_images: int) -> np.ndarray:
+    def _aggregate_sub_model_scores_into_cood_features(
+        scores_all_sub_models: dict, num_images: int
+    ) -> np.ndarray:
+        """
+        Combine the OOD scores from all the sub-models into a single feature vector that can be passed to the
+        COOD's random forest classifier
+        :param scores_all_sub_models: A dictionary containing the OOD scores from all the sub-models
+        :param num_images: Number of images for which the OOD scores are calculated
+        :return: A feature vector containing the OOD scores from all the sub-models as a numpy array
+        """
         features = np.zeros((num_images, len(scores_all_sub_models)))
         for score_idx, score_type in enumerate(scores_all_sub_models):
             features[:, score_idx] = scores_all_sub_models[score_type]
         return features
+
+    def __repr__(self):
+        """
+        Return a string representation of the COODModel.
+        """
+        return (
+            f"COODModel(project={self.project.name}, "
+            f"Sub models: {list(self.sub_models.keys())}, "
+            f"Data Items: {len(self.id_distribution_data)} ID, {len(self.ood_distribution_data)} OOD)"
+        )
 
 
 class OODSubModel(metaclass=ABCMeta):
@@ -478,8 +542,18 @@ class OODSubModel(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
-    @abstractmethod
     def __call__(self, data_items: List[DistributionDataItem]) -> dict:
+        """
+        Check if the model is trained and call the forward method.
+        """
+        if not self._is_trained:
+            raise ValueError(
+                "Model is not trained. Please train the model first before calling."
+            )
+        return self.forward(data_items)
+
+    @abstractmethod
+    def forward(self, data_items: List[DistributionDataItem]) -> dict:
         """
         Return the OOD score for the given data items.
         """
@@ -492,27 +566,37 @@ class OODSubModel(metaclass=ABCMeta):
         """
         return self._is_trained
 
+    def __repr__(self):
+        """
+        Return a string representation of the OODSubModel.
+        """
+        return f"{self.__class__.__name__} (is_trained={self.is_trained})"
+
 
 class KNNBasedOODModel(OODSubModel):
     """
-    k Nearest Neighbour based OOD detection model.
-    # TODO[OOD]: Add
-    1) distance to prototypical center
-    2) ldof (to expensive ?)
-    3) exact combination of entropy and distance from thesis
-
+    Model for OOD detection based on k-Nearest Neighbours (kNN) search in the feature space.
+    The model calculates OOD scores based on distance to the nearest neighbours, entropy among the nearest neighbours,
+    and EnWeDi (which combines distance and entropy).
     """
+
+    # # TODO[OOD]: Add more features to the model
+    # 1) distance to prototypical center
+    # 2) ldof (to expensive ?)
+    # 3) exact combination of entropy and distance from thesis
 
     def __init__(self, knn_k: int = 10):
         super().__init__()
         self.knn_k = knn_k
         self.knn_search_index = None
         self.train_set_labels = None
-        self._is_trained = False
 
     def train(self, distribution_data: List[DistributionDataItem]):
         """
-        Train the kNN model
+        Build the knn search index using faiss for the in-distribution data.
+        :param distribution_data: List of DistributionDataItems for training the model. These are typically user
+        annotated images from a Geti project from datasets that correspond to "in-distribution". Please note that the
+        annotated labels are required if entropy based ood scores measures are calculated in the forward method.
         """
         id_data = distribution_data
         feature_vectors = np.array([data.feature_vector for data in id_data])
@@ -522,14 +606,12 @@ class KNNBasedOODModel(OODSubModel):
         self.knn_search_index = perform_knn_indexing(feature_vectors, use_gpu=False)
         self._is_trained = True
 
-    def __call__(self, data_items: List[DistributionDataItem]) -> dict:
+    def forward(self, data_items: List[DistributionDataItem]) -> dict:
         """
-        Return the kNN OOD score for the given feature vector.
+        Perform kNN search and calculates different types of OOD scores.
+        :param data_items: List of DistributionDataItems for which OOD scores are calculated
+        :return: A dictionary containing the OOD score names as keys and the OOD scores as values.
         """
-        if not self._is_trained:
-            raise ValueError(
-                "Model is not trained. Please train the model first before calling."
-            )
         features = np.array([item.feature_vector for item in data_items])
         distances, nn_indices = perform_knn_search(
             knn_search_index=self.knn_search_index,
@@ -539,7 +621,7 @@ class KNNBasedOODModel(OODSubModel):
 
         knn_distance = distances[:, -1]  # distance to the kth nearest neighbour
         nn_distance = distances[:, 1]  # distance to the nearest neighbour
-        # TODO : When doing kNN Search for ID, the 0th index is the same image. So, should we use k+1 ?
+        # TODO[OOD] : When doing kNN Search for ID, the 0th index is the same image. So, should we use k+1 ?
         average_nn_distance = np.mean(distances[:, 1:], axis=1)
 
         entropy_score = calculate_entropy_nearest_neighbours(
@@ -568,18 +650,19 @@ class KNNBasedOODModel(OODSubModel):
 
 class GlobalFREBasedModel(OODSubModel):
     """
-    Yet to be finalised
+    Global Feature Reconstruction Error (FRE) Model. Builds a single PCA model for the whole in-distribution
+    data provided thereby providing a "Global" subspace representation of the in-distribution features.
+    See https://arxiv.org/abs/2012.04250 for details.
     """
 
     def __init__(self, n_components=0.995):
         super().__init__()
         self.n_components = n_components
         self.pca_model = None
-        self._is_trained = False
 
     def train(self, distribution_data: List[DistributionDataItem]):
         """
-        Trains a single (global) PCA model for the in-distribution data
+        Fit a single (global) PCA model for the in-distribution data
         """
         feature_vectors = np.array([data.feature_vector for data in distribution_data])
         self.pca_model = fit_pca_model(
@@ -587,7 +670,7 @@ class GlobalFREBasedModel(OODSubModel):
         )
         self._is_trained = True
 
-    def __call__(self, data_items: List[DistributionDataItem]) -> dict:
+    def forward(self, data_items: List[DistributionDataItem]) -> dict:
         """
         Return the global fre score for the given data items.
         """
@@ -602,14 +685,15 @@ class GlobalFREBasedModel(OODSubModel):
 
 class ClassFREBasedModel(OODSubModel):
     """
-    Yet to be finalised
+    Per-class Feature Reconstruction Error (FRE) Model. Each class present in the in-distribution data is represented
+    by a subspace model.
+    See https://arxiv.org/abs/2012.04250 for details
     """
 
     def __init__(self, n_components=0.995):
         super().__init__()
         self.n_components = n_components
         self.pca_models_per_class = {}
-        self._is_trained = False
 
     def train(self, distribution_data: List[DistributionDataItem]):
         """
@@ -633,9 +717,9 @@ class ClassFREBasedModel(OODSubModel):
         self.pca_models_per_class = pca_models
         self._is_trained = True
 
-    def __call__(self, data_items: List[DistributionDataItem]) -> dict:
+    def forward(self, data_items: List[DistributionDataItem]) -> dict:
         """
-        Return the class fre score for the given feature vector.
+        Return various fre-based ood scores
         """
         if not self._is_trained:
             raise ValueError(
@@ -649,25 +733,33 @@ class ClassFREBasedModel(OODSubModel):
                 feature_vectors=features, pca_model=pca_model
             )
 
-        # For each element, we return the max FRE score
+        # FRE Score # 1 - FRE  w.r.t the class the sample is predicted to be
+        predicted_labels = [item.predicted_label for item in data_items]
+        fre_scores_for_predicted_class = np.array(
+            [fre_scores_per_class[label][i] for i, label in enumerate(predicted_labels)]
+        )
+
+        # FRE Score # 2 - Calculating the maximum FRE score across all classes
         max_fre_scores = np.ndarray(len(features))
         for k in range(len(features)):
             max_fre_scores[k] = max(
                 [fre_scores_per_class[label][k] for label in fre_scores_per_class]
             )
-        return {"class_fre_score": max_fre_scores}
+
+        return {
+            "class_fre_score": max_fre_scores,
+            "predicted_class_fre_score": fre_scores_for_predicted_class,
+        }
 
 
 class ProbabilityBasedModel(OODSubModel):
     """
     Maximum Softmax Probability Model - A baseline OOD detection model.
-    Use the concept that a lower maximum softmax probability indicates that the image could be OOD.
-    See
+    Uses the concept that a lower maximum softmax probability indicates that the image could be OOD.
     """
 
     def __init__(self):
         super().__init__()
-        self._is_trained = False
 
     def train(self, distribution_data: List[DistributionDataItem]):
         """
@@ -675,16 +767,13 @@ class ProbabilityBasedModel(OODSubModel):
         """
         self._is_trained = True
 
-    def __call__(self, data_items: List[DistributionDataItem]) -> dict:
+    def forward(self, data_items: List[DistributionDataItem]) -> dict:
         """
         Return the maximum softmax probability for the given prediction.
         """
-        if not self._is_trained:
-            raise ValueError(
-                "Model is not trained. Please train the model first before calling."
-            )
         msp_scores = np.ndarray(len(data_items))
         for i, data_item in enumerate(data_items):
+            # deployment.infer gives a single highest probability- no need to find the max
             msp_scores[i] = data_item.max_prediction_probability[0]
 
         return {"max_softmax_probability": msp_scores}
