@@ -108,7 +108,7 @@ class BaseAnnotationClient:
 
         url = (
             f"workspaces/{self.workspace_id}/projects/{self._project.id}"
-            f"/datasets/{dataset.id}/media:query?top=500"
+            f"/datasets/{dataset.id}/media:query?limit=100"
         )
         data = {
             "condition": "and",
@@ -130,7 +130,8 @@ class BaseAnnotationClient:
             if "next_page" in response.keys():
                 response = self.session.get_rest_response(
                     url=response["next_page"],
-                    method="GET",
+                    method="POST",
+                    data=data,
                     include_organization_id=False,
                 )
         return MediaList.from_rest_list(
