@@ -22,6 +22,7 @@ from typing import List, Union
 import cv2
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
+from tqdm.auto import tqdm
 
 from geti_sdk import Geti
 from geti_sdk.data_models import Prediction, Project
@@ -225,6 +226,7 @@ class COODModel:
 
         self._train_sub_models()
         self._train()
+        logging.info("COOD Model is trained and ready for inference.")
 
     def _prepare_id_ood_data(self) -> dict:
         """
@@ -386,7 +388,9 @@ class COODModel:
         if not os.path.exists(corrupted_images_path):
             os.makedirs(corrupted_images_path)
 
-        for image_name in os.listdir(ref_images_path):
+        for image_name in tqdm(
+            os.listdir(ref_images_path), desc="Generating OOD images"
+        ):
             image_path = os.path.join(ref_images_path, image_name)
             img = cv2.imread(image_path)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
