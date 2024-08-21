@@ -135,8 +135,8 @@ class ProjectClient:
                 ]
                 projects_info = [
                     (
-                        f"Name: {p.name}, Type: {p.project_type}, ID: {p.id}, "
-                        f"creation_date: {p.creation_time}"
+                        f"Name: {p.name},\t Type: {p.project_type},\t ID: {p.id},\t "
+                        f"creation_date: {p.creation_time}\n"
                     )
                     for p in detailed_matches
                 ]
