@@ -36,7 +36,7 @@ geti_server_configuration = get_server_details_from_env(
 geti = Geti(server_config=geti_server_configuration)
 project_client = ProjectClient(session=geti.session, workspace_id=geti.workspace_id)
 
-PROJECT_NAME = "CUB3"
+PROJECT_NAME = "CUB6"
 project = project_client.get_project_by_name(project_name=PROJECT_NAME)
 
 model_client = ModelClient(
@@ -63,8 +63,9 @@ geti_hook = PostInferenceHook(
 )
 
 ood_model.deployment.add_post_inference_hook(hook=geti_hook)
-dummy_imgae_path = "/Users/rgangire/workspace/Results/SDK/data/ood_images/Black_And_White_Warbler_0001_160352_669e4d1f62ebb5f7b69f97ad.jpg"
+# dummy_imgae_path = "/Users/rgangire/workspace/Results/SDK/data/ood_images/Black_And_White_Warbler_0001_160352_669e4d1f62ebb5f7b69f97ad.jpg"
 # dummy_imgae_path = "/Users/rgangire/workspace/Results/SDK/data/images/Black_And_White_Warbler_0001_160352_669e4d1f62ebb5f7b69f97ad.jpg"
+dummy_imgae_path = "/Users/rgangire/workspace/data/CUB_200_2011/CUB_200_2011/images/010.Red_winged_Blackbird/Red_Winged_Blackbird_0001_3695.jpg"
 img = cv2.imread(dummy_imgae_path)
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
