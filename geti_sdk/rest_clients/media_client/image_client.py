@@ -127,9 +127,12 @@ class ImageClient(BaseMediaClient[Image]):
             from the project will be downloaded.
         """
         if dataset is not None:
+            path_to_media_folder = os.path.join(
+                path_to_folder, self.plural_media_name, dataset.name
+            )
             self._download_dataset(
                 dataset=dataset,
-                path_to_media_folder=path_to_folder,
+                path_to_media_folder=path_to_media_folder,
                 append_media_uid=append_image_uid,
                 max_threads=max_threads,
             )
