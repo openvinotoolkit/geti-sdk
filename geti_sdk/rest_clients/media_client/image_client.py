@@ -127,6 +127,8 @@ class ImageClient(BaseMediaClient[Image]):
             from the project will be downloaded.
         """
         if dataset is not None:
+            # Downloads images to path_to_folder/images/dataset_name
+            # This is in consistent with the _download_all method when number of datasets is greater than 1.
             path_to_media_folder = os.path.join(
                 path_to_folder, self.plural_media_name, dataset.name
             )

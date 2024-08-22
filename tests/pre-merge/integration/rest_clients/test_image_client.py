@@ -149,8 +149,8 @@ class TestImageClient:
         2. Create two datasets
         3. Upload images to each dataset. One with images from fxt_image_folder and
         one with images from fxt_image_folder_light_bulbs
-        4. Download images from each dataset to a temporary directory
-        5. Assert that all images are downloaded
+        4. Download images from each dataset to respective temporary directories
+        5. Assert that all images are downloaded correctly for each dataset
         """
 
         self.ensure_test_project(
@@ -186,13 +186,16 @@ class TestImageClient:
         request.addfinalizer(lambda: shutil.rmtree(target_dir1))
         request.addfinalizer(lambda: shutil.rmtree(target_dir2))
 
-        # Download images from each dataset
         image_client.download_all(target_dir1, dataset=dataset1, max_threads=1)
         image_client.download_all(target_dir2, dataset=dataset2, max_threads=1)
 
         # Verify downloads
-        downloaded_filenames1 = os.listdir(os.path.join(target_dir1, "images"))
-        downloaded_filenames2 = os.listdir(os.path.join(target_dir2, "images"))
+        downloaded_filenames1 = os.listdir(
+            os.path.join(target_dir1, "images", dataset1.name)
+        )
+        downloaded_filenames2 = os.listdir(
+            os.path.join(target_dir2, "images", dataset2.name)
+        )
 
         assert len(downloaded_filenames1) == len(images_dataset1)
         assert len(downloaded_filenames2) == len(images_dataset2)
