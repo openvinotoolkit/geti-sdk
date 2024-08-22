@@ -110,22 +110,36 @@ class ImageClient(BaseMediaClient[Image]):
         path_to_folder: str,
         append_image_uid: bool = False,
         max_threads: int = 10,
+        dataset: Optional[Dataset] = None,
     ) -> None:
         """
-        Download all images in a project to a folder on the local disk.
+        Download all images in a project or a dataset to a folder on the local disk.
 
         :param path_to_folder: path to the folder in which the images should be saved
         :param append_image_uid: True to append the UID of an image to the
             filename (separated from the original filename by an underscore, i.e.
-            '{filename}_{image_id}'). If there are images in the project with
+            '{filename}_{image_id}'). If there are images in the project/dataset with
             duplicate filename, this must be set to True to ensure all images are
-            downloaded. Otherwise images with the same name will be skipped.
+            downloaded. Otherwise, images with the same name will be skipped.
         :param max_threads: Maximum number of threads to use for downloading. Defaults to 10.
             Set to -1 to use all available threads.
+        :param dataset: Optional Dataset from which to download the images. If no dataset is provided, all images
+            from the project will be downloaded.
         """
-        self._download_all(
-            path_to_folder, append_media_uid=append_image_uid, max_threads=max_threads
-        )
+        if dataset is not None:
+            self._download_dataset(
+                dataset=dataset,
+                path_to_media_folder=path_to_folder,
+                append_media_uid=append_image_uid,
+                max_threads=max_threads,
+            )
+        else:
+            # Download all images in the dataset
+            self._download_all(
+                path_to_folder=path_to_folder,
+                append_media_uid=append_image_uid,
+                max_threads=max_threads,
+            )
 
     def upload_from_list(
         self,
