@@ -98,7 +98,7 @@ class ProjectClient:
             project_detail_list: List[Project] = []
             for project in project_list:
                 try:
-                    project_detail_list.append(self._get_project_detail(project))
+                    project_detail_list.append(self.get_project_by_id(project.id))
                 except GetiRequestException as e:
                     if e.status_code == 403:
                         logging.info(
@@ -110,57 +110,47 @@ class ProjectClient:
             return project_list
 
     def get_project_by_name(
-        self, project_name: str, project_id: Optional[str] = None
+        self,
+        project_name: str,
     ) -> Optional[Project]:
         """
         Get a project from the Intel® Geti™ server by project_name.
 
+        If multiple projects with the same name exist on the server, this method will
+        raise a ValueError, unless a `project_id` is provided to uniquely identify the
+        project.
+
         :param project_name: Name of the project to get
-        :param project_id: Optional ID of the project to get. Only used if more than
-            one project named `project_name` exists in the workspace.
         :raises: ValueError in case multiple projects with the specified name exist on
             the server, and no `project_id` is provided in order to allow unique
             identification of the project.
         :return: Project object containing the data of the project, if the project is
-            found on the server. Returns None if the project doesn't exist
+            found on the server. Returns None if the project doesn't exist.
         """
         project_list = self.get_all_projects(get_project_details=False)
         matches = [project for project in project_list if project.name == project_name]
         if len(matches) == 1:
-            return self._get_project_detail(matches[0])
+            return self.get_project_by_id(matches[0].id)
         elif len(matches) > 1:
-            if project_id is None:
-                detailed_matches = [
-                    self._get_project_detail(match) for match in matches
-                ]
-                projects_info = [
-                    (
-                        f"Name: {p.name},\t Type: {p.project_type},\t ID: {p.id},\t "
-                        f"creation_date: {p.creation_time}\n"
-                    )
-                    for p in detailed_matches
-                ]
-                raise ValueError(
-                    f"A total of {len(matches)} projects named `{project_name}` were "
-                    f"found in the workspace. Unable to uniquely identify the "
-                    f"desired project. Please provide a `project_id` to ensure the "
-                    f"proper project is returned. The following projects were found:"
-                    f"{projects_info}"
+            detailed_matches = [self.get_project_by_id(match.id) for match in matches]
+            projects_info = [
+                (
+                    f"Name: {p.name},\t Type: {p.project_type},\t ID: {p.id},\t "
+                    f"creation_date: {p.creation_time}\n"
                 )
-            else:
-                matched_project = next(
-                    (project for project in matches if project.id == project_id), None
-                )
-                if matched_project is None:
-                    logging.info(
-                        f"Projects with name `{project_name}` were found, but none of "
-                        f"the project ID's `{[p.id for p in matches]}` matches the "
-                        f"requested id `{project_id}`."
-                    )
-                    return None
-                else:
-                    return self._get_project_detail(matched_project)
+                for p in detailed_matches
+            ]
+            raise ValueError(
+                f"A total of {len(matches)} projects named `{project_name}` were "
+                f"found in the workspace. Unable to uniquely identify the "
+                f"desired project. Please provide a `project_id` to ensure the "
+                f"proper project is returned. The following projects were found:"
+                f"{projects_info}"
+            )
         else:
+            warnings.warn(
+                f"Project with name {project_name} was not found on the server."
+            )
             return None
 
     def get_or_create_project(
@@ -213,40 +203,37 @@ class ProjectClient:
         project_template = self._create_project_template(
             project_name=project_name, project_type=project_type, labels=labels
         )
-        project = self.session.get_rest_response(
+        project_dict = self.session.get_rest_response(
             url=f"{self.base_url}projects", method="POST", data=project_template
         )
         logging.info("Project created successfully.")
-        project = ProjectRESTConverter.from_dict(project)
+        project = ProjectRESTConverter.from_dict(project_dict)
         self._await_project_ready(project=project)
         return project
 
-    def download_project_info(self, project_name: str, path_to_folder: str) -> None:
+    def download_project_info(self, project: Project, path_to_folder: str) -> None:
         """
-        Get the project data that can be used for project creation for a project on
-        the Intel® Geti™ server, named `project_name`. From the returned data, the
+        Get the project data that can be used for project creation on
+        the Intel® Geti™ server. From the returned data, the
         method `ProjectClient.get_or_create_project` can create a project on the
         Intel® Geti™ server. The data is retrieved from the cluster and saved in the
         target folder `path_to_folder`.
 
-        :param project_name: Name of the project to retrieve the data for
+        :param project: Project to download the data for
         :param path_to_folder: Target folder to save the project data to.
             Data will be saved as a .json file named "project.json"
         :raises ValueError: If the project with `project_name` is not found on the
             cluster
         """
-        project = self.get_project_by_name(project_name)
-        if project is None:
-            raise ValueError(
-                f"Project with name {project_name} was not found on the server."
-            )
+        # Update the project state
+        project = self.get_project_by_id(project.id)
         project_data = ProjectRESTConverter.to_dict(project)
         os.makedirs(path_to_folder, exist_ok=True, mode=0o770)
         project_config_path = os.path.join(path_to_folder, "project.json")
         with open(project_config_path, "w") as file:
             json.dump(project_data, file, indent=4)
         logging.info(
-            f"Project parameters for project '{project_name}' were saved to file "
+            f"Project parameters for project '{project.name}' were saved to file "
             f"{project_config_path}."
         )
 
@@ -369,7 +356,7 @@ class ProjectClient:
         return created_project
 
     @staticmethod
-    def is_project_dir(path_to_folder: str) -> bool:
+    def _is_project_dir(path_to_folder: str) -> bool:
         """
         Check if the folder specified in `path_to_folder` is a directory
         containing valid Intel® Geti™ project data that can be used to upload to an
@@ -494,29 +481,22 @@ class ProjectClient:
         return task_name
 
     def delete_project(
-        self, project: Union[str, Project], requires_confirmation: bool = True
+        self, project: Project, requires_confirmation: bool = True
     ) -> None:
         """
-        Delete a project. The `project` to delete can either by a Project object or a
-        string containing the name of the project to delete.
+        Delete a project.
 
         By default, this method will ask for user confirmation before deleting the
         project. This can be overridden by passing `requires_confirmation = False`.
 
-        :param project: Project to delete, either a string containing the project
-            name or a Project instance
+        :param project: Project to delete
         :param requires_confirmation: True to ask for user confirmation before
             deleting the project, False to delete without confirmation. Defaults to
             True
         """
-        if isinstance(project, str):
-            project = self.get_project_by_name(project_name=project)
-        if not isinstance(project, Project):
-            raise TypeError(f"{type(project)} is not a valid project type.")
-
         if requires_confirmation:
-            # Update project details
-            project = self._get_project_detail(project)
+            # Update the project details
+            project = self.get_project_by_id(project.id)
             if project.datasets is None:
                 project.datasets = []
             image_count = 0
@@ -680,23 +660,6 @@ class ProjectClient:
             f"Project has not become ready within the specified timeout ({timeout} "
             f"seconds)."
         ) from error
-
-    def _get_project_detail(self, project: Union[Project, str]) -> Project:
-        """
-        Fetch the most recent project details from the Intel® Geti™ server
-
-        :param project: Name of the project or Project object representing the project
-            to get detailed information for.
-        :return: Updated Project object
-        """
-        if isinstance(project, str):
-            project = self.get_project_by_name(project_name=project)
-            return project
-        else:
-            response = self.session.get_rest_response(
-                url=f"{self.base_url}projects/{project.id}", method="GET"
-            )
-            return ProjectRESTConverter.from_dict(response)
 
     def get_project_by_id(self, project_id: str) -> Optional[Project]:
         """

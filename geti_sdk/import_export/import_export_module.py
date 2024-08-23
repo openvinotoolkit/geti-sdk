@@ -330,7 +330,7 @@ class GetiIE:
         project_folders = [
             folder
             for folder in candidate_project_folders
-            if ProjectClient.is_project_dir(folder)
+            if ProjectClient._is_project_dir(folder)
         ]
         logging.info(
             f"Found {len(project_folders)} project data folders in the target "
