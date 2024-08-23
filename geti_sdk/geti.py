@@ -252,19 +252,26 @@ class Geti:
         return balance.available if balance is not None else None
 
     def get_project(
-        self, project_name: str, project_id: Optional[str] = None
+        self,
+        project_name: Optional[str] = None,
+        project_id: Optional[str] = None,
+        project: Optional[Project] = None,
     ) -> Project:
         """
-        Return the Intel® Geti™ project named `project_name`, if any. If no project by
-        that name is found on the Intel® Geti™ server, this method will raise a
-        KeyError.
+        Return the Intel® Geti™ project by name or ID, if any.
+        If a project object is passed, the method will return the updated object.
+        If no project by that name is found on the Intel® Geti™ server,
+        this method will raise a KeyError.
 
         :param project_name: Name of the project to retrieve
+        :param project_id: ID of the project to retrieve. If not specified, the
+            project with name `project_name` will be retrieved.
+        :param project: Project object to update. If not specified, the project with
         :raises: KeyError if project named `project_name` is not found on the server
         :return: Project identified by `project_name`
         """
-        project = self.project_client.get_project_by_name(
-            project_name=project_name, project_id=project_id
+        project = self.project_client.get_project(
+            project_name=project_name, project_id=project_id, project=project
         )
         if project is None:
             raise KeyError(
@@ -275,8 +282,7 @@ class Geti:
 
     def download_project_data(
         self,
-        project_name: str,
-        project_id: Optional[str] = None,
+        project: Project,
         target_folder: Optional[str] = None,
         include_predictions: bool = False,
         include_active_models: bool = False,
@@ -332,7 +338,7 @@ class Geti:
         Downloading a project may take a substantial amount of time if the project
         dataset is large.
 
-        :param project_name: Name of the project to download
+        :param project: Project object to download
         :param target_folder: Path to the local folder in which the project data
             should be saved. If not specified, a new directory will be created inside
             the current working directory. The name of the resulting directory will be
@@ -354,7 +360,7 @@ class Geti:
             regarding the downloaded project
         """
         project = self.import_export_module.download_project_data(
-            project=self.get_project(project_name=project_name, project_id=project_id),
+            project=project,
             target_folder=target_folder,
             include_predictions=include_predictions,
             include_active_models=include_active_models,
@@ -363,7 +369,7 @@ class Geti:
         # Download deployment
         if include_deployment:
             logging.info("Creating deployment for project...")
-            self.deploy_project(project.name, output_folder=target_folder)
+            self.deploy_project(project, output_folder=target_folder)
 
         logging.info(f"Project '{project.name}' was downloaded successfully.")
         return project
@@ -459,8 +465,7 @@ class Geti:
     def export_project(
         self,
         filepath: os.PathLike,
-        project_name: str,
-        project_id: Optional[str] = None,
+        project: Project,
     ) -> None:
         """
         Export a project with name `project_name` to the file specified by `filepath`.
@@ -468,19 +473,15 @@ class Geti:
         and metadata required for project import to another instance of the Intel® Geti™ platform.
 
         :param filepath: Path to the file to save the project to
-        :param project_name: Name of the project to export
-        :param project_id: Optional ID of the project to export. If not specified, the
-            project with name `project_name` will be exported.
+        :param project: Project object to export
         """
-        if project_id is None:
-            project_id = self.get_project(project_name=project_name).id
-        if project_id is None:
+        if project.id is None:
             raise ValueError(
-                f"Could not retrieve project ID for project '{project_name}'."
-                "Please specify the project ID explicitly."
+                f"Could not retrieve project ID for project '{project.name}'."
+                "Please reinitialize the project object."
             )
         self.import_export_module.export_project(
-            project_id=project_id, filepath=filepath
+            project_id=project.id, filepath=filepath
         )
 
     def import_project(
@@ -523,7 +524,7 @@ class Geti:
             in the dataset, False to only include media with annotations. Defaults to
             False.
         """
-        if type(export_format) is str:
+        if isinstance(export_format, str):
             export_format = DatasetFormat[export_format]
         self.import_export_module.export_dataset(
             project=project,
@@ -858,7 +859,7 @@ class Geti:
 
     def upload_and_predict_media_folder(
         self,
-        project_name: str,
+        project: Project,
         media_folder: str,
         output_folder: Optional[str] = None,
         delete_after_prediction: bool = False,
@@ -867,7 +868,7 @@ class Geti:
     ) -> bool:
         """
         Upload a folder with media (images, videos or both) from local disk at path
-        `target_folder` to the project with name `project_name` on the Intel® Geti™
+        `target_folder` to the project provided with the `project` argument on the Intel® Geti™
         server.
         After the media upload is complete, predictions will be downloaded for all
         media in the folder. This method will create a 'predictions' directory in
@@ -877,7 +878,7 @@ class Geti:
         removed from the project on the Intel® Geti™ server after the predictions have
         been downloaded.
 
-        :param project_name: Name of the project to upload media to
+        :param project: Project object to upload the media to
         :param media_folder: Path to the folder to upload media from
         :param output_folder: Path to save the predictions to. If not specified, this
             method will create a folder named '<media_folder_name>_predictions' on
@@ -892,16 +893,6 @@ class Geti:
         :return: True if all media was uploaded, and predictions for all media were
             successfully downloaded. False otherwise
         """
-        # Obtain project details from cluster
-        try:
-            project = self.get_project(project_name=project_name)
-        except ValueError:
-            logging.info(
-                f"Project '{project_name}' was not found on the cluster. Aborting "
-                f"media upload."
-            )
-            return False
-
         # Upload images
         image_client = ImageClient(
             session=self.session, workspace_id=self.workspace_id, project=project
@@ -927,7 +918,7 @@ class Geti:
         )
         if not prediction_client.ready_to_predict:
             logging.info(
-                f"Project '{project_name}' is not ready to make predictions, likely "
+                f"Project '{project.name}' is not ready to make predictions, likely "
                 f"because one of the tasks in the task chain does not have a "
                 f"trained model yet. Aborting prediction."
             )
@@ -965,17 +956,17 @@ class Geti:
 
     def upload_and_predict_image(
         self,
-        project_name: str,
+        project: Project,
         image: Union[np.ndarray, Image, VideoFrame, str, os.PathLike],
         visualise_output: bool = True,
         delete_after_prediction: bool = False,
         dataset_name: Optional[str] = None,
     ) -> Tuple[Image, Prediction]:
         """
-        Upload a single image to a project named `project_name` on the Intel® Geti™
+        Upload a single image to a project on the Intel® Geti™
         server, and return a prediction for it.
 
-        :param project_name: Name of the project to upload the image to
+        :param project: Project object to upload the image to
         :param image: Image, numpy array representing an image, or filepath to an
             image to upload and get a prediction for
         :param visualise_output: True to show the resulting prediction, overlayed on
@@ -989,8 +980,6 @@ class Geti:
             - Image object representing the image that was uploaded
             - Prediction for the image
         """
-        project = self.get_project(project_name=project_name)
-
         # Get the dataset to upload to
         dataset: Optional[Dataset] = None
         if dataset_name is not None:
@@ -1030,7 +1019,7 @@ class Geti:
         )
         if not prediction_client.ready_to_predict:
             raise ValueError(
-                f"Project '{project_name}' is not ready to make predictions. At least "
+                f"Project '{project.name}' is not ready to make predictions. At least "
                 f"one of the tasks in the task chain does not have any models trained."
             )
         prediction = prediction_client.get_image_prediction(uploaded_image)
@@ -1048,21 +1037,21 @@ class Geti:
 
     def upload_and_predict_video(
         self,
-        project_name: str,
+        project: Project,
         video: Union[Video, str, os.PathLike, Union[Sequence[np.ndarray], np.ndarray]],
         frame_stride: Optional[int] = None,
         visualise_output: bool = True,
         delete_after_prediction: bool = False,
     ) -> Tuple[Video, MediaList[VideoFrame], List[Prediction]]:
         """
-        Upload a single video to a project named `project_name` on the Intel® Geti™
+        Upload a single video to a project on the Intel® Geti™
         server, and return a list of predictions for the frames in the video.
 
         The parameter 'frame_stride' is used to control the stride for frame
         extraction. Predictions are only generated for the extracted frames. So to
         get predictions for all frames, `frame_stride=1` can be passed.
 
-        :param project_name: Name of the project to upload the image to
+        :param project: Project object to upload the video to
         :param video: Video or filepath to a video to upload and get predictions for.
             Can also be a 4D numpy array or a list of 3D numpy arrays, shaped such
             that the array dimensions represent `frames x width x height x channels`,
@@ -1081,8 +1070,6 @@ class Geti:
               have been generated
             - List of Predictions for the Video
         """
-        project = self.get_project(project_name=project_name)
-
         # Upload the video
         video_client = VideoClient(
             session=self.session, workspace_id=self.workspace_id, project=project
@@ -1105,7 +1092,7 @@ class Geti:
         else:
             video_data = video
         if needs_upload:
-            logging.info(f"Uploading video to project '{project_name}'...")
+            logging.info(f"Uploading video to project '{project.name}'...")
             uploaded_video = video_client.upload_video(video=video_data)
         else:
             uploaded_video = video
@@ -1116,7 +1103,7 @@ class Geti:
         )
         if not prediction_client.ready_to_predict:
             raise ValueError(
-                f"Project '{project_name}' is not ready to make predictions. At least "
+                f"Project '{project.name}' is not ready to make predictions. At least "
                 f"one of the tasks in the task chain does not have any models trained."
             )
         if frame_stride is None:
@@ -1141,7 +1128,7 @@ class Geti:
 
     def deploy_project(
         self,
-        project_name: str,
+        project: Project,
         output_folder: Optional[Union[str, os.PathLike]] = None,
         models: Optional[Sequence[BaseModel]] = None,
         enable_explainable_ai: bool = False,
@@ -1156,7 +1143,7 @@ class Geti:
         for each task in the project. However, it is possible to specify a particular
         model to use, by passing it in the list of `models` as input to this method.
 
-        :param project_name: Name of the project to deploy
+        :param project: Project object to deploy
         :param output_folder: Path to a folder on local disk to which the Deployment
             should be downloaded. If no path is specified, the deployment will not be
             saved.
@@ -1174,8 +1161,6 @@ class Geti:
             launch an OVMS container serving the models.
         :return: Deployment for the project
         """
-        project = self.get_project(project_name=project_name)
-
         deployment_client = self._deployment_clients.get(project.id, None)
         if deployment_client is None:
             # Create deployment client and add to cache.
