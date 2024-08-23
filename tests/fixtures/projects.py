@@ -98,8 +98,8 @@ def fxt_project_finalizer(fxt_project_client: ProjectClient) -> Callable[[str], 
     :var project_name: Name of the project for which to add the finalizer
     """
 
-    def _project_finalizer(project_name: str, project_id: str) -> None:
-        force_delete_project(project_name, fxt_project_client, project_id)
+    def _project_finalizer(project: Project, project_id: str) -> None:
+        force_delete_project(project, fxt_project_client)
 
     return _project_finalizer
 
