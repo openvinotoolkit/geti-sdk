@@ -59,9 +59,7 @@ class TestBenchmarker:
         )
 
         # Assert
-        mock_get_project_by_name.assert_called_once_with(
-            project_name=project_name, project_id=None
-        )
+        mock_get_project_by_name.assert_called_once_with(project_name=project_name)
         mocked_model_client.assert_called_once()
         mocked_training_client.assert_called_once()
         assert benchmarker._is_single_task
@@ -120,9 +118,7 @@ class TestBenchmarker:
         )
 
         # Assert
-        mock_get_project_by_name.assert_called_once_with(
-            project_name=project_name, project_id=None
-        )
+        mock_get_project_by_name.assert_called_once_with(project_name=project_name)
         mock_image_client_get_all.assert_called_once()
         mocked_model_client.assert_called_once()
         model_client_object_mock.get_all_active_models.assert_called_once()
