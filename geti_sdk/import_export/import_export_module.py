@@ -75,7 +75,7 @@ class GetiIE:
 
         # Download project creation parameters:
         self.project_client.download_project_info(
-            project_name=project.name, path_to_folder=target_folder
+            project=project, path_to_folder=target_folder
         )
 
         # Download images
