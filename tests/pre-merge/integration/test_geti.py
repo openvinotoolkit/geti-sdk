@@ -209,7 +209,7 @@ class TestGeti:
             max_threads=1,
         )
 
-        request.addfinalizer(lambda: fxt_project_finalizer(project_name, project.id))
+        request.addfinalizer(lambda: fxt_project_finalizer(project))
 
     @pytest.mark.vcr()
     @pytest.mark.parametrize(
@@ -257,7 +257,7 @@ class TestGeti:
             enable_auto_train=False,
             max_threads=1,
         )
-        request.addfinalizer(lambda: fxt_project_finalizer(project_name, project.id))
+        request.addfinalizer(lambda: fxt_project_finalizer(project))
 
         all_labels = fxt_default_labels + ["block"]
         for label_name in all_labels:
@@ -304,9 +304,7 @@ class TestGeti:
             enable_auto_train=False,
             max_threads=1,
         )
-        request.addfinalizer(
-            lambda: fxt_project_finalizer(uploaded_project.name, uploaded_project.id)
-        )
+        request.addfinalizer(lambda: fxt_project_finalizer(uploaded_project))
         image_client = ImageClient(
             session=fxt_geti.session,
             workspace_id=fxt_geti.workspace_id,
