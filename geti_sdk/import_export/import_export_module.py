@@ -433,8 +433,7 @@ class GetiIE:
         logging.info(
             f"Project '{project_name}' was successfully imported from the dataset."
         )
-        imported_project = self.project_client.get_project_by_name(
-            project_name=project_name,
+        imported_project = self.project_client.get_project(
             project_id=job.metadata.project_id,
         )
         if imported_project is None:
@@ -479,8 +478,7 @@ class GetiIE:
         )
 
         job = monitor_job(session=self.session, job=job, interval=5)
-        imported_project = self.project_client.get_project_by_name(
-            project_name=project_name,
+        imported_project = self.project_client.get_project(
             project_id=job.metadata.project_id,
         )
         if imported_project is None:

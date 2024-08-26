@@ -498,7 +498,7 @@ class Benchmarker:
                 output_folder = os.path.join(working_directory, f"deployment_{index}")
                 with suppress_log_output():
                     self.geti.deploy_project(
-                        project_name=self.project.name,
+                        project=self.project,
                         output_folder=output_folder,
                         models=opt_models,
                     )
