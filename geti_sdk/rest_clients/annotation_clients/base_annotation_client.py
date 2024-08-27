@@ -158,9 +158,13 @@ class BaseAnnotationClient:
                 label_name = label.name
             project_label_name_to_label[label_name] = label
 
-        source_label_names = self.annotation_reader.get_all_label_names()
+        source_label_names = set(self.annotation_reader.get_all_label_names())
         source_label_name_to_project_label_id: Dict[str, str] = {}
-        for source_label_name in source_label_names:
+        # We include the project label names in the mapping, as we want to ensure that
+        # we can match the labels from the source to the project labels.
+        for source_label_name in source_label_names.union(
+            project_label_name_to_label.keys()
+        ):
             if source_label_name in project_label_name_to_label:
                 label_id = project_label_name_to_label[source_label_name].id
             elif (
