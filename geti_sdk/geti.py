@@ -1051,7 +1051,7 @@ class Geti:
         extraction. Predictions are only generated for the extracted frames. So to
         get predictions for all frames, `frame_stride=1` can be passed.
 
-        :param project: Project object to upload the video to
+        :param project: Project to upload the video to
         :param video: Video or filepath to a video to upload and get predictions for.
             Can also be a 4D numpy array or a list of 3D numpy arrays, shaped such
             that the array dimensions represent `frames x width x height x channels`,
