@@ -117,8 +117,8 @@ class ProjectClient:
         Get a project from the Intel® Geti™ server by project_name.
 
         If multiple projects with the same name exist on the server, this method will
-        raise a ValueError. In that case, please use the `ProjectClient.get_project()` method and provide a `project_id` to uniquely identify the project
-        project.
+        raise a ValueError. In that case, please use the `ProjectClient.get_project()`
+        method and provide a `project_id` to uniquely identify the project.
 
         :param project_name: Name of the project to get
         :raises: ValueError in case multiple projects with the specified name exist on

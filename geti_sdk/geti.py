@@ -263,12 +263,14 @@ class Geti:
         If no project by that name is found on the Intel® Geti™ server,
         this method will raise a KeyError.
 
-        :param project_name: Name of the project to retrieve
+        :param project_name: Name of the project to retrieve.
         :param project_id: ID of the project to retrieve. If not specified, the
             project with name `project_name` will be retrieved.
-        :param project: Project object to update. If not specified, the project with
-        :raises: KeyError if project named `project_name` is not found on the server
-        :return: Project identified by `project_name`
+        :param project: Project object to update. If provided, the associated `project_id`
+            will be used to update the project object.
+        :raises: KeyError if the project identified by one of the arguments is not found on the server
+        :raises: ValueError if there are several projects on the server named `project_name`
+        :return: Project identified by one of the arguments.
         """
         project = self.project_client.get_project(
             project_name=project_name, project_id=project_id, project=project
