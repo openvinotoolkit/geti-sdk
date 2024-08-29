@@ -123,28 +123,15 @@ class ImageClient(BaseMediaClient[Image]):
             downloaded. Otherwise, images with the same name will be skipped.
         :param max_threads: Maximum number of threads to use for downloading. Defaults to 10.
             Set to -1 to use all available threads.
-        :param dataset: Optional Dataset from which to download the images. If no dataset is provided, all images
-            from the project will be downloaded.
+        :param dataset: Dataset from which to download the images. If no dataset is provided,
+            images from all datasets are downloaded.
         """
-        if dataset is not None:
-            # Downloads images to path_to_folder/images/dataset_name
-            # This is in consistent with the _download_all method when number of datasets is greater than 1.
-            path_to_media_folder = os.path.join(
-                path_to_folder, self.plural_media_name, dataset.name
-            )
-            self._download_dataset(
-                dataset=dataset,
-                path_to_media_folder=path_to_media_folder,
-                append_media_uid=append_image_uid,
-                max_threads=max_threads,
-            )
-        else:
-            # Download all images in the dataset
-            self._download_all(
-                path_to_folder=path_to_folder,
-                append_media_uid=append_image_uid,
-                max_threads=max_threads,
-            )
+        self._download_all(
+            path_to_folder,
+            append_media_uid=append_image_uid,
+            max_threads=max_threads,
+            dataset=dataset,
+        )
 
     def upload_from_list(
         self,

@@ -14,6 +14,7 @@
 import logging
 import os
 import time
+import warnings
 from concurrent.futures import ThreadPoolExecutor
 from glob import glob
 from typing import (
@@ -351,7 +352,11 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         )
 
     def _download_all(
-        self, path_to_folder: str, append_media_uid: bool = False, max_threads: int = 10
+        self,
+        path_to_folder: str,
+        append_media_uid: bool = False,
+        max_threads: int = 10,
+        dataset: Optional[Dataset] = None,
     ) -> None:
         """
         Download all media entities in a project to a folder on the local disk.
@@ -365,28 +370,24 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         :return:
         """
         datasets = self._dataset_client.get_all_datasets()
-        if len(datasets) == 1:
-            # 1 dataset in project, do not split media in separate folder per dataset
-            path_to_media_folder = os.path.join(path_to_folder, self.plural_media_name)
+        if dataset is not None:
+            if dataset not in datasets:
+                warnings.warn(
+                    f"Dataset '{dataset.name}' not found in project '{self._project.name}'. "
+                    f"Skipping download for this dataset."
+                )
+                return
+            datasets = [dataset]
+        for dataset in datasets:
+            path_to_media_folder = os.path.join(
+                path_to_folder, self.plural_media_name, dataset.name
+            )
             self._download_dataset(
-                dataset=datasets[0],
+                dataset=dataset,
                 path_to_media_folder=path_to_media_folder,
                 append_media_uid=append_media_uid,
                 max_threads=max_threads,
             )
-        else:
-            # Multiple datasets in the project, create a subfolder for media in each
-            # dataset
-            for dataset in datasets:
-                path_to_media_folder = os.path.join(
-                    path_to_folder, self.plural_media_name, dataset.name
-                )
-                self._download_dataset(
-                    dataset=dataset,
-                    path_to_media_folder=path_to_media_folder,
-                    append_media_uid=append_media_uid,
-                    max_threads=max_threads,
-                )
 
     def _download_dataset(
         self,
