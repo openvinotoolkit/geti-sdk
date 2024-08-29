@@ -52,6 +52,12 @@ ANOMALY_CLASSIFICATION_TASK = {
     "labels": [],
 }
 
+ANOMALY_TASK = {
+    "title": "Anomaly task",
+    "task_type": "anomaly",
+    "labels": [],
+}
+
 ANOMALY_DETECTION_TASK = {
     "title": "Anomaly detection task",
     "task_type": "anomaly_detection",

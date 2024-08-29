@@ -26,6 +26,7 @@ DEFAULT_ALGORITHMS = {
     "anomaly_classification": "ote_anomaly_classification_padim",
     "anomaly_detection": "ote_anomaly_classification_padim",
     "anomaly_segmentation": "ote_anomaly_segmentation_padim",
+    "anomal": "ote_anomaly_classification_padim",
     "rotated_detection": "Custom_Rotated_Detection_via_Instance_Segmentation_MaskRCNN_ResNet50",
     "instance_segmentation": "Custom_Counting_Instance_Segmentation_MaskRCNN_ResNet50",
 }

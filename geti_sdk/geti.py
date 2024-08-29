@@ -552,6 +552,7 @@ class Geti:
             * anomaly_classification
             * anomaly_detection
             * anomaly_segmentation
+            * anomaly (new task - anomaly classification)
             * detection_oriented
             * detection_to_classification
             * detection_to_segmentation
@@ -595,6 +596,7 @@ class Geti:
             * anomaly_classification
             * anomaly_detection
             * anomaly_segmentation
+            * anomaly (new task - anomaly classification)
             * instance_segmentation
             * rotated_detection
 
@@ -641,7 +643,7 @@ class Geti:
                 if criterion == "XOR":
                     multilabel = False
                 labels = generate_classification_labels(labels, multilabel=multilabel)
-            elif project_type == "anomaly_classification":
+            elif project_type == "anomaly_classification" or project_type == "anomaly":
                 labels = ["Normal", "Anomalous"]
 
         # Create project
