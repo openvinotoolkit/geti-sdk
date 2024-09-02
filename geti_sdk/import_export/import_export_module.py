@@ -184,9 +184,7 @@ class GetiIE:
         dataset_client = DatasetClient(
             workspace_id=self.workspace_id, session=self.session, project=project
         )
-        if len(project.datasets) == 1 or not dataset_client.has_dataset_subfolders(
-            target_folder
-        ):
+        if not dataset_client.has_dataset_subfolders(target_folder):
             # Upload all media directly to the training dataset
             images = image_client.upload_folder(
                 path_to_folder=os.path.join(target_folder, "images"),
