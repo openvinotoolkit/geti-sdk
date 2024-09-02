@@ -127,7 +127,7 @@ class TestImageClient:
         image_client.download_all(target_dir, max_threads=1)
 
         # Assert that all images are downloaded
-        downloaded_filenames = os.listdir(os.path.join(target_dir, "images"))
+        downloaded_filenames = os.listdir(os.path.join(target_dir, "images", "Dataset"))
         assert len(downloaded_filenames) == n_images + len(images)
         for image in images + old_images:
             assert image.name + ".jpg" in downloaded_filenames
