@@ -42,7 +42,7 @@ feeling for use cases for the package.
 
 ## Installation
 Using an environment manager such as
-[Anaconda](https://www.anaconda.com/products/individual) or
+[miniforge](https://github.com/conda-forge/miniforge) or
 [venv](https://docs.python.org/3/library/venv.html) to create a new
 Python environment before installing the Intel® Geti™ SDK and its requirements is
 highly recommended.
