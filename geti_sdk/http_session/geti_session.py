@@ -117,12 +117,15 @@ class GetiSession(requests.Session):
         """
         Return the type of the GETi platform service.
         """
-        deployment_config_response = self.request(
-            url=f"{self.config.host}/deployment-config.json",
-            method="GET",
-            proxies=self._proxies,
-        ).json()
-        serving_mode = deployment_config_response.get("servingMode").lower()
+        try:
+            deployment_config_response = self.request(
+                url=f"{self.config.host}/deployment-config.json",
+                method="GET",
+                proxies=self._proxies,
+            ).json()
+            serving_mode = deployment_config_response.get("servingMode").lower()
+        except requests.exceptions.JSONDecodeError:
+            return ONPREM_MODE
         if serving_mode == "on-prem":
             return ONPREM_MODE
         elif serving_mode == "saas":
@@ -604,6 +607,15 @@ class GetiSession(requests.Session):
             raise ValueError(
                 "The cluster responded to the request, but authentication failed. "
                 "Please verify that you have provided correct credentials."
+            )
+        elif response.status_code == 404:
+            raise ValueError(
+                "Unable to authenticate with the Intel Geti server. The authentication "
+                "mechanism you are trying to use is no longer supported. This error "
+                "indicates that the Intel® Geti™ server version is not supported by "
+                "this version of the Intel Geti SDK package. Please update the "
+                "Intel® Geti™ server to version 2.0 or later, or use a previous "
+                "version of the SDK."
             )
         else:
             raise GetiRequestException(

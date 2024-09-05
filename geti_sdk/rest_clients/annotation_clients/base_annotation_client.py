@@ -33,6 +33,7 @@ from geti_sdk.data_models import (
     VideoFrame,
 )
 from geti_sdk.data_models.containers.media_list import MediaList
+from geti_sdk.data_models.label import Label
 from geti_sdk.data_models.media import MediaInformation, MediaItem
 from geti_sdk.data_models.project import Dataset
 from geti_sdk.http_session import GetiSession
@@ -108,7 +109,7 @@ class BaseAnnotationClient:
 
         url = (
             f"workspaces/{self.workspace_id}/projects/{self._project.id}"
-            f"/datasets/{dataset.id}/media:query?top=500"
+            f"/datasets/{dataset.id}/media:query?limit=100"
         )
         data = {
             "condition": "and",
@@ -130,7 +131,8 @@ class BaseAnnotationClient:
             if "next_page" in response.keys():
                 response = self.session.get_rest_response(
                     url=response["next_page"],
-                    method="GET",
+                    method="POST",
+                    data=data,
                     include_organization_id=False,
                 )
         return MediaList.from_rest_list(
@@ -145,18 +147,42 @@ class BaseAnnotationClient:
         :return: Dictionary containing the label names as keys and the label ids as
             values
         """
-        source_label_names = self.annotation_reader.get_all_label_names()
-        project_label_mapping = project.pipeline.label_id_to_name_mapping
-        project_label_name_to_id_mapping = {
-            name: id_ for (id_, name) in project_label_mapping.items()
-        }
-        for source_label_name in source_label_names:
-            if source_label_name not in project_label_name_to_id_mapping:
+        project_label_name_to_label: Dict[str, Label] = {}
+        for label in project.pipeline.get_all_labels():
+            if label.is_empty:
+                # We perform a casefold on the label name to ensure that we can match
+                # the empy labels from projects created in older versions of the
+                # Intel Geti platform.
+                label_name = label.name.casefold()
+            else:
+                label_name = label.name
+            project_label_name_to_label[label_name] = label
+
+        source_label_names = set(self.annotation_reader.get_all_label_names())
+        source_label_name_to_project_label_id: Dict[str, str] = {}
+        # We include the project label names in the mapping, as we want to ensure that
+        # we can match the labels from the source to the project labels.
+        for source_label_name in source_label_names.union(
+            project_label_name_to_label.keys()
+        ):
+            if source_label_name in project_label_name_to_label:
+                label_id = project_label_name_to_label[source_label_name].id
+            elif (
+                source_label_name.casefold() in project_label_name_to_label
+                and project_label_name_to_label[source_label_name.casefold()].is_empty
+            ):
+                label_id = project_label_name_to_label[source_label_name.casefold()].id
+            else:
                 raise ValueError(
                     f"Found label {source_label_name} in source labels, but this "
                     f"label is not in the project labels."
                 )
-        return project_label_name_to_id_mapping
+            if label_id is None:
+                raise ValueError(
+                    f"Unable to find label id for label {source_label_name}."
+                )
+            source_label_name_to_project_label_id[source_label_name] = label_id
+        return source_label_name_to_project_label_id
 
     @property
     def label_mapping(self) -> Dict[str, str]:

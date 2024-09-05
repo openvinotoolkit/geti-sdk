@@ -11,13 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+import logging
 import os
 from typing import Any, Dict, List, Optional, Tuple
+import warnings
 
 from geti_sdk.data_models import Dataset, Image, Model, Project, VideoFrame
 from geti_sdk.data_models.containers import MediaList
 from geti_sdk.http_session import GetiSession
 from geti_sdk.rest_converters import MediaRESTConverter
+from geti_sdk.http_session.exception import GetiRequestException
 from geti_sdk.utils import deserialize_dictionary
 
 
@@ -48,6 +51,30 @@ class DatasetClient:
         dataset = deserialize_dictionary(response, output_type=Dataset)
         self.project.datasets.append(dataset)
         return dataset
+
+    def delete_dataset(self, dataset: Dataset) -> None:
+        """
+        Delete provided dataset inside the project.
+
+        :param dataset: Dataset to delete
+        """
+        try:
+            response = self.session.get_rest_response(
+                url=self.base_url + f"/{dataset.id}",
+                method="DELETE",
+            )
+        except GetiRequestException as error:
+            if error.status_code == 404:
+                warnings.warn(
+                    f"Dataset with name `{dataset.name}` was not found in the project. "
+                    "Please make sure that the dataset you are trying to delete exists."
+                )
+            else:
+                raise error
+        if isinstance(response, dict) and response.get("result", None) == "success":
+            logging.info(f"Dataset `{dataset.name}` was successfully deleted.")
+        else:
+            logging.error(f"Failed to delete dataset `{dataset.name}`.")
 
     def get_all_datasets(self) -> List[Dataset]:
         """
