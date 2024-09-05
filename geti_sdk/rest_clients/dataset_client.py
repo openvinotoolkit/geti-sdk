@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import os
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
-from geti_sdk.data_models import Dataset, Project
+from geti_sdk.data_models import Dataset, Image, Model, Project, VideoFrame
+from geti_sdk.data_models.containers import MediaList
 from geti_sdk.http_session import GetiSession
+from geti_sdk.rest_converters import MediaRESTConverter
 from geti_sdk.utils import deserialize_dictionary
 
 
@@ -130,3 +132,82 @@ class DatasetClient:
             if not os.path.isdir(os.path.join(path_to_folder, dataset.name)):
                 return False
         return True
+
+    def get_training_dataset_summary(self, model: Model) -> Dict[str, Any]:
+        """
+        Return information concerning the training dataset for the `model`.
+        This includes the number of images and video frames, and the statistics for
+        the subset splitting (i.e. the number of training, test and validation
+        images/video frames)
+
+        :param model: Model to get the training dataset for
+        :return: Dictionary containing the training dataset info for the model
+        """
+        ds_info = model.training_dataset_info
+        dataset_storage_id = ds_info.get("dataset_storage_id", None)
+        revision_id = ds_info.get("dataset_revision_id", None)
+        if dataset_storage_id is None or revision_id is None:
+            raise ValueError(
+                f"Unable to fetch the required dataset information from the model. "
+                f"Expected dataset and revision id's, got {ds_info} instead."
+            )
+        training_dataset = self.session.get_rest_response(
+            url=f"{self.base_url}/{dataset_storage_id}/training_revisions/{revision_id}",
+            method="GET",
+        )
+        return training_dataset
+
+    def get_training_dataset(
+        self, model: Model, subset: str = "training"
+    ) -> Tuple[MediaList[Image], MediaList[VideoFrame]]:
+        """
+        Return the media in the training dataset for the `model`, for
+        the specified `subset`. Subset can be `training`, `validation` or `testing`.
+
+        """
+        ds_info = model.training_dataset_info
+        dataset_storage_id = ds_info.get("dataset_storage_id", None)
+        revision_id = ds_info.get("dataset_revision_id", None)
+        if dataset_storage_id is None or revision_id is None:
+            raise ValueError(
+                f"Unable to fetch the required dataset information from the model. "
+                f"Expected dataset and revision id's, got {ds_info} instead."
+            )
+        post_data = {
+            "condition": "and",
+            "rules": [{"field": "subset", "operator": "equal", "value": subset}],
+        }
+
+        images: MediaList[Image] = MediaList([])
+        video_frames: MediaList[VideoFrame] = MediaList([])
+
+        next_page = f"{self.base_url}/{dataset_storage_id}/training_revisions/{revision_id}/media:query"
+        while next_page:
+            response = self.session.get_rest_response(
+                url=next_page, method="POST", data=post_data
+            )
+            next_page = response.get("next_page", None)
+            for item in response["media"]:
+                if item["type"] == "image":
+                    item.pop("annotation_scene_id", None)
+                    item.pop("editor_name", None)
+                    item.pop("roi_id", None)
+                    image = MediaRESTConverter.from_dict(item, Image)
+                    images.append(image)
+
+                if item["type"] == "video":
+                    video_id = item["id"]
+                    frame_page = f"{self.base_url}/{dataset_storage_id}/training_revisions/{revision_id}/media/videos/{video_id}:query"
+                    while frame_page:
+                        frames_response = self.session.get_rest_response(
+                            url=frame_page, method="POST", data=post_data
+                        )
+                        for frame in frames_response["media"]:
+                            frame["video_id"] = video_id
+                            video_frame = MediaRESTConverter.from_dict(
+                                frame, VideoFrame
+                            )
+                            video_frames.append(video_frame)
+                        frame_page = frames_response.get("next_page", None)
+
+        return images, video_frames
