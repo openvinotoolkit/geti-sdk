@@ -15,6 +15,7 @@ from typing import List
 
 import pytest
 
+from geti_sdk.http_session.exception import GetiRequestException
 from geti_sdk.rest_clients import DatasetClient
 from tests.helpers import ProjectService
 from tests.helpers.constants import PROJECT_PREFIX
@@ -55,3 +56,37 @@ class TestDatasetClient:
             assert dataset in new_datasets
         test_dataset_by_name = dataset_client.get_dataset_by_name(test_dataset_name)
         assert test_dataset == test_dataset_by_name
+
+    @pytest.mark.vcr()
+    def test_delete_dataset(self, fxt_project_service: ProjectService) -> None:
+        """
+        Verifies that deleting a dataset in an existing project works
+        """
+        # Arrange
+        project = fxt_project_service._project
+        dataset_client = DatasetClient(
+            session=fxt_project_service.session,
+            workspace_id=fxt_project_service.workspace_id,
+            project=project,
+        )
+        old_datasets = dataset_client.get_all_datasets()
+        test_dataset_name = "test_dataset"
+        test_dataset = dataset_client.get_dataset_by_name(test_dataset_name)
+
+        # Act
+        # Delete existing dataset
+        dataset_client.delete_dataset(dataset=test_dataset)
+        # Delete non-existing dataset
+        with pytest.raises(GetiRequestException):
+            # Currently the server returns 400 for non-existing dataset
+            # When fixed it would return 404 and the test should be fixed to expect a warning
+            dataset_client.delete_dataset(dataset=test_dataset)
+
+        # Assert
+        new_datasets = dataset_client.get_all_datasets()
+        assert test_dataset in old_datasets
+        for dataset in old_datasets:
+            if dataset != test_dataset:
+                assert dataset in new_datasets
+            else:
+                assert dataset not in new_datasets

@@ -22,6 +22,7 @@ import numpy as np
 from model_api.models.utils import (
     AnomalyResult,
     ClassificationResult,
+    Detection,
     DetectionResult,
     ImageResultWithSoftPrediction,
     InstanceSegmentationResult,
@@ -38,9 +39,6 @@ from geti_sdk.data_models.shapes import (
     Polygon,
     Rectangle,
     RotatedRectangle,
-)
-from geti_sdk.deployment.predictions_postprocessing.utils.detection_utils import (
-    detection2array,
 )
 from geti_sdk.deployment.predictions_postprocessing.utils.segmentation_utils import (
     create_annotation_from_segmentation_map,
@@ -117,7 +115,7 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
             )
 
         if not labels and self.empty_label:
-            labels = [ScoredLabel.from_label(self.empty_label, probability=1.0)]
+            labels = [ScoredLabel.from_label(self.empty_label, probability=0)]
 
         annotations = Annotation(
             shape=Rectangle.generate_full_box(image_shape[1], image_shape[0]),
@@ -171,6 +169,28 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
             if "confidence_threshold" in configuration:
                 self.confidence_threshold = configuration["confidence_threshold"]
 
+    def _detection2array(self, detections: List[Detection]) -> np.ndarray:
+        """
+        Convert list of OpenVINO Detection to a numpy array.
+
+        :param detections: list of OpenVINO Detection containing [score, id, xmin, ymin, xmax, ymax]
+        :return: numpy array with [label, confidence, x1, y1, x2, y2]
+        """
+        scores = np.empty((0, 1), dtype=np.float32)
+        labels = np.empty((0, 1), dtype=np.uint32)
+        boxes = np.empty((0, 4), dtype=np.float32)
+        for det in detections:
+            if (det.xmax - det.xmin) * (det.ymax - det.ymin) < 1.0:
+                continue
+            scores = np.append(scores, [[det.score]], axis=0)
+            labels = np.append(labels, [[det.id]], axis=0)
+            boxes = np.append(
+                boxes,
+                [[float(det.xmin), float(det.ymin), float(det.xmax), float(det.ymax)]],
+                axis=0,
+            )
+        return np.concatenate((labels, scores, boxes), -1)
+
     def convert_to_prediction(
         self, inference_results: DetectionResult, **kwargs
     ) -> Prediction:
@@ -185,7 +205,7 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
             - `x1`, `x2`, `y1` and `y2` are expected to be in pixel
         :return: Prediction object containing the boxes obtained from the prediction
         """
-        detections = detection2array(inference_results.objects)
+        detections = self._detection2array(inference_results.objects)
 
         annotations = []
         if (
@@ -551,7 +571,7 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
             )
         if not annotations:
             scored_label = ScoredLabel.from_label(
-                label=self.normal_label, probability=1.0
+                label=self.normal_label, probability=0
             )
             annotations = [
                 Annotation(

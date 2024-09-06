@@ -295,7 +295,7 @@ class TestGeti:
         assert os.path.isdir(target_folder)
         assert "project.json" in os.listdir(target_folder)
 
-        n_images = len(os.listdir(os.path.join(target_folder, "images")))
+        n_images = len(os.listdir(os.path.join(target_folder, "images", "Dataset")))
         n_annotations = len(os.listdir(os.path.join(target_folder, "annotations")))
 
         uploaded_project = fxt_geti.upload_project_data(
@@ -330,7 +330,7 @@ class TestGeti:
                 workspace_id=fxt_geti.workspace_id,
                 project=uploaded_project,
             )
-            n_videos = len(os.listdir(os.path.join(target_folder, "videos")))
+            n_videos = len(os.listdir(os.path.join(target_folder, "videos", "Dataset")))
             videos = video_client.get_all_videos()
 
             assert len(videos) == n_videos

@@ -220,7 +220,7 @@ class Geti:
                 f"The Intel® Geti™ server version {platform_version} is newer than "
                 f"the Geti SDK version {self.sdk_version}. Some features may not be "
                 "supported and you may encounter errors.\n"
-                "Please update the Intel Geti SDK to the latest version"
+                "Please update the Intel Geti SDK to the latest version "
                 "with `pip install --upgrade geti-sdk`."
             )
         # Check if the platform version is older than the last supported version

@@ -28,36 +28,6 @@ Contour = List[Tuple[float, float]]
 ContourInternal = Optional[List[Tuple[float, float]]]
 
 
-def create_hard_prediction_from_soft_prediction(
-    soft_prediction: np.ndarray, soft_threshold: float, blur_strength: int = 5
-) -> np.ndarray:
-    """
-    Create a hard prediction containing the final label index per pixel.
-
-    :param soft_prediction: Output from segmentation network. Assumes floating point values, between 0.0 and 1.0.
-        Can be a 2d-array of shape (height, width) or per-class segmentation logits of shape (height, width, n_classes)
-    :param soft_threshold: minimum class confidence for each pixel.
-        The higher the value, the more strict the segmentation is (usually set to 0.5)
-    :param blur_strength: The higher the value, the smoother the segmentation output will be, but less accurate
-    :return: numpy array of the hard prediction
-    """
-    soft_prediction_blurred = cv2.blur(soft_prediction, (blur_strength, blur_strength))
-    if len(soft_prediction.shape) == 3:
-        # Apply threshold to filter out `unconfident` predictions, then get max along
-        # class dimension
-        soft_prediction_blurred[soft_prediction_blurred < soft_threshold] = 0
-        hard_prediction = np.argmax(soft_prediction_blurred, axis=2)
-    elif len(soft_prediction.shape) == 2:
-        # In the binary case, simply apply threshold
-        hard_prediction = soft_prediction_blurred > soft_threshold
-    else:
-        raise ValueError(
-            f"Invalid prediction input of shape {soft_prediction.shape}. "
-            f"Expected either a 2D or 3D array."
-        )
-    return hard_prediction
-
-
 def get_subcontours(contour: Contour) -> List[Contour]:
     """
     Split contour into sub-contours that do not have self intersections.

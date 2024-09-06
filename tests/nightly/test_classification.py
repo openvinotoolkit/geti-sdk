@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+import os
+
 import pandas as pd
 from test_nightly_project import TestNightlyProject
 
@@ -68,4 +70,117 @@ class TestClassification(TestNightlyProject):
         pd.DataFrame(results)
         benchmarker.compare_predictions(
             working_directory=fxt_temp_directory, throughput_benchmark_results=results
+        )
+
+    def test_export_import_project(
+        self,
+        fxt_project_service_no_vcr: project_service,
+        fxt_geti_no_vcr: Geti,
+        fxt_temp_directory: str,
+    ):
+        """
+        Tests export import loop for the project.
+        """
+        project = fxt_project_service_no_vcr.project
+        target_folder = os.path.join(fxt_temp_directory, project.name + "_snapshot")
+        archive_path = target_folder + "/project_archive.zip"
+        imported_project_name = "IMPORTED_PROJECT"
+
+        # Project is exported
+        assert not os.path.exists(archive_path)
+        fxt_geti_no_vcr.export_project(
+            project_name=project.name, project_id=project.id, filepath=archive_path
+        )
+        assert os.path.exists(archive_path)
+
+        # Project is imported
+        existing_projects_pre_import = fxt_geti_no_vcr.project_client.get_all_projects(
+            get_project_details=False
+        )
+        # Import
+        imported_project = fxt_geti_no_vcr.import_project(
+            filepath=archive_path, project_name=imported_project_name
+        )
+        assert imported_project.name == imported_project_name
+        existing_projects = fxt_geti_no_vcr.project_client.get_all_projects(
+            get_project_details=False
+        )
+        # Assert the imported project is NOT in the project list before the import
+        assert (
+            next(
+                (
+                    p
+                    for p in existing_projects_pre_import
+                    if p.id == imported_project.id
+                ),
+                None,
+            )
+            is None
+        )
+        # Assert the imported project is in the project list after the import
+        assert (
+            next((p for p in existing_projects if p.id == imported_project.id), None)
+            is not None
+        )
+        # Project is deleted
+        fxt_geti_no_vcr.project_client.delete_project(
+            imported_project, requires_confirmation=False
+        )
+
+    def test_export_import_dataset(
+        self,
+        fxt_project_service_no_vcr: project_service,
+        fxt_geti_no_vcr: Geti,
+        fxt_temp_directory: str,
+    ):
+        """
+        Tests export import loop for a dataset.
+        """
+        project = fxt_project_service_no_vcr.project
+        assert project.datasets
+        dataset = project.datasets[0]
+        target_folder = os.path.join(fxt_temp_directory, project.name + "_snapshot")
+        archive_path = target_folder + "/dataset_archive.zip"
+        imported_project_name = "IMPORTED_PROJECT_FROM_DATASET"
+
+        # Dataset is exported
+        assert not os.path.exists(archive_path)
+        fxt_geti_no_vcr.export_dataset(
+            project=project, dataset=dataset, filepath=archive_path
+        )
+        assert os.path.exists(archive_path)
+        # Dataset is imported as a project
+        existing_projects_pre_import = fxt_geti_no_vcr.project_client.get_all_projects(
+            get_project_details=False
+        )
+        # Import
+        imported_project = fxt_geti_no_vcr.import_dataset(
+            filepath=archive_path,
+            project_name=imported_project_name,
+            project_type=project.project_type,
+        )
+        assert imported_project.name == imported_project_name
+        existing_projects = fxt_geti_no_vcr.project_client.get_all_projects(
+            get_project_details=False
+        )
+        # Assert the imported project is NOT in the project list before the import
+        assert (
+            next(
+                (
+                    p
+                    for p in existing_projects_pre_import
+                    if p.id == imported_project.id
+                ),
+                None,
+            )
+            is None
+        )
+        # Assert the imported project is in the project list after the import
+        assert (
+            next((p for p in existing_projects if p.id == imported_project.id), None)
+            is not None
+        )
+        # Project is deleted
+        fxt_geti_no_vcr.project_client.delete_project(
+            imported_project, requires_confirmation=False
         )
