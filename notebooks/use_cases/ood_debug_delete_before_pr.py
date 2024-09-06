@@ -47,7 +47,12 @@ model_client = ModelClient(
 
 deployment = get_deployment_with_xai_head(geti=geti, model_client=model_client)
 
-ood_model = COODModel(geti=geti, project=project, deployment=deployment)
+ood_model = COODModel(
+    geti=geti,
+    project=project,
+    deployment=deployment,
+    ood_images_dir="/Users/rgangire/workspace/Results/SDK/data/ood_images",
+)
 
 trigger = OODTrigger(
     ood_model=ood_model,
