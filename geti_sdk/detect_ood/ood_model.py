@@ -171,7 +171,7 @@ class COODModel:
 
         self.ood_classifier = None  # The COOD random forest classifier
 
-        self.train_test_split = 0.9  # The ratio of train-test split
+        self.train_test_split = 0.90  # The ratio of train-test split
 
         if isinstance(project, str):
             project_name = project
@@ -621,6 +621,8 @@ class COODModel:
         param source: Dataset or directory containing images. If a dataset is provided, the images and annotations are
         downloaded from the dataset. If a directory is provided, the images are read from the directory.
         """
+        valid_extensions = (".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tiff")
+
         if isinstance(source, Dataset):
 
             media_list = self.image_client.get_all_images(dataset=source)
@@ -646,9 +648,13 @@ class COODModel:
                 for media in media_list
             ]
         else:
+            # Find all the images in the directory
             image_paths = [
-                os.path.join(source, file_name) for file_name in os.listdir(source)
+                os.path.join(source, image_name)
+                for image_name in os.listdir(source)
+                if image_name.lower().endswith(valid_extensions)
             ]
+
             annotation_files = [None] * len(image_paths)
 
         distribution_data_items = []
