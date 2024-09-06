@@ -52,7 +52,8 @@ ood_model = COODModel(
     geti=geti,
     project=project,
     deployment=deployment,
-    ood_images_dir="/Users/rgangire/workspace/Results/SDK/data/ood_images",
+    ood_images_dir="/Users/rgangire/workspace/Results/SDK/data/ood_near",
+    workspace_dir="/Users/rgangire/workspace/Results/SDK/COOD_MODEL_WS",
 )
 
 trigger = OODTrigger(
