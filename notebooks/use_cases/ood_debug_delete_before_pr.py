@@ -11,10 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
-
-
-# This is a script just to test the OOD trigger. This will be deleted after testing.
-# A notebook will be made to showcase the usage of OOD trigger.
+import os
 
 import cv2
 
@@ -28,6 +25,10 @@ from geti_sdk.post_inference_hooks import (
 )
 from geti_sdk.rest_clients import ModelClient, ProjectClient
 from geti_sdk.utils import get_server_details_from_env
+
+# This is a script just to test the OOD trigger. This will be deleted after testing.
+# A notebook will be made to showcase the usage of OOD trigger.
+
 
 geti_server_configuration = get_server_details_from_env(
     env_file_path="/Users/rgangire/workspace/code/repos/Geti-SDK/dev/geti-sdk/notebooks/use_cases/.env"
@@ -70,8 +71,13 @@ geti_hook = PostInferenceHook(
 ood_model.deployment.add_post_inference_hook(hook=geti_hook)
 # dummy_imgae_path = "/Users/rgangire/workspace/Results/SDK/data/ood_images/Black_And_White_Warbler_0001_160352_669e4d1f62ebb5f7b69f97ad.jpg"
 # dummy_imgae_path = "/Users/rgangire/workspace/Results/SDK/data/images/Black_And_White_Warbler_0001_160352_669e4d1f62ebb5f7b69f97ad.jpg"
-dummy_imgae_path = "/Users/rgangire/workspace/data/CUB_200_2011/CUB_200_2011/images/010.Red_winged_Blackbird/Red_Winged_Blackbird_0001_3695.jpg"
-img = cv2.imread(dummy_imgae_path)
-img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-prediction = ood_model.deployment.explain(image=img)
+# dummy_imgae_path = "/Users/rgangire/workspace/data/CUB_200_2011/CUB_200_2011/images/010.Red_winged_Blackbird/Red_Winged_Blackbird_0001_3695.jpg"
+ood_dir = "/Users/rgangire/workspace/Results/SDK/data/TestOOD"
+for img_file in os.listdir(ood_dir):
+    img_path = os.path.join(ood_dir, img_file)
+    img = cv2.imread(img_path)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    prediction = ood_model.deployment.explain(image=img)
+    probability = prediction.annotations[0].labels[0].probability
+    label = prediction.annotations[0].labels[0].name
+    print(f"Image: {img_file}, Label: {label}, Probability: {probability}")
