@@ -91,13 +91,12 @@ def stratified_selection(
     :param fraction: Fraction of the dataset to keep.
     :param min_samples_per_class: Minimum number of samples to keep per class. Note that a very small value for
     "fraction" can sometimes make a class empty. To avoid this, we keep a minimum number of samples per class.
-    :return: Subsampled data points and labels
+    :return: Indices of the data points to keep in the reduced split
     """
     # TODO[ood]: Yet to be tested. Not used yet
     # stratified sampling from train_labels
 
-    selected_labels = []
-    selected_features = []
+    selected_data_indices = []
 
     samples = x
     labels = y
@@ -125,10 +124,9 @@ def stratified_selection(
             label_indices, n_samples_to_keep, replace=False
         )
         # Append selected samples and labels
-        selected_labels.extend(labels[selected_indices])
-        selected_features.extend(samples[selected_indices])
+        selected_data_indices.extend(selected_indices)
 
-    return selected_features, selected_labels
+    return selected_data_indices
 
 
 def fre_score(feature_vectors: np.ndarray, pca_model: PCA) -> np.ndarray:
