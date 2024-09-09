@@ -927,6 +927,8 @@ class ClassFREBasedModel(OODSubModel):
             raise ValueError(
                 "Model is not trained. Please train the model first before calling."
             )
+
+        num_data_items = len(data_items)
         features = np.array([item.feature_vector for item in data_items])
         fre_scores_per_class = {}
         # class_fre_models is a dict with label name and pca model.
@@ -941,16 +943,26 @@ class ClassFREBasedModel(OODSubModel):
             [fre_scores_per_class[label][i] for i, label in enumerate(predicted_labels)]
         )
 
-        # FRE Score # 2 - Calculating the maximum FRE score across all classes
-        max_fre_scores = np.ndarray(len(features))
-        for k in range(len(features)):
-            max_fre_scores[k] = max(
-                [fre_scores_per_class[label][k] for label in fre_scores_per_class]
+        # FRE Score # 2 - Calculating the minimum FRE score across all classes
+
+        min_fre_scores = np.zeros(num_data_items)
+        # For each data point, find the minimum FRE score across all classes (labels)
+        for i in range(num_data_items):
+            min_fre_scores[i] = np.min(
+                [fre_scores_per_class[label][i] for label in fre_scores_per_class]
             )
 
+        # Note - It is observed that the minimum FRE scores are almost always same as the FRE scores for the predicted
+        # class i.e., the predicted class is the class with minimum fre score.
+        # However, this is true largely for ID images (99.95% of example data points).
+        # For OOD images, this applies, but less frequently (78.3% of example data points).
+        # Therefore, the difference of the two scores can also be considered as a "feature"
+
         return {
-            "class_fre_score": max_fre_scores,
+            "min_class_fre_score": min_fre_scores,
             "predicted_class_fre_score": fre_scores_for_predicted_class,
+            "diff_min_and_predicted_class_fre": 1e-8
+            + (fre_scores_for_predicted_class - min_fre_scores),
         }
 
 
