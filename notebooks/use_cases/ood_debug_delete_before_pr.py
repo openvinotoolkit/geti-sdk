@@ -56,12 +56,14 @@ ood_model = COODModel(
     workspace_dir="/Users/rgangire/workspace/Results/SDK/COOD_MODEL_WS",
 )
 
-trigger = OODTrigger(
-    ood_model=ood_model,
-)
+trigger = OODTrigger(ood_model=ood_model, threshold=ood_model.best_thresholds["fscore"])
 
 action = FileSystemDataCollection(
-    target_folder="/Users/rgangire/workspace/Results/SDK/data/CollectedImages"
+    target_folder="/Users/rgangire/workspace/Results/SDK/data/CollectedImages",
+    file_name_prefix="OOD",
+    save_predictions=False,
+    save_scores=False,
+    save_overlays=False,
 )
 
 geti_hook = PostInferenceHook(
