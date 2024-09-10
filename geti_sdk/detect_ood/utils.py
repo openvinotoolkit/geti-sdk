@@ -93,9 +93,6 @@ def stratified_selection(
     "fraction" can sometimes make a class empty. To avoid this, we keep a minimum number of samples per class.
     :return: Indices of the data points to keep in the reduced split
     """
-    # TODO[ood]: Yet to be tested. Not used yet
-    # stratified sampling from train_labels
-
     selected_data_indices = []
 
     samples = x

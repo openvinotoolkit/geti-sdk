@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+import itertools
 import json
 import logging
 import os
@@ -23,6 +24,14 @@ from typing import List, Union
 import cv2
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    precision_recall_curve,
+    roc_auc_score,
+    roc_curve,
+)
+from sklearn.model_selection import train_test_split
 from tqdm.auto import tqdm
 
 from geti_sdk import Geti
@@ -41,7 +50,6 @@ from .utils import (
     normalise_features,
     perform_knn_indexing,
     perform_knn_search,
-    stratified_selection,
 )
 
 # Names of the Geti datasets that are used as reference/training data for the COOD model, if available
@@ -52,10 +60,11 @@ OOD_DATASET_NAMES = ["OOD reference dataset"]
 class DistributionDataItemPurpose(Enum):
     """
     Enum to represent the purpose of the DistributionDataItem.
-    This is used during splitting of the data into TRAIN or TEST
+    This is used during splitting of the data into TRAIN, VAL, TEST
     """
 
     TRAIN = "train"
+    VAL = "val"
     TEST = "test"
 
 
@@ -171,7 +180,15 @@ class COODModel:
 
         self.ood_classifier = None  # The COOD random forest classifier
 
-        self.train_test_split = 0.90  # The ratio of train-test split
+        # Initial values for the best thresholds for the COOD model.
+        # Once the model is trained, these are updated based on a small validation set
+        self.best_thresholds = {
+            "fscore": 0.5,
+            "tpr_at_1_fpr": 0.5,
+            "tpr_at_5_fpr": 0.5,
+        }
+        self._thresholds_prefix = "threshold_"
+        self.train_test_split_ratio = 0.7  # The ratio of train-test split
 
         if isinstance(project, str):
             project_name = project
@@ -249,55 +266,35 @@ class COODModel:
         # the test split. This accuracy is indicated to the user and if a user feels the accuracy is too low,
         # they can create a new COOD model with more/better data.
 
-        self._split_data(
+        train_id_data, test_id_data = self._split_data(
             data=self.id_distribution_data,
             stratified=True,
-            split_ratio=self.train_test_split,
+            split_ratio=self.train_test_split_ratio,
         )
-        self._split_data(
+        train_ood_data, test_ood_data = self._split_data(
             data=self.ood_distribution_data,
             stratified=False,
-            split_ratio=self.train_test_split,
+            split_ratio=self.train_test_split_ratio,
         )
 
-        # A dict consisting smaller OOD models (FRE, EnWeDi, etc)
+        # A dict consisting of smaller OOD models (FRE, EnWeDi, etc)
         self.sub_models = {
             "knn_based": KNNBasedOODModel(knn_k=10),
-            "class_fre": ClassFREBasedModel(n_components=0.995),
-            "global_fre": GlobalFREBasedModel(n_components=0.995),
+            # "class_fre": ClassFREBasedModel(n_components=0.90),
+            # "global_fre": GlobalFREBasedModel(n_components=0.90),
             "max_softmax_probability": ProbabilityBasedModel(),
         }
 
-        train_id_data = [
-            item
-            for item in self.id_distribution_data
-            if item.purpose == DistributionDataItemPurpose.TRAIN
-        ]
-
-        train_ood_data = [
-            item
-            for item in self.ood_distribution_data
-            if item.purpose == DistributionDataItemPurpose.TRAIN
-        ]
-
-        self._train(train_id_data=train_id_data, train_ood_data=train_ood_data)
+        self._train_cood_model(id_data=train_id_data, ood_data=train_ood_data)
         logging.info("COOD Model is trained and ready for inference.")
 
-        test_id_data = [
-            item
-            for item in self.id_distribution_data
-            if item.purpose == DistributionDataItemPurpose.TEST
-        ]
-        test_ood_data = [
-            item
-            for item in self.ood_distribution_data
-            if item.purpose == DistributionDataItemPurpose.TEST
-        ]
-
-        accuracy = self._evaluate_model(
+        eval_metrics_test = self._test_model(
             test_id_data=test_id_data, test_ood_data=test_ood_data
         )
-        logging.info(f"COOD Model Metrics on Test Data: {accuracy}")
+        logging.info("COOD Model Metrics on Test Data: ")
+        for metric in eval_metrics_test:
+            if not metric.startswith(self._thresholds_prefix):
+                logging.info(f"{metric}: {eval_metrics_test[metric]}")
 
     def _prepare_id_ood_data(self) -> dict:
         """
@@ -395,45 +392,216 @@ class COODModel:
         for sub_model in self.sub_models.values():
             sub_model.train(distribution_data=train_data)
 
-    def _train(
+    def _train_cood_model(
         self,
-        train_id_data: List[DistributionDataItem],
-        train_ood_data: List[DistributionDataItem],
+        id_data: List[DistributionDataItem],
+        ood_data: List[DistributionDataItem],
     ) -> None:
         """
         Train the COOD model using the RandomForestClassifier
-        :param train_id_data: List of DistributionDataItems for in-distribution data (Train split)
-        :param train_ood_data: List of DistributionDataItems for out-of-distribution data (Train split)
+        :param id_data: List of DistributionDataItems for in-distribution data (Train split)
+        :param ood_data: List of DistributionDataItems for out-of-distribution data (Train split)
         """
         logging.info("Training COOD Model")
-        logging.info(
-            f"Training data: ID - {len(train_id_data)}, OOD - {len(train_ood_data)}"
+        logging.info(f"Training data: ID - {len(id_data)}, OOD - {len(ood_data)}")
+
+        id_data_train, id_data_val = self._split_data(
+            data=id_data,
+            stratified=True,
+            split_ratio=self.train_test_split_ratio,
+            purposes=(
+                DistributionDataItemPurpose.TRAIN,
+                DistributionDataItemPurpose.VAL,
+            ),
         )
-        self._train_sub_models(train_data=train_id_data)
-
-        num_id_images = len(train_id_data)
-        num_ood_images = len(train_ood_data)
-
-        # Get scores from sub-models
-        id_scores_all_sub_models = self._infer_sub_models(train_id_data)
-        ood_scores_all_sub_models = self._infer_sub_models(train_ood_data)
-
-        # Arrange features
-        id_features = self._aggregate_sub_model_scores_into_cood_features(
-            id_scores_all_sub_models, num_id_images
-        )
-        ood_features = self._aggregate_sub_model_scores_into_cood_features(
-            ood_scores_all_sub_models, num_ood_images
+        ood_data_train, ood_data_val = self._split_data(
+            data=ood_data,
+            stratified=False,
+            split_ratio=self.train_test_split_ratio,
+            purposes=(
+                DistributionDataItemPurpose.TRAIN,
+                DistributionDataItemPurpose.VAL,
+            ),
         )
 
-        # Combine features and labels
-        all_features = np.concatenate((id_features, ood_features))
+        self._train_sub_models(train_data=id_data_train)
+
+        id_train_cood_features = self._cood_features_from_distribution_data(
+            distribution_data=id_data_train
+        )
+        ood_train_cood_features = self._cood_features_from_distribution_data(
+            distribution_data=ood_data_train
+        )
+
+        id_val_cood_features = self._cood_features_from_distribution_data(
+            distribution_data=id_data_val
+        )
+        ood_val_cood_features = self._cood_features_from_distribution_data(
+            distribution_data=ood_data_val
+        )
+
+        all_features_train = np.concatenate(
+            (id_train_cood_features, ood_train_cood_features)
+        )
         # We take ood images as True or 1 and id images as False or 0
-        all_labels = np.concatenate((np.zeros(num_id_images), np.ones(num_ood_images)))
+        all_labels_train = np.concatenate(
+            (
+                np.zeros(len(id_train_cood_features)),
+                np.ones(len(ood_train_cood_features)),
+            )
+        )
+
+        all_features_val = np.concatenate((id_val_cood_features, ood_val_cood_features))
+        all_labels_val = np.concatenate(
+            (
+                np.zeros(len(id_val_cood_features)),
+                np.ones(len(ood_val_cood_features)),
+            )
+        )
+
+        # self._train_cood_hpo(
+        #     id_features_train=id_train_cood_features,
+        #     id_features_val=id_val_cood_features,
+        #     ood_features_train=ood_train_cood_features,
+        #     ood_features_val=ood_val_cood_features,
+        # )
 
         # Train the RandomForestClassifier
-        self.ood_classifier = RandomForestClassifier()
-        self.ood_classifier.fit(all_features, all_labels)
+        self.ood_classifier = RandomForestClassifier(random_state=42)
+        self.ood_classifier.fit(all_features_train, all_labels_train)
+
+        # Evaluate the model on the train and validation data
+        # Calculate the probabilities for the train and validation data
+        # We take the probability of the image being OOD only
+        pred_probabilities_train = self.ood_classifier.predict_proba(
+            all_features_train
+        )[:, 1]
+        pred_probabilities_val = self.ood_classifier.predict_proba(all_features_val)[
+            :, 1
+        ]
+
+        eval_metrics_train = self._post_infer_evaluate(
+            y_true=all_labels_train, y_pred_prob=pred_probabilities_train
+        )
+
+        eval_metrics_val = self._post_infer_evaluate(
+            y_true=all_labels_val,
+            y_pred_prob=pred_probabilities_val,
+        )
+
+        logging.info(f"COOD Model Metrics on Train Data: {eval_metrics_train}")
+        logging.info(f"COOD Model Metrics on Validation Data: {eval_metrics_val}")
+
+        self._update_thresholds(eval_metrics=eval_metrics_val)
+
+    def _update_thresholds(self, eval_metrics: dict) -> None:
+        """
+        Update the best thresholds for the COOD model based on the evaluation metrics
+        :param eval_metrics: A dictionary containing the evaluation metrics for the COOD model.
+        """
+        for threshold_name in self.best_thresholds:
+            if (
+                self._thresholds_prefix + threshold_name
+            ) in eval_metrics and eval_metrics[
+                self._thresholds_prefix + threshold_name
+            ] is not None:
+                self.best_thresholds[threshold_name] = eval_metrics[
+                    self._thresholds_prefix + threshold_name
+                ]
+
+    def _train_cood_hpo(
+        self,
+        id_features_train,
+        id_features_val,
+        ood_features_train,
+        ood_features_val,
+    ) -> None:
+        """
+        Train the COOD model using the RandomForestClassifier with hyperparameter optimization.
+        :param id_features_train: Numpy array of COOD features for in-distribution training data
+        :param id_features_val: Numpy array of COOD features for in-distribution validation data
+        :param ood_features_train: Numpy array of COOD features for out-of-distribution training data
+        :param ood_features_val: Numpy array of COOD features for out-of-distribution validation data
+        """
+        logging.info("Training COOD Model with Hyperparameter Optimization")
+        logging.info(
+            f"Training data: ID - {len(id_features_train)}, OOD - {len(ood_features_train)}"
+        )
+
+        all_features_train = np.concatenate((id_features_train, ood_features_train))
+        all_labels_train = np.concatenate(
+            (np.zeros(len(id_features_train)), np.ones(len(ood_features_train)))
+        )
+        all_features_val = np.concatenate((id_features_val, ood_features_val))
+        all_labels_val = np.concatenate(
+            (np.zeros(len(id_features_val)), np.ones(len(ood_features_val)))
+        )
+
+        # Hyperparameter optimization
+        n_estimators = [10, 25, 50, 100, 250]
+        max_depth = [2, 4, 8, 16]
+        # min_samples_split = [2, 4, 8, 16]
+        # min_samples_leaf = [1, 2, 4, 8]
+
+        best_accuracy = 0
+        best_params = {}
+        best_model = None
+
+        all_combinations = itertools.product(n_estimators, max_depth)
+        # Iterate over each combination of hyperparameters
+        for params in all_combinations:
+            n_est, depth = params
+
+            # Initialize a RandomForestClassifier with current parameters
+            model = RandomForestClassifier(
+                n_estimators=n_est,
+                max_depth=depth,
+                random_state=42,
+            )
+
+            # Train the model on the training set
+            model.fit(all_features_train, all_labels_train)
+
+            # Validate the model on the validation set
+            y_val_pred = model.predict(all_features_val)
+            accuracy = accuracy_score(all_labels_val, y_val_pred)
+            f1_score_val = f1_score(all_labels_val, y_val_pred)
+            auroc_val = roc_auc_score(
+                all_labels_val, model.predict_proba(all_features_val)[:, 1]
+            )
+            logging.info(
+                f"n_estimators: {n_est}, max_depth: {depth}, Accuracy: {accuracy:.4f}, F1 Score: {f1_score_val:.4f}, AUROC: {auroc_val:.4f}"
+            )
+
+            # Update best model if the current one is better
+            if accuracy > best_accuracy:
+                best_accuracy = accuracy
+                best_params = {
+                    "n_estimators": n_est,
+                    "max_depth": depth,
+                }
+                best_model = model
+
+        # Log the best parameters and accuracy
+        print(f"Best Parameters: {best_params}")
+        print(f"Best Validation Accuracy: {best_accuracy:.4f}")
+
+        self.ood_classifier = best_model
+
+    def _cood_features_from_distribution_data(
+        self, distribution_data: List[DistributionDataItem]
+    ) -> np.ndarray:
+        """
+        Extract the COOD features from the distribution data.
+        :param distribution_data: List of DistributionDataItems for which the COOD features are extracted.
+        :return: Numpy array of COOD features
+        """
+        scores_all_sub_models = self._infer_sub_models(distribution_data)
+        features_arranged = self._aggregate_sub_model_scores_into_cood_features(
+            scores_all_sub_models=scores_all_sub_models,
+            num_images=len(distribution_data),
+        )
+        return features_arranged
 
     def _infer_sub_models(self, distribution_data: List[DistributionDataItem]) -> dict:
         """
@@ -448,7 +616,7 @@ class COODModel:
                 scores_all_sub_models[score_type] = scores_dict[score_type]
         return scores_all_sub_models
 
-    def _evaluate_model(
+    def _test_model(
         self,
         test_id_data: List[DistributionDataItem],
         test_ood_data: List[DistributionDataItem],
@@ -459,18 +627,19 @@ class COODModel:
         :param test_ood_data: List of DistributionDataItems for out-of-distribution test data
         :return: A dictionary containing the evaluation metrics for the COOD model.
         """
-        # Note that a cleaner way to evaluate the model is to call the self.__call__ method with the prediction of
-        # each data item. However, this might be slower when the test set is large.
+        # Note that a simpler way to evaluate the model is to call the self.__call__ method with the prediction of
+        # each data item. However, this might be slower when the test set is large as we need to call the __call__
+        # method for each data item.
+
+        num_id_images = len(test_id_data)
+        num_ood_images = len(test_ood_data)
 
         logging.info("Evaluating COOD Model on Test Data")
-        logging.info(f"Test data: ID - {len(test_id_data)}, OOD - {len(test_ood_data)}")
+        logging.info(f"Test data: ID - {num_id_images}, OOD - {num_ood_images}")
 
         # Get scores from sub-models
         id_scores_all_sub_models = self._infer_sub_models(test_id_data)
         ood_scores_all_sub_models = self._infer_sub_models(test_ood_data)
-
-        num_id_images = len(test_id_data)
-        num_ood_images = len(test_ood_data)
 
         # Arrange features
         id_features = self._aggregate_sub_model_scores_into_cood_features(
@@ -483,10 +652,81 @@ class COODModel:
         # Combine features and labels
         all_features = np.concatenate((id_features, ood_features))
         all_labels = np.concatenate((np.zeros(num_id_images), np.ones(num_ood_images)))
+        ood_probability = self.ood_classifier.predict_proba(all_features)[:, 1]
 
-        # Evaluate the model
-        mean_accuracy = self.ood_classifier.score(all_features, all_labels)
-        return {"mean_accuracy": mean_accuracy}
+        eval_metrics = self._post_infer_evaluate(
+            y_true=all_labels, y_pred_prob=ood_probability
+        )
+
+        return eval_metrics
+
+    def _post_infer_evaluate(self, y_true: np.ndarray, y_pred_prob: np.ndarray) -> dict:
+        """
+        Evaluate the performance of a COOD model using various metrics.
+        :param y_true: Numpy array of true labels.
+        :param y_pred_prob: Numpy array of predicted probabilities.
+        :return: A dictionary containing the evaluation metrics including accuracy, AUROC, F1 score,
+                 TPR at 1% and 5% FPR, and the corresponding thresholds.
+        """
+        # Convert predicted probabilities into binary predictions with 0.5 threshold
+        y_pred = (y_pred_prob > 0.5).astype(float)
+
+        # Standard evaluation metrics
+        accuracy = accuracy_score(y_true, y_pred)
+        f1 = f1_score(y_true, y_pred)
+        au_roc = roc_auc_score(y_true, y_pred_prob)
+
+        # Next, we calculate the precision-recall curve and the ROC curve to get the best threshold for F1 score
+        precision, recall, thresholds_pr = precision_recall_curve(y_true, y_pred_prob)
+        fscores_at_thresholds = (2 * precision * recall) / (precision + recall)
+        max_fscore_idx = np.argmax(fscores_at_thresholds)
+
+        # Get the best threshold by F1 score, ensuring it is valid
+        if len(thresholds_pr) > 1:
+            best_threshold_fscore = thresholds_pr[max_fscore_idx]
+            best_threshold_fscore = self._validate_prediction_threshold(
+                best_threshold_fscore
+            )
+        else:
+            best_threshold_fscore = None
+
+        # Calculate the TPR at 1% and 5% FPR.
+        # TPR@1FPR is the metric used in COOD paper.
+        # TPR@1%FPR indicates the model’s ability to correctly detect OOD data
+        # while allowing only 1% of ID data (class 0) to be falsely classified as OOD.
+
+        fpr, tpr, thresholds_roc = roc_curve(y_true, y_pred_prob)
+        tpr_1_fpr = tpr[np.argmin(np.abs(fpr - 0.01))]
+        tpr_5_fpr = tpr[np.argmin(np.abs(fpr - 0.05))]
+        # Get the thresholds corresponding to 1% and 5% FPR, ensuring they are valid
+        threshold_1_fpr = self._validate_prediction_threshold(
+            thresholds_roc[np.argmin(np.abs(fpr - 0.01))]
+        )
+        threshold_5_fpr = self._validate_prediction_threshold(
+            thresholds_roc[np.argmin(np.abs(fpr - 0.05))]
+        )
+
+        return {
+            "accuracy": accuracy,
+            "auroc": au_roc,
+            "f1": f1,
+            "tpr_1_fpr": tpr_1_fpr,
+            "tpr_5_fpr": tpr_5_fpr,
+            "threshold_fscore": best_threshold_fscore,
+            "threshold_tpr_at_1_fpr": threshold_1_fpr,
+            "threshold_tpr_at_5_fpr": threshold_5_fpr,
+        }
+
+    @staticmethod
+    def _validate_prediction_threshold(threshold: float) -> Union[float, None]:
+        """
+        Validate the threshold to ensure it is not 0, inf, or 1.
+        :param threshold: The threshold value to validate.
+        :return: A valid threshold or None if the threshold is invalid.
+        """
+        if np.isinf(threshold) or threshold == 0 or threshold == 1:
+            return None
+        return threshold
 
     def __call__(self, prediction: Prediction) -> float:
         """
@@ -507,54 +747,46 @@ class COODModel:
 
         return cood_score[0][1]  # Return only the probability of being OOD
 
+    @staticmethod
     def _split_data(
-        self,
         data: List[DistributionDataItem],
         stratified: bool,
         split_ratio: float,
-    ) -> None:
+        purposes: (DistributionDataItemPurpose, DistributionDataItemPurpose) = (
+            DistributionDataItemPurpose.TRAIN,
+            DistributionDataItemPurpose.TEST,
+        ),
+    ) -> (List[DistributionDataItem], List[DistributionDataItem]):
         """
-        Split and assign the data into TRAIN or TEST purpose based on the split_ratio.
-        Note that we do not need a validation split as no hyperparameters are tuned during COOD training.
+        Split and assign the data into two sets - TRAIN and VAL/TEST
         :param data: List of DistributionDataItems to be assigned with Train and Test purposes.
         :param stratified: If True, the split is stratified based on the annotated labels.
         :param split_ratio: The fraction of data to be used for training. The remaining data is used for testing.
-        :return: None - The data is modified in-place.
+        :param purposes: Tuple of two DistributionDataItemPurpose values representing the purpose of the data.
+        :return: Tuple of two lists containing the TRAIN and TEST data respectively.
         """
         if stratified:
             labels = [item.annotated_label for item in data]
-            selected_indices = stratified_selection(
-                x=data,
-                y=labels,
-                fraction=split_ratio,
-                min_samples_per_class=1,
+            x_train, x_test, y_train, y_test = train_test_split(
+                data,
+                labels,
+                train_size=split_ratio,
+                stratify=labels,
+                shuffle=True,
+                random_state=42,
             )
         else:
-            selected_indices = np.random.choice(
-                len(data), int(split_ratio * len(data)), replace=False
+            x_train, x_test = train_test_split(
+                data, train_size=split_ratio, shuffle=True, random_state=42
             )
 
-        self._assign_train_test_purpose_to_data(
-            data=data, train_indices=selected_indices
-        )
+        for item in x_train:
+            item.purpose = purposes[0]
 
-    @staticmethod
-    def _assign_train_test_purpose_to_data(
-        data: List[DistributionDataItem], train_indices: List[int]
-    ) -> None:
-        """
-        Assign the TRAIN or TEST purpose to the data based on the train_indices.
-        All data with index in train_indices is assigned the purpose TRAIN, and the rest is assigned the purpose TEST.
-        If the data is already assigned a purpose, it is overwritten.
-        :param data: List of DistributionDataItems to be assigned with Train and Test purposes.
-        :param train_indices: List of indices to be assigned the TRAIN purpose.
-        :return: None
-        """
-        for idx in train_indices:
-            data[idx].purpose = DistributionDataItemPurpose.TRAIN
-        for idx in range(len(data)):
-            if idx not in train_indices:
-                data[idx].purpose = DistributionDataItemPurpose.TEST
+        for item in x_test:
+            item.purpose = purposes[1]
+
+        return x_train, x_test
 
     def _infer_image_on_deployment(
         self, image_path: str, explain: bool = False
@@ -714,6 +946,7 @@ class COODModel:
         :return: A feature vector containing the OOD scores from all the sub-models as a numpy array
         """
         features = np.zeros((num_images, len(scores_all_sub_models)))
+
         for score_idx, score_type in enumerate(scores_all_sub_models):
             features[:, score_idx] = scores_all_sub_models[score_type]
         return features
