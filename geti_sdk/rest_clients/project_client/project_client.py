@@ -425,6 +425,9 @@ class ProjectClient:
         for task_type, task_labels in zip(
             get_task_types_by_project_type(project_type), labels
         ):
+            if task_type.is_anomaly and task_type != TaskType.ANOMALY:
+                logging.info(f"The {task_type} task is mapped to {TaskType.ANOMALY}.")
+                task_type = TaskType.ANOMALY
             if not is_first_task and not previous_task_type.is_global:
                 # Add crop task and connections, only for tasks that are not
                 # first in the pipeline and are not preceded by a global task
