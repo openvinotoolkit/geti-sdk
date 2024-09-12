@@ -162,7 +162,8 @@ class GetiAnnotationReader(AnnotationReader):
                         )
             new_annotations.append(annotation_object)
            annotation_object.labels[0].name.lower() == "anomalous":
-                # Anomaly reduction: Convert anomalous annotations to full rectangles
+                # Part of anomaly task reduction in Intel Geti 2.5 -> all anomaly tasks combined into one.
+                # Intel Geti now only accepts full rectangles for anomaly tasks.
                 new_annotations = [
                     Annotation(
                         labels=[annotation_object.labels[0]],
