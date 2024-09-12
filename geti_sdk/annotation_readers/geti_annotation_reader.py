@@ -161,7 +161,7 @@ class GetiAnnotationReader(AnnotationReader):
                             label_name=label_dict["name"]
                         )
             new_annotations.append(annotation_object)
-            if "anomal" in annotation_object.labels[0].name.lower():
+           annotation_object.labels[0].name.lower() == "anomalous":
                 # Anomaly reduction: Convert anomalous annotations to full rectangles
                 new_annotations = [
                     Annotation(
