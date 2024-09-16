@@ -22,3 +22,4 @@ cryptography>=42.0.7
 semver>=3.0.2
 urllib3==1.26.*
 albumentations>=1.4.12
+faiss-cpu>=1.8.*

@@ -72,9 +72,6 @@ geti_hook = PostInferenceHook(
 )
 
 ood_model.deployment.add_post_inference_hook(hook=geti_hook)
-# dummy_imgae_path = "/Users/rgangire/workspace/Results/SDK/data/ood_images/Black_And_White_Warbler_0001_160352_669e4d1f62ebb5f7b69f97ad.jpg"
-# dummy_imgae_path = "/Users/rgangire/workspace/Results/SDK/data/images/Black_And_White_Warbler_0001_160352_669e4d1f62ebb5f7b69f97ad.jpg"
-# dummy_imgae_path = "/Users/rgangire/workspace/data/CUB_200_2011/CUB_200_2011/images/010.Red_winged_Blackbird/Red_Winged_Blackbird_0001_3695.jpg"
 ood_dir = "/Users/rgangire/workspace/Results/SDK/data/TestOOD"
 for img_file in os.listdir(ood_dir):
     img_path = os.path.join(ood_dir, img_file)
