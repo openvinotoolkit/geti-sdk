@@ -12,17 +12,197 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import List
+
+import json
+import os
+from typing import List, Union
 
 import albumentations
+import cv2
 import faiss
 import numpy as np
 from scipy import stats
 from sklearn.decomposition import PCA
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    precision_recall_curve,
+    roc_auc_score,
+    roc_curve,
+)
+from sklearn.model_selection import train_test_split
 
 from geti_sdk import Geti
+from geti_sdk.data_models import Prediction
 from geti_sdk.deployment import Deployment
 from geti_sdk.rest_clients import ModelClient
+
+from .ood_data import DistributionDataItem, DistributionDataItemPurpose
+
+
+def split_data(
+    data: List[DistributionDataItem],
+    stratified: bool,
+    split_ratio: float,
+    purposes: (DistributionDataItemPurpose, DistributionDataItemPurpose) = (
+        DistributionDataItemPurpose.TRAIN,
+        DistributionDataItemPurpose.TEST,
+    ),
+) -> (List[DistributionDataItem], List[DistributionDataItem]):
+    """
+    Split and assign the data into two sets - TRAIN and VAL/TEST
+    :param data: List of DistributionDataItems to be assigned with Train and Test purposes.
+    :param stratified: If True, the split is stratified based on the annotated labels.
+    :param split_ratio: The fraction of data to be used for training. The remaining data is used for testing.
+    :param purposes: Tuple of two DistributionDataItemPurpose values representing the purpose of the data.
+    :return: Tuple of two lists containing the TRAIN and TEST data respectively.
+    """
+    if stratified:
+        labels = [item.annotated_label for item in data]
+        x_train, x_test, y_train, y_test = train_test_split(
+            data,
+            labels,
+            train_size=split_ratio,
+            stratify=labels,
+            shuffle=True,
+            random_state=42,
+        )
+    else:
+        x_train, x_test = train_test_split(
+            data, train_size=split_ratio, shuffle=True, random_state=42
+        )
+
+    for item in x_train:
+        item.purpose = purposes[0]
+
+    for item in x_test:
+        item.purpose = purposes[1]
+
+    return x_train, x_test
+
+
+def load_annotations(annotation_file: str) -> Union[str, None]:
+    """
+    Read the annotations from the annotation file downloaded from Geti and returns the single label.
+    Only to be used for classification tasks an image is annotated with a single label.
+    :param annotation_file: Path to the annotation file
+    :return: Annotated label for the image, if available, else None
+    """
+    if os.path.exists(annotation_file):
+        with open(annotation_file, "r") as f:
+            annotation = json.load(f)
+            return annotation["annotations"][0]["labels"][0]["name"]
+    return None
+
+
+def image_to_distribution_data_item(
+    deployment: Deployment, image_path: str, annotation_label: Union[str, None]
+) -> DistributionDataItem:
+    """
+    Prepare the DistributionDataItem for the given image. Infers the image and extracts the feature vector.
+    :param deployment: Geti Deployment object to use for inference
+    :param image_path: Path to the image
+    :param annotation_label: Annotated label for the image (optional)
+    return: DistributionDataItem for the image
+    """
+    prediction = infer_image_on_deployment(
+        deployment=deployment, image_path=image_path, explain=True
+    )
+    return DistributionDataItem(
+        media_name=os.path.splitext(os.path.basename(image_path))[0],
+        media_path=image_path,
+        annotated_label=annotation_label,
+        raw_prediction=prediction,
+    )
+
+
+def calculate_ood_metrics(y_true: np.ndarray, y_pred_prob: np.ndarray) -> dict:
+    """
+    Evaluate the performance of  an OOD model using various metrics.
+    :param y_true: Numpy array of true labels.
+    :param y_pred_prob: Numpy array of predicted probabilities.
+    :return: A dictionary containing the evaluation metrics including accuracy, AUROC, F1 score,
+             TPR at 1% and 5% FPR, and the corresponding thresholds.
+    """
+    # Convert predicted probabilities into binary predictions with 0.5 threshold
+    y_pred = (y_pred_prob > 0.5).astype(float)
+
+    # Standard evaluation metrics
+    accuracy = accuracy_score(y_true, y_pred)
+    f1 = f1_score(y_true, y_pred)
+    au_roc = roc_auc_score(y_true, y_pred_prob)
+
+    # Next, we calculate the precision-recall curve and the ROC curve to get the best threshold for F1 score
+    precision, recall, thresholds_pr = precision_recall_curve(y_true, y_pred_prob)
+    fscores_at_thresholds = (2 * precision * recall) / (precision + recall)
+    max_fscore_idx = np.argmax(fscores_at_thresholds)
+
+    # Get the best threshold by F1 score, ensuring it is valid
+    if len(thresholds_pr) > 1:
+        best_threshold_fscore = thresholds_pr[max_fscore_idx]
+        best_threshold_fscore = validate_cood_prediction_threshold(
+            best_threshold_fscore
+        )
+    else:
+        best_threshold_fscore = None
+
+    # Calculate the TPR at 1% and 5% FPR.
+    # TPR@1FPR is the metric used in COOD paper.
+    # TPR@1%FPR indicates the model’s ability to correctly detect OOD data
+    # while allowing only 1% of ID data (class 0) to be falsely classified as OOD.
+
+    fpr, tpr, thresholds_roc = roc_curve(y_true, y_pred_prob)
+    tpr_1_fpr = tpr[np.argmin(np.abs(fpr - 0.01))]
+    tpr_5_fpr = tpr[np.argmin(np.abs(fpr - 0.05))]
+    # Get the thresholds corresponding to 1% and 5% FPR, ensuring they are valid
+    threshold_1_fpr = validate_cood_prediction_threshold(
+        thresholds_roc[np.argmin(np.abs(fpr - 0.01))]
+    )
+    threshold_5_fpr = validate_cood_prediction_threshold(
+        thresholds_roc[np.argmin(np.abs(fpr - 0.05))]
+    )
+
+    return {
+        "accuracy": accuracy,
+        "auroc": au_roc,
+        "f1": f1,
+        "tpr_1_fpr": tpr_1_fpr,
+        "tpr_5_fpr": tpr_5_fpr,
+        "threshold_fscore": best_threshold_fscore,
+        "threshold_tpr_at_1_fpr": threshold_1_fpr,
+        "threshold_tpr_at_5_fpr": threshold_5_fpr,
+    }
+
+
+def infer_image_on_deployment(
+    deployment: Deployment, image_path: str, explain: bool = False
+) -> Prediction:
+    """
+    Infer the image and get the prediction using the deployment
+    :param deployment: Geti Deployment object to use for inference
+    :param image_path: Path to the image
+    :param explain: If True, prediction will contain the feature vector and saliency maps
+    :return: Prediction object for the image
+    """
+    img = cv2.imread(image_path)
+    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    if explain:
+        # Note that a check to see if xai model is present in the deployment is not done.
+        # If the model is not present, then feature_vector will be None
+        return deployment.explain(image=img_rgb)
+    else:
+        return deployment.infer(image=img_rgb)
+
+
+def validate_cood_prediction_threshold(threshold: float) -> Union[float, None]:
+    """
+    Validate the threshold to ensure it is not 0, inf, or 1.
+    :param threshold: The threshold value to validate.
+    :return: A valid threshold or None if the threshold is invalid.
+    """
+    if np.isinf(threshold) or threshold == 0 or threshold == 1:
+        return None
+    return threshold
 
 
 def get_deployment_with_xai_head(geti: Geti, model_client: ModelClient) -> Deployment:
@@ -220,22 +400,6 @@ def calculate_entropy_nearest_neighbours(
     # A fully certain sample has entropy of 0 (bin count looks like [10,0,0,0,0,0,0,0,0,0])
     entropy_scores = stats.entropy(neighbour_bin_count, axis=1, base=k)
     return entropy_scores
-
-
-def normalise_features(feature_vectors: np.ndarray) -> np.ndarray:
-    """
-    Feature embeddings are normalised by dividing each feature embedding vector by its respective 2nd-order vector norm
-    (vector Euclidean norm). It has been shown that normalising feature embeddings lead to a significant improvement
-    in OOD detection.
-    :param feature_vectors: Feature vectors to normalise
-    :return: Normalised feature vectors.
-    """
-    if len(feature_vectors.shape) == 1:
-        feature_vectors = feature_vectors.reshape(1, -1)
-
-    return feature_vectors / (
-        np.linalg.norm(feature_vectors, axis=1, keepdims=True) + 1e-10
-    )
 
 
 class CutoutTransform:

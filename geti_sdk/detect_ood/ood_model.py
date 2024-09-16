@@ -13,25 +13,14 @@
 # and limitations under the License.
 
 import itertools
-import json
 import logging
 import os
 import tempfile
-from abc import ABCMeta, abstractmethod
-from enum import Enum
 from typing import List, Union
 
 import cv2
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import (
-    accuracy_score,
-    f1_score,
-    precision_recall_curve,
-    roc_auc_score,
-    roc_curve,
-)
-from sklearn.model_selection import train_test_split
 from tqdm.auto import tqdm
 
 from geti_sdk import Geti
@@ -41,15 +30,15 @@ from geti_sdk.data_models.project import Dataset
 from geti_sdk.deployment import Deployment
 from geti_sdk.rest_clients import AnnotationClient, ImageClient, ModelClient
 
+from .ood_data import DistributionDataItem, DistributionDataItemPurpose
+from .ood_sub_model import KNNBasedOODModel, ProbabilityBasedModel
 from .utils import (
     CutoutTransform,
-    calculate_entropy_nearest_neighbours,
-    fit_pca_model,
-    fre_score,
+    calculate_ood_metrics,
     get_deployment_with_xai_head,
-    normalise_features,
-    perform_knn_indexing,
-    perform_knn_search,
+    image_to_distribution_data_item,
+    load_annotations,
+    split_data,
 )
 
 # Names of the Geti datasets that are used as reference/training data for the COOD model, if available
@@ -57,100 +46,10 @@ ID_DATASET_NAMES = ["Dataset"]
 OOD_DATASET_NAMES = ["OOD reference dataset"]
 
 
-class DistributionDataItemPurpose(Enum):
-    """
-    Enum to represent the purpose of the DistributionDataItem.
-    This is used during splitting of the data into TRAIN, VAL, TEST
-    """
-
-    TRAIN = "train"
-    VAL = "val"
-    TEST = "test"
-
-
-# TODO[OOD] : If required, a DistributionData class can be created which is a collection of DistributionDataItems
-class DistributionDataItem:
-    """
-    A class to store the data for the COOD model.
-    An DistributionDataItem for an image contains the following:
-    - media_name: Name of the media (optional)
-    - image_path: Path to the image (optional)
-    - annotated_label: Annotated label for the image (optional)
-    - raw_prediction: Prediction object for the image (required)
-    - feature_vector: Feature vector extracted from the image (extracted from raw_prediction)
-
-    All OOD models take a list of DistributionDataItems as input for training and inference.
-    """
-
-    def __init__(
-        self,
-        raw_prediction: Prediction,
-        media_name: Union[str, None],
-        media_path: Union[str, None],
-        annotated_label: Union[str, None],
-        normalise_feature_vector: bool = True,
-        purpose: Union[DistributionDataItemPurpose, None] = None,
-    ):
-        self.media_name = media_name
-        self.image_path = media_path
-        self.annotated_label = annotated_label
-        self.raw_prediction = raw_prediction
-        self.purpose = purpose
-
-        feature_vector = raw_prediction.feature_vector
-
-        if len(feature_vector.shape) != 1:
-            feature_vector = feature_vector.flatten()
-
-        if normalise_feature_vector:
-            feature_vector = normalise_features(feature_vector)[0]
-
-        self._normalise_feature_vector = normalise_feature_vector
-        self.feature_vector = feature_vector
-        self.max_prediction_probability = (
-            raw_prediction.annotations[0].labels[0].probability,
-        )
-        self.predicted_label = raw_prediction.annotations[0].labels[0].name
-
-    def __repr__(self):
-        """
-        Return a string representation of the DistributionDataItem.
-        """
-        return (
-            f"DataItem(media_name={self.media_name}, "
-            f"shape(feature_vector)={self.feature_vector.shape}), "
-            f"feature_vector normalised={self.is_feature_vector_normalised})"
-        )
-
-    @property
-    def is_feature_vector_normalised(self) -> bool:
-        """
-        Return True if the feature vector is normalised.
-        """
-        return self._normalise_feature_vector
-
-
 class COODModel:
     """
     Out-of-distribution detection model. Uses the Combined out-of-distribution (COOD) detection
     algorithm (see : https://arxiv.org/abs/2403.06874).
-
-    Uses a temporary directory for storing data with the following structure:
-    temp_dir
-    ├── ood_detection
-    │   └── project_name
-    │       ├── data
-    │       │   ├── Geti_dataset_1
-    │       │   │   ├── images
-    │       │   │   └── annotations
-    │       │   ├── geti_dataset_2
-    │       │   │   ├── images
-    │       │   │   └── annotations
-    │       │   ├── ood_images (if generated)
-    │       │   │   ├── image_001.jpg
-    │       │   │   ├── image_002.jpg
-    │       │       └── image_003.jpg
-
     """
 
     def __init__(
@@ -220,8 +119,7 @@ class COODModel:
             workspace_dir, "ood_detection", self.project.name
         )
 
-        if not os.path.exists(self.workspace_dir):
-            os.makedirs(self.workspace_dir)
+        os.makedirs(self.workspace_dir, exist_ok=True)
 
         self.data_dir = os.path.join(self.workspace_dir, "data")
 
@@ -266,12 +164,12 @@ class COODModel:
         # the test split. This accuracy is indicated to the user and if a user feels the accuracy is too low,
         # they can create a new COOD model with more/better data.
 
-        train_id_data, test_id_data = self._split_data(
+        train_id_data, test_id_data = split_data(
             data=self.id_distribution_data,
             stratified=True,
             split_ratio=self.train_test_split_ratio,
         )
-        train_ood_data, test_ood_data = self._split_data(
+        train_ood_data, test_ood_data = split_data(
             data=self.ood_distribution_data,
             stratified=False,
             split_ratio=self.train_test_split_ratio,
@@ -405,7 +303,7 @@ class COODModel:
         logging.info("Training COOD Model")
         logging.info(f"Training data: ID - {len(id_data)}, OOD - {len(ood_data)}")
 
-        id_data_train, id_data_val = self._split_data(
+        id_data_train, id_data_val = split_data(
             data=id_data,
             stratified=True,
             split_ratio=self.train_test_split_ratio,
@@ -414,7 +312,7 @@ class COODModel:
                 DistributionDataItemPurpose.VAL,
             ),
         )
-        ood_data_train, ood_data_val = self._split_data(
+        ood_data_train, ood_data_val = split_data(
             data=ood_data,
             stratified=False,
             split_ratio=self.train_test_split_ratio,
@@ -480,11 +378,11 @@ class COODModel:
             :, 1
         ]
 
-        eval_metrics_train = self._post_infer_evaluate(
+        eval_metrics_train = calculate_ood_metrics(
             y_true=all_labels_train, y_pred_prob=pred_probabilities_train
         )
 
-        eval_metrics_val = self._post_infer_evaluate(
+        eval_metrics_val = calculate_ood_metrics(
             y_true=all_labels_val,
             y_pred_prob=pred_probabilities_val,
         )
@@ -540,8 +438,6 @@ class COODModel:
         # Hyperparameter optimization
         n_estimators = [10, 25, 50, 100, 250]
         max_depth = [2, 4, 8, 16]
-        # min_samples_split = [2, 4, 8, 16]
-        # min_samples_leaf = [1, 2, 4, 8]
 
         best_accuracy = 0
         best_params = {}
@@ -563,14 +459,20 @@ class COODModel:
             model.fit(all_features_train, all_labels_train)
 
             # Validate the model on the validation set
-            y_val_pred = model.predict(all_features_val)
-            accuracy = accuracy_score(all_labels_val, y_val_pred)
-            f1_score_val = f1_score(all_labels_val, y_val_pred)
-            auroc_val = roc_auc_score(
-                all_labels_val, model.predict_proba(all_features_val)[:, 1]
+            y_val_pred_prob = model.predict_proba(all_features_val)[:, 1]
+
+            metrics = calculate_ood_metrics(
+                y_true=all_labels_val,
+                y_pred_prob=y_val_pred_prob,
             )
+
+            accuracy = metrics["accuracy"]
+            f1_score_val = metrics["f1_score"]
+            auroc_val = metrics["auroc"]
+
             logging.info(
-                f"n_estimators: {n_est}, max_depth: {depth}, Accuracy: {accuracy:.4f}, F1 Score: {f1_score_val:.4f}, AUROC: {auroc_val:.4f}"
+                f"n_estimators: {n_est}, max_depth: {depth}, Accuracy: {accuracy:.4f}, F1 Score: {f1_score_val:.4f}, "
+                f"AUROC: {auroc_val:.4f}"
             )
 
             # Update best model if the current one is better
@@ -581,6 +483,8 @@ class COODModel:
                     "max_depth": depth,
                 }
                 best_model = model
+                if best_accuracy == 1:
+                    break
 
         # Log the best parameters and accuracy
         print(f"Best Parameters: {best_params}")
@@ -654,79 +558,11 @@ class COODModel:
         all_labels = np.concatenate((np.zeros(num_id_images), np.ones(num_ood_images)))
         ood_probability = self.ood_classifier.predict_proba(all_features)[:, 1]
 
-        eval_metrics = self._post_infer_evaluate(
+        eval_metrics = calculate_ood_metrics(
             y_true=all_labels, y_pred_prob=ood_probability
         )
 
         return eval_metrics
-
-    def _post_infer_evaluate(self, y_true: np.ndarray, y_pred_prob: np.ndarray) -> dict:
-        """
-        Evaluate the performance of a COOD model using various metrics.
-        :param y_true: Numpy array of true labels.
-        :param y_pred_prob: Numpy array of predicted probabilities.
-        :return: A dictionary containing the evaluation metrics including accuracy, AUROC, F1 score,
-                 TPR at 1% and 5% FPR, and the corresponding thresholds.
-        """
-        # Convert predicted probabilities into binary predictions with 0.5 threshold
-        y_pred = (y_pred_prob > 0.5).astype(float)
-
-        # Standard evaluation metrics
-        accuracy = accuracy_score(y_true, y_pred)
-        f1 = f1_score(y_true, y_pred)
-        au_roc = roc_auc_score(y_true, y_pred_prob)
-
-        # Next, we calculate the precision-recall curve and the ROC curve to get the best threshold for F1 score
-        precision, recall, thresholds_pr = precision_recall_curve(y_true, y_pred_prob)
-        fscores_at_thresholds = (2 * precision * recall) / (precision + recall)
-        max_fscore_idx = np.argmax(fscores_at_thresholds)
-
-        # Get the best threshold by F1 score, ensuring it is valid
-        if len(thresholds_pr) > 1:
-            best_threshold_fscore = thresholds_pr[max_fscore_idx]
-            best_threshold_fscore = self._validate_prediction_threshold(
-                best_threshold_fscore
-            )
-        else:
-            best_threshold_fscore = None
-
-        # Calculate the TPR at 1% and 5% FPR.
-        # TPR@1FPR is the metric used in COOD paper.
-        # TPR@1%FPR indicates the model’s ability to correctly detect OOD data
-        # while allowing only 1% of ID data (class 0) to be falsely classified as OOD.
-
-        fpr, tpr, thresholds_roc = roc_curve(y_true, y_pred_prob)
-        tpr_1_fpr = tpr[np.argmin(np.abs(fpr - 0.01))]
-        tpr_5_fpr = tpr[np.argmin(np.abs(fpr - 0.05))]
-        # Get the thresholds corresponding to 1% and 5% FPR, ensuring they are valid
-        threshold_1_fpr = self._validate_prediction_threshold(
-            thresholds_roc[np.argmin(np.abs(fpr - 0.01))]
-        )
-        threshold_5_fpr = self._validate_prediction_threshold(
-            thresholds_roc[np.argmin(np.abs(fpr - 0.05))]
-        )
-
-        return {
-            "accuracy": accuracy,
-            "auroc": au_roc,
-            "f1": f1,
-            "tpr_1_fpr": tpr_1_fpr,
-            "tpr_5_fpr": tpr_5_fpr,
-            "threshold_fscore": best_threshold_fscore,
-            "threshold_tpr_at_1_fpr": threshold_1_fpr,
-            "threshold_tpr_at_5_fpr": threshold_5_fpr,
-        }
-
-    @staticmethod
-    def _validate_prediction_threshold(threshold: float) -> Union[float, None]:
-        """
-        Validate the threshold to ensure it is not 0, inf, or 1.
-        :param threshold: The threshold value to validate.
-        :return: A valid threshold or None if the threshold is invalid.
-        """
-        if np.isinf(threshold) or threshold == 0 or threshold == 1:
-            return None
-        return threshold
 
     def __call__(self, prediction: Prediction) -> float:
         """
@@ -746,62 +582,6 @@ class COODModel:
         cood_score = self.ood_classifier.predict_proba(features_arranged)
 
         return cood_score[0][1]  # Return only the probability of being OOD
-
-    @staticmethod
-    def _split_data(
-        data: List[DistributionDataItem],
-        stratified: bool,
-        split_ratio: float,
-        purposes: (DistributionDataItemPurpose, DistributionDataItemPurpose) = (
-            DistributionDataItemPurpose.TRAIN,
-            DistributionDataItemPurpose.TEST,
-        ),
-    ) -> (List[DistributionDataItem], List[DistributionDataItem]):
-        """
-        Split and assign the data into two sets - TRAIN and VAL/TEST
-        :param data: List of DistributionDataItems to be assigned with Train and Test purposes.
-        :param stratified: If True, the split is stratified based on the annotated labels.
-        :param split_ratio: The fraction of data to be used for training. The remaining data is used for testing.
-        :param purposes: Tuple of two DistributionDataItemPurpose values representing the purpose of the data.
-        :return: Tuple of two lists containing the TRAIN and TEST data respectively.
-        """
-        if stratified:
-            labels = [item.annotated_label for item in data]
-            x_train, x_test, y_train, y_test = train_test_split(
-                data,
-                labels,
-                train_size=split_ratio,
-                stratify=labels,
-                shuffle=True,
-                random_state=42,
-            )
-        else:
-            x_train, x_test = train_test_split(
-                data, train_size=split_ratio, shuffle=True, random_state=42
-            )
-
-        for item in x_train:
-            item.purpose = purposes[0]
-
-        for item in x_test:
-            item.purpose = purposes[1]
-
-        return x_train, x_test
-
-    def _infer_image_on_deployment(
-        self, image_path: str, explain: bool = False
-    ) -> Prediction:
-        """
-        Infer the image and get the prediction using the deployment
-        """
-        img = cv2.imread(image_path)
-        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        if explain:
-            # Note that a check to see if xai model is present in the deployment is not done.
-            # If the model is not present, then feature_vector will be None
-            return self.deployment.explain(image=img_rgb)
-        else:
-            return self.deployment.infer(image=img_rgb)
 
     def _create_ood_images(self, reference_dataset: Dataset) -> str:
         """
@@ -892,47 +672,16 @@ class COODModel:
         distribution_data_items = []
         for image_path, annotation_file in zip(image_paths, annotation_files):
             annotation_label = (
-                self._load_annotations(annotation_file) if annotation_file else None
+                load_annotations(annotation_file) if annotation_file else None
             )
-            data_item = self._prepare_data_item(
-                image_path=image_path, annotation_label=annotation_label
+            data_item = image_to_distribution_data_item(
+                deployment=self.deployment,
+                image_path=image_path,
+                annotation_label=annotation_label,
             )
             distribution_data_items.append(data_item)
 
         return distribution_data_items
-
-    def _prepare_data_item(
-        self, image_path: str, annotation_label: Union[str, None]
-    ) -> DistributionDataItem:
-        """
-        Prepare the DistributionDataItem for the given image. Infers the image and extracts the feature vector.
-        :param image_path: Path to the image
-        :param annotation_label: Annotated label for the image (optional)
-        return: DistributionDataItem for the image
-        """
-        prediction = self._infer_image_on_deployment(
-            image_path=image_path, explain=True
-        )
-        return DistributionDataItem(
-            media_name=os.path.splitext(os.path.basename(image_path))[0],
-            media_path=image_path,
-            annotated_label=annotation_label,
-            raw_prediction=prediction,
-        )
-
-    @staticmethod
-    def _load_annotations(annotation_file: str) -> Union[str, None]:
-        """
-        Read the annotations from the annotation file downloaded from Geti and returns the single label.
-        Only to be used for classification tasks an image is annotated with a single label.
-        :param annotation_file: Path to the annotation file
-        :return: Annotated label for the image, if available, else None
-        """
-        if os.path.exists(annotation_file):
-            with open(annotation_file, "r") as f:
-                annotation = json.load(f)
-                return annotation["annotations"][0]["labels"][0]["name"]
-        return None
 
     @staticmethod
     def _aggregate_sub_model_scores_into_cood_features(
@@ -960,267 +709,3 @@ class COODModel:
             f"Sub models: {list(self.sub_models.keys())}, "
             f"Data Items: {len(self.id_distribution_data)} ID, {len(self.ood_distribution_data)} OOD)"
         )
-
-
-class OODSubModel(metaclass=ABCMeta):
-    """
-    Base class for OOD detection sub-models.
-    """
-
-    def __init__(self):
-        self._is_trained = False
-
-    @abstractmethod
-    def train(self, distribution_data: List[DistributionDataItem]):
-        """
-        Train the OOD detection sub-model using a list in-distribution data items
-        """
-        raise NotImplementedError
-
-    def __call__(self, data_items: List[DistributionDataItem]) -> dict:
-        """
-        Check if the model is trained and call the forward method.
-        """
-        if not self._is_trained:
-            raise ValueError(
-                "Model is not trained. Please train the model first before calling."
-            )
-        return self.forward(data_items)
-
-    @abstractmethod
-    def forward(self, data_items: List[DistributionDataItem]) -> dict:
-        """
-        Return the OOD score for the given data items.
-        """
-        raise NotImplementedError
-
-    @property
-    def is_trained(self) -> bool:
-        """
-        Return True if the model is trained.
-        """
-        return self._is_trained
-
-    def __repr__(self):
-        """
-        Return a string representation of the OODSubModel.
-        """
-        return f"{self.__class__.__name__} (is_trained={self.is_trained})"
-
-
-class KNNBasedOODModel(OODSubModel):
-    """
-    Model for OOD detection based on k-Nearest Neighbours (kNN) search in the feature space.
-    The model calculates OOD scores based on distance to the nearest neighbours, entropy among the nearest neighbours,
-    and EnWeDi (which combines distance and entropy).
-    """
-
-    # # TODO[OOD]: Add more features to the model
-    # 1) distance to prototypical center
-    # 2) ldof (to expensive ?)
-    # 3) exact combination of entropy and distance from thesis
-
-    def __init__(self, knn_k: int = 10):
-        super().__init__()
-        self.knn_k = knn_k
-        self.knn_search_index = None
-        self.train_set_labels = None
-
-    def train(self, distribution_data: List[DistributionDataItem]):
-        """
-        Build the knn search index using faiss for the in-distribution data.
-        :param distribution_data: List of DistributionDataItems for training the model. These are typically user
-        annotated images from a Geti project from datasets that correspond to "in-distribution". Please note that the
-        annotated labels are required if entropy based ood scores measures are calculated in the forward method.
-        """
-        id_data = distribution_data
-        feature_vectors = np.array([data.feature_vector for data in id_data])
-        labeled_set_labels = np.array([data.annotated_label for data in id_data])
-
-        self.train_set_labels = labeled_set_labels
-        self.knn_search_index = perform_knn_indexing(feature_vectors, use_gpu=False)
-        self._is_trained = True
-
-    def forward(self, data_items: List[DistributionDataItem]) -> dict:
-        """
-        Perform kNN search and calculates different types of OOD scores.
-        :param data_items: List of DistributionDataItems for which OOD scores are calculated
-        :return: A dictionary containing the OOD score names as keys and the OOD scores as values.
-        """
-        features = np.array([item.feature_vector for item in data_items])
-        distances, nn_indices = perform_knn_search(
-            knn_search_index=self.knn_search_index,
-            feature_vectors=features,
-            k=self.knn_k,
-        )
-
-        knn_distance = distances[:, -1]  # distance to the kth nearest neighbour
-        nn_distance = distances[:, 1]  # distance to the nearest neighbour
-        # TODO[OOD] : When doing kNN Search for ID, the 0th index is the same image. So, should we use k+1 ?
-        average_nn_distance = np.mean(distances[:, 1:], axis=1)
-
-        entropy_score = calculate_entropy_nearest_neighbours(
-            train_labels=self.train_set_labels,
-            nns_labels_for_test_fts=nn_indices,
-            k=self.knn_k,
-        )
-
-        # Add one to the entropy scores
-        # This is to offset the range to [1,2] instead of [0,1] and avoids division by zero
-        # if used elsewhere
-        entropy_score += 1
-
-        enwedi_score = average_nn_distance * entropy_score
-        enwedi_nn_score = nn_distance * entropy_score
-
-        return {
-            "knn_distance": knn_distance,
-            "nn_distance": nn_distance,
-            "average_nn_distance": average_nn_distance,
-            "entropy_score": entropy_score,
-            "enwedi_score": enwedi_score,
-            "enwedi_nn_score": enwedi_nn_score,
-        }
-
-
-class GlobalFREBasedModel(OODSubModel):
-    """
-    Global Feature Reconstruction Error (FRE) Model. Builds a single PCA model for the whole in-distribution
-    data provided thereby providing a "Global" subspace representation of the in-distribution features.
-    See https://arxiv.org/abs/2012.04250 for details.
-    """
-
-    def __init__(self, n_components=0.995):
-        super().__init__()
-        self.n_components = n_components
-        self.pca_model = None
-
-    def train(self, distribution_data: List[DistributionDataItem]):
-        """
-        Fit a single (global) PCA model for the in-distribution data
-        """
-        feature_vectors = np.array([data.feature_vector for data in distribution_data])
-        self.pca_model = fit_pca_model(
-            feature_vectors=feature_vectors, n_components=self.n_components
-        )
-        self._is_trained = True
-
-    def forward(self, data_items: List[DistributionDataItem]) -> dict:
-        """
-        Return the global fre score for the given data items.
-        """
-        if not self._is_trained:
-            raise ValueError(
-                "Model is not trained. Please train the model first before calling."
-            )
-        features = np.array([item.feature_vector for item in data_items])
-        fre_scores = fre_score(feature_vectors=features, pca_model=self.pca_model)
-        return {"global_fre_score": fre_scores}
-
-
-class ClassFREBasedModel(OODSubModel):
-    """
-    Per-class Feature Reconstruction Error (FRE) Model. Each class present in the in-distribution data is represented
-    by a subspace model.
-    See https://arxiv.org/abs/2012.04250 for details
-    """
-
-    def __init__(self, n_components=0.995):
-        super().__init__()
-        self.n_components = n_components
-        self.pca_models_per_class = {}
-
-    def train(self, distribution_data: List[DistributionDataItem]):
-        """
-        Fit PCA Models on the in-distribution data for each class.
-        """
-        id_data = distribution_data
-        feature_vectors = np.array([data.feature_vector for data in id_data])
-        labels = np.array([data.annotated_label for data in id_data])
-
-        # iterate through unique labels and fit pca model for each class
-        pca_models = {}
-
-        for label in np.unique(labels):
-            # labels are list of class names and not indices
-            class_indices = [i for i, j in enumerate(labels) if j == label]
-            class_features = feature_vectors[class_indices]
-            pca_models[label] = fit_pca_model(
-                feature_vectors=class_features, n_components=self.n_components
-            )
-
-        self.pca_models_per_class = pca_models
-        self._is_trained = True
-
-    def forward(self, data_items: List[DistributionDataItem]) -> dict:
-        """
-        Return various fre-based ood scores
-        """
-        if not self._is_trained:
-            raise ValueError(
-                "Model is not trained. Please train the model first before calling."
-            )
-
-        num_data_items = len(data_items)
-        features = np.array([item.feature_vector for item in data_items])
-        fre_scores_per_class = {}
-        # class_fre_models is a dict with label name and pca model.
-        for label, pca_model in self.pca_models_per_class.items():
-            fre_scores_per_class[label] = fre_score(
-                feature_vectors=features, pca_model=pca_model
-            )
-
-        # FRE Score # 1 - FRE  w.r.t the class the sample is predicted to be
-        predicted_labels = [item.predicted_label for item in data_items]
-        fre_scores_for_predicted_class = np.array(
-            [fre_scores_per_class[label][i] for i, label in enumerate(predicted_labels)]
-        )
-
-        # FRE Score # 2 - Calculating the minimum FRE score across all classes
-
-        min_fre_scores = np.zeros(num_data_items)
-        # For each data point, find the minimum FRE score across all classes (labels)
-        for i in range(num_data_items):
-            min_fre_scores[i] = np.min(
-                [fre_scores_per_class[label][i] for label in fre_scores_per_class]
-            )
-
-        # Note - It is observed that the minimum FRE scores are almost always same as the FRE scores for the predicted
-        # class i.e., the predicted class is the class with minimum fre score.
-        # However, this is true largely for ID images (99.95% of example data points).
-        # For OOD images, this applies, but less frequently (78.3% of example data points).
-        # Therefore, the difference of the two scores can also be considered as a "feature"
-
-        return {
-            "min_class_fre_score": min_fre_scores,
-            "predicted_class_fre_score": fre_scores_for_predicted_class,
-            "diff_min_and_predicted_class_fre": 1e-8
-            + (fre_scores_for_predicted_class - min_fre_scores),
-        }
-
-
-class ProbabilityBasedModel(OODSubModel):
-    """
-    Maximum Softmax Probability Model - A baseline OOD detection model.
-    Uses the concept that a lower maximum softmax probability indicates that the image could be OOD.
-    """
-
-    def __init__(self):
-        super().__init__()
-
-    def train(self, distribution_data: List[DistributionDataItem]):
-        """
-        MSP model does not require training.
-        """
-        self._is_trained = True
-
-    def forward(self, data_items: List[DistributionDataItem]) -> dict:
-        """
-        Return the maximum softmax probability for the given prediction.
-        """
-        msp_scores = np.ndarray(len(data_items))
-        for i, data_item in enumerate(data_items):
-            # deployment.infer gives a single highest probability- no need to find the max
-            msp_scores[i] = data_item.max_prediction_probability[0]
-
-        return {"max_softmax_probability": msp_scores}
