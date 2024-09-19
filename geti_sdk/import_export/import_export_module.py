@@ -75,7 +75,7 @@ class GetiIE:
 
         # Download project creation parameters:
         self.project_client.download_project_info(
-            project_name=project.name, path_to_folder=target_folder
+            project=project, path_to_folder=target_folder
         )
 
         # Download images
@@ -280,7 +280,7 @@ class GetiIE:
         return project
 
     def download_all_projects(
-        self, target_folder: str, include_predictions: bool = True
+        self, target_folder: str = "./projects", include_predictions: bool = True
     ) -> List[Project]:
         """
         Download all projects from the Geti Platform.
@@ -293,8 +293,6 @@ class GetiIE:
         projects = self.project_client.get_all_projects()
 
         # Validate or create target_folder
-        if target_folder is None:
-            target_folder = os.path.join(".", "projects")
         os.makedirs(target_folder, exist_ok=True, mode=0o770)
         logging.info(
             f"Found {len(projects)} projects in the designated workspace on the "
@@ -332,7 +330,7 @@ class GetiIE:
         project_folders = [
             folder
             for folder in candidate_project_folders
-            if ProjectClient.is_project_dir(folder)
+            if ProjectClient._is_project_dir(folder)
         ]
         logging.info(
             f"Found {len(project_folders)} project data folders in the target "
@@ -435,8 +433,7 @@ class GetiIE:
         logging.info(
             f"Project '{project_name}' was successfully imported from the dataset."
         )
-        imported_project = self.project_client.get_project_by_name(
-            project_name=project_name,
+        imported_project = self.project_client.get_project(
             project_id=job.metadata.project_id,
         )
         if imported_project is None:
@@ -481,8 +478,7 @@ class GetiIE:
         )
 
         job = monitor_job(session=self.session, job=job, interval=5)
-        imported_project = self.project_client.get_project_by_name(
-            project_name=project_name,
+        imported_project = self.project_client.get_project(
             project_id=job.metadata.project_id,
         )
         if imported_project is None:
@@ -505,7 +501,7 @@ class GetiIE:
         )
         tus_uploader.upload()
         file_id = tus_uploader.get_file_id()
-        if file_id is None or len(file_id) < 2:
+        if file_id is None:
             raise RuntimeError("Failed to get file id for project {project_name}.")
         return file_id
 

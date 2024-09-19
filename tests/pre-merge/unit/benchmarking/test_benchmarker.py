@@ -32,8 +32,8 @@ class TestBenchmarker:
         mocker: MockerFixture,
     ):
         # Arrange
-        mock_get_project_by_name = mocker.patch(
-            "geti_sdk.geti.ProjectClient.get_project_by_name",
+        mock_get_project = mocker.patch(
+            "geti_sdk.geti.Geti.get_project",
             return_value=fxt_classification_project,
         )
         mocked_model_client = mocker.patch(
@@ -42,7 +42,7 @@ class TestBenchmarker:
         mocked_training_client = mocker.patch(
             "geti_sdk.benchmarking.benchmarker.TrainingClient"
         )
-        project_name = "project name"
+        project_mock = mocker.MagicMock()
         algorithms_to_benchmark = ("ALGO_1", "ALGO_2")
         precision_levels = ("PRECISION_1", "PRECISION_2")
         images = ("path_1", "path_2")
@@ -52,16 +52,14 @@ class TestBenchmarker:
         # Single task project, benchmarking on images
         benchmarker = Benchmarker(
             geti=fxt_mocked_geti,
-            project=project_name,
+            project=project_mock,
             algorithms=algorithms_to_benchmark,
             precision_levels=precision_levels,
             benchmark_images=images,
         )
 
         # Assert
-        mock_get_project_by_name.assert_called_once_with(
-            project_name=project_name, project_id=None
-        )
+        mock_get_project.assert_called_once_with(project_id=project_mock.id)
         mocked_model_client.assert_called_once()
         mocked_training_client.assert_called_once()
         assert benchmarker._is_single_task
@@ -74,7 +72,7 @@ class TestBenchmarker:
         with pytest.raises(ValueError):
             benchmarker = Benchmarker(
                 geti=fxt_mocked_geti,
-                project=project_name,
+                project=project_mock,
                 algorithms=algorithms_to_benchmark,
                 precision_levels=precision_levels,
                 benchmark_images=images,
@@ -88,8 +86,8 @@ class TestBenchmarker:
         mocker: MockerFixture,
     ):
         # Arrange
-        mock_get_project_by_name = mocker.patch(
-            "geti_sdk.geti.ProjectClient.get_project_by_name",
+        mocker.patch(
+            "geti_sdk.geti.Geti.get_project",
             return_value=fxt_detection_to_classification_project,
         )
         fetched_images = (mocker.MagicMock(),)
@@ -108,21 +106,18 @@ class TestBenchmarker:
         mocked_training_client = mocker.patch(
             "geti_sdk.benchmarking.benchmarker.TrainingClient"
         )
-        project_name = "project name"
+        project_mock = mocker.MagicMock()
         precision_levels = ["PRECISION_1", "PRECISION_2"]
 
         # Act
         # Multi task project, no media provided
         benchmarker = Benchmarker(
             geti=fxt_mocked_geti,
-            project=project_name,
+            project=project_mock,
             precision_levels=precision_levels,
         )
 
         # Assert
-        mock_get_project_by_name.assert_called_once_with(
-            project_name=project_name, project_id=None
-        )
         mock_image_client_get_all.assert_called_once()
         mocked_model_client.assert_called_once()
         model_client_object_mock.get_all_active_models.assert_called_once()
