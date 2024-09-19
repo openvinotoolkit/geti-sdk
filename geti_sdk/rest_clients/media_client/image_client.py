@@ -186,22 +186,25 @@ class ImageClient(BaseMediaClient[Image]):
 
         else:
             logging.debug("Retrieving full filepaths for image upload...")
+            filenames_lookup = {
+                os.path.basename(path): path
+                for path in glob.glob(
+                    os.path.join(path_to_folder, "**"), recursive=True
+                )
+            }
             for image_name in image_names[0:n_to_upload]:
+                matches: List[str] = []
                 if not extension_included:
-                    matches: List[str] = []
                     for media_extension in media_formats:
-                        match_for_item = glob.glob(
-                            os.path.join(
-                                path_to_folder, "**", f"{image_name}{media_extension}"
-                            ),
-                            recursive=True,
-                        )
-                        if len(match_for_item) > 0:
-                            matches += match_for_item
-                            break
+                        if (
+                            filename := f"{image_name}{media_extension}"
+                        ) in filenames_lookup:
+                            matches.append(filenames_lookup[filename])
                 else:
-                    matches = glob.glob(
-                        os.path.join(path_to_folder, "**", image_name), recursive=True
+                    matches = (
+                        [filenames_lookup[image_name]]
+                        if image_name in filenames_lookup
+                        else []
                     )
                 if not matches:
                     raise ValueError(
