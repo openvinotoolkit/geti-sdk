@@ -161,7 +161,7 @@ class GetiAnnotationReader(AnnotationReader):
                             label_name=label_dict["name"]
                         )
             new_annotations.append(annotation_object)
-           annotation_object.labels[0].name.lower() == "anomalous":
+            if annotation_object.labels[0].name.lower() == "anomalous":
                 # Part of anomaly task reduction in Intel Geti 2.5 -> all anomaly tasks combined into one.
                 # Intel Geti now only accepts full rectangles for anomaly tasks.
                 new_annotations = [
