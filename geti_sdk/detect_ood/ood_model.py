@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-import itertools
 import logging
 import os
 import tempfile
@@ -38,6 +37,7 @@ from .utils import (
     get_deployment_with_xai_head,
     image_to_distribution_data_item,
     load_annotations,
+    ood_metrics_to_string,
     split_data,
 )
 
@@ -88,6 +88,7 @@ class COODModel:
         }
         self._thresholds_prefix = "threshold_"
         self.train_test_split_ratio = 0.7  # The ratio of train-test split
+        self.eval_metrics = {}
 
         if isinstance(project, str):
             project_name = project
@@ -189,10 +190,10 @@ class COODModel:
         eval_metrics_test = self._test_model(
             test_id_data=test_id_data, test_ood_data=test_ood_data
         )
-        logging.info("COOD Model Metrics on Test Data: ")
-        for metric in eval_metrics_test:
-            if not metric.startswith(self._thresholds_prefix):
-                logging.info(f"{metric}: {eval_metrics_test[metric]}")
+        self.eval_metrics["test"] = eval_metrics_test
+        logging.info(
+            f"COOD Model Metrics on Test Data: {ood_metrics_to_string(eval_metrics_test)}"
+        )
 
     def _prepare_id_ood_data(self) -> dict:
         """
@@ -387,9 +388,18 @@ class COODModel:
             y_pred_prob=pred_probabilities_val,
         )
 
-        logging.info(f"COOD Model Metrics on Train Data: {eval_metrics_train}")
-        logging.info(f"COOD Model Metrics on Validation Data: {eval_metrics_val}")
+        logging.info(
+            f"COOD Model Metrics on Training Data: \n {ood_metrics_to_string(eval_metrics_train)}"
+        )
 
+        logging.info(
+            f"COOD Model Metrics on Validation Data: \n {ood_metrics_to_string(eval_metrics_val)}"
+        )
+
+        self.eval_metrics["train"] = eval_metrics_train
+        self.eval_metrics["val"] = eval_metrics_val
+
+        # Update the prediction thresholds based on validation data
         self._update_thresholds(eval_metrics=eval_metrics_val)
 
     def _update_thresholds(self, eval_metrics: dict) -> None:
@@ -406,91 +416,6 @@ class COODModel:
                 self.best_thresholds[threshold_name] = eval_metrics[
                     self._thresholds_prefix + threshold_name
                 ]
-
-    def _train_cood_hpo(
-        self,
-        id_features_train,
-        id_features_val,
-        ood_features_train,
-        ood_features_val,
-    ) -> None:
-        """
-        Train the COOD model using the RandomForestClassifier with hyperparameter optimization.
-        :param id_features_train: Numpy array of COOD features for in-distribution training data
-        :param id_features_val: Numpy array of COOD features for in-distribution validation data
-        :param ood_features_train: Numpy array of COOD features for out-of-distribution training data
-        :param ood_features_val: Numpy array of COOD features for out-of-distribution validation data
-        """
-        logging.info("Training COOD Model with Hyperparameter Optimization")
-        logging.info(
-            f"Training data: ID - {len(id_features_train)}, OOD - {len(ood_features_train)}"
-        )
-
-        all_features_train = np.concatenate((id_features_train, ood_features_train))
-        all_labels_train = np.concatenate(
-            (np.zeros(len(id_features_train)), np.ones(len(ood_features_train)))
-        )
-        all_features_val = np.concatenate((id_features_val, ood_features_val))
-        all_labels_val = np.concatenate(
-            (np.zeros(len(id_features_val)), np.ones(len(ood_features_val)))
-        )
-
-        # Hyperparameter optimization
-        n_estimators = [10, 25, 50, 100, 250]
-        max_depth = [2, 4, 8, 16]
-
-        best_accuracy = 0
-        best_params = {}
-        best_model = None
-
-        all_combinations = itertools.product(n_estimators, max_depth)
-        # Iterate over each combination of hyperparameters
-        for params in all_combinations:
-            n_est, depth = params
-
-            # Initialize a RandomForestClassifier with current parameters
-            model = RandomForestClassifier(
-                n_estimators=n_est,
-                max_depth=depth,
-                random_state=42,
-            )
-
-            # Train the model on the training set
-            model.fit(all_features_train, all_labels_train)
-
-            # Validate the model on the validation set
-            y_val_pred_prob = model.predict_proba(all_features_val)[:, 1]
-
-            metrics = calculate_ood_metrics(
-                y_true=all_labels_val,
-                y_pred_prob=y_val_pred_prob,
-            )
-
-            accuracy = metrics["accuracy"]
-            f1_score_val = metrics["f1_score"]
-            auroc_val = metrics["auroc"]
-
-            logging.info(
-                f"n_estimators: {n_est}, max_depth: {depth}, Accuracy: {accuracy:.4f}, F1 Score: {f1_score_val:.4f}, "
-                f"AUROC: {auroc_val:.4f}"
-            )
-
-            # Update best model if the current one is better
-            if accuracy > best_accuracy:
-                best_accuracy = accuracy
-                best_params = {
-                    "n_estimators": n_est,
-                    "max_depth": depth,
-                }
-                best_model = model
-                if best_accuracy == 1:
-                    break
-
-        # Log the best parameters and accuracy
-        print(f"Best Parameters: {best_params}")
-        print(f"Best Validation Accuracy: {best_accuracy:.4f}")
-
-        self.ood_classifier = best_model
 
     def _cood_features_from_distribution_data(
         self, distribution_data: List[DistributionDataItem]

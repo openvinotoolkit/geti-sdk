@@ -39,6 +39,49 @@ from geti_sdk.rest_clients import ModelClient
 
 from .ood_data import DistributionDataItem, DistributionDataItemPurpose
 
+IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif"]
+
+
+def count_images_in_directory(
+    dir_path: str, include_subdirectories: bool = True
+) -> int:
+    """
+    Count the number of images in the directory (including subdirectories)
+    :param dir_path: Path to the directory containing images
+    :param include_subdirectories: If True, images in subdirectories are also counted
+    :return: Number of images in the directory
+    """
+    count = 0
+    if not os.path.exists(dir_path):
+        return count
+    if include_subdirectories:
+        for root, dirs, files in os.walk(dir_path):
+            for file in files:
+                if os.path.splitext(file)[-1] in IMAGE_EXTENSIONS:
+                    count += 1
+    else:
+        for file in os.listdir(dir_path):
+            if os.path.splitext(file)[-1] in IMAGE_EXTENSIONS:
+                count += 1
+    return count
+
+
+def infer_images_in_directory(dir_path: str, deployment: Deployment):
+    """
+    Infer all images in the directory (including subdirectories) using the deployment
+    :param dir_path: Path to the directory containing images
+    :param deployment: Geti Deployment object to use for inference
+    :return: Generator yielding the image path, image as numpy array and the prediction for each image
+    """
+    for root, dirs, files in os.walk(dir_path):
+        for file in files:
+            if os.path.splitext(file)[-1] in IMAGE_EXTENSIONS:
+                image_path = os.path.join(root, file)
+                img_numpy, prediction = infer_image_on_deployment(
+                    deployment=deployment, image_path=image_path, explain=True
+                )
+                yield image_path, img_numpy, prediction
+
 
 def split_data(
     data: List[DistributionDataItem],
@@ -105,7 +148,7 @@ def image_to_distribution_data_item(
     :param annotation_label: Annotated label for the image (optional)
     return: DistributionDataItem for the image
     """
-    prediction = infer_image_on_deployment(
+    _, prediction = infer_image_on_deployment(
         deployment=deployment, image_path=image_path, explain=True
     )
     return DistributionDataItem(
@@ -174,24 +217,47 @@ def calculate_ood_metrics(y_true: np.ndarray, y_pred_prob: np.ndarray) -> dict:
     }
 
 
+def ood_metrics_to_string(metrics: dict) -> str:
+    """
+    Convert the OOD metrics dictionary to a string for logging.
+    :param metrics: Dictionary containing the OOD metrics
+    :return: A string containing the OOD metrics
+    """
+    metrics_to_long_name = {
+        "accuracy": "Accuracy",
+        "auroc": "AUROC",
+        "f1": "F1 Score",
+        "tpr_1_fpr": "TPR@1%FPR",
+        "tpr_5_fpr": "TPR@5%FPR",
+    }
+    metrics_str = "\n".join(
+        [
+            f"{metrics_to_long_name[metric]}: {metrics[metric]:.4f}"
+            for metric in metrics_to_long_name
+            if metric in metrics
+        ]
+    )
+    return metrics_str
+
+
 def infer_image_on_deployment(
     deployment: Deployment, image_path: str, explain: bool = False
-) -> Prediction:
+) -> (np.ndarray, Prediction):
     """
     Infer the image and get the prediction using the deployment
     :param deployment: Geti Deployment object to use for inference
     :param image_path: Path to the image
     :param explain: If True, prediction will contain the feature vector and saliency maps
-    :return: Prediction object for the image
+    :return: Image as a numpy array and the prediction object
     """
     img = cv2.imread(image_path)
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     if explain:
         # Note that a check to see if xai model is present in the deployment is not done.
         # If the model is not present, then feature_vector will be None
-        return deployment.explain(image=img_rgb)
+        return img_rgb, deployment.explain(image=img_rgb)
     else:
-        return deployment.infer(image=img_rgb)
+        return img_rgb, deployment.infer(image=img_rgb)
 
 
 def validate_cood_prediction_threshold(threshold: float) -> Union[float, None]:
