@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import os
+import shutil
 
 import cv2
 
@@ -59,8 +60,8 @@ ood_model = COODModel(
 trigger = OODTrigger(ood_model=ood_model, threshold=ood_model.best_thresholds["fscore"])
 
 action = FileSystemDataCollection(
-    target_folder="/Users/rgangire/workspace/Results/SDK/data/CollectedImages",
-    file_name_prefix="OOD",
+    target_folder="/Users/rgangire/workspace/Results/SDK/data/CollectedImages-NEW",
+    # file_name_prefix="OOD",
     save_predictions=False,
     save_scores=False,
     save_overlays=False,
@@ -72,12 +73,67 @@ geti_hook = PostInferenceHook(
 )
 
 ood_model.deployment.add_post_inference_hook(hook=geti_hook)
-ood_dir = "/Users/rgangire/workspace/Results/SDK/data/TestOOD"
-for img_file in os.listdir(ood_dir):
-    img_path = os.path.join(ood_dir, img_file)
-    img = cv2.imread(img_path)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    prediction = ood_model.deployment.explain(image=img)
-    probability = prediction.annotations[0].labels[0].probability
-    label = prediction.annotations[0].labels[0].name
-    print(f"Image: {img_file}, Label: {label}, Probability: {probability}")
+# ood_dir = "/Users/rgangire/workspace/Results/SDK/data/TestOOD"
+# for img_file in os.listdir(ood_dir):
+#     img_path = os.path.join(ood_dir, img_file)
+#     img = cv2.imread(img_path)
+#     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+#     prediction = ood_model.deployment.explain(image=img)
+#     probability = prediction.annotations[0].labels[0].probability
+#     label = prediction.annotations[0].labels[0].name
+#     print(f"Image: {img_file}, Label: {label}, Probability: {probability}")
+
+
+# from geti_sdk.demos import EXAMPLE_IMAGE_PATH
+
+# example_path = "/Users/rgangire/workspace/data/CUB_200_2011/CUB_200_2011/images/013.Bobolink/Bobolink_0099_9314.jpg"
+# numpy_image = cv2.imread(EXAMPLE_IMAGE_PATH)
+# numpy_rgb = cv2.cvtColor(numpy_image, cv2.COLOR_BGR2RGB)
+#
+# prediction = deployment.explain(numpy_rgb)
+# print(
+#     f"Predicted as : {prediction.get_label_names()[0]} with a probability: {100*prediction.annotations[0].labels[0].probability:.1f}%"
+# )
+
+
+OOD_BASE_PATH = "/Users/rgangire/workspace/Results/SDK/data/TestOOD_ALL-Extended-Pred90"
+all_ood_collection = "/Users/rgangire/workspace/Results/SDK/data/CollectedImages-NEW"
+prob_treatment = False
+
+ood_sub_folders = os.listdir(OOD_BASE_PATH)
+for sub_folder in ood_sub_folders:
+    sub_folder_path = os.path.join(OOD_BASE_PATH, sub_folder)
+    if not os.path.isdir(sub_folder_path):
+        continue
+    # clean all the files in all_ood_collection
+    ood_images_path = os.path.join(all_ood_collection, "images")
+    shutil.rmtree(ood_images_path, ignore_errors=True)
+    os.makedirs(ood_images_path, exist_ok=True)
+    print(f"Processing OOD sub-folder: {sub_folder}")
+    if prob_treatment:
+        copy_path_pred_90 = os.path.join(all_ood_collection, sub_folder + "_pred_90")
+        os.makedirs(copy_path_pred_90, exist_ok=True)
+
+    count_all_images = 0
+    count_pred_90 = 0
+    for img_file in os.listdir(sub_folder_path):
+        img_path = os.path.join(sub_folder_path, img_file)
+        img = cv2.imread(img_path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        prediction = ood_model.deployment.explain(image=img)
+        probability = prediction.annotations[0].labels[0].probability
+        count_all_images += 1
+        if prob_treatment:
+            if probability >= 0.9:
+                shutil.copy(img_path, copy_path_pred_90)
+                count_pred_90 += 1
+
+    images_in_ood_path = os.listdir(ood_images_path)
+    images_in_ood_path = [
+        image for image in images_in_ood_path if image.endswith(".png")
+    ]
+    print(
+        f"Total images: {count_all_images}, "
+        f"Images with probability >= 0.9: {count_pred_90}, "
+        f"Images Detected as OOD: {len(images_in_ood_path)}"
+    )
