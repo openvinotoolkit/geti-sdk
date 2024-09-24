@@ -62,7 +62,7 @@ if __name__ == "__main__":
     rotated_image = rotate_image(image=numpy_image, angle=20)
 
     # Make sure that the project exists
-    ensure_trained_example_project(geti=geti, project_name=PROJECT_NAME)
+    project = ensure_trained_example_project(geti=geti, project_name=PROJECT_NAME)
 
     print(
         "Uploading and predicting example image now... The prediction results will be "
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     # We can upload and predict the resulting array directly:
     sc_image, image_prediction = geti.upload_and_predict_image(
-        project_name=PROJECT_NAME,
+        project=project,
         image=rotated_image,
         visualise_output=False,
         delete_after_prediction=DELETE_AFTER_PREDICTION,
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     print("Video generated, retrieving predictions...")
     # Create video, upload and predict from the list of frames
     sc_video, video_frames, frame_predictions = geti.upload_and_predict_video(
-        project_name=PROJECT_NAME,
+        project=project,
         video=rotation_video,
         frame_stride=1,
         visualise_output=False,

@@ -94,7 +94,7 @@ def remove_all_test_projects(geti: Geti) -> List[str]:
     projects_removed: List[str] = []
     for project in project_client.get_all_projects(get_project_details=False):
         if project.name.startswith(PROJECT_PREFIX):
-            force_delete_project(project.name, project_client, project_id=project.id)
+            force_delete_project(project, project_client)
             projects_removed.append(project.name)
     logging.info(f"{len(projects_removed)} test projects were removed from the server.")
     return projects_removed

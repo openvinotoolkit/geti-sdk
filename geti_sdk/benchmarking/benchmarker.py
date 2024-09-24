@@ -53,7 +53,7 @@ class Benchmarker:
     def __init__(
         self,
         geti: Geti,
-        project: Union[str, Project],
+        project: Project,
         precision_levels: Optional[Sequence[str]] = None,
         models: Optional[Sequence[Model]] = None,
         algorithms: Optional[Sequence[str]] = None,
@@ -83,7 +83,7 @@ class Benchmarker:
         be called after initialization.
 
         :param geti: Geti instance on which the project to use for benchmarking lives
-        :param project: Project or project name to use for the benchmarking. The
+        :param project: Project to use for the benchmarking. The
             project must exist on the specified Geti instance
         :param precision_levels: List of model precision levels to run the
             benchmarking for. Throughput will be measured for each precision level
@@ -111,11 +111,8 @@ class Benchmarker:
             on.
         """
         self.geti = geti
-        if isinstance(project, str):
-            project_name = project
-        else:
-            project_name = project.name
-        self.project = geti.get_project(project_name)
+        # Update project object to get the latest project details
+        self.project = self.geti.get_project(project_id=project.id)
         logging.info(
             f"Setting up Benchmarker for Intel® Geti™ project `{self.project.name}`."
         )
@@ -501,7 +498,7 @@ class Benchmarker:
                 output_folder = os.path.join(working_directory, f"deployment_{index}")
                 with suppress_log_output():
                     self.geti.deploy_project(
-                        project_name=self.project.name,
+                        project=self.project,
                         output_folder=output_folder,
                         models=opt_models,
                     )

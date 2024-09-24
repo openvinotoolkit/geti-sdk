@@ -173,7 +173,7 @@ class TestGeti:
         for project in fxt_nightly_projects:
             os.makedirs(os.path.join(target_dir, project.name))
         mock_is_project_dir = mocker.patch(
-            "geti_sdk.geti.ProjectClient.is_project_dir", return_value=True
+            "geti_sdk.geti.ProjectClient._is_project_dir", return_value=True
         )
         mock_upload_project_data = mocker.patch(
             "geti_sdk.import_export.import_export_module.GetiIE.upload_project_data"
