@@ -13,14 +13,14 @@
 # and limitations under the License.
 import logging
 import os
-from typing import Any, Dict, List, Optional, Tuple
 import warnings
+from typing import Any, Dict, List, Optional, Tuple
 
 from geti_sdk.data_models import Dataset, Image, Model, Project, VideoFrame
 from geti_sdk.data_models.containers import MediaList
 from geti_sdk.http_session import GetiSession
-from geti_sdk.rest_converters import MediaRESTConverter
 from geti_sdk.http_session.exception import GetiRequestException
+from geti_sdk.rest_converters import MediaRESTConverter
 from geti_sdk.utils import deserialize_dictionary
 
 
