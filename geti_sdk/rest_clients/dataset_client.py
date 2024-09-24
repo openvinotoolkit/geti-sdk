@@ -184,13 +184,21 @@ class DatasetClient:
         )
         return training_dataset
 
-    def get_training_dataset(
+    def get_media_in_training_dataset(
         self, model: Model, subset: str = "training"
     ) -> Tuple[MediaList[Image], MediaList[VideoFrame]]:
         """
         Return the media in the training dataset for the `model`, for
         the specified `subset`. Subset can be `training`, `validation` or `testing`.
 
+        :param model: Model for which to get the media in the training dataset
+        :param subset: The subset for which to return the media items. Can be either
+            `training` (the default), `validation` or `testing`
+        return: A tuple containing:
+            - A list of all images in the specified subset of the training dataset of
+                the model
+            - A list of all video frames in the specified subset of the training
+                dataset of the model
         """
         ds_info = model.training_dataset_info
         dataset_storage_id = ds_info.get("dataset_storage_id", None)
