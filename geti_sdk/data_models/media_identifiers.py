@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import ClassVar, Dict
+from typing import ClassVar, Dict, Optional
 
 import attr
 
@@ -62,12 +62,14 @@ class VideoFrameIdentifier(MediaIdentifier):
 
     :var frame_index: Index of the video frame in the full video
     :var video_id: unique database ID of the video to which the frame belongs
+    :var key_index: Index of the key frame in the video
     """
 
     _identifier_fields: ClassVar[str] = ["video_id"]
 
     frame_index: int
     video_id: str
+    key_index: Optional[int] = None  # Added in Geti 2.5
 
 
 @attr.define

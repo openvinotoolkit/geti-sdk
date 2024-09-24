@@ -24,18 +24,18 @@ from geti_sdk.rest_clients import AnnotationClient, ImageClient, ProjectClient
 from .utils import ensure_project_is_trained
 
 
-def create_anomaly_classification_demo_project(
+def create_anomaly_detection_demo_project(
     geti: Geti,
     n_images: int,
     n_annotations: int = -1,
-    project_name: str = "Anomaly classification demo",
+    project_name: str = "Anomaly demo",
     dataset_path: Optional[str] = None,
 ) -> Project:
     """
-    Create a demo project of type 'anomaly_classification', based off the MVTec
+    Create a demo project of type 'anomaly', based off the MVTec
     anomaly detection dataset.
 
-    This method creates a project with a single 'Anomaly classification' task.
+    This method creates a project with a single 'Anomaly' task.
 
     :param geti: Geti instance, representing the GETi server on which
         the project should be created.
@@ -44,7 +44,7 @@ def create_anomaly_classification_demo_project(
     :param n_annotations: Number of images that should be annotated. Pass -1 to
         upload annotations for all images.
     :param project_name: Name of the project to create.
-        Defaults to 'Anomaly classification demo'
+        Defaults to 'Anomaly demo'
     :param dataset_path: Path to the dataset to use as data source. Defaults to
         the 'data' directory in the top level folder of the geti_sdk package. If
         the dataset is not found in the target folder, this method will attempt to
@@ -54,7 +54,7 @@ def create_anomaly_classification_demo_project(
     """
     project_client = ProjectClient(session=geti.session, workspace_id=geti.workspace_id)
     data_path = get_mvtec_dataset(dataset_path)
-    logging.info(" ------- Creating anomaly classification project --------------- ")
+    logging.info(" ------- Creating anomaly project --------------- ")
 
     # Create annotation reader
     annotation_reader = DirectoryTreeAnnotationReader(
@@ -69,7 +69,7 @@ def create_anomaly_classification_demo_project(
     # Create the project
     project = project_client.create_project(
         project_name=project_name,
-        project_type="anomaly_classification",
+        project_type="anomaly",
         labels=[[]],
     )
 
@@ -104,13 +104,13 @@ def create_anomaly_classification_demo_project(
 
 
 def ensure_trained_anomaly_project(
-    geti: Geti, project_name: str = "Transistor anomaly classification"
+    geti: Geti, project_name: str = "Transistor anomaly detection"
 ):
     """
     Check whether the project named `project_name` exists on the server, and create it
     if it not.
 
-    If the project does not exist, this method will create an anomaly classification
+    If the project does not exist, this method will create an anomaly detection
     project based on the MVTec AD `transistor` dataset.
 
     :param geti: Geti instance pointing to the Intel® Geti™ server
@@ -122,11 +122,11 @@ def ensure_trained_anomaly_project(
     if project is None:
         logging.info(f"Project '{project_name}' does not exist yet, creating it...")
 
-        project = create_anomaly_classification_demo_project(
+        project = create_anomaly_detection_demo_project(
             geti=geti, n_images=-1, project_name=project_name
         )
         logging.info(
-            f"Project `{project_name}` of type `anomaly_classification` was created on "
+            f"Project `{project_name}` of type `anomaly` was created on "
             f"host `{geti.session.config.host}`."
         )
 

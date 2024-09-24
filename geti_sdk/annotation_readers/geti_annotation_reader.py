@@ -22,6 +22,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from geti_sdk.data_models import Annotation, TaskType
 from geti_sdk.data_models.media import MediaInformation
+from geti_sdk.data_models.shapes import Rectangle
 from geti_sdk.rest_converters import AnnotationRESTConverter
 from geti_sdk.rest_converters.annotation_rest_converter import (
     NormalizedAnnotationRESTConverter,
@@ -160,6 +161,19 @@ class GetiAnnotationReader(AnnotationReader):
                             label_name=label_dict["name"]
                         )
             new_annotations.append(annotation_object)
+            if annotation_object.labels[0].name.lower() == "anomalous":
+                # Part of anomaly task reduction in Intel Geti 2.5 -> all anomaly tasks combined into one.
+                # Intel Geti now only accepts full rectangles for anomaly tasks.
+                new_annotations = [
+                    Annotation(
+                        labels=[annotation_object.labels[0]],
+                        shape=Rectangle.generate_full_box(
+                            image_width=media_information.width,
+                            image_height=media_information.height,
+                        ),
+                    )
+                ]
+                break
         return new_annotations
 
     def get_all_label_names(self) -> List[str]:
