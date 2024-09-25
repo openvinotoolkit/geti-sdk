@@ -358,3 +358,35 @@ class TestModelAndPredictionClient:
         # Assert
         purged_model = model_client.update_model_detail(previous_model)
         assert purged_model.purge_info.is_purged
+
+    @pytest.mark.vcr()
+    def test_get_training_dataset(
+        self,
+        fxt_project_service: ProjectService,
+        fxt_test_mode: SdkTestMode,
+    ) -> None:
+        """
+        Test that the media in the training dataset for a model con be recovered.
+        """
+        model = fxt_project_service.model_client.get_all_active_models()[0]
+        dataset_client = fxt_project_service.dataset_client
+
+        training_ds_summary = dataset_client.get_training_dataset_summary(model)
+
+        train_images, train_frames = dataset_client.get_media_in_training_dataset(
+            model, "training"
+        )
+        val_images, val_frames = dataset_client.get_media_in_training_dataset(
+            model, "validation"
+        )
+        test_images, test_frames = dataset_client.get_media_in_training_dataset(
+            model, "testing"
+        )
+
+        train_items = training_ds_summary["subset_info"]["training"]
+        val_items = training_ds_summary["subset_info"]["validation"]
+        test_items = training_ds_summary["subset_info"]["testing"]
+
+        assert len(train_images) + len(train_frames) == train_items
+        assert len(val_images) + len(val_frames) == val_items
+        assert len(test_images) + len(test_frames) == test_items

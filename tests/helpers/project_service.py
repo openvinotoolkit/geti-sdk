@@ -23,6 +23,7 @@ from geti_sdk.data_models import Project, TaskType
 from geti_sdk.rest_clients import (
     AnnotationClient,
     ConfigurationClient,
+    DatasetClient,
     ImageClient,
     ModelClient,
     PredictionClient,
@@ -67,6 +68,7 @@ class ProjectService:
         self._video_client: Optional[VideoClient] = None
         self._model_client: Optional[ModelClient] = None
         self._prediction_client: Optional[PredictionClient] = None
+        self._dataset_client: Optional[DatasetClient] = None
         self._client_names = [
             "_configuration_client",
             "_image_client",
@@ -75,6 +77,7 @@ class ProjectService:
             "_video_client",
             "_model_client",
             "_prediction_client",
+            "_dataset_client",
         ]
 
     def create_project(
@@ -259,6 +262,20 @@ class ProjectService:
                     project=self.project,
                 )
         return self._annotation_client
+
+    @property
+    def dataset_client(self) -> DatasetClient:
+        """Returns the DatasetClient instance for the project"""
+        if self._annotation_client is None:
+            with self.vcr_context(
+                f"{self.project.name}_dataset_client.{CASSETTE_EXTENSION}"
+            ):
+                self._dataset_client = DatasetClient(
+                    session=self.session,
+                    workspace_id=self.workspace_id,
+                    project=self.project,
+                )
+        return self._dataset_client
 
     @property
     def configuration_client(self) -> ConfigurationClient:
