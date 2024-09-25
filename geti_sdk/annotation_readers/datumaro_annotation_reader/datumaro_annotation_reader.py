@@ -46,6 +46,7 @@ class DatumAnnotationReader(AnnotationReader):
         TaskType.ANOMALY_CLASSIFICATION,
         TaskType.ANOMALY_DETECTION,
         TaskType.ANOMALY_SEGMENTATION,
+        TaskType.ANOMALY,
     ]
 
     def __init__(

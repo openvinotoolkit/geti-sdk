@@ -26,6 +26,7 @@ class TaskType(Enum):
     ANOMALY_CLASSIFICATION = "anomaly_classification"
     ANOMALY_DETECTION = "anomaly_detection"
     ANOMALY_SEGMENTATION = "anomaly_segmentation"
+    ANOMALY = "anomaly"
     INSTANCE_SEGMENTATION = "instance_segmentation"
     ROTATED_DETECTION = "rotated_detection"
     DATASET = "dataset"
@@ -111,9 +112,14 @@ ANOMALY_TASK_TYPES = [
     TaskType.ANOMALY_CLASSIFICATION,
     TaskType.ANOMALY_DETECTION,
     TaskType.ANOMALY_SEGMENTATION,
+    TaskType.ANOMALY,
 ]
 
-GLOBAL_TASK_TYPES = [TaskType.CLASSIFICATION, TaskType.ANOMALY_CLASSIFICATION]
+GLOBAL_TASK_TYPES = [
+    TaskType.CLASSIFICATION,
+    TaskType.ANOMALY_CLASSIFICATION,
+    TaskType.ANOMALY,
+]
 
 SEGMENTATION_TASK_TYPES = [
     TaskType.SEGMENTATION,

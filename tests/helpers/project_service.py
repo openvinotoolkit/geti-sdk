@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import logging
+import time
 from contextlib import nullcontext
 from typing import Any, Dict, List, Optional, Sequence, Union
 
@@ -61,6 +62,7 @@ class ProjectService:
         )
 
         self._project: Optional[Project] = None
+        self._project_creation_timestamp: Optional[float] = None
         self._configuration_client: Optional[ConfigurationClient] = None
         self._image_client: Optional[ImageClient] = None
         self._annotation_client: Optional[AnnotationClient] = None
@@ -103,7 +105,7 @@ class ProjectService:
                 project = self.project_client.create_project(
                     project_name=project_name, project_type=project_type, labels=labels
                 )
-                self._project = project
+                self.project = project
                 return project
         else:
             raise ValueError(
@@ -186,7 +188,7 @@ class ProjectService:
                 "Please either delete the existing project first or use a new "
                 "instance to create another project"
             )
-        self._project = project
+        self.project = project
         return project
 
     @property
@@ -194,7 +196,8 @@ class ProjectService:
         """
         Returns the project managed by the ProjectService.
 
-        :return:
+        :return: The project managed by the ProjectService
+        :raises: ValueError if the ProjectService does not contain a project yet
         """
         if self._project is None:
             raise ValueError(
@@ -202,6 +205,17 @@ class ProjectService:
                 "call `ProjectService.create_project` to create a new project first."
             )
         return self._project
+
+    @project.setter
+    def project(self, value: Optional[Project]) -> None:
+        """
+        Set the project for the ProjectService.
+        """
+        self._project = value
+        if self._project is None:
+            self._project_creation_timestamp = None
+        else:
+            self._project_creation_timestamp = time.time()
 
     @property
     def has_project(self) -> bool:
@@ -349,8 +363,11 @@ class ProjectService:
 
     def delete_project(self):
         """Deletes the project from the server"""
-        if self._project is not None:
+        if self.has_project:
             with self.vcr_context(f"{self.project.name}_deletion.{CASSETTE_EXTENSION}"):
+                # Server needs a moment to process the project before deletion
+                if (lifetime := time.time() - self._project_creation_timestamp) < 5:
+                    time.sleep(5 - lifetime)
                 force_delete_project(self.project, self.project_client)
                 self.reset_state()
 
@@ -359,7 +376,7 @@ class ProjectService:
         Resets the state of the ProjectService instance. This method should be called
         once the project belonging to the project service is deleted from the server
         """
-        self._project = None
+        self.project = None
         for client_name in self._client_names:
             setattr(self, client_name, None)
 

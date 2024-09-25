@@ -22,6 +22,7 @@ from tests.helpers import ProjectService
 from tests.helpers.constants import (
     DUMMY_HOST,
     DUMMY_PASSWORD,
+    DUMMY_TOKEN,
     DUMMY_USER,
     PROJECT_PREFIX,
 )
@@ -85,12 +86,13 @@ class TestUtils:
         assert not hasattr(server_config, "username")
         assert not hasattr(server_config, "password")
 
-        environ_keys = ["GETI_HOST", "GETI_USERNAME", "GETI_PASSWORD"]
+        environ_keys = ["GETI_HOST", "GETI_USERNAME", "GETI_PASSWORD", "GETI_TOKEN"]
         expected_results = {}
         dummy_results = {
             "GETI_HOST": DUMMY_HOST,
             "GETI_USERNAME": DUMMY_USER,
             "GETI_PASSWORD": DUMMY_PASSWORD,
+            "GETI_TOKEN": DUMMY_TOKEN,
         }
         for ekey in environ_keys:
             evalue = os.environ.get(ekey, None)
@@ -105,7 +107,5 @@ class TestUtils:
         assert server_config.host.replace("https://", "") == expected_results[
             "GETI_HOST"
         ].replace("https://", "")
-        assert server_config.username == expected_results["GETI_USERNAME"]
-        assert server_config.password == expected_results["GETI_PASSWORD"]
+        assert server_config.token == expected_results["GETI_TOKEN"]
         assert server_config.proxies is None
-        assert not hasattr(server_config, "token")

@@ -32,6 +32,7 @@ from .task_templates import (
     ANOMALY_CLASSIFICATION_TASK,
     ANOMALY_DETECTION_TASK,
     ANOMALY_SEGMENTATION_TASK,
+    ANOMALY_TASK,
     BASE_TEMPLATE,
     CLASSIFICATION_TASK,
     CROP_TASK,
@@ -49,6 +50,7 @@ TASK_TYPE_MAPPING = {
     TaskType.ANOMALY_CLASSIFICATION: ANOMALY_CLASSIFICATION_TASK,
     TaskType.ANOMALY_DETECTION: ANOMALY_DETECTION_TASK,
     TaskType.ANOMALY_SEGMENTATION: ANOMALY_SEGMENTATION_TASK,
+    TaskType.ANOMALY: ANOMALY_TASK,
     TaskType.INSTANCE_SEGMENTATION: INSTANCE_SEGMENTATION_TASK,
     TaskType.ROTATED_DETECTION: ROTATED_DETECTION_TASK,
 }
@@ -423,6 +425,9 @@ class ProjectClient:
         for task_type, task_labels in zip(
             get_task_types_by_project_type(project_type), labels
         ):
+            if task_type.is_anomaly and task_type != TaskType.ANOMALY:
+                logging.info(f"The {task_type} task is mapped to {TaskType.ANOMALY}.")
+                task_type = TaskType.ANOMALY
             if not is_first_task and not previous_task_type.is_global:
                 # Add crop task and connections, only for tasks that are not
                 # first in the pipeline and are not preceded by a global task

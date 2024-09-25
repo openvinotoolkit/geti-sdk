@@ -360,8 +360,8 @@ class GetiIE:
         :param filepath: The path to the dataset archive.
         :param project_name: The name of the new project.
         :param project_type: The type of the new project. Provide one of
-            [classification, classification_hierarchical, detection, segmentation,
-            instance_segmentation, anomaly_classification, anomaly_detection, anomaly_segmentation,
+            [classification, classification_hierarchical, detection, segmentation, instance_segmentation,
+            anomaly_classification, anomaly_detection, anomaly_segmentation, anomaly,
             detection_oriented, detection_to_classification, detection_to_segmentation]
         :return: The imported project.
         :raises: RuntimeError if the project type is not supported for the imported dataset.

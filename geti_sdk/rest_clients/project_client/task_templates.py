@@ -52,6 +52,15 @@ ANOMALY_CLASSIFICATION_TASK = {
     "labels": [],
 }
 
+# This is the reduced anomaly task.
+# It goes under `Anomaly Detection` title
+# But it is Anomally Classification task in reality
+ANOMALY_TASK = {
+    "title": "Anomaly Detection task",
+    "task_type": "anomaly",
+    "labels": [],
+}
+
 ANOMALY_DETECTION_TASK = {
     "title": "Anomaly detection task",
     "task_type": "anomaly_detection",
