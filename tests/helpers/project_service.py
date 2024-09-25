@@ -280,7 +280,7 @@ class ProjectService:
     @property
     def dataset_client(self) -> DatasetClient:
         """Returns the DatasetClient instance for the project"""
-        if self._annotation_client is None:
+        if self._dataset_client is None:
             with self.vcr_context(
                 f"{self.project.name}_dataset_client.{CASSETTE_EXTENSION}"
             ):
