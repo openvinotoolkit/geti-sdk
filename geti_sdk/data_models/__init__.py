@@ -177,6 +177,7 @@ from .configuration import (
     TaskConfiguration,
 )
 from .credit_system import CreditAccount, CreditBalance, Subscription
+from .dataset import Dataset, Subset, TrainingDatasetStatistics
 from .enums import AnnotationKind, MediaType, TaskType
 from .job import Job
 from .label import Label, ScoredLabel
@@ -185,7 +186,7 @@ from .model import Model, OptimizedModel
 from .model_group import ModelGroup, ModelSummary
 from .performance import Performance
 from .predictions import Prediction
-from .project import Dataset, Pipeline, Project
+from .project import Pipeline, Project
 from .status import ProjectStatus
 from .task import Task
 from .test_result import Score, TestResult
@@ -198,6 +199,7 @@ __all__ = [
     "Label",
     "Task",
     "Pipeline",
+    "Dataset",
     "Image",
     "Video",
     "MediaItem",
@@ -220,11 +222,12 @@ __all__ = [
     "ProjectStatus",
     "Job",
     "CodeDeploymentInformation",
-    "Dataset",
     "TestResult",
     "Score",
     "User",
     "CreditAccount",
     "CreditBalance",
     "Subscription",
+    "Subset",
+    "TrainingDatasetStatistics",
 ]

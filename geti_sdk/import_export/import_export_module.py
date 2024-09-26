@@ -8,10 +8,11 @@ from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
 from geti_sdk.annotation_readers.geti_annotation_reader import GetiAnnotationReader
+from geti_sdk.data_models import Dataset
 from geti_sdk.data_models.containers.media_list import MediaList
 from geti_sdk.data_models.enums.dataset_format import DatasetFormat
 from geti_sdk.data_models.media import Image, Video
-from geti_sdk.data_models.project import Dataset, Project
+from geti_sdk.data_models.project import Project
 from geti_sdk.http_session.exception import GetiRequestException
 from geti_sdk.http_session.geti_session import GetiSession
 from geti_sdk.import_export.tus_uploader import TUSUploader
