@@ -6,8 +6,8 @@ from tests.helpers.constants import PROJECT_PREFIX
 from tests.nightly.test_nightly_project import TestNightlyProject
 
 
-class TestAnomalyClassification(TestNightlyProject):
-    PROJECT_TYPE = "anomaly_classification"
+class TestAnomaly(TestNightlyProject):
+    PROJECT_TYPE = "anomaly"
     __test__ = True
 
     def test_project_setup(
@@ -39,7 +39,7 @@ class TestAnomalyClassification(TestNightlyProject):
 
     def test_monitor_jobs(self, fxt_project_service_no_vcr: ProjectService):
         """
-        For anomaly classification projects, the training is run in the project_setup
+        For anomaly projects, the training is run in the project_setup
         phase. No need to monitor jobs.
         """
         pass

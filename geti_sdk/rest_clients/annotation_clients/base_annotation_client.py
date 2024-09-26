@@ -27,6 +27,7 @@ from geti_sdk.annotation_readers import AnnotationReader
 from geti_sdk.data_models import (
     AnnotationKind,
     AnnotationScene,
+    Dataset,
     Image,
     Project,
     Video,
@@ -35,7 +36,6 @@ from geti_sdk.data_models import (
 from geti_sdk.data_models.containers.media_list import MediaList
 from geti_sdk.data_models.label import Label
 from geti_sdk.data_models.media import MediaInformation, MediaItem
-from geti_sdk.data_models.project import Dataset
 from geti_sdk.http_session import GetiSession
 from geti_sdk.rest_clients.dataset_client import DatasetClient
 from geti_sdk.rest_converters import AnnotationRESTConverter
