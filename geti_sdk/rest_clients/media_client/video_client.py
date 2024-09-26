@@ -20,9 +20,8 @@ from typing import Optional, Sequence, Union
 import cv2
 import numpy as np
 
-from geti_sdk.data_models import MediaType, Video
+from geti_sdk.data_models import Dataset, MediaType, Video
 from geti_sdk.data_models.containers import MediaList
-from geti_sdk.data_models.project import Dataset
 from geti_sdk.http_session import GetiRequestException
 from geti_sdk.rest_converters import MediaRESTConverter
 

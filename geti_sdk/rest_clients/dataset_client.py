@@ -14,9 +14,17 @@
 import logging
 import os
 import warnings
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Optional
 
-from geti_sdk.data_models import Dataset, Image, Model, Project, VideoFrame
+from geti_sdk.data_models import (
+    Dataset,
+    Image,
+    Model,
+    Project,
+    Subset,
+    TrainingDatasetStatistics,
+    VideoFrame,
+)
 from geti_sdk.data_models.containers import MediaList
 from geti_sdk.http_session import GetiSession
 from geti_sdk.http_session.exception import GetiRequestException
@@ -160,7 +168,7 @@ class DatasetClient:
                 return False
         return True
 
-    def get_training_dataset_summary(self, model: Model) -> Dict[str, Any]:
+    def get_training_dataset_summary(self, model: Model) -> TrainingDatasetStatistics:
         """
         Return information concerning the training dataset for the `model`.
         This includes the number of images and video frames, and the statistics for
@@ -168,7 +176,8 @@ class DatasetClient:
         images/video frames)
 
         :param model: Model to get the training dataset for
-        :return: Dictionary containing the training dataset info for the model
+        :return: A `TrainingDatasetStatistics` object, containing the training dataset
+            statistics for the model
         """
         ds_info = model.training_dataset_info
         dataset_storage_id = ds_info.get("dataset_storage_id", None)
@@ -182,11 +191,11 @@ class DatasetClient:
             url=f"{self.base_url}/{dataset_storage_id}/training_revisions/{revision_id}",
             method="GET",
         )
-        return training_dataset
+        return deserialize_dictionary(training_dataset, TrainingDatasetStatistics)
 
     def get_media_in_training_dataset(
         self, model: Model, subset: str = "training"
-    ) -> Tuple[MediaList[Image], MediaList[VideoFrame]]:
+    ) -> Subset:
         """
         Return the media in the training dataset for the `model`, for
         the specified `subset`. Subset can be `training`, `validation` or `testing`.
@@ -194,11 +203,10 @@ class DatasetClient:
         :param model: Model for which to get the media in the training dataset
         :param subset: The subset for which to return the media items. Can be either
             `training` (the default), `validation` or `testing`
-        return: A tuple containing:
-            - A list of all images in the specified subset of the training dataset of
-                the model
-            - A list of all video frames in the specified subset of the training
-                dataset of the model
+        return: A `Subset` object, containing lists of `images` and `video_frames` in
+            the requested `subset`
+        :raises: ValueError if the DatasetClient is unable to fetch the required
+            dataset information from the model
         """
         ds_info = model.training_dataset_info
         dataset_storage_id = ds_info.get("dataset_storage_id", None)
@@ -232,10 +240,13 @@ class DatasetClient:
 
                 if item["type"] == "video":
                     video_id = item["id"]
-                    frame_page = f"{self.base_url}/{dataset_storage_id}/training_revisions/{revision_id}/media/videos/{video_id}:query"
-                    while frame_page:
+                    next_frame_page = (
+                        f"{self.base_url}/{dataset_storage_id}/training_revisions/"
+                        f"{revision_id}/media/videos/{video_id}:query"
+                    )
+                    while next_frame_page:
                         frames_response = self.session.get_rest_response(
-                            url=frame_page, method="POST", data=post_data
+                            url=next_frame_page, method="POST", data=post_data
                         )
                         for frame in frames_response["media"]:
                             frame["video_id"] = video_id
@@ -243,6 +254,6 @@ class DatasetClient:
                                 frame, VideoFrame
                             )
                             video_frames.append(video_frame)
-                        frame_page = frames_response.get("next_page", None)
+                        next_frame_page = frames_response.get("next_page", None)
 
-        return images, video_frames
+        return Subset(images=images, frames=video_frames, purpose=subset)

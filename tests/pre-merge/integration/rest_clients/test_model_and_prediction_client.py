@@ -21,7 +21,7 @@ import pytest
 
 from geti_sdk.annotation_readers import DatumAnnotationReader
 from geti_sdk.data_models import Image, Prediction, Project
-from geti_sdk.data_models.enums import JobState, PredictionMode
+from geti_sdk.data_models.enums import JobState, PredictionMode, SubsetPurpose
 from geti_sdk.demos import EXAMPLE_IMAGE_PATH
 from geti_sdk.http_session import GetiRequestException
 from geti_sdk.platform_versions import GETI_15_VERSION, GETI_22_VERSION
@@ -373,20 +373,18 @@ class TestModelAndPredictionClient:
 
         training_ds_summary = dataset_client.get_training_dataset_summary(model)
 
-        train_images, train_frames = dataset_client.get_media_in_training_dataset(
-            model, "training"
-        )
-        val_images, val_frames = dataset_client.get_media_in_training_dataset(
-            model, "validation"
-        )
-        test_images, test_frames = dataset_client.get_media_in_training_dataset(
-            model, "testing"
-        )
+        train_set = dataset_client.get_media_in_training_dataset(model, "training")
+        val_set = dataset_client.get_media_in_training_dataset(model, "validation")
+        test_set = dataset_client.get_media_in_training_dataset(model, "testing")
 
-        train_items = training_ds_summary["subset_info"]["training"]
-        val_items = training_ds_summary["subset_info"]["validation"]
-        test_items = training_ds_summary["subset_info"]["testing"]
+        n_train_items = training_ds_summary.training_size
+        n_val_items = training_ds_summary.validation_size
+        n_test_items = training_ds_summary.testing_size
 
-        assert len(train_images) + len(train_frames) == train_items
-        assert len(val_images) + len(val_frames) == val_items
-        assert len(test_images) + len(test_frames) == test_items
+        assert train_set.size == n_train_items
+        assert val_set.size == n_val_items
+        assert test_set.size == n_test_items
+
+        assert train_set.purpose == SubsetPurpose.TRAINING
+        assert val_set.purpose == SubsetPurpose.VALIDATION
+        assert test_set.purpose == SubsetPurpose.TESTING

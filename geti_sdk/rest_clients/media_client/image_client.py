@@ -22,9 +22,8 @@ from typing import List, Optional, Sequence, Union
 import cv2
 import numpy as np
 
-from geti_sdk.data_models import Image, MediaType
+from geti_sdk.data_models import Dataset, Image, MediaType
 from geti_sdk.data_models.containers import MediaList
-from geti_sdk.data_models.project import Dataset
 from geti_sdk.rest_converters import MediaRESTConverter
 
 from .media_client import MEDIA_SUPPORTED_FORMAT_MAPPING, BaseMediaClient
