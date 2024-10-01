@@ -52,6 +52,10 @@ class GetiAnnotationReader(AnnotationReader):
         :param label_names_to_include: Names of the labels that should be included
             when reading annotation data. This can be used to filter the annotations
             for certain labels.
+        :param anomaly_reduction: True to reduce all anomaly tasks to the single anomaly task.
+            This is done in accordance with the Intel Geti 2.5 Anomaly Reduction effort.
+            All pixel level annotations are converted to full rectangles. All anomaly tasks
+            are mapped to th new "Anomaly Detection" task wich corresponds to the old "Anomaly Classification".
         """
         if annotation_format != ".json":
             raise ValueError(
