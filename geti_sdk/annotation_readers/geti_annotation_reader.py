@@ -42,6 +42,7 @@ class GetiAnnotationReader(AnnotationReader):
         annotation_format: str = ".json",
         task_type: Optional[Union[TaskType, str]] = None,
         label_names_to_include: Optional[List[str]] = None,
+        anomaly_reduction: bool = False,
     ):
         """
         :param base_data_folder: Path to the folder containing the annotations
@@ -61,6 +62,7 @@ class GetiAnnotationReader(AnnotationReader):
             base_data_folder=base_data_folder,
             annotation_format=annotation_format,
             task_type=task_type,
+            anomaly_reduction=anomaly_reduction,
         )
         self._label_names_to_include = label_names_to_include
         self._normalized_annotations = self._has_normalized_annotations()
@@ -161,7 +163,10 @@ class GetiAnnotationReader(AnnotationReader):
                             label_name=label_dict["name"]
                         )
             new_annotations.append(annotation_object)
-            if annotation_object.labels[0].name.lower() == "anomalous":
+            if (
+                self.anomaly_reduction
+                and annotation_object.labels[0].name.lower() == "anomalous"
+            ):
                 # Part of anomaly task reduction in Intel Geti 2.5 -> all anomaly tasks combined into one.
                 # Intel Geti now only accepts full rectangles for anomaly tasks.
                 new_annotations = [
