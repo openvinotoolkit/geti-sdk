@@ -61,7 +61,7 @@ class TestDemoProjects:
         [
             "fxt_detection_demo_project",
             "fxt_classification_demo_project",
-            "fxt_anomaly_detection_demo_project",
+            "fxt_anomaly_classification_demo_project",
             "fxt_segmentation_demo_project",
             "fxt_detection_to_classification_demo_project",
             "fxt_detection_to_segmentation_demo_project",

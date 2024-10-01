@@ -15,7 +15,7 @@
 # noqa: D104
 
 from .anomaly_demos import (
-    create_anomaly_detection_demo_project,
+    create_anomaly_classification_demo_project,
     ensure_trained_anomaly_project,
 )
 from .coco_demos import (
@@ -34,7 +34,7 @@ __all__ = [
     "create_segmentation_demo_project",
     "create_detection_to_segmentation_demo_project",
     "create_detection_to_classification_demo_project",
-    "create_anomaly_detection_demo_project",
+    "create_anomaly_classification_demo_project",
     "ensure_trained_example_project",
     "ensure_trained_anomaly_project",
     "ensure_project_is_trained",
