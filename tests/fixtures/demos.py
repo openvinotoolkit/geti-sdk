@@ -19,7 +19,7 @@ import pytest
 from geti_sdk import Geti
 from geti_sdk.data_models import Project
 from geti_sdk.demos import (
-    create_anomaly_detection_demo_project,
+    create_anomaly_classification_demo_project,
     create_classification_demo_project,
     create_detection_demo_project,
     create_detection_to_classification_demo_project,
@@ -44,7 +44,7 @@ def fxt_demo_images_and_annotations() -> Tuple[int, int]:
 
 
 @pytest.fixture(scope="class")
-def fxt_anomaly_detection_demo_project(
+def fxt_anomaly_classification_demo_project(
     fxt_geti_no_vcr: Geti,
     fxt_project_client_no_vcr: ProjectClient,
     fxt_demo_images_and_annotations: Tuple[int, int],
@@ -54,7 +54,7 @@ def fxt_anomaly_detection_demo_project(
     return the Project object representing it.
     """
     project_name = f"{PROJECT_PREFIX}_anomaly_demo"
-    project = create_anomaly_detection_demo_project(
+    project = create_anomaly_classification_demo_project(
         geti=fxt_geti_no_vcr,
         n_images=fxt_demo_images_and_annotations[0],
         n_annotations=fxt_demo_images_and_annotations[1],

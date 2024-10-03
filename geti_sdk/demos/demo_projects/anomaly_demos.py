@@ -24,7 +24,7 @@ from geti_sdk.rest_clients import AnnotationClient, ImageClient, ProjectClient
 from .utils import ensure_project_is_trained
 
 
-def create_anomaly_detection_demo_project(
+def create_anomaly_classification_demo_project(
     geti: Geti,
     n_images: int,
     n_annotations: int = -1,
@@ -69,7 +69,7 @@ def create_anomaly_detection_demo_project(
     # Create the project
     project = project_client.create_project(
         project_name=project_name,
-        project_type="anomaly",
+        project_type="anomaly_classification",
         labels=[[]],
     )
 
@@ -122,7 +122,7 @@ def ensure_trained_anomaly_project(
     if project is None:
         logging.info(f"Project '{project_name}' does not exist yet, creating it...")
 
-        project = create_anomaly_detection_demo_project(
+        project = create_anomaly_classification_demo_project(
             geti=geti, n_images=-1, project_name=project_name
         )
         logging.info(

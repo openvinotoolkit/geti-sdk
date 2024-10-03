@@ -1,6 +1,6 @@
 from geti_sdk import Geti
 from geti_sdk.demos import (
-    create_anomaly_detection_demo_project,
+    create_anomaly_classification_demo_project,
     create_classification_demo_project,
     create_detection_demo_project,
     create_detection_to_classification_demo_project,
@@ -64,7 +64,7 @@ if __name__ == "__main__":
         auto_train=AUTO_TRAIN_AFTER_UPLOAD,
         dataset_path=COCO_PATH,
     )
-    create_anomaly_detection_demo_project(
+    create_anomaly_classification_demo_project(
         geti=geti,
         n_images=NUMBER_OF_IMAGES_TO_UPLOAD,
         n_annotations=-1,

@@ -69,7 +69,7 @@ class TestDemoProjects:
         ids=[
             "Detection",
             "Classification",
-            "Anomaly classification",
+            "Anomaly",
             "Segmentation",
             "Detection to classification",
             "Detection to segmentation",
