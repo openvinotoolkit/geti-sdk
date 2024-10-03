@@ -552,7 +552,7 @@ class Geti:
             * anomaly_classification
             * anomaly_detection
             * anomaly_segmentation
-            * anomaly (new task - anomaly classification)
+            * anomaly (choose this working with SaaS)
             * detection_oriented
             * detection_to_classification
             * detection_to_segmentation
