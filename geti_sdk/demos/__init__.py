@@ -31,7 +31,7 @@ from .data_helpers import (
     set_directory_permissions,
 )
 from .demo_projects import (
-    create_anomaly_detection_demo_project,
+    create_anomaly_classification_demo_project,
     create_classification_demo_project,
     create_detection_demo_project,
     create_detection_to_classification_demo_project,
@@ -47,7 +47,7 @@ __all__ = [
     "DEFAULT_DATA_PATH",
     "EXAMPLE_IMAGE_PATH",
     "create_segmentation_demo_project",
-    "create_anomaly_detection_demo_project",
+    "create_anomaly_classification_demo_project",
     "create_classification_demo_project",
     "create_detection_demo_project",
     "create_detection_to_segmentation_demo_project",
