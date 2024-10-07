@@ -127,7 +127,7 @@ class TestNightlyProject:
         for j in range(n_attempts):
             try:
                 image, prediction = fxt_geti_no_vcr.upload_and_predict_image(
-                    project_name=project.name,
+                    project=project,
                     image=fxt_image_path,
                     visualise_output=False,
                     delete_after_prediction=False,
@@ -160,7 +160,7 @@ class TestNightlyProject:
 
         deployment_folder = os.path.join(fxt_temp_directory, project.name)
         deployment = fxt_geti_no_vcr.deploy_project(
-            project.name,
+            project,
             output_folder=deployment_folder,
             enable_explainable_ai=True,
         )
@@ -177,7 +177,7 @@ class TestNightlyProject:
             local_prediction = deployment.infer(image_np)
             assert isinstance(local_prediction, Prediction)
             image, online_prediction = fxt_geti_no_vcr.upload_and_predict_image(
-                project.name,
+                project,
                 image=image_bgr,
                 delete_after_prediction=True,
                 visualise_output=False,

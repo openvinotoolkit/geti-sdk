@@ -14,6 +14,7 @@
 import logging
 import os
 import time
+import warnings
 from concurrent.futures import ThreadPoolExecutor
 from glob import glob
 from typing import (
@@ -31,13 +32,12 @@ from typing import (
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from geti_sdk.data_models import Image, MediaType, Project, Video, VideoFrame
+from geti_sdk.data_models import Dataset, Image, MediaType, Project, Video, VideoFrame
 from geti_sdk.data_models.containers.media_list import MediaList, MediaTypeVar
 from geti_sdk.data_models.enums.media_type import (
     SUPPORTED_IMAGE_FORMATS,
     SUPPORTED_VIDEO_FORMATS,
 )
-from geti_sdk.data_models.project import Dataset
 from geti_sdk.data_models.utils import numpy_from_buffer
 from geti_sdk.http_session import GetiRequestException, GetiSession
 from geti_sdk.rest_clients.dataset_client import DatasetClient
@@ -110,7 +110,7 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         if dataset is None:
             dataset = self._project.training_dataset
 
-        url = f"{self._base_url}/{dataset.id}/media:query?top=500"
+        url = f"{self._base_url}/{dataset.id}/media:query?limit=100"
         data = {
             "condition": "and",
             "rules": [
@@ -131,7 +131,8 @@ class BaseMediaClient(Generic[MediaTypeVar]):
             if "next_page" in response.keys():
                 response = self.session.get_rest_response(
                     url=response["next_page"],
-                    method="GET",
+                    method="POST",
+                    data=data,
                     include_organization_id=False,
                 )
         return MediaList.from_rest_list(
@@ -351,7 +352,11 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         )
 
     def _download_all(
-        self, path_to_folder: str, append_media_uid: bool = False, max_threads: int = 10
+        self,
+        path_to_folder: str,
+        append_media_uid: bool = False,
+        max_threads: int = 10,
+        dataset: Optional[Dataset] = None,
     ) -> None:
         """
         Download all media entities in a project to a folder on the local disk.
@@ -365,28 +370,24 @@ class BaseMediaClient(Generic[MediaTypeVar]):
         :return:
         """
         datasets = self._dataset_client.get_all_datasets()
-        if len(datasets) == 1:
-            # 1 dataset in project, do not split media in separate folder per dataset
-            path_to_media_folder = os.path.join(path_to_folder, self.plural_media_name)
+        if dataset is not None:
+            if dataset not in datasets:
+                warnings.warn(
+                    f"Dataset '{dataset.name}' not found in project '{self._project.name}'. "
+                    f"Skipping download for this dataset."
+                )
+                return
+            datasets = [dataset]
+        for dataset in datasets:
+            path_to_media_folder = os.path.join(
+                path_to_folder, self.plural_media_name, dataset.name
+            )
             self._download_dataset(
-                dataset=datasets[0],
+                dataset=dataset,
                 path_to_media_folder=path_to_media_folder,
                 append_media_uid=append_media_uid,
                 max_threads=max_threads,
             )
-        else:
-            # Multiple datasets in the project, create a subfolder for media in each
-            # dataset
-            for dataset in datasets:
-                path_to_media_folder = os.path.join(
-                    path_to_folder, self.plural_media_name, dataset.name
-                )
-                self._download_dataset(
-                    dataset=dataset,
-                    path_to_media_folder=path_to_media_folder,
-                    append_media_uid=append_media_uid,
-                    max_threads=max_threads,
-                )
 
     def _download_dataset(
         self,

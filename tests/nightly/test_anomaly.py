@@ -6,8 +6,8 @@ from tests.helpers.constants import PROJECT_PREFIX
 from tests.nightly.test_nightly_project import TestNightlyProject
 
 
-class TestAnomalyClassification(TestNightlyProject):
-    PROJECT_TYPE = "anomaly_classification"
+class TestAnomaly(TestNightlyProject):
+    PROJECT_TYPE = "anomaly"
     __test__ = True
 
     def test_project_setup(
@@ -23,9 +23,8 @@ class TestAnomalyClassification(TestNightlyProject):
         existing_project = fxt_project_client_no_vcr.get_project_by_name(project_name)
         if existing_project is not None:
             force_delete_project(
-                project_name=project_name,
+                project=existing_project,
                 project_client=fxt_project_client_no_vcr,
-                project_id=existing_project.id,
             )
         assert project_name not in [
             project.name for project in fxt_project_client_no_vcr.get_all_projects()
@@ -40,7 +39,7 @@ class TestAnomalyClassification(TestNightlyProject):
 
     def test_monitor_jobs(self, fxt_project_service_no_vcr: ProjectService):
         """
-        For anomaly classification projects, the training is run in the project_setup
+        For anomaly projects, the training is run in the project_setup
         phase. No need to monitor jobs.
         """
         pass

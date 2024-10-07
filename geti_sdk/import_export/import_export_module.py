@@ -8,13 +8,15 @@ from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
 from geti_sdk.annotation_readers.geti_annotation_reader import GetiAnnotationReader
+from geti_sdk.data_models import Dataset
 from geti_sdk.data_models.containers.media_list import MediaList
 from geti_sdk.data_models.enums.dataset_format import DatasetFormat
 from geti_sdk.data_models.media import Image, Video
-from geti_sdk.data_models.project import Dataset, Project
+from geti_sdk.data_models.project import Project
 from geti_sdk.http_session.exception import GetiRequestException
 from geti_sdk.http_session.geti_session import GetiSession
 from geti_sdk.import_export.tus_uploader import TUSUploader
+from geti_sdk.platform_versions import GETI_25_VERSION
 from geti_sdk.rest_clients.annotation_clients.annotation_client import AnnotationClient
 from geti_sdk.rest_clients.configuration_client import ConfigurationClient
 from geti_sdk.rest_clients.dataset_client import DatasetClient
@@ -75,7 +77,7 @@ class GetiIE:
 
         # Download project creation parameters:
         self.project_client.download_project_info(
-            project_name=project.name, path_to_folder=target_folder
+            project=project, path_to_folder=target_folder
         )
 
         # Download images
@@ -184,9 +186,7 @@ class GetiIE:
         dataset_client = DatasetClient(
             workspace_id=self.workspace_id, session=self.session, project=project
         )
-        if len(project.datasets) == 1 or not dataset_client.has_dataset_subfolders(
-            target_folder
-        ):
+        if not dataset_client.has_dataset_subfolders(target_folder):
             # Upload all media directly to the training dataset
             images = image_client.upload_folder(
                 path_to_folder=os.path.join(target_folder, "images"),
@@ -227,6 +227,7 @@ class GetiIE:
         annotation_reader = GetiAnnotationReader(
             base_data_folder=os.path.join(target_folder, "annotations"),
             task_type=None,
+            anomaly_reduction=(self.session.version >= GETI_25_VERSION),
         )
         annotation_client = AnnotationClient[GetiAnnotationReader](
             session=self.session,
@@ -282,7 +283,7 @@ class GetiIE:
         return project
 
     def download_all_projects(
-        self, target_folder: str, include_predictions: bool = True
+        self, target_folder: str = "./projects", include_predictions: bool = True
     ) -> List[Project]:
         """
         Download all projects from the Geti Platform.
@@ -295,8 +296,6 @@ class GetiIE:
         projects = self.project_client.get_all_projects()
 
         # Validate or create target_folder
-        if target_folder is None:
-            target_folder = os.path.join(".", "projects")
         os.makedirs(target_folder, exist_ok=True, mode=0o770)
         logging.info(
             f"Found {len(projects)} projects in the designated workspace on the "
@@ -334,7 +333,7 @@ class GetiIE:
         project_folders = [
             folder
             for folder in candidate_project_folders
-            if ProjectClient.is_project_dir(folder)
+            if ProjectClient._is_project_dir(folder)
         ]
         logging.info(
             f"Found {len(project_folders)} project data folders in the target "
@@ -364,8 +363,8 @@ class GetiIE:
         :param filepath: The path to the dataset archive.
         :param project_name: The name of the new project.
         :param project_type: The type of the new project. Provide one of
-            [classification, classification_hierarchical, detection, segmentation,
-            instance_segmentation, anomaly_classification, anomaly_detection, anomaly_segmentation,
+            [classification, classification_hierarchical, detection, segmentation, instance_segmentation,
+            anomaly_classification, anomaly_detection, anomaly_segmentation, anomaly,
             detection_oriented, detection_to_classification, detection_to_segmentation]
         :return: The imported project.
         :raises: RuntimeError if the project type is not supported for the imported dataset.
@@ -437,8 +436,7 @@ class GetiIE:
         logging.info(
             f"Project '{project_name}' was successfully imported from the dataset."
         )
-        imported_project = self.project_client.get_project_by_name(
-            project_name=project_name,
+        imported_project = self.project_client.get_project(
             project_id=job.metadata.project_id,
         )
         if imported_project is None:
@@ -483,8 +481,7 @@ class GetiIE:
         )
 
         job = monitor_job(session=self.session, job=job, interval=5)
-        imported_project = self.project_client.get_project_by_name(
-            project_name=project_name,
+        imported_project = self.project_client.get_project(
             project_id=job.metadata.project_id,
         )
         if imported_project is None:
@@ -507,7 +504,7 @@ class GetiIE:
         )
         tus_uploader.upload()
         file_id = tus_uploader.get_file_id()
-        if file_id is None or len(file_id) < 2:
+        if file_id is None:
             raise RuntimeError("Failed to get file id for project {project_name}.")
         return file_id
 

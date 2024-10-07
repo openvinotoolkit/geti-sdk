@@ -13,14 +13,12 @@
 # and limitations under the License.
 import logging
 import time
-from typing import Optional
 
+from geti_sdk.data_models.project import Project
 from geti_sdk.rest_clients import ProjectClient, TrainingClient
 
 
-def force_delete_project(
-    project_name: str, project_client: ProjectClient, project_id: Optional[str] = None
-) -> None:
+def force_delete_project(project: Project, project_client: ProjectClient) -> None:
     """
     Deletes the project named 'project_name'. If any jobs are running for the
     project, this finalizer cancels them.
@@ -30,17 +28,16 @@ def force_delete_project(
     :param project_id: Optional ID of the project to delete. This can be useful in case
         there are multiple projects with the same name in the workspace
     """
-    project = project_client.get_project_by_name(project_name, project_id)
     try:
         project_client.delete_project(project=project, requires_confirmation=False)
     except TypeError:
         logging.warning(
-            f"Project {project_name} was not found on the server, it was most "
+            f"Project {project.name} was not found on the server, it was most "
             f"likely already deleted."
         )
     except ValueError:
         logging.error(
-            f"Unable to delete project '{project_name}' from the server, it "
+            f"Unable to delete project '{project.name}' from the server, it "
             f"is most likely locked for deletion due to an operation/training "
             f"session that is in progress. "
             f"\n\n Attempting to cancel the job and re-try project deletion."

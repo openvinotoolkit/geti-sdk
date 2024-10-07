@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from geti_sdk.data_models import (
     Algorithm,
+    Dataset,
     Job,
     Project,
     ProjectStatus,
@@ -24,7 +25,6 @@ from geti_sdk.data_models import (
 )
 from geti_sdk.data_models.containers import AlgorithmList
 from geti_sdk.data_models.enums import JobState, JobType
-from geti_sdk.data_models.project import Dataset
 from geti_sdk.http_session import GetiSession
 from geti_sdk.rest_converters import (
     ConfigurationRESTConverter,

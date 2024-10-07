@@ -20,9 +20,8 @@ from typing import Optional, Sequence, Union
 import cv2
 import numpy as np
 
-from geti_sdk.data_models import MediaType, Video
+from geti_sdk.data_models import Dataset, MediaType, Video
 from geti_sdk.data_models.containers import MediaList
-from geti_sdk.data_models.project import Dataset
 from geti_sdk.http_session import GetiRequestException
 from geti_sdk.rest_converters import MediaRESTConverter
 
@@ -150,6 +149,7 @@ class VideoClient(BaseMediaClient[Video]):
         path_to_folder: str,
         append_video_uid: bool = False,
         max_threads: int = 10,
+        dataset: Optional[Dataset] = None,
     ) -> None:
         """
         Download all videos in a project to a folder on the local disk.
@@ -162,9 +162,14 @@ class VideoClient(BaseMediaClient[Video]):
             downloaded. Otherwise videos with the same name will be skipped.
         :param max_threads: Maximum number of threads to use for downloading. Defaults to 10.
             Set to -1 to use all available threads.
+        :param dataset: Dataset from which to download the videos. If no dataset is
+            passed, videos from all datasets are downloaded.
         """
         self._download_all(
-            path_to_folder, append_media_uid=append_video_uid, max_threads=max_threads
+            path_to_folder,
+            append_media_uid=append_video_uid,
+            max_threads=max_threads,
+            dataset=dataset,
         )
 
     def delete_videos(self, videos: Sequence[Video]) -> bool:

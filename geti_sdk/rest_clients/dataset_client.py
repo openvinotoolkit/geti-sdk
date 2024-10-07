@@ -11,11 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions
 # and limitations under the License.
+import logging
 import os
+import warnings
 from typing import List, Optional
 
-from geti_sdk.data_models import Dataset, Project
+from geti_sdk.data_models import (
+    Dataset,
+    Image,
+    Model,
+    Project,
+    Subset,
+    TrainingDatasetStatistics,
+    VideoFrame,
+)
+from geti_sdk.data_models.containers import MediaList
 from geti_sdk.http_session import GetiSession
+from geti_sdk.http_session.exception import GetiRequestException
+from geti_sdk.rest_converters import MediaRESTConverter
 from geti_sdk.utils import deserialize_dictionary
 
 
@@ -46,6 +59,30 @@ class DatasetClient:
         dataset = deserialize_dictionary(response, output_type=Dataset)
         self.project.datasets.append(dataset)
         return dataset
+
+    def delete_dataset(self, dataset: Dataset) -> None:
+        """
+        Delete provided dataset inside the project.
+
+        :param dataset: Dataset to delete
+        """
+        try:
+            response = self.session.get_rest_response(
+                url=self.base_url + f"/{dataset.id}",
+                method="DELETE",
+            )
+        except GetiRequestException as error:
+            if error.status_code == 404:
+                warnings.warn(
+                    f"Dataset with name `{dataset.name}` was not found in the project. "
+                    "Please make sure that the dataset you are trying to delete exists."
+                )
+            else:
+                raise error
+        if isinstance(response, dict) and response.get("result", None) == "success":
+            logging.info(f"Dataset `{dataset.name}` was successfully deleted.")
+        else:
+            logging.error(f"Failed to delete dataset `{dataset.name}`.")
 
     def get_all_datasets(self) -> List[Dataset]:
         """
@@ -130,3 +167,93 @@ class DatasetClient:
             if not os.path.isdir(os.path.join(path_to_folder, dataset.name)):
                 return False
         return True
+
+    def get_training_dataset_summary(self, model: Model) -> TrainingDatasetStatistics:
+        """
+        Return information concerning the training dataset for the `model`.
+        This includes the number of images and video frames, and the statistics for
+        the subset splitting (i.e. the number of training, test and validation
+        images/video frames)
+
+        :param model: Model to get the training dataset for
+        :return: A `TrainingDatasetStatistics` object, containing the training dataset
+            statistics for the model
+        """
+        ds_info = model.training_dataset_info
+        dataset_storage_id = ds_info.get("dataset_storage_id", None)
+        revision_id = ds_info.get("dataset_revision_id", None)
+        if dataset_storage_id is None or revision_id is None:
+            raise ValueError(
+                f"Unable to fetch the required dataset information from the model. "
+                f"Expected dataset and revision id's, got {ds_info} instead."
+            )
+        training_dataset = self.session.get_rest_response(
+            url=f"{self.base_url}/{dataset_storage_id}/training_revisions/{revision_id}",
+            method="GET",
+        )
+        return deserialize_dictionary(training_dataset, TrainingDatasetStatistics)
+
+    def get_media_in_training_dataset(
+        self, model: Model, subset: str = "training"
+    ) -> Subset:
+        """
+        Return the media in the training dataset for the `model`, for
+        the specified `subset`. Subset can be `training`, `validation` or `testing`.
+
+        :param model: Model for which to get the media in the training dataset
+        :param subset: The subset for which to return the media items. Can be either
+            `training` (the default), `validation` or `testing`
+        return: A `Subset` object, containing lists of `images` and `video_frames` in
+            the requested `subset`
+        :raises: ValueError if the DatasetClient is unable to fetch the required
+            dataset information from the model
+        """
+        ds_info = model.training_dataset_info
+        dataset_storage_id = ds_info.get("dataset_storage_id", None)
+        revision_id = ds_info.get("dataset_revision_id", None)
+        if dataset_storage_id is None or revision_id is None:
+            raise ValueError(
+                f"Unable to fetch the required dataset information from the model. "
+                f"Expected dataset and revision id's, got {ds_info} instead."
+            )
+        post_data = {
+            "condition": "and",
+            "rules": [{"field": "subset", "operator": "equal", "value": subset}],
+        }
+
+        images: MediaList[Image] = MediaList([])
+        video_frames: MediaList[VideoFrame] = MediaList([])
+
+        next_page = f"{self.base_url}/{dataset_storage_id}/training_revisions/{revision_id}/media:query"
+        while next_page:
+            response = self.session.get_rest_response(
+                url=next_page, method="POST", data=post_data
+            )
+            next_page = response.get("next_page", None)
+            for item in response["media"]:
+                if item["type"] == "image":
+                    item.pop("annotation_scene_id", None)
+                    item.pop("editor_name", None)
+                    item.pop("roi_id", None)
+                    image = MediaRESTConverter.from_dict(item, Image)
+                    images.append(image)
+
+                if item["type"] == "video":
+                    video_id = item["id"]
+                    next_frame_page = (
+                        f"{self.base_url}/{dataset_storage_id}/training_revisions/"
+                        f"{revision_id}/media/videos/{video_id}:query"
+                    )
+                    while next_frame_page:
+                        frames_response = self.session.get_rest_response(
+                            url=next_frame_page, method="POST", data=post_data
+                        )
+                        for frame in frames_response["media"]:
+                            frame["video_id"] = video_id
+                            video_frame = MediaRESTConverter.from_dict(
+                                frame, VideoFrame
+                            )
+                            video_frames.append(video_frame)
+                        next_frame_page = frames_response.get("next_page", None)
+
+        return Subset(images=images, frames=video_frames, purpose=subset)

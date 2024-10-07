@@ -22,9 +22,8 @@ from typing import List, Optional, Sequence, Union
 import cv2
 import numpy as np
 
-from geti_sdk.data_models import Image, MediaType
+from geti_sdk.data_models import Dataset, Image, MediaType
 from geti_sdk.data_models.containers import MediaList
-from geti_sdk.data_models.project import Dataset
 from geti_sdk.rest_converters import MediaRESTConverter
 
 from .media_client import MEDIA_SUPPORTED_FORMAT_MAPPING, BaseMediaClient
@@ -110,21 +109,27 @@ class ImageClient(BaseMediaClient[Image]):
         path_to_folder: str,
         append_image_uid: bool = False,
         max_threads: int = 10,
+        dataset: Optional[Dataset] = None,
     ) -> None:
         """
-        Download all images in a project to a folder on the local disk.
+        Download all images in a project or a dataset to a folder on the local disk.
 
         :param path_to_folder: path to the folder in which the images should be saved
         :param append_image_uid: True to append the UID of an image to the
             filename (separated from the original filename by an underscore, i.e.
-            '{filename}_{image_id}'). If there are images in the project with
+            '{filename}_{image_id}'). If there are images in the project/dataset with
             duplicate filename, this must be set to True to ensure all images are
-            downloaded. Otherwise images with the same name will be skipped.
+            downloaded. Otherwise, images with the same name will be skipped.
         :param max_threads: Maximum number of threads to use for downloading. Defaults to 10.
             Set to -1 to use all available threads.
+        :param dataset: Dataset from which to download the images. If no dataset is provided,
+            images from all datasets are downloaded.
         """
         self._download_all(
-            path_to_folder, append_media_uid=append_image_uid, max_threads=max_threads
+            path_to_folder,
+            append_media_uid=append_image_uid,
+            max_threads=max_threads,
+            dataset=dataset,
         )
 
     def upload_from_list(
@@ -180,22 +185,25 @@ class ImageClient(BaseMediaClient[Image]):
 
         else:
             logging.debug("Retrieving full filepaths for image upload...")
+            filenames_lookup = {
+                os.path.basename(path): path
+                for path in glob.glob(
+                    os.path.join(path_to_folder, "**"), recursive=True
+                )
+            }
             for image_name in image_names[0:n_to_upload]:
+                matches: List[str] = []
                 if not extension_included:
-                    matches: List[str] = []
                     for media_extension in media_formats:
-                        match_for_item = glob.glob(
-                            os.path.join(
-                                path_to_folder, "**", f"{image_name}{media_extension}"
-                            ),
-                            recursive=True,
-                        )
-                        if len(match_for_item) > 0:
-                            matches += match_for_item
-                            break
+                        if (
+                            filename := f"{image_name}{media_extension}"
+                        ) in filenames_lookup:
+                            matches.append(filenames_lookup[filename])
                 else:
-                    matches = glob.glob(
-                        os.path.join(path_to_folder, "**", image_name), recursive=True
+                    matches = (
+                        [filenames_lookup[image_name]]
+                        if image_name in filenames_lookup
+                        else []
                     )
                 if not matches:
                     raise ValueError(

@@ -22,6 +22,7 @@ from geti_sdk.data_models import Project
 from geti_sdk.rest_clients import ProjectClient
 from tests.helpers import ProjectService, force_delete_project
 from tests.helpers.constants import CASSETTE_EXTENSION
+from tests.helpers.enums import SdkTestMode
 
 
 @pytest.fixture(scope="class")
@@ -45,6 +46,7 @@ def fxt_project_client_no_vcr(fxt_geti_no_vcr: Geti) -> ProjectClient:
 @pytest.fixture(scope="class")
 def fxt_project_service(
     fxt_vcr,
+    fxt_test_mode,
     fxt_geti: Geti,
 ) -> ProjectService:
     """
@@ -56,7 +58,9 @@ def fxt_project_service(
 
     The project is deleted once the test function finishes.
     """
-    project_service = ProjectService(geti=fxt_geti, vcr=fxt_vcr)
+    project_service = ProjectService(
+        geti=fxt_geti, vcr=fxt_vcr, is_offline=(fxt_test_mode == SdkTestMode.OFFLINE)
+    )
     yield project_service
     project_service.delete_project()
 
@@ -64,6 +68,7 @@ def fxt_project_service(
 @pytest.fixture(scope="class")
 def fxt_project_service_2(
     fxt_vcr,
+    fxt_test_mode,
     fxt_geti: Geti,
 ) -> ProjectService:
     """
@@ -78,7 +83,9 @@ def fxt_project_service_2(
     NOTE: This fixture is the same as `fxt_project_service`, but was added to make
     it possible to persist two projects for the scope of one test class
     """
-    project_service = ProjectService(geti=fxt_geti, vcr=fxt_vcr)
+    project_service = ProjectService(
+        geti=fxt_geti, vcr=fxt_vcr, is_offline=(fxt_test_mode == SdkTestMode.OFFLINE)
+    )
     yield project_service
     project_service.delete_project()
 
@@ -98,8 +105,8 @@ def fxt_project_finalizer(fxt_project_client: ProjectClient) -> Callable[[str], 
     :var project_name: Name of the project for which to add the finalizer
     """
 
-    def _project_finalizer(project_name: str, project_id: str) -> None:
-        force_delete_project(project_name, fxt_project_client, project_id)
+    def _project_finalizer(project: Project) -> None:
+        force_delete_project(project, fxt_project_client)
 
     return _project_finalizer
 

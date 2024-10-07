@@ -21,7 +21,7 @@ import pytest
 
 from geti_sdk.annotation_readers import DatumAnnotationReader
 from geti_sdk.data_models import Image, Prediction, Project
-from geti_sdk.data_models.enums import JobState, PredictionMode
+from geti_sdk.data_models.enums import JobState, PredictionMode, SubsetPurpose
 from geti_sdk.demos import EXAMPLE_IMAGE_PATH
 from geti_sdk.http_session import GetiRequestException
 from geti_sdk.platform_versions import GETI_15_VERSION, GETI_22_VERSION
@@ -358,3 +358,33 @@ class TestModelAndPredictionClient:
         # Assert
         purged_model = model_client.update_model_detail(previous_model)
         assert purged_model.purge_info.is_purged
+
+    @pytest.mark.vcr()
+    def test_get_training_dataset(
+        self,
+        fxt_project_service: ProjectService,
+        fxt_test_mode: SdkTestMode,
+    ) -> None:
+        """
+        Test that the media in the training dataset for a model con be recovered.
+        """
+        model = fxt_project_service.model_client.get_all_active_models()[0]
+        dataset_client = fxt_project_service.dataset_client
+
+        training_ds_summary = dataset_client.get_training_dataset_summary(model)
+
+        train_set = dataset_client.get_media_in_training_dataset(model, "training")
+        val_set = dataset_client.get_media_in_training_dataset(model, "validation")
+        test_set = dataset_client.get_media_in_training_dataset(model, "testing")
+
+        n_train_items = training_ds_summary.training_size
+        n_val_items = training_ds_summary.validation_size
+        n_test_items = training_ds_summary.testing_size
+
+        assert train_set.size == n_train_items
+        assert val_set.size == n_val_items
+        assert test_set.size == n_test_items
+
+        assert train_set.purpose == SubsetPurpose.TRAINING
+        assert val_set.purpose == SubsetPurpose.VALIDATION
+        assert test_set.purpose == SubsetPurpose.TESTING
