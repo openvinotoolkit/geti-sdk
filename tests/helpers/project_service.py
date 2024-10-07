@@ -49,7 +49,7 @@ class ProjectService:
         VCR cassettes
     """
 
-    def __init__(self, geti: Geti, vcr: Optional[VCR] = None):
+    def __init__(self, geti: Geti, vcr: Optional[VCR] = None, is_offline: bool = False):
         if vcr is None:
             self.vcr_context = nullcontext
         else:
@@ -63,6 +63,7 @@ class ProjectService:
 
         self._project: Optional[Project] = None
         self._project_creation_timestamp: Optional[float] = None
+        self._is_offline: bool = is_offline
         self._configuration_client: Optional[ConfigurationClient] = None
         self._image_client: Optional[ImageClient] = None
         self._annotation_client: Optional[AnnotationClient] = None
@@ -81,6 +82,7 @@ class ProjectService:
             "_prediction_client",
             "_dataset_client",
         ]
+        self._project_removal_delay = 5  # seconds
 
     def create_project(
         self,
@@ -366,8 +368,12 @@ class ProjectService:
         if self.has_project:
             with self.vcr_context(f"{self.project.name}_deletion.{CASSETTE_EXTENSION}"):
                 # Server needs a moment to process the project before deletion
-                if (lifetime := time.time() - self._project_creation_timestamp) < 5:
-                    time.sleep(5 - lifetime)
+                if (
+                    not self._is_offline
+                    and (lifetime := time.time() - self._project_creation_timestamp)
+                    < self._project_removal_delay
+                ):
+                    time.sleep(self._project_removal_delay - lifetime)
                 force_delete_project(self.project, self.project_client)
                 self.reset_state()
 
