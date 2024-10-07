@@ -23,6 +23,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from geti_sdk.data_models import Project, Task, TaskType
 from geti_sdk.data_models.utils import remove_null_fields
 from geti_sdk.http_session import GetiRequestException, GetiSession
+from geti_sdk.platform_versions import GETI_25_VERSION
 from geti_sdk.rest_clients.dataset_client import DatasetClient
 from geti_sdk.rest_converters import ProjectRESTConverter
 from geti_sdk.utils.label_helpers import generate_unique_label_color
@@ -425,7 +426,13 @@ class ProjectClient:
         for task_type, task_labels in zip(
             get_task_types_by_project_type(project_type), labels
         ):
-            if task_type.is_anomaly and task_type != TaskType.ANOMALY:
+            # Anomaly task reduction introduced in Intel Geti 2.5
+            # The last on-premises version of Intel Geti to support legacy anomaly projects is 2.0
+            if (
+                self.session.version >= GETI_25_VERSION
+                and task_type.is_anomaly
+                and task_type != TaskType.ANOMALY
+            ):
                 logging.info(f"The {task_type} task is mapped to {TaskType.ANOMALY}.")
                 task_type = TaskType.ANOMALY
             if not is_first_task and not previous_task_type.is_global:
