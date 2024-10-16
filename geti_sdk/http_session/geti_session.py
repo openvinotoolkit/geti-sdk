@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import logging
-from datetime import datetime
 import time
 import warnings
+from datetime import datetime
 from functools import cache
 from json import JSONDecodeError
 from typing import Any, Dict, Optional, Union
@@ -574,7 +574,8 @@ class GetiSession(requests.Session):
             creation_times = [
                 datetime.fromisoformat(
                     x["organizationCreatedAt"].replace("Z", "+00:00")
-                ) for x in org_list
+                )
+                for x in org_list
             ]
             ids = [x["organizationId"] for x in org_list]
             earliest_creation_time = min(creation_times)
