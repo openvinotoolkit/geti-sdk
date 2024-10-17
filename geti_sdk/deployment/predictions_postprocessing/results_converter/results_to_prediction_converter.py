@@ -52,6 +52,7 @@ class InferenceResultsToPredictionConverter(metaclass=abc.ABCMeta):
         self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
     ):
         self.labels = labels.get_non_empty_labels()
+        self.empty_label = labels.get_empty_label()
         self.configuration = configuration
 
     @abc.abstractmethod
@@ -92,7 +93,6 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
         self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
     ):
         super().__init__(labels, configuration)
-        self.empty_label = labels.get_empty_label()
 
     def convert_to_prediction(
         self,
@@ -364,29 +364,13 @@ class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
         return Prediction(annotations)
 
 
-class MaskToAnnotationConverter(InferenceResultsToPredictionConverter):
+class MaskToAnnotationConverter(DetectionToPredictionConverter):
     """
     Converts DetectionBox Predictions ModelAPI to Prediction object.
 
     :param labels: LabelList containing the label info of the task
     :param configuration: optional model configuration setting
     """
-
-    def __init__(
-        self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
-    ):
-        self.labels = labels.get_non_empty_labels()
-        self.use_ellipse_shapes = False
-        self.confidence_threshold = 0.0
-        if configuration is not None:
-            if "use_ellipse_shapes" in configuration:
-                self.use_ellipse_shapes = configuration["use_ellipse_shapes"]
-            if "confidence_threshold" in configuration:
-                self.confidence_threshold = configuration["confidence_threshold"]
-            if "label_ids" in configuration:
-                # Make sure the list of labels is sorted according to the order
-                # defined in the ModelAPI configuration
-                self.labels.sort_by_ids(configuration["label_ids"])
 
     def convert_to_prediction(
         self, inference_results: Any, **kwargs: Dict[str, Any]
@@ -486,7 +470,6 @@ class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
         self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
     ):
         super().__init__(labels, configuration)
-        self.labels = labels.get_non_empty_labels()
         # NB: index=0 is reserved for the background label
         self.label_map = dict(enumerate(self.labels, 1))
 
@@ -537,14 +520,13 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
         self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
     ):
         super().__init__(labels, configuration)
-        self.labels = labels.get_non_empty_labels()
         self.normal_label = next(
             label for label in self.labels if not label.is_anomalous
         )
         self.anomalous_label = next(
             label for label in self.labels if label.is_anomalous
         )
-        if "domain" in configuration:
+        if configuration is not None and "domain" in configuration:
             self.domain = configuration["domain"]
 
     def convert_to_prediction(
