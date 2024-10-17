@@ -30,10 +30,8 @@ from openvino.runtime import Core
 from packaging.version import Version
 
 from geti_sdk.data_models import OptimizedModel, Project, TaskConfiguration
+from geti_sdk.data_models.containers import LabelList
 from geti_sdk.data_models.enums.domain import Domain
-from geti_sdk.data_models.label import Label
-from geti_sdk.data_models.label_group import LabelGroup, LabelGroupType
-from geti_sdk.data_models.label_schema import LabelSchema
 from geti_sdk.data_models.predictions import Prediction, ResultMedium
 from geti_sdk.deployment.predictions_postprocessing.results_converter.results_to_prediction_converter import (
     ConverterFactory,
@@ -46,18 +44,12 @@ from .utils import (
     generate_ovms_model_address,
     generate_ovms_model_name,
     get_package_version_from_requirements,
-    rgb_to_hex,
     target_device_is_ovms,
 )
 
 MODEL_DIR_NAME = "model"
 PYTHON_DIR_NAME = "python"
 REQUIREMENTS_FILE_NAME = "requirements.txt"
-
-LABELS_CONFIG_KEY = "labels"
-LABEL_TREE_KEY = "label_tree"
-LABEL_GROUPS_KEY = "label_groups"
-ALL_LABELS_KEY = "all_labels"
 
 SALIENCY_KEY = "saliency_map"
 ANOMALY_SALIENCY_KEY = "anomaly_map"
@@ -93,7 +85,7 @@ class DeployedModel(OptimizedModel):
         self._model_python_path: Optional[str] = None
         self._needs_tempdir_deletion: bool = False
         self._tempdir_path: Optional[str] = None
-        self._label_schema: Optional[LabelSchema] = None
+        self._labels: Optional[LabelList] = None
 
         # Attributes related to model explainability
         self._saliency_key: Optional[str] = None
@@ -226,6 +218,7 @@ class DeployedModel(OptimizedModel):
         project: Optional[Project] = None,
         plugin_configuration: Optional[Dict[str, str]] = None,
         max_async_infer_requests: int = 0,
+        task_index: int = 0,
     ) -> None:
         """
         Load the actual model weights to a specified device.
@@ -244,6 +237,8 @@ class DeployedModel(OptimizedModel):
             that can be processed in parallel. This depends on the properties of the
             target device. If left to 0 (the default), the optimal number of requests
             will be selected automatically.
+        :param task_index: Index of the task within the project for which the model is
+            trained.
         :return: OpenVino inference engine model that can be used to make predictions
             on images
         """
@@ -305,33 +300,33 @@ class DeployedModel(OptimizedModel):
             )
         with open(config_path, "r") as config_file:
             configuration_json = json.load(config_file)
-        model_type = configuration_json.get("type_of_model")
 
         # Update model parameters
-        parameters = configuration_json.get("model_parameters")
+        parameters = self.get_model_config()
         if configuration is not None:
             configuration.update(parameters)
         else:
             configuration = parameters
 
-        # Parse label schema
-        label_dictionary = configuration_json.get("model_parameters").pop(
-            LABELS_CONFIG_KEY, None
-        )
-        self._parse_label_schema_from_dict(label_dictionary)
+        model_type = configuration.get("model_type")
+        # Get label metadata from the project
+        self._labels = LabelList.from_project(project=project, task_index=task_index)
 
         # Load a Results-to-Prediction converter
-        self._converter = ConverterFactory.create_converter(
-            self.label_schema, configuration
+        self._domain = Domain.from_task_type(
+            project.get_trainable_tasks()[task_index].type
         )
-        self._domain = ConverterFactory._get_labels_domain(self.label_schema)
+        self._converter = ConverterFactory.create_converter(
+            self.labels, configuration=configuration, domain=self._domain
+        )
+        model_api_configuration = self._clean_model_config(configuration)
 
         model = model_api_Model.create_model(
             model=model_adapter,
             model_type=model_type,
             preload=False,
             core=core,
-            configuration=configuration,
+            configuration=model_api_configuration,
         )
 
         self._inference_model = model
@@ -627,63 +622,21 @@ class DeployedModel(OptimizedModel):
         self._async_callback_defined = True
 
     @property
-    def label_schema(self) -> LabelSchema:
+    def labels(self) -> LabelList:
         """
-        Return the LabelSchema for the model.
+        Return the Labels for the model.
 
         This requires the inference model to be loaded, getting this property while
         inference models are not loaded will raise a ValueError
 
-        :return: LabelSchema containing the SDK label schema for the model
+        :return: LabelList containing the SDK labels for the model
         """
-        if self._label_schema is None:
+        if self._labels is None:
             raise ValueError(
-                "Inference model is not loaded, unable to retrieve label schema. "
+                "Inference model is not loaded, unable to retrieve labels. "
                 "Please load inference model first."
             )
-        return self._label_schema
-
-    def _parse_label_schema_from_dict(
-        self, label_schema_dict: Optional[Dict[str, Union[dict, List[dict]]]] = None
-    ) -> None:
-        """
-        Parse the dictionary contained in the model `config.json` file, and
-        generate an  LabelSchema from it.
-
-        :param label_schema_dict: Dictionary containing the label schema information
-            to parse
-        """
-        label_groups_list = label_schema_dict[LABEL_GROUPS_KEY]
-        labels_dict = label_schema_dict[ALL_LABELS_KEY]
-        for key, value in labels_dict.items():
-            color_tuple = tuple(
-                int(value["color"][key]) for key in ["red", "green", "blue"]
-            )
-            label_entity = Label(
-                name=value["name"],
-                color=rgb_to_hex(color_tuple),
-                group=None,
-                is_empty=value.get("is_empty", False),
-                hotkey=value["hotkey"],
-                domain=Domain[value["domain"]],
-                id=value["_id"],
-                is_anomalous=value.get("is_anomalous", False),
-            )
-            labels_dict[key] = label_entity
-        label_groups: List[LabelGroup] = []
-        for group_dict in label_groups_list:
-            labels: List[Label] = [
-                labels_dict[label_id] for label_id in group_dict["label_ids"]
-            ]
-            label_groups.append(
-                LabelGroup(
-                    id=group_dict["_id"],
-                    name=group_dict["name"],
-                    group_type=LabelGroupType[group_dict["relation_type"]],
-                    labels=labels,
-                )
-            )
-        self._label_schema = LabelSchema(label_groups=label_groups)
+        return self._labels
 
     def _apply_postprocessing_steps(
         self, inference_results: Any, metadata: Dict[str, Any], explain: bool
@@ -788,3 +741,68 @@ class DeployedModel(OptimizedModel):
 
             self._async_callback_defined = False
             self._inference_model.inference_adapter.set_callback(do_nothing)
+
+    def get_model_config(self) -> Dict[str, Any]:
+        """
+        Return the model configuration as specified in the model.xml metadata file of
+        the OpenVINO model
+
+        :return: Dictionary containing the OpenVINO model configuration
+        """
+        import xml.etree.ElementTree as ET
+
+        tree = ET.parse(os.path.join(self._model_data_path, "model.xml"))
+        root = tree.getroot()
+
+        rt_info_node = root.find("rt_info")
+        model_info_node = rt_info_node.find("model_info")
+
+        config = {}
+        for child in model_info_node:
+            value = child.attrib["value"]
+            if " " in value:
+                value = value.split(" ")
+                value_list = []
+                for item in value:
+                    try:
+                        value_list.append(float(item))
+                    except ValueError:
+                        value_list.append(item)
+                config[child.tag] = value_list
+            else:
+                try:
+                    value = int(value)
+                    config[child.tag] = value
+                    continue
+                except ValueError:
+                    pass
+                try:
+                    value = float(value)
+                    config[child.tag] = value
+                    continue
+                except ValueError:
+                    pass
+                if value in ["false", "False", "FALSE"]:
+                    value = False
+                elif value in ["true", "True", "TRUE"]:
+                    value = True
+                config[child.tag] = value
+        return config
+
+    def _clean_model_config(self, configuration: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Remove unused values from the model configuration dictionary
+
+        :param configuration: Dictionary containing the model configuration to clean
+        :return: Configuration dictionary with unused values removed
+        """
+        unused_keys = [
+            "label_ids",
+            "label_info",
+            "model_type",
+            "optimization_config",
+            "task_type",
+        ]
+        for key in unused_keys:
+            configuration.pop(key, None)
+        return configuration
