@@ -760,7 +760,7 @@ class DeployedModel(OptimizedModel):
         config = {}
         for child in model_info_node:
             value = child.attrib["value"]
-            if " " in value:
+            if " " in value and "{" not in value:
                 value = value.split(" ")
                 value_list = []
                 for item in value:
@@ -769,6 +769,9 @@ class DeployedModel(OptimizedModel):
                     except ValueError:
                         value_list.append(item)
                 config[child.tag] = value_list
+            elif "{" in value:
+                # Dictionaries are kept in string representation
+                config[child.tag] = value
             else:
                 try:
                     value = int(value)
@@ -802,6 +805,7 @@ class DeployedModel(OptimizedModel):
             "model_type",
             "optimization_config",
             "task_type",
+            "labels",
         ]
         for key in unused_keys:
             configuration.pop(key, None)

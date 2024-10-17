@@ -51,7 +51,7 @@ class InferenceResultsToPredictionConverter(metaclass=abc.ABCMeta):
     def __init__(
         self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
     ):
-        self.labels = labels
+        self.labels = labels.get_non_empty_labels()
         self.configuration = configuration
 
     @abc.abstractmethod
@@ -175,8 +175,12 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
                 self.confidence_threshold = configuration["confidence_threshold"]
             if "label_ids" in configuration:
                 # Make sure the list of labels is sorted according to the order
-                # defined in the ModelAPI configuration
-                self.labels.sort_by_ids(configuration["label_ids"])
+                # defined in the ModelAPI configuration. If the 'label_ids' field
+                # only contains a single label, it will be typed as string. No need
+                # to sort in that case
+                ids = configuration["label_ids"]
+                if not isinstance(ids, str):
+                    self.labels.sort_by_ids(configuration["label_ids"])
 
     def _detection2array(self, detections: List[Detection]) -> np.ndarray:
         """

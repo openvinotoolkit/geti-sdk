@@ -47,7 +47,7 @@ class LabelList(UserList):
         Map names and ID's to Label objects to enable quick label retrieval
         """
         self._id_mapping = {x.id: x for x in self.data}
-        self._name_mapping = {x.name for x in self.data}
+        self._name_mapping = {x.name: x for x in self.data}
 
     def get_by_id(self, id: str) -> Label:
         """
