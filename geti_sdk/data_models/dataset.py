@@ -15,7 +15,7 @@ from typing import ClassVar, Dict, List, Optional
 
 import attr
 
-from geti_sdk.data_models.containers import MediaList
+from geti_sdk.data_models.containers.media_list import MediaList
 from geti_sdk.data_models.enums import SubsetPurpose
 from geti_sdk.data_models.media import Image, VideoFrame
 from geti_sdk.data_models.utils import (
