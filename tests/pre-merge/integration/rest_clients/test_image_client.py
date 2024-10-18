@@ -15,6 +15,7 @@
 import os
 import shutil
 import tempfile
+from pathlib import Path
 from typing import List
 
 import cv2
@@ -131,6 +132,39 @@ class TestImageClient:
         assert len(downloaded_filenames) == n_images + len(images)
         for image in images + old_images:
             assert image.name + ".jpg" in downloaded_filenames
+
+        # remove images
+        image_client.delete_images(images)
+        assert len(image_client.get_all_images()) == n_images
+
+    @pytest.mark.vcr()
+    def test_upload_from_list(
+        self,
+        fxt_project_service: ProjectService,
+        fxt_default_labels: List[str],
+        fxt_image_folder: str,
+        request: FixtureRequest,
+    ):
+        image_client = fxt_project_service.image_client
+        old_images = image_client.get_all_images()
+        n_old_images = len(old_images)
+
+        # Upload images from list
+        image_base_names = [
+            p.name.split(".")[0] for p in Path.glob(Path(fxt_image_folder), "*")
+        ]
+        n_to_upload = len(image_base_names) // 2
+        assert n_to_upload > 0
+        images = image_client.upload_from_list(
+            fxt_image_folder,
+            image_names=image_base_names,
+            max_threads=1,
+            extension_included=False,
+            n_images=n_to_upload,
+            image_names_as_full_paths=False,
+        )
+        assert len(images) == n_to_upload
+        assert len(image_client.get_all_images()) == n_old_images + len(images)
 
     @pytest.mark.vcr()
     def test_download_specific_dataset(

@@ -30,7 +30,7 @@ from model_api.models.utils import (
 
 from geti_sdk.data_models.annotations import Annotation
 from geti_sdk.data_models.enums.domain import Domain
-from geti_sdk.data_models.label import ScoredLabel
+from geti_sdk.data_models.label import Label, ScoredLabel
 from geti_sdk.data_models.label_schema import LabelSchema
 from geti_sdk.data_models.predictions import Prediction
 from geti_sdk.data_models.shapes import (
@@ -85,6 +85,9 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
         # add empty labels if only one non-empty label exits
         non_empty_labels = [label for label in all_labels if not label.is_empty]
         self.labels = all_labels if len(non_empty_labels) == 1 else non_empty_labels
+        self.label_name_mapping: Dict[str, Label] = {
+            label.name: label for label in self.labels
+        }
         # get the first empty label
         self.empty_label = next((label for label in all_labels if label.is_empty), None)
         multilabel = len(label_schema.get_groups(False)) > 1
@@ -110,8 +113,13 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
         """
         labels = []
         for label in inference_results.top_labels:
+            label_idx, label_name, label_prob = label
+            # label_idx does not necessarily match the label index in the project
+            # labels. Therefore, we map the label by name instead.
             labels.append(
-                ScoredLabel.from_label(self.labels[label[0]], float(label[-1]))
+                ScoredLabel.from_label(
+                    self.label_name_mapping[label_name], float(label_prob)
+                )
             )
 
         if not labels and self.empty_label:

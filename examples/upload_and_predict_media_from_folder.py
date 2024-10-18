@@ -38,11 +38,11 @@ if __name__ == "__main__":
     # --------------------------------------------------
 
     # Make sure that the specified project exists on the server
-    ensure_trained_example_project(geti=geti, project_name=PROJECT_NAME)
+    project = ensure_trained_example_project(geti=geti, project_name=PROJECT_NAME)
 
     # Upload the media in the folder and generate predictions
     geti.upload_and_predict_media_folder(
-        project_name=PROJECT_NAME,
+        project=project,
         media_folder=FOLDER_WITH_MEDIA,
         delete_after_prediction=DELETE_AFTER_PREDICTION,
         output_folder=OUTPUT_FOLDER,

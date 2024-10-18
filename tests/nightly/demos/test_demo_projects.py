@@ -69,7 +69,7 @@ class TestDemoProjects:
         ids=[
             "Detection",
             "Classification",
-            "Anomaly classification",
+            "Anomaly",
             "Segmentation",
             "Detection to classification",
             "Detection to segmentation",
@@ -160,9 +160,8 @@ class TestDemoProjects:
         )
         if any_project is not None:
             force_delete_project(
-                project_name=non_existing_project_name,
+                project=any_project,
                 project_client=fxt_project_client_no_vcr,
-                project_id=any_project.id,
             )
         assert non_existing_project_name not in [
             project.name for project in fxt_project_client_no_vcr.get_all_projects()

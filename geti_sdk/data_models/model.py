@@ -59,6 +59,16 @@ class ModelPurgeInfo:
 
 
 @attr.define
+class TrainingFramework:
+    """
+    Representation of the training framework used to train the model.
+    """
+
+    type: str
+    version: str
+
+
+@attr.define
 class OptimizationConfigurationParameter:
     """
     Representation of a parameter for model optimization in Intel Geti.
@@ -97,6 +107,7 @@ class BaseModel:
         default=None
     )  # Added in Intel Geti 1.1
     total_disk_size: Optional[int] = None  # Added in Intel Geti 2.3
+    training_framework: Optional[TrainingFramework] = None  # Added in Intel Geti 2.5
 
     def __attrs_post_init__(self):
         """

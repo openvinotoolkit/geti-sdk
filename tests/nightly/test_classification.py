@@ -89,7 +89,8 @@ class TestClassification(TestNightlyProject):
         # Project is exported
         assert not os.path.exists(archive_path)
         fxt_geti_no_vcr.export_project(
-            project_name=project.name, project_id=project.id, filepath=archive_path
+            filepath=archive_path,
+            project=project,
         )
         assert os.path.exists(archive_path)
 

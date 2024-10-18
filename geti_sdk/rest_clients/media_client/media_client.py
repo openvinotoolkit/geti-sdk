@@ -32,13 +32,12 @@ from typing import (
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from geti_sdk.data_models import Image, MediaType, Project, Video, VideoFrame
+from geti_sdk.data_models import Dataset, Image, MediaType, Project, Video, VideoFrame
 from geti_sdk.data_models.containers.media_list import MediaList, MediaTypeVar
 from geti_sdk.data_models.enums.media_type import (
     SUPPORTED_IMAGE_FORMATS,
     SUPPORTED_VIDEO_FORMATS,
 )
-from geti_sdk.data_models.project import Dataset
 from geti_sdk.data_models.utils import numpy_from_buffer
 from geti_sdk.http_session import GetiRequestException, GetiSession
 from geti_sdk.rest_clients.dataset_client import DatasetClient

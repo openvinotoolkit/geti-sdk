@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import logging
+import time
 from contextlib import nullcontext
 from typing import Any, Dict, List, Optional, Sequence, Union
 
@@ -23,6 +24,7 @@ from geti_sdk.data_models import Project, TaskType
 from geti_sdk.rest_clients import (
     AnnotationClient,
     ConfigurationClient,
+    DatasetClient,
     ImageClient,
     ModelClient,
     PredictionClient,
@@ -47,7 +49,7 @@ class ProjectService:
         VCR cassettes
     """
 
-    def __init__(self, geti: Geti, vcr: Optional[VCR] = None):
+    def __init__(self, geti: Geti, vcr: Optional[VCR] = None, is_offline: bool = False):
         if vcr is None:
             self.vcr_context = nullcontext
         else:
@@ -60,6 +62,8 @@ class ProjectService:
         )
 
         self._project: Optional[Project] = None
+        self._project_creation_timestamp: Optional[float] = None
+        self._is_offline: bool = is_offline
         self._configuration_client: Optional[ConfigurationClient] = None
         self._image_client: Optional[ImageClient] = None
         self._annotation_client: Optional[AnnotationClient] = None
@@ -67,6 +71,7 @@ class ProjectService:
         self._video_client: Optional[VideoClient] = None
         self._model_client: Optional[ModelClient] = None
         self._prediction_client: Optional[PredictionClient] = None
+        self._dataset_client: Optional[DatasetClient] = None
         self._client_names = [
             "_configuration_client",
             "_image_client",
@@ -75,7 +80,9 @@ class ProjectService:
             "_video_client",
             "_model_client",
             "_prediction_client",
+            "_dataset_client",
         ]
+        self._project_removal_delay = 5  # seconds
 
     def create_project(
         self,
@@ -100,7 +107,7 @@ class ProjectService:
                 project = self.project_client.create_project(
                     project_name=project_name, project_type=project_type, labels=labels
                 )
-                self._project = project
+                self.project = project
                 return project
         else:
             raise ValueError(
@@ -183,7 +190,7 @@ class ProjectService:
                 "Please either delete the existing project first or use a new "
                 "instance to create another project"
             )
-        self._project = project
+        self.project = project
         return project
 
     @property
@@ -191,7 +198,8 @@ class ProjectService:
         """
         Returns the project managed by the ProjectService.
 
-        :return:
+        :return: The project managed by the ProjectService
+        :raises: ValueError if the ProjectService does not contain a project yet
         """
         if self._project is None:
             raise ValueError(
@@ -199,6 +207,17 @@ class ProjectService:
                 "call `ProjectService.create_project` to create a new project first."
             )
         return self._project
+
+    @project.setter
+    def project(self, value: Optional[Project]) -> None:
+        """
+        Set the project for the ProjectService.
+        """
+        self._project = value
+        if self._project is None:
+            self._project_creation_timestamp = None
+        else:
+            self._project_creation_timestamp = time.time()
 
     @property
     def has_project(self) -> bool:
@@ -259,6 +278,20 @@ class ProjectService:
                     project=self.project,
                 )
         return self._annotation_client
+
+    @property
+    def dataset_client(self) -> DatasetClient:
+        """Returns the DatasetClient instance for the project"""
+        if self._dataset_client is None:
+            with self.vcr_context(
+                f"{self.project.name}_dataset_client.{CASSETTE_EXTENSION}"
+            ):
+                self._dataset_client = DatasetClient(
+                    session=self.session,
+                    workspace_id=self.workspace_id,
+                    project=self.project,
+                )
+        return self._dataset_client
 
     @property
     def configuration_client(self) -> ConfigurationClient:
@@ -332,11 +365,16 @@ class ProjectService:
 
     def delete_project(self):
         """Deletes the project from the server"""
-        if self._project is not None:
+        if self.has_project:
             with self.vcr_context(f"{self.project.name}_deletion.{CASSETTE_EXTENSION}"):
-                force_delete_project(
-                    self.project.name, self.project_client, self.project.id
-                )
+                # Server needs a moment to process the project before deletion
+                if (
+                    not self._is_offline
+                    and (lifetime := time.time() - self._project_creation_timestamp)
+                    < self._project_removal_delay
+                ):
+                    time.sleep(self._project_removal_delay - lifetime)
+                force_delete_project(self.project, self.project_client)
                 self.reset_state()
 
     def reset_state(self) -> None:
@@ -344,7 +382,7 @@ class ProjectService:
         Resets the state of the ProjectService instance. This method should be called
         once the project belonging to the project service is deleted from the server
         """
-        self._project = None
+        self.project = None
         for client_name in self._client_names:
             setattr(self, client_name, None)
 

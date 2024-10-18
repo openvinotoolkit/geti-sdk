@@ -17,8 +17,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import attr
 
+from geti_sdk.data_models.dataset import Dataset
 from geti_sdk.data_models.enums import JobState, JobType
-from geti_sdk.data_models.project import Dataset
 from geti_sdk.data_models.status import StatusSummary
 from geti_sdk.data_models.utils import (
     attr_value_serializer,

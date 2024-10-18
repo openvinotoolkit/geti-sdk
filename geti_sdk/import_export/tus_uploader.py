@@ -169,9 +169,14 @@ class TUSUploader:
 
         :return: File id.
         """
-        if self.upload_url is None:
+        if (
+            self.upload_url is None
+            or len(file_id := self.upload_url.split("/")[-1]) < 2
+        ):
+            # We get the file_id from the upload url. If the url is not set or the file_id
+            # is not valid (may be an empty string if the url is not valid), we return None.
             return
-        return self.upload_url.split("/")[-1]
+        return file_id
 
     def upload_chunk(self):
         """

@@ -18,6 +18,7 @@ from typing import Any, ClassVar, Dict, List, Optional, Union
 
 import attr
 
+from .dataset import Dataset
 from .label import Label
 from .performance import Performance
 from .task import Task
@@ -149,40 +150,6 @@ class Pipeline:
         """
         for task in self.tasks:
             task.prepare_for_post()
-
-
-@attr.define
-class Dataset:
-    """
-    Representation of a dataset for a project in Intel® Geti™.
-
-    :var id: Unique database ID of the dataset
-    :var name: name of the dataset
-    """
-
-    _identifier_fields: ClassVar[str] = ["id", "creation_time"]
-    _GET_only_fields: ClassVar[List[str]] = ["use_for_training", "creation_time"]
-
-    name: str
-    id: Optional[str] = None
-    creation_time: Optional[str] = attr.field(default=None, converter=str_to_datetime)
-    use_for_training: Optional[bool] = None
-
-    def deidentify(self) -> None:
-        """
-        Remove unique database ID from the Dataset.
-        """
-        deidentify(self)
-
-    def prepare_for_post(self) -> None:
-        """
-        Set all fields to None that are not valid for making a POST request to the
-        /projects endpoint.
-
-        :return:
-        """
-        for field_name in self._GET_only_fields:
-            setattr(self, field_name, None)
 
 
 @attr.define

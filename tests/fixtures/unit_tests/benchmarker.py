@@ -27,18 +27,17 @@ def fxt_benchmarker(
     fxt_mocked_geti: Geti,
 ) -> Benchmarker:
     _ = mocker.patch(
-        "geti_sdk.geti.ProjectClient.get_project_by_name",
+        "geti_sdk.geti.Geti.get_project",
         return_value=fxt_classification_project,
     )
     _ = mocker.patch("geti_sdk.benchmarking.benchmarker.ModelClient")
     _ = mocker.patch("geti_sdk.benchmarking.benchmarker.TrainingClient")
-    project_name = "project name"
     algorithms_to_benchmark = ("ALGO_1", "ALGO_2")
     precision_levels = ("PRECISION_1", "PRECISION_2")
     images = ("path_1", "path_2")
     yield Benchmarker(
         geti=fxt_mocked_geti,
-        project=project_name,
+        project=mocker.MagicMock(),
         algorithms=algorithms_to_benchmark,
         precision_levels=precision_levels,
         benchmark_images=images,
@@ -52,7 +51,7 @@ def fxt_benchmarker_task_chain(
     fxt_mocked_geti: Geti,
 ) -> Benchmarker:
     _ = mocker.patch(
-        "geti_sdk.geti.ProjectClient.get_project_by_name",
+        "geti_sdk.geti.Geti.get_project",
         return_value=fxt_detection_to_classification_project,
     )
     model_client_object_mock = mocker.MagicMock()
@@ -64,13 +63,12 @@ def fxt_benchmarker_task_chain(
     model_client_object_mock.get_all_active_models.return_value = active_models
 
     _ = mocker.patch("geti_sdk.benchmarking.benchmarker.TrainingClient")
-    project_name = "project name"
     precision_levels = ("PRECISION_1", "PRECISION_2")
     images = ("path_1", "path_2")
 
     yield Benchmarker(
         geti=fxt_mocked_geti,
-        project=project_name,
+        project=mocker.MagicMock(),
         precision_levels=precision_levels,
         benchmark_images=images,
     )

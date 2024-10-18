@@ -55,6 +55,7 @@ class MediaInformation:
     display_url: str
     height: int
     width: int
+    extension: Optional[str] = None  # Added in Geti v2.5
     size: Optional[int] = None  # Added in Geti v1.2
 
 

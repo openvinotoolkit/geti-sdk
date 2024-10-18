@@ -14,6 +14,7 @@
 import logging
 import time
 import warnings
+from datetime import datetime
 from functools import cache
 from json import JSONDecodeError
 from typing import Any, Dict, Optional, Union
@@ -546,7 +547,10 @@ class GetiSession(requests.Session):
     def _get_organization_id(self) -> str:
         """
         Return the organization ID associated with the user and host information configured
-        in this Session
+        in this Session.
+
+        NOTE: When authenticating with username and password, this method returns the
+        ID of the default organization for the user!
         """
         if not self.use_token:
             result = self.get_rest_response(
@@ -560,7 +564,26 @@ class GetiSession(requests.Session):
                 method="GET",
                 include_organization_id=False,
             )
-        org_id = result.get("organizationId", None)
+        if "organizationId" in result.keys():
+            # Geti < 2.5, return the id directly
+            org_id = result.get("organizationId", None)
+        elif "organizations" in result.keys():
+            # Geti 2.5 and up: list of organizations, return the default one (the one
+            # which was created at the earliest time)
+            org_list = result["organizations"]
+            creation_times = [
+                datetime.fromisoformat(
+                    x["organizationCreatedAt"].replace("Z", "+00:00")
+                )
+                for x in org_list
+            ]
+            ids = [x["organizationId"] for x in org_list]
+            earliest_creation_time = min(creation_times)
+            earliest_idx = creation_times.index(earliest_creation_time)
+            org_id = ids[earliest_idx]
+        else:
+            org_id = None
+
         if org_id is None:
             raise ValueError(
                 f"Unable to retrieve organization ID from the Intel Geti server. "

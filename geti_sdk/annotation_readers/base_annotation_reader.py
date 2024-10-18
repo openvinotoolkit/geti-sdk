@@ -33,12 +33,14 @@ class AnnotationReader:
         base_data_folder: str,
         annotation_format: str = ".json",
         task_type: Union[TaskType, str] = TaskType.DETECTION,
+        anomaly_reduction: bool = False,
     ):
         if task_type is not None and not isinstance(task_type, TaskType):
             task_type = TaskType(task_type)
         self.base_folder = base_data_folder
         self.annotation_format = annotation_format
         self.task_type = task_type
+        self.anomaly_reduction = anomaly_reduction
 
         self._filepaths: Optional[List[str]] = None
 
