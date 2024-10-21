@@ -73,7 +73,7 @@ class ModelGroup:
     models: List[ModelSummary] = attr.field(repr=False)
     task_id: Optional[str] = attr.field(default=None)
     id: Optional[str] = attr.field(default=None)
-    learning_approach: Optional[str] = None  # Added in Geti v2.5
+    learning_approach: Optional[str] = attr.field(default=None)  # Added in Geti v2.5
 
     def __attrs_post_init__(self) -> None:
         """
