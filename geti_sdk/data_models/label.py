@@ -114,7 +114,9 @@ class ScoredLabel:
 
     _identifier_fields: ClassVar[List[str]] = ["id"]
 
-    probability: float
+    probability: float = attr.field(converter=float)  # float converter here to make
+    # sure we're storing probability
+    # as a float64 dtype
     name: Optional[str] = None
     color: Optional[str] = None
     id: Optional[str] = None

@@ -15,6 +15,7 @@
 # noqa: D104
 
 from .algorithm_list import AlgorithmList
+from .label_list import LabelList
 from .media_list import MediaList
 
-__all__ = ["AlgorithmList", "MediaList"]
+__all__ = ["AlgorithmList", "MediaList", "LabelList"]
