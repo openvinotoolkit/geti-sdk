@@ -108,6 +108,7 @@ class BaseModel:
     )  # Added in Intel Geti 1.1
     total_disk_size: Optional[int] = None  # Added in Intel Geti 2.3
     training_framework: Optional[TrainingFramework] = None  # Added in Intel Geti 2.5
+    learning_approach: Optional[str] = None  # Added in Intel Geti v2.6
 
     def __attrs_post_init__(self):
         """
