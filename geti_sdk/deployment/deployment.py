@@ -268,13 +268,11 @@ class Deployment:
                 project=self.project,
                 max_async_infer_requests=max_requests,
                 plugin_configuration=openvino_configuration,
+                task_index=idx,
             )
 
         # Extract empty label for the upstream task
-        upstream_labels = self.models[0].label_schema.get_labels(include_empty=True)
-        self._empty_label = next(
-            (label for label in upstream_labels if label.is_empty), None
-        )
+        self._empty_label = self.models[0].labels.get_empty_label()
 
         self._are_models_loaded = True
         logging.info(f"Inference models loaded on device `{device}` successfully.")

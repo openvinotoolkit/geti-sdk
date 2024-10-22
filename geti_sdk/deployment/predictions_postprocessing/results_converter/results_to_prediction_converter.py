@@ -29,9 +29,9 @@ from model_api.models.utils import (
 )
 
 from geti_sdk.data_models.annotations import Annotation
+from geti_sdk.data_models.containers import LabelList
 from geti_sdk.data_models.enums.domain import Domain
-from geti_sdk.data_models.label import Label, ScoredLabel
-from geti_sdk.data_models.label_schema import LabelSchema
+from geti_sdk.data_models.label import ScoredLabel
 from geti_sdk.data_models.predictions import Prediction
 from geti_sdk.data_models.shapes import (
     Ellipse,
@@ -47,6 +47,13 @@ from geti_sdk.deployment.predictions_postprocessing.utils.segmentation_utils imp
 
 class InferenceResultsToPredictionConverter(metaclass=abc.ABCMeta):
     """Interface for the converter"""
+
+    def __init__(
+        self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
+    ):
+        self.labels = labels.get_non_empty_labels()
+        self.empty_label = labels.get_empty_label()
+        self.configuration = configuration
 
     @abc.abstractmethod
     def convert_to_prediction(
@@ -77,26 +84,15 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
     """
     Converts ModelAPI Classification predictions to Prediction object.
 
-    :param label_schema: LabelSchema containing the label info of the task
+    :param labels: LabelList containing the label info of the task
+    :param configuration: Optional configuration dictionary containing additional
+        parameters
     """
 
-    def __init__(self, label_schema: LabelSchema):
-        all_labels = label_schema.get_labels(include_empty=True)
-        # add empty labels if only one non-empty label exits
-        non_empty_labels = [label for label in all_labels if not label.is_empty]
-        self.labels = all_labels if len(non_empty_labels) == 1 else non_empty_labels
-        self.label_name_mapping: Dict[str, Label] = {
-            label.name: label for label in self.labels
-        }
-        # get the first empty label
-        self.empty_label = next((label for label in all_labels if label.is_empty), None)
-        multilabel = len(label_schema.get_groups(False)) > 1
-        multilabel = multilabel and len(label_schema.get_groups(False)) == len(
-            label_schema.get_labels(include_empty=False)
-        )
-        self.hierarchical = not multilabel and len(label_schema.get_groups(False)) > 1
-
-        self.label_schema = label_schema
+    def __init__(
+        self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
+    ):
+        super().__init__(labels, configuration)
 
     def convert_to_prediction(
         self,
@@ -117,9 +113,7 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
             # label_idx does not necessarily match the label index in the project
             # labels. Therefore, we map the label by name instead.
             labels.append(
-                ScoredLabel.from_label(
-                    self.label_name_mapping[label_name], float(label_prob)
-                )
+                self.labels.create_scored_label(id_or_name=label_name, score=label_prob)
             )
 
         if not labels and self.empty_label:
@@ -154,21 +148,24 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
         if len(saliency_map.shape) == 2:
             saliency_map = np.expand_dims(saliency_map, axis=-1)
         saliency_map = np.transpose(saliency_map, (2, 0, 1))  # shape: (N classes, h, w)
-        return {label.name: saliency_map[i] for i, label in enumerate(self.labels)}
+        return {
+            label.name: saliency_map[i]
+            for i, label in enumerate(self.labels.get_non_empty_labels())
+        }
 
 
 class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
     """
     Converts ModelAPI Detection objects to Prediction object.
 
-    :param label_schema: LabelSchema containing the label info of the task
+    :param labels: LabelList containing the label info of the task
     :param configuration: optional model configuration setting
     """
 
     def __init__(
-        self, label_schema: LabelSchema, configuration: Optional[Dict[str, Any]] = None
+        self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
     ):
-        self.labels = label_schema.get_labels(include_empty=False)
+        super().__init__(labels, configuration)
         self.use_ellipse_shapes = False
         self.confidence_threshold = 0.0
         if configuration is not None:
@@ -176,6 +173,14 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
                 self.use_ellipse_shapes = configuration["use_ellipse_shapes"]
             if "confidence_threshold" in configuration:
                 self.confidence_threshold = configuration["confidence_threshold"]
+            if "label_ids" in configuration:
+                # Make sure the list of labels is sorted according to the order
+                # defined in the ModelAPI configuration. If the 'label_ids' field
+                # only contains a single label, it will be typed as string. No need
+                # to sort in that case
+                ids = configuration["label_ids"]
+                if not isinstance(ids, str):
+                    self.labels.sort_by_ids(configuration["label_ids"])
 
     def _detection2array(self, detections: List[Detection]) -> np.ndarray:
         """
@@ -230,9 +235,9 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
             # If this is the case, skip the first value as it is not used
             _detection = detection[1:] if detection.shape == (7,) else detection
 
-            label = int(_detection[0])
+            label_index = int(_detection[0])
             confidence = _detection[1]
-            scored_label = ScoredLabel.from_label(self.labels[label], confidence)
+            scored_label = ScoredLabel.from_label(self.labels[label_index], confidence)
             coords = _detection[2:]
             shape: Union[Ellipse, Rectangle]
 
@@ -293,7 +298,8 @@ class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
     """
     Converts ModelAPI Rotated Detection objects to Prediction.
 
-    :param label_schema: LabelSchema containing the label info of the task
+    :param labels: LabelList containing the label info of the task
+    :param configuration: optional model configuration setting
     """
 
     def convert_to_prediction(
@@ -358,20 +364,13 @@ class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
         return Prediction(annotations)
 
 
-class MaskToAnnotationConverter(InferenceResultsToPredictionConverter):
-    """Converts DetectionBox Predictions ModelAPI to Prediction object."""
+class MaskToAnnotationConverter(DetectionToPredictionConverter):
+    """
+    Converts DetectionBox Predictions ModelAPI to Prediction object.
 
-    def __init__(
-        self, label_schema: LabelSchema, configuration: Optional[Dict[str, Any]] = None
-    ):
-        self.labels = label_schema.get_labels(include_empty=False)
-        self.use_ellipse_shapes = False
-        self.confidence_threshold = 0.0
-        if configuration is not None:
-            if "use_ellipse_shapes" in configuration:
-                self.use_ellipse_shapes = configuration["use_ellipse_shapes"]
-            if "confidence_threshold" in configuration:
-                self.confidence_threshold = configuration["confidence_threshold"]
+    :param labels: LabelList containing the label info of the task
+    :param configuration: optional model configuration setting
+    """
 
     def convert_to_prediction(
         self, inference_results: Any, **kwargs: Dict[str, Any]
@@ -388,7 +387,7 @@ class MaskToAnnotationConverter(InferenceResultsToPredictionConverter):
             if obj.score < self.confidence_threshold:
                 continue
             if self.use_ellipse_shapes:
-                shape = shape = Ellipse(
+                shape = Ellipse(
                     obj.xmin, obj.ymin, obj.xmax - obj.xmin, obj.ymax - obj.ymin
                 )
                 annotations.append(
@@ -463,11 +462,14 @@ class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
     """
     Converts ModelAPI Segmentation objects to Prediction object.
 
-    :param label_schema: LabelSchema containing the label info of the task
+    :param labels: LabelList containing the label info of the task
+    :param configuration: optional model configuration setting
     """
 
-    def __init__(self, label_schema: LabelSchema):
-        self.labels = label_schema.get_labels(include_empty=False)
+    def __init__(
+        self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
+    ):
+        super().__init__(labels, configuration)
         # NB: index=0 is reserved for the background label
         self.label_map = dict(enumerate(self.labels, 1))
 
@@ -510,18 +512,22 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
     """
     Convert ModelAPI AnomalyResult predictions to Prediction object.
 
-    :param label_schema: LabelSchema containing the label info of the task
+    :param labels: LabelList containing the label info of the task
+    :param configuration: optional model configuration setting
     """
 
-    def __init__(self, label_schema: LabelSchema):
-        self.labels = label_schema.get_labels(include_empty=False)
+    def __init__(
+        self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
+    ):
+        super().__init__(labels, configuration)
         self.normal_label = next(
             label for label in self.labels if not label.is_anomalous
         )
         self.anomalous_label = next(
             label for label in self.labels if label.is_anomalous
         )
-        self.domain = self.anomalous_label.domain
+        if configuration is not None and "domain" in configuration:
+            self.domain = configuration["domain"]
 
     def convert_to_prediction(
         self, inference_results: AnomalyResult, image_shape: Tuple[int], **kwargs
@@ -616,49 +622,34 @@ class ConverterFactory:
 
     @staticmethod
     def create_converter(
-        label_schema: LabelSchema,
+        labels: LabelList,
+        domain: Domain,
         configuration: Optional[Dict[str, Any]] = None,
     ) -> InferenceResultsToPredictionConverter:
         """
         Create the appropriate inferencer object according to the model's task.
 
         :param label_schema: The label schema containing the label info of the task.
+        :param domain: The domain to which the converter applies
         :param configuration: Optional configuration for the converter. Defaults to None.
         :return: The created inference result to prediction converter.
         :raises ValueError: If the task type cannot be determined from the label schema.
         """
-        domain = ConverterFactory._get_labels_domain(label_schema)
-
         if domain == Domain.CLASSIFICATION:
-            return ClassificationToPredictionConverter(label_schema)
+            return ClassificationToPredictionConverter(labels, configuration)
         if domain == Domain.DETECTION:
-            return DetectionToPredictionConverter(label_schema, configuration)
+            return DetectionToPredictionConverter(labels, configuration)
         if domain == Domain.SEGMENTATION:
-            return SegmentationToPredictionConverter(label_schema)
+            return SegmentationToPredictionConverter(labels, configuration)
         if domain == Domain.ROTATED_DETECTION:
-            return RotatedRectToPredictionConverter(label_schema, configuration)
+            return RotatedRectToPredictionConverter(labels, configuration)
         if domain == Domain.INSTANCE_SEGMENTATION:
-            return MaskToAnnotationConverter(label_schema, configuration)
+            return MaskToAnnotationConverter(labels, configuration)
         if domain in (
             Domain.ANOMALY_CLASSIFICATION,
             Domain.ANOMALY_SEGMENTATION,
             Domain.ANOMALY_DETECTION,
         ):
-            return AnomalyToPredictionConverter(label_schema)
+            configuration.update({"domain": domain})
+            return AnomalyToPredictionConverter(labels, configuration)
         raise ValueError(f"Cannot create inferencer for task type '{domain.name}'.")
-
-    @staticmethod
-    def _get_labels_domain(label_schema: LabelSchema) -> Domain:
-        """
-        Return the domain (task type) associated with the model's labels.
-
-        :param label_schema: The label schema containing the label info of the task.
-        :return: The domain of the task.
-        :raises ValueError: If the task type cannot be determined from the label schema.
-        """
-        try:
-            return next(
-                label.domain for label in label_schema.get_labels(include_empty=False)
-            )
-        except StopIteration:
-            raise ValueError("Cannot determine the task for the model")
