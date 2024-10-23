@@ -36,7 +36,7 @@ from geti_sdk.data_models import (
 from geti_sdk.data_models.containers.media_list import MediaList
 from geti_sdk.data_models.label import Label
 from geti_sdk.data_models.media import MediaInformation, MediaItem
-from geti_sdk.http_session import GetiSession
+from geti_sdk.http_session import GetiRequestException, GetiSession
 from geti_sdk.rest_clients.dataset_client import DatasetClient
 from geti_sdk.rest_converters import AnnotationRESTConverter
 
@@ -313,9 +313,12 @@ class BaseAnnotationClient:
         :return: Returns the number of uploaded annotations.
         """
         upload_count = 0
+        skip_count = 0
         tqdm_prefix = "Uploading media annotations"
-        with logging_redirect_tqdm(tqdm_class=tqdm):
-            for media_item in tqdm(media_list, desc=tqdm_prefix):
+
+        def upload_annotation(media_item: MediaItem) -> None:
+            nonlocal upload_count, skip_count
+            try:
                 if not append_annotations:
                     response = self._upload_annotation_for_2d_media_item(
                         media_item=media_item
@@ -324,8 +327,38 @@ class BaseAnnotationClient:
                     response = self._append_annotation_for_2d_media_item(
                         media_item=media_item
                     )
-                if response.annotations:
-                    upload_count += 1
+            except GetiRequestException as error:
+                skip_count += 1
+                if error.status_code == 500:
+                    logging.error(
+                        f"Failed to upload annotation for {media_item.name}. "
+                    )
+                    return
+                else:
+                    raise error
+            if response is not None:
+                upload_count += 1
+
+        t_start = time.time()
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            with logging_redirect_tqdm(tqdm_class=tqdm):
+                list(
+                    tqdm(
+                        executor.map(upload_annotation, media_list),
+                        total=len(media_list),
+                        desc=tqdm_prefix,
+                    )
+                )
+
+        t_elapsed = time.time() - t_start
+        if upload_count > 0:
+            logging.info(
+                f"Uploaded {upload_count} annotations in {t_elapsed:.1f} seconds."
+            )
+        if skip_count > 0:
+            logging.info(
+                f"Skipped {skip_count} media items, unable to upload annotations."
+            )
         return upload_count
 
     def annotation_scene_from_rest_response(
