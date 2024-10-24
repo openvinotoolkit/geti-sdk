@@ -548,7 +548,7 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
             else self.normal_label
         )
         annotations: List[Annotation] = []
-        if self.domain == Domain.ANOMALY_CLASSIFICATION:
+        if self.domain == Domain.ANOMALY_CLASSIFICATION or self.domain == Domain.ANOMALY:
             scored_label = ScoredLabel.from_label(
                 label=label, probability=float(inference_results.pred_score)
             )
@@ -649,6 +649,7 @@ class ConverterFactory:
             Domain.ANOMALY_CLASSIFICATION,
             Domain.ANOMALY_SEGMENTATION,
             Domain.ANOMALY_DETECTION,
+            Domain.ANOMALY
         ):
             configuration.update({"domain": domain})
             return AnomalyToPredictionConverter(labels, configuration)

@@ -806,6 +806,8 @@ class DeployedModel(OptimizedModel):
             "optimization_config",
             "task_type",
             "labels",
+            "image_shape",
+            "domain"
         ]
         for key in unused_keys:
             configuration.pop(key, None)
