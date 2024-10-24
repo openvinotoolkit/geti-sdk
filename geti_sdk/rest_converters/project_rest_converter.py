@@ -44,7 +44,7 @@ class ProjectRESTConverter:
         return deserialize_dictionary(prepared_project, output_type=Project)
 
     @classmethod
-    def to_dict(cls, project: Project) -> Dict[str, Any]:
+    def to_dict(cls, project: Project, deidentify: bool = True) -> Dict[str, Any]:
         """
         Convert the `project` to its dictionary representation.
         This functions removes database UID's and optional fields that are `None`
@@ -52,9 +52,13 @@ class ProjectRESTConverter:
         readability.
 
         :param project: Project to convert to dictionary
+        :param deidentify: True to remove all unique database ID's from the project
+            and it's child entities, False to keep the ID's intact. Defaults to True,
+            which is useful for project import/export
         :return:
         """
-        project.deidentify()
+        if deidentify:
+            project.deidentify()
         project_data = project.to_dict()
         remove_null_fields(project_data)
         return project_data
