@@ -764,6 +764,9 @@ class DeployedModel(OptimizedModel):
                 value = value.split(" ")
                 value_list = []
                 for item in value:
+                    if isinstance(item, str) and item.lower() == "none":
+                        value_list.append(None)
+                        continue
                     try:
                         value_list.append(float(item))
                     except ValueError:

@@ -124,5 +124,11 @@ class LabelList(UserList):
         """
         new_data: List[Label] = []
         for label_id in label_ids:
+            if label_id is None:
+                # Certain models have the label id as 'None' to signal an empty label
+                if self.get_empty_label() is not None:
+                    new_data.append(self.get_empty_label())
+                else:
+                    continue
             new_data.append(self.get_by_id(label_id))
         self.data = new_data
