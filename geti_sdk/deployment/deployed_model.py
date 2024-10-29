@@ -788,9 +788,9 @@ class DeployedModel(OptimizedModel):
                     continue
                 except ValueError:
                     pass
-                if value in ["false", "False", "FALSE"]:
+                if isinstance(value, str) and value.lower() in ["false", "no"]:
                     value = False
-                elif value in ["true", "True", "TRUE"]:
+                elif isinstance(value, str) and value.lower() in ["true", "yes"]:
                     value = True
                 config[child.tag] = value
         return config
