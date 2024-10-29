@@ -129,7 +129,7 @@ class Deployment:
         :param path_to_folder: Folder to save the deployment to
         :return: True if the deployment was saved successfully, False otherwise
         """
-        project_dict = ProjectRESTConverter.to_dict(self.project)
+        project_dict = ProjectRESTConverter.to_dict(self.project, deidentify=False)
         deployment_folder = os.path.join(path_to_folder, "deployment")
 
         os.makedirs(deployment_folder, exist_ok=True, mode=0o770)
