@@ -238,6 +238,7 @@ class GetiIE:
         if len(images) > 0:
             annotation_client.upload_annotations_for_images(
                 images=images,
+                max_threads=max_threads,
             )
         if len(videos) > 0:
             are_videos_processed = False
@@ -253,7 +254,7 @@ class GetiIE:
                 are_videos_processed = uploaded_ids.issubset(project_video_ids)
                 time.sleep(1)
             annotation_client.upload_annotations_for_videos(
-                videos=videos,
+                videos=videos, max_threads=max_threads
             )
 
         configuration_file = os.path.join(target_folder, "configuration.json")

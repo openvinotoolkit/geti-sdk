@@ -300,7 +300,10 @@ class BaseAnnotationClient:
             return annotation_scene
 
     def _upload_annotations_for_2d_media_list(
-        self, media_list: Sequence[MediaItem], append_annotations: bool
+        self,
+        media_list: Sequence[MediaItem],
+        append_annotations: bool,
+        max_threads: int = 5,
     ) -> int:
         """
         Upload annotations to the server.
@@ -310,8 +313,14 @@ class BaseAnnotationClient:
         :param append_annotations: True to append annotations from the local disk to
             the existing annotations on the server, False to overwrite the server
             annotations by those on the local disk.
+        :param max_threads: Maximum number of threads to use for uploading. Defaults to 5.
+            Set to -1 to use all available threads.
         :return: Returns the number of uploaded annotations.
         """
+        if max_threads <= 0:
+            # ThreadPoolExecutor will use minimum 5 threads for 1 core cpu
+            # and maximum 32 threads for multi-core cpu.
+            max_threads = None
         upload_count = 0
         skip_count = 0
         tqdm_prefix = "Uploading media annotations"
@@ -340,7 +349,7 @@ class BaseAnnotationClient:
                 upload_count += 1
 
         t_start = time.time()
-        with ThreadPoolExecutor(max_workers=5) as executor:
+        with ThreadPoolExecutor(max_workers=max_threads) as executor:
             with logging_redirect_tqdm(tqdm_class=tqdm):
                 list(
                     tqdm(

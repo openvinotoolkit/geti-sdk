@@ -713,10 +713,12 @@ class Geti:
             workspace_id=self.workspace_id,
             annotation_reader=annotation_reader,
         )
-        annotation_client.upload_annotations_for_images(images)
+        annotation_client.upload_annotations_for_images(images, max_threads=max_threads)
 
         if len(videos) > 0:
-            annotation_client.upload_annotations_for_videos(videos)
+            annotation_client.upload_annotations_for_videos(
+                videos, max_threads=max_threads
+            )
 
         configuration_client.set_project_auto_train(auto_train=enable_auto_train)
         return project
@@ -854,7 +856,9 @@ class Geti:
                     annotation_reader=reader,
                 )
                 annotation_client.upload_annotations_for_images(
-                    images=images, append_annotations=append_annotations
+                    images=images,
+                    append_annotations=append_annotations,
+                    max_threads=max_threads,
                 )
                 append_annotations = True
             previous_task_type = task_type
