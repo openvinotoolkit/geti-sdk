@@ -138,7 +138,7 @@ This code sample shows how to get a deployment from the server.
 > geti = Geti(server_config=server_config)
 >
 > # Create deployment for the project, and prepare it for running inference
-> deployment = geti.deploy_project(PROJECT_NAME)
+> deployment = geti.deploy_project(project_name=PROJECT_NAME)
 >
 > # Save deployment on local
 > deployment.save(PATH_TO_DEPLOYMENT)
