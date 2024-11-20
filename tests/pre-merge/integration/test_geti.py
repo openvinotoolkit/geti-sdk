@@ -518,7 +518,7 @@ class TestGeti:
         for _ in range(n_attempts):
             try:
                 deployment = fxt_geti.deploy_project(
-                    project,
+                    project=project,
                     output_folder=deployment_folder,
                     enable_explainable_ai=True,
                 )
@@ -576,7 +576,7 @@ class TestGeti:
         project = fxt_project_service.project
         deployment_folder = os.path.join(fxt_temp_directory, project.name)
 
-        deployment = fxt_geti.deploy_project(project)
+        deployment = fxt_geti.deploy_project(project=project)
         dataset_name = "Test hooks"
 
         # Add a GetiDataCollectionHook
