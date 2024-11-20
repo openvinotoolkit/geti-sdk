@@ -13,6 +13,7 @@
 # and limitations under the License.
 
 import logging
+import time
 from typing import Optional
 
 from geti_sdk import Geti
@@ -382,6 +383,9 @@ def ensure_trained_example_project(
                 number_of_images_to_annotate=45,
                 enable_auto_train=True,
             )
+            # Should wait for some time for the job to appear as scheduled before checking if
+            # the project is trained. Auto training is triggered after around 5 seconds.
+            time.sleep(10)
         else:
             raise ValueError(
                 f"The project named `{project_name}` does not exist on the server at "
