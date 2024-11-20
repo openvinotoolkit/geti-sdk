@@ -1,3 +1,46 @@
+# v2.5.0 Intel® Geti™ SDK (22-10-2024)
+## What's Changed
+* Introduce `delete_dataset` method  by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/489
+* Update the download_all method for ImageClient to download specific dataset by @rajeshgangireddy in https://github.com/openvinotoolkit/geti-sdk/pull/484
+* Update media info schema to include extension by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/494
+* Project access refactoring by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/481
+* Images upload from list optimization by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/495
+* Add readthedocs configuration file by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/497
+* Fix bug with label name mapping for hierarchical classification models by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/498
+* Introduce new `Anomaly` task by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/487
+* Implement `get_training_dataset` method in `DatasetClient` by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/492
+* Fix anomaly task title by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/499
+* Anomaly tasks backwards compatibility by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/502
+* Fix anomaly demo test by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/501
+* Introduce project removal delay for short tests by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/500
+* Update datumaro requirement from ==1.8.* to ==1.9.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/496
+* Update pytest requirement from ==8.2.* to ==8.3.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/482
+* Fix organization id fetching by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/504
+* Update ModelGroup data model by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/506
+* Update Model data model by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/508
+* Update pillow requirement from ==10.4.* to ==11.0.* in /requirements by @dependabot in https://github.com/openvinotoolkit/geti-sdk/pull/507
+* Fix label assignment for deployed models by @ljcornel in https://github.com/openvinotoolkit/geti-sdk/pull/505
+
+## New Contributors
+* @rajeshgangireddy made their first contribution in https://github.com/openvinotoolkit/geti-sdk/pull/484
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v2.3.0...v2.5.0
+
+
+# v2.3.0 Intel® Geti™ SDK (03-09-2024)
+## What's Changed
+* Add method to purge models by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/468
+* Fix visualization in 008 example notebook by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/472
+* Update the Model schema to include the `total_disk_size` field  by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/471
+* Add support for Credit System API by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/473
+* Implement Platform version check by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/474
+* Allow Credit System-less servers to authenticate with a token by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/476
+* Empty label visualization fix by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/480
+
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v2.2.0...v2.3.0
+
+
 # v2.2.0 Intel® Geti™ SDK (18-07-2024)
 ## What's Changed
 * Add `description` attribute to the job class by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/448

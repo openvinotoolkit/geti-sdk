@@ -371,7 +371,7 @@ class Geti:
         # Download deployment
         if include_deployment:
             logging.info("Creating deployment for project...")
-            self.deploy_project(project, output_folder=target_folder)
+            self.deploy_project(project=project, output_folder=target_folder)
 
         logging.info(f"Project '{project.name}' was downloaded successfully.")
         return project
@@ -1136,7 +1136,8 @@ class Geti:
 
     def deploy_project(
         self,
-        project: Project,
+        project: Optional[Project] = None,
+        project_name: Optional[str] = None,
         output_folder: Optional[Union[str, os.PathLike]] = None,
         models: Optional[Sequence[BaseModel]] = None,
         enable_explainable_ai: bool = False,
@@ -1151,7 +1152,10 @@ class Geti:
         for each task in the project. However, it is possible to specify a particular
         model to use, by passing it in the list of `models` as input to this method.
 
-        :param project: Project object to deploy
+        :param project: Project object to deploy. Either `project` or `project_name`
+            must be specified.
+        :param project_name: Name of the project to deploy. Either `project` or
+            `project_name` must be specified.
         :param output_folder: Path to a folder on local disk to which the Deployment
             should be downloaded. If no path is specified, the deployment will not be
             saved.
@@ -1169,6 +1173,11 @@ class Geti:
             launch an OVMS container serving the models.
         :return: Deployment for the project
         """
+        if project is None and project_name is None:
+            raise ValueError("Either `project` or `project_name` must be specified.")
+        if project is None:
+            project = self.project_client.get_project_by_name(project_name=project_name)
+
         deployment_client = self._deployment_clients.get(project.id, None)
         if deployment_client is None:
             # Create deployment client and add to cache.

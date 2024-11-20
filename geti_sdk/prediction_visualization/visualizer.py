@@ -188,8 +188,8 @@ class Visualizer:
 
         :param image: Image to be shown (in RGB order).
         """
-        image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        cv2.imshow(self.window_name, image_bgr)
+        pil_image = Image.fromarray(image)
+        pil_image.show(title=self.window_name)
 
     def is_quit(self, delay: int = 1) -> bool:
         """Check user wish to quit."""
