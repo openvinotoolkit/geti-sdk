@@ -160,7 +160,7 @@ class TestNightlyProject:
 
         deployment_folder = os.path.join(fxt_temp_directory, project.name)
         deployment = fxt_geti_no_vcr.deploy_project(
-            project,
+            project=project,
             output_folder=deployment_folder,
             enable_explainable_ai=True,
         )
