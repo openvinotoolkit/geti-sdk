@@ -435,7 +435,7 @@ class ProjectService:
                 ]
                 # Upload annotations
                 self.annotation_client.upload_annotations_for_images(
-                    images=images, append_annotations=task_index > 0
+                    images=images, append_annotations=task_index > 0, max_threads=1
                 )
 
     def set_auto_train(self, auto_train: bool = True) -> None:
