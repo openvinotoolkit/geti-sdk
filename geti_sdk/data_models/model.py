@@ -91,10 +91,10 @@ class BaseModel:
     ]
 
     name: str
-    fps_throughput: str
-    latency: str
     precision: List[str]
     creation_date: str = attr.field(converter=str_to_datetime)
+    latency: Optional[str] = None  # Removed in Geti 2.6
+    fps_throughput: Optional[float] = None  # Removed in Geti 2.6
     purge_info: Optional[ModelPurgeInfo] = None
     size: Optional[int] = None
     target_device: Optional[str] = None
@@ -241,7 +241,8 @@ class Model(BaseModel):
     """
 
     architecture: str = attr.field(kw_only=True)
-    score_up_to_date: bool = attr.field(kw_only=True)
+    # Removed in Geti 2.6
+    score_up_to_date: Optional[bool] = attr.field(default=None, kw_only=True)
     optimized_models: List[OptimizedModel] = attr.field(kw_only=True)
     # Removed in Geti 2.2
     optimization_capabilities: Optional[OptimizationCapabilities] = attr.field(
