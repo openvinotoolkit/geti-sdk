@@ -46,7 +46,7 @@ class ModelSummary:
 
     name: str
     creation_date: str = attr.field(converter=str_to_datetime)
-    score_up_to_date: bool
+    score_up_to_date: Optional[bool] = None  # Removed in Geti 2.6
     purge_info: Optional[ModelPurgeInfo] = None
     size: Optional[int] = None
     version: Optional[int] = None  # 'version' is removed in v1.1
@@ -74,6 +74,7 @@ class ModelGroup:
     task_id: Optional[str] = attr.field(default=None)
     id: Optional[str] = attr.field(default=None)
     learning_approach: Optional[str] = attr.field(default=None)  # Added in Geti v2.5
+    lifecycle_stage: Optional[str] = attr.field(default=None)  # Added in Geti v2.6
 
     def __attrs_post_init__(self) -> None:
         """
