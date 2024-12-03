@@ -1,3 +1,10 @@
+# v2.6.0 Intel® Geti™ SDK (03-12-2024)
+## What's Changed
+* Updated model representation to that of Geti V2.6 by @Daankrol in https://github.com/openvinotoolkit/geti-sdk/pull/523
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v2.5.0...v2.6.0
+
+
 # v2.5.0 Intel® Geti™ SDK (22-10-2024)
 ## What's Changed
 * Introduce `delete_dataset` method  by @igor-davidyuk in https://github.com/openvinotoolkit/geti-sdk/pull/489
