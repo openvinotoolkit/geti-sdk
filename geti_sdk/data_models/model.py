@@ -241,7 +241,9 @@ class Model(BaseModel):
     """
 
     architecture: str = attr.field(kw_only=True)
-    score_up_to_date: Optional[bool] = attr.field(default=None, kw_only=True)  # Deprecated in Geti 2.6
+    score_up_to_date: Optional[bool] = attr.field(
+        default=None, kw_only=True
+    )  # Deprecated in Geti 2.6
     optimized_models: List[OptimizedModel] = attr.field(kw_only=True)
     # Removed in Geti 2.2
     optimization_capabilities: Optional[OptimizationCapabilities] = attr.field(
