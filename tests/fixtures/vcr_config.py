@@ -44,6 +44,7 @@ def vcr_record_config(
             proxy_hosts = [
                 proxy.replace("http://", "").replace("https://", "").split(":")[0]
                 for proxy in fxt_server_config.proxies.values()
+                if proxy is not None
             ]
         yield {"record_mode": RecordMode.NONE, "ignore_hosts": [host] + proxy_hosts}
     elif fxt_test_mode == SdkTestMode.OFFLINE:
