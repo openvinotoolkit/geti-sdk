@@ -14,6 +14,7 @@
 
 from typing import Any, Dict, Optional, Type, TypeVar, cast
 
+from attr import fields, has
 from omegaconf import OmegaConf
 from omegaconf.errors import ConfigKeyError, ConfigTypeError, MissingMandatoryValue
 
@@ -32,7 +33,24 @@ def deserialize_dictionary(
     :return: Object of type `output_type`, holding the data passed in
         `input_dictionary`.
     """
-    model_dict_config = OmegaConf.create(input_dictionary)
+
+    def prune_dict(data: dict, cls: Type[Any]) -> dict:
+        """Recursively prune a dictionary to match the structure of an attr class."""
+        pruned_data = {}
+        for attribute in fields(cls):
+            key = attribute.name
+            if key in data:
+                value = data[key]
+                # Check if the field is itself a structured class
+                if has(attribute.type) and isinstance(value, dict):
+                    # Recursively prune the nested dictionary
+                    pruned_data[key] = prune_dict(value, attribute.type)
+                else:
+                    pruned_data[key] = value
+        return pruned_data
+
+    filtered_input_dictionary = prune_dict(input_dictionary, output_type)
+    model_dict_config = OmegaConf.create(filtered_input_dictionary)
     schema = OmegaConf.structured(output_type)
     schema_error: Optional[DataModelMismatchException] = None
     try:
@@ -40,7 +58,7 @@ def deserialize_dictionary(
         output = cast(output_type, OmegaConf.to_object(values))
     except (ConfigKeyError, MissingMandatoryValue, ConfigTypeError) as error:
         schema_error = DataModelMismatchException(
-            input_dictionary=input_dictionary,
+            input_dictionary=filtered_input_dictionary,
             output_data_model=output_type,
             message=error.args[0],
             error_type=type(error),

@@ -30,9 +30,8 @@ class TestUtils:
         """
         Verifies that deserializing a dictionary to a python object works.
 
-        Also tests that a DataModelMismatchException is raised in case:
-            1. the input dictionary contains an invalid key
-            2. the input dictionary misses a required key
+        The test checks that a DataModelMismatchException is raised in case of a missing key.
+        It also verifies that the presence of additional keys in the input dictionary is not a problem.
         """
 
         # Arrange
@@ -40,6 +39,11 @@ class TestUtils:
 
         dictionary_with_extra_key = copy.deepcopy(fxt_project_dictionary)
         dictionary_with_extra_key.update({"invalid_key": "invalidness"})
+
+        dictionary_with_nested_extra_key = copy.deepcopy(fxt_project_dictionary)
+        dictionary_with_nested_extra_key["pipeline"].update(
+            {"invalid_key": "invalidness"}
+        )
 
         dictionary_with_missing_key = copy.deepcopy(fxt_project_dictionary)
         dictionary_with_missing_key.pop("pipeline")
@@ -54,15 +58,19 @@ class TestUtils:
         assert project.get_trainable_tasks()[0].type == TaskType.DETECTION
 
         # Act and assert
-        with pytest.raises(DataModelMismatchException):
-            deserialize_dictionary(
-                input_dictionary=dictionary_with_extra_key, output_type=object_type
-            )
+        deserialize_dictionary(
+            input_dictionary=dictionary_with_extra_key, output_type=object_type
+        )
+
+        # Act and assert
+        deserialize_dictionary(
+            input_dictionary=dictionary_with_nested_extra_key, output_type=object_type
+        )
 
         # Act and assert
         with pytest.raises(DataModelMismatchException):
             deserialize_dictionary(
-                input_dictionary=dictionary_with_extra_key, output_type=object_type
+                input_dictionary=dictionary_with_missing_key, output_type=object_type
             )
 
     def test_generate_segmentation_labels(self):
