@@ -622,7 +622,7 @@ class ModelClient:
                 f"Invalid optimization type specified: `{optimization_type}`. Valid "
                 f"options are: {valid_optimization_types}"
             )
-        optimize_model_url = model.base_url + "/optimize"
+        optimize_model_url = model.base_url + ":optimize"
         payload = {
             "enable_nncf_optimization": optimization_type == "nncf",
             "enable_pot_optimization": optimization_type == "pot",

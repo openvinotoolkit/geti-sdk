@@ -236,7 +236,7 @@ class TrainingClient:
                 self.monitor_jobs(jobs=task_training_jobs, timeout=timeout)
 
         response = self.session.get_rest_response(
-            url=f"{self.base_url}/train", method="POST", data=data
+            url=f"{self.base_url}:train", method="POST", data=data
         )
 
         job_id = response["job_id"]
