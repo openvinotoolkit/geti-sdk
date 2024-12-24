@@ -51,7 +51,7 @@ class InferenceResultsToPredictionConverter(metaclass=abc.ABCMeta):
     def __init__(
         self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
     ):
-        self.labels = labels.get_non_empty_labels()
+        self.labels = labels
         self.empty_label = labels.get_empty_label()
         self.configuration = configuration
 
