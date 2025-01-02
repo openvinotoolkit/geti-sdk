@@ -175,12 +175,14 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
                 self.confidence_threshold = configuration["confidence_threshold"]
             if "label_ids" in configuration:
                 # Make sure the list of labels is sorted according to the order
-                # defined in the ModelAPI configuration. If the 'label_ids' field
-                # only contains a single label, it will be typed as string. No need
-                # to sort in that case
+                # defined in the ModelAPI configuration.
+                #   - If the 'label_ids' field only contains a single label,
+                #   it will be typed as string. No need to sort in that case.
+                #   - Filter out the empty label ID, as it is managed separately by the base converter class.
                 ids = configuration["label_ids"]
                 if not isinstance(ids, str):
-                    self.labels.sort_by_ids(configuration["label_ids"])
+                    ids = [id_ for id_ in ids if id_ != self.empty_label.id]
+                    self.labels.sort_by_ids(ids)
 
     def _detection2array(self, detections: List[Detection]) -> np.ndarray:
         """
