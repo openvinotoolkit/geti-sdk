@@ -25,8 +25,9 @@ from model_api.models.utils import (
     SegmentedObject,
 )
 
+from geti_sdk.data_models.containers import LabelList
 from geti_sdk.data_models.enums.domain import Domain
-from geti_sdk.data_models.label import ScoredLabel
+from geti_sdk.data_models.label import Label, ScoredLabel
 from geti_sdk.data_models.shapes import (
     Ellipse,
     Point,
@@ -64,7 +65,7 @@ class TestInferenceResultsToPredictionConverter:
         )
 
         # Act
-        converter = ClassificationToPredictionConverter(labels)
+        converter = ClassificationToPredictionConverter(labels, configuration={})
         prediction = converter.convert_to_prediction(
             raw_prediction, image_shape=(10, 10)
         )
@@ -196,7 +197,7 @@ class TestInferenceResultsToPredictionConverter:
         )
 
         # Act
-        converter = SegmentationToPredictionConverter(labels)
+        converter = SegmentationToPredictionConverter(labels, configuration={})
         prediction = converter.convert_to_prediction(raw_prediction)
 
         # Assert
@@ -257,3 +258,58 @@ class TestInferenceResultsToPredictionConverter:
             assert prediction.annotations[0].shape == Rectangle(
                 *coords_to_xmin_xmax_width_height(pred_boxes[0])
             )
+
+    @pytest.mark.parametrize(
+        "label_ids, label_names, predicted_labels, configuration",
+        [
+            (
+                ["1", "2"],
+                ["foo bar", "foo_bar"],
+                ["foo_bar", "foo_bar"],
+                {"label_ids": ["1", "2"]},
+            ),
+            (["1", "2"], ["label 1", "label 2"], ["label_1", "label_2"], {}),
+            (["1", "2"], ["?", "@"], ["@", "?"], {}),
+            (["1", "2", "3", "4"], ["c", "b", "a", "empty"], ["a", "b", "c"], {}),
+        ],
+    )
+    def test_legacy_label_conversion(
+        self, label_ids, label_names, predicted_labels, configuration
+    ):
+        # Arrange
+        labels = LabelList(
+            [
+                Label(
+                    id=_id,
+                    name=name,
+                    color="",
+                    group="",
+                    domain=Domain.CLASSIFICATION,
+                    is_empty="empty" in name,
+                )
+                for _id, name in zip(label_ids, label_names)
+            ]
+        )
+        raw_prediction = ClassificationResult(
+            top_labels=[
+                (i, p_label, 0.7) for i, p_label in enumerate(predicted_labels)
+            ],
+            raw_scores=[0.7] * len(predicted_labels),
+            saliency_map=None,
+            feature_vector=None,
+        )
+
+        # Act
+        converter = ClassificationToPredictionConverter(
+            labels=labels, configuration=configuration
+        )
+        pred = converter.convert_to_prediction(
+            inference_results=raw_prediction,
+            image_shape=(10, 10, 10),
+        )
+
+        # Assert
+        assert len(pred.annotations[0].labels) == len(predicted_labels)
+        assert {label.name for label in converter.labels} == {
+            p_label.name for p_label in pred.annotations[0].labels
+        }
