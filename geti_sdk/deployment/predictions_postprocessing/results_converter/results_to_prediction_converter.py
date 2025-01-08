@@ -15,6 +15,7 @@
 """Module implements the InferenceResultsToPredictionConverter class."""
 
 import abc
+import logging
 from typing import Any, Dict, List, NamedTuple, Optional, Tuple, Union
 
 import cv2
@@ -31,7 +32,7 @@ from model_api.models.utils import (
 from geti_sdk.data_models.annotations import Annotation
 from geti_sdk.data_models.containers import LabelList
 from geti_sdk.data_models.enums.domain import Domain
-from geti_sdk.data_models.label import ScoredLabel
+from geti_sdk.data_models.label import Label, ScoredLabel
 from geti_sdk.data_models.predictions import Prediction
 from geti_sdk.data_models.shapes import (
     Ellipse,
@@ -48,12 +49,25 @@ from geti_sdk.deployment.predictions_postprocessing.utils.segmentation_utils imp
 class InferenceResultsToPredictionConverter(metaclass=abc.ABCMeta):
     """Interface for the converter"""
 
-    def __init__(
-        self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
-    ):
+    def __init__(self, labels: LabelList, configuration: Dict[str, Any]):
         self.labels = labels.get_non_empty_labels()
         self.empty_label = labels.get_empty_label()
         self.configuration = configuration
+        self.is_labels_sorted = "label_ids" in configuration
+        if self.is_labels_sorted:
+            # Make sure the list of labels is sorted according to the order
+            # defined in the ModelAPI configuration.
+            #   - If the 'label_ids' field only contains a single label,
+            #   it will be typed as string. No need to sort in that case.
+            #   - Filter out the empty label ID, as it is managed separately by the base converter class.
+            ids = configuration["label_ids"]
+            if not isinstance(ids, str):
+                ids = [
+                    id_
+                    for id_ in ids
+                    if not self.empty_label or id_ != self.empty_label.id
+                ]
+                self.labels.sort_by_ids(ids)
 
     @abc.abstractmethod
     def convert_to_prediction(
@@ -89,9 +103,7 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
         parameters
     """
 
-    def __init__(
-        self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
-    ):
+    def __init__(self, labels: LabelList, configuration: Dict[str, Any]):
         super().__init__(labels, configuration)
 
     def convert_to_prediction(
@@ -110,11 +122,18 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
         labels = []
         for label in inference_results.top_labels:
             label_idx, label_name, label_prob = label
-            # label_idx does not necessarily match the label index in the project
-            # labels. Therefore, we map the label by name instead.
-            labels.append(
-                self.labels.create_scored_label(id_or_name=label_name, score=label_prob)
-            )
+            if self.is_labels_sorted:
+                scored_label = ScoredLabel.from_label(
+                    label=self.labels[label_idx], probability=label_prob
+                )
+            else:
+                # label_idx does not necessarily match the label index in the project
+                # labels. Therefore, we map the label by name instead.
+                _label = self._get_label_by_prediction_name(name=label_name)
+                scored_label = ScoredLabel.from_label(
+                    label=_label, probability=label_prob
+                )
+            labels.append(scored_label)
 
         if not labels and self.empty_label:
             labels = [ScoredLabel.from_label(self.empty_label, probability=0)]
@@ -153,6 +172,27 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
             for i, label in enumerate(self.labels.get_non_empty_labels())
         }
 
+    def _get_label_by_prediction_name(self, name: str) -> Label:
+        """
+        Get a Label object by its predicted name.
+
+        :param name: predicted name of the label
+        :return: Label corresponding to the name
+        :raises KeyError: if the label is not found in the LabelList
+        """
+        try:
+            return self.labels.get_by_name(name=name)
+        except KeyError:
+            # If the label is not found, we try to find it by legacy name (replacing spaces with underscores)
+            for label in self.labels:
+                legacy_name = label.name.replace(" ", "_")
+                if legacy_name == name:
+                    logging.warning(
+                        f"Found label `{label.name}` using its legacy name `{legacy_name}`."
+                    )
+                    return label
+        raise KeyError(f"Label named `{name}` was not found in the LabelList")
+
 
 class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
     """
@@ -162,27 +202,14 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
     :param configuration: optional model configuration setting
     """
 
-    def __init__(
-        self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
-    ):
+    def __init__(self, labels: LabelList, configuration: Dict[str, Any]):
         super().__init__(labels, configuration)
         self.use_ellipse_shapes = False
         self.confidence_threshold = 0.0
-        if configuration is not None:
-            if "use_ellipse_shapes" in configuration:
-                self.use_ellipse_shapes = configuration["use_ellipse_shapes"]
-            if "confidence_threshold" in configuration:
-                self.confidence_threshold = configuration["confidence_threshold"]
-            if "label_ids" in configuration:
-                # Make sure the list of labels is sorted according to the order
-                # defined in the ModelAPI configuration.
-                #   - If the 'label_ids' field only contains a single label,
-                #   it will be typed as string. No need to sort in that case.
-                #   - Filter out the empty label ID, as it is managed separately by the base converter class.
-                ids = configuration["label_ids"]
-                if not isinstance(ids, str):
-                    ids = [id_ for id_ in ids if id_ != self.empty_label.id]
-                    self.labels.sort_by_ids(ids)
+        if "use_ellipse_shapes" in configuration:
+            self.use_ellipse_shapes = configuration["use_ellipse_shapes"]
+        if "confidence_threshold" in configuration:
+            self.confidence_threshold = configuration["confidence_threshold"]
 
     def _detection2array(self, detections: List[Detection]) -> np.ndarray:
         """
@@ -468,9 +495,7 @@ class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
     :param configuration: optional model configuration setting
     """
 
-    def __init__(
-        self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
-    ):
+    def __init__(self, labels: LabelList, configuration: Dict[str, Any]):
         super().__init__(labels, configuration)
         # NB: index=0 is reserved for the background label
         self.label_map = dict(enumerate(self.labels, 1))
@@ -518,9 +543,7 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
     :param configuration: optional model configuration setting
     """
 
-    def __init__(
-        self, labels: LabelList, configuration: Optional[Dict[str, Any]] = None
-    ):
+    def __init__(self, labels: LabelList, configuration: Dict[str, Any]):
         super().__init__(labels, configuration)
         self.normal_label = next(
             label for label in self.labels if not label.is_anomalous
@@ -629,14 +652,14 @@ class ConverterFactory:
     def create_converter(
         labels: LabelList,
         domain: Domain,
-        configuration: Optional[Dict[str, Any]] = None,
+        configuration: Dict[str, Any],
     ) -> InferenceResultsToPredictionConverter:
         """
-        Create the appropriate inferencer object according to the model's task.
+        Create the appropriate inference converter object according to the model's task.
 
-        :param label_schema: The label schema containing the label info of the task.
+        :param labels: The labels of the model
         :param domain: The domain to which the converter applies
-        :param configuration: Optional configuration for the converter. Defaults to None.
+        :param configuration: configuration for the converter
         :return: The created inference result to prediction converter.
         :raises ValueError: If the task type cannot be determined from the label schema.
         """
