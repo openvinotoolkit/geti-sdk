@@ -9,7 +9,7 @@ on:
       - main
       - 'releases/**'
 
-permissions: read-all
+permissions: {}
 
 jobs:
   Trivy:
