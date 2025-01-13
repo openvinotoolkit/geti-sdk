@@ -1,80 +1,210 @@
-name: Security scans
+name: "Security scan"
 
 on:
   workflow_dispatch:
-
-  schedule: # Execute tests at midnight every day
+  schedule:
     - cron: "0 0 * * *"
+  push:
+    branches:
+      - main
+      - 'releases/**'
 
-env:
-  SNYK_API: https://snyk.devtools.intel.com/api/v1
-  SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-  REPORT_DIRECTORY: reports
-
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
-  security:
-    runs-on: [ubuntu-latest]
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
+  Trivy:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Harden Runner
+      uses: step-security/harden-runner@c95a14d0e5bab51a9f56296a4eb0e416910cd350 # v2.10.3
+      with:
+        egress-policy: audit
+    
+    - name: Checkout repository
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+    - name: Setup Python
+      uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+      with:
+        python-version: "3.10"
+    
+    - name: Install dependencies
+      run: python -m pip install pip-tools
+    
+    - name: Freeze dependencies
+      run: |
+        mkdir -p trivy_input/base
+        pip-compile -o trivy_input/base/requirements.txt requirements/requirements.txt
+        mkdir -p trivy_input/docs
+        pip-compile -o trivy_input/docs/requirements.txt requirements/requirements-docs.txt
+        mkdir -p trivy_input/notebooks
+        pip-compile -o trivy_input/notebooks/requirements.txt requirements/requirements-notebooks.txt
+        mkdir -p trivy_input/develop
+        pip-compile -o trivy_input/develop/requirements.txt requirements/requirements-dev.txt
+ 
+    - name: Run Trivy Scan (vuln)
+      uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # v0.29.0
+      with:
+        scan-type: fs
+        scan-ref: trivy_input
+        scanners: vuln
+        output: trivy-results-vuln.txt
+
+    - name: Run Trivy Scan (dockerfile and secrets)
+      uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # v0.29.0
+      if: always()
+      with:
+        scan-type: fs
+        scan-ref: .
+        scanners: misconfig,secret
+        output: trivy-results-misconfig.txt
+        skip-setup-trivy: true
+
+    - name: Upload Trivy results
+      uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+      if: always()
+      with:
+        name: trivy-results
+        path: '${{ github.workspace }}/trivy-results-*'
+        retention-days: 7
+
+    - name: Upload deps list
+      uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+      with:
+        name: python-deps-list
+        path: '${{ github.workspace }}/trivy_input'
+        retention-days: 7
+
+  Bandit-all:
+    runs-on: ubuntu-22.04
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@a4aa98b93cab29d9b1101a6143fb8bce00e2eac4 # v2.7.1
+        uses: step-security/harden-runner@c95a14d0e5bab51a9f56296a4eb0e416910cd350 # v2.10.3
+        with:
+          egress-policy: audit      
+      
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Set up Python
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        with:
+          python-version: "3.10"
+      - name: Install Bandit
+        run: pip install bandit
+      - name: Bandit scan (report)
+        run: bandit --ini tox.ini -f html -o bandit-results.html -r --exit-zero . # report generation only
+      - name: Upload Bandit artifact
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        if: always()
+        with:
+          name: bandit-results
+          path: bandit-results.html
+          retention-days: 7
+
+  Bandit-high:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@c95a14d0e5bab51a9f56296a4eb0e416910cd350 # v2.10.3
         with:
           egress-policy: audit
-
-      - name: Checkout repo
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
-
+      
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Set up Python
-        uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236 # v4.7.1
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
-          python-version: 3.9
+          python-version: "3.10"
+      - name: Install Bandit
+        run: pip install bandit
+      - name: Bandit scan (high severity)
+        run: bandit --ini tox.ini -r -lll . 
 
-      - name: Install package with dev requirements
-        # Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install ".[dev]" --pre
+  CodeQL:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-22.04
+    permissions:
+      # required for all workflows
+      security-events: write
 
-      - name: Create report directory
-        # Creates the temporary directory used to store the test reports
-        run: mkdir $REPORT_DIRECTORY
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - language: python
+          build-mode: none
+        - language: actions # to scan workflows
+          build-mode: none
+    steps:
+    - name: Harden Runner
+      uses: step-security/harden-runner@c95a14d0e5bab51a9f56296a4eb0e416910cd350 # v2.10.3
+      with:
+        egress-policy: audit
+    
+    - name: Checkout repository
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Bandit scan
-        # Run Bandit scan
-        run: |
-          pip install bandit
-          bandit -r . --ini tox.ini -f 'txt' -o $REPORT_DIRECTORY/bandit.txt -v
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@48ab28a6f5dbc2a99bf1e0131198dd8f1df78169 # v3.28.0
+      with:
+        languages: ${{ matrix.language }}
+        build-mode: ${{ matrix.build-mode }}
 
-      - name: Trivy vulnerability scan
-        uses: aquasecurity/trivy-action@b2933f565dbc598b29947660e66259e3c7bc8561 # master
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@48ab28a6f5dbc2a99bf1e0131198dd8f1df78169 # v3.28.0
+      with:
+        category: "/language:${{matrix.language}}"
+    
+    - name: Generate CodeQL Report
+      uses: rsdmike/github-security-report-action@a149b24539044c92786ec39af8ba38c93496495d # v3.0.4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        template: report
+        outputDir: codeql-${{ matrix.language }}
+        
+    - name: Rename Report
+      shell: bash
+      continue-on-error: true
+      run: |
+        cd codeql-${{ matrix.language }}
+        mv "report.pdf" "codeql-${{ matrix.language }}.pdf"
+
+    - name: Upload Report
+      uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+      with:
+        name: codeql-${{ matrix.language }}-results
+        path: codeql-${{ matrix.language }}/*.pdf
+        retention-days: 7
+
+  Summarize:
+    needs: [Trivy, Bandit-all, CodeQL]
+    if: always()
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@c95a14d0e5bab51a9f56296a4eb0e416910cd350 # v2.10.3
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          severity: 'CRITICAL'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+          egress-policy: audit
+      
+      # Create directory first
+      - name: Create results directory
+        run: mkdir -p all-results
 
-      - name: Upload Trivy results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@b7cec7526559c32f1616476ff32d17ba4c59b2d6 # v3.25.5
+      # Download artifacts with error handling
+      - name: Download all results
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        continue-on-error: true # Don't fail if some tools didn't generate results
         with:
-          sarif_file: 'trivy-results.sarif'
+          pattern: "*-results"
+          merge-multiple: true
+          path: all-results
 
-      - name: Upload test reports
-        # Publish the test reports to github
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
-        if: ${{ always() }}
+      # Only upload if there are files
+      - name: Upload combined results
+        if: hashFiles('all-results/**/*') != ''
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
-          name: test-reports
-          path: ${{ env.REPORT_DIRECTORY }}
-
-      - name: Clean up artifact directories
-        # Remove temporary report directory
-        if: ${{ always() }}
-        run: |
-          rm -r $REPORT_DIRECTORY
+          name: security-scan-results
+          path: all-results
+          retention-days: 7
