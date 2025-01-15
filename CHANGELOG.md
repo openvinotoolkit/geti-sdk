@@ -1,6 +1,27 @@
-# v2.6.0 Intel® Geti™ SDK (03-12-2024)
+# v2.6.2 Intel® Geti™ SDK (08-01-2024)
+## What's Changed
+* Bugfix: inference not working for classification projects with label containing spaces in their name by @maxxgx in https://github.com/openvinotoolkit/geti-sdk/pull/539
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v2.6.1...v2.6.2
+
+
+# v2.6.1 Intel® Geti™ SDK (02-01-2024)
+## What's Changed
+* Bugfix: empty label sometimes not recognized during inference by @maxxgx in https://github.com/openvinotoolkit/geti-sdk/pull/534
+
+## New Contributors
+* @maxxgx made their first contribution in https://github.com/openvinotoolkit/geti-sdk/pull/534
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v2.6.0...v2.6.1
+
+
+# v2.6.0 Intel® Geti™ SDK (26-12-2024)
 ## What's Changed
 * Updated model representation to that of Geti V2.6 by @Daankrol in https://github.com/openvinotoolkit/geti-sdk/pull/523
+* Mark model response fields as deprecated in 2.6 instead of removed by @leoll2 in https://github.com/openvinotoolkit/geti-sdk/pull/528
+* Fix VCR config for unset proxy by @leoll2 in https://github.com/openvinotoolkit/geti-sdk/pull/527
+* Tolerate extra keys when deserializing HTTP response by @leoll2 in https://github.com/openvinotoolkit/geti-sdk/pull/529
+* CVS-154056 Update training/optimization endpoint paths by @leoll2 in https://github.com/openvinotoolkit/geti-sdk/pull/530
 
 **Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v2.5.0...v2.6.0
 
