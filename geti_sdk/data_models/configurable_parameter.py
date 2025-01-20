@@ -27,6 +27,8 @@ from geti_sdk.data_models.utils import (
     str_to_enum_converter,
 )
 
+DEPRECATED_PARAMETERS = ["auto_hpo_state", "auto_hpo_value"]
+
 
 @attr.define
 class ConfigurableParameter:
