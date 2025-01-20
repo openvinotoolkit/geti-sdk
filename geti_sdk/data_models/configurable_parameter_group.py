@@ -59,11 +59,11 @@ def _parameter_dicts_to_list(
     """
     parameters: List[PARAMETER_TYPES] = []
     for parameter in parameter_dicts:
-        if parameter in DEPRECATED_PARAMETERS:
-            continue
         if isinstance(parameter, get_args(PARAMETER_TYPES)):
             parameters.append(parameter)
             continue
+        for deprecated_key in DEPRECATED_PARAMETERS:
+            parameter.pop(deprecated_key, None)
         data_type = parameter.get("data_type", None)
         template_type = parameter.get("template_type", None)
         if data_type is None or template_type is None:
