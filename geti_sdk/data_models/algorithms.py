@@ -37,7 +37,7 @@ class Algorithm:
     task_type: Optional[str] = attr.field(
         default=None, converter=str_to_optional_enum_converter(TaskType)
     )
-    supports_auto_hpo: Optional[bool] = None
+    supports_auto_hpo: Optional[bool] = None  # Deprecated in Geti v2.7
     default_algorithm: Optional[bool] = None  # Added in Geti v1.16
     performance_category: Optional[str] = None  # Added in Geti v1.9
     lifecycle_stage: Optional[str] = None  # Added in Geti v1.9

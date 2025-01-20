@@ -74,8 +74,6 @@ class ConfigurableParameter:
     )
     ui_rules: Optional[Dict[str, Any]] = None
     warning: Optional[str] = None
-    auto_hpo_state: Optional[str] = None
-    auto_hpo_value: Optional[Union[str, bool, float, int]] = None
 
     def to_dict(self) -> Dict[str, Any]:
         """
