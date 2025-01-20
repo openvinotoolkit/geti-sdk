@@ -59,6 +59,8 @@ def _parameter_dicts_to_list(
     """
     parameters: List[PARAMETER_TYPES] = []
     for parameter in parameter_dicts:
+        if parameter in DEPRECATED_PARAMETERS:
+            continue
         if isinstance(parameter, get_args(PARAMETER_TYPES)):
             parameters.append(parameter)
             continue
