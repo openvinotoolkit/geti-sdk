@@ -17,6 +17,7 @@ from typing import Any, ClassVar, Dict, List, Optional, Union
 import attr
 
 from geti_sdk.data_models import Algorithm
+from geti_sdk.data_models.configurable_parameter import DEPRECATED_PARAMETERS
 from geti_sdk.data_models.configurable_parameter_group import (
     PARAMETER_TYPES,
     ParameterGroup,
@@ -162,6 +163,9 @@ class Configuration:
         :param name: Name of the parameter to get
         :return: ConfigurableParameter object
         """
+        if name in DEPRECATED_PARAMETERS:
+            return None
+
         parameters = [config.get_parameter_by_name(name) for config in self.components]
         parameters = [parameter for parameter in parameters if parameter is not None]
         if len(parameters) == 0:

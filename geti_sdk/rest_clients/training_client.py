@@ -160,8 +160,8 @@ class TrainingClient:
         :param train_from_scratch: True to train the model from scratch, False to
             continue training from an existing checkpoint (if any)
         :param hyper_parameters: Optional hyper parameters to use for training
-        :param hpo_parameters: Optional set of parameters to use for automatic hyper
-            parameter optimization. Only supported for version 1.1 and up
+        :param hpo_parameters: [Deprecated] Optional set of parameters to use for automatic hyper
+            parameter optimization.
         :param await_running_jobs: True to wait for currently running jobs to
             complete. This will guarantee that the training request can be submitted
             successfully. Setting this to False will cause an error to be raised when
@@ -199,11 +199,8 @@ class TrainingClient:
             )
             request_data.update({"hyper_parameters": hypers_rest})
         if hpo_parameters is not None:
-            request_data.update(
-                {
-                    "enable_hyper_parameter_optimization": True,
-                    "hpo_parameters": hpo_parameters,
-                }
+            logging.warning(
+                "`hpo_parameters` have been deprecated and will be ignored."
             )
 
         request_data.pop("dataset_id")

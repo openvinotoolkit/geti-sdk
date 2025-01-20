@@ -27,6 +27,8 @@ from geti_sdk.data_models.utils import (
     str_to_enum_converter,
 )
 
+DEPRECATED_PARAMETERS = ["auto_hpo_state", "auto_hpo_value"]
+
 
 @attr.define
 class ConfigurableParameter:
@@ -74,8 +76,6 @@ class ConfigurableParameter:
     )
     ui_rules: Optional[Dict[str, Any]] = None
     warning: Optional[str] = None
-    auto_hpo_state: Optional[str] = None
-    auto_hpo_value: Optional[Union[str, bool, float, int]] = None
 
     def to_dict(self) -> Dict[str, Any]:
         """

@@ -18,6 +18,7 @@ from typing import Any, ClassVar, Dict, List, Optional, Sequence, Type, Union, g
 import attr
 
 from geti_sdk.data_models.configurable_parameter import (
+    DEPRECATED_PARAMETERS,
     ConfigurableBoolean,
     ConfigurableFloat,
     ConfigurableInteger,
@@ -61,6 +62,8 @@ def _parameter_dicts_to_list(
         if isinstance(parameter, get_args(PARAMETER_TYPES)):
             parameters.append(parameter)
             continue
+        for deprecated_key in DEPRECATED_PARAMETERS:
+            parameter.pop(deprecated_key, None)
         data_type = parameter.get("data_type", None)
         template_type = parameter.get("template_type", None)
         if data_type is None or template_type is None:
@@ -145,6 +148,8 @@ class ParameterGroup:
             input_dict
         """
         input_copy = copy.deepcopy(input_dict)
+        for deprecated_key in DEPRECATED_PARAMETERS:
+            input_copy.pop(deprecated_key, None)
         parameter_dicts: List[Union[Dict[str, Any], ConfigurableParameter]] = (
             input_copy.pop("parameters", [])
         )
