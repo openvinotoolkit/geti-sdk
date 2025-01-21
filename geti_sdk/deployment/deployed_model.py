@@ -356,9 +356,7 @@ class DeployedModel(OptimizedModel):
                 logging.warning(
                     f"Unable to load legacy tiling parameter `{exc.args[0]}` from config.json. Using default tiling parameters."
                 )
-
-        # OTX >= 2.0: extract from "rt_info.model_info"
-        if not enable_tiling:
+        else:  # OTX >= 2.0: extract from "rt_info.model_info"
             model_info = model.inference_adapter.get_rt_info("model_info").astype(dict)
             enable_tiling = "tile_size" in model_info
             if enable_tiling:
