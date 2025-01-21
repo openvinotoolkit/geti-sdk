@@ -332,13 +332,39 @@ class DeployedModel(OptimizedModel):
         self._inference_model = model
 
         # Extract tiling parameters, if applicable
-        tiling_parameters = configuration_json.get("tiling_parameters", None)
+        # OTX < 2.0: extract from config.json
+        legacy_tiling_parameters = configuration_json.get("tiling_parameters", {})
+        tiling_configuration = {}
 
-        enable_tiling = False
-        if tiling_parameters is not None:
-            enable_tiling = tiling_parameters.get("enable_tiling", False)
-            if isinstance(enable_tiling, dict):
-                enable_tiling = enable_tiling.get("value", False)
+        enable_tiling = legacy_tiling_parameters.get("enable_tiling", {}).get(
+            "value", False
+        )
+        if enable_tiling:
+            try:
+                tile_overlap = legacy_tiling_parameters["tile_overlap"]["value"]
+                tile_max_number = legacy_tiling_parameters["tile_max_number"]["value"]
+                tile_size = legacy_tiling_parameters["tile_size"]["value"]
+                tile_ir_scale_factor = legacy_tiling_parameters["tile_ir_scale_factor"][
+                    "value"
+                ]
+                tiling_configuration = {
+                    "tile_size": int(tile_size * tile_ir_scale_factor),
+                    "tiles_overlap": tile_overlap / tile_ir_scale_factor,
+                    "max_pred_number": tile_max_number,
+                }
+            except KeyError as exc:
+                logging.warning(
+                    f"Unable to load legacy tiling parameter `{exc.args[0]}` from config.json. Using default tiling parameters."
+                )
+        else:  # OTX >= 2.0: extract from "rt_info.model_info"
+            model_info = model.inference_adapter.get_rt_info("model_info").astype(dict)
+            enable_tiling = "tile_size" in model_info
+            if enable_tiling:
+                tiling_configuration = {
+                    "tile_size": model_info["tile_size"].astype(int),
+                    "tiles_overlap": model_info["tiles_overlap"].astype(float),
+                    "max_pred_number": model_info["max_pred_number"].astype(int),
+                }
 
         if enable_tiling:
             logging.info("Tiling is enabled for this model, initializing Tiler")
@@ -350,7 +376,11 @@ class DeployedModel(OptimizedModel):
             # classifier model will be exported to the same directory as the instance
             # segmentation model. If it's there, we will load it and add it to the Tiler
             classifier_name = "tile_classifier"
-            tiler_arguments = {"model": model, "execution_mode": "sync"}
+            tiler_arguments = {
+                "model": model,
+                "execution_mode": "sync",
+                "configuration": tiling_configuration,
+            }
             if classifier_name in os.listdir(self.model_data_path):
                 classifier_path = os.path.join(self.model_data_path, classifier_name)
                 tile_classifier_model = model_api_Model.create_model(
