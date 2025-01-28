@@ -13,7 +13,7 @@ permissions: {}
 
 jobs:
   Trivy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Harden Runner
       uses: step-security/harden-runner@c95a14d0e5bab51a9f56296a4eb0e416910cd350 # v2.10.3
@@ -76,7 +76,7 @@ jobs:
         retention-days: 7
 
   Bandit-all:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@c95a14d0e5bab51a9f56296a4eb0e416910cd350 # v2.10.3
@@ -102,7 +102,7 @@ jobs:
           retention-days: 7
 
   Bandit-high:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@c95a14d0e5bab51a9f56296a4eb0e416910cd350 # v2.10.3
@@ -122,7 +122,7 @@ jobs:
 
   CodeQL:
     name: Analyze (${{ matrix.language }})
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       # required for all workflows
       security-events: write
@@ -180,7 +180,7 @@ jobs:
   Summarize:
     needs: [Trivy, Bandit-all, CodeQL]
     if: always()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@c95a14d0e5bab51a9f56296a4eb0e416910cd350 # v2.10.3
