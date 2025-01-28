@@ -13,7 +13,7 @@ permissions: {}
 
 jobs:
   Trivy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Harden Runner
       uses: step-security/harden-runner@c95a14d0e5bab51a9f56296a4eb0e416910cd350 # v2.10.3
@@ -26,7 +26,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
       with:
-        python-version: "3.10"
+        python-version: "3.12"
     
     - name: Install dependencies
       run: python -m pip install pip-tools
@@ -76,7 +76,7 @@ jobs:
         retention-days: 7
 
   Bandit-all:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@c95a14d0e5bab51a9f56296a4eb0e416910cd350 # v2.10.3
@@ -88,7 +88,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
-          python-version: "3.10"
+          python-version: "3.12"
       - name: Install Bandit
         run: pip install bandit
       - name: Bandit scan (report)
@@ -102,7 +102,7 @@ jobs:
           retention-days: 7
 
   Bandit-high:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@c95a14d0e5bab51a9f56296a4eb0e416910cd350 # v2.10.3
@@ -114,7 +114,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
-          python-version: "3.10"
+          python-version: "3.12"
       - name: Install Bandit
         run: pip install bandit
       - name: Bandit scan (high severity)
@@ -122,7 +122,7 @@ jobs:
 
   CodeQL:
     name: Analyze (${{ matrix.language }})
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       # required for all workflows
       security-events: write
@@ -180,7 +180,7 @@ jobs:
   Summarize:
     needs: [Trivy, Bandit-all, CodeQL]
     if: always()
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@c95a14d0e5bab51a9f56296a4eb0e416910cd350 # v2.10.3
