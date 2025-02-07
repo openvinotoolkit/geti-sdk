@@ -184,7 +184,7 @@ def str_to_shape_type(shape_type: Union[str, ShapeType]) -> ShapeType:
 
 
 def str_to_annotation_kind(
-    annotation_kind: Union[str, AnnotationKind]
+    annotation_kind: Union[str, AnnotationKind],
 ) -> AnnotationKind:
     """
     Convert an input string to an annotation kind.

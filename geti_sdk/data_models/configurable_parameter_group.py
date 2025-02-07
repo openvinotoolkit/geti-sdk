@@ -47,7 +47,7 @@ PARAMETER_TYPES = Union[
 
 
 def _parameter_dicts_to_list(
-    parameter_dicts: List[Union[Dict[str, Any], PARAMETER_TYPES]]
+    parameter_dicts: List[Union[Dict[str, Any], PARAMETER_TYPES]],
 ) -> List[PARAMETER_TYPES]:
     """
     Convert a list of dictionary representations of configurable parameters to a

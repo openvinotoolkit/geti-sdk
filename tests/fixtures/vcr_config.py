@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-""" Configuration fixtures for VCR """
+"""Configuration fixtures for VCR"""
 import os
 from typing import Any, Dict
 

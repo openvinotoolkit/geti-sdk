@@ -24,7 +24,7 @@ VIDEO_PERSON_CAR_BIKE_PATH = os.path.join(
 
 
 def get_person_car_bike_video(
-    video_path: Optional[Union[str, os.PathLike]] = None
+    video_path: Optional[Union[str, os.PathLike]] = None,
 ) -> str:
     """
     Get the path to the 'person-bicycle-car-detection.mp4' video file that is used for
