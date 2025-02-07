@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
+import base64
 import io
 import json
 import logging
@@ -247,7 +248,7 @@ class PredictionClient:
                         map = ResultMedium(
                             name="saliency_map", label_id=map_dict.get("label_id", None)
                         )
-                        map.data = map_dict["data"].encode("utf-8")
+                        map.data = base64.b64decode(map_dict["data"])
                         maps.append(map)
                     result.maps = maps
                 result.resolve_labels_for_result_media(labels=self._labels)
