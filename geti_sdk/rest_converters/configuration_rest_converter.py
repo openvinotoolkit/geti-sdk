@@ -84,7 +84,7 @@ class ConfigurationRESTConverter:
 
     @staticmethod
     def _rest_components_to_objects(
-        input_list: List[Dict[str, Any]]
+        input_list: List[Dict[str, Any]],
     ) -> List[ConfigurableParameters]:
         """
         Create a list of configurable parameters from a list of dictionaries received
@@ -183,7 +183,7 @@ class ConfigurationRESTConverter:
 
     @staticmethod
     def global_configuration_from_rest(
-        input_: Union[List[Dict[str, Any]], Dict[str, Any]]
+        input_: Union[List[Dict[str, Any]], Dict[str, Any]],
     ) -> GlobalConfiguration:
         """
         Create a GlobalConfiguration object holding the configurable parameters

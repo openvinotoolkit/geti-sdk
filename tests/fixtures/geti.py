@@ -71,7 +71,7 @@ def fxt_geti(
 
 @pytest.fixture(scope="module")
 def fxt_geti_no_vcr(
-    fxt_server_config: Union[ServerTokenConfig, ServerCredentialConfig]
+    fxt_server_config: Union[ServerTokenConfig, ServerCredentialConfig],
 ) -> Geti:
     if isinstance(fxt_server_config, ServerCredentialConfig):
         auth_params = {

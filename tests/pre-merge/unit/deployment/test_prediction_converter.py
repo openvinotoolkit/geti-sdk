@@ -45,7 +45,7 @@ from geti_sdk.deployment.predictions_postprocessing.results_converter.results_to
 
 
 def coords_to_xmin_xmax_width_height(
-    coords: Tuple[int, int, int, int]
+    coords: Tuple[int, int, int, int],
 ) -> Tuple[int, int, int, int]:
     "Convert bbox to xmin, ymin, width, height format"
     x1, y1, x2, y2 = coords
