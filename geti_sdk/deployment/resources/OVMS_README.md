@@ -1,6 +1,5 @@
 # Deploying Geti models with OpenVINO Model Server (OVMS)
-> NOTE: Be advised that is an experimental feature which may be subject to change in
-> the future
+> Note: This feature is deprecated and is not recommended for use.
 
 This README describes how to set up an OpenVINO Model Server for any Intel® Geti™
 project. Please note that it is meant as an example only, and the configuration used
