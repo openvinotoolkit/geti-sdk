@@ -266,6 +266,10 @@ class DeployedModel(OptimizedModel):
                     f"requests: {optimal_requests}"
                 )
         else:
+            logging.warning(
+                "Model inference through OpenVINO model server is DEPRECATED and will be removed in the future. "
+                "Please use local inference instead for more stable results."
+            )
             # Connect to an OpenVINO model server instance
             model_name = generate_ovms_model_name(project=project, model=self)
             model_address = generate_ovms_model_address(

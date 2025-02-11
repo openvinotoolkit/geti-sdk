@@ -119,13 +119,7 @@ The following notebooks are currently provided:
   downloaded data to the newly created project.
 
 
-- [010 model_serving](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/010_model_serving.ipynb)
-  -- This notebook shows how to create a stand-alone inference server for a Geti project,
-  using the [OpenVINO Model Server (OVMS)](https://docs.openvino.ai/2021.4/ovms_what_is_openvino_model_server.html).
-  The notebook also demonstrates how to connect to the server through the Geti SDK and send inference requests to it.
-
-
-- [011 benchmarking_models](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/011_benchmarking_models.ipynb)
+- [010 benchmarking_models](https://github.com/openvinotoolkit/geti_sdk/blob/main/notebooks/010_benchmarking_models.ipynb)
   -- This notebook shows how to measure and compare the inference rates for the various
   algorithms available in a Geti project on local hardware, that
   can help to select a suitable architecture for model deployment.
