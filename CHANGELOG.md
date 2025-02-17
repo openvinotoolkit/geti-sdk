@@ -1,11 +1,18 @@
-# v2.6.2 Intel® Geti™ SDK (08-01-2024)
+# v2.6.2 Intel® Geti™ SDK (17-02-2025)
+## What's Changed
+* TODO
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v2.6.2...v2.7.0
+
+
+# v2.6.2 Intel® Geti™ SDK (08-01-2025)
 ## What's Changed
 * Bugfix: inference not working for classification projects with label containing spaces in their name by @maxxgx in https://github.com/openvinotoolkit/geti-sdk/pull/539
 
 **Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v2.6.1...v2.6.2
 
 
-# v2.6.1 Intel® Geti™ SDK (02-01-2024)
+# v2.6.1 Intel® Geti™ SDK (02-01-2025)
 ## What's Changed
 * Bugfix: empty label sometimes not recognized during inference by @maxxgx in https://github.com/openvinotoolkit/geti-sdk/pull/534
 
