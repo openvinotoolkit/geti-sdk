@@ -1,8 +1,17 @@
 # v2.6.2 Intel® Geti™ SDK (17-02-2025)
 ## What's Changed
-* TODO
 
-**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v2.6.2...v2.7.0
+* Added support for Python 3.12 by @gdlg in https://github.com/openvinotoolkit/geti-sdk/pull/549
+* Bugfix: models with 'tiling' enabled would sometimes return no predictions by @maxxgx in https://github.com/openvinotoolkit/geti-sdk/pull/547
+* Bugfix: some notebooks would display predictions with inverted color channels by @leoll2 in https://github.com/openvinotoolkit/geti-sdk/pull/556
+* Deprecated inference through OpenVINO model server (OVMS) by @maxxgx in https://github.com/openvinotoolkit/geti-sdk/pull/557
+* Deprecated hyper-parameter optimization (HPO) by @maxxgx in https://github.com/openvinotoolkit/geti-sdk/pull/542
+
+## New Contributors
+* @AlexanderBarabanov made their first contribution in https://github.com/openvinotoolkit/geti-sdk/pull/541
+* @gdlg made their first contribution in https://github.com/openvinotoolkit/geti-sdk/pull/549
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v2.6.2...v.2.7.0
 
 
 # v2.6.2 Intel® Geti™ SDK (08-01-2025)
