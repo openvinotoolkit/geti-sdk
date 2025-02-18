@@ -83,7 +83,7 @@ jobs:
           retention-days: 7
 
   Trivy-Scan-Misconfig:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       security-events: write
     steps:
@@ -114,7 +114,7 @@ jobs:
           retention-days: 7
 
   Bandit:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       security-events: write
     steps:
