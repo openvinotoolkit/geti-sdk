@@ -22,6 +22,7 @@ import zipfile
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import attr
+import defusedxml.ElementTree as ET
 import numpy as np
 from model_api.adapters import OpenvinoAdapter, OVMSAdapter
 from model_api.models import Model as model_api_Model
@@ -783,9 +784,8 @@ class DeployedModel(OptimizedModel):
 
         :return: Dictionary containing the OpenVINO model configuration
         """
-        import xml.etree.ElementTree as ET
-
-        tree = ET.parse(os.path.join(self._model_data_path, "model.xml"))
+        model_xml = os.path.join(self._model_data_path, "model.xml")
+        tree = ET.parse(model_xml)
         root = tree.getroot()
 
         rt_info_node = root.find("rt_info")

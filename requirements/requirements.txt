@@ -21,3 +21,4 @@ imageio-ffmpeg==0.6.0
 cryptography>=42.0.7
 semver>=3.0.2
 urllib3==1.26.*
+defusedxml==0.7.*
