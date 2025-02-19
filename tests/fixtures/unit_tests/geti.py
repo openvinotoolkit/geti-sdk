@@ -71,7 +71,7 @@ def fxt_mocked_session_factory(
 
 @pytest.fixture
 def fxt_mocked_geti(mocker: MockerFixture, fxt_mocked_session_factory):
-    mocker.patch("geti_sdk.geti.get_default_workspace_id", return_value=1)
+    mocker.patch("geti_sdk.geti.get_workspace_id", return_value=1)
     mocker.patch("geti_sdk.geti.GetiSession", new=fxt_mocked_session_factory)
     geti = Geti(host="dummy_host", password="dummy_password", username="dummy_username")
 
