@@ -15,12 +15,27 @@
 from geti_sdk.http_session import GetiSession
 
 
-def get_default_workspace_id(rest_session: GetiSession) -> str:
-    """
-    Return the id of the default workspace on the cluster.
+class MultipleWorkspacesException(Exception):
+    """Exception raised when multiple workspaces are available thus it is not possible to automatically select one."""
 
-    :param rest_session: HTTP session to the cluser
-    :return: string containing the id of the default workspace
+    def __init__(self, workspaces_list: list) -> None:
+        ws_ids_and_names = [(ws["id"], ws["name"]) for ws in workspaces_list]
+        error_message = (
+            f"Multiple workspaces are available; please select one and provide its id through the 'workspace_id' "
+            f"parameter when instantiating the client. Available workspaces (id, name): {ws_ids_and_names}."
+        )
+        super().__init__(error_message)
+
+
+def get_workspace_id(rest_session: GetiSession) -> str:
+    """
+    Get the id of the workspace that is accessible with the provided session (cluster, organization, credentials, ...).
+
+    In case of multiple workspaces, an error will be raised.
+
+    :param rest_session: Session object which stores info about the connected cluster, organization and authentication
+    :return: id of the workspace as a string
+    :raises
     """
     workspaces = rest_session.get_rest_response(url="workspaces", method="GET")
     if isinstance(workspaces, list):
@@ -32,12 +47,8 @@ def get_default_workspace_id(rest_session: GetiSession) -> str:
             f"Unexpected response from cluster: {workspaces}. Expected to receive a "
             f"dictionary containing workspace data."
         )
-    default_workspace_names = ["default", "default workspace", "default_workspace"]
-    default_workspace = next(
-        (
-            workspace
-            for workspace in workspace_list
-            if workspace["name"].lower() in default_workspace_names
-        )
-    )
-    return default_workspace["id"]
+
+    if len(workspace_list) > 1:
+        raise MultipleWorkspacesException(workspace_list)
+
+    return workspace_list[0]["id"]

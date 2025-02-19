@@ -21,7 +21,7 @@ from geti_sdk.data_models.job import Job, JobCost
 from geti_sdk.http_session import GetiSession
 from geti_sdk.utils.job_helpers import get_job_by_id
 from geti_sdk.utils.serialization_helpers import deserialize_dictionary
-from geti_sdk.utils.workspace_helpers import get_default_workspace_id
+from geti_sdk.utils.workspace_helpers import get_workspace_id
 
 
 def allow_supported(func):
@@ -51,7 +51,7 @@ class CreditSystemClient:
         if workspace_id is not None:
             self.workspace_id = workspace_id
         else:
-            self.workspace_id = get_default_workspace_id(self.session)
+            self.workspace_id = get_workspace_id(self.session)
         # Make sure the Intel Geti Platform supports Credit System.
         self._is_supported = self.is_supported()
 

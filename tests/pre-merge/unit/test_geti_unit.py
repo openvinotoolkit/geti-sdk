@@ -35,7 +35,7 @@ class TestGeti:
         # Arrange
         mocker.patch("geti_sdk.geti.GetiSession", new=fxt_mocked_session_factory)
         mock_get_workspace_id = mocker.patch(
-            "geti_sdk.geti.get_default_workspace_id", return_value=1
+            "geti_sdk.geti.get_workspace_id", return_value=1
         )
 
         # Act and assert
@@ -114,7 +114,7 @@ class TestGeti:
         # Arrange
         mocker.patch("geti_sdk.geti.GetiSession", new=fxt_mocked_session_factory)
         mock_session = fxt_mocked_session_factory()
-        mocker.patch("geti_sdk.geti.get_default_workspace_id", return_value=1)
+        mocker.patch("geti_sdk.geti.get_workspace_id", return_value=1)
         # Decrease the minor version for the SDK
         platform_version = str(mock_session.version.version).split(".")
         mocker.patch(
