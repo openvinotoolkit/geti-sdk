@@ -1,4 +1,4 @@
-# v2.6.2 Intel® Geti™ SDK (17-02-2025)
+# v2.7.0 Intel® Geti™ SDK (17-02-2025)
 ## What's Changed
 
 * Added support for Python 3.12 by @gdlg in https://github.com/openvinotoolkit/geti-sdk/pull/549
