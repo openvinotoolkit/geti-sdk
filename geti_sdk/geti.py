@@ -52,8 +52,8 @@ from .rest_clients import (
 )
 from .utils import (
     generate_classification_labels,
-    get_default_workspace_id,
     get_task_types_by_project_type,
+    get_workspace_id,
     show_image_with_annotation_scene,
     show_video_frames_with_annotation_scenes,
 )
@@ -186,7 +186,7 @@ class Geti:
         self._check_platform_version()
         # Get workspace ID
         if workspace_id is None:
-            workspace_id = get_default_workspace_id(self.session)
+            workspace_id = get_workspace_id(self.session)
         self.workspace_id = workspace_id
         self.project_client = ProjectClient(
             workspace_id=workspace_id, session=self.session
