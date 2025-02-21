@@ -1,3 +1,11 @@
+# v2.7.1 Intel® Geti™ SDK (21-02-2025)
+## What's Changed
+
+* Bugfix: automatic workspace selection would sometimes not work by @leoll2 in https://github.com/openvinotoolkit/geti-sdk/pull/565
+
+**Full Changelog**: https://github.com/openvinotoolkit/geti-sdk/compare/v2.7.0...v.2.7.1
+
+
 # v2.7.0 Intel® Geti™ SDK (17-02-2025)
 ## What's Changed
 
