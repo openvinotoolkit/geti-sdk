@@ -11,7 +11,7 @@ pathvalidate>=2.5.0
 simplejson==3.19.*
 ipython==8.18.*
 openvino>=2023.2.0
-openvino-model-api==0.2.*
+openvino-model-api==0.2.5.1
 certifi>=2024.2.2
 joblib>=1.2.0
 protobuf>=3.20.2
