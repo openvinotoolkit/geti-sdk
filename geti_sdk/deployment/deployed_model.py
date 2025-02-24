@@ -19,6 +19,7 @@ import shutil
 import tempfile
 import time
 import zipfile
+from copy import deepcopy
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import attr
@@ -317,14 +318,7 @@ class DeployedModel(OptimizedModel):
         # Get label metadata from the project
         self._labels = LabelList.from_project(project=project, task_index=task_index)
 
-        # Load a Results-to-Prediction converter
-        self._domain = Domain.from_task_type(
-            project.get_trainable_tasks()[task_index].type
-        )
-        self._converter = ConverterFactory.create_converter(
-            self.labels, configuration=configuration, domain=self._domain
-        )
-        model_api_configuration = self._clean_model_config(configuration)
+        model_api_configuration = self._get_clean_model_config(configuration)
 
         model = model_api_Model.create_model(
             model=model_adapter,
@@ -336,14 +330,20 @@ class DeployedModel(OptimizedModel):
 
         self._inference_model = model
 
+        # Load a Results-to-Prediction converter
+        self._domain = Domain.from_task_type(
+            project.get_trainable_tasks()[task_index].type
+        )
+        self._converter = ConverterFactory.create_converter(
+            self.labels, configuration=configuration, domain=self._domain, model=model
+        )
+
         # Extract tiling parameters, if applicable
         # OTX < 2.0: extract from config.json
         legacy_tiling_parameters = configuration_json.get("tiling_parameters", {})
         tiling_configuration = {}
 
-        enable_tiling = legacy_tiling_parameters.get("enable_tiling", {}).get(
-            "value", False
-        )
+        enable_tiling = legacy_tiling_parameters.get("enable_tiling", False)
         if enable_tiling:
             try:
                 tile_overlap = legacy_tiling_parameters["tile_overlap"]["value"]
@@ -829,13 +829,15 @@ class DeployedModel(OptimizedModel):
                 config[child.tag] = value
         return config
 
-    def _clean_model_config(self, configuration: Dict[str, Any]) -> Dict[str, Any]:
+    @staticmethod
+    def _get_clean_model_config(configuration: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Remove unused values from the model configuration dictionary
+        Return a copy of the model configurations with unused values removed.
 
         :param configuration: Dictionary containing the model configuration to clean
-        :return: Configuration dictionary with unused values removed
+        :return: Copy of the configuration dictionary with unused values removed
         """
+        _config = deepcopy(configuration)
         unused_keys = [
             "label_ids",
             "label_info",
@@ -847,5 +849,5 @@ class DeployedModel(OptimizedModel):
             "domain",
         ]
         for key in unused_keys:
-            configuration.pop(key, None)
-        return configuration
+            _config.pop(key, None)
+        return _config

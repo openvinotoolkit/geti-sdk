@@ -16,10 +16,12 @@
 
 import abc
 import logging
+from collections import defaultdict
 from typing import Any, Dict, List, NamedTuple, Optional, Tuple, Union
 
 import cv2
 import numpy as np
+from model_api.models import ImageModel, SegmentationModel
 from model_api.models.utils import (
     AnomalyResult,
     ClassificationResult,
@@ -51,23 +53,70 @@ class InferenceResultsToPredictionConverter(metaclass=abc.ABCMeta):
 
     def __init__(self, labels: LabelList, configuration: Dict[str, Any]):
         self.labels = labels.get_non_empty_labels()
+        model_api_labels = configuration["labels"]
+        # configuration["labels"] can be a single string or a list of strings
+        model_api_labels = (
+            [model_api_labels]
+            if isinstance(model_api_labels, str)
+            else model_api_labels
+        )
+        # Create a mapping of label ID to label objects
+        self.label_map_ids = {}
+        # Legacy OTX (<2.0) model configuration contains label names (without spaces) instead of IDs
+        self.legacy_label_map_names = defaultdict(list)
+
+        # get the first empty label
         self.empty_label = labels.get_empty_label()
-        self.configuration = configuration
-        self.is_labels_sorted = "label_ids" in configuration
-        if self.is_labels_sorted:
-            # Make sure the list of labels is sorted according to the order
-            # defined in the ModelAPI configuration.
-            #   - If the 'label_ids' field only contains a single label,
-            #   it will be typed as string. No need to sort in that case.
-            #   - Filter out the empty label ID, as it is managed separately by the base converter class.
-            ids = configuration["label_ids"]
-            if not isinstance(ids, str):
-                ids = [
-                    id_
-                    for id_ in ids
-                    if not self.empty_label or id_ != self.empty_label.id
-                ]
-                self.labels.sort_by_ids(ids)
+
+        for i, label in enumerate(labels):
+            self.label_map_ids[str(label.id)] = label
+            # Using a dict of list to handle duplicates label names (e.g. "foo bar", "foo_bar")
+            self.legacy_label_map_names[label.name.replace(" ", "_")].append(label)
+            self.legacy_label_map_names[label.name].append(label)
+        self.legacy_label_map_names["otx_empty_lbl"] = [self.empty_label]
+
+        # Create a mapping of ModelAPI label indices to label objects
+        self.idx_to_label = {}
+        self.str_to_label = {}
+        self.model_api_label_map_counts: dict[str, int] = defaultdict(int)
+        for i, label_str in enumerate(model_api_labels):
+            label = self.__get_label(
+                label_str, pos_idx=self.model_api_label_map_counts[label_str]
+            )
+            self.idx_to_label[i] = label
+            self.str_to_label[label_str] = label
+            self.model_api_label_map_counts[label_str] += 1
+        logging.info(
+            f"Converter loaded labels with following indices: {self.idx_to_label}"
+        )
+
+    def __get_label(self, label_str: str, pos_idx: int) -> Label:
+        if label_str in self.label_map_ids:
+            return self.label_map_ids[label_str]
+        matched_legacy_labels = self.legacy_label_map_names[label_str]
+        if pos_idx < len(matched_legacy_labels):
+            return matched_legacy_labels[pos_idx]
+        raise ValueError(
+            f"Label '{label_str}' (pos_idx={pos_idx}) not found in the label schema"
+        )
+
+    def get_label_by_idx(self, label_idx: int) -> Label:
+        """
+        Get a Label object by its index. It is useful for converting ModelAPI results to Prediction.
+
+        :param label_idx: index of the label from prediction results
+        :return: Label corresponding to the index
+        """
+        return self.idx_to_label[label_idx]
+
+    def get_label_by_str(self, label_str: int) -> Label:
+        """
+        Get a Label object by its string representation. It is useful for converting ModelAPI results to Prediction.
+
+        :param label_str: string representation of the label from prediction results
+        :return: Label corresponding to the string
+        """
+        return self.str_to_label[label_str]
 
     @abc.abstractmethod
     def convert_to_prediction(
@@ -99,7 +148,7 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
     Converts ModelAPI Classification predictions to Prediction object.
 
     :param labels: LabelList containing the label info of the task
-    :param configuration: Optional configuration dictionary containing additional
+    :param configuration: configuration dictionary containing additional
         parameters
     """
 
@@ -122,17 +171,9 @@ class ClassificationToPredictionConverter(InferenceResultsToPredictionConverter)
         labels = []
         for label in inference_results.top_labels:
             label_idx, label_name, label_prob = label
-            if self.is_labels_sorted:
-                scored_label = ScoredLabel.from_label(
-                    label=self.labels[label_idx], probability=label_prob
-                )
-            else:
-                # label_idx does not necessarily match the label index in the project
-                # labels. Therefore, we map the label by name instead.
-                _label = self._get_label_by_prediction_name(name=label_name)
-                scored_label = ScoredLabel.from_label(
-                    label=_label, probability=label_prob
-                )
+            scored_label = ScoredLabel.from_label(
+                label=self.get_label_by_idx(label_idx), probability=label_prob
+            )
             labels.append(scored_label)
 
         if not labels and self.empty_label:
@@ -266,7 +307,9 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
 
             label_index = int(_detection[0])
             confidence = _detection[1]
-            scored_label = ScoredLabel.from_label(self.labels[label_index], confidence)
+            scored_label = ScoredLabel.from_label(
+                self.get_label_by_idx(label_index), confidence
+            )
             coords = _detection[2:]
             shape: Union[Ellipse, Rectangle]
 
@@ -326,9 +369,6 @@ class DetectionToPredictionConverter(InferenceResultsToPredictionConverter):
 class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
     """
     Converts ModelAPI Rotated Detection objects to Prediction.
-
-    :param labels: LabelList containing the label info of the task
-    :param configuration: optional model configuration setting
     """
 
     def convert_to_prediction(
@@ -344,7 +384,8 @@ class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
         annotations = []
         shape: Union[RotatedRectangle, Ellipse]
         for obj in inference_results.segmentedObjects:
-            if obj.score < self.confidence_threshold:
+            label = self.get_label_by_idx(obj.id)
+            if obj.score < self.confidence_threshold or label.is_empty:
                 continue
             if self.use_ellipse_shapes:
                 shape = Ellipse(
@@ -353,11 +394,7 @@ class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
                 annotations.append(
                     Annotation(
                         shape=shape,
-                        labels=[
-                            ScoredLabel.from_label(
-                                self.labels[int(obj.id) - 1], float(obj.score)
-                            )
-                        ],
+                        labels=[ScoredLabel.from_label(label, float(obj.score))],
                     )
                 )
             else:
@@ -383,11 +420,7 @@ class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
                     annotations.append(
                         Annotation(
                             shape=RotatedRectangle.from_polygon(shape),
-                            labels=[
-                                ScoredLabel.from_label(
-                                    self.labels[int(obj.id) - 1], float(obj.score)
-                                )
-                            ],
+                            labels=[ScoredLabel.from_label(label, float(obj.score))],
                         )
                     )
         return Prediction(annotations)
@@ -396,9 +429,6 @@ class RotatedRectToPredictionConverter(DetectionToPredictionConverter):
 class MaskToAnnotationConverter(DetectionToPredictionConverter):
     """
     Converts DetectionBox Predictions ModelAPI to Prediction object.
-
-    :param labels: LabelList containing the label info of the task
-    :param configuration: optional model configuration setting
     """
 
     def convert_to_prediction(
@@ -424,7 +454,7 @@ class MaskToAnnotationConverter(DetectionToPredictionConverter):
                         shape=shape,
                         labels=[
                             ScoredLabel.from_label(
-                                self.labels[int(obj.id) - 1], float(obj.score)
+                                self.get_label_by_idx(obj.id), float(obj.score)
                             )
                         ],
                     )
@@ -455,7 +485,7 @@ class MaskToAnnotationConverter(DetectionToPredictionConverter):
                             shape=shape,
                             labels=[
                                 ScoredLabel.from_label(
-                                    self.labels[int(obj.id) - 1], float(obj.score)
+                                    self.get_label_by_idx(obj.id), float(obj.score)
                                 )
                             ],
                         )
@@ -492,13 +522,27 @@ class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
     Converts ModelAPI Segmentation objects to Prediction object.
 
     :param labels: LabelList containing the label info of the task
-    :param configuration: optional model configuration setting
+    :param configuration: model configuration setting
+    :param model: SegmentationModel instance, needed for getting contours
     """
 
-    def __init__(self, labels: LabelList, configuration: Dict[str, Any]):
+    def __init__(
+        self, labels: LabelList, configuration: Dict[str, Any], model: SegmentationModel
+    ):
         super().__init__(labels, configuration)
-        # NB: index=0 is reserved for the background label
-        self.label_map = dict(enumerate(self.labels, 1))
+        self.model = model
+
+    def get_label_by_idx(self, label_idx: int) -> Label:
+        """
+        Get a Label object by its index. It is useful for converting ModelAPI results to Prediction.
+
+        # NB: For segmentation results, index=0 is reserved for the background label
+
+        :param label_idx: index of the label from prediction results
+        :return: Label corresponding to the index
+        """
+        self.idx_to_label[-1] = self.empty_label
+        return super().get_label_by_idx(label_idx - 1)
 
     def convert_to_prediction(
         self, inference_results: ImageResultWithSoftPrediction, **kwargs  # noqa: ARG002
@@ -509,11 +553,25 @@ class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
         :param inference_results: segmentation represented in ModelAPI format
         :return: Prediction object containing the contour polygon obtained from the segmentation
         """
-        annotations = create_annotation_from_segmentation_map(
-            hard_prediction=inference_results.resultImage,
-            soft_prediction=inference_results.soft_prediction,
-            label_map=self.label_map,
-        )
+        contours = self.model.get_contours(inference_results)
+
+        annotations: list[Annotation] = []
+        for contour in contours:
+            label = self.get_label_by_str(contour.label)
+            if len(contour.shape) > 0 and not label.is_empty:
+                approx_curve = cv2.approxPolyDP(contour.shape, 1.0, True)
+                if len(approx_curve) > 2:
+                    points = [Point(x=p[0][0], y=p[0][1]) for p in contour.shape]
+                    annotations.append(
+                        Annotation(
+                            shape=Polygon(points=points),
+                            labels=[
+                                ScoredLabel.from_label(
+                                    label=label, probability=contour.probability
+                                )
+                            ],
+                        )
+                    )
         return Prediction(annotations)
 
     def convert_saliency_map(
@@ -532,7 +590,11 @@ class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
         if len(saliency_map) == 0:
             return None
         saliency_map = np.transpose(saliency_map, (2, 0, 1))  # shape: (N classes, h, w)
-        return {label.name: saliency_map[i + 1] for i, label in enumerate(self.labels)}
+        return {
+            label.name: saliency_map[i]
+            for i, label in self.idx_to_label.items()
+            if not label.is_empty
+        }
 
 
 class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
@@ -540,17 +602,12 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
     Convert ModelAPI AnomalyResult predictions to Prediction object.
 
     :param labels: LabelList containing the label info of the task
-    :param configuration: optional model configuration setting
+    :param configuration: model configuration setting
     """
 
     def __init__(self, labels: LabelList, configuration: Dict[str, Any]):
-        super().__init__(labels, configuration)
-        self.normal_label = next(
-            label for label in self.labels if not label.is_anomalous
-        )
-        self.anomalous_label = next(
-            label for label in self.labels if label.is_anomalous
-        )
+        self.normal_label = next(label for label in labels if not label.is_anomalous)
+        self.anomalous_label = next(label for label in labels if label.is_anomalous)
         if configuration is not None and "domain" in configuration:
             self.domain = configuration["domain"]
 
@@ -569,7 +626,7 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
         pred_label = inference_results.pred_label
         label = (
             self.anomalous_label
-            if pred_label in ("Anomaly", "Anomalous")
+            if pred_label.lower() in ("anomaly", "anomalous")
             else self.normal_label
         )
         annotations: List[Annotation] = []
@@ -653,6 +710,7 @@ class ConverterFactory:
         labels: LabelList,
         domain: Domain,
         configuration: Dict[str, Any],
+        model: ImageModel,
     ) -> InferenceResultsToPredictionConverter:
         """
         Create the appropriate inference converter object according to the model's task.
@@ -660,6 +718,7 @@ class ConverterFactory:
         :param labels: The labels of the model
         :param domain: The domain to which the converter applies
         :param configuration: configuration for the converter
+        :param model: ImageModel instance
         :return: The created inference result to prediction converter.
         :raises ValueError: If the task type cannot be determined from the label schema.
         """
@@ -668,7 +727,7 @@ class ConverterFactory:
         if domain == Domain.DETECTION:
             return DetectionToPredictionConverter(labels, configuration)
         if domain == Domain.SEGMENTATION:
-            return SegmentationToPredictionConverter(labels, configuration)
+            return SegmentationToPredictionConverter(labels, configuration, model=model)
         if domain == Domain.ROTATED_DETECTION:
             return RotatedRectToPredictionConverter(labels, configuration)
         if domain == Domain.INSTANCE_SEGMENTATION:
