@@ -12,12 +12,14 @@
 # with no express or implied warranties, other than those that are expressly stated
 # in the License.
 from typing import Tuple
+from unittest.mock import MagicMock
 
 import numpy as np
 import pytest
 from model_api.models.utils import (
     AnomalyResult,
     ClassificationResult,
+    Contour,
     Detection,
     DetectionResult,
     ImageResultWithSoftPrediction,
@@ -63,15 +65,19 @@ class TestInferenceResultsToPredictionConverter:
             saliency_map=None,
             feature_vector=None,
         )
+        model_api_labels = [label.name for label in labels]
 
         # Act
-        converter = ClassificationToPredictionConverter(labels, configuration={})
+        converter = ClassificationToPredictionConverter(
+            labels, configuration={"labels": model_api_labels}
+        )
         prediction = converter.convert_to_prediction(
             raw_prediction, image_shape=(10, 10)
         )
 
         # Assert
-        assert converter.labels == labels
+        assert [converter.get_label_by_idx(i) for i in range(len(labels))] == labels
+        assert [converter.get_label_by_str(label.name) for label in labels] == labels
         assert len(prediction.annotations) == 1
         predicted_label = prediction.annotations[0].labels[0]
         assert predicted_label.name == labels[1].name
@@ -83,23 +89,27 @@ class TestInferenceResultsToPredictionConverter:
     ):
         # Arrange
         labels = fxt_label_list_factory(Domain.DETECTION)
-        non_empty_labels = labels.get_non_empty_labels()
         coords = [12.0, 41.0, 12.5, 45.5]
         raw_prediction = DetectionResult(
             objects=[Detection(*coords, score=0.51, id=0)],
             saliency_map=None,
             feature_vector=None,
         )
+        model_api_labels = [label.name for label in labels]
 
         # Act
         converter = DetectionToPredictionConverter(
             labels=labels,
-            configuration={"use_ellipse_shapes": use_ellipse_shapes},
+            configuration={
+                "use_ellipse_shapes": use_ellipse_shapes,
+                "labels": model_api_labels,
+            },
         )
         prediction = converter.convert_to_prediction(raw_prediction)
 
         # Assert
-        assert converter.labels == non_empty_labels
+        assert [converter.get_label_by_idx(i) for i in range(len(labels))] == labels
+        assert [converter.get_label_by_str(label.name) for label in labels] == labels
         assert len(prediction.annotations) == 1
         if use_ellipse_shapes:
             assert prediction.annotations[0].shape == Ellipse(
@@ -119,7 +129,6 @@ class TestInferenceResultsToPredictionConverter:
     ):
         # Arrange
         labels = fxt_label_list_factory(Domain.ROTATED_DETECTION)
-        non_empty_labels = labels.get_non_empty_labels()
         coords = [1, 1, 4, 4]
         score = 0.51
         mask = np.array(
@@ -140,18 +149,22 @@ class TestInferenceResultsToPredictionConverter:
         )
         height, width = mask.shape
         metadata = {"original_shape": (height, width, 3)}
+        model_api_labels = [label.name for label in labels]
 
         # Act
         converter = RotatedRectToPredictionConverter(
-            labels, configuration={"use_ellipse_shapes": use_ellipse_shapes}
+            labels,
+            configuration={
+                "use_ellipse_shapes": use_ellipse_shapes,
+                "labels": model_api_labels,
+            },
         )
         prediction = converter.convert_to_prediction(raw_prediction, metadata=metadata)
 
         # Assert
-        assert converter.labels == non_empty_labels
+        assert [converter.get_label_by_idx(i) for i in range(len(labels))] == labels
+        assert [converter.get_label_by_str(label.name) for label in labels] == labels
         assert len(prediction.annotations) == 1
-        # raise Exception(prediction.annotations[0].labels[0], labels[0])
-        # raise Exception(prediction.annotations[0].shape)
         if use_ellipse_shapes:
             assert prediction.annotations[0].shape == Ellipse(
                 *coords_to_xmin_xmax_width_height(coords)
@@ -168,13 +181,13 @@ class TestInferenceResultsToPredictionConverter:
                 )
             )
         assert prediction.annotations[0].labels[0] == ScoredLabel.from_label(
-            label=labels[0], probability=score
+            label=labels[1], probability=score
         )
 
     def test_segmentation_to_prediction_converter(self, fxt_label_list_factory):
         # Arrange
         labels = fxt_label_list_factory(Domain.SEGMENTATION)
-        non_empty_labels = labels.get_non_empty_labels()
+        labels_str = [label.name for label in labels]
         result_image = np.array(
             [
                 [0, 0, 0],
@@ -184,29 +197,54 @@ class TestInferenceResultsToPredictionConverter:
         )
         soft_predictions = np.array(
             [
-                [[0.9, 0.1, 0.1, 0.1], [0.7, 0.1, 0.2, 0.1], [0.9, 0.1, 0.1, 0.0]],
-                [[0.9, 0.0, 0.1, 0.1], [0.9, 0.0, 0.1, 0.1], [0.9, 0.0, 0.0, 0.0]],
-                [[0.2, 0.2, 0.6, 0.1], [0.1, 0.2, 0.7, 0.1], [0.2, 0.2, 0.6, 0.0]],
+                [[0.9, 0.1, 0.1], [0.7, 0.1, 0.2], [0.9, 0.1, 0.1]],
+                [[0.9, 0.0, 0.1], [0.9, 0.0, 0.1], [0.9, 0.0, 0.0]],
+                [[0.2, 0.2, 0.6], [0.1, 0.2, 0.7], [0.2, 0.2, 0.6]],
             ]
         )
         raw_prediction = ImageResultWithSoftPrediction(
             resultImage=result_image,
             soft_prediction=soft_predictions,
-            saliency_map=None,
-            feature_vector=None,
+            saliency_map=np.zeros_like(result_image),
+            feature_vector=np.zeros((result_image.shape[0], result_image.shape[1], 2)),
         )
+        expected_shape = Polygon(
+            points=[Point(1, 1), Point(0, 3), Point(1, 3), Point(3, 3)]
+        )
+        seg_model = MagicMock()
+        seg_model.labels = labels_str
+        model_api_labels = [label.name for label in labels]
+
+        def get_contours(_: ImageResultWithSoftPrediction):
+            return [
+                Contour(
+                    labels_str[0],
+                    0.8,
+                    shape=np.array([[(1, 1)], [(0, 3)], [(1, 3)], [(3, 3)]]),
+                )
+            ]
+
+        seg_model.get_contours = get_contours
 
         # Act
-        converter = SegmentationToPredictionConverter(labels, configuration={})
+        converter = SegmentationToPredictionConverter(
+            labels, configuration={"labels": model_api_labels}, model=seg_model
+        )
         prediction = converter.convert_to_prediction(raw_prediction)
 
         # Assert
-        assert converter.labels == non_empty_labels
+        assert [converter.get_label_by_idx(i + 1) for i in range(len(labels))] == labels
+        assert [converter.get_label_by_str(label.name) for label in labels] == labels
         assert len(prediction.annotations) == 1
-        assert prediction.annotations[0].labels[0].name == labels[0].name
-        assert prediction.annotations[0].shape == Polygon(
-            points=[Point(1.0, 1.0), Point(0.0, 2.0), Point(1.0, 2.0), Point(2.0, 2.0)]
+        assert prediction.annotations[0].labels[0] == ScoredLabel.from_label(
+            labels[0], probability=0.8
         )
+        assert isinstance(prediction.annotations[0].shape, Polygon)
+        for p1, p2 in zip(
+            prediction.annotations[0].shape.points, expected_shape.points
+        ):
+            assert p1.x == pytest.approx(p2.x, 0.01)
+            assert p1.y == pytest.approx(p2.y, 0.01)
 
     @pytest.mark.parametrize(
         "domain",
@@ -219,7 +257,8 @@ class TestInferenceResultsToPredictionConverter:
     def test_anomaly_to_prediction_converter(self, domain, fxt_label_list_factory):
         # Arrange
         labels = fxt_label_list_factory(domain)
-        non_empty_labels = labels.get_non_empty_labels()
+        normal_label = next(label for label in labels if not label.is_anomalous)
+        anomalous_label = next(label for label in labels if label.is_anomalous)
         anomaly_map = np.ones((2, 2))
         pred_boxes = np.array([[2, 2, 4, 4]])
         pred_mask = np.ones((2, 2))
@@ -233,14 +272,15 @@ class TestInferenceResultsToPredictionConverter:
 
         # Act
         converter = AnomalyToPredictionConverter(
-            labels, configuration={"domain": domain}
+            labels, configuration={"domain": domain, "labels": ["Anomalous", "Normal"]}
         )
         prediction = converter.convert_to_prediction(
             raw_prediction, image_shape=anomaly_map.shape
         )
 
         # Assert
-        assert converter.labels == non_empty_labels
+        assert converter.normal_label == normal_label
+        assert converter.anomalous_label == anomalous_label
         assert len(prediction.annotations) == 1
         assert prediction.annotations[0].labels[0] == ScoredLabel.from_label(
             next(label for label in labels if label.is_anomalous), probability=1.0
@@ -266,11 +306,21 @@ class TestInferenceResultsToPredictionConverter:
                 ["1", "2"],
                 ["foo bar", "foo_bar"],
                 ["foo_bar", "foo_bar"],
-                {"label_ids": ["1", "2"]},
+                {"label_ids": ["1", "2"], "labels": ["foo_bar", "foo_bar"]},
             ),
-            (["1", "2"], ["label 1", "label 2"], ["label_1", "label_2"], {}),
-            (["1", "2"], ["?", "@"], ["@", "?"], {}),
-            (["1", "2", "3", "4"], ["c", "b", "a", "empty"], ["a", "b", "c"], {}),
+            (
+                ["1", "2"],
+                ["label 1", "label 2"],
+                ["label_1", "label_2"],
+                {"labels": ["label_1", "label_2"]},
+            ),
+            (["1", "2"], ["?", "@"], ["@", "?"], {"labels": ["?", "@"]}),
+            (
+                ["1", "2", "3", "4"],
+                ["c", "b", "a", "empty"],
+                ["a", "b", "c"],
+                {"labels": ["c", "b", "a", "empty"]},
+            ),
         ],
     )
     def test_legacy_label_conversion(

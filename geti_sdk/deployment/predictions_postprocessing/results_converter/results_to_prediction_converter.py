@@ -72,6 +72,7 @@ class InferenceResultsToPredictionConverter(metaclass=abc.ABCMeta):
             self.label_map_ids[str(label.id)] = label
             # Using a dict of list to handle duplicates label names (e.g. "foo bar", "foo_bar")
             self.legacy_label_map_names[label.name.replace(" ", "_")].append(label)
+            self.legacy_label_map_names[label.name].append(label)
         self.legacy_label_map_names["otx_empty_lbl"] = [self.empty_label]
 
         # Create a mapping of ModelAPI label indices to label objects
@@ -540,6 +541,7 @@ class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
         :param label_idx: index of the label from prediction results
         :return: Label corresponding to the index
         """
+        self.idx_to_label[-1] = self.empty_label
         return super().get_label_by_idx(label_idx - 1)
 
     def convert_to_prediction(
