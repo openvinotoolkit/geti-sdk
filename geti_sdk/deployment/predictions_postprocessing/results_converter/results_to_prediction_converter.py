@@ -58,7 +58,7 @@ class InferenceResultsToPredictionConverter(metaclass=abc.ABCMeta):
         model_api_labels = (
             [model_api_labels]
             if isinstance(model_api_labels, str)
-            else model_api_labels
+            else [str(name) for name in model_api_labels]
         )
         # Create a mapping of label ID to label objects
         self.label_map_ids = {}
