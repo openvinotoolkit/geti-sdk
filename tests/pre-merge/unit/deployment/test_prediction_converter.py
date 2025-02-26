@@ -321,6 +321,7 @@ class TestInferenceResultsToPredictionConverter:
                 ["a", "b", "c"],
                 {"labels": ["c", "b", "a", "empty"]},
             ),
+            (["1"], ["1"], ["1"], {"labels": [1]}),
         ],
     )
     def test_legacy_label_conversion(
