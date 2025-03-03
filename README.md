@@ -361,22 +361,6 @@ the [code snippets](#downloading-and-uploading-projects), and
 
 Please visit the full documentation for a complete API reference.
 
-## Using Docker
-
-The Dockerfile can be used to run the package without having to install python on your
-machine.
-
-First build the docker image
-``` sh
-docker build -t geti-sdk .
-```
-
-then run it using,
-
-``` sh
-docker run --rm -ti -v $(pwd):/app geti-sdk:latest /bin/bash
-```
-
 # Supported features
 ## What is supported
 
