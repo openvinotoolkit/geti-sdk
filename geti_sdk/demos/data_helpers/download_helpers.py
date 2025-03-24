@@ -16,6 +16,7 @@ import hashlib
 import logging
 import os
 import shutil
+import urllib.request
 import zipfile
 from typing import Dict, Optional
 
@@ -39,10 +40,8 @@ def get_proxies(url: str = "", verify_cert: bool = True) -> Dict[str, str]:
         return proxies
     except requests.exceptions.ConnectionError:
         logging.info("Unable to reach URL, attempting to connect via proxy...")
-    proxies = {
-        "http": "http://proxy-mu.intel.com:911",
-        "https": "http://proxy-mu.intel.com:912",
-    }
+    proxies = urllib.request.getproxies()
+    logging.debug(f"Proxies configuration: {proxies}")
     try:
         requests.head(url=url, proxies=proxies, verify=verify_cert, timeout=timeout)
         logging.info("Connection succeeded.")
