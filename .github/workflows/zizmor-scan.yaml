@@ -38,7 +38,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@22695119d769bdb6f7032ad67b9bca0ef8c4a174 # v5.4.0
       - name: Run zizmor
-        run: uvx zizmor=="$ZIZMOR_VERSION" . --format sarif > results.sarif
+        run: uvx zizmor=="$ZIZMOR_VERSION" . --format sarif --config .github/zizmor.yaml > results.sarif
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@9e8d0789d4a0fa9ceb6b1738f7e269594bdd67f0 # v3.28.8
         with:
@@ -60,4 +60,4 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@22695119d769bdb6f7032ad67b9bca0ef8c4a174 # v5.4.0
       - name: Run zizmor
-        run: uvx zizmor=="$ZIZMOR_VERSION" . --min-confidence high --min-severity high
+        run: uvx zizmor=="$ZIZMOR_VERSION" . --min-confidence high --min-severity high --config .github/zizmor.yaml
