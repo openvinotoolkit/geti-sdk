@@ -28,7 +28,6 @@ jobs:
         env:
           CHANGED_FILES: ${{steps.files.outputs.all_changed_files}}
         run: |
-          CHANGED_FILES=""
           if [[ ! -z "$CHANGED_FILES" ]]; then
             pip install bandit
             echo "Bandit version: "$(bandit --version | head -1)
