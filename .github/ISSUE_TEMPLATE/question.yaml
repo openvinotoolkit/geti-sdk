@@ -1,0 +1,11 @@
+---
+name: ❓ Question
+description: Use this template to ask a question about Geti SDK or its features.
+title: "[Q]: "
+labels: "question"
+body:
+  - type: textarea
+    attributes:
+      label: Ask your question
+      value: |
+        <!--- Ask your question here --->
