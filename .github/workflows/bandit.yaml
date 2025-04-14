@@ -12,7 +12,7 @@ jobs:
         with:
           persist-credentials: false
       - id: files
-        uses: tj-actions/changed-files@dcc7a0cba800f454d79fff4b993e8c3555bcc0a8 # v45.0.7
+        uses: tj-actions/changed-files@be393a90381e27c9fec2c8c2e02b00f005710145 # v45.0.7
         with:
           files: |
             **/*.py
@@ -20,7 +20,7 @@ jobs:
             **/*.pyi
 
       - name: Setup Python
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
         with:
           python-version: "3.12"
 
