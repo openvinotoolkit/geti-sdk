@@ -15,5 +15,7 @@ jobs:
     with:
       enable_dev_dependencies: 1
       runner: ubuntu-latest
-    secrets:
-      PYPI_HOST: test.pypi.org
+    permissions:
+      packages: write
+      contents: write
+      id-token: write
