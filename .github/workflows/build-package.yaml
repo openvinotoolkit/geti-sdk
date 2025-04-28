@@ -9,12 +9,8 @@ on:
       runner:
         required: true
         type: string
-    secrets:
-      PYPI_HOST:
-        required: true
 
 env:
-  PYPI_HOST: ${{ secrets.PYPI_HOST }}
   ENABLE_DEV_DEPENDENCIES: ${{ inputs.enable_dev_dependencies }}
 
 permissions:
