@@ -13,8 +13,6 @@ on:
 env:
   ENABLE_DEV_DEPENDENCIES: ${{ inputs.enable_dev_dependencies }}
 
-permissions: read-all
-
 jobs:
   build_sdk:
     runs-on: ${{ inputs.runner }}
