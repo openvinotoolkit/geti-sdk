@@ -80,10 +80,10 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
-      - name: Publish SDK package to pypi
-          if: ${{ steps.check-tag.outputs.match != '' }}
-          uses: pypa/gh-action-pypi-publish@67339c736fd9354cd4f8cb0b744f2b82a74b5c70 # v1.12.3
-      - name: Publish SDK package to TestPyPI
+      - name: Publish package distributions to PyPI
+        if: ${{ steps.check-tag.outputs.match != '' }}
+        uses: pypa/gh-action-pypi-publish@67339c736fd9354cd4f8cb0b744f2b82a74b5c70 # v1.12.3
+      - name: Publish package distributions to TestPyPI
         if: ${{ steps.check-tag.outputs.match == '' }}
         uses: pypa/gh-action-pypi-publish@67339c736fd9354cd4f8cb0b744f2b82a74b5c70 # v1.12.3
         with:
