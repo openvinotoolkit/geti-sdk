@@ -29,6 +29,7 @@ class TaskType(Enum):
     ANOMALY = "anomaly"
     INSTANCE_SEGMENTATION = "instance_segmentation"
     ROTATED_DETECTION = "rotated_detection"
+    KEYPOINT_DETECTION = "keypoint_detection"
     DATASET = "dataset"
     CROP = "crop"
 
@@ -131,4 +132,5 @@ DETECTION_TASK_TYPES = [
     TaskType.DETECTION,
     TaskType.ROTATED_DETECTION,
     TaskType.ANOMALY_DETECTION,
+    TaskType.KEYPOINT_DETECTION,
 ]

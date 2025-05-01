@@ -29,6 +29,7 @@ from geti_sdk.data_models.media_identifiers import (
 )
 from geti_sdk.data_models.shapes import (
     Ellipse,
+    Keypoint,
     Point,
     Polygon,
     Rectangle,
@@ -48,6 +49,7 @@ SHAPE_TYPE_MAPPING = {
     ShapeType.RECTANGLE: Rectangle,
     ShapeType.POLYGON: Polygon,
     ShapeType.ROTATED_RECTANGLE: RotatedRectangle,
+    ShapeType.KEYPOINT: Keypoint,
 }
 MEDIA_IDENTIFIER_MAPPING = {
     MediaType.IMAGE: ImageIdentifier,

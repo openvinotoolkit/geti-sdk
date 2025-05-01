@@ -25,6 +25,7 @@ class ShapeType(Enum):
     ELLIPSE = "ELLIPSE"
     POLYGON = "POLYGON"
     ROTATED_RECTANGLE = "ROTATED_RECTANGLE"
+    KEYPOINT = "KEYPOINT"
 
     def __str__(self):
         """
