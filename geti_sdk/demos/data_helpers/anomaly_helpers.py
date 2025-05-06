@@ -98,8 +98,9 @@ def get_mvtec_dataset_from_path(dataset_path: str = "data") -> str:
     )
     archive_name = f"{dataset_name}.tar.xz"
     url = f"https://www.mydrive.ch/shares/38536/3830184030e49fe74747669442f0f282/download/420938166-1629953277/{archive_name}"
+    # mydrive.ch uses Let's Encrypt certs, verify_cert is set to True
     download_file(
-        url, target_folder=dataset_path, check_valid_archive=False, verify_cert=False
+        url, target_folder=dataset_path, check_valid_archive=False, verify_cert=True
     )
     archive_path = os.path.join(dataset_path, archive_name)
     validate_hash(
@@ -109,6 +110,7 @@ def get_mvtec_dataset_from_path(dataset_path: str = "data") -> str:
 
     logging.info(f"Extracting the '{dataset_name}' dataset at path {archive_path}...")
     with tarfile.open(archive_path) as tar_file:
+        # B202 - hash is validated before processing, file can be considered as trusted
         tar_file.extractall(dataset_path)  # nosec B202
 
     if not is_ad_dataset(transistor_dataset_path):
