@@ -271,7 +271,16 @@ class ProjectClient:
             task_template["title"], task_titles_in_template
         )
         task_template["title"] = unique_task_title
-
+        if task_type == task_type.KEYPOINT_DETECTION:
+            task_template["keypoint_structure"] = {
+                "edges": [
+                    {"nodes": ["cylinder", "cube"]},
+                ],
+                "positions": [
+                    {"label": "cylinder", "x": 0.1, "y": 0.3792},
+                    {"label": "cube", "x": 0.2, "y": 0.1792},
+                ],
+            }
         if not task_type.is_anomaly:
             label_group_name = f"{unique_task_title.lower()} label group"
 

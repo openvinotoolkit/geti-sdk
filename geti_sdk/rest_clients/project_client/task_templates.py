@@ -87,7 +87,7 @@ ROTATED_DETECTION_TASK = {
 
 KEYPOINT_DETECTION_TASK = {
     "title": "Keypoint detection task",
-    "task_type": ",keypoint_detection",
+    "task_type": "keypoint_detection",
     "labels": [],
 }
 

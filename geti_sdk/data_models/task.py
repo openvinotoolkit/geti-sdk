@@ -43,6 +43,7 @@ class Task:
     :var labels: List of labels belonging to the task
     :var id: unique database ID of the task
     :var label_schema_id: unique database ID of the label schema for the task
+    :var keypoint_structure: The keypoint structure for the keypoint detection task
     """
 
     _identifier_fields: ClassVar[List[str]] = ["id", "label_schema_id"]
@@ -52,6 +53,7 @@ class Task:
     labels: Optional[List[Label]] = None
     label_schema_id: Optional[str] = None
     id: Optional[str] = None
+    keypoint_structure: Optional[Dict] = None
 
     @property
     def type(self) -> TaskType:
