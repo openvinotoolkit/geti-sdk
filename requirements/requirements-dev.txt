@@ -1,10 +1,11 @@
 # Requirements for running the tests
 vcrpy==7.0.*
 pytest==8.3.*
-pytest-recording==0.13.2
+pytest-recording==0.13.2  # pinned due to https://github.com/kiwicom/pytest-recording/issues/174
 pytest-cov==6.0.*
 pytest-env==1.1.*
 pytest-html==4.1.*
+snowballstemmer==2.2.*  # pinned because pytest-recording subdeps are loose
 flake8==7.1.*
 pydocstyle>=6.1
 black>=24.1
