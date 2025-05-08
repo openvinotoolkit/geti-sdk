@@ -9,22 +9,9 @@ on:
       runner:
         required: true
         type: string
-    secrets:
-      PYPI_USER:
-        required: true
-      PYPI_PASSWORD:
-        required: true
-      PYPI_HOST:
-        required: true
 
 env:
-  PYPI_USER: ${{ secrets.PYPI_USER }}
-  PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-  PYPI_HOST: ${{ secrets.PYPI_HOST }}
   ENABLE_DEV_DEPENDENCIES: ${{ inputs.enable_dev_dependencies }}
-
-permissions:
-  contents: read
 
 jobs:
   build_sdk:
@@ -70,15 +57,31 @@ jobs:
           name: geti_sdk
           path: dist
 
-      - name: Publish SDK package to pypi
-        run: |
-          if [[ $PYPI_HOST = "test.pypi.org" ]]; then
-            twine upload -r testpypi dist/* -u $PYPI_USER -p $PYPI_PASSWORD
-          else
-            twine upload dist/* -u $PYPI_USER -p $PYPI_PASSWORD
-          fi
-
-
+      # to determine where to publish the package distribution to PyPI or TestPyPI
+      - name: Check tag
+        id: check-tag
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.ref }}
+          regex: '^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+(rc[0-9]+)?$'
+      - name: Upload package distributions to github
+        if: ${{ steps.check-tag.outputs.match != '' }}
+        uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd # v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist/*
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
+      - name: Publish package distributions to PyPI
+        if: ${{ steps.check-tag.outputs.match != '' }}
+        uses: pypa/gh-action-pypi-publish@67339c736fd9354cd4f8cb0b744f2b82a74b5c70 # v1.12.3
+      - name: Publish package distributions to TestPyPI
+        if: ${{ steps.check-tag.outputs.match == '' }}
+        uses: pypa/gh-action-pypi-publish@67339c736fd9354cd4f8cb0b744f2b82a74b5c70 # v1.12.3
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          verbose: true
       - name: Clean up dist directory if it was created
         if: ${{ always() }}
         run: |
