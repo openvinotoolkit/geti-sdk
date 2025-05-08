@@ -3,7 +3,7 @@ datumaro==1.9.*
 requests==2.32.*
 numpy>=1.26.4
 omegaconf==2.3.*
-opencv-python==4.10.*
+opencv-python==4.11.*
 python-dotenv==1.0.*
 tqdm>=4.66.3
 Pillow==11.1.*
