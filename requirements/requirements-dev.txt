@@ -1,7 +1,7 @@
 # Requirements for running the tests
 vcrpy==7.0.*
 pytest==8.3.*
-pytest-recording==0.12.*
+pytest-recording==0.13.2
 pytest-cov==6.0.*
 pytest-env==1.1.*
 pytest-html==4.1.*
