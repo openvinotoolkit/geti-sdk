@@ -740,7 +740,7 @@ class Keypoint(Shape):
 
     x: int = attr.field(converter=coordinate_converter)
     y: int = attr.field(converter=coordinate_converter)
-    is_visible: bool
+    is_visible: bool = True
     type: str = attr.field(
         converter=str_to_shape_type, default=ShapeType.KEYPOINT, kw_only=True
     )
@@ -776,7 +776,7 @@ class Keypoint(Shape):
         """
         roi_x = parent_roi.x + self.x
         roi_y = parent_roi.y + self.y
-        return Keypoint(x=roi_x, y=roi_y, is_visible=True)
+        return Keypoint(x=roi_x, y=roi_y, is_visible=self.is_visible)
 
     @property
     def area(self) -> float:
