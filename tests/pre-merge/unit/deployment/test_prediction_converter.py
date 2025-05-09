@@ -20,6 +20,7 @@ from model_api.models.utils import (
     AnomalyResult,
     ClassificationResult,
     Contour,
+    DetectedKeypoints,
     Detection,
     DetectionResult,
     ImageResultWithSoftPrediction,
@@ -32,6 +33,7 @@ from geti_sdk.data_models.enums.domain import Domain
 from geti_sdk.data_models.label import Label, ScoredLabel
 from geti_sdk.data_models.shapes import (
     Ellipse,
+    Keypoint,
     Point,
     Polygon,
     Rectangle,
@@ -41,6 +43,7 @@ from geti_sdk.deployment.predictions_postprocessing.results_converter.results_to
     AnomalyToPredictionConverter,
     ClassificationToPredictionConverter,
     DetectionToPredictionConverter,
+    KeypointDetectionToPredictionConverter,
     RotatedRectToPredictionConverter,
     SegmentationToPredictionConverter,
 )
@@ -297,6 +300,38 @@ class TestInferenceResultsToPredictionConverter:
         elif domain == Domain.ANOMALY_DETECTION:
             assert prediction.annotations[0].shape == Rectangle(
                 *coords_to_xmin_xmax_width_height(pred_boxes[0])
+            )
+
+    def test_keypoint_to_prediction_converter(self, fxt_label_list_factory):
+        # Arrange
+        labels = fxt_label_list_factory(Domain.KEYPOINT_DETECTION)
+        predicted_keypoints = [[10, 10], [20, 20], [30, 30]]
+        scores = [0.5, 0.6, 0.7]
+        raw_prediction = DetectedKeypoints(
+            keypoints=predicted_keypoints,
+            scores=scores,
+        )
+
+        # Act
+        converter = KeypointDetectionToPredictionConverter(
+            labels,
+            configuration={
+                "domain": Domain.KEYPOINT_DETECTION,
+                "labels": [label.name for label in labels],
+            },
+        )
+        prediction = converter.convert_to_prediction(raw_prediction)
+
+        # Assert
+        assert converter.labels == labels
+        assert len(prediction.annotations) == len(predicted_keypoints)
+        for idx, annotation in enumerate(prediction.annotations):
+            assert isinstance(annotation.shape, Keypoint)
+            assert annotation.shape.is_visible
+            assert annotation.shape.x == predicted_keypoints[idx][0]
+            assert annotation.shape.y == predicted_keypoints[idx][1]
+            assert annotation.labels[0] == ScoredLabel.from_label(
+                labels[idx], probability=scores[idx]
             )
 
     @pytest.mark.parametrize(

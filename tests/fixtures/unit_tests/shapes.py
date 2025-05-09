@@ -16,6 +16,7 @@ import pytest
 
 from geti_sdk.data_models.shapes import (
     Ellipse,
+    Keypoint,
     Point,
     Polygon,
     Rectangle,
@@ -64,3 +65,8 @@ def fxt_rotated_rectangle_as_polygon() -> Polygon:
             Point(x=182, y=253),
         ]
     )
+
+
+@pytest.fixture()
+def fxt_keypoint() -> Keypoint:
+    yield Keypoint(x=100, y=199, is_visible=True)

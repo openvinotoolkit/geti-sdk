@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 import logging
-from typing import List, Optional, Sequence
+from typing import Dict, List, Optional, Sequence
+
+from numpy.random import random
 
 from geti_sdk import Geti
 from geti_sdk.annotation_readers import AnnotationReader
@@ -31,6 +33,7 @@ def get_or_create_annotated_project_for_test_class(
     enable_auto_train: bool = False,
     learning_parameter_settings: str = "minimal",
     annotation_requirements_first_training: Optional[int] = None,
+    keypoint_structure: Optional[Dict[str, list]] = None,
 ):
     """
     This function returns an annotated project with `project_name` of type
@@ -49,13 +52,28 @@ def get_or_create_annotated_project_for_test_class(
                           (i.e. single epoch, low batch size, etc.)
           'default'     - Use default hyper parameter settings
           'reduced_mem' - Reduce the batch size for memory intensive tasks
+    :param annotation_requirements_first_training: The required amount of annotations for first training.
+    :param keypoint_structure: The structure of the keypoints to be used for the project,
+        represented as a graph of nodes and edges.
     :return: Project instance corresponding to the project on the Intel® Geti™ server
     """
     project_exists = project_service.has_project
     labels = [reader.get_all_label_names() for reader in annotation_readers]
+    if not keypoint_structure and project_type == "keypoint_detection":
+        keypoints = labels[0]
+        reader = annotation_readers[0]
+        joints = reader.get_keypoint_joints()
+        edges = [{"nodes": [keypoints[a - 1], keypoints[b - 1]]} for a, b in joints]
+        positions = [
+            {"label": keypoint, "x": random(), "y": random()} for keypoint in keypoints
+        ]
+        keypoint_structure = {"edges": edges, "positions": positions}
 
     project = project_service.get_or_create_project(
-        project_name=project_name, project_type=project_type, labels=labels
+        project_name=project_name,
+        project_type=project_type,
+        labels=labels,
+        keypoint_structure=keypoint_structure,
     )
     if not project_exists:
         project_service.set_auto_train(False)

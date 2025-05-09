@@ -38,6 +38,14 @@ def fxt_light_bulbs_dataset(fxt_base_test_path) -> str:
 
 
 @pytest.fixture(scope="session")
+def fxt_human_pose_dataset(fxt_base_test_path) -> str:
+    """
+    This fixture returns the path to the 'human-pose' dataset
+    """
+    yield os.path.join(fxt_base_test_path, "data", "human-pose")
+
+
+@pytest.fixture(scope="session")
 def fxt_image_folder(fxt_blocks_dataset) -> str:
     """
     This fixture returns the path to a sample image
@@ -137,6 +145,33 @@ def fxt_annotation_reader_grouped(fxt_blocks_dataset) -> DatumAnnotationReader:
     """
     reader = DatumAnnotationReader(
         base_data_folder=fxt_blocks_dataset, annotation_format="coco"
+    )
+    reader.group_labels(labels_to_group=["cube", "cylinder"], group_name="block")
+    yield reader
+
+
+@pytest.fixture(scope="function")
+def fxt_annotation_reader_keypoint(fxt_human_pose_dataset) -> DatumAnnotationReader:
+    """
+    This fixture returns a Datumaro Annotation Reader which can read annotations for
+    the 'keypoint' dataset
+    """
+    yield DatumAnnotationReader(
+        base_data_folder=fxt_human_pose_dataset, annotation_format="datumaro"
+    )
+
+
+@pytest.fixture(scope="function")
+def fxt_annotation_reader_grouped_keypoint(
+    fxt_human_pose_dataset,
+) -> DatumAnnotationReader:
+    """
+    This fixture returns a Datumaro Annotation Reader which can read annotations for
+    the 'keypoint' dataset. All labels in this reader have been grouped to a single
+    'blocks' label.
+    """
+    reader = DatumAnnotationReader(
+        base_data_folder=fxt_human_pose_dataset, annotation_format="datumaro"
     )
     reader.group_labels(labels_to_group=["cube", "cylinder"], group_name="block")
     yield reader

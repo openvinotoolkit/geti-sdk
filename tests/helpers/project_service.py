@@ -89,13 +89,16 @@ class ProjectService:
         project_name: Optional[str] = None,
         project_type: str = "classification",
         labels: Optional[List[Union[List[str], List[Dict[str, Any]]]]] = None,
+        keypoint_structure: Optional[Dict[str, list]] = None,
     ) -> Project:
         """
         Create a project according to the `name`, `project_type` and `labels` specified.
 
         :param project_name: Name of the project to create
         :param project_type: Type of the project to create
-        :param labels: List of labels for each task
+        :param labels: List of labels for each tas
+        :param keypoint_structure: The structure of the keypoints to be used for the project,
+            represented as a graph of nodes and edges.
         :return: the created project
         """
         if project_name is None:
@@ -105,7 +108,10 @@ class ProjectService:
                 labels = [["cube", "cylinder"]]
             with self.vcr_context(f"{project_name}.{CASSETTE_EXTENSION}"):
                 project = self.project_client.create_project(
-                    project_name=project_name, project_type=project_type, labels=labels
+                    project_name=project_name,
+                    project_type=project_type,
+                    labels=labels,
+                    keypoint_structure=keypoint_structure,
                 )
                 self.project = project
                 return project
@@ -121,6 +127,7 @@ class ProjectService:
         project_name: str = "sdk_test_project_simple",
         project_type: str = "classification",
         labels: Optional[List[Union[List[str], List[Dict[str, Any]]]]] = None,
+        keypoint_structure: Optional[Dict[str, list]] = None,
     ) -> Project:
         """
         This method will always return a project. It will either create a new one, or
@@ -129,11 +136,16 @@ class ProjectService:
         :param project_name: Name of the project to create
         :param project_type: Type of the project to create
         :param labels: List of labels for each task
+        :param keypoint_structure: The structure of the keypoints to be used for the project,
+            represented as a graph of nodes and edges.
         :return: the existing or newly created project
         """
         if not self.has_project:
             self.create_project(
-                project_name=project_name, project_type=project_type, labels=labels
+                project_name=project_name,
+                project_type=project_type,
+                labels=labels,
+                keypoint_structure=keypoint_structure,
             )
         return self.project
 

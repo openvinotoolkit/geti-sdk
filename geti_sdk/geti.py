@@ -599,6 +599,7 @@ class Geti:
             * anomaly (new task - anomaly classification)
             * instance_segmentation
             * rotated_detection
+            * keypoint_detection
 
         If a project called `project_name` exists on the server, this method will
         attempt to upload the media and annotations to the existing project.

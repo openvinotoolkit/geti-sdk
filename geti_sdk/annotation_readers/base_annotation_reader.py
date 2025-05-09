@@ -82,6 +82,13 @@ class AnnotationReader:
         """
         raise NotImplementedError
 
+    @abstractmethod
+    def get_keypoint_joints(self) -> set[tuple[int, int]]:
+        """
+        Return a list of tuples representing the joints between keypoints
+        """
+        raise NotImplementedError
+
     def prepare_and_set_dataset(
         self,
         task_type: Union[TaskType, str],

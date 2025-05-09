@@ -18,7 +18,11 @@ import time
 from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
-from datumaro.components.annotation import AnnotationType, LabelCategories
+from datumaro.components.annotation import (
+    AnnotationType,
+    LabelCategories,
+    PointsCategories,
+)
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
@@ -46,7 +50,11 @@ class DatumaroDataset(object):
         self.dataset_path = dataset_path
         self.dataset, self.environment = self.create_datumaro_dataset()
         self._subset_names = self.dataset.subsets().keys()
-        self._filtered_categories = self.dataset.categories()[AnnotationType.label]
+        self._filtered_categories = [self.dataset.categories()[AnnotationType.label]]
+        if self.dataset.categories().get(AnnotationType.points):
+            self._filtered_categories.append(
+                self.dataset.categories()[AnnotationType.points]
+            )
 
     def prepare_dataset(
         self, task_type: TaskType, previous_task_type: Optional[TaskType] = None
@@ -71,6 +79,9 @@ class DatumaroDataset(object):
                 '/item/annotation[type="polygon"]', filter_annotations=True
             )
             logging.info("Annotations have been converted to polygons")
+        elif task_type.is_keypoint_detection:
+            new_dataset = self.dataset
+            logging.info("Keypoint detection dataset prepared.")
         elif task_type.is_global:
             if previous_task_type is not None and (
                 previous_task_type.is_segmentation
@@ -103,25 +114,64 @@ class DatumaroDataset(object):
         self._subset_names = self.dataset.subsets().keys()
 
     @property
-    def categories(self) -> LabelCategories:
+    def label_categories(self) -> LabelCategories:
         """
         Return the LabelCategories in the dataset.
         """
-        return self._filtered_categories
+        return self._filtered_categories[0]
 
     @property
     def label_names(self) -> List[str]:
         """
         Return a list of all label names in the dataset.
         """
-        return [item.name for item in self.categories]
+        return [item.name for item in self.label_categories]
 
     @property
     def label_mapping(self) -> Dict[int, str]:
         """
         Return the mapping of label index to label name.
         """
-        return {value: key for key, value in self.categories._indices.items()}
+        if len(self._filtered_categories) == 2:
+            # If there are points categories, we need to use them as labels
+            return self.points_mapping
+        return {value: key for key, value in self.label_categories._indices.items()}
+
+    @property
+    def points_categories(self) -> PointsCategories:
+        """
+        Return the PointCategories in the dataset.
+        """
+        try:
+            return self._filtered_categories[1]
+        except IndexError:
+            raise ValueError(
+                "No points categories found in the dataset. Please check the dataset "
+                "format and ensure that it contains points annotations."
+            )
+
+    @property
+    def points_names(self) -> List[str]:
+        """
+        Return a list of all point names in the dataset.
+        """
+        return self.points_categories.items[0].labels
+
+    @property
+    def points_mapping(self) -> Dict[int, str]:
+        """
+        Return the mapping of point index to label name.
+        """
+        return {
+            idx: name for idx, name in enumerate(self.points_categories.items[0].labels)
+        }
+
+    @property
+    def joints_mapping(self) -> set[tuple[int, int]]:
+        """
+        Return the mapping of point index to label name.
+        """
+        return self.points_categories.items[0].joints
 
     @property
     def image_names(self) -> List[str]:

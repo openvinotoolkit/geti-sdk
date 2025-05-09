@@ -221,3 +221,19 @@ def fxt_anomaly_labels_factory():
         return [normal_label, anomalous_label]
 
     yield _build_anom_labels
+
+
+@pytest.fixture
+def fxt_keypoint_labels():
+    yield [
+        Label(
+            name=name,
+            is_empty=False,
+            domain=Domain.KEYPOINT_DETECTION,
+            color="#00BF00",
+            hotkey=DummyValues.LABEL_HOTKEY,
+            id=str(index),
+            group="keypoint group",
+        )
+        for index, name in enumerate(DummyValues.LABEL_NAMES)
+    ]
