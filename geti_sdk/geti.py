@@ -577,6 +577,7 @@ class Geti:
         path_to_images: str,
         annotation_reader: AnnotationReader,
         labels: Optional[List[Union[str, dict]]] = None,
+        keypoint_structure: Optional[Dict[str, list]] = None,
         number_of_images_to_upload: int = -1,
         number_of_images_to_annotate: int = -1,
         enable_auto_train: bool = True,
@@ -614,6 +615,8 @@ class Geti:
         :param labels: Optional list of labels to use. This will only be used if the
             `annotation_reader` that is passed also supports dataset filtering. If
             not specified, all labels that are found in the dataset are used.
+        :param keypoint_structure: The structure of the keypoints to be used for the project,
+            represented as a graph of nodes and edges. This must be present for keypoint detection project.
         :param number_of_images_to_upload: Optional integer specifying how many images
             should be uploaded. If not specified, all images found in the dataset are
             uploaded.
@@ -647,9 +650,21 @@ class Geti:
             elif project_type == "anomaly_classification" or project_type == "anomaly":
                 labels = ["Normal", "Anomalous"]
 
+        if not keypoint_structure and project_type == "keypoint_detection":
+            joints = annotation_reader.get_keypoint_joints()
+            edges = [{"nodes": [labels[a - 1], labels[b - 1]]} for a, b in joints]
+            positions = [
+                {"label": label, "x": np.random.random(), "y": np.random.random()}
+                for label in labels  # random for now as dataset i/e is not available
+            ]
+            keypoint_structure = {"edges": edges, "positions": positions}
+
         # Create project
         project = self.project_client.create_project(
-            project_name=project_name, project_type=project_type, labels=[labels]
+            project_name=project_name,
+            project_type=project_type,
+            labels=[labels],
+            keypoint_structure=keypoint_structure,
         )
         # Disable auto training
         configuration_client = ConfigurationClient(

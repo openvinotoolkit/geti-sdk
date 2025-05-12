@@ -162,9 +162,15 @@ class DatumaroDataset(object):
         """
         Return the mapping of point index to label name.
         """
-        return {
-            idx: name for idx, name in enumerate(self.points_categories.items[0].labels)
-        }
+        try:
+            return {
+                idx: name
+                for idx, name in enumerate(self.points_categories.items[0].labels)
+            }
+        except AttributeError:
+            logging.info(
+                "No points categories found in the dataset. Please check the dataset "
+            )
 
     @property
     def joints_mapping(self) -> set[tuple[int, int]]:
@@ -254,7 +260,6 @@ class DatumaroDataset(object):
                 label_key = get_dict_key_from_value(label_map, label)
                 new_labelmap[label_key] = label
             label_categories._indices = {v: k for k, v in new_labelmap.items()}
-            new_categories = label_categories
             # Filter and create a new dataset to update the dataset categories
             self.dataset = Dataset.from_iterable(
                 self.dataset.select(lambda item: select_function(item, labels)),
@@ -265,7 +270,11 @@ class DatumaroDataset(object):
                 f"After filtering, dataset with labels {labels} contains "
                 f"{len(self.dataset)} items."
             )
-            self._filtered_categories = new_categories
+            self._filtered_categories = [label_categories]
+            if self.dataset.categories().get(AnnotationType.points):
+                self._filtered_categories.append(
+                    self.dataset.categories()[AnnotationType.points]
+                )
 
     def __get_item_by_id_from_subsets(
         self, datum_id: str, search_by_name: bool = False

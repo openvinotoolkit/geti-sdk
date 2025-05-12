@@ -46,6 +46,14 @@ def fxt_human_pose_dataset(fxt_base_test_path) -> str:
 
 
 @pytest.fixture(scope="session")
+def fxt_human_pose_image_folder(fxt_human_pose_dataset) -> str:
+    """
+    This fixture returns the path to the 'human-pose' dataset
+    """
+    yield os.path.join(fxt_human_pose_dataset, "images", "default")
+
+
+@pytest.fixture(scope="session")
 def fxt_image_folder(fxt_blocks_dataset) -> str:
     """
     This fixture returns the path to a sample image
