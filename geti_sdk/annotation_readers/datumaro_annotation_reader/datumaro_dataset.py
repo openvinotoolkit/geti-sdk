@@ -15,7 +15,7 @@ import glob
 import logging
 import os
 import time
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 from datumaro.components.annotation import (
@@ -138,7 +138,7 @@ class DatumaroDataset(object):
         return {value: key for key, value in self.label_categories._indices.items()}
 
     @property
-    def points_categories(self) -> PointsCategories | None:
+    def points_categories(self) -> Union[PointsCategories, None]:
         """
         Return the PointCategories in the dataset.
         """
@@ -152,7 +152,7 @@ class DatumaroDataset(object):
             return None
 
     @property
-    def points_names(self) -> List[str] | None:
+    def points_names(self) -> Union[List[str], None]:
         """
         Return a list of all point names in the dataset.
         """
@@ -161,7 +161,7 @@ class DatumaroDataset(object):
         return None
 
     @property
-    def points_mapping(self) -> Dict[int, str] | None:
+    def points_mapping(self) -> Union[Dict[int, str], None]:
         """
         Return the mapping of point index to label name.
         """
