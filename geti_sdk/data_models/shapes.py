@@ -747,7 +747,7 @@ class Keypoint(Shape):
 
     def to_normalized_coordinates(
         self, image_width: int, image_height: int
-    ) -> Dict[str, float]:
+    ) -> Dict[str, float | bool | str]:
         """
         Get the normalized coordinates of the keypoint, with respect to the image
         with dimensions `image_width` x `image_height`.
@@ -779,19 +779,8 @@ class Keypoint(Shape):
         return Keypoint(x=roi_x, y=roi_y, is_visible=self.is_visible)
 
     @property
-    def area(self) -> float:
-        """
-        Return the area of the Keypoint, in pixels.
-
-        :return: area of the keypoint
-        """
+    def area(self) -> float:  # noqa: D102
         raise NotImplementedError
 
-    def to_roi(self) -> "Rectangle":
-        """
-        Return the bounding box containing the Keypoint, as an instance of the Rectangle
-        class.
-
-        :return: Rectangle representing the bounding box for the keypoint
-        """
+    def to_roi(self) -> "Rectangle":  # noqa: D102
         raise NotImplementedError

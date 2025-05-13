@@ -138,39 +138,42 @@ class DatumaroDataset(object):
         return {value: key for key, value in self.label_categories._indices.items()}
 
     @property
-    def points_categories(self) -> PointsCategories:
+    def points_categories(self) -> PointsCategories | None:
         """
         Return the PointCategories in the dataset.
         """
         try:
             return self._filtered_categories[1]
         except IndexError:
-            raise ValueError(
+            logging.info(
                 "No points categories found in the dataset. Please check the dataset "
                 "format and ensure that it contains points annotations."
             )
+            return None
 
     @property
-    def points_names(self) -> List[str]:
+    def points_names(self) -> List[str] | None:
         """
         Return a list of all point names in the dataset.
         """
-        return self.points_categories.items[0].labels
+        if self.points_categories:
+            return self.points_categories.items[0].labels
+        return None
 
     @property
-    def points_mapping(self) -> Dict[int, str]:
+    def points_mapping(self) -> Dict[int, str] | None:
         """
         Return the mapping of point index to label name.
         """
-        try:
+        if self.points_categories:
             return {
                 idx: name
                 for idx, name in enumerate(self.points_categories.items[0].labels)
             }
-        except AttributeError:
-            logging.info(
-                "No points categories found in the dataset. Please check the dataset "
-            )
+        logging.info(
+            "No points categories found in the dataset. Please check the dataset "
+        )
+        return None
 
     @property
     def joints_mapping(self) -> set[tuple[int, int]]:

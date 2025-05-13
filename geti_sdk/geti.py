@@ -650,14 +650,14 @@ class Geti:
             elif project_type == "anomaly_classification" or project_type == "anomaly":
                 labels = ["Normal", "Anomalous"]
 
+        if keypoint_structure and not project_type == "keypoint_detection":
+            raise ValueError(
+                "The Keypoint structure is only supported for keypoint detection projects."
+            )
         if not keypoint_structure and project_type == "keypoint_detection":
-            joints = annotation_reader.get_keypoint_joints()
-            edges = [{"nodes": [labels[a - 1], labels[b - 1]]} for a, b in joints]
-            positions = [
-                {"label": label, "x": np.random.random(), "y": np.random.random()}
-                for label in labels  # random for now as dataset i/e is not available
-            ]
-            keypoint_structure = {"edges": edges, "positions": positions}
+            raise ValueError(
+                "Please provide a keypoint structure for the keypoint detection project."
+            )
 
         # Create project
         project = self.project_client.create_project(

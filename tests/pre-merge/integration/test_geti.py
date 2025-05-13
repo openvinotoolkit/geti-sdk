@@ -17,6 +17,7 @@ import time
 from typing import List
 
 import cv2
+import numpy as np
 import pytest
 from _pytest.fixtures import FixtureRequest
 from vcr import VCR
@@ -241,6 +242,18 @@ class TestGeti:
         annotation_reader.filter_dataset(
             labels=default_labels, criterion=dataset_filter_criterion
         )
+        keypoint_structure = None
+        if project_type == "keypoint_detection":
+            joints = annotation_reader.get_keypoint_joints()
+            edges = [
+                {"nodes": [default_labels[a - 1], default_labels[b - 1]]}
+                for a, b in joints
+            ]
+            positions = [
+                {"label": label, "x": np.random.random(), "y": np.random.random()}
+                for label in default_labels
+            ]
+            keypoint_structure = {"edges": edges, "positions": positions}
         project = fxt_geti.create_single_task_project_from_dataset(
             project_name=project_name,
             project_type=project_type,
@@ -248,6 +261,7 @@ class TestGeti:
             annotation_reader=annotation_reader,
             enable_auto_train=False,
             max_threads=1,
+            keypoint_structure=keypoint_structure,
         )
 
         request.addfinalizer(lambda: fxt_project_finalizer(project))

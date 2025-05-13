@@ -202,7 +202,7 @@ class DatumAnnotationReader(AnnotationReader):
                 # annotation for this dataset item.
                 continue
 
-            if len(self.dataset._filtered_categories) == 2:
+            if self.dataset.points_categories:
                 # keypoint detection annotations are n:1 relation for Datumaro:Geti
                 if isinstance(annotation, Points):
                     keypoint_names = self.dataset.points_names

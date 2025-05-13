@@ -727,16 +727,18 @@ class KeypointDetectionToPredictionConverter(InferenceResultsToPredictionConvert
         :return: Prediction object containing the keypoints obtained from the prediction
         """
         annotations = []
-        idx = 0
-        for keypoint, score in zip(
-            inference_results.keypoints, inference_results.scores
+        for label_idx, keypoint_score in enumerate(
+            zip(inference_results.keypoints, inference_results.scores)
         ):
-            shape = Keypoint(x=keypoint[0], y=keypoint[1], is_visible=True)
-            label = self.get_label_by_idx(label_idx=idx)
-            scored_label = ScoredLabel.from_label(label=label, probability=score)
+            shape = Keypoint(
+                x=keypoint_score[0][0], y=keypoint_score[0][1], is_visible=True
+            )
+            label = self.get_label_by_idx(label_idx=label_idx)
+            scored_label = ScoredLabel.from_label(
+                label=label, probability=keypoint_score[1]
+            )
             annotation = Annotation(shape=shape, labels=[scored_label])
             annotations.append(annotation)
-            idx += 1
         return Prediction(annotations)
 
     def convert_saliency_map(
@@ -787,7 +789,7 @@ class ConverterFactory:
         if domain == Domain.INSTANCE_SEGMENTATION:
             return MaskToAnnotationConverter(labels, configuration)
         if domain == Domain.KEYPOINT_DETECTION:
-            return DetectionToPredictionConverter(labels, configuration)
+            return KeypointDetectionToPredictionConverter(labels, configuration)
         if domain in (
             Domain.ANOMALY_CLASSIFICATION,
             Domain.ANOMALY_SEGMENTATION,
