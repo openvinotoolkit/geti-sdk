@@ -747,7 +747,7 @@ class Keypoint(Shape):
 
     def to_normalized_coordinates(
         self, image_width: int, image_height: int
-    ) -> Dict[str, float | bool | str]:
+    ) -> Dict[str, Union[float, bool, str]]:
         """
         Get the normalized coordinates of the keypoint, with respect to the image
         with dimensions `image_width` x `image_height`.
