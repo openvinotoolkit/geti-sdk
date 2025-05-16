@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from typing import Any, Dict, Optional, Type, TypeVar, cast
+from typing import Any, Dict, Optional, Type, TypeVar, cast, get_args
 
 from attr import fields, has
 from omegaconf import OmegaConf
@@ -41,10 +41,14 @@ def deserialize_dictionary(
             key = attribute.name
             if key in data:
                 value = data[key]
-                # Check if the field is itself a structured class
-                if has(attribute.type) and isinstance(value, dict):
-                    # Recursively prune the nested dictionary
+                if isinstance(value, dict) and has(attribute.type):
                     pruned_data[key] = prune_dict(value, attribute.type)
+                elif isinstance(value, list) and value and isinstance(value[0], dict):
+                    try:
+                        item_cls = get_args(attribute.type)[0]
+                        pruned_data[key] = [prune_dict(x, item_cls) for x in value]
+                    except Exception:
+                        pruned_data[key] = value
                 else:
                     pruned_data[key] = value
         return pruned_data
