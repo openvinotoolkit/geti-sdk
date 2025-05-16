@@ -116,6 +116,8 @@ class DatasetMetadata:
 
     name: Optional[str] = None
     id: Optional[str] = None
+    use_for_training: Optional[bool] = None
+    creation_time: Optional[str] = attr.field(converter=str_to_datetime, default=None)
 
 
 @attr.define

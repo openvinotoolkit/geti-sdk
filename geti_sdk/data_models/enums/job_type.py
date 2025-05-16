@@ -31,6 +31,8 @@ class JobType(Enum):
     TEST = "test"
     PREPARE_IMPORT_TO_NEW_PROJECT = "prepare_import_to_new_project"
     PERFORM_IMPORT_TO_NEW_PROJECT = "perform_import_to_new_project"
+    PREPARE_IMPORT_TO_EXISTING_PROJECT = "prepare_import_to_existing_project"
+    PERFORM_IMPORT_TO_EXISTING_PROJECT = "perform_import_to_existing_project"
     EXPORT_PROJECT = "export_project"
     IMPORT_PROJECT = "import_project"
     EXPORT_DATASET = "export_dataset"
