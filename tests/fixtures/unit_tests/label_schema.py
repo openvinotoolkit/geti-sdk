@@ -27,6 +27,7 @@ def fxt_label_list_factory(
     fxt_empty_segmentation_label,
     fxt_rotated_detection_labels,
     fxt_empty_rotated_detection_label,
+    fxt_keypoint_labels,
     fxt_anomaly_labels_factory,
 ):
     domain_to_label_properties = {
@@ -53,6 +54,9 @@ def fxt_label_list_factory(
         },
         Domain.ANOMALY_DETECTION: {
             "labels": fxt_anomaly_labels_factory(Domain.ANOMALY_DETECTION),
+        },
+        Domain.KEYPOINT_DETECTION: {
+            "labels": fxt_keypoint_labels,
         },
     }
 

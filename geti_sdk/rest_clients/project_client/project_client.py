@@ -39,6 +39,7 @@ from .task_templates import (
     CROP_TASK,
     DETECTION_TASK,
     INSTANCE_SEGMENTATION_TASK,
+    KEYPOINT_DETECTION_TASK,
     ROTATED_DETECTION_TASK,
     SEGMENTATION_TASK,
 )
@@ -54,6 +55,7 @@ TASK_TYPE_MAPPING = {
     TaskType.ANOMALY: ANOMALY_TASK,
     TaskType.INSTANCE_SEGMENTATION: INSTANCE_SEGMENTATION_TASK,
     TaskType.ROTATED_DETECTION: ROTATED_DETECTION_TASK,
+    TaskType.KEYPOINT_DETECTION: KEYPOINT_DETECTION_TASK,
 }
 
 
@@ -188,6 +190,7 @@ class ProjectClient:
         project_name: str,
         project_type: str,
         labels: List[Union[List[str], List[Dict[str, Any]]]],
+        keypoint_structure: Optional[Dict[str, list]] = None,
     ) -> Project:
         """
         Create a new project with name `project_name` on the cluster, containing
@@ -199,12 +202,17 @@ class ProjectClient:
         :param project_name: Name of the project
         :param project_type: Type of the project
         :param labels: Nested list of labels
+        :param keypoint_structure: The structure of the keypoints to be used for the project,
+            represented as a graph of nodes and edges.
         :raises ValueError: If a project with name `project_name` already exists in
             the workspace
         :return: Project object, as created on the cluster
         """
         project_template = self._create_project_template(
-            project_name=project_name, project_type=project_type, labels=labels
+            project_name=project_name,
+            project_type=project_type,
+            labels=labels,
+            keypoint_structure=keypoint_structure,
         )
         project_dict = self.session.get_rest_response(
             url=f"{self.base_url}projects", method="POST", data=project_template
@@ -245,6 +253,7 @@ class ProjectClient:
         project_template: dict,
         task_type: TaskType,
         labels: Union[List[str], List[Dict[str, Any]]],
+        keypoint_structure: Optional[Dict[str, list]] = None,
     ) -> Tuple[dict, dict]:
         """
         Add a task to the pipeline in a project template in dictionary form.
@@ -252,6 +261,8 @@ class ProjectClient:
         :param project_template: Dictionary representing the project creation data
         :param task_type: Type of the task to be added
         :param labels: Labels to be used for the task
+        :param keypoint_structure: The structure of the keypoints to be used for the project,
+            represented as a graph of nodes and edges.
         :return:
         """
         new_template = copy.deepcopy(project_template)
@@ -269,7 +280,12 @@ class ProjectClient:
             task_template["title"], task_titles_in_template
         )
         task_template["title"] = unique_task_title
-
+        if task_type == task_type.KEYPOINT_DETECTION:
+            if not keypoint_structure:
+                raise ValueError(
+                    "A keypoint detection project must have a keypoint structure."
+                )
+            task_template["keypoint_structure"] = keypoint_structure
         if not task_type.is_anomaly:
             label_group_name = f"{unique_task_title.lower()} label group"
 
@@ -407,6 +423,7 @@ class ProjectClient:
         project_name: str,
         project_type: str,
         labels: List[Union[List[str], List[Dict[str, Any]]]],
+        keypoint_structure: Optional[Dict[str, list]] = None,
     ) -> Dict[str, Any]:
         """
         Create a template dictionary with data for project creation that is ready to
@@ -415,6 +432,8 @@ class ProjectClient:
         :param project_name: Name of the project
         :param project_type: Type of the project
         :param labels: Nested list of labels
+        :param keypoint_structure: The structure of the keypoints to be used for the project,
+            represented as a graph of nodes and edges.
         :return: Dictionary containing the data to create a project named
             `project_name`, of type `project_type` and with labels `labels`
         """
@@ -451,7 +470,10 @@ class ProjectClient:
                 )
                 previous_task_name = unique_task_name
             project_template, added_task = self._add_task(
-                project_template, task_type=task_type, labels=task_labels
+                project_template,
+                task_type=task_type,
+                labels=task_labels,
+                keypoint_structure=keypoint_structure,
             )
             task_name = added_task["title"]
 

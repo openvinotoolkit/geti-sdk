@@ -25,6 +25,7 @@ from model_api.models import ImageModel, SegmentationModel
 from model_api.models.utils import (
     AnomalyResult,
     ClassificationResult,
+    DetectedKeypoints,
     Detection,
     DetectionResult,
     ImageResultWithSoftPrediction,
@@ -38,6 +39,7 @@ from geti_sdk.data_models.label import Label, ScoredLabel
 from geti_sdk.data_models.predictions import Prediction
 from geti_sdk.data_models.shapes import (
     Ellipse,
+    Keypoint,
     Point,
     Polygon,
     Rectangle,
@@ -700,6 +702,60 @@ class AnomalyToPredictionConverter(InferenceResultsToPredictionConverter):
         return {self.anomalous_label.name: saliency_map}
 
 
+class KeypointDetectionToPredictionConverter(InferenceResultsToPredictionConverter):
+    """
+    Converts ModelAPI Keypoint Detection objects to Prediction object.
+
+    :param labels: LabelList containing the label info of the task
+    :param configuration: optional model configuration setting
+    """
+
+    def __init__(self, labels: LabelList, configuration: Dict[str, Any]):
+        super().__init__(labels, configuration)
+
+    def convert_to_prediction(
+        self, inference_results: DetectedKeypoints, **kwargs
+    ) -> Prediction:
+        """
+        Convert ModelAPI KeypointDetectionResult inference results to Prediction object.
+
+        :param inference_results: keypoints represented in ModelAPI format (keypoints, scores).
+
+        _Note:
+            - `keypoints` a list of keypoint pairs expected to be in pixel e.g. [[x1, y1], [x2, y2], ...]
+            - `scores` should be a value between 0 and 1
+        :return: Prediction object containing the keypoints obtained from the prediction
+        """
+        annotations = []
+        for label_idx, keypoint_score in enumerate(
+            zip(inference_results.keypoints, inference_results.scores)
+        ):
+            shape = Keypoint(
+                x=keypoint_score[0][0], y=keypoint_score[0][1], is_visible=True
+            )
+            label = self.get_label_by_idx(label_idx=label_idx)
+            scored_label = ScoredLabel.from_label(
+                label=label, probability=keypoint_score[1]
+            )
+            annotation = Annotation(shape=shape, labels=[scored_label])
+            annotations.append(annotation)
+        return Prediction(annotations)
+
+    def convert_saliency_map(
+        self,
+        inference_results: NamedTuple,
+        image_shape: Tuple[int, int, int],
+    ) -> Optional[Dict[str, np.ndarray]]:
+        """
+        Extract a saliency map from inference results and return in a unified format.
+
+        :param inference_results: keypoints represented in ModelAPI format (keypoints, scores).
+        :param image_shape: shape of the input image
+        :return: Prediction object with corresponding label
+        """
+        raise NotImplementedError
+
+
 class ConverterFactory:
     """
     Factory class for creating inference result to prediction converters based on the model's task.
@@ -732,6 +788,8 @@ class ConverterFactory:
             return RotatedRectToPredictionConverter(labels, configuration)
         if domain == Domain.INSTANCE_SEGMENTATION:
             return MaskToAnnotationConverter(labels, configuration)
+        if domain == Domain.KEYPOINT_DETECTION:
+            return KeypointDetectionToPredictionConverter(labels, configuration)
         if domain in (
             Domain.ANOMALY_CLASSIFICATION,
             Domain.ANOMALY_SEGMENTATION,
