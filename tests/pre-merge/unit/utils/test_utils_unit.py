@@ -44,6 +44,9 @@ class TestUtils:
         dictionary_with_nested_extra_key["pipeline"].update(
             {"invalid_key": "invalidness"}
         )
+        dictionary_with_nested_extra_key["pipeline"]["tasks"][0].update(
+            {"another_invalid_key": "invalidness"}
+        )
 
         dictionary_with_missing_key = copy.deepcopy(fxt_project_dictionary)
         dictionary_with_missing_key.pop("pipeline")
