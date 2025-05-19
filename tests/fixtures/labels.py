@@ -40,5 +40,28 @@ def fxt_default_labels() -> List[str]:
 
 
 @pytest.fixture()
+def fxt_default_keypoint_labels() -> List[str]:
+    yield [
+        "left_shoulder",
+        "left_wrist",
+        "left_ankle",
+        "left_ear",
+        "left_elbow",
+        "left_knee",
+        "left_hip",
+        "left_eye",
+        "right_shoulder",
+        "right_wrist",
+        "right_ankle",
+        "right_ear",
+        "right_elbow",
+        "right_knee",
+        "right_hip",
+        "right_eye",
+        "nose",
+    ]
+
+
+@pytest.fixture()
 def fxt_light_bulbs_labels() -> List[str]:
     yield ["On", "Off"]

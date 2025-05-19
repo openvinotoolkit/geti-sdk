@@ -29,6 +29,7 @@ class TaskType(Enum):
     ANOMALY = "anomaly"
     INSTANCE_SEGMENTATION = "instance_segmentation"
     ROTATED_DETECTION = "rotated_detection"
+    KEYPOINT_DETECTION = "keypoint_detection"
     DATASET = "dataset"
     CROP = "crop"
 
@@ -94,6 +95,15 @@ class TaskType(Enum):
         """
         return self in DETECTION_TASK_TYPES
 
+    @property
+    def is_keypoint_detection(self) -> bool:
+        """
+        Return True if a task of this TaskType is a keypoint detection task, False otherwise.
+
+        :return:
+        """
+        return self in KEYPOINT_DETECTION_TASK_TYPES
+
     @classmethod
     def from_domain(cls, domain):
         """
@@ -131,4 +141,8 @@ DETECTION_TASK_TYPES = [
     TaskType.DETECTION,
     TaskType.ROTATED_DETECTION,
     TaskType.ANOMALY_DETECTION,
+]
+
+KEYPOINT_DETECTION_TASK_TYPES = [
+    TaskType.KEYPOINT_DETECTION,
 ]

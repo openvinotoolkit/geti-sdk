@@ -17,6 +17,7 @@ import pytest
 
 from geti_sdk.data_models.shapes import (
     Ellipse,
+    Keypoint,
     Point,
     Polygon,
     Rectangle,
@@ -133,3 +134,24 @@ class TestShapes:
 
         with pytest.raises(ValueError):
             RotatedRectangle.from_polygon(polygon=fxt_triangle)
+
+    def test_keypoint(self, fxt_keypoint: Keypoint, fxt_rectangle_roi: Rectangle):
+        # Arrange
+        expected_x = fxt_rectangle_roi.x + fxt_keypoint.x
+        expected_y = fxt_rectangle_roi.y + fxt_keypoint.y
+        expected_is_visible = True
+
+        # Act
+        keypoint_in_roi = fxt_keypoint.to_absolute_coordinates(
+            parent_roi=fxt_rectangle_roi
+        )
+
+        # Assert
+        assert keypoint_in_roi.x == expected_x
+        assert keypoint_in_roi.y == expected_y
+        assert keypoint_in_roi.is_visible == expected_is_visible
+
+        with pytest.raises(NotImplementedError):
+            fxt_keypoint.to_roi()
+        with pytest.raises(NotImplementedError):
+            _ = fxt_keypoint.area

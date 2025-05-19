@@ -17,12 +17,13 @@ import time
 from typing import List
 
 import cv2
+import numpy as np
 import pytest
 from _pytest.fixtures import FixtureRequest
 from vcr import VCR
 
 from geti_sdk import Geti
-from geti_sdk.annotation_readers import AnnotationReader, DatumAnnotationReader
+from geti_sdk.annotation_readers import AnnotationReader
 from geti_sdk.data_models import Job, Prediction, Project
 from geti_sdk.deployment import Deployment
 from geti_sdk.http_session import GetiRequestException
@@ -163,13 +164,50 @@ class TestGeti:
 
     @pytest.mark.vcr()
     @pytest.mark.parametrize(
-        "project_type, dataset_filter_criterion",
+        "project_type, dataset_filter_criterion, annotation_reader, default_labels, image_folder",
         [
-            ("classification", "XOR"),
-            ("detection", "OR"),
-            ("segmentation", "OR"),
-            ("instance_segmentation", "OR"),
-            ("rotated_detection", "OR"),
+            (
+                "classification",
+                "XOR",
+                "fxt_annotation_reader",
+                "fxt_default_labels",
+                "fxt_image_folder",
+            ),
+            (
+                "detection",
+                "OR",
+                "fxt_annotation_reader",
+                "fxt_default_labels",
+                "fxt_image_folder",
+            ),
+            (
+                "segmentation",
+                "OR",
+                "fxt_annotation_reader",
+                "fxt_default_labels",
+                "fxt_image_folder",
+            ),
+            (
+                "instance_segmentation",
+                "OR",
+                "fxt_annotation_reader",
+                "fxt_default_labels",
+                "fxt_image_folder",
+            ),
+            (
+                "rotated_detection",
+                "OR",
+                "fxt_annotation_reader",
+                "fxt_default_labels",
+                "fxt_image_folder",
+            ),
+            (
+                "keypoint_detection",
+                "OR",
+                "fxt_annotation_reader_keypoint",
+                "fxt_default_keypoint_labels",
+                "fxt_human_pose_image_folder",
+            ),
         ],
         ids=[
             "Classification project",
@@ -177,16 +215,17 @@ class TestGeti:
             "Segmentation project",
             "Instance segmentation project",
             "Rotated detection project",
+            "Keypoint detection project",
         ],
     )
     def test_create_single_task_project_from_dataset(
         self,
         project_type,
         dataset_filter_criterion,
-        fxt_annotation_reader: DatumAnnotationReader,
+        annotation_reader: str,
         fxt_geti: Geti,
-        fxt_default_labels: List[str],
-        fxt_image_folder: str,
+        default_labels: str,
+        image_folder: str,
         fxt_project_finalizer,
         request: FixtureRequest,
     ):
@@ -196,17 +235,33 @@ class TestGeti:
         Tests project creation for classification, detection and segmentation type
         projects
         """
+        annotation_reader = request.getfixturevalue(annotation_reader)
+        default_labels = request.getfixturevalue(default_labels)
+        image_folder = request.getfixturevalue(image_folder)
         project_name = f"{PROJECT_PREFIX}_{project_type}_project_from_dataset"
-        fxt_annotation_reader.filter_dataset(
-            labels=fxt_default_labels, criterion=dataset_filter_criterion
+        annotation_reader.filter_dataset(
+            labels=default_labels, criterion=dataset_filter_criterion
         )
+        keypoint_structure = None
+        if project_type == "keypoint_detection":
+            joints = annotation_reader.get_keypoint_joints()
+            edges = [
+                {"nodes": [default_labels[a - 1], default_labels[b - 1]]}
+                for a, b in joints
+            ]
+            positions = [
+                {"label": label, "x": np.random.random(), "y": np.random.random()}
+                for label in default_labels
+            ]
+            keypoint_structure = {"edges": edges, "positions": positions}
         project = fxt_geti.create_single_task_project_from_dataset(
             project_name=project_name,
             project_type=project_type,
-            path_to_images=fxt_image_folder,
-            annotation_reader=fxt_annotation_reader,
+            path_to_images=image_folder,
+            annotation_reader=annotation_reader,
             enable_auto_train=False,
             max_threads=1,
+            keypoint_structure=keypoint_structure,
         )
 
         request.addfinalizer(lambda: fxt_project_finalizer(project))

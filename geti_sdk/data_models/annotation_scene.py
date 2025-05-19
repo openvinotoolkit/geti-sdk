@@ -28,6 +28,7 @@ from geti_sdk.data_models.media import MediaInformation
 from geti_sdk.data_models.media_identifiers import ImageIdentifier, VideoFrameIdentifier
 from geti_sdk.data_models.shapes import (
     Ellipse,
+    Keypoint,
     Polygon,
     Rectangle,
     RotatedRectangle,
@@ -47,7 +48,7 @@ from geti_sdk.data_models.utils import (
 @attr.define
 class AnnotationScene:
     """
-    Representation of an annotation scen for a certain media entity in GETi. An
+    Representation of an annotation scene for a certain media entity in GETi. An
     annotation scene holds all annotations for that specific media entity.
 
     :var annotations: List of
@@ -258,6 +259,22 @@ class AnnotationScene:
                             label.name, font, font_scale, line_thickness
                         )[0]
                         origin[0] += text_width + 2
+        elif isinstance(shape, Keypoint):
+            x, y = int(shape.x), int(shape.y)
+            cv2.circle(
+                mask,
+                center=(x, y),
+                radius=5,
+                color=color,
+                thickness=line_thickness,
+            )
+            cv2.circle(
+                mask,
+                center=(x, y),
+                radius=5,
+                color=(1, 1, 1),
+                thickness=1,
+            )
         elif isinstance(shape, RotatedRectangle):
             shape = shape.to_polygon()
         if isinstance(shape, Polygon):

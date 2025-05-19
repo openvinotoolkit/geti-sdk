@@ -723,3 +723,64 @@ class RotatedRectangle(Shape):
         :return: area enclosed by the rotated rectangle in pixels
         """
         return self.width * self.height
+
+
+@attr.define(slots=False)
+class Keypoint(Shape):
+    """
+    Representation of a Keypoint on the Intel® Geti™ platform, as used in the
+    /annotations REST endpoints.
+
+    NOTE: All coordinates and dimensions are given in pixels
+
+    :var x: X coordinate of the keypoint
+    :var y: Y coordinate of the keypoint
+    :var is_visible: if the feature the keypoint represents is visible in the image
+    """
+
+    x: int = attr.field(converter=coordinate_converter)
+    y: int = attr.field(converter=coordinate_converter)
+    is_visible: bool = True
+    type: str = attr.field(
+        converter=str_to_shape_type, default=ShapeType.KEYPOINT, kw_only=True
+    )
+
+    def to_normalized_coordinates(
+        self, image_width: int, image_height: int
+    ) -> Dict[str, Union[float, bool, str]]:
+        """
+        Get the normalized coordinates of the keypoint, with respect to the image
+        with dimensions `image_width` x `image_height`.
+
+        :param image_width: Width of the image to which the coordinates should be
+            normalized
+        :param image_height: Height of the image to which the coordinates should be
+            normalized
+        :return: Dictionary containing the keypoint, represented in normalized
+            coordinates
+        """
+        return dict(
+            x=self.x / image_width,
+            y=self.y / image_height,
+            is_visible=self.is_visible,
+            type=str(self.type),
+        )
+
+    def to_absolute_coordinates(self, parent_roi: "Rectangle") -> "Keypoint":
+        """
+        Convert the Keypoint to absolute coordinates, given the rectangle
+        representing its parent region of interest.
+
+        :param parent_roi: Region of interest containing the rectangle
+        :return: Keypoint converted to the coordinate system of it's parent
+        """
+        roi_x = parent_roi.x + self.x
+        roi_y = parent_roi.y + self.y
+        return Keypoint(x=roi_x, y=roi_y, is_visible=self.is_visible)
+
+    @property
+    def area(self) -> float:  # noqa: D102
+        raise NotImplementedError
+
+    def to_roi(self) -> "Rectangle":  # noqa: D102
+        raise NotImplementedError

@@ -17,7 +17,13 @@ from typing import ClassVar, List, Optional, Sequence, Union
 import attr
 
 from geti_sdk.data_models.label import Label, ScoredLabel
-from geti_sdk.data_models.shapes import Ellipse, Polygon, Rectangle, RotatedRectangle
+from geti_sdk.data_models.shapes import (
+    Ellipse,
+    Keypoint,
+    Polygon,
+    Rectangle,
+    RotatedRectangle,
+)
 from geti_sdk.data_models.utils import deidentify, str_to_datetime
 
 
@@ -37,7 +43,7 @@ class Annotation:
     _identifier_fields: ClassVar[str] = ["id", "modified"]
 
     labels: List[ScoredLabel]
-    shape: Union[Rectangle, Ellipse, Polygon, RotatedRectangle]
+    shape: Union[Rectangle, Ellipse, Polygon, RotatedRectangle, Keypoint]
     modified: Optional[str] = attr.field(converter=str_to_datetime, default=None)
     id: Optional[str] = None
     labels_to_revisit: Optional[List[str]] = None

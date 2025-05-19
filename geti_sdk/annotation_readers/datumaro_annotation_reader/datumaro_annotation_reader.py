@@ -19,7 +19,7 @@ from typing import Dict, List, Optional, Sequence, Union
 import cv2
 import numpy as np
 from datumaro import Image
-from datumaro.components.annotation import Bbox, Polygon
+from datumaro.components.annotation import Bbox, Points, Polygon
 
 from geti_sdk.annotation_readers.base_annotation_reader import AnnotationReader
 from geti_sdk.data_models import Annotation as SCAnnotation
@@ -47,6 +47,7 @@ class DatumAnnotationReader(AnnotationReader):
         TaskType.ANOMALY_DETECTION,
         TaskType.ANOMALY_SEGMENTATION,
         TaskType.ANOMALY,
+        TaskType.KEYPOINT_DETECTION,
     ]
 
     def __init__(
@@ -121,6 +122,12 @@ class DatumAnnotationReader(AnnotationReader):
         """
         return list(set(self.datum_label_map.values()))
 
+    def get_keypoint_joints(self) -> set[tuple[int, int]]:
+        """
+        Return a list of tuples representing the joints between keypoints
+        """
+        return self.dataset.joints_mapping
+
     @property
     def datum_label_map(self) -> Dict[int, str]:
         """
@@ -193,6 +200,31 @@ class DatumAnnotationReader(AnnotationReader):
             except KeyError:
                 # Label is not in the Intel® Geti™ project labels, move on to next
                 # annotation for this dataset item.
+                continue
+
+            if self.dataset.points_categories:
+                # keypoint detection annotations are n:1 relation for Datumaro:Geti
+                if isinstance(annotation, Points):
+                    keypoint_names = self.dataset.points_names
+                    for i in range(0, len(annotation.points), 2):
+                        label_name = keypoint_names[i // 2]
+                        label_id = label_name_to_id_mapping.get(label_name)
+                        label = {"id": label_id, "probability": 1.0}
+                        shape = {
+                            "type": "KEYPOINT",
+                            "x": float(annotation.points[i]),
+                            "y": float(annotation.points[i + 1]),
+                            "is_visible": (
+                                True
+                                if annotation.visibility[i // 2]
+                                == Points.Visibility.visible
+                                else False
+                            ),
+                        }
+                        sc_annotation = AnnotationRESTConverter.annotation_from_dict(
+                            {"labels": [label], "shape": shape}
+                        )
+                        annotation_list.append(sc_annotation)
                 continue
 
             label_id = label_name_to_id_mapping.get(label_name)

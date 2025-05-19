@@ -38,6 +38,7 @@ from geti_sdk.data_models.label import Label, ScoredLabel
 from geti_sdk.data_models.predictions import Prediction
 from geti_sdk.data_models.shapes import (
     Ellipse,
+    Keypoint,
     Point,
     Polygon,
     Rectangle,
@@ -344,6 +345,7 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
             self.RectangleDrawer(self.show_labels, self.show_confidence),
             self.PolygonDrawer(self.show_labels, self.show_confidence),
             self.EllipseDrawer(self.show_labels, self.show_confidence),
+            self.KeypointDrawer(self.show_labels, self.show_confidence),
         ]
 
         # Always show global labels, especially if shape labels are disabled (because of is_one_label).
@@ -737,4 +739,71 @@ class ShapeDrawer(DrawerEntity[AnnotationScene]):
                 image, flagpole_start_point, flagpole_end_point, labels[0].color_tuple
             )
 
+            return image
+
+    class KeypointDrawer(Helpers, DrawerEntity[Polygon]):
+        """
+        Class to draw keypoints on an image.
+        """
+
+        def __init__(self, show_labels, show_confidence):
+            super().__init__()
+            self.show_labels = show_labels
+            self.show_confidence = show_confidence
+
+        def draw(
+            self,
+            image: np.ndarray,
+            entity: Keypoint,
+            labels: List[ScoredLabel],
+            fill_shapes: bool = True,
+        ) -> np.ndarray:
+            """
+            Draw the keypoint on the image.
+
+            :param image: Image on which to draw the keypoint
+            :param entity: Keypoint to draw.
+            :param labels: List of labels.
+            :param fill_shapes: Whether to fill the shapes with color.
+            :return: Image with the keypoint drawn on it
+            """
+            radius = 5
+
+            circle = cv2.circle(
+                image,
+                center=(int(entity.x), int(entity.y)),
+                radius=radius,
+                color=(0, 255, 0),
+                thickness=(
+                    -1 if entity.is_visible else 1
+                ),  # Fill the circle for visible, draw a circle for invisible
+            )
+
+            # Generate a command to draw the list of labels
+            # and compute the actual size of the list of labels.
+            (
+                draw_command,
+                content_width,
+                content_height,
+            ) = self.generate_draw_command_for_labels(
+                labels, image, self.show_labels, self.show_confidence
+            )
+
+            # Get top edge of keypoint
+            offset = self.label_offset_box_shape
+            x_coord = entity.x
+            y_coord = entity.y * image.shape[0] - radius - offset
+
+            # Put label at bottom if it is out of bounds at the top of the shape, and shift label to left if needed
+            if y_coord < self.top_margin * image.shape[0]:
+                y_coord = entity.y * image.shape[0] + radius + offset
+
+            if x_coord + content_width > circle.shape[1]:
+                # The list of labels is too close to the right side of the image.
+                # Move it slightly to the left.
+                x_coord = circle.shape[1] - content_width
+
+            # Draw the list of labels.
+            self.set_cursor_pos(Point(x_coord, y_coord))
+            image = draw_command(circle)
             return image
