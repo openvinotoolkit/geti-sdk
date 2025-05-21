@@ -40,7 +40,11 @@ class GetiVersion:
         base_version = Version(
             f"{sem_version.major}.{sem_version.minor}.{sem_version.patch}"
         )
-        build_tag = sem_version.prerelease.replace(f"-{time_tag}", "") if sem_version.prerelease else ""
+        build_tag = (
+            sem_version.prerelease.replace(f"-{time_tag}", "")
+            if sem_version.prerelease
+            else ""
+        )
 
         self.version = base_version
         self.build_tag = build_tag
