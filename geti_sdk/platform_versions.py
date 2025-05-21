@@ -36,7 +36,7 @@ class GetiVersion:
 
         sem_version = SemVersion.parse(version_string)
 
-        time_tag = version_parts[-1]
+        time_tag = version_parts[-1] if len(version_parts) >= 3 else ""
         base_version = Version(
             f"{sem_version.major}.{sem_version.minor}.{sem_version.patch}"
         )
