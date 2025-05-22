@@ -12,11 +12,24 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from geti_sdk.platform_versions import GETI_10_VERSION, GETI_11_VERSION
+from packaging.version import Version
+
+from geti_sdk.platform_versions import GETI_10_VERSION, GETI_11_VERSION, GetiVersion
 
 
 class TestGetiVersion:
-    def test_version_parsing_and_comparison(self):
+    def test_init(self) -> None:
+        """Test the initialization of GetiVersion"""
+        v1 = GetiVersion("1.0.0-release-20220129184214")
+        v2 = GetiVersion("2.3.4")
+        assert v1.version == Version("1.0.0")
+        assert v2.version == Version("2.3.4")
+        assert v1.build_tag == "release"
+        assert not v2.build_tag
+        assert v1.time_tag == "20220129184214"
+        assert not v2.time_tag
+
+    def test_comparison(self) -> None:
         """
         Test parsing the version from a version string, for different release versions
         of the Intel Geti platform. Also test comparisons between versions
