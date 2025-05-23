@@ -1,4 +1,4 @@
-# v2.10.0 Intel® Geti™ SDK (coming soon)
+# v2.10.0 Intel® Geti™ SDK
 ## What's Changed
 
 Features:
