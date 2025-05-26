@@ -18,6 +18,7 @@ import logging
 import os
 import time
 import warnings
+from itertools import chain
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from geti_sdk.data_models import Project, Task, TaskType
@@ -575,6 +576,68 @@ class ProjectClient:
             else:
                 raise error
         logging.info(f"Project '{project.name}' deleted successfully.")
+
+    def update_labels(
+        self,
+        project: Project,
+        colors_to_update: dict[str, str],
+        hotkeys_to_update: dict[str, str],
+    ) -> Project:
+        """
+        Update the color and/or hotkey of one or more labels in the project.
+
+        :param project: Project to update
+        :param colors_to_update: Dictionary mapping label names to new colors.
+            The keys should be the label names, and the values should be the new colors
+            in hex format (e.g., "#FF5733").
+        :param hotkeys_to_update: Dictionary mapping label names to new hotkeys.
+
+        :return: Updated Project instance with the new label colors applied
+        """
+        # Validate that the provided label names exist in the project
+        label_names = {
+            label.name
+            for task in project.get_trainable_tasks()
+            for label in task.labels
+        }
+        for label_name in chain(colors_to_update.keys(), hotkeys_to_update.keys()):
+            if label_name not in label_names:
+                raise ValueError(
+                    f"Label '{label_name}' does not exist in the project '{project.name}'. "
+                    "Please provide valid label names."
+                )
+
+        # Validate that the provided colors are valid hex colors
+        for label_name, color in colors_to_update.items():
+            if not isinstance(color, str) or not color.startswith("#"):
+                raise ValueError(
+                    f"Invalid color format for label '{label_name}': {color}. "
+                    "Colors should be in hex format (e.g., '#FF5733')."
+                )
+
+        # Iterate over the labels in the project and update their colors/hotkeys as needed
+        project.prepare_for_post()
+        project_data = project.to_dict()
+        for task in project.get_trainable_tasks():
+            task_id = task.id
+            task_data = next(
+                (t for t in project_data["pipeline"]["tasks"] if t["id"] == task_id),
+                None,
+            )
+            if task_data is None:
+                continue
+            for label in task_data["labels"]:
+                if label["name"] in colors_to_update:
+                    label["color"] = colors_to_update[label["name"]]
+                if label["name"] in hotkeys_to_update:
+                    label["hotkey"] = hotkeys_to_update[label["name"]]
+        remove_null_fields(project_data)
+
+        response = self.session.get_rest_response(
+            url=f"{self.base_url}projects/{project.id}", method="PUT", data=project_data
+        )
+        logging.info(f"Updated labels of project '{project.name}'.")
+        return ProjectRESTConverter.from_dict(response)
 
     def add_labels(
         self,
