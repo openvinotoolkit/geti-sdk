@@ -2,6 +2,7 @@
 ## What's Changed
 
 Features:
+* Add new method to update the label colors and hotkeys by @leoll2 in https://github.com/open-edge-platform/geti-sdk/pull/598
 * Added experimental support for keypoint detection by @A-Artemis in https://github.com/open-edge-platform/geti-sdk/pull/588
 
 Bugfixes:
