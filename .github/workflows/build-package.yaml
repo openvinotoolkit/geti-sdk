@@ -43,6 +43,12 @@ jobs:
       - name: Install build tools
         run: pip install build twine
 
+      # Workaround for missing ownership of "geti-sdk" in "test-pypi" repository
+      - name: Update package name for TestPyPI
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        run: |
+          sed -i 's/name="geti-sdk"/name="geti-sdk-test"/' setup.py
+
       - name: Build package
         run: python -m build
 
