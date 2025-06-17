@@ -226,7 +226,7 @@ class TestBenchmarker:
 
         # Assert
         fxt_benchmarker_task_chain.model_client.optimize_model.assert_called_once_with(
-            model=model, optimization_type="pot"
+            model=model
         )
         assert (
             optimized_model

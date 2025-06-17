@@ -569,8 +569,7 @@ class ModelClient:
         tasks = self.project.get_trainable_tasks()
         model_group: Optional[ModelGroup] = None
         error_msg = (
-            f"Unable to match model '{model}' to any task in project "
-            f"{self.project}. "
+            f"Unable to match model '{model}' to any task in project {self.project}. "
         )
         if model.model_group_id is None:
             raise ValueError(
@@ -605,8 +604,8 @@ class ModelClient:
         Start an optimization job for the specified `model`.
 
         :param model: Model to optimize
-        :param optimization_type: Type of optimization to run. Currently supported
-            values: ["pot", "nncf"]. Case insensitive. Defaults to "pot"
+        :param optimization_type: DEPRECATED. Type of optimization to run. Currently
+            supported values: ["pot"]. Case insensitive. Defaults to "pot"
         :return: Job object referring to the optimization job running on the
             Intel® Geti™ server.
         """
@@ -615,7 +614,7 @@ class ModelClient:
                 f"Model {model.name} is already optimized, please specify a base "
                 f"model for optimization instead."
             )
-        valid_optimization_types = ["pot", "nncf"]
+        valid_optimization_types = ["pot"]
         optimization_type = optimization_type.lower()
         if optimization_type not in valid_optimization_types:
             raise ValueError(
@@ -623,10 +622,7 @@ class ModelClient:
                 f"options are: {valid_optimization_types}"
             )
         optimize_model_url = model.base_url + ":optimize"
-        payload = {
-            "enable_nncf_optimization": optimization_type == "nncf",
-            "enable_pot_optimization": optimization_type == "pot",
-        }
+        payload = {}
         response = self.session.get_rest_response(
             url=optimize_model_url, method="POST", data=payload
         )

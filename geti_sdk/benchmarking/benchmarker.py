@@ -355,10 +355,7 @@ class Benchmarker:
         :param precision: Precision to use for the optimization
         :return: OptimizedModel object, representing the optimized model
         """
-        optimization_type_map = {"INT8": "pot"}
-        job = self.model_client.optimize_model(
-            model=model, optimization_type=optimization_type_map[precision]
-        )
+        job = self.model_client.optimize_model(model=model)
         self.model_client.monitor_job(job)
         updated_model = self.model_client.update_model_detail(model)
         return updated_model.get_optimized_model(
@@ -517,8 +514,7 @@ class Benchmarker:
         logging.info(f"Initializing Benchmarker from folder `{target_folder}`")
         if len(self._deployment_folders) != 0:
             raise ValueError(
-                "The Benchmarker appears to be already initialized. Unable to "
-                "continue."
+                "The Benchmarker appears to be already initialized. Unable to continue."
             )
         for object in os.listdir(target_folder):
             object_path = os.path.join(target_folder, object)
@@ -629,7 +625,7 @@ class Benchmarker:
                         logging.info(
                             f"Inference model(s) for deployment `{deployment_folder}` "
                             f"loaded. Starting benchmark run. Estimated time required: "
-                            f"{repeats*frames*single_inf_time:.0f} seconds"
+                            f"{repeats * frames * single_inf_time:.0f} seconds"
                         )
                     except Exception as e:
                         success = False
