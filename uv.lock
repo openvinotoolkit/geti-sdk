@@ -1187,18 +1187,6 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-dev = [
-    { name = "pre-commit" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-env" },
-    { name = "pytest-html" },
-    { name = "pytest-mock" },
-    { name = "pytest-recording" },
-    { name = "ruff" },
-    { name = "snowballstemmer" },
-    { name = "vcrpy" },
-]
 docs = [
     { name = "myst-parser" },
     { name = "sphinx" },
@@ -1210,6 +1198,20 @@ notebooks = [
     { name = "jupyterlab" },
     { name = "mistune" },
     { name = "pandas" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pre-commit" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-env" },
+    { name = "pytest-html" },
+    { name = "pytest-mock" },
+    { name = "pytest-recording" },
+    { name = "ruff" },
+    { name = "snowballstemmer" },
+    { name = "vcrpy" },
 ]
 
 [package.metadata]
@@ -1236,27 +1238,31 @@ requires-dist = [
     { name = "pandas", marker = "extra == 'notebooks'", specifier = "~=2.3" },
     { name = "pathvalidate", specifier = "~=2.5" },
     { name = "pillow", specifier = "~=11.2" },
-    { name = "pre-commit", marker = "extra == 'dev'", specifier = "~=4.2" },
     { name = "protobuf", specifier = "~=3.20" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = "~=8.3" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = "~=6.0" },
-    { name = "pytest-env", marker = "extra == 'dev'", specifier = "~=1.1" },
-    { name = "pytest-html", marker = "extra == 'dev'", specifier = "~=4.1" },
-    { name = "pytest-mock", marker = "extra == 'dev'", specifier = "~=3.10" },
-    { name = "pytest-recording", marker = "extra == 'dev'", specifier = "~=0.13" },
     { name = "python-dotenv", specifier = "~=1.1" },
     { name = "requests", specifier = "~=2.32" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = "~=0.12" },
     { name = "semver", specifier = "~=3.0" },
     { name = "simplejson", specifier = "~=3.20" },
-    { name = "snowballstemmer", marker = "extra == 'dev'", specifier = "~=2.2" },
     { name = "sphinx", marker = "extra == 'docs'", specifier = "~=7.2" },
     { name = "sphinx-rtd-theme", marker = "extra == 'docs'", specifier = "~=1.3" },
     { name = "tqdm", specifier = "~=4.67" },
     { name = "urllib3", specifier = "~=1.26" },
-    { name = "vcrpy", marker = "extra == 'dev'", specifier = "~=7.0" },
 ]
-provides-extras = ["dev", "docs", "notebooks"]
+provides-extras = ["docs", "notebooks"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pre-commit", specifier = "~=4.2" },
+    { name = "pytest", specifier = "~=8.3" },
+    { name = "pytest-cov", specifier = "~=6.0" },
+    { name = "pytest-env", specifier = "~=1.1" },
+    { name = "pytest-html", specifier = "~=4.1" },
+    { name = "pytest-mock", specifier = "~=3.10" },
+    { name = "pytest-recording", specifier = "~=0.13" },
+    { name = "ruff", specifier = "~=0.12" },
+    { name = "snowballstemmer", specifier = "~=2.2" },
+    { name = "vcrpy", specifier = "~=7.0" },
+]
 
 [[package]]
 name = "gevent"
