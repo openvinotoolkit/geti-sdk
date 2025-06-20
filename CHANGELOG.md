@@ -1,4 +1,32 @@
-# v2.10.0 Intel® Geti™ SDK (coming soon)
+# v2.10.0 Intel® Geti™ SDK (30-05-2025)
+## What's Changed
+
+Features:
+* Add new method to update the label colors and hotkeys by @leoll2 in https://github.com/open-edge-platform/geti-sdk/pull/598
+* Added experimental support for keypoint detection by @A-Artemis in https://github.com/open-edge-platform/geti-sdk/pull/588
+
+Bugfixes:
+* Solved proxy issue in demo data downloader by @leoll2 in https://github.com/open-edge-platform/geti-sdk/pull/575
+* Solved issue with incompatible pytest-recording version by @A-Artemis in https://github.com/open-edge-platform/geti-sdk/pull/590
+* Fixed unrecognized JobType for import to existing dataset by @leoll2 in https://github.com/open-edge-platform/geti-sdk/pull/594
+* Fixed unrecognized 'lifecycle_stage' key in model group response by @leoll2 in https://github.com/open-edge-platform/geti-sdk/pull/593
+* Solved issue with missing prerelease version tag by @leoll2 and @tiepoint-bjornrun in https://github.com/open-edge-platform/geti-sdk/pull/596
+
+Security:
+* Enabled zizmor linter to check GHA workflows by @AlexanderBarabanov in https://github.com/open-edge-platform/geti-sdk/pull/576
+* Enabled certificate validation for mvtec dataset download by @AlexanderBarabanov in https://github.com/open-edge-platform/geti-sdk/pull/589
+
+Extra:
+* Added PR template by @leoll2 in https://github.com/open-edge-platform/geti-sdk/pull/579
+* Added template for reporting bugs by @leoll2 in https://github.com/open-edge-platform/geti-sdk/pull/582
+* Added template for feature requests by @leoll2 in https://github.com/open-edge-platform/geti-sdk/pull/583
+* Added template for questions by @leoll2 in https://github.com/open-edge-platform/geti-sdk/pull/584
+
+## New Contributors
+* @A-Artemis made their first contribution in https://github.com/open-edge-platform/geti-sdk/pull/590
+* @tiepoint-bjornrun made their first contribution in https://github.com/open-edge-platform/geti-sdk/pull/596
+
+**Full Changelog**: https://github.com/open-edge-platform/geti-sdk/compare/v2.8.0...v2.10.0
 
 
 # v2.9.0 Intel® Geti™ SDK (skipped)
