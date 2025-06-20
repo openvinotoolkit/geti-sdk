@@ -94,6 +94,17 @@ only-include = ["geti_sdk", "README.md", "LICENSE", "CODE_OF_CONDUCT.md", "pypro
 [tool.hatch.build.targets.wheel]
 packages = ["geti_sdk"]
 
+[tool.uv]
+override-dependencies = [
+    # Exclude unnecessary subdependencies from datumaro
+    "nltk; sys_platform == 'never'",
+    "portalocker; sys_platform == 'never'",
+    "pyarrow; sys_platform == 'never'",
+    "scikit-learn; sys_platform == 'never'",
+    "tokenizers; sys_platform == 'never'",
+    "tritonclient; sys_platform == 'never'",
+]
+
 [tool.cibuildwheel]
 # Disable building PyPy wheels on all platforms
 skip = "pp*"
