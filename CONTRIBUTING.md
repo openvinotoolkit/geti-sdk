@@ -17,8 +17,7 @@ To set up your development environment, please follow the steps below:
 5. Run `git lfs pull` to download the test data.
 6. Verify that the integration tests now run locally by executing `pytest tests/integration`
 7. Set up the pre-commit hooks in the repo by running `pre-commit install`. Several pre-commit
-    hooks are used in the repo, to perform static code scans like linting (`flake8`),
-   import sorting (`isort`) and code formatting (`black`). The pre-commit install
+   hooks are used in the repo to lint and format the code. The `pre-commit install`
    command sets up all of these hooks so that the checks will be performed on each
    commit you make.
 
