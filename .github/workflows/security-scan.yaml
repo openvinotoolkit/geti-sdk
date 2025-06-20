@@ -139,7 +139,7 @@ jobs:
         run: pip install bandit[sarif]
 
       - name: Bandit Scanning
-        run: bandit --ini tox.ini -f sarif -o bandit-results.sarif -r --exit-zero . # report generation only
+        run: bandit --c pyproject.toml -f sarif -o bandit-results.sarif -r --exit-zero . # report generation only
 
       - name: Upload SARIF file
         if: ${{ always() }}
