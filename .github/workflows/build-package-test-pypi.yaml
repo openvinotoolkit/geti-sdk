@@ -47,7 +47,7 @@ jobs:
       # workaround for missing ownership of geti-sdk in test.pypi.org
       - name: Update package name for TestPyPI
         run: |
-          sed -i 's/name="geti-sdk"/name="geti-sdk-test"/' setup.py
+          sed -i 's/^name = "geti-sdk"$/name = "geti-sdk-test"/' pyproject.toml
 
       - name: Build package
         run: python -m build
