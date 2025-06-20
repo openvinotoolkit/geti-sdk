@@ -1,48 +1,10 @@
 default_language_version:
     python: python3
+
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.0
     hooks:
-      # list of supported hooks: https://pre-commit.com/hooks.html
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: debug-statements
-      - id: detect-private-key
-
-  # Code formatting
-  - repo: https://github.com/psf/black
-    rev: 24.1.1
-    hooks:
-      - id: black
-
-  # Import sorting
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        args: ["--profile", "black"]
-
-  # Flake8 analysis
-  - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
-    hooks:
-      - id: flake8
-        args: [--config=tox.ini]
-
-  # Docstring style check
-  - repo: https://github.com/PyCQA/pydocstyle
-    rev: 6.3.0
-    hooks:
-      - id: pydocstyle
-        args: [--config=tox.ini]
-        exclude: 'tests/'
-
-  # Notebook formatting, import sorting, flake8
-  - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.0
-    hooks:
-      - id: nbqa-black
-      - id: nbqa-isort
-      - id: nbqa-flake8
-        args: ['--extend-ignore=E402,E501']
+      - id: ruff-check
+        args: [ "--fix" ]
+      - id: ruff-format

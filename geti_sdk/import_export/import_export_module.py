@@ -309,7 +309,7 @@ class GetiIE:
                 tqdm(projects, desc="Downloading projects")
             ):
                 logging.info(
-                    f"Downloading project '{project.name}'... {index+1}/{len(projects)}."
+                    f"Downloading project '{project.name}'... {index + 1}/{len(projects)}."
                 )
                 self.download_project_data(
                     project=project,

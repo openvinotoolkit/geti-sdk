@@ -14,7 +14,6 @@
 
 """The package provides the Visualizer class for models predictions visualization."""
 
-
 from os import PathLike
 from typing import List, Optional, Union
 

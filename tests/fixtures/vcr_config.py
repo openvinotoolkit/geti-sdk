@@ -13,6 +13,7 @@
 # and limitations under the License.
 
 """Configuration fixtures for VCR"""
+
 import os
 from typing import Any, Dict
 

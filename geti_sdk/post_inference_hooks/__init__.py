@@ -15,6 +15,7 @@
 PostInferenceHooks are used to construct pipelines for e.g. data collection or other
 actions based on inference outcomes.
 """
+
 from .actions import FileSystemDataCollection, GetiDataCollection, HttpRequestAction
 from .post_inference_hook import PostInferenceHook
 from .triggers import (

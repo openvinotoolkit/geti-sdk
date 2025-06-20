@@ -63,7 +63,7 @@ def replace_unique_entries_in_cassettes(
             )
     logging.info(
         f"Entries scrubbed from {len(cassette_paths)} cassette files in "
-        f"{1000*(time.time()-t_start)} seconds"
+        f"{1000 * (time.time() - t_start)} seconds"
     )
 
 
@@ -80,9 +80,10 @@ def replace_unique_entries_in_cassette(
     """
     path_to_scrubbed_cassette_file = path_to_cassette_file + "_new"
 
-    with open(path_to_cassette_file, "rt") as read_file, open(
-        path_to_scrubbed_cassette_file, "wt"
-    ) as write_file:
+    with (
+        open(path_to_cassette_file, "rt") as read_file,
+        open(path_to_scrubbed_cassette_file, "wt") as write_file,
+    ):
         for line in read_file.readlines():
             for unique_entry, dummy_value in entry_pairs:
                 line = line.replace(unique_entry, dummy_value)
