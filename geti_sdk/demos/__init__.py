@@ -23,6 +23,7 @@ Module contents
 ---------------
 
 """
+
 from .constants import DEFAULT_DATA_PATH, EXAMPLE_IMAGE_PATH
 from .data_helpers import (
     get_coco_dataset,

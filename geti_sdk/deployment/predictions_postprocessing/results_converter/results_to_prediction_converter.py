@@ -547,7 +547,9 @@ class SegmentationToPredictionConverter(InferenceResultsToPredictionConverter):
         return super().get_label_by_idx(label_idx - 1)
 
     def convert_to_prediction(
-        self, inference_results: ImageResultWithSoftPrediction, **kwargs  # noqa: ARG002
+        self,
+        inference_results: ImageResultWithSoftPrediction,
+        **kwargs,  # noqa: ARG002
     ) -> Prediction:
         """
         Convert ModelAPI instance segmentation inference results to Prediction object.

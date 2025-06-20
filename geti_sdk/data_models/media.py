@@ -362,8 +362,7 @@ class Video(MediaItem):
             frame_stride = self.media_information.frame_stride
         if frame_stride < 0:
             raise ValueError(
-                f"Invalid frame stride {frame_stride}. Frame stride cannot be "
-                f"negative."
+                f"Invalid frame stride {frame_stride}. Frame stride cannot be negative."
             )
         elif frame_stride > self.media_information.frame_count:
             frame_stride = self.media_information.frame_count - 1

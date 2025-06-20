@@ -87,9 +87,11 @@ class TestPlotHelpers:
         fxt_video_frames: MediaList[VideoFrame],
     ):
         # Act
-        with patch("cv2.imshow") as mock_imshow, patch(
-            "cv2.waitKey"
-        ) as mock_waitkey, patch("cv2.destroyAllWindows") as mock_destroywindows:
+        with (
+            patch("cv2.imshow") as mock_imshow,
+            patch("cv2.waitKey") as mock_waitkey,
+            patch("cv2.destroyAllWindows") as mock_destroywindows,
+        ):
             show_video_frames_with_annotation_scenes(
                 video_frames=fxt_video_frames,
                 annotation_scenes=fxt_video_annotation_scenes,

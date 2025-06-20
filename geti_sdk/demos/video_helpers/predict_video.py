@@ -81,9 +81,10 @@ def predict_video_from_deployment(
 
     predictions: List[Prediction] = []
     logging.info("Running video prediction... ")
-    with logging_redirect_tqdm(tqdm_class=tqdm), tqdm(
-        total=num_frames, desc="Predicting"
-    ) as progress_bar:
+    with (
+        logging_redirect_tqdm(tqdm_class=tqdm),
+        tqdm(total=num_frames, desc="Predicting") as progress_bar,
+    ):
         while cap.isOpened():
             ret, frame = cap.read()
             if ret is True:
@@ -116,9 +117,10 @@ def predict_video_from_deployment(
 
         count = 0
         logging.info("Running video reconstruction... ")
-        with logging_redirect_tqdm(tqdm_class=tqdm), tqdm(
-            total=num_frames, desc="Reconstructing"
-        ) as progress_bar:
+        with (
+            logging_redirect_tqdm(tqdm_class=tqdm),
+            tqdm(total=num_frames, desc="Reconstructing") as progress_bar,
+        ):
             for rgb_frame, prediction in predictions:
                 output_frame = show_image_with_annotation_scene(
                     image=rgb_frame, annotation_scene=prediction, show_results=False

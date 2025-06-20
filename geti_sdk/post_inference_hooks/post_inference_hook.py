@@ -160,7 +160,7 @@ class PostInferenceHook(PostInferenceHookInterface):
         rate_msg = ""
         if self.rate_limiter is not None:
             rate_msg = (
-                f"Action rate limited to {1/self.rate_limiter.interval:.1f} "
+                f"Action rate limited to {1 / self.rate_limiter.interval:.1f} "
                 f"frames per second."
             )
         thread_msg = ""

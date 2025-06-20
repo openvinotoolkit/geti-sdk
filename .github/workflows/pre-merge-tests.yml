@@ -61,20 +61,10 @@ jobs:
         run: |
           mkdir -p env.REPORT_DIRECTORY
 
-      - name: Check formatting with black
-        run: black . --check
-
-      - name: Check imports with isort
-        run: isort . --check
-        if: ${{ always() }}
-
-      - name: Flake8 linting
-        run: flake8 .
-        if: ${{ always() }}
-
-      - name: Pydocstyle linting
-        run: pydocstyle geti_sdk --count
-        if: ${{ always() }}
+      - name: Check formatting with ruff
+        run: |
+          ruff check --output-format=github .
+          ruff format --check .
 
       - name: Test with pytest
         run: |

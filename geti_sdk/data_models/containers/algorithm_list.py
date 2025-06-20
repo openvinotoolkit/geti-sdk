@@ -124,8 +124,7 @@ class AlgorithmList(UserList):
             if algo.name == name:
                 return algo
         raise ValueError(
-            f"Algorithm named {name} was not found in the "
-            f"list of supported algorithms."
+            f"Algorithm named {name} was not found in the list of supported algorithms."
         )
 
     def get_default_for_task_type(self, task_type: TaskType) -> Algorithm:

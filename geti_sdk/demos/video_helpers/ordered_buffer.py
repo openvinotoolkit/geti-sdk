@@ -67,8 +67,7 @@ class OrderedResultBuffer:
             raise ValueError("minsize must be smaller than maxsize")
 
         logging.info(
-            f"OrderedBuffer intialized with `minsize={minsize}` and "
-            f"`maxsize={maxsize}`"
+            f"OrderedBuffer intialized with `minsize={minsize}` and `maxsize={maxsize}`"
         )
 
     def put(

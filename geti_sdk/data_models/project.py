@@ -329,7 +329,7 @@ class Project:
         for task_index, (task, labels) in enumerate(
             zip(self.get_trainable_tasks(), self.pipeline.get_labels_per_task())
         ):
-            summary_str += f"  Task {task_index+1}: {task.title}\n"
+            summary_str += f"  Task {task_index + 1}: {task.title}\n"
             if labels is not None:
                 summary_str += f"    Labels: {[label.name for label in labels]}\n"
         return summary_str

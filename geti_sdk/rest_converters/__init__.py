@@ -53,6 +53,7 @@ Module contents
 .. autoclass:: TestResultRESTConverter
    :members:
 """
+
 from .annotation_rest_converter import AnnotationRESTConverter
 from .configuration_rest_converter import ConfigurationRESTConverter
 from .job_rest_converter import JobRESTConverter

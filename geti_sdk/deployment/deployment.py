@@ -700,7 +700,7 @@ class Deployment:
         """
         if not self.asynchronous_mode:
             logging.warning(
-                "Method `await_all()` has no effect in synchronous execution " "mode"
+                "Method `await_all()` has no effect in synchronous execution mode"
             )
         # Wait until the infer queue of the last model in the task chain is empty
         for model in self.models:
@@ -719,7 +719,7 @@ class Deployment:
         """
         if not self.asynchronous_mode:
             logging.warning(
-                "Method `await_any()` has no effect in synchronous execution " "mode"
+                "Method `await_any()` has no effect in synchronous execution mode"
             )
         self.models[0].await_any()
 

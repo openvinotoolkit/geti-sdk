@@ -38,7 +38,9 @@ def get_subcontours(contour: Contour) -> List[Contour]:
 
     def find_loops(points: ContourInternal) -> List:
         """For each consecutive pair of equivalent rows in the input matrix returns their indices."""
-        _, inverse, count = np.unique(points, axis=0, return_inverse=True, return_counts=True)  # type: ignore
+        _, inverse, count = np.unique(
+            points, axis=0, return_inverse=True, return_counts=True
+        )  # type: ignore
         duplicates = np.where(count > 1)[0]
         indices = []
         for x in duplicates:

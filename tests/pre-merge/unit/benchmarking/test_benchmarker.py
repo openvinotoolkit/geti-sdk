@@ -392,8 +392,7 @@ class TestBenchmarker:
             == mock_pad_image_and_put_caption.call_count
             == (
                 # Calls for deployments + online prediction call
-                len(fxt_benchmarker.models) * len(fxt_benchmarker.precision_levels)
-                + 1
+                len(fxt_benchmarker.models) * len(fxt_benchmarker.precision_levels) + 1
             )
         )
         mock_concat_prediction_results.assert_called_once()

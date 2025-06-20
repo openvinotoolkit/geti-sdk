@@ -5,11 +5,7 @@ pytest-recording==0.13.2  # pinned due to https://github.com/kiwicom/pytest-reco
 pytest-cov==6.0.*
 pytest-env==1.1.*
 pytest-html==4.1.*
+ruff~=0.12.0
 snowballstemmer==2.2.*  # pinned because pytest-recording subdeps are loose
-flake8==7.1.*
-pydocstyle>=6.1
-black>=24.1
-isort>=5.12
-pre-commit>=3.5
-nbqa>=1.7.0
+pre-commit~=4.2
 pytest-mock>=3.10.0

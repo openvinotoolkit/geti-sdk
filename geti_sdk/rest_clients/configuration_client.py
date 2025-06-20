@@ -43,9 +43,7 @@ class ConfigurationClient:
         self.project = project
         self.workspace_id = workspace_id
         self.task_ids = [task.id for task in project.get_trainable_tasks()]
-        self.base_url = (
-            f"workspaces/{workspace_id}/projects/{project_id}/" f"configuration"
-        )
+        self.base_url = f"workspaces/{workspace_id}/projects/{project_id}/configuration"
         self.supported_algos = get_supported_algorithms(
             rest_session=session, project=project, workspace_id=workspace_id
         )
